@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>系统消息查询</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		.inputradio{vertical-align: middle;}
+		.OkMsg {
+			background: url(${staticPath}styles/images/standard_msg_ok.gif) #e6ffe6 no-repeat 5px 0px; color: #000;
+			border: #00be00 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.WarningMsg {
+			background: url(${staticPath}styles/images/standard_msg_warning.gif) #e2f5ff no-repeat 5px 0px; color: #000;
+			border: #00a8ff 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.ErrorMsg {
+			background: url(${staticPath}styles/images/standard_msg_error.gif) #fff2e9 no-repeat 5px 0px; color: #000;
+				border: #f60 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+	</style>
+</head>
+#set($isSystemMessage=true)
+<body style="width:85%; margin:auto">
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore"></li>
+			<li #if($isSystemMessage) class="currs" #end><a href="${basePath}admin/blog/systemMessageReportList.xhtml"><span>系统消息查询</span></a></li>
+			<li #if($isreceiveMessage)class="currs" #end><a href="${basePath}admin/blog/receiveMessageListReport.xhtml"><span>站内信(收件箱)查询</span></a></li>
+			<li #if($isSendMessage)class="currs" #end><a href="${basePath}admin/blog/sendMessageReportList.xhtml"><span>站内信(发件箱)查询</span></a></li>
+		</ul>
+	</div>
+</div>
+<form action="${basePath}admin/blog/systemMessageReportList.xhtml" id="ajaxDataFrm">
+<table style="width: 100%" cellspacing="0" class="roomManageTable" >
+	<tr>
+	<td height="30">
+		用户ID:<input name="memberid" id="memberid" value="$!params.memberid"/>
+		<input type="submit" class="bt1" value="查 询" />
+	</td>
+	</tr>
+</table>
+<br/>
+</form>
+<table width="100%" cellspacing="0" class="roomManageTable">
+	<tbody>
+		<tr class="td">
+			<td align="center">用户</td>
+			<td align="center">内容</td>
+			<td align="center">时间</td>
+		</tr>
+		#foreach($sysMessage in $sysMessageActionList)
+		<tr class="td">
+			<td align="center" class="wd120">$cacheMemberMap.get($sysMessage.tomemberid).nickname</td>
+			<td align="center" class="wd120">$VmUtils.escapeHtml($sysMessage.body)</td>
+			<td align="center" class="wd120">$DateUtil.format($sysMessage.addtime, 'yyyy-MM-dd HH:mm:ss')</td>
+		</tr>
+		#end
+	</tbody>
+	#parse('include/pageUtil.vm')
+</table>
+</body>
+</html>

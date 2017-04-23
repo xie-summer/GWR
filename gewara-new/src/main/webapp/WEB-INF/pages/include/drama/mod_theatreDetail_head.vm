@@ -1,0 +1,249 @@
+<div class="mod_kong" style="margin-bottom:0;">
+	<div class="mod_hd detailPa1">
+		<div class="detailPa1_name clear">
+			<h1 class="left">$!theatre.name</h1>
+			<div class="ratingsSide1 left">
+				#set($gmark=$VmUtils.getSingleMarkStar($theatre, "general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+				#set($isBigStaticRating=true)
+				#parse('include/global/staticRating.vm')
+				<span class="bigSubp"><sub id="mark_integer" style="line-height:30px;">$gmark1</sub><sup id="mark_decimal">.$gmark2</sup></span>
+			</div>
+			<div class="ratingsCount left">
+				<ul>
+					<li><a class="cou" href="javascript:showMovieMark();">我要评分</a></li>
+					#*<li>
+						<span><a class="ad" href="javascript:collection($!theatre.id, 'theatre');" onclick="showaddTheatre('addTheatre');">收藏</a></span>
+						<span><a class="ad se none" href="javascript:void(0);" onclick="cancelTreasure('theatre','$theatre.id')">取消收藏</a></span>
+					</li>*#
+			</ul>
+			</div>
+			<div class="movieCountList">
+				<ul class="ui_inline">
+					#*<li>
+						<b>$!theatre.collectedtimes</b>
+						<span>收藏</span>
+					</li>*#
+					<li class="first">
+						<b>$!theatre.clickedtimes</b>
+						<span>关注</span>
+					</li>
+					<li>
+						<b>$!commentCount</b>
+						<span>哇啦</span>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="mod_bd detailPa2">
+		<div class="ui_left" style="width:920px;">
+			<div class="detail_head_info detailMa">
+				<div class="ui_media">
+					<div class="ui_pic picBoxshow">
+						<div class="ui_movieBigType">
+							<ul id="move_box">
+								#foreach($pic in $pictureList)
+								#if($foreach.index lt 3)
+								<li>
+									<img width="300" height="300" src="$VmUtils.randomPic('cw300h300',$!pic.picturename)"/>
+								</li>
+								#end
+								#end
+							</ul>
+						</div>
+						<div class="picListControl">
+							<ul class="clear" id="move_tag">
+								#foreach($pic in $pictureList)
+								#if($foreach.index lt 3)
+								<li #if($foreach.count eq 3)style="margin-right:0;"#end>
+									<span>◆</span>
+									<img width="92" height="68" src="$VmUtils.randomPic('cw100h100',$!pic.picturename)"/>
+								</li>
+								#end
+								#end
+							</ul>
+						</div>
+						<p class="uppic"><a href="${basePath}theatre/$theatre.id/picturelist">共<em>$!picCount</em>张</a></p>
+					</div>
+					<div class="ui_text">
+						<div class="detail_head_text">
+						#if($theatre.feature)
+							<div class="detail_head_text1"><span class="q"></span><h2>$theatre.feature</h2><span class="h ml5"></span></div>
+						#end
+							<div class="detail_head_text2">
+							#if($theatre.address)
+								<dl class="clear">
+									<dt>详细地址：</dt>
+									<dd><a class="cDrama" href="${basePath}theatre/theatreList.xhtml?countycode=$theatre.countycode" target="_blank">$!theatre.countyname</a>$!theatre.address<a class="freePhone" href="javascript:void(0);" title="免费发送地址到手机" onclick="showTemplate();"></a></dd>
+								</dl>
+							#end
+							#if($theatre.contactphone)
+								<dl class="clear">
+									<dt>联系电话：</dt>
+									<dd class="phone"><span>$theatre.contactphone</span></dd>
+								</dl>
+							#end
+								<dl class="clear">
+									<dt>剧场设置：</dt>
+									<dd>
+										<div class="jcszTab" id="facilityTab">
+											<div class="jcszTab_h">
+												<div class="jcszTab_line">
+												#foreach($field in $fieldList)
+													<span isrelative="$foreach.index" title="$!VmUtils.escabbr($field.name)">$VmUtils.htmlabbr($!field.name,10)<b></b></span>
+												#end
+												</div>
+											</div>
+											<div class="jcszTab_b mt10">
+											#foreach($field in $fieldList)
+												<div relative="$foreach.index" style="display: none;">
+													#if($VmUtils.isNotBlank($field.description))<p>$!VmUtils.htmlabbr($!{field.description}, 200)...<a class="ffst" target="_blank" href="${basePath}theatre/$theatre.id/introduce">更多&gt;&gt;</a></p>#end
+													<p>
+														#if(!$VmUtils.isNull($field.logo))
+														<span class="ffst" style="margin-right:0;">[</span><a class="c80 tips" href="javascript:void(0)" lang="tipsInfo$!field.id">平面图</a><span class="ffst">]</span>
+														<span style="display: none" id="tipsInfo$!field.id">
+															<img alt="$!field.name" src="$VmUtils.randomPic('cw300h300',$field.limg)">
+														</span>
+														#end
+													</p>
+												</div>
+											#end
+											</div>
+										</div>
+									</dd>
+								</dl>
+								<dl class="clear">
+									<dt>影院特色：</dt>
+									<dd>
+										<div class="view clear">
+										#if($theatre.otherinfo.contains("park"))
+											<em class="tzw"></em><span class="O1">停车位</span>
+										#end
+										#if($theatre.otherinfo.contains("visacard"))
+											<em class="ksk"></em><span class="O1">可刷卡</span>
+										#end
+										#if($isSeatMap.get($theatre.id))
+											<em class="zxxz"></em><span class="O1">在线选座</span>
+										#end
+										#if($isTakeMethod eq 'A')
+											<em class="zzgp"></em><span>自助取票</span>
+										#end
+										</div>
+									</dd>
+								</dl>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="ui_right" style="width:250px;overflow:hidden;">
+			<div class="trafficMap clear">
+				<div class="map right">
+					<div class="mapInfo">
+						#parse('include/drama/wide_map.vm')
+					</div>
+				</div>
+			</div>
+			<div>
+				<div class="trac clear" >
+					<div class="trac_content"  id="vertical_slide">
+						<div class="trac_c" style="padding:0;">
+							<div id="pattern" class="search_icon_tab map_ico clear">
+								<a #if($VmUtils.isNull($title))class="select"#end #if($VmUtils.eq($title,'驾车'))class="select"#end href="javascript:;" title="驾车"><img class="car" src="$VmUtils.randomPic('','css/images/blank.gif')"></a>
+								<a #if($VmUtils.eq($title,'公共交通'))class="select"#end href="javascript:;" title="公共交通"><img class="bus" src="$VmUtils.randomPic('','css/images/blank.gif')"></a>
+								<a #if($VmUtils.eq($title,'步行'))class="select"#end href="javascript:;" title="步行" ><img class="men" src="$VmUtils.randomPic('','css/images/blank.gif')"></a>
+							</div>
+							<div class="search_form">
+								<ul>
+									<li>
+										<span class="map_ico_a a" title="起点"></span>
+										<input id="fromAddress" class="text text1" type="text" alt="请输入起点">
+									<li>
+										<span class="map_ico_b a" title="终点"></span>
+										<input id="endAddress" class="text text1" type="text" value="$!theatre.name">
+									</li>
+								</ul>
+								<p class="mt10 drBt"><a class="button bigBt redBt" target="_blank" href="javascript:void(0);" onclick="mDriving();return false;"><span>查询路线</span></a></p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+//	new PanelGroup(['onshow_1', 'onshow_2','onshow_3'], 'onshow_1', "select", "none", "mouseover");
+	facilityTab();
+	#if(!$VmUtils.isEmptyList($pictureList))
+	new noobSlide({
+		box: $('move_box'),
+		items:$$('#move_box li'),
+		size:300,
+		handles:$$('#move_tag li'),
+		handle_event:'click',
+		autoPlay:true,
+		onWalk: function(currentItem,currentHandle){
+			this.handles.removeClass('select');
+			currentHandle.addClass('select');
+		}
+	});
+	#end
+	gewaUtil.textOver('.text');
+	tarc();
+	if($$('.tips')){
+		$$('.tips').each(function(item){
+			item.amTips({content:function(){return $(item.get('lang'))},ispointer:false,position:'right',center:true,showDelay:200});
+		});
+	}
+});
+function tarc(){
+	if(!$('pattern')) return ;
+	else{
+		var oList = $('pattern').getElements('a');
+		oList.each(function(el){
+			el.addEvent('click',function(){
+				oList.removeClass("select");
+				this.addClass("select");
+				return ;
+			});
+		});
+	};
+};
+function facilityTab(){
+	var facilityList = $('facilityTab').getElements('span[isrelative]');
+	if(facilityList){
+		var divElement = $('facilityTab').getElements('div[relative]');
+		facilityList.addEvent('click',function(){
+			var _this = this;
+			facilityList.removeClass('select');
+			_this.addClass('select');
+			divElement.each(function(item){
+				if(item.get('relative') == _this.get('isrelative')){
+					item.show();
+				}else{
+					item.hide();
+				}
+			});
+		});
+		facilityList[0].fireEvent('click');
+	}
+}
+function mDriving(){
+	var title="驾车";
+	$('pattern').getElements('a').each(function(el){
+		if(el.hasClass('select'))title = el.title;
+	});
+	if($('fromAddress').value == ''){
+		gewaUtil.alert("请选择起点！");
+		return false;
+	}
+	if($('endAddress').value == ''){
+		$('endAddress').value = '$!theatre.name';
+	}
+	var url = "${basePath}common/baiduMap.xhtml?id=$!{theatre.id}&tag=theatre&title=" + encodeURI(title) + "&from=" + encodeURI($('fromAddress').value) + "&end=" + encodeURI($('endAddress').value);
+	GewaraUtil.openwin(url,'_blank');
+}
+</script>

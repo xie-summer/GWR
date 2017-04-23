@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>${movie.name}</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,cooperate&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.gewaT{
+			height:50px;
+			line-height:22px;
+			padding:10px;
+			background:#f8fcfd url(${picPath}css/buss/wifiLogo.png?v=0001) 8px 4px no-repeat;
+			font-size:12px;
+			color:#045FA5;
+			position: relative;
+			border:1px solid #cfdade;
+			width:728px;
+			margin:0 auto;
+		}
+		.site_menu, .site_menu li a, .site_menu li a span{background-image:url(${picPath}css/buss/cmwifi.png);color:#045FA5}
+		.cmwifi_minBt{display:inline-block;height:22px;width:50px;line-height:22px;overflow:hidden;background:url(${picPath}css/buss/btn_cmwifi.png) no-repeat;color:#fff !important;text-decoration: none !important;}
+		.ptableList li span a {
+		    color: #FFFFFF;
+		    display: inline-block;
+		    height: 22px;
+		    text-decoration: none !important;
+		    width: 50px;
+		}
+		.choices a{color:#045FA5}
+		.choices a.select,.choices a:hover{background-color:#045FA5;color:#fff;}
+		.choiceDialog{width:96%;background:#d9e8f6;border-color:#c1c2c4}
+		.gewaT .p{height:22px;width:86%;position: absolute;left:90px;bottom:3px;overflow:hidden;}
+		.dot{padding-left:8px;background:url(${picPath}css/home/dot.gif) 0 center no-repeat;}
+		#gewara{width: 750px;overflow: auto;position: relative;margin:0 auto;z-index:3}
+		.payStep02{width:750px;}
+	</style>
+</head>
+<body class="body_color" style="background:#f5f5f3;">
+#set($page='cmwifi/index')
+<div id="gewara">
+	<div class="gewaT">
+		<div class="p">
+			<span class="left">
+				#if(!$VmUtils.isNull($gewaCommend))
+				<a href="$!gewaCommend.link" class="dot" target="_blank">$!gewaCommend.title </a>
+				#end
+			</span>
+			<span class="right">在线选座购票服务由格瓦拉生活网提供</span>
+		</div>
+	</div>
+	<div class="payStep02">
+		<ul class="payOrderSteps clear">
+			<li class="step1">1.选择场次</li>
+			<li class="step2">2.在线选座</li>
+			<li class="step3">3.确认订单并支付</li>
+			<li class="step4">4.完成购票</li>
+		</ul>
+	</div>
+	<div style="padding:10px;clear: both;overflow: hidden;border:1px solid #CFDADE;background:#fff;overflow:hidden;width:728px;">
+		<a href="${basePath}partner/${partner.partnerpath}/index.xhtml?$!paramsStr" class="goback"></a>
+		<div class="desc clear">
+			<h1>$movie.name<span>$!movie.englishname</span></h1>
+			<div class="desc_body">
+				<div class="desc_body_lc">
+					#set($gmark=$VmUtils.getSingleMarkStar($movie, "general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+					<dl class="ui_abeam">
+						<dt class="uipic"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw150h200',$movie.limg)) center 0 no-repeat;" width="150" height="200" alt="$movie.name"/></dt>
+						<dd class="uiText">
+							<div class="star">
+								#set($rmark=10 - $gmark1)
+								#foreach($mark in [1..$gmark1])
+								<span class="on"></span>
+								#end
+								#if($gmark2 gt 0)#set($rmark=$rmark - 1)<span  class="half"></span>#end
+								#foreach($mark in [1..$rmark])
+								<span class="no"></span>
+								#end
+								<b>$gmark1.$gmark2</b>
+							</div>
+							<em>导演：</em>$!movie.director<br/>
+							<em>主演：</em>$!movie.actors<br/>
+							<em>类型：</em>$!movie.type<br/>
+							<em>语言：</em>$!movie.language<br/>
+							<em>片长：</em>#if($movie.videolen)$!{movie.videolen}分钟#end<br/>
+							<em>首映日期：</em> $!DateUtil.format(${movie.releasedate},"yyyy年M月d日")<br/>
+							<em>IMDB编号：</em>$!movie.imdbid<br/>
+						</dd>
+					</dl>
+				</div>
+				<h2>剧情介绍</h2>
+				<div class="mt10" id="mcontent" style="text-indent:30px;">$!VmUtils.htmlabbr($!movie.content,300) ...<a href="javascript:allContent()">全部</a></div>
+				<div class="none" id="acontent" style="text-indent:30px;">$!VmUtils.htmlabbr($!movie.content,2500)</div>
+			</div>
+			<div class="desc_footer">
+				
+			</div>
+		</div>
+		<form id="searchForm" action="${basePath}partner/njcmwifi/movieDetail.xhtml">
+		<input type="hidden" name="movieid" id="movieid" value="$!VmUtils.escapeHtml($params.movieid)"/>
+		<input type="hidden" name="fyrq" id="fyrq" value="$!fyrq"/>
+		<input type="hidden" name="encQryStr" value="$!encQryStr" />
+		<input type="hidden" name="tokenId" id="tokenId" value="$!tokenId"/>
+		<input type="hidden" name="phonenumber" id="phonenumber" value="$!phonenumber"/>
+		<input type="hidden" name="checkvalue" id="checkvalue" value="$!checkvalue"/>
+		</form>
+		<dl class="choices clear mt5" style="border:0px;">
+			<dt>购票区域：</dt>
+			<dd>
+				<a id="allCountyLabel" href="javascript:void(0);" onclick="filterCounty('',this)" class="select countyLabel" style="position: relative;">全部$VmUtils.size($!cinemaList)<em id="curCountySelect" class="spt" style="background:url(${picPath}css/buss/pt.png) center bottom no-repeat;"></em></a>
+				#foreach($county in $countyList)
+				<a href="javascript:void(0);" onclick="filterCounty('$county.countycode', this)" class="countyLabel" style="position: relative;">$county.countyname<span>($VmUtils.size($!cinemaMap.get($county.countycode)))</span></a>
+				#end
+			</dd>
+			<dd>
+				<div class="choiceDialog clear mt5">
+					#foreach($cinema in $cinemaList)
+					<a class="cinemaLabel" id="f$cinema.id" rel="$!cinema.countycode" href="javascript:void(0);" onclick="filterCinema('$cinema.id',this);">$cinema.name</a>
+					#end
+				</div>
+			</dd>
+		</dl>
+		<ul class="site_menu mt20" style="position: relative">
+			#foreach($pdate in $dateList)#set($pdateStr=$DateUtil.formatDate($pdate))
+			<li><a #if($VmUtils.eq($pdateStr, $fyrq)) class="select" #end href="javascript:search('fyrq', '$pdateStr')"><span>${DateUtil.format($pdate, 'M月d日')}[$DateUtil.getCnWeek($pdate)]</span></a></li>
+			#end
+		</ul>
+		#foreach($county in $countyList)
+		#if($VmUtils.isNotBlank($countycode))
+		#if($VmUtils.eq($county.countycode, $countycode))#set($tmpcountycode=$countycode)#end
+		#else #set($tmpcountycode=$county.countycode)
+		#end
+		#foreach($cinema in $cinemaMap.get($tmpcountycode))
+		<div class="play-outside-box countyContent" id="A${cinema.id}OF$cinema.countycode">
+			<div class="title">
+				<h2><span class="brown">$!cinema.name</span></h2>
+				<span class="gray">地址：$!{cinema.countyname}$!{cinema.address}</span>
+			</div>
+			<div class="wrapper" id="href$cinema.id">
+				<div class="wrapperTitle">
+					<b>放映时间</b>
+					<b>语言/版本</b>
+					<b>放映厅</b>
+					<b>票价(元)</b>
+					<b class="yellow">现价(元)</b>
+					<b class="yellow">购票</b>
+				</div>
+				#set($width=71 * $VmUtils.size($opiMap.get($cinema.id)))
+				<ul class="ptableList" id="wrapped$cinema.id" style="width:${width}px;">
+					#foreach($pItem in $opiMap.get($cinema.id))
+					<li #if($foreach.index%2 eq 1) class="playBg" #end>
+						<b class="getvlue" id="$pItem.id">$DateUtil.format($!{pItem.playtime},'HH:mm')</b>
+						<span class="gray getvlue" id="$pItem.id">$!pItem.language#if($!pItem.edition)/$!pItem.edition#end</span>
+						<span class="gray getvlue" id="$pItem.id">$!{pItem.roomname}</span>
+						<span class="gray getvlue" id="$pItem.id">$!pItem.price</span>
+						<b id="$pItem.id" class="getvlue">$!priceHelper.getPrice($pItem)</b>
+						<span>
+							<a href="${basePath}partner/${partner.partnerpath}/chooseSeat.xhtml?mpid=${pItem.mpid}&encQryStr=$!encQryStr&tokenId=$!tokenId&$!paramsStr" class="cmwifi_minBt">购票</a>
+						</span>
+					</li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+		#end
+	</div>
+</div>
+<script type="text/javascript" src="${staticPath}scripts/scrollerbar.js"></script>
+<script type="text/javascript">
+function search(field,value){
+	$(field).value = value;
+	$('searchForm').submit();
+}
+function searchMovie(field,value){
+	$('searchForm').getElements('input').each(function(item){if(item.name!='encQryStr') item.value=""});
+	search(field,value);
+}
+var countyGroup={};
+countyGroup.curCountyLabel=$("allCountyLabel");
+function filterCounty(countycode, el){
+	countyGroup.curCountyLabel.removeClass("select");
+	$(el).addClass("select");
+	$("curCountySelect").inject(el);
+	countyGroup.curCountyLabel=el;
+	$$(".cinemaLabel").each(function(item){
+		item.removeClass("select");
+		if(countycode=='' || item.get('rel')==countycode) item.removeClass("none");
+		else item.addClass("none");
+	});
+	$$(".countyContent").each(function(item){
+		if(countycode=='' || item.id.indexOf(countycode)>0) item.removeClass("none");
+		else item.addClass("none");
+	});
+}
+function filterCinema(cinemaid, el){
+	$$(".countyContent").each(function(item){
+		if(item.id.indexOf("A"+cinemaid+"OF")>=0) item.removeClass("none");
+		else item.addClass("none");
+	});
+	$(el).addClass("select");
+	if(countyGroup.curCinema) countyGroup.curCinema.removeClass("select");
+	countyGroup.curCinema=el;
+}
+window.addEvent('domready',function(){
+	#foreach($county in $countyList)
+	#foreach($cinema in $cinemaMap.get($county.countycode))
+	#if($VmUtils.size($opiMap.get($cinema.id)) gt 9)
+	new ScrollerBar('href$cinema.id',{mode:'horizontal',wrapped:'wrapped$cinema.id'});
+	#end
+	#end
+	#end
+});
+function allContent(){
+	$('mcontent').innerHTML=$('acontent').innerHTML;
+}
+</script>
+<script src="${staticPath}scripts/loaderProxy.js?v=$VmUtils.jsVersion" data-frameid="movieFrame"  data-timer="600" data-proxy="http://www.10086mall.net/mall/proxy.html"></script>
+<script type="text/javascript">
+var pageCode="Showtimelist"
+</script>
+#parse('partner/googleGa.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

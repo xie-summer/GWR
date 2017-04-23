@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>编辑电影数据</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label{width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px;}
+		input, textarea, span {width:550px;}
+		#movieForm div{padding:2px;}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:750px;margin:auto">
+<div id="movieDialog" class="yui-panel" style="width:750px;margin:auto">
+	<div class="hd">[编辑电影数据]</div>
+	<div class="bd">
+	<form name="movieForm" id="movieForm" action="javascript:saveMovie()">
+		<input type="hidden" name="movieId" id="movieId" value="$!movie.id"/>
+		<div>
+			<label for="moviename">电影名称：</label>
+			<input name="moviename" id='moviename'  style="width:240px; " type="text" value="$!{movie.moviename}" /><span class="req" style="">*</span>
+			<label for="englishname">英文名称：</label>
+			<input name="englishname" id="englishname" style='width:235px' type="text" value="$!{movie.englishname}" />
+		</div>
+		<div>
+			<label for="briefname">简&nbsp;&nbsp;称：</label>
+			<input name="briefname" id="briefname" style='width:120px; ' type="text" value="$!{movie.briefname}" />
+			<label for="moviealias">别&nbsp;&nbsp;名：</label>
+			<input name="moviealias" id="moviealias" style='width:120px; ' type="text" value="$!{movie.moviealias}" />
+			<label for="state">出产国：</label>
+			<input name="state" id="state" style='width:100px' type="text" value="$!{movie.state}" />
+			<label for="state">IMDBID：</label>
+			<input name="imdbid" id="imdbid" style='width:100px' type="text" value="$!{movie.imdbid}" />
+		</div>
+		<div>
+			<label for="releasedate">首映日期：</label>
+			<input name="releasedate" id="releasedate" readonly="readonly" onclick="WdatePicker()" type="text" value="$!DateUtil.formatDate($movie.releasedate)" />
+		</div>
+		<div>
+			<label for="playdate">放映日期：</label>
+			<input name="playdate" id="playdate" type="text" value="$!{movie.playdate}" />
+		</div>
+		<div>
+			<label for="actors">主演：</label>
+			<input name="actors" id="actors" type="text" value="$!{movie.actors}" /><span class="req">*</span>
+		</div>
+		<div>
+			<label for="director">导演：</label>
+			<input name="director" id="director" style='width:240px;' type="text" value="$!{movie.director}" />
+			<label for="playwright">编剧：</label>
+			<input name="playwright" id="playwright" style='width:235px' type="text" value="$!{movie.playwright}" />
+			<label for="crowd">适合人群：</label>
+			<input name="crowd" id="crowd" style='width:80px' type="text" value="$!VmUtils.getJsonValueByKey($movie.otherinfo, 'crowd')" />
+		</div>
+		<div>
+			<label for="movietype">电影类型：</label>
+			<input name="movietype" id="movietype" style='width:240px;' type="text" value="$!{movie.type}" />
+			<label for="videolen">片长分钟：</label>
+			<input name="videolen" id="videolen" style='width:60px;' type="text" value="$!{movie.videolen}" />（*以分钟单位的数字）
+			<label for="language">语言：</label>
+			<input name="language" id="language" style='width:80px;' type="text" value="$!{movie.language}" />
+		</div>
+		<div><label>类型有：</label><span style="color:red">喜剧,爱情,科幻,魔幻,灾难,恐怖,纪录,犯罪,战争,冒险,动画,其他</span></div>
+		<div>
+			<label for="edition">电影版本：</label>
+			<input name="edition" id="edition" type="text" style="width:300px;" value="$!{movie.edition}" />（2D,3D,双机3D,4D,IMAX3D,IMAX2D,巨幕3D,巨幕2D）
+		</div>
+		<div>
+			<label for="website">官方主页：</label>
+			<input name="website" id="website" type="text" value="$!{movie.website}" />
+		</div>
+		<div>
+			<label for="filmfirm">发行公司：</label>
+			<input name="filmfirm" id="filmfirm" type="text" value="$!{movie.filmfirm}" />
+		</div>
+		<div>
+			<label for="honor">获得荣誉：</label>
+			<input name="honor" id="honor" type="text" value="$!{movie.honor}" />
+		</div>
+		<div>
+			<label for="highlight">简约剧情：</label>
+			<input name="highlight" id="highlight" type="text" value="$!{movie.highlight}" />
+		</div>
+		<div>
+			<label for="flag">特殊标记：</label>
+			<input name="flag" id="flag" type="text" value="$!{movie.flag}" />
+		</div>
+		<div>
+			<label for="playdate">视频ID：</label>
+			<input name="videoid" id="videoid" type="text" value="$!movieVideoId" style="width: 100px;"  class="w120"/>
+			(仅限优酷视频ID,用于手机客户端视频播放，例如：http://v.youku.com/v_show/id_XMjg5MDYwNjI0.html，ID为：XMjg5MDYwNjI0)
+			<a href="${basePath}admin/common/movieVideoList.xhtml?movieid=$movie.id" target="_blank">视频id列表</a>
+		</div>
+		<div>
+			<label for="content">剧情简介：</label>
+			<textarea name="content" id="content">$!{movie.content}</textarea>
+		</div>
+		#set($eggList = $!movie.colorEggs.split('@'))
+		#if($VmUtils.isEmptyList($eggList))
+		<div>
+			<label for="colorEggs">电影彩蛋：</label>
+			<input type="text" name="colorEggs" value=""/>
+			<input type="button" onclick="addEggs()" value="+彩蛋" style="width:80px"/>
+		</div>
+		#else
+			#foreach($egg in $eggList)
+				<div>
+				#if($foreach.count gt 1)
+				<label for="colorEggs">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+				#else
+				<label for="colorEggs">电影彩蛋：</label>
+				#end
+				<input type="text" name="colorEggs" value="$!egg" />
+				#if($foreach.count eq $eggList.size())
+					<input type="button" onclick="addEggs()" value="+彩蛋" style="width:80px"/>
+				#end
+				</div>
+			#end
+		#end
+		<div id="addColorEgg" style="display:hidden">
+		</div>
+		<div>
+			<label for="remark">备注：</label>
+			<textarea name="remark" id="remark" rows="2">$!{movie.remark}</textarea>
+		</div>
+		<div id="uploadDiv">
+			<label>海报：</label>
+			<input type="text" name="logo" id="logo" value="$!{movie.logo}" style="width:485px"/>
+			#if($VmUtils.isNotBlank($!{movie.logo}))<img style="width:162px; height:57px;" id='logoimg' src='${basePath}$movie.logo' />#end
+		</div>
+		<div>
+			<label>上传：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/movie&callback=updateLogo"></iframe>
+		</div>
+		<div>
+			<label>&nbsp;</label><input type="submit" class="button" style="width:100px" value="保存数据"/>
+		</div>
+		<div id="msg" style="color:red"></div>
+		<div style="color:blue">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+	#if($VmUtils.isEmptyList($eggList))
+		var eggLength = 1;
+	#else
+		var eggLength = $eggList.size();
+	#end
+	function addEggs(){
+		var content = '<label for="colorEggs">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>';
+		content += '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name="colorEggs" type="text" value=""/>';
+		content += '&nbsp;<input type="button"  onclick="removeEgg(this)" value="-" style="width:40px"/>';
+		new Element("div").set("html",content).inject($('addColorEgg'))
+		$('addColorEgg').show();
+		eggLength++;
+	}
+	
+	function removeEgg(el){
+		el.parentNode.destroy();
+		eggLength--;
+	}
+
+	var ckeditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("content");
+	});
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg').src='${basePath}' + picpath;
+	}
+	function saveMovie(){
+		var values = GewaraUtil.getValues("movieForm");
+		gewa.util.mask({'title':"正在保存数据..."});
+		var url = "${basePath}admin/movie/saveMovie.xhtml";
+		if(eggLength > 1){
+			var colorEggsValue = values.colorEggs;
+			if(colorEggsValue.length){
+				var eggValue = [];
+				for(var index = 0;index < colorEggsValue.length;index++){
+					if(colorEggsValue[index].trim() != ""){
+						eggValue.push(colorEggsValue[index]);
+					}
+				}
+				values.colorEggs = eggValue.join("@");
+			}
+		}
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				alert('成功保存！');
+				$('movieId').value=result.retval;
+				$("msg").set("html", '');
+			}else{
+				alert("保存失败！" + result.msg);
+				$("msg").set("html", result.msg);
+			}
+			
+		});
+	}
+</script>
+</body>
+</html>

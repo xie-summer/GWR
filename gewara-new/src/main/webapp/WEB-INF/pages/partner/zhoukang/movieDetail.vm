@@ -1,0 +1,232 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>$partner.partnername——格瓦拉</title>
+	<meta name="keywords" content="电影排片表查询,电影放映时间查询" />
+	<meta name="description" content="近期各大影院上映电影的排片表、放映时间查询。" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=new_partner&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,scrollerbar&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.chooseOpi .opiInfo{width:8%;text-align: center;}
+		.bodyCantainer em{color:#497bac;}
+		.ck_panel a.select,.ck_panel a:hover{background:#ff9e21;color:#fff;}
+		.ck_date a.select,.ck_date a:hover{color:#fff;background:#ff9420;font-weight: bold;}
+		.gewaT{
+			height:45px;
+			line-height:22px;
+			padding:10px;
+			background:#fff url(${staticPath}css/buss/logo.gif?v=0001) 0 0 no-repeat;
+			font-size:12px;
+			color:#045FA5;
+			position: relative;
+			width:940px;
+			margin:10px auto;
+		}
+		.gewaT .gocity{width:40px;height:30px;line-height:30px;padding:0 26px 0 4px;display:inline-block;position: absolute;left:221px;top:11px;cursor: pointer;text-align:center;overflow:hidden;color:#333;font-weight:bold;font-size:14px;font-family: '宋体'}
+		.gewaT .p{height:22px;width:86%;position: absolute;left:90px;bottom:3px;overflow:hidden;}
+		.gewaT .more{top:10px; position:absolute; right:0; text-align:right;}
+	</style>
+</head>
+<body>
+<div class="ui_layout" style="width:960px;overflow:hidden;overflow-y:auto;position: relative;margin:0 auto;">
+	<div class="gewaT">
+		<div class="more">
+			<p><img src="${staticPath}css/buss/serverPhone.gif?v=0001"/></p>
+			<p>在线选座购票服务由格瓦拉生活网提供</p>
+		</div>
+		<div class="p">
+			<span class="left">
+				#if(!$VmUtils.isNull($gewaCommend))
+				<a href="$!gewaCommend.link" class="dot" target="_blank">$!gewaCommend.title </a>
+				#end
+			</span>
+		</div>
+	</div>
+	<div class="payOrderSteps">
+		<ul class="payStep01 clear">
+			<li class="step1">1.选择场次</li>
+			<li class="step2">2.在线选座</li>
+			<li class="step3">3.确认订单并支付</li>
+			<li class="step4">4.完成购票</li>
+		</ul>
+	</div>
+	<div class="obj_detail">
+		<div class="obj_detail_inner">
+			<div class="obj_body">
+				<div class="obj_body_left">
+					<div class="bodyCantainer">
+						<h1>$movie.name</h1><strong>$!movie.englishname</strong>
+						<dl class="ui_abeam">
+							#set($gmark=$VmUtils.getSingleMarkStar($movie, "general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+							<dt class="uipic">
+							<img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw150h200',$movie.limg)) center 0 no-repeat;" width="150" height="200" alt="$movie.name"/></dt>
+							<dd class="uiText">
+								<div class="ui_grade">
+									#set($isBigStaticRating=true)
+									#parse('include/global/staticRating.vm')
+									<sub>$gmark1.</sub><sup>$gmark2</sup>
+								</div>
+								<p><em>导演：</em>>$!movie.director</p>
+								<p><em>主演：</em>$!movie.actors</p>
+								<p><em>类型：</em>$!movie.type</p>
+								<p><em>语言：</em>$!movie.language</p>
+								<p><em>片长：</em>#if($movie.videolen)$!{movie.videolen}分钟#end</p>
+								<p><em>首映日期：</em>$!DateUtil.format(${movie.releasedate},"yyyy年M月d日")</p>
+								<p><em>IMDB编号：</em>$!movie.imdbid</p>
+							</dd>
+						</dl>
+					</div>
+				</div>
+				<div class="obj_body_right"><h2>剧情介绍：</h2>
+					<div class="mt10" id="mcontent" style="text-indent:30px;">$!VmUtils.htmlabbr($!movie.content,300) ...<a href="javascript:allContent();">全部</a></div>
+					<div class="mt10" id="acontent" style="text-indent:30px;display:none;">$!VmUtils.htmlabbr($!movie.content,2500)</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="cinema_collection">
+		<form id="searchForm" action="${basePath}partner/${partner.partnerpath}/movieDetail.xhtml">
+		<input type="hidden" name="movieid" id="movieid" value="$!VmUtils.escapeHtml($params.movieid)"/>
+		<input type="hidden" name="fyrq" id="fyrq" value="$!fyrq"/>
+		<input type="hidden" name="encQryStr" value="$!encQryStr" />
+		<input type="hidden" name="tokenId" id="tokenId" value="$!tokenId"/>
+		</form>
+		<dl class="ck_panel dline">
+			<dt>选择区域：</dt>
+			<dd id="areaPanel">
+				<a href="javascript:void(0);" onclick="filterCinema('','area',this);" class="select">热门影院</a>
+				#foreach($county in $countyList)
+				<a href="javascript:void(0);" id="$county.countycode" onclick="filterCinema($county.countycode,'area',this);">$county.countyname<span>($VmUtils.size($!cinemaMap.get($county.countycode)))</span></a>
+				#end
+				<span class="cls"></span>
+			</dd>
+		</dl>
+		<dl class="ck_panel clear"><dd id="cinemaPanel">
+			#foreach($cinema in $cinemaList)
+			<a area="$cinema.countycode" href="javascript:void(0);" onclick="filterCinema($cinema.id,'cinema',this);">$cinema.name</a>
+			#end
+			<span class="cls"></span>
+		</dd></dl>
+	</div>
+	<div class="ck_date">
+		#foreach($pdate in $dateList)#set($pdateStr=$DateUtil.formatDate($pdate))
+		<a #if($VmUtils.eq($pdateStr, $fyrq)) class="select" #end href="javascript:search('fyrq', '$pdateStr')"><span>${DateUtil.format($pdate, 'M月d日')}[$DateUtil.getCnWeek($pdate)]</span></a>
+		#end
+	</div>
+	#foreach($county in $countyList)
+	#if($VmUtils.isNotBlank($countycode))
+	#if($VmUtils.eq($county.countycode, $countycode))#set($tmpcountycode=$countycode)#end
+	#else #set($tmpcountycode=$county.countycode)
+	#end
+	#foreach($cinema in $cinemaMap.get($tmpcountycode))
+	<div area="$tmpcountycode" cinema="$cinema.id" class="chooseOpi">
+		<div class="chooseOpi_caption">
+			<b>$!{cinema.countyname}</b>
+			<h2>$!cinema.name</h2>$!{cinema.countyname}$!{cinema.address}
+		</div>
+		<div class="chooseOpi_head">
+			<span class="opitime"><b>放映时间</b></span>
+			<span class="opiEdition"><b>语言版本</b></span>
+			<span class="opiRoom"><b>放映厅</b></span>
+			<span class="opiPrice"><b>现价(元)</b></span>
+			<span class="opiInfo"><b>说明</b></span>
+			<span class="opiurl" style="width:130px"><b></b></span>
+		</div>
+		#set($height=60*$VmUtils.size($opiMap.get($cinema.id)))
+		<div class="chooseOpi_body" id="wrapper$cinema.id" style="overflow: hidden;">
+			<ul class="clear" id="wrapped$cinema.id" style="height:${height}px;">
+				#foreach($pItem in $opiMap.get($cinema.id))
+				<li #if($foreach.index%2 eq 1)class="ove"#end>
+					<span class="opitime" id="$pItem.id"><b>$DateUtil.format($!{pItem.playtime},'HH:mm')</b></span>
+					<span class="opiEdition">$!pItem.language#if($!VmUtils.eq($pItem.edition,'3D'))
+						<b class="d3">3D</b>
+						#elseif($!VmUtils.eq($pItem.edition,'IMAX3D'))
+						<img src="${staticPath}css/images/blank.gif" class="imax" alt="IMAX"/><b class="d3">3D</b><em style="text-indent: -999px;width:0px;display:inline-block;">IMAX3D</em>
+						#elseif($!VmUtils.eq($pItem.edition,'双机3D'))
+						<em>双机</em><b class="d3">3D</b>
+						#elseif($!VmUtils.eq($pItem.edition,'双机4K'))
+						<em>双机4K</em>
+						#else
+						<b class="ml5">$!{pItem.edition}</b>
+						#end
+					</span>
+					<span class="opiRoom">$!{pItem.roomname}</span>
+					<span class="opiPrice"><em>($!pItem.price)</em><b>$!priceHelper.getPrice($pItem)</b></span>
+					<span class="opiInfo">#if($!specialDiscountOpiList.contains($pItem) && $!pItem.getElecard().contains('M') && $!pItem.disCountPay)<em class="y" title="支持支付优惠">惠</em>#end</span>
+					<span class="opiurl" style="width:130px">
+						<a href="${basePath}partner/${partner.partnerpath}/chooseSeat.xhtml?mpid=${pItem.mpid}&encQryStr=$!encQryStr&tokenId=$!tokenId&$!paramsStr" class="opiBt">选座购票</a>
+					</span>
+				</li>
+				#end
+			</ul>
+		</div>
+		<div class="chooseOpi_footer">
+			<span>* 
+			#if($VmUtils.isNotBlank($cpmap.get($cinema.id).prompting))
+				$cpmap.get($cinema.id).prompting)
+			#else
+			现价已包含服务费
+			#end
+			#if($cpmap.get($cinema.id).hasDirect() && $!cpmap.get($cinema.id).cminute)，该影院场次放映前$!cpmap.get($cinema.id).cminute分钟关闭售票 #end。
+			</span>
+		</div>
+	</div>
+	#end
+	#end
+	<div class="center" style="margin-bottom:30px;"><label class="button bigBt redBt" style="width:auto;"><input type="button" onclick="window.history.go(-1);" value="返回"/></label></div>
+</div>
+<script type="text/javascript">
+function search(field,value){
+	$(field).value = value;
+	$('searchForm').submit();
+}
+window.addEvent('domready',function(){
+	setScroller();
+	$$('label.button,span.button,label.ui_btn,span.ui_btn').addEvents({
+		'mouseenter':function(){if(this.hasClass('bigBt')){this.addClass('bg_hover');}else{this.addClass('hover');}},
+		'mouseleave':function(){if(this.hasClass('bigBt')){this.removeClass('bg_hover');}else{this.removeClass('hover');}}
+	});
+})
+function filterCinema(params,type,self){
+	params = {'id':params,'node':$$('.chooseOpi').hide(),'cinemaNode':$('cinemaPanel').getElements('a')};
+	params.cinemaNode.removeClass('select');
+	if(type == 'area'){
+		$('areaPanel').getElements('a').removeClass('select');
+		params.cinemaNode.hide();
+	}
+	if(params.id != '' && $defined(params.id)){
+		document.getElements('*['+type+'='+params.id+']').show();
+	}else{
+		params.cinemaNode.filter(function(cnode,index){return index < 7}).show();
+		params.node.filter(function(node,index){return index < 7}).show();
+	}
+	if($(self))$(self).addClass('select');
+	
+}
+
+function setScroller(){
+	$$('.chooseOpi').each(function(node,index){
+		if(node.getElements('li').length >= 6){
+			new ScrollerBar('wrapper'+node.get('cinema'),{wrapped:'wrapped'+node.get('cinema')});
+		}else{
+			node.getElement('.chooseOpi_body').setStyles({'padding-right':0,'height':'auto'});
+			node.setStyle('height','auto');
+		}
+		if(index > 3)node.hide();
+	})
+	$('cinemaPanel').getElements('a').filter(function(n,i){return i>7}).hide();
+}
+function allContent(){
+	$('mcontent').hide();
+	$('acontent').show();
+}
+</script>
+<script src="${staticPath}scripts/loaderProxy.js?v=$VmUtils.jsVersion" data-frameid="frame_content"  data-timer="600" data-proxy="http://www.i5zk.cn/public/proxy.html"></script>
+<script type="text/javascript">
+var pageCode="Showtimelist"
+</script>
+#parse('partner/googleGa.vm')
+</body>
+</html>

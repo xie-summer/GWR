@@ -1,0 +1,77 @@
+<div class="gb-r">
+		#if(!$VmUtils.isEmptyList($questionList_Category) || !$VmUtils.isEmptyList($questionList_Tag))
+		<div class="mt20"></div>
+		<em class="m1"></em><em class="m2"></em><em class="m3"></em>
+		<div class="m">
+			<div class="m-content">
+				<div class="title"><h2>相关问题</h2></div>
+				<ul class="mt5">
+					#if(!$VmUtils.isEmptyList($questionList_Category))
+					#foreach($question in $questionList_Category)
+					<li><a href="${basePath}qa/q${question.id}" class="sred" title="$!{question.title}">·$!VmUtils.escabbr($question.title,24)</a></li>
+					#end
+					#else
+					#foreach($question in $questionList_Tag)
+					<li><a href="${basePath}qa/q${question.id}" class="sred" title="$!{question.title}">·$!VmUtils.escabbr($question.title,24)</a></li>
+					#end
+					#end
+				</ul>
+			</div>
+		</div>
+		<em class="m3"></em><em class="m2"></em><em class="m1"></em>
+		<div class="mt20"></div>
+		#end
+		#if($commendMember)
+		<em class="m1"></em><em class="m2"></em><em class="m3"></em>
+		<div class="m">
+			<div class="m-content">
+				<div class="title"><h2>每周之星</h2></div>
+				<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!{commendMember.id}" class="pubpic left" style="margin:10px 10px 0 0;"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$commendMember.headpicUrl)) no-repeat center center"/></a>
+				<ul class="mt5">
+					#set($tagMap={'cinema':'电影','gym':'健身','ktv':'KTV','bar':'酒吧','sport':'运动'})
+					<li><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!commendMember.id" class="sred">$!VmUtils.escabbr($!commendMember.nickname, 16)</a></li>
+					<li><strong>#if($VmUtils.isNotBlank($!commendExpert.tag))$tagMap.get($!commendExpert.tag)#else知道#end专家</strong></li>
+					<li>经验值:$!mpoint</li>
+				</ul>
+				<div id="height0"></div>
+				<p>回答数：$!answerCount&nbsp;&nbsp;被采纳率：$!{rate}% </p>
+				#if($VmUtils.size($mquestionList) gt 0)
+				<ul class="mt10">
+					<li>精选回答：</li>
+					#foreach($mquestion in $mquestionList)
+					<li><a href="${basePath}qa/q${mquestion.id}" class="sred" title="$!{mquestion.title}">·$!VmUtils.escabbr($mquestion.title,24)</a></li>
+					#end
+				</ul>
+				#end
+				<!--  <div class="mt5"><a href="" class="bold">历届知道之星&gt;&gt;</a></div>-->
+			</div>
+		</div>
+		<em class="m3"></em><em class="m2"></em><em class="m1"></em>
+		#end
+		#parse('include/ad/ad_qa.vm')
+		
+		#if($VmUtils.size($miMap) gt 0)
+		<div class="mt20"></div>
+		<em class="m1"></em><em class="m2"></em><em class="m3"></em>
+		<div class="m">
+			<div class="m-content">
+				<div class="title"><h2>用户排行</h2></div>
+				<ol class="mt5">
+					#foreach($member in $miMap)
+					<li><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$member.id" class="sred" target="_blank">$!VmUtils.escabbr($member.nickname,16)</a><span class="ar gray">$member.point</span></li>
+					#end
+				</ol>
+			</div>
+		</div>
+		<em class="m3"></em><em class="m2"></em><em class="m1"></em>
+		#end
+		<!--  <div class="mt20"></div>
+		<em class="m1"></em><em class="m2"></em><em class="m3"></em>
+		<div class="m">
+			<div class="m-content">
+				<div class="title"><h2> </h2></div>
+			</div>
+		</div>
+		<em class="m3"></em><em class="m2"></em><em class="m1"></em>
+		-->
+	</div>

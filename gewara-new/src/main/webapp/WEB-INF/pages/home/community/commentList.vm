@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>$!{commu.name}_圈子话题_格瓦拉生活网</title>
+	<meta name="keywords" content="$!{commu.name},圈子话题"/>
+	<meta name="description" content="$!{commu.name},$!VmUtils.escabbr($!commu.info, 200)"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,commnu&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+	#parse('home/community/commnu_style.vm')
+</head>
+<body>
+#set($tag="home")#set($isFlase=true) #set($communityTopic=true)
+#set($commuTopicLen=$VmUtils.size($commuTopicList))
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+#parse('include/home/communityHeadMenu.vm')
+<h1>$!{commu.name}_圈子话题</h1>
+<div class="commnu_layout">
+	<div class="commnu_left">
+		<div class="showList" style="margin-top:0px;">
+			#if($purview eq 'public')
+			<div class="gui-title"><h2>圈子话题</h2>#if($isCommuMember)<a href="javascript:void(0);" class="gui-more button redBt minBt" onclick="sendDiary('$!params.commutopicid')"><span>+发表话题</span></a>#end</div>
+			<ul class="ul-80">
+				<li>
+					<div class="ul-80Inner">话题分类：</div>
+					<a href="${basePath}quan/getCommuDiaryList.xhtml?commuid=$!commu.id" #if(!$!params.commutopicid) class="select" #else class="brown" #end>全部</a>|
+					#if(!$VmUtils.isEmptyList($commuTopicList))
+					#foreach($commuTopic in $commuTopicList)
+						<a #if($!params.commutopicid eq $commuTopic.id) class="select" #else class="brown" #end href="${basePath}quan/getCommuDiaryList.xhtml?commuid=$!commu.id&commutopicid=$!commuTopic.id" style="margin-left:5px;">$commuTopic.topicname</a>
+						#if($foreach.count ne $commuTopicLen)|#end
+					#end
+					#end
+				</li>
+			</ul>
+			<table cellpadding="0" cellspacing="0" border="0" class="titleTable" style="margin:0px;margin-top: 5px;">
+				<thead>
+					<tr>
+						<th width="40%">主题</th>
+						<th>发起人</th>
+						<th width="100">发表时间</th>
+						<th width="70">浏览/回复</th>
+						<th>回复人</th>
+						<th>回复时间</th>
+					</tr>
+				</thead>
+				<tbody>
+					#if($VmUtils.size($listCommuDiary) ne 0)
+					#foreach($topic in ${listCommuDiary})
+					#if($!topic.flag && $topic.flag.indexOf('hot') ge 0)#set($hotClass='jt')
+						#elseif($!topic.clickedtimes gt 100)#set($hotClass='rt')
+						#else#set($hotClass='ptt')#end
+					<tr class="#if($foreach.index%2 eq 0) odd #else even #end">
+						<td><a href="${basePath}blog/t$topic.id"  class="$hotClass brown" target="_blank" title=$!topic.subject>$!VmUtils.escabbr($!topic.subject,30)</a></td>
+						<td><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!topic.memberid" class="brown" target="_blank">$!VmUtils.escabbr($!topic.membername,10)</a></td>
+						<td>$DateUtil.format($topic.addtime,'MM/dd HH:mm')</td>
+						<td>${topic.clickedtimes}/${topic.replycount}</td>
+						<td>
+						#if($topic.replyid) #set($mrid=$topic.replyid) #else #set($mrid=$topic.memberid) #end
+						#if($!mrid)
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!mrid" class="brown" target="_blank">$!VmUtils.escabbr($topic.replyname,10)</a>
+						#else
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!topic.memberid" class="brown" target="_blank">$!VmUtils.escabbr($!topic.membername,10)</a>
+						#end
+						</td>
+						<td>
+						$!DateUtil.format($!topic.replytime,'MM/dd hh:mm')&nbsp;
+						</td>
+					</tr>
+					#end
+					#else
+						<tr><td colspan="6" style="border:0px;">圈内暂无话题！</td></tr>
+					#end
+				</tbody>
+			</table>
+			#parse('include/pageUtil.vm')
+			#elseif($purview eq 'member')
+				圈子成员才能访问，你还没有加入这个圈子!
+			#elseif($purview eq 'admin')
+				圈子管理员才能访问!
+			#end
+		</div>
+	</div>
+	<div class="commnu_right">
+		#parse('include/home/commuRightMenu.vm')
+		#parse('include/home/commuRightList.vm')
+	</div>
+	<div class="height0"></div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody").getElements("tr").each(function(item){
+		item.addEvents({'mouseenter':function(){this.addClass("tdHover");},'mouseleave':function(){this.removeClass("tdHover");}});
+	});
+});
+
+</script>
+</body>
+</html>

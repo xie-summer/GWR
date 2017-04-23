@@ -1,0 +1,72 @@
+<!Doctype html>
+<html>
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>提示—格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_movie&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#if($headInfo)
+		html{background:$!headInfo.css url($VmUtils.randomPic('',$!headInfo.logobig)) 0 50px repeat-x;}
+		body{background:transparent url($VmUtils.randomPic('',$!headInfo.logosmall)) center 50px no-repeat;}
+		#end
+		.noPlayList{background:url(${staticPath}css/movie_wide/bg_closedPlay.gif) 0 100px no-repeat; height:200px; padding:138px 0 100px 205px; width:350px; margin:0 auto;}
+		.noPlayList h2{font:normal 30px/40px '微软雅黑',verdana,'宋体'; display:block;}
+		.noPlayList p{margin-top:20px; padding-left:15px;}
+		@media screen and (max-width:1200px) {
+		    .ui_layout{width:960px;}
+		}
+	</style>
+</head>
+<body>
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="noPlayList">
+		#if($errorMsgs)
+			#foreach($msg in $VmUtils.splitByWholeSeparator($errorMsgs, '@@'))
+				<h2>$VmUtils.escapeHtml($msg)</h2>
+			#end
+		#end
+		#if($successMsgs)
+			#foreach($msg in $VmUtils.splitByWholeSeparator($successMsgs, '@@'))
+				<h2>$VmUtils.escapeHtml($msg)</h2>
+			#end
+		#end
+		#if($params.errorMsgs)
+			#foreach($msg in $VmUtils.splitByWholeSeparator($params.errorMsgs, '@@'))
+				<h2>$VmUtils.escapeHtml($msg)</h2>
+			#end
+		#end
+		#if($params.successMsgs)
+			#foreach($msg in $VmUtils.splitByWholeSeparator($params.successMsgs, '@@'))
+				<h2>$VmUtils.escapeHtml($msg)</h2>
+			#end
+		#end
+		#foreach($msg in $msgList)
+			<h2>$VmUtils.escapeHtml($msg)</h2>
+		#end
+		<p>
+			#if($!params.returnUrl)
+			#if($VmUtils.startsWith($!params.returnUrl,"http"))
+			<a href="$!params.returnUrl">点击返回</a>
+			#else
+			<a href="${basePath}$!params.returnUrl">点击返回</a>
+			#end
+			#elseif($forwardUrl)<a href="${basePath}$forwardUrl">点击此链接设置</a>
+			#elseif($returnUrl)
+			#if($VmUtils.startsWith($!returnUrl,"http"))
+			<a href="$!returnUrl">点击返回</a>
+			#else
+			<a href="${basePath}${returnUrl}">点击返回</a>
+			#end
+			#else
+			<a href="${basePath}">返回首页</a>
+			#end
+		</p>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

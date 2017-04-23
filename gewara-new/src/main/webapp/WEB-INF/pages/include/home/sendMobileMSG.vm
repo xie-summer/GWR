@@ -1,0 +1,64 @@
+<div id="lakalaupdateMemberInfo" style="display:none">
+	<form id="lakalaupMoibleForm" name="lakalaupMoibleForm" method="post" action="javascript:lakalaupMobile()">
+		<ul class="ul-80" style="padding:10px;">
+			<li><div class="ul-80Inner">手机号码：</div><input name="lakalaumobile" id="lakalaumobile" type="text" class="text" value="$!member.mobile" disabled="disabled" style="width: 140px;"/></li>
+			<li>
+				<div class="ul-80Inner">输入验证码：</div>
+				
+				<input type="hidden" name="captchaId" id="lakalacaptcha" />
+				<input type="text" mustTxt="验证码必填!" alt="点击获取" title="点击获取" onfocus="GewaraUtil.refreshCaptcha('lakalacaptcha');" class="text captcha" name="lakalacaptcha" id="lakalacaptchaInput" style="width:100px;" size="18"/>
+				<span class="fc_b ml10">*</span>
+				<img id="lakalacaptchaImg" src="${staticPath}css/images/blank.gif" style="cursor: pointer;height:26px;width:80px;" align="top" onclick="GewaraUtil.refreshCaptcha('lakalacaptcha');" title="看不清楚，请点击换一张图片"/>
+			</li>
+			<li style='margin-top:20px;position: relative;'>
+				<label class="button redBt minBt" for="lakaladisBtnMobile"><input type="submit" value="立即发送" id="lakaladisBtnMobile"/></label>
+				<label class="button whiteBt minBt ml10" for="closebt"><input type="button" value="取消" id="closebt" onclick="hideMark('lakalaupdateMemberInfo')"/></label>
+			</li>
+		</ul>
+	</form>
+</div>
+	<script type="text/javascript">
+function lakalaupMobile(){
+	if(!GewaraUtil.baseValidForm('lakalaupMoibleForm')) return ;
+	var url = '${basePath}home/lakala/sendSms.xhtml';
+	var values = {'captcha':$('lakalacaptchaInput').value, 'captchaId':$('lakalacaptcha').value};
+	GewaraUtil.mask('lakaladisBtnMobile');
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			gewaUtil.alert("短信发送成功，请查收!");
+			hideMark('lakalaupdateMemberInfo');
+			retime();
+		}else{
+			if(result.msg) gewaUtil.alert(result.msg);
+			retime();
+			GewaraUtil.refreshCaptcha('lakalacaptcha');
+		}
+	});
+}
+function validateMobiles(){
+	gewaUtil.textOver(".captcha");
+	gewa.util.maskContent('','lakalaupdateMemberInfo','手机验证',420,'lakalaupdateMemberInfo');
+}
+
+function hideMark(el){
+	gewa.util.container[el].dispose(el);
+}
+
+var second = 120;
+function GetRTime(){  
+	if(second>=0){  
+		$("btn2").value = second+"秒后重发"; 
+		second = second-1;
+		setTimeout("GetRTime()",1000);
+	}else {  
+		$('btn2').value='发送至手机';
+		$("btn2").set("disabled", false);  
+	}  
+} 
+function retime(){
+	$("btn2").set("disabled", true); 
+	second = 120; 
+	GetRTime();
+}
+</script>

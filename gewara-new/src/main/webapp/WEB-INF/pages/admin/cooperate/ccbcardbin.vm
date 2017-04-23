@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>建行卡bin</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#fff;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		td, th{
+			text-align: center;
+			height: 23px;
+		}
+	</style>
+</head>
+<body>
+<fieldset style="width: 420px;margin-top: 10px;margin-left: 20px;">
+	<legend class="yellow">建行卡bin</legend>
+	<div style="margin-top: 20px;margin-left: 10px;">
+	<div style="margin-bottom: 10px;font-size: 14px;">
+	<input type="button" onclick="showDialog()" value="添加卡前6位" class="btn"/>
+	</div>
+	#set($keyList=["序号","卡前6位"])
+	<table cellpadding="0" cellspacing="0" width="400" border="1" style="border-collapse: collapse">
+		<tr>
+			#foreach($key in $keyList)
+			<th>$key</th>
+			#end
+		</tr>
+		#foreach($cardMap in $qryMapList)
+		<tr>
+			<td>$foreach.count</td>
+			<td>$!cardMap.cardbin</td>
+		</tr>
+		#end
+	</table>
+	</div>
+	<div id="openDialog" style="width:370px; visibility:hidden; z-index:20;background: #000">
+		<div style="width:350px;margin:10px;background:#FFF;">
+			<div style="text-align:center;height:20px;line-height: 20px;margin-bottom: 5px;">
+				<strong>卡前6位</strong>
+			</div>
+			<div class="bd ml20" style="text-align:left;">
+				<form name="openForm" id="openForm">
+					<div class="clear">
+						<input type="button" class="cbt1"  value="保存" onclick="saveUser()"/>
+						<input type="button" class="cbt1" onclick="hiDialog();" value="取消"/>
+						<input name="cardbin" id="cardbin" maxlength="6"/>
+					</div>
+				</form>
+			</div><br/>
+		</div>
+	</div>
+</fieldset>
+<script type="text/javascript">
+	$$("tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+	function hiDialog(){
+		GewaraUtil.hideDialog("openDialog");
+	}
+	function showDialog(){
+		GewaraUtil.showDialog('openDialog');
+	}
+	function saveUser(){
+		GewaraUtil.mask('openDialog');
+		var mask = gewa.util.mask({'element': 'openDialog','title':'正在提交，请稍等...'});
+		var values = GewaraUtil.getValues('openForm');
+		var url = "${basePath}admin/common/saveCcbcardbin.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) {
+				refreshPage();
+			}else {
+				alert(result.msg);
+				GewaraUtil.unmask();
+			}
+		});
+	}
+</script>
+</body>
+</html>

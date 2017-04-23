@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>格瓦拉电影票券绑定查询_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.errorMsg{border:1px solid #ffe3bb; background:#ffd; padding:3px 10px; margin:10px 0;}
+	</style>
+</head>
+<body>
+#set($isMovieCard=true)#set($myAccount=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/myAccount.vm')
+			<div class="inner mt20" id="errorshows">
+				<h2>激活票券</h2>
+				#if(!$logonMember.mobile)<div class="errorMsg">为了你的账户安全，请绑定手机号码后再激活票券！<a href="${basePath}home/acct/memberinfo.xhtml?tag=cellphone" class="ml5 cMovie" target="_blank">立即绑定</a></div>#end
+				<dl class="tales100">
+					<dt>手机号码：</dt>
+					<dd>
+						<label for="loginMobile" class="text label" style="width:150px;"><input type="text" class="text" style="width:150px;" maxlength="11" name="mobile" id="loginMobile" value="$!logonMember.mobile" onfocus="checkMobile()" #if($logonMember.mobile)lang="true"#else lang="false"#end/></label>
+						<input class="botton_count_on" style="margin-left:10px;" type="button" id="botton_count_on" value="获取动态码" onclick="resendLogin();" />
+					</dd>
+				</dl>
+				<dl class="tales100">
+					<dt>动态码：</dt>
+					<dd>
+						<label for="checkpass" class="text label" style="width:150px;"><input type="text" style="width:150px;" id="checkpass" name="checkpass" value="" class="text"/></label>
+					</dd>
+				</dl>
+			</div>
+			<div class="tales100"><label class="button bigBt redBt ml10"><input type="button" value="立即激活" onclick="activation()"/></label></div>
+		</div>
+	</div>
+</div>
+<div id="showCard" style="display:none">
+</div>
+<div id="errorMag" style="display:none;">
+	<div style="padding:20px 10px;">
+		<p>为了您的账户安全，请使用账户绑定的手机号码激活，或者请<a id="changePhoneNO" href='${basePath}home/acct/memberinfo.xhtml?tag=cellphone' target="_blank" class="cMovie">更换绑定号码</a>后重新激活！</p>
+	</div>
+</div>
+<div style="display:none">
+#parse('home/acct/setPayPassword.vm')
+</div>
+<script type="text/javascript">
+var isPhnoeCode = true;
+var second = 60;
+GetRTimeLogin = function (){  
+	if(second>=0){
+		var txt = '';
+		if($('botton_count_on')){
+			if(second == 0){
+				txt = '重新获取动态码';
+				$('botton_count_on').removeClass('DTPTUn');
+			}else{
+				txt = second + '秒后重新获取';
+				$('botton_count_on').addClass('DTPTUn');
+			}
+			$('botton_count_on').value = txt;
+		}
+		second = second-1;
+		setTimeout("GetRTimeLogin()",1000);
+	}else {  
+		if($('botton_count_on')){
+			$("botton_count_on").set("disabled", false); 
+			$("botton_count_on").setStyle("cursor","pointer"); 
+		}
+	}  
+} 
+resendLogin = function(){
+	gewa.util.mask({'element': "botton_count_on",'title':'正在提交，请稍等...'});
+	GewaraUtil.sendRequest('${basePath}ajax/mobile/achieveElecCard.xhtml?math='+GewaraUtil.rtime(), {mobile:$('loginMobile').value}, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			retimeLogin();
+		}else{
+			if(result.errorMap){
+				GewaraUtil.showErrorMsg('errorshows',result.errorMap);
+			}else{
+				if(result.msg!='checkband')
+					gewaUtil.alert(result.msg);
+				else
+					gewaUtil.maskContent('','errorMag',"格瓦拉提示",360);
+			}
+		}
+	}, 'get');
+}
+retimeLogin = function(){
+	$("botton_count_on").set("disabled", true);
+	$("botton_count_on").setStyle("cursor","text"); 
+	second = 60;
+	GetRTimeLogin();
+}
+function activation(){
+	var values={'checkpass':$('checkpass').value,'cardPass':'$!cardpass'};
+	GewaraUtil.sendRequest('${basePath}home/acct/ajaxActivationCard.xhtml', values, function(result){
+		if(result.success){
+			gewaUtil.alert("激活成功，为了你的票券安全，请立即绑定！",function(){
+				document.location.href='${basePath}home/acct/cardList.xhtml';
+			});
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function checkMobile(){
+	if($('loginMobile').value == '' && $('loginMobile').lang){
+		gewaUtil.alert("请先绑定手机号码再激活票券！");
+	}
+}
+function changePhoneNO(){
+	$('changePhoneNO').addEvent('click',function(){
+		$('parent').dispose();
+		$('self').dispose();
+	});	
+}
+window.addEvent('domready',function(){
+	changePhoneNO();
+})
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

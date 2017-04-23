@@ -1,0 +1,128 @@
+#set($attributes={"id":"ID"})
+#set($tmp=$attributes.put("name","名称"))
+#set($tmp=$attributes.put("description","备注"))
+#set($tmp=$attributes.put("ordernum","排序"))
+#set($tmp=$attributes.put("status","状态"))
+#set($tmp=$attributes.put("checkStatus","审核状态"))
+#set($tmp=$attributes.put("nameDescription","名称说明"))
+#set($tmp=$attributes.put("cinemaid","影院"))
+#set($tmp=$attributes.put("movies","影片列表"))
+#set($tmp=$attributes.put("playtime1","生效时间"))
+#set($tmp=$attributes.put("playtime2","结束时间"))
+#set($tmp=$attributes.put("price1","售价开始范围"))
+#set($tmp=$attributes.put("price2","售价结束范围"))
+#set($tmp=$attributes.put("weektype","星期"))
+#set($tmp=$attributes.put("timescope","时段"))
+#set($tmp=$attributes.put("roomnum","影厅"))
+#set($tmp=$attributes.put("edition","版本"))
+#set($tmp=$attributes.put("costprice","结算价"))
+#set($tmp=$attributes.put("gewaprice","售价"))
+#set($tmp=$attributes.put("elecard","优惠活动"))
+#set($tmp=$attributes.put("remark","场次特殊说明"))
+#set($tmp=$attributes.put("seatmap","座位模板"))
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次自动开放列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="menu">
+		<div class="menuInner">
+			<ul>
+				<li class="selectMore">$cinema.name</li>
+				<li><a href="${basePath}admin/ticket/mpiManage.xhtml?cid=$cinema.id"><span>场次管理</span></a></li>
+				<li><a href="${basePath}admin/ticket/orderList.xhtml?cid=$cinema.id" class="admin"><span>订单管理</span></a></li>
+				<li><a href="${basePath}admin/ticket/baseData.xhtml?cid=$cinema.id"><span>基础数据</span></a></li>
+				<li><a href="${basePath}admin/ticket/auto/setterList.xhtml?cinemaid=$cinema.id"><span>自动设置器</span></a></li>
+				<li class="currs"><a><span>自动设置器审核列表</span></a></li>
+				<li><a href="${basePath}admin/ticket/opiStats.xhtml?cid=$cinema.id" class="admin"><span>座位统计</span></a></li>
+				<li><a href="${basePath}admin/ticket/settleList.xhtml?cid=$!cinema.id" class="admin"><span>结算说明</span></a></li>
+				<li><a href="${basePath}admin/ticket/settleConfirm.xhtml?cid=$!cinema.id" class="admin"><span>结算确认</span></a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="contentInfoList">
+		<div>
+			<input type="button" value="待审核" disabled="disabled"/> &nbsp;&nbsp;<input type="button" value="基础数据" onclick="javascript:document.location.href='${basePath}admin/ticket/auto/baseSetterList.xhtml?cinemaId=$cinema.id'" />
+		</div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>序号</th>
+					<th>影院名称</th>
+					<th>名称</th>
+					<th>类型</th>
+					<th>修改内容</th>
+					<th>结束时间</th>
+					<th colspan="3">操作</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				#foreach($setter in $setterList)
+				#set($isAdd = false)
+				<tr class="grayBg">
+					<td>${foreach.count}</td>
+					<td>$!cinemaMap.get($setter.id).name</td>
+					<td>$!setter.name<br/><a href="${basePath}admin/common/getChangeHis.xhtml?tag=AutoSetter&relatedid=$setter.id" target="_blank">[历史]</a></td>
+					<td>
+						#if($changeLogs.get($setter.id)) 
+							#if($changeLogs.get($setter.id).get('change').indexOf('id') != -1)
+							#set($isAdd = true) 
+								新增 
+							#else
+								修改 
+							#end 
+						#else 
+							#set($isAdd = true) 
+							新增
+						#end
+					</td>
+					<td>
+					#if($isAdd)
+						全部 
+					#else
+						#set($change = $changeLogs.get($setter.id).get('change'))
+						#foreach($key in $attributes.keySet())
+							#if($change && $change.indexOf($key) != -1)
+								$!attributes.get($key) &nbsp;
+							#end
+						#end
+					#end
+					</td>
+					<td>$!setter.playtime2</td>
+					<td><a href="${basePath}admin/ticket/auto/modifySetter.xhtml?sid=$setter.id" target="_blank">修改</a></td>
+					<td><a href="javascript:checkSetter(this,'T','$!setter.id')" >审核通过</a></td>
+					<td><a href="javascript:checkSetter(this,'D','$!setter.id')" >审核不通过</a></td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<script type="text/javascript">
+	function checkSetter(el,status,sid){
+		var url = "${basePath}admin/ticket/auto/checkSetterStatus.xhtml";
+		GewaraUtil.sendRequest(url, {'status':status,'sid':sid}, function(result){
+			if(result.success){
+				gewaUtil.alert("操作成功");
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

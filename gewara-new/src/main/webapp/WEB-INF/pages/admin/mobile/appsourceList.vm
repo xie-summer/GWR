@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>渠道来源管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div class="manageItemList" style="width: 60%">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<div class="aboutMovie">
+			<table class="roomManageTable" cellpadding="0" width="98%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th>&nbsp;</th>
+						<th>渠道号</th>
+						<th>渠道名称</th>
+					</tr>
+				</thead>
+				<tbody id="tbody">
+					#foreach($as in $appSourcesMap.keySet())
+						<tr>
+							<td>$foreach.count</td>
+							<td>$as</td>
+							<td><input type="text" value="$appSourcesMap.get($as)" onchange="saveAs('$as',this)"/></td>
+						</tr>
+					#end
+					<tr>
+						<td>&nbsp;</td>
+						<td><input type="text" id="appsouce" /></td>
+						<td><input type="text" id="name" />
+						<input type="button" value="保存" onclick="addAs()"/>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		</div>
+		<b class="b2f"></b><b class="b1f"></b>
+	</div>
+</div>
+<script>
+function saveAs(appsouce,el){
+	el.style.backgroundColor = 'red';
+	var values={'appsouce':appsouce,'name':el.value};
+	GewaraUtil.sendRequest('${basePath}admin/mobile/saveAppsource.xhtml',values,function(result){
+		if(result.success){
+			el.style.backgroundColor = '#fff';
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function addAs(){
+	saveAs($('appsouce').value,$('name'))
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+#if(!$VmUtils.isEmptyList($friendList))
+<div class="dialog_z_index" id="friendWindow"  style="width:490px;z-index:400;visibility: hidden;">
+	<table cellpadding="0" cellspacing="0" width="100%">
+		<tr><td class="dialog_tl"></td><td class="dialog_c"></td><td class="dialog_tr"></td></tr>
+		<tr>
+			<td class="dialog_c"></td>
+			<td style="background:#fff;">
+				<div class="tips-title"><h2>选择好友</h2><img onclick="clearV();" src="${staticPath}css/pub/exit.png" alt="关闭"/></div>
+				<div style="padding:0px 10px 10px;width:452px;">
+					<div id="" style="height:190px;width:100%;overflow-x:hidden;overflow-y:auto;border-bottom:1px solid #ccc;margin-top:10px;position:relative;z-index:1;">
+						<ul class="percent_25" id="friendList">
+							#foreach($friend in $friendList)
+							<li style="height:80px;text-align:center">
+								<label for="fid${friend.id}" style="display:inline-block;padding:0 5px;width:60px;">
+									<img src="${staticPath}css/images/blank.gif" class="pubpic" style="border-color:#ccc;background:url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($friend.id).headpicUrl)) center center no-repeat;" title="$cacheMemberMap.get($friend.id).nickname"/>
+									<input type="checkbox" name="${friend.id}" id="fid${friend.id}" value="$cacheMemberMap.get($friend.id).nickname" style="vertical-align: text-middle;">$!VmUtils.escabbr($cacheMemberMap.get($friend.id).nickname,4)
+								</label>
+							</li>
+							#end
+						</ul>
+					</div>
+					<div class="tar mt10">
+						<label class="minBt redBt button"><input type="submit" value="确 定" onclick="subFriend();" /></label>
+						<label class="minBt whiteBt button ml10"><input type="button" onclick="clearV();" value="取 消"/></label>
+					</div>
+				</div>
+			</td>
+			<td class="dialog_c"></td>
+		</tr>
+		<tr><td class="dialog_bl"></td><td class="dialog_c"></td><td class="dialog_br"></td></tr>
+	</table>
+</div>  
+	<script type="text/javascript">
+var rsval;
+window.addEvent('domready',function(){
+	$('friendList').getElements('input').each(function(item){
+		item.addEvent('click',function(){
+			if(this.checked)this.getParent().addClass('u-bd');
+			else this.getParent().removeClass('u-bd');
+			var v = $('userKey').value;
+			if(v != ''){
+				v = v.split(",");
+				if(v.indexOf(this.value) < 0){
+					$('userKey').value += "," + this.value;
+				}else{
+					v.erase(item.value);
+					$('userKey').value = v.join(",");
+				}
+			}else{
+				$('userKey').value = this.value;
+			}
+		})
+	});
+})
+function showFriend(){
+	rsval = $('userKey').value.trim();
+	rsval = rsval.split(",");
+	$('friendList').getElements('input').each(function(item){
+		if(rsval.length>0){
+			if(rsval.indexOf(item.value) < 0){
+				item.checked ='';item.getParent().removeClass('u-bd')
+			}else{
+				item.checked = true;item.getParent().addClass('u-bd')
+			}
+		}
+	});
+	GewaraUtil.showDialog('friendWindow');
+	if(!$isCloseAll) $('content').style.visibility="hidden";
+	else $('content').style.visibility="visible";
+}
+
+function subFriend(){
+	$('memberIdList').value = "";
+	$('friendList').getElements('input').each(function(item){
+		if(item.checked){
+			if($('memberIdList').value==''){
+				$('memberIdList').value = item.get('name');
+			}else{
+				$('memberIdList').value += "," + item.get('name');
+			}
+		}
+	})
+	closeFriend();
+}
+
+function clearV(){
+	$('userKey').value = rsval;
+	closeFriend();
+}
+
+function closeFriend(){
+	GewaraUtil.hideDialog('friendWindow');
+	$('content').style.visibility="visible";
+}
+</script>
+#else
+<script type="text/javascript">
+function showFriend(){
+	gewaUtil.alert("你还没有好友，快去添加吧！");
+}
+</script>
+#end

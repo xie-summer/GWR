@@ -1,0 +1,81 @@
+<div class="detail_head clear new_detail_head">
+	<div class="detail_head_pic"><img src="$VmUtils.randomPic('cw210h280',$!drama.limg)" width="210" height="280" alt="$!drama.dramaname" title="$!drama.dramaname" class="bp"/></div>
+	<div class="detail_head_desc">
+		<div class="detail_head_desc_left clear">
+			<div class="detail_head_name">
+				<h1 title="$!drama.dramaname">$!drama.dramaname</h1>
+			</div>
+			#if($drama.highlight)
+			<p><em>精彩看点：</em>$!VmUtils.htmlabbr($!drama.highlight,40)...<a href="javascript:gewa.util.pagePos('dramainfo');" class="ffst ml5 c999">详细&gt;&gt;</a></p>
+			#end
+			<p><em>剧目类型：</em><b class="cf60 mr10">$!dramaTypeMap.get($drama.dramatype)</b>#if($VmUtils.eq('drama',$drama.dramatype))$!VmUtils.replaceSeparator($!drama.type, ',', '/') #end </p>
+			#if(!$VmUtils.isNull($drama.releasedate) || !$VmUtils.isNull($drama.enddate))
+			<p><em>演出日期：</em>$!DateUtil.format($!drama.releasedate, 'yyyy年MM月dd日') #if(!$VmUtils.isNull($drama.releasedate) && !$VmUtils.isNull($drama.enddate))-#end $!DateUtil.format($!drama.enddate, 'yyyy年MM月dd日')</p>
+			#end
+			#if($!curTheatre.name)<p><em>演出场地：</em>$!curTheatre.name <span class="ffst ml5">[<a class="blue" href="${basePath}common/baiduMap.xhtml?id=$!curTheatre.id&tag=drama" target="_blank">地图</a>]</span></p>#end
+			#if(!$VmUtils.isEmptyList($allPriceList))<p><em>票价(元)：</em>
+			#foreach($pirce in $allPriceList)$pirce#if($foreach.count ne $VmUtils.size($allPriceList))/#end#end
+		</p>#end
+		</div>
+		<div class="detail_head_desc_right clear">
+			<div class="detail_movieTypeBox">
+				<div class="detail_movieTypeBotm">
+					<div class="ratingsSide clear">
+						#set($gmark=$VmUtils.getSingleMarkStar($drama,"general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+						#set($isBigStaticRating=true)
+						#parse('include/global/staticRating.vm')
+						<span><sub id="mark_integer">$gmark1</sub><sup id="mark_decimal">.$gmark2</sup></span>
+					</div>
+					<div class="ratingsGo">
+						<div class="mt10 center">
+							<span class="button minBt whiteBt" onclick="showMovieMark();"><span><em>我要评分</em></span></span>
+							<!-- <span class="viewDesc scoretips">详情</span> -->
+						</div>
+						<div class="gray center mt10"><span class="brown mr5"><strong>$!{goodPerc}%</strong></span>瓦友推荐</div>
+					</div>
+					<p class="center mt5"><span><b>$!drama.clickedtimes</b>&nbsp;关注</span><em class="ml5 mr5">|</em><span><b>$!drama.boughtcount</b>&nbsp;购票</span></p>
+				</div>
+			</div>
+		</div>
+		<div class="cls"></div>
+		<div class="detail_moviePlay clear mt10 none" id="headDiv">
+			<label class="button bigBt left mt15"><input type="button" value="在线购票" onclick="javascript:gewa.util.pagePos('dramaPlayItem');" style="width:80px;" /></label>
+			<ul class="left detail_privilege">
+				#foreach($spdiscount in $spdiscountList)
+				#if($foreach.count le 4)
+				#if($spdiscount.distype eq 'percent')
+				 	#set($discount=$!spdiscount.gainDiscount('true'))
+				#else
+				  #set($discount=$!spdiscount.discount)	
+				#end
+					<li #if($foreach.count gt 2)class="mt10"#end>
+						<span #if($spdiscount.hasDistype('fprice'))class="h"#end title='$!spdiscount.getDiscountText($!spdiscount.bankname,"$!discount","$!spdiscount.rebates")'>
+							<em>惠</em>
+							<b>#if(!$!VmUtils.eq($spdiscount.distype,'percent'))¥#end$!spdiscount.gainDiscount('true')#if($!VmUtils.eq($spdiscount.distype,'percent'))折#end</b>
+						</span>
+						<font title='$!spdiscount.getDiscountText($!spdiscount.bankname,"$!discount","$!spdiscount.rebates")'>
+							$!spdiscount.getDiscountText("<em>$!spdiscount.bankname</em>","<b>$!discount</b>","<b>$!spdiscount.rebates</b>")
+						</font>
+					</li>
+				#end
+				#end
+			</ul>
+		</div>
+	</div>
+</div>
+<div class="detail_nav" id="detail_nav">
+	<ul>
+		<li class="#if($isDetail) select #end"><a href="${basePath}drama/${drama.id}">演出首页</a></li>
+		<li class="navline"></li>
+	   <li class="#if($isDiary) select #end"><a href="${basePath}drama/${drama.id}/diarylist">评论<span>(${diaryCount})</span></a></li>
+		<li class="navline"></li>
+		<li class="#if($isComment) select #end"><a #if($menucontent eq '剧目首页')  #else rel="nofollow" #end href="${basePath}drama/${drama.id}/commentlist">哇啦<span>(${commentCount})</span></a></li>
+		<li class="navline"></li>
+		<li class="#if($isNews) select #end"><a #if($menucontent eq '剧目首页')  #else rel="nofollow" #end href="${basePath}drama/${drama.id}/newslist">资讯<span>(${newsCount})</span></a></li>
+		<li class="navline"></li>
+		<li class="#if($isVideo) select #end"><a href="${basePath}drama/${drama.id}/videolist">视频<span>(${allVideoCount})</span></a></li>
+		<li class="navline"></li>
+		<li class="#if($isPictureDetail) select #end"><a href="${basePath}drama/${drama.id}/picturelist">图片<span>(${allPictureCount})</span></a></li>
+	</ul>
+	<a href="${basePath}blog/theatre" class="goblog" target="_blank">演出论坛</a>
+</div>

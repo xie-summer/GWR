@@ -1,0 +1,199 @@
+<div class="detail_head clear">
+	<div class="mod_kong" style="margin-bottom:0;">
+		<div class="mod_hd detailPa">
+			<div class="detailName clear">
+				<h1 class="left">$!{cinema.name}</h1>
+				<div class="ratingsSide1 left">
+					#set($gmark=$VmUtils.getSingleMarkStar($cinema, "general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+					#set($isBigStaticRating=true)
+					#parse('include/global/staticRating.vm')
+					<span class="bigSubp"><sub id="mark_integer">${gmark1}</sub><sup id="mark_decimal">.${gmark2}</sup></span>
+				</div>
+				<div class="ratingsCount left">
+					<ul>
+						<li><a class="cou" href="javascript:showMovieMark();">我要评分</a></li>
+					</ul>
+				</div>
+				<div class="movieCountList">
+					<ul class="ui_inline">
+						<li class="first">
+							<b>$!cinema.clickedtimes</b>
+							<span>关注</span>
+						</li>
+						<li>
+							<b>$!commnetCount</b>
+							<span>哇啦</span>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="mod_bd">
+			<div class="ui_left" style="width:880px; padding:0 0 0 10px">
+				<div class="detail_head_info detailMa">
+					<div class="ui_media">
+						<div class="ui_pic">
+							<div class="ui_movieBigType">
+								#set($firstImgLogo = ${picPath} + 'cw280h210/img/default_logo.png')
+								#if(!$VmUtils.isEmptyList($pictureList))
+									#set($firstImgLogo = $VmUtils.randomPic('cw280h210',$pictureList.get(0).picturename))
+								#end
+								<img width="280" height="210" src="${staticPath}css/images/blank.gif" style="background:url($!firstImgLogo) center center no-repeat #e7e7e7;"/>
+								<a href="javascript:void(0)" class="morePic" id="morePicture">$!piccount张</a>
+							</div>
+						</div>
+						<div class="ui_text">
+							<div class="detail_head_text">
+								<dl class="clear">
+									<dt>地址：</dt>
+									<dd><a class="c999" href="${basePath}movie/searchCinema.xhtml?countycode=$!{cinema.countycode}" target="_blank">$!{cinema.countyname}</a>$!cinema.address</dd>
+								</dl>
+								<dl class="clear">
+									<dt>电话：</dt>
+									<dd>$!cinema.contactphone</dd>
+								</dl>
+								<dl class="ui_hide">
+									<dt>影院介绍：</dt>
+									<dd>$!VmUtils.htmlabbr($!cinema.content, 1000)</dd>
+								</dl>
+								<dl class="ui_hide">
+									<dt>优惠公告：</dt>
+									<dd>$!VmUtils.htmlabbr($!cinema.discount, 1000)</dd>
+								</dl>
+								<dl class="clear">
+									<dt>特色：</dt>
+									<dd class="ffst">“$!VmUtils.escabbr($!cinema.feature, 130)”</dd>
+								</dl>
+								<div class="view clear">
+									#if($showTraffic==true)
+										<a href="javascript:goAnchor('traffic')" title="公交信息"><em class="tran"></em>交通信息</a>
+									#end
+									#if($showservice==true)
+										<a href="javascript:goAnchor('cinemaSer')" title="影院服务"><em class="ser"></em>影院服务</a>
+									#end
+									#if($showAround==true)
+										<a href="javascript:goAnchor('aroundFac')" title="周边设施"><em class="fac"></em>周边设施</a>
+									#end
+									
+								</div>
+								<div class="view clear mt10">
+									<a href="javascript:replyWalaContent()" style="border:1px solid #ffc393; border-radius:3px; padding:5px 15px 3px 5px; line-height:20px;"><em class="wtwara"></em>写哇啦</a>
+									<a href="javascript:addCollection1();" id="nCollect"><em class="clt"></em>收藏</a>
+									<a href="javascript:cancelTreasure1();" id="hCollect" class="none"><em class="clt"></em>取消</a>
+									#if(!$VmUtils.isNull($!cinemaProfile.topicid))
+										#if($VmUtils.isNotBlank($cinemaProfile.takeAddress))
+											#set($takeAddress = $cinemaProfile.takeAddress + $cinemaProfile.takeInfo.replace("在位于影院的", ""))
+										#end
+										<a href="${basePath}blog/t$!{cinemaProfile.topicid}" target="_blank" title="$!takeAddress"><em class="pos"></em>取票机位置</a>
+									#end
+									#if($otherinfo.get('commentID'))
+										<a href="${basePath}blog/t$!otherinfo.get('commentID')" target="_blank" title="">场馆测评</a>
+									#end
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="ui_right" style="width:290px; margin-bottom:10px; overflow:hidden;">
+				<div class="map">
+					#parse('include/global/wide_map.vm')
+					<p class="tar mt5"><a href="${basePath}common/baiduMap.xhtml?id=$!map_place.id&tag=$!map_tag&end=$!VmUtils.urlEncode($map_place.name)" class="c333" target="_blank">点击查看大图 / 驾车路线</a></p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$('morePicture').addEvent('click',function(e){
+		e.preventDefault();
+		var options = {
+			type:"apic",
+			pictureType:"apic",
+			videoType:"avideo",
+			tag:"cinema",
+			isAjax:true,
+			isPicture:'picture',
+			esc:true,
+			menu:{
+				pictureurl:'${basePath}cinema/cinemaPictureDetail.xhtml',
+				videourl:'${basePath}movie/videoList.xhtml',
+				picturevalues:{cid:'$cinema.id','pvtype':'apic'},
+				videovalues:{cid:'$cinema.id'},
+				picturecount:'$!{piccount}',
+				videocount:'0'
+			}
+		};
+		screenPicture.createPanel(options);
+	});
+});
+window.addEvent("load", function(){
+	if(gewara.util.member.login){
+		GewaraUtil.sendRequest("/ajax/common/getMemberTreasure.xhtml",{"tag":"cinema", "relatedid":"$cinema.id"}, function(result){
+			if(result.cTreasure){
+				$('nCollect').addClass('none');
+				$('hCollect').removeClass('none');
+			}
+		});
+	}
+});
+
+function goAnchor(anchorName){
+	var el = $(anchorName);
+	if ($('theatraInfoBoxTab').hasClass('select') || $('speRoomPlayItemTab').hasClass('select')){
+		el.fireEvent('click');
+		gewa.util.pagePos(el);
+	}else{
+		window.location.href="${basePath}cinema/$cinema.id" + "?cinemaMpiList=true&goPostion="+anchorName;
+	}
+}
+
+function addCollection1(){
+	checkLogin(true, function(){
+		GewaraUtil.sendRequest("${basePath}ajax/common/addCollection.xhtml",{"relatedid":"$cinema.id","tag":"cinema"}, function(result){
+			if(result.success){
+				$("nCollect").addClass('none');
+				$("hCollect").removeClass('none');
+				//$("collectedTimes1").innerHTML = result.retval;
+				//$("collectedTimes2").innerHTML = result.retval;
+				gewaUtil.alert("收藏成功");
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	});
+}
+function cancelTreasure1(){
+	checkLogin(true, function(){
+		GewaraUtil.sendRequest("${basePath}ajax/common/cancelTreasure.xhtml",{"relatedid":"$cinema.id","tag":"cinema"}, function(result){
+			if(result.success){
+				$("hCollect").addClass('none');
+				$("nCollect").removeClass('none');
+				//$("collectedTimes1").innerHTML = result.retval;
+				//$("collectedTimes2").innerHTML = result.retval;
+				gewaUtil.alert("已取消");
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	});
+}
+function walaContentFoucus(){
+	if($('replycontent')){
+		if($('walaCon')){
+			gewa.util.pagePos($('walaCon'));
+		}else{
+			gewa.util.pagePos($('walaheader'));
+		}
+		$('replycontent').focus();
+	}else{
+		setTimeout(walaContentFoucus,1000);
+	}
+}
+function replyWalaContent(){
+	navTabsChanged('walaInfoBoxTab');
+	walaContentFoucus();
+}
+
+</script>

@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>选座购票-$partner.partnername</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/ui_layout.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,scrollerbar&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	html{background:#fff;}
+	.cF40{color:#f40!important;}
+	.tao_text{border:1px solid #ccc; padding:2px 3px; height:26px; width:204px; line-height:26px; font:bold 16px/26px verdana; box-shadow:1px 2px 2px 0 #eaeaea inset}
+	.tao_Btn{width:154px; height:42px; text-indent:-9999px; display:block; overflow:hidden; text-align:center; background:url(${staticPath}css/buss/btn_tb.gif) 0 0 no-repeat; border:0px; color:#fff; cursor:pointer; font-size:12px; margin:10px 0;}
+	.tao_Btn:hover{background-position:0 -43px;}
+	.ui_layout{width:988px; overflow:hidden; border:1px solid #e5e5e5; color:#333;}
+	.ui_tao_left{width:648px; min-height:600px; _height:600px; float:left; padding:15px;}
+	.ui_tao_right{width:310px; float:left; margin-bottom:-30000px; padding-bottom:30000px; background:#fff5f5;}
+	.ui_tao_right .inner{padding:20px;}
+	.screen,.hasSeat,.sellSeat,.checkSeat,.pewNo .N,.loveSeat,#selectedSeat span em{background-image:url(${staticPath}css/buss/taobaov3.gif); background-repeat:no-repeat;}
+	.screen{width:580px; height:30px; line-height:30px; margin:0 auto; font-size:14px; text-align:center; color:#3e3e3e; padding:22px 0 10px 0; background-position:0 -40px;}
+	.seatInfo{text-align:center; border-top:1px solid #e5e5e5; padding:15px 0;}
+	.seatInfo span{margin:0 10px;}
+	.seatInfo img{margin-right:5px;}
+	.pseat{height:30px;clear: both;overflow:hidden;padding-left:50px;line-height:30px;color:#333;}
+	.pseat dd{width:100%;height:30px;float:left;overflow:hidden;}
+	.pseat span{width:34px;height:30px;display:inline-block;float:left; overflow:hidden;}
+	.pseat dt{margin-left:-30px;_margin-left:-15px;float:left;height:30px;width:22px;text-align:center;line-height:30px;background-position:-120px 4px;color:#fff; background-color:#fff;}
+	.hasSeat{background-position:-148px 4px; cursor: pointer;}
+	.sellSeat{background-position:-219px 4px; cursor: pointer;}
+	.checkSeat{background-position:-184px 4px; cursor: pointer;}
+	.loveSeat{background-position:-256px 4px; cursor: pointer;}
+	.scrollPage{width:648px; overflow:hidden;}
+	.movieInfo p{line-height:23px; color:#666;}
+	.orderInfo p{font-size:14px; font-weight:bold; color:#333; height:30px; line-height:30px;}
+	.orderInfo p em{font-size:12px; font-weight:normal; color:#999;}
+	.cPrice{font-size:12px;}
+	.cPrice b{font-size:18px;}
+	.cPrice i{font-family:微软雅黑; font-style:normal;}
+	.mobileInfo{border-top:1px solid #e5e5e5; padding:15px 0;}
+	.seatBox{position:relative; padding-left:36px; zoom:1; min-height:30px; _height:30px; line-height::30px;}
+	.seatBox em.Name{position:absolute; left:0; top:0; color:#999; line-height:30px;}
+	.powS{height:26px; line-height:26px; overflow:hidden; float:left; margin:0 10px 3px 0; width:100px; text-align:center; border:1px solid #f40; background:#fff; color:#f40; display:block;}
+	.noSeatS{border:none; background:none; text-align:left; line-height:30px;}
+	.phoneInfo{display:block; width:190px; position:absolute; top:75px; left:0; z-index:5; background:#FFFEDE; border:1px solid #ccc; color:#f40; font-size:18px; font-weight:bold; height:40px; line-height:40px; padding:0 10px;}
+	.wrapper{position:relative;padding-bottom:20px;width:100%;overflow:hidden;}
+	.pewGroup{position:relative; overflow:hidden; min-height:500px;}
+	.pewNo{position:absolute; z-index:5; width:40px; text-align:center; height:100%; top:0px; left:0px; padding-top:60px; background-color:#fff;}
+	.pewNo span{display:block;width:22px; height:30px;line-height:30px;color:#fff; font-size:11px; background-color:#fff;}
+	.pewNo .N{background-position:-120px 4px; background-color:#fff;}
+	
+	#selectedSeat .select{background:#f40; color:#fff;}
+	#selectedSeat span em{display:block; width:10px; height:10px; background-position:-451px -7px; position:absolute; right:5px; top:8px; cursor:pointer;} 
+	</style>
+</head>
+<body>
+<div class="ui_layout">
+	<div class="ui_tao_left">
+		<div class="pewGroup">
+			<div class="scrollPage" id="seatTable">
+				#set($maxwidth=42+35*$room.ranknum)
+				#set($pewHeight=$room.linenum*30+80)
+				#set($rowList=$VmUtils.split($room.seatmap,"@@"))
+				<div class="wrapper" id="wrapper">
+					<div id="wrapped" style="width: #if(${maxwidth} gt 648)${maxwidth}px;#else 648px #end; margin:0 auto; overflow:visible;">
+						<div style="margin:0 auto;#if(${maxwidth} gt 648)width:${maxwidth}px;#else width:648px;#end height:${pewHeight}px; overflow:hidden;">
+							<div class="screen">银幕</div>
+							#set($classMap={'O':'noSeat','A':'hasSeat'})
+							#foreach($row in $rowList)
+							<dl class="pseat clear">
+								<dd>
+									#foreach($rank in $VmUtils.split($row, ","))
+									<span class="$classMap.get($rank)"></span>
+									#end
+								</dd>
+							</dl>
+							#end
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="seatInfo mt20">
+			<span><img src="${staticPath}css/images/blank.gif" class="hasSeat" style="vertical-align:-9px; _vertical-align:-7px;" width="34" height="30"/>可选座位</span>
+			<span><img src="${staticPath}css/images/blank.gif" class="checkSeat" style="vertical-align:-9px; _vertical-align:-7px;" width="34" height="30"/>已选座位</span>
+			<span><img src="${staticPath}css/images/blank.gif" class="sellSeat" style="vertical-align:-9px; _vertical-align:-7px;" width="34" height="30"/>不可选座位</span>
+			<span><img src="${staticPath}css/images/blank.gif" class="loveSeat" style="vertical-align:-9px; _vertical-align:-7px;" width="60" height="30"/>情侣座位</span>
+		</div>
+		#*
+		<p class="center">#if($opi.seatnum && $opi.seatnum ge 10)<span>本影厅共有座位$!opi.seatnum个，当前已售#set($sell=$opi.gsellnum+$opi.csellnum)$!sell个</span>#end</p>
+		*#
+	</div>
+	<div class="ui_tao_right">
+		<div class="inner">
+			#set($seatidList=[])
+			#if($VmUtils.size($mySeatList) gt 0)#foreach($oseat in $mySeatList)#set($tmp=$seatidList.add($oseat.id))#end#end
+			<form id="orderForm" action="${basePath}partner/${partner.partnerpath}/addOrder.xhtml" method="post" target="_blank">
+			#if($otherParams)
+			#foreach($key in $otherParams.keySet())
+			<input type="hidden" name="$key" value="$!otherParams.get($key)" />
+			#end
+			#end
+			<input type="hidden" name="scheduleId" id="scheduleId" value="${opi.mpid}"/>
+			<input type="hidden" name="userId" id="userId" value="$!{userId}"/>
+			<input type="hidden" name="encQryStr" id="encQryStr" value="$!{encQryStr}"/>
+			<input type="hidden" name="nickname" id="nickname" value="$!{nickname}"/>
+			<input type="hidden" name="seatid" id="seatList" value="$!VmUtils.join($seatidList,',')"/>
+			<dl class="ui_media movieInfo">
+				<dt class="ui_pic"><img width="80" height="113" alt="$!movie.name" src="$VmUtils.randomPic('cw96h128',$movie.limg)"/></dt>
+				<dd class="ui_text">
+					<p class="bold">$!movie.name</p>
+					#if($VmUtils.isNotBlank($!opi.language))<p>语言：$!opi.language</p>#end
+					#if($VmUtils.isNotBlank($!opi.edition))<p>版本：$!opi.edition</p>#end
+					#if($!movie.videolen)<p>片长：$movie.videolen分钟</p>#end
+					#if($VmUtils.isNotBlank($!movie.type))<p>类型：$!movie.type</p>#end
+				</dd>
+			</dl>
+			<div class="orderInfo mt20">
+				<p><em>影院：</em>$opi.cinemaname</p>
+				<p><em>影厅：</em>$!opi.roomname</p>
+				<p><em>场次：</em><span class="cF40">$DateUtil.format($opi.playtime,'M月d日')（$DateUtil.getCnWeek($opi.playtime)）$DateUtil.format($opi.playtime,'HH:mm')</span></p>
+				<div class="seatBox clear">
+					<em class="Name">座位：</em>
+					<div class="clear" id="selectedSeat">
+						<div id="noSeatTxt">
+							<div class="powS noSeatS clear">还未选择座位</div>
+							<div class="cls"></div>
+							<div class="clear">点击<label class="cF40 ml5 mr5">左侧座位图</label>选择座位，再次点击取消</div>
+						</div>
+					</div>
+					<span id="seatNumP" style="display:none;">已选择<b class="cF40 ml5 mr5" id="seatCount">0</b>个座位，再次单击座位取消。</span>
+				</div>
+				<p><em>总计：</em><span class="cF40 cPrice"><i class="mr5">¥</i><b id="seatSumPrice">0</b></span><span class="none"><i>¥</i>35×3 = <b><i>¥</i>115</b></span></p>
+			</div>
+			<div class="mobileInfo mt20" style="position:relative;">
+				<p>接收电子码的手机号(11位)</p>
+				<input type="text" alt="请输入接收电子码的手机号" name="mobile" id="mobile" onkeyup="GewaraUtil.replaceStr(this);" autocomplete="off" size="11" maxlength="11" value="$!mobile" class="tao_text mt5" />
+				<span class="phoneInfo" id="phoneInfo" style="display:none;"></span>
+				<p class="mt10">验证码</p>
+				<div class="clear mt5">
+					<input type="text" class="tao_text left" name="captcha" id="partnercaptchaInput" autocomplete="off" maxlength="6" style="width:62px;"/>
+					#set($captchaId=$VmUtils.randomCaptchaId)
+					<input type="hidden" name="captchaId" id="partnercaptcha" value="$!captchaId"/>
+					<img id="partnercaptchaImg" src="${basePath}captcha.xhtml?captchaId=$!captchaId&r=$math.random" style="cursor: pointer;width:80px;height:30px;float:left;margin:0 0 0 10px;" 
+					onclick="GewaraUtil.refreshCaptcha('partnercaptcha')" title="看不清楚，请双击换一张图片"/>
+					<span onclick="GewaraUtil.refreshCaptcha('partnercaptcha')" style="cursor: pointer;float:right;margin-right:10px;color:#999">看不清？换一张</span>
+				</div>
+			</div>
+			<p><a href="javascript:void(0);" onclick="submitOrder();" class="tao_Btn">确认支付，下单</a></p>
+			</form>
+		</div>
+	</div>
+</div>
+<script src="${basePath}scripts/loaderProxy.js?v=$VmUtils.jsVersion" data-frameid="J_SeatFrame"  data-timer="600" data-proxy="${iframeUrl}"></script>
+<form id="submitForm" target="_top" method="post"></form>
+<script type="text/javascript">
+window.addEvent('domready', function(){
+	refreshSeat();
+	gewaUtil.textOver('.tao_text');
+	comfirmPhone();
+});
+
+function comfirmPhone(){
+	var oP = $('phoneInfo');
+	$('mobile').addEvents({
+		'keyup':function(){
+			var oString = $('mobile').value.toString();
+			if(this.value == null || this.value == ''){
+				oP.hide();
+			}else{
+				oP.show();
+				if(oString.length > 7){
+					oP.innerHTML = oString.substr(0,3)+'-'+oString.substr(3,4)+'-'+oString.substr(7);
+				}else if(this.value.toString().length > 3 && this.value.toString().length <=7){
+					oP.innerHTML = oString.substr(0,3)+'-'+oString.substr(3)
+				}else{
+					oP.innerHTML = this.value;
+				}
+			}
+		},
+		'blur':function(){
+			oP.hide();
+		}		
+	});
+}
+
+function refreshSeat(){
+	gewa.util.mask({'element': "seatTable",'title':'正在查询数据...', "opacity":"0.4"});
+	#set($price=$priceHelper.getPrice($opi))
+	var values={'mpid':$opi.mpid, 'partnerid':$partner.id, 'price':'$price', 'userId':'$userId'};
+	var url="${basePath}partner/$partner.partnerpath/seatPageV2.xhtml"
+	GewaraUtil.sendLoad('seatTable', url, values, function(result){
+		gewa.util.clearMask();
+		if($('wrapper') && $('wrapped') && $('wrapped').getStyle('width').toInt() > 648){
+			new ScrollerBar('wrapper',{mode:'horizontal',wrapped:'wrapped',flag:true});
+		}
+		if(!result.success){
+			var msg = result.json.msg;
+			gewa.util.maskContent("seatTable", '<span style="cursor:pointer">'+msg+'</span>');
+		}
+	})
+}
+
+function submitOrder(){
+	var err = "",val=$("mobile").value.trim();
+	if($$(".pseat span.hasSeat").length >0 || $$(".pseat span.checkSeat").length>0) {
+		if($("seatList").value.trim() == "") err = "请先选择座位！";
+	}else err="影厅已满坐，请选择其它影厅！";
+	if(val == ""){err += "请输入您的手机号码！"}
+	if((!isNumber(val) || val.length != 11) && val != "") err += "请输入正确的手机号码！";
+	if(err.length>0){alert(err);return false;}
+	gewa.util.mask({'element': "orderForm",'title':'正在提交，请稍等...'});
+	var values = GewaraUtil.getValues($("orderForm"));
+	var url = "${basePath}partner/taobao/addOrder.xhtml";
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			$("submitForm").action = result.url;
+			$("submitForm").submit();
+		}else {
+			alert(result.msg);
+			GewaraUtil.refreshCaptcha('partnercaptcha');
+		}
+	});
+}
+
+function isNumber(str){return /^\d+$/.test(str);}
+</script>
+<script type="text/javascript">
+var pageCode="step1.shtml"
+</script>
+#parse('partner/googleGa.vm')
+</body>
+</html>

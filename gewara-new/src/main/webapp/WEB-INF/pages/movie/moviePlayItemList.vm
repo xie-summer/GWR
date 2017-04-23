@@ -1,0 +1,65 @@
+<!-- SUCCESS_HEAD -->
+#if(!$VmUtils.isEmptyList($dateList))
+<div id="opiFilterHead">
+	<div class="detail_tab_nav mt20">
+		<div class="tabs" id="timeOutside">
+			#foreach($pdate in $dateList)
+				#if($foreach.count le 4)#set($pdateStr=$DateUtil.formatDate($pdate))
+				<span #if($VmUtils.eq($pdateStr, $fyrq)) class="select" #end id="$pdateStr">
+				${DateUtil.format($pdate, 'M月d日')}
+					#if($DateUtil.getDiffDay($pdate,$DateUtil.curDate) eq 0)
+					今天
+					#else
+					$DateUtil.getCnWeek($pdate)#end
+				</span>
+				#end
+			#end
+			#*
+			#if($VmUtils.size($dateList) gt 4)
+			<a href="${basePath}cinema/searchOpi.xhtml?movieid=$curmovie.id&fyrq=$DateUtil.formatDate($dateList.get(4))" target="_blank" class="moreTime" title="更多日期">更多日期</a>
+			#end
+			<em class="mNotice" onclick="showTemplate();" id="showTemplate">开放购票通知</em>
+			*#
+		</div>
+	</div>
+	#if($VmUtils.size($countyList) gt 0)
+	<dl class="ticket_choose detail_ticket_chooseBg clear" id="choice">
+		<dt>选择区域：</dt>
+		<dd>
+			<div class="clear">
+				<a href="javascript:void(0)" class="select" config="area" id="">热门影院</a>
+				#foreach($county in $countyList)
+				<a href="javascript:void(0)" id="$county.countycode" config="area">$county.briefname</a>
+				#end
+			</div>
+			<div class="chooseInnerBox clear" id="cinemaPanel">
+				#foreach($cinema in $cinemaList)
+				<a href="javascript:void(0)" class="$cinema.countycode #if($foreach.index eq 0) select #end" #if($foreach.index gt 3) style="display:none;" #end id="$cinema.id" rel="$cinema.countycode" config="cinema">$!{cinema.realBriefname}</a>
+				#end
+			</div>
+		</dd>
+	</dl>
+	#end
+</div>
+<div id="cinemaCollection">
+	#foreach($cinema in $cinemaList)
+		$pageMap.get("cinema$cinema.id")
+	#end
+	<div class="notPlay" style="display:none;" id="notOpi">
+		<div class="notPlayList" style="width:460px;">
+			<h2>很抱歉，<span id="showMyFilterCinema"></span>影院暂无排片</h2>
+			<div class="ui_abeam mt20 fs14">
+				<div class="uipic bold"></div>
+				<div class="uiText">
+					<ul>
+						<li>当前所选日期：$!fyrq</li>
+						<li>请尝试更改筛选条件，再试一次！ </li>
+						#*<li class="mt10">设置排片更新提醒<a href="javascript:void(0)" onclick="showTemplate();return false;" class="button whiteBt minBt iconBt ml10" target="_blank"><span><em>排片提醒</em></span></a></li>*#
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#end
+<!-- SUCCESS_BOTTOM -->

@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>统计场次排片管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.none{display:none;}
+	</style>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="currs"><a><span>场次统计</span></a></li>
+		</ul>
+	</div>
+</div>
+<div style="color:red" id="notifyWin"></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<form action="${basePath}admin/ticket/countMpiList.xhtml">
+		<div>
+			开始时间：<input type="text" name="starttime" style="width:140px;" 
+						onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" value="$!params.starttime" readonly="readonly"/>
+			结束时间：<input type="text" name="endtime" style="width:140px;" 
+						onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" value="$!params.endtime" readonly="readonly"/>
+			<input type="submit" value="查询"/>
+		</div>
+		</form>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>&nbsp;</th>
+					<th>城市</th>
+					<th>场次id</th>
+					<th>影院</th>
+					<th>影片</th>
+					<th>时间	</th>
+					<th>状态</th>
+					<th>格瓦拉已卖出数量</th>
+				</tr>
+			</thead>
+			<tbody class="tbody opi" id="opiListBody">
+				#set($GS=0) #set($O=0) #set($C=0) #set($U=0)
+				#foreach($mpi in $mpiList)
+				#set($opi=$opiMap.get($mpi.id))
+				#set($movie=$movieMap.get($mpi.movieid))
+				#set($cinema=$cinemaMap.get($mpi.cinemaid))
+				<tr>
+					<td>$foreach.count</td>
+					<td>${mpi.citycode}[$cityMap.get($mpi.citycode)]</td>
+					<td>$mpi.id</td>
+					<td>$cinema.name</td>
+					<td>$movie.name</td>
+					<td>$DateUtil.format($mpi.playdate,'yyyy-MM-dd') $mpi.playtime</td>
+					#if($VmUtils.isNotEmpObj($opi))
+					<td>
+					#if($opi.isOpen() && $opi.status eq 'Y')已开放#set($O=$O+1)#else未开放#set($C=$C+1)#end
+					#set($GS=$GS+$opi.gsellnum)
+					</td>
+					<td>$!opi.gsellnum</td>
+					#else
+					#set($U=$U+1)
+					<td>未设置</td>
+					<td>0</td>
+					#end
+				</tr>
+				#end
+				<tr>
+					<td colspan="6"></td>
+					<td>已开放：$O<br/>未开放：$C<br/>未设置：$U</td>
+					<td>$GS</td>
+				</tr>
+			</tbody>
+		</table>
+		<div id="showGather" class="selectMovie" style="display: none;">
+		</div>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<script type="text/javascript">
+	window.addEvent("domready", function(){
+		$$(".tbody tr").addEvents({
+			'mouseenter':function(){
+				this.addClass("mouseBg");
+			},
+			'mouseleave':function(){
+				this.removeClass("mouseBg");
+			}
+		});
+	})：
+</script>
+</body>
+</html>

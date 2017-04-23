@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>用户手机绑定查询</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}component/utilities.js"></script>
+	<script type="text/javascript" src="${staticPath}component/container-min.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width:750px; margin:auto" class="yui-skin-sam">
+<div align="center">
+<div>
+<form id="mf" action="${basePath}admin/sns/getMemberInfo.xhtml">
+<table style="width:100%;margin-top: 20px;" class="table">
+	<thead class="th">
+		<tr>
+			<th>
+				用户ID:<input type="text" name="ids" id="ids"/>
+				<input type="button" value="提交" onclick="saveDanger('ids')"/>
+			</th>
+		</tr>		
+	</thead>
+</table>
+</form>
+</div>
+</div>
+<script type="text/javascript">
+	function saveDanger(el){
+		el = $(el);
+		var ids = el.value;
+		if(ids == ''){
+			alert('用户信息不能为空！');
+			return;
+		}
+		if(window.confirm('确定加入非安全用户？')){
+			var url ="${basePath}admin/sns/saveDangerMember.xhtml";
+			var values = {'ids':ids}
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert('保存成功');
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+	}
+</script>
+</body>
+</html>

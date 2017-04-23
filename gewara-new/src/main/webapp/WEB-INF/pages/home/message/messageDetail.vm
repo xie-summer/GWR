@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>我的站内消息</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($messageDetail=true)
+#set($receMessageList=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/messageMenu.vm')
+			<ul class="ui_abeam btLine">
+				#foreach($uma in $umaList)
+				#set($userMessage=$userMessageMap.get($uma.id))
+				<li class="abeam">
+					<div class="uipic">
+						#if($VmUtils.eq($uma.frommemberid,'0'))
+						<span class="pubpic" title="系统管理员"><img src="${staticPath}css/images/blank.gif" style="cursor: default; background:url(${picPath}css/global/logo.png) no-repeat center center"/></span>
+						#end
+						#if(!$VmUtils.eq($uma.frommemberid,'0'))
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!uma.frommemberid" class="pubpic" target="_blank" title="$cacheMemberMap.get($uma.frommemberid).nickname"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($uma.frommemberid).headpicUrl)) no-repeat center center"/></a>
+						#end
+					</div>
+					<div class="uiText max_outer_text">
+						<p>
+						#if(!$VmUtils.eq($uma.frommemberid,'0'))
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!uma.frommemberid" target="_blank">$cacheMemberMap.get($uma.frommemberid).nickname</a>
+							<span class="gray ml10">$!DateUtil.format($uma.addtime,'yyyy-MM-dd HH:mm')</span>
+						#end
+						</p>
+						<p>$!userMessage.getRcontent($basePath)</p>
+						#if($VmUtils.eq($uma.frommemberid,'0'))
+							系统管理员<span class="gray ml10">$!DateUtil.format($uma.addtime,'yyyy-MM-dd HH:mm')</span>
+						#end
+						#if(!$VmUtils.eq($uma.frommemberid,'0'))
+						<div class="tar">
+							<a href="javascript:reRlyContent('messageContent','Re:$userMeSubject')" class="mr10" style="color:gray">回复</a>|
+							<a href="${basePath}home/message/sendMessage.xhtml?messageid=$userMessage.id" class="ml10 mr10" style="color:gray"><img src="${staticPath}css/home/sendMessage.gif" class="mr5"/>转发</a>|								
+							<a onclick="showAccusation('userMessage',$uma.id);" class="ml10" style="color:gray;cursor:pointer;"><img src="${staticPath}css/home/trash.gif"/>举报</a>														
+						</div>
+						#end
+					</div>
+				</li>
+				#end
+				#if(!$VmUtils.eq($uma.frommemberid,'0'))
+					#parse('include/home/messageBox.vm')
+				#end
+			</ul>
+		</div>
+	</div>
+</div>
+#parse('include/accusation.vm')
+<script type="text/javascript">
+	function reRlyContent(elid,eContent){
+		if($(elid)) $(window).scrollTo(0,$(elid).getPosition().y);
+		$('subject').value = eContent;
+	}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

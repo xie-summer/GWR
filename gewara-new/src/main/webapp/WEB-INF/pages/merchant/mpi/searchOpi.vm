@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>场次查看</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_movie,play&v=$VmUtils.jsVersion"/>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.mc{height:26px;vertical-align: middle;color:red;font-size:14px;font-weight:bold}
+	</style>
+</head>
+<body style="width:85%; margin:auto">
+	<div style="clear:both;"></div>
+	<div style="margin-top: 10px;">
+		<span>放映日期：</span>
+		#foreach($vday in $playdateList)
+		<span class="ml10"><a href="${basePath}merchant/mpi/searchOpi.xhtml?cinemaId=$!params.cinemaId&type=$!params.type&playdate=$DateUtil.format($vday, 'yyyy-MM-dd')" #if($VmUtils.eq($vday,$playdate))class="yellow"#end>${DateUtil.getCnWeek($vday)}[${DateUtil.format($vday, 'M月d日')}]</a></span>
+		#end
+	</div>
+	<div style="margin-top: 10px;" id="roomList">
+		<span>放&nbsp;映&nbsp;厅：</span>
+		#foreach($roomname in $roomnameList)
+		<span class="ml10"><a href="javascript:chooseRoom('$roomname')" title="$roomname">$roomname</a></span>
+		#end
+	</div>
+	<div style="margin-top: 15px;" class="play-outside-box">
+		<div class="wrapper">
+			<div class="wrapperTitle">
+				<b>影片</b>
+				<b>放映时间</b>
+				<b>语言/版本</b>
+				<b>放映厅</b>
+				<b>影院价</b>
+				<b>座位图</b>
+			</div>
+			<ul class="ptableList" id="opiList">
+				#foreach($opi in $opiList)
+				<li #if($foreach.index%2 eq 1) class="playBg" #end title="$opi.roomname">
+					<b class="getvlue">$opi.moviename</b>
+					<b class="getvlue">$!{DateUtil.format($opi.playtime, 'HH:mm')}</b>
+					<span class="gray getvlue">$!opi.language#if($!opi.edition)/<font style="font-size:9px;">$!opi.edition</font>#end</span>
+					<span class="gray getvlue">$!{opi.roomname}</span>
+					<span class="gray getvlue">$!opi.price</span>
+					<span class="gray getvlue"><a href="${basePath}merchant/mpi/seatPage.xhtml?mpid=$opi.mpid" target="_blank">座位图</a></span>
+				</li>
+				#end
+			</ul>
+		</div>
+	</div>
+<script type="text/javascript">
+	function chooseRoom(name){
+		$('roomList').getElements('a').each(function(item){
+			if(item.title!=name) item.removeClass('yellow');
+			else item.addClass('yellow');
+		});
+		$('opiList').getElements('li').each(function(item){
+			if(item.title!=name) item.addClass('none');
+			else item.removeClass('none');
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>格瓦拉社区</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/default.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,Autocompleter,page,noobSlide&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div id="snsHeader"></div>
+<div class="ui_layout">
+	#set($menuTag = 'blog')
+	#parse('sns/common/left.vm')
+	<div class="body_right">
+		<div class="body_nav_tags">
+			<div class="navs">
+				<a id="diarytopic" href="javascript:void(0);" onclick="getTopicOrComment('diarytopic', this)" class="select">#if($logonMember.id eq $member.id)我#else TA#end发表的帖子</a>
+				<a id="rediarytopic" href="javascript:void(0);" onclick="javascript:getTopicOrComment('rediarytopic', this)">#if($logonMember.id eq $member.id)我#else TA#end回复的帖子</a>
+			</div>
+			<div class="modules">
+				<a href="${basePath}blog/modifyTopic.xhtml" class="addnew" target="_blank">发表帖子</a>
+			</div>
+		</div>
+		<div class="bodys" id="_body">
+			#parse('sns/userComment/myComment.vm')
+		</div>
+	</div>
+</div>
+<div class="ui_view_menu"></div>
+<div class="footer_warp">
+	<div class="isFooter"></div>
+</div>
+#parse('include/innerLogin.vm')
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=snsUtil,index_even&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	if($('publicize'))new adSoild('publicize','navControl',{'position':{'x':#if($!params.memberid)280#{else}180#end,'y':#if($!params.memberid)80#{else}70#end},'width':14});
+	if($('slidePanel'))new noobSlide({
+		box: $('slidePanel'),
+		size:180,
+		items: $$('#slidePanel li'),
+		handle_event:'click',
+		addButtons: {
+			previous:$('eventL'),
+			next:$('eventR')
+		}
+	});
+	getTopicOrComment('diarytopic', 'diarytopic');
+});
+
+function ajaxPage(pageNo, params, url){
+	gewaUtil.loadData('_body', url, {});
+}
+
+function getTopicOrComment(type, obj, value){
+	var url = '${basePath}ajax/comment/newCommentList.xhtml';
+	var values = {'memberid':'$!member.id','type':type};
+	if(value){
+		values.flag = value;
+	}
+	gewaUtil.loadData('_body', url, values, function(result){
+		if(result.success){
+			if(type == 'diarytopic'){
+				$('diarytopic').addClass('select');
+				$('rediarytopic').removeClass('select');
+			}else{
+				$('rediarytopic').addClass('select');
+				$('diarytopic').removeClass('select');
+			}
+		}else{
+			gewaUtil.alert(result.json.msg);
+		}
+	}, obj, 'get');
+}
+</script>
+#parse('sns/common/ga.vm')
+</body>
+</html>

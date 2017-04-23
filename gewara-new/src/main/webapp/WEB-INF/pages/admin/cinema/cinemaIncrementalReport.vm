@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>电影院评分关注数收藏统计</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="margin:auto">
+<div style="padding:1px;">
+	<form action="${basePath}admin/cinema/cinemaIncrementalReport.xhtml" style="margin:3px; width:300px; float: left;">
+		时间:<input name="date" readonly="readonly" onclick="WdatePicker()" type="text" style="width:80px" value="$!params.date"/>
+		<input type="submit" class="button" value="查询"/>
+	</form>
+</div>
+<table class="table clear">
+	<thead>
+	<tr>
+		<th>统计日期</th>
+		<th>影院ID</th>
+		<th>影院名称</th>
+		<th>省份</th>
+		<th>城市</th>
+		<th>关注数</th>
+		<th>收藏数</th>
+		<th>购票数</th>
+		<th>哇啦数</th>
+		<th>评分用户数（购）</th>
+		<th>评分用户数（未）</th>
+	</tr>
+	</thead>
+	<tbody id="cinemaTable">
+	#foreach($report in $rList)
+	<tr>
+		<td>$!{report.date}</td>
+		<td>$!{report.cinemaId}</td>
+		<td>$!{report.cinemaName}</td>
+		<td>$!{report.proName}</td>
+		<td>$AdminCityContant.citycode2GewaCity.get($report.citycode).cityname</td>
+		<td>$!{report.clickedtimes}</td>
+		<td>$!{report.collectedtimes}</td>
+		<td>$!{report.ticketCount}</td>
+		<td>$!{report.walaCount}</td>
+		<td><a href="${basePath}admin/cinema/cinemaMemberMarkDetail.xhtml?cinemaId=${report.cinemaId}&flag=Y" target="_blank">$!{report.buyMarkCount}</a></td>
+		<td><a href="${basePath}admin/cinema/cinemaMemberMarkDetail.xhtml?cinemaId=${report.cinemaId}&flag=N" target="_blank">$!{report.notBuyMarkCount}</a></td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<div style="padding:0 15px;">#parse('include/pageUtil.vm')</div>
+</body>
+</html>

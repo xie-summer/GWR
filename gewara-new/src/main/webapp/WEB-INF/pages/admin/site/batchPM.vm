@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>发布公告</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width: 750px; margin:10px auto auto auto" class="yui-skin-sam">
+<table class="table">
+	<thead>
+	<tr>
+			<th width="8%" style="text-align: center;">批号</th>
+		<th width="21%" style="text-align: center;">主题</th>
+		<th width="33%" style="text-align: center;">内容</th>
+		<th width="18%" style="text-align: center;">添加时间</th>
+		<th width="10%" style="text-align: center;">操作</th>
+		<th width="10%" style="text-align: center;">前台显示</th>
+	</tr>
+	</thead>
+	<tbody>
+		#foreach($pmsg in $pmList)
+		<tr style="height: 18px;">
+		<td>$pmsg.id</td>
+		<td>$!VmUtils.escabbr($pmsg.usermessage.subject,15)</td>
+		<td>$!VmUtils.htmlabbr($pmsg.usermessage.content,25)</td>
+		<td>$DateUtil.formatTimestamp($pmsg.addtime)</td>
+		<td style="text-align: center;"><a href="javascript: void(0);" onclick="pmMod('$pmsg.id')">修改</a>&nbsp;<a href="javascript: void(0);" onclick="pmDel('$pmsg.id')">删除</a></td>
+		<td style="text-align: center;"><input type="radio" style="cursor: pointer;" name="showInIndex" #if($pmsg.isread eq 1)checked #end onclick="pmModStatus('$pmsg.id')"/></td>
+		#end
+	</tbody>
+</table>
+<br />
+<div style="margin-left: 300px;">#parse('include/pageUtil.vm')</div>
+<br />
+<br />
+
+<div style="color: red">说明：添加公告_会使网站所有用户看到公告, 目前只支持显示1条公告！添加链接请使用 http://xxx 格式(如${absPath}${basePath})</div>
+<div style="display: ;" id="addDataForm">
+<form action="${basePath}admin/message/saveBatchPM.xhtml" name="msgForm" id="msgForm" method="post">
+	<input type="hidden" name="id" id="id" />
+	<div>主题:<input type="text" name="subject" id="subject" size="60" /></div>
+	<div>内容:<span id="wordcount"></span><textarea name="content" style="width:700px; height:300px;" id="content"></textarea></div>
+	<div><input type="button" id="btnSendMsg" value="提&nbsp;&nbsp;交" onclick="sendMsg(this)"/></div>
+</form>
+</div>
+
+	<script type="text/javascript">
+	function get$(id){
+		return document.getElementById(id);
+	}
+	function set$(id, value){
+		get$(id).value = value;
+	}
+
+	function validForm(){
+		var subject = get$('subject');
+		var content = get$('content');
+		if(subject.value == '' || subject.value.length == 0){
+			alert("主题不能为空!");
+			subject.focus();
+			return false;
+		}
+		if(content.value == '' || content.value.length == 0){
+			alert("内容不能为空!");
+			content.focus();
+			return false;
+		}
+		return true;
+	}
+
+	function sendMsg(obj){
+		if(!validForm())return false;
+		obj.disabled = true;
+		var id = get$('id').value;
+		var subject = get$('subject').value;
+		var content = get$('content').value;
+		
+		get$('btnSendMsg').disabled = true;
+		var url = 'saveBatchPM.xhtml';
+		var values = {'id':id, 'subject':subject, 'content':content};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('操作已成功!');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+
+	function pmMod(id){
+		var url = 'preModiPM.xhtml';
+		var values = {'id':id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				get$('addDataForm').style.display = '';
+				set$('id', result.id);
+				set$('subject', result.subject);
+				set$('content', result.content);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function pmModStatus(id){
+		var url = 'modiPMStatus.xhtml';
+		var values = {'id':id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("设置成功!");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+
+	function pmDel(id){
+		var flag = window.confirm('删除该记录时网站所有会员将同时丢失该信息,确认删除吗? ');
+		if(!flag)return false;
+		var url = 'delPM.xhtml';
+		var values = {'id':id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('删除成功!');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

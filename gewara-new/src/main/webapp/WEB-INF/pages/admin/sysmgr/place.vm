@@ -1,0 +1,266 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>地区管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}component/utilities.js"></script>
+	<script type="text/javascript" src="${staticPath}component/container-min.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+</head>
+#set($cookieCitycode=$cookieTool.citycode.value)
+<script type="text/javascript" src="${basePath}getConstCinemaKey.xhtml?v=$VmUtils.jsVersion&citycode=$cookieCitycode"></script>
+<body style="width:750px; margin:auto" class="yui-skin-sam">
+	<div align="center">
+	<table style="width:100%">
+		<thead class="th">
+		<tr>
+			<th>
+				选择省:<select name="s_province" id="s_province" onchange="getCities(this);" style="width:200px">
+				#foreach($province in $provinceList)
+					<option value="${province.provincecode}">${province.provincecode}-${province.provincename}</option>
+				#end
+				</select>
+			</th>
+			<th><span id="selectCity" style="color: blue;font:bold;"></span>市的区县</th>
+			<th><span id="selectCounty" style="color: blue;font:bold;"></span>区县的商圈</th>
+		</tr>
+		</thead>
+		<tr>
+		<td valign="top" style="width:34%;padding-left:0;padding-right: 0;">
+				<table width="100%" class="table">
+				<thead><tr>
+				<th width="30%">城市代码</th>
+				<th width="70%">城市名称</th>
+			</tr></thead>
+				<tbody id="table_city">
+				</tbody>
+			</table>
+			</td>
+		<td valign="top" style="width:33%;padding-left:0;padding-right: 0">
+			<table width="100%" border="0" class="table">
+					<thead valign="top">
+					<tr>
+						<th style="width:80px">区县代码</th>
+						<th style="width:100px">区县名称</th>
+						<th style="width:100px">操作</th>
+					</tr>
+					</thead>
+					<tbody id="table_county">
+					</tbody>
+			</table>
+		</td><td valign="top" style="width:33%;padding-left:0;padding-right: 0">
+			<table width="100%" class="table">
+					<thead>
+					<tr>
+						<th style="width:80px">商圈代码</th>
+						<th style="width:100px">商圈名称</th>
+						<th style="width:100px">[<span style="color:blue; cursor: pointer" onclick="newIndexarea();" title='增加新商圈'>增加</span>]</th>
+					</tr>
+					</thead>
+					<tbody id="table_indexarea">
+					</tbody>
+			</table>
+			</td>
+		</tr>
+		<tr>
+		<td height="23" colspan="3">&nbsp;</td>
+		</tr>
+	</table>
+	</div>
+	<div id="indexareaDialog" class="yui-panel" style="width:300px; visibility:hidden">
+		<div class="hd">请输入商圈信息</div>
+		<div class="bd">
+			<form id="indexareaForm">
+				<div>
+					<label for="indexareaCode">商圈代码：</label><input type="text" name="indexareaCode" />
+				</div><div>
+					<label for="indexareaName">商圈名称：</label><input type="text" name="indexareaName" /> 
+				</div><div>
+					<input type="button" name="save" value="保存" onclick="saveIndexarea();"/>
+					<input type="button" name="cancle" value="取消" onclick="hideDialog();"/>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div id="countyDialog" class="yui-panel" style="width:300px; visibility:hidden; z-index:20;">
+	<div class="hd">输入区县信息</div>
+	<div class="bd">
+		<form id="countyForm">
+			<div>
+				<input type="hidden" id="countycode" name="countycode" mustTxt="请先择地区！"/>
+				<label for=countyname>区县名称：</label><input type="text" id="countyname" name="countyname" mustTxt="地区名称不能为空！"/>
+			</div>
+			<div>
+				<label for=briefname>区县简称：</label><input type="text" id="briefname" name="briefname" mustTxt="地区简称不能为空！"/>
+			</div>
+			<div>
+				<input type="button" value="保存" onclick="saveCounty();"/><input type="button" value="取消" onclick="GewaraUtil.hideDialog('countyDialog')"/>
+			</div>
+		</form>
+	</div>
+</div>
+	<script type="text/javascript">
+		var options = new Object();
+		options.escapeHtml = false;
+		var cityFunctions = [
+			function(city) {
+				var htm = "<a href=\"javascript:getCountries('" + city.citycode + "')\">" + city.citycode + "</a>";
+				return htm;
+			}, function(city) { 
+				return city.cityname;
+		}];
+		var countyFunctions = [
+			function(county) {
+				var htm = "<a href=\"javascript:getIndexareas('" + county.countycode + "')\">" + county.countycode + "</a>";
+				return htm;
+			}, function(county) { 
+				return county.countyname;
+			}, function(county) {
+				var button = "<input type='button' class='button' value='修改' onclick=\"getCounty('" + county.countycode + "')\"/>";
+				return button;
+		}];
+		var indexareaFunctions = [
+			function(indexarea) {
+				var htm = indexarea.indexareacode;
+				return htm;
+			}, function(indexarea) { 
+				return indexarea.indexareaname;
+			}, function(indexarea) {
+				return "<input type='button' class='button' value='删除' onclick=\"removeIndexarea('" + indexarea.indexareacode + "')\"/>";
+		}];
+		function indexareaDeleted(vSuccess){
+			if(vSuccess){
+				alert('成功删除商圈！');
+				getIndexareas($('selectCounty').innerHTML)
+			}else{
+				alert('删除商圈失败！');
+			}
+		}
+		function hideDialog(){
+			GewaraUtil.hideDialog("indexareaDialog");
+		}
+		function showDialog(){
+			GewaraUtil.showDialog("indexareaDialog");
+		}
+		function getCities(provinceSelector) {
+			var provinceCode = provinceSelector.value;
+			GewaraUtil.removeAllRows("table_city");
+			GewaraUtil.removeAllRows("table_county");
+			GewaraUtil.removeAllRows("table_indexarea");
+			$("selectCity").innerHTML = "";
+			$("selectCounty").innerHTML = "";
+			var url = '${basePath}admin/common/ajax/getCityByProvinceCode.xhtml';
+			var values = {'provinceCode':provinceCode};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					addCity(result.provinceMap);
+				}
+			});
+		}
+		function getCountries(cityCode) {
+			GewaraUtil.removeAllRows("table_county");
+			GewaraUtil.removeAllRows("table_indexarea");
+			$("selectCounty").innerHTML = "";
+			$("selectCity").innerHTML = cityCode;
+			var url = '${basePath}admin/common/ajax/getCountyByCityCode.xhtml';
+			var values = {'cityCode':cityCode};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					addCounty(result.countyMap);
+				}
+			});
+		}
+		function getIndexareas(countyCode) {
+			GewaraUtil.removeAllRows("table_indexarea");
+			$("selectCounty").innerHTML = countyCode;
+			var url = '${basePath}admin/common/ajax/getIndexareaByCountyCode.xhtml';
+			var values = {'countycode':countyCode};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					addIndexarea(result.indexareaList);
+				}
+			});
+		}
+		function addCity(cityList){
+			GewaraUtil.addRows("table_city", cityList, cityFunctions, options);
+		}
+		function addCounty(countyList){
+			GewaraUtil.addRows("table_county", countyList, countyFunctions, options);
+		}
+		function addIndexarea(indexareaList){
+			GewaraUtil.addRows("table_indexarea", indexareaList, indexareaFunctions, options);
+		}
+		function newIndexarea(){
+			var vCountycode = $("selectCounty").innerHTML;
+			if(vCountycode==null || vCountycode ==""){
+				alert('请选择区县！');
+				return;
+			}
+			showDialog();
+		}
+		function indexareaFun(result){
+			if(result){
+				alert('成功增加商圈！');
+				var vCountycode = $("selectCounty").innerHTML;
+				getIndexareas(vCountycode);
+			}else{
+				alert('增加商圈失败！');
+			}
+		}
+		function saveIndexarea(){
+			var values = GewaraUtil.getValues('indexareaForm');
+			if (values.indexareaCode == "" || values.indexareaName == "") {
+				alert("请输入商圈代码和名称！");
+				return;
+			}
+			var vCountycode = $("selectCounty").innerHTML;
+			var url = '${basePath}admin/common/ajax/saveOrUpdateIndexarea.xhtml';
+			
+			GewaraUtil.sendRequest(url, {'countycode':vCountycode,'indexareacode':values['indexareaCode'],'indexareaname':values['indexareaName']}, function(result){
+				indexareaFun(result);
+			});
+			//CAUtil.saveOrUpdateIndexarea(vCountycode, values['indexareaCode'],values['indexareaName'],indexareaFun)
+			hideDialog();
+		}
+		function removeIndexarea(indexareacode){
+			var url ='${basePath}admin/common/ajax/removeIndexarea.xhtml';
+			GewaraUtil.sendRequest(url, {'indexareaCode':indexareacode}, function(result){
+				indexareaDeleted(result);
+			});
+		}
+		getCities($("s_province"));
+		
+		function getCounty(countycode){
+			var url = '${basePath}admin/common/getCounty.xhtml';
+			var values = {'countycode':countycode};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					GewaraUtil.setValues(result);
+					GewaraUtil.showDialog('countyDialog');
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+		
+		function saveCounty(){
+			if(!GewaraUtil.baseValidForm('countyForm')) return;
+			var url = '${basePath}admin/common/saveOrUpdateCounty.xhtml';
+			var values = GewaraUtil.getValues('countyForm');
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert('保存成功!');
+					GewaraUtil.hideDialog('countyDialog');
+				}else{	
+					alert(result.msg);
+				}
+			});
+		}
+	</script>
+</body>
+</html>

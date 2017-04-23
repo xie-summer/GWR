@@ -1,0 +1,340 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>价格列表管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.none{display:none;}
+		.clear{clear: both;}
+		.checkMenu span a{font-size:14px;font-weight:bold;}
+		.ck2{height:auto;padding:10px 0;}
+		.ck2 ul li{margin-bottom:3px;}
+	</style>
+</head>
+<body>#set($isGoods=true)
+#set($theatre=$baseInfo)
+#set($targetUrl=$VmUtils.escapeHtml("admin/goods/drama/ticketGoodsList.xhtml?relatedid="))
+#parse('admin/theatreticket/menu.vm')
+<div style="color:red" id="notifyWin"></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+		<div class="checkMenu" style="line-height:50px;padding-left:5px;">
+			<span><a href="${basePath}admin/goods/drama/ticketGoodsList.xhtml?relatedid=$!theatre.id">全部</a>
+			<a href="${basePath}admin/goods/drama/ticketGoodsList.xhtml?relatedid=$!theatre.id&period=Y">时间场次</a>
+			<a href="${basePath}admin/goods/drama/ticketGoodsList.xhtml?relatedid=$!theatre.id&period=N">通票场次</a></span>
+			<span class="right mt10"><input type="button" value="新增时间场次"  onclick="updateTicketGoods('','$!theatre.id','Y')"/> </span>
+			<span class="right mt10"><input type="button" value="新增通票场次"  onclick="updateTicketGoods('','$!theatre.id','N')"/> </span>
+		</div>
+		<div class="checkMenu ck2 clear">
+			<ul>#foreach($dateMap in $dateMapList)
+				#set($cdate=$dateMap.playdate + '-01')
+				<li #if($cdate eq $!params.date)class="chooseItem"#end>
+					<div><a href="${basePath}admin/goods/drama/ticketGoodsList.xhtml?relatedid=$!theatre.id&date=${dateMap.playdate}-01&period=$!params.period">$dateMap.playdate</a>
+					<h2>${dateMap.count}场</h2>
+				</li>
+				#end
+			</ul>
+		</div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>开设类型</th>
+					<th>名称</th>
+					<th>话剧</th>
+					<th>放映厅</th>
+					<th>演出入场时间</th>
+					<th>修改</th>
+					<th>剧院价</th>
+					<th>成本价</th>
+					<th>卖价</th>
+					<th>价格</th>
+					<th>场次</th>
+					<th>优惠券<br />
+						<input type="text" style="width:40px;"  onchange="allElecard(this)" value=""/>
+					</th>
+					<th>
+						<input type="checkbox" onclick="batchExpressCheckbox(this)"/>
+						<input id="expressid" type="text" style="margin-top: 10px;width: 50px;" /><br />
+						<input type="button" value="批量设置快递" onclick="batchExpress('expressid')"/>
+					</th>
+					<th>排序</th>
+					<th title="提起几小时关闭预订">时间设置</th>
+					<th>前台</th>
+					<th>
+						<input type="button" value="全部接受" onclick="enableAll('Y')"/><br />
+						<input type="button" value="全部不接受" onclick="enableAll('N')"/><br />
+					</th>
+					<th>复制记录</th>
+				</tr>
+			</thead>
+			<tbody class="tbody">
+				#foreach($ticketGoods in $ticketGoodsList)
+				#set($drama=$dramaMap.get($ticketGoods.categoryid))
+				<tr class="grayBg disp c$odi.movieid">
+					<td><span class="yellow">$foreach.count #if($ticketGoods.hasPeriod())时间段#{else}通票#end</span></td>
+					<td>$!ticketGoods.goodsname</td>
+					<td><a href="${basePath}drama/$drama.id" target="_blank">$drama.dramaname</a></td>
+					<td>$ticketGoods.roomname</td>
+					<td>$DateUtil.format($ticketGoods.fromvalidtime,'MM-dd HH:mm') - $DateUtil.format($ticketGoods.tovalidtime,'MM-dd HH:mm')</td>
+					<td>
+						<a href="javascript:void(0)" onclick="updateTicketGoods('$!ticketGoods.id','$!theatre.id','$!ticketGoods.period')">修改</a><br/>
+						<a href="${basePath}admin/goods/goodsOther.xhtml?goodsid=$ticketGoods.id" target="_blank">其他</a>
+					</td>
+					<td width="90" style="text-align: left;">
+						#foreach($tsp in $goodsPriceMap.get($ticketGoods.id))
+						$ticketGoods.roomname:[$tsp.pricelevel]$!tsp.oriprice<br/>
+						#end
+					</td>
+					<td width="60">
+						#foreach($tsp in $goodsPriceMap.get($ticketGoods.id))
+						$!tsp.costprice<br/>
+						#end
+					</td>
+					<td width="60">
+						#foreach($tsp in $goodsPriceMap.get($ticketGoods.id))
+						$!tsp.price<br/>
+						#end
+					</td>
+					<td>
+						<a href="${basePath}admin/goods/goodsprice.xhtml?gid=$ticketGoods.id" target="_blank">价格设置</a><br/>
+					</td>
+					<td>
+						<a href="${basePath}admin/goods/goodsOrderList.xhtml?gid=$ticketGoods.id" target="_blank">订单管理</a><br/>
+					</td>
+					<td><input type="text" class="elecard pubinput" style="width:40px;" name="${ticketGoods.id}" onchange="updateElecard(this,this.value)" value="$!ticketGoods.elecard"/></td>
+					<td>
+						<input type="checkbox" class="expressid"/>
+						<input type="text" class="pubinput" style="width:40px;" name="${ticketGoods.id}" value="$!ticketGoods.expressid" onchange="updateExpress(this,this.value)"/>
+					</td>
+					<td><input type="text" class="pubinput" style="width:40px;" onchange="changeGoodsSort('$!ticketGoods.id',this)" value="$!ticketGoods.goodssort"/></td>
+					<td>
+						<label>开放：<input type="text" class="optime" style="width:140px;" #if($ticketGoods.hasExpired() || $ticketGoods.hasStatus('D'))disabled="disabled" #end value="$!DateUtil.format($ticketGoods.fromtime,'yyyy-MM-dd HH:mm:ss')" onchange="setOpenTime(this,$ticketGoods.id)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" /></label>
+						<label>关闭：<input type="text" style="width:140px;" #if($ticketGoods.hasExpired() || $ticketGoods.hasStatus('D'))disabled="disabled" #end value="$!DateUtil.format($ticketGoods.totime,'yyyy-MM-dd HH:mm:ss')" onchange="setCloseTime(this, $ticketGoods.id)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly"/></label>
+					</td>
+					<td>
+						<a href="$!{absPath}${basePath}drama/$!ticketGoods.itemid" target="_blank">$ticketGoods.roomname</a><br/>
+						<font id="ft$ticketGoods.id" color="red">#if($ticketGoods.hasBooking())已开放#end</font>
+					</td>
+					<td class="clearB" #if($ticketGoods.closed)title="超时"#end>
+						<select id="$ticketGoods.id" onchange="setStatus(this, $ticketGoods.id)" #if($ticketGoods.hasExpired() || $ticketGoods.hasStatus('D'))disabled="disabled"#else class="opselect" #end>
+							<option value="N" #if($ticketGoods.status eq 'N')selected="selected"#end>不接受预订</option>
+							<option value="Y" #if($ticketGoods.status eq 'Y')selected="selected"#end>接受预订</option>
+							<option value="D" #if($ticketGoods.status eq 'D')selected="selected"#end>废弃场次</option>
+						</select><br/>
+					</td>
+					<td>
+						#if($ticketGoods.hasPeriod())
+						<a href="javascript:void(0)" onclick="toCopy($!ticketGoods.id)">复制</a>
+						#end
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<div id="dialog" style="width:600px; visibility:hidden; z-index:10;background: #000"></div>
+<div id="copyDialog" style="width:370px; visibility:hidden; z-index:5;background: #000;"></div>
+<script type="text/javascript">
+	
+	function updateTicketGoods(id,relatedid,period){
+		var url = "${basePath}admin/goods/drama/getTicketGoods.xhtml";
+		var values = {'id':id,'relatedid':relatedid,"period":period};
+		GewaraUtil.sendLoad('dialog', url, values, function(result){
+			if(result.success){
+				GewaraUtil.showDialog('dialog');
+			}			
+		});
+	}
+	function changeGoodsSort(goodsid, el){
+		var url = '${basePath}admin/goods/ajax/changeGoodsSort.xhtml'
+		var values = {"goodsId":goodsid,"num":el.value};
+		el.setStyle("background","red");
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}			
+		});
+	}
+	function allElecard(el){
+		el.setStyle("background","red");
+		$$(".elecard").each(function(item){
+			updateElecard(item,el.value);
+		});
+		el.setStyle("background","");
+	}
+	function updateElecard(el, value){
+		el.setStyle("background","red");
+		var values = {"gid":el.name,"elecard":value};
+		GewaraUtil.sendRequest('${basePath}admin/goods/updateElecard.xhtml', values, function(result){
+			if(result.success){
+				el.value = value;
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function setOpenTime(el, itemid){
+		el.setStyle("background","red");
+		var values = {"gid":itemid,"fromtime":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/goods/updateFromtime.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function setCloseTime(el, itemid){
+		el.setStyle("background","red");
+		var values = {"gid":itemid,"totime":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/goods/updateTotime.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function setStatus(el, itemid){
+		el.setStyle("background","red");
+		var values = {"gid":itemid,"status":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/goods/updateStatus.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+				if(result.retval=="isBook"){
+					$("ft"+itemid).set("html","已开放");
+				}else{
+					$("ft"+itemid).set("html","");
+				}
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+
+	function updateExpress(el, value){
+		el = $(el);
+		el.setStyle("background","red");
+		var values = {"gid":el.name,"expressid":value};
+		GewaraUtil.sendRequest('${basePath}admin/goods/updateExpress.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+				el.value = value;
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function batchExpress(el){
+		el = $(el);
+		$$('.disp .expressid').each(function(item){
+			if(item.checked){
+				var input = item.getNext('input');
+				if(input){
+					updateExpress(input,el.value);
+				}
+			}
+		});
+	}
+	function batchExpressCheckbox(el){
+		el = $(el);
+		$$('.disp .expressid').each(function(item){
+			item.checked = el.checked;
+		});
+	}
+	
+	function changeStar(dramaid){
+		$('starid').empty();
+		if(dramaid != ''){
+			var url = '${basePath}admin/drama/dramaPlayItem/getDramaStar.xhtml';
+			var values = {'dramaid':dramaid};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					if(result.starList){
+						if(result.starList.length>0){
+							result.starList.each(function(item){
+								new Element('option',{'value':item.id,'html':item.name}).inject('starid');
+							});
+						}else{
+							new Element('option',{'value':'','html':''}).inject('starid');
+						}
+					}
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+	}
+	function toCopy(gid){
+		var url = '${basePath}admin/goods/dramaPlayItem/toCopy.xhtml';
+		var values = {'gid':gid};
+		GewaraUtil.sendLoad('copyDialog', url, values, function(result){
+			if(result.success){
+				GewaraUtil.showDialog('copyDialog');
+			}else{
+				alert(result.json.msg);
+			}
+		});
+	}
+	var date = '',room = '';
+	function copyItem(){
+		GewaraUtil.mask();
+		date = '';
+		room = '';
+		$('choiceDate').getElements('input[type=checkbox]').each(function(item){
+			if(item.checked){
+				date = date + ',' + item.value;
+			}
+		});
+		$('choiceRoom').getElements('input[type=checkbox]').each(function(item){
+			if(item.checked){
+				room = room + ',' + item.value;
+			}
+		});
+		if(date == '' || room == '') return;
+		var values = {'gid':$('gid').value, 'playdates':date, 'rooms':room};
+		GewaraUtil.sendRequest('${basePath}admin/goods/dramaPlayItem/copyItem.xhtml', values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				gewaUtil.alert('复制成功');
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	function hiCopyDialog(){
+		date = '';
+		room = '';
+		GewaraUtil.hideDialog("copyDialog");
+	}
+	function enableAll(status){
+		$$(".disp .opselect").each(function(item){
+			if(status == 'N' && item.value=='Y'){
+				item.value="N";
+				setStatus(item,item.id);
+			}else if(status == 'R' && item.value=='R'){
+				item.value="Y";
+				setStatus(item,item.id);
+			}else if(status == 'Y' && item.value=="N"){
+				item.value="Y";
+				setStatus(item,item.id);
+			}
+		});
+	}
+</script>
+</body>
+</html>

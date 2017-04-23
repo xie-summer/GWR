@@ -1,0 +1,94 @@
+#if($VmUtils.size($activityList) gt 0)
+<div class="micon mv_line"></div>
+<div class="title">
+	<h2>活动</h2>
+	<a class="more ffst brown" target="_blank" href="${basePath}activity/activityList.xhtml">更多&gt;&gt;</a>
+</div>
+<ul class="ui_abeam">
+	#foreach($activity in $activityList)
+	#set($relate = $relatedHelper.getR1("activityList",$activity.relatedid))
+	<li class="mt10 clear">
+		<div class="uipic">
+			<a title="$!activity.title" target="_blank" href="${basePath}activity/$!activity.id">
+			<img alt="$!activity.title" src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw96h128',$!activity.limg)) center 0 no-repeat;" height="128" width="96" /></a>
+		</div>
+		<div class="uiText text_right_activity">
+			<span class="#if($VmUtils.eq($activity.memberid , 1))official #end mr5"></span> <a href="${basePath}activity/$!activity.id" target="_blank" class="a_color" title="$!activity.title">$VmUtils.htmlabbr($activity.title,34)</a>
+			<p class="mt10 gray">时间：$!DateUtil.format($activity.startdate,'M月d日')#if($activity.enddate)--$DateUtil.format($activity.enddate,'M月d日')#end</p>
+			<p class="gray">地点：#if($relate)<a href="${basePath}${relate.url}" class="brown mr5" target="_blank">$!relate.name</a>#end $!activity.address</p>
+			<p>已有 <span>$!activity.clickedtimes</span> 人关注</p>
+		</div>
+	</li>
+	#end
+</ul>
+#end
+#if($dramaStar)
+<div class="micon mv_line"></div>
+<div class="title mt10">
+	<h2>剧社</h2>
+</div>
+<div class="mt10"><a class="drama_title_img" href="${basePath}drama/star/$!dramaStar.id" target="_blank" title="$!dramaStar.name">
+<img width="260" height="120" alt="$!dramaStar.name" src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw260h120',$!dramaStar.logo)) center center no-repeat;"/></a></div>
+<div class="title mt5"><a href="${basePath}drama/star/$!dramaStar.id" class="brown fs14 bold" target="_blank">$!dramaStar.name</a><span class="c999">($!{dramaStar.clickedtimes}人关注)</span></div>
+<ul>
+	#if($historyDramaList)
+	<li>代表作品：
+	#foreach($drama in $historyDramaList)
+	<a href="${basePath}drama/dramaDetail.xhtml?dramaid=$!drama.id" class="brown mr5" title="$!drama.name" target="_blank">《$!VmUtils.escabbr($drama.name,20)》</a>
+	#if($foreach.count lt $historyDramaList.size())、#end
+	#end
+	</li>
+	<li>演员：
+	#foreach($dramaStar in $troupeStartList)
+	<a href="${basePath}drama/star/$!dramaStar.id" class="brown" title="$!dramaStar.name">$!dramaStar.name</a>
+	#if($foreach.count lt $troupeStartList.size())、#end
+	#end
+	</li>
+	#end
+</ul>
+#end
+#if($VmUtils.size($actorsList) gt 0)
+<div class="micon mv_line"></div>
+<div class="title mt10">
+	<h2>人物</h2>
+	<a class="more ffst brown" target="_blank" href="${basePath}drama/star?type=star">更多&gt;&gt;</a>
+</div> 
+<ul class="ui_abeam">
+	#foreach($dramaStar in $actorsList)
+	#if($foreach.index lt 3)
+	<li class="mt10 clear">
+		<div class="uipic">
+			<a href="${basePath}drama/star/$!dramaStar.id" title="$!dramaStar.name">
+			<img alt="$dramaStar.name" src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('w72h96',$dramaStar.logo)) center center no-repeat;" width="72" height="96"/></a>
+		</div>
+		<div class="uiText" style="width:170px;">
+			<div class="title"><a class="fs14" href="${basePath}drama/star/$!dramaStar.id">$!dramaStar.name</a><span class="ml5">演员</span></div>
+			<ul>
+				<li>近期作品：
+				#if(!$VmUtils.isEmptyList($dramaListMap.get($dramaStar.id)))
+				#foreach($drama in $dramaListMap.get($dramaStar.id))
+				#if($foreach.count le 2)
+				<a href="${basePath}drama/$drama.id" class="brown mr5" target="_blank" title="$drama.name">$!VmUtils.escabbr($drama.name,20)</a>
+				#if($foreach.count lt $dramaListMap.get($dramaStar.id).size())、#end
+				#end
+				#end
+				#end
+				</li>
+				<li>代表作品：
+				#if(!$VmUtils.isEmptyList($historyDramaListMap.get($dramaStar.id)))
+				#foreach($drama in $historyDramaListMap.get($dramaStar.id))
+				#if($foreach.count eq 1)
+				<a href="${basePath}drama/$!drama.id" title="$drama.name"  target="_blank">$VmUtils.escabbr($drama.name,20)</a>
+				#end
+				#end
+				#elseif(!$VmUtils.isNull($dramaStar.representative))
+				<span class="mr5">$VmUtils.replaceSeparator($dramaStar.representative,',',' ')</span>
+				#end
+				</li>
+			</ul>
+		</div>
+	</li>
+	#end
+	#end
+</ul>
+#end

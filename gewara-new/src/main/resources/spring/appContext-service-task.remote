@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+	<!-- common service -->
+	<bean id="jobDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="jdbc/job"/>
+		<property name="resourceRef" value="true" />
+	</bean>
+	<bean id="jobJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="jobDataSource"/>
+	</bean>
+	<bean id="jobTransactionManager"
+			class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="jobDataSource"/>
+	</bean>
+	<bean id="jobLockService" class="com.gewara.job.JobLockService">
+		<property name="jobJdbcTemplate" ref="jobJdbcTemplate"/>
+	</bean>
+	<bean id="jobDetail" class="org.springframework.scheduling.quartz.JobDetailBean">
+		<property name="jobClass" value="com.gewara.job.GewaJob" />
+	</bean>
+	<!-- 清除jobLock数据 -->
+	<bean id="cleanLockJob" class="com.gewara.job.impl.CleanLockJob"/>
+	<bean id="cleanLockJobTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="cleanJoblock" />
+		<property name="jobService" ref="cleanLockJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 5 1 ? * *</value>
+		</property>
+	</bean>
+	<!-- run at 00:15am every day -->
+	<bean id="dataCleanerTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="cleanAll" />
+		<property name="jobService" ref="dataCleanerJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 15 0 ? * *</value>
+		</property>
+	</bean>
+	<!-- mobile: every 10m -->	 
+	<bean id="sendMessageTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="sendMobileMessage" />
+		<property name="jobService" ref="sendMessageJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 0/10 * ? * *</value>
+		</property>
+	</bean>
+	<bean id="updateOpiStatsTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="updateOpiStats" />
+		<property name="jobService" ref="ticketOrderJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 12/20 0-10,14-16,20-23 ? * *</value>
+		</property>
+	</bean>
+	<bean id="updateMtxOpiStatsTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="updateOpiStatsByMtx" />
+		<property name="jobService" ref="ticketOrderJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 35 0-10,14-16,21-23 ? * *</value>
+		</property>
+	</bean>
+	<!-- every 15min -->
+	<bean id="correctOrderTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="correctOrder" />
+		<property name="jobService" ref="ticketOrderJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 13/15 * ? * *</value>
+		</property>
+	</bean>
+	<!-- every 5min -->
+	<bean id="synchPartnerOrderTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="sendCallbackOrder" />
+		<property name="jobService" ref="ticketOrderJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 3/5 * ? * *</value>
+		</property>
+	</bean>
+	<!-- 0:28 every day -->
+	<bean id="chinapayTransFileTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="writeChinapayTransFile" />
+		<property name="jobService" ref="everyDayJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 28 0 ? * *</value>
+		</property>
+	</bean>
+	<bean id="everyDayJob" class="com.gewara.job.impl.EveryDayJobImpl" />
+	<bean id="everyDayJobTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="doJob" />
+		<property name="jobService" ref="everyDayJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 0 4 ? * *</value>
+		</property>
+	</bean>
+	<bean id="updateCitypriceTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="updateCityprice" />
+		<property name="jobService" ref="everyDayJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 30 4,11 ? * *</value>
+		</property>
+	</bean>
+	<!-- every 20min -->
+	<bean id="clickTimesJobTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="updateClicktimes" />
+		<property name="jobService" ref="everyDayJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 0/20 * ? * *</value>
+		</property>
+	</bean>
+	<!-- every 30min -->
+	<bean id="pageViewJobTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="refreshPageView" />
+		<property name="jobService" ref="pageCacheJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 3/30 8-23 ? * *</value>
+		</property>
+	</bean>
+	
+	<!-- every 5min 预加载热门场次 -->
+	<bean id="preloadHotCinimaMPIJobTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="preloadHotCinimaMPI" />
+		<property name="jobService" ref="everyDayJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 0/5 * ? * *</value>
+		</property>
+	</bean>
+	
+	<!-- 20min -->
+	<bean id="unNotifyOrderJobTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="unNotifyOrder" />
+		<property name="jobService" ref="ticketOrderJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 0/20 * ? * *</value>
+		</property>
+	</bean>
+	<!-- 15min -->
+	<bean id="sendWarningMsgJobTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="sendWarningMsg" />
+		<property name="jobService" ref="ticketOrderJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 0/15 * ? * *</value>
+		</property>
+	</bean>
+	<bean id="priceAllownumJobTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="updateTrainingGoodsAllownum" />
+		<property name="jobService" ref="goodsPriceJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 0/30 6-22 ? * *</value>
+		</property>
+	</bean>
+	<bean id="theatreSeatPriceJobTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="updatePriceAllownum" />
+		<property name="jobService" ref="theatreSeatPriceJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 0/15 * ? * *</value>
+		</property>
+	</bean>
+	<bean id="sendPlayItemMessageTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="sendPlayItemMessage" />
+		<property name="jobService" ref="sendMessageJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 0/5 7-22 ? * *</value>
+		</property>
+	</bean>
+	<!-- 1hour -->
+	<bean id="updateRelateCountTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="updateRelateCount" />
+		<property name="jobService" ref="sendMessageJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 25 8-23 ? * *</value>
+		</property>
+	</bean>
+	<bean id="updateDiaryEveryDayTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="updateDiaryEveryDay" />
+		<property name="jobService" ref="sendMessageJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 25 3-5 ? * *</value>
+		</property>
+	</bean>
+	<!-- 1day -->
+	<bean id="updateMarkCountTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="updateMarkCount" />
+		<property name="jobService" ref="everyDayJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 40 1 ? * *</value>
+		</property>
+	</bean>
+	<!-- 2hour -->
+	<bean id="sendSysMsgActionTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="sendSysMsgAction" />
+		<property name="jobService" ref="everyDayJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 10 0/2 ? * *</value>
+		</property>
+	</bean>
+	<bean id="addPointStatsTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="addPointStats" />
+		<property name="jobService" ref="everyDayJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 15 3 ? * *</value>
+		</property>
+	</bean>
+	
+	<bean id="updateIndexDataSheetTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="updateIndexDataSheet" />
+		<property name="jobService" ref="sendMessageJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 33 7-22 ? * *</value>
+		</property>
+	</bean>
+	<bean id="ticketRemoteJobTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="updateMoviePlayItem" />
+		<property name="jobService" ref="ticketRemoteJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 8/20 6-22 ? * *</value>
+		</property>
+	</bean>
+	<bean id="updateEveryWeekTicketOrderTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="updateEveryWeekTicketOrder" />
+		<property name="jobService" ref="everyDayJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 15 1 ? * * </value>
+		</property>
+	</bean>
+
+	<bean id="resetSpcounterTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="resetSpcounter" />
+		<property name="jobService" ref="specialDiscountJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 20 0 ? * * </value>
+		</property>
+	</bean>
+
+	<bean id="restoreSpcounterTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="restoreSpcounter" />
+		<property name="jobService" ref="specialDiscountJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 3/15 * ? * * </value>
+		</property>
+	</bean>
+	
+	<!-- every 5min -->
+	<bean id="openTimeSaleToSuccessJobTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="openTimeSaleToSuccess" />
+		<property name="jobService" ref="sportOrderJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>3 0/5 * ? * *</value>
+		</property>
+	</bean>
+	
+	<bean id="correctDramaOrderTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="correctOrder" />
+		<property name="jobService" ref="dramaOrderJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 8/15 * ? * *</value>
+		</property>
+	</bean>
+	<bean id="sendWarningDramaJobTrigger" class="com.gewara.job.GewaJobTrigger">
+		<property name="targetMethod" value="sendWarningMsg" />
+		<property name="jobService" ref="dramaOrderJob" />
+		<property name="jobDetail" ref="jobDetail"/>
+		<property name="cronExpression">
+			<value>0 38/15 * ? * *</value>
+		</property>
+	</bean>
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="applicationContextSchedulerContextKey" value="SCHEDULERCONTEXTKEY"/>
+		<property name="triggers">
+			<list>
+				<ref bean="dataCleanerTrigger"/>
+				<ref bean="sendMessageTrigger" />
+				<ref bean="ticketRemoteJobTrigger"/>
+				<ref bean="correctOrderTrigger" />
+				<ref bean="everyDayJobTrigger" />
+				<ref bean="synchPartnerOrderTrigger" />
+				<!-- chinapay only run on 251 -->
+				<!-- <ref bean="chinapayTransFileTrigger" /> -->
+				<ref bean="updateIndexDataSheetTrigger" />
+				<ref bean="updateOpiStatsTrigger" />
+				<ref bean="updateMtxOpiStatsTrigger" />
+				<ref bean="pageViewJobTrigger" />
+				<ref bean="unNotifyOrderJobTrigger" />
+				<ref bean="sendWarningMsgJobTrigger" />
+				<ref bean="sendPlayItemMessageTrigger" />
+				<ref bean="updateRelateCountTrigger" />
+				<ref bean="clickTimesJobTrigger" />
+				<ref bean="updateMarkCountTrigger" />
+				<ref bean="cleanLockJobTrigger" />
+				<ref bean="sendSysMsgActionTrigger" />
+				<ref bean="addPointStatsTrigger" />
+				<ref bean="updateCitypriceTrigger" />
+				<ref bean="preloadHotCinimaMPIJobTrigger"/>
+				<ref bean="updateEveryWeekTicketOrderTrigger"/>
+				<ref bean="priceAllownumJobTrigger" />
+				<ref bean="theatreSeatPriceJobTrigger"/>
+				<ref bean="updateDiaryEveryDayTrigger" />
+				<!-- <ref bean="openTimeSaleToSuccessJobTrigger"/> -->
+				<ref bean="resetSpcounterTrigger" />
+				<ref bean="restoreSpcounterTrigger" />
+				<ref bean="correctDramaOrderTrigger" />
+				<ref bean="sendWarningDramaJobTrigger" />
+			</list>
+		</property>
+	</bean>
+</beans>

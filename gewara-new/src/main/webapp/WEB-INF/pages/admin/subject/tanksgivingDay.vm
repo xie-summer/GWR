@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>感恩节场次</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body  style="width:800px;margin: auto;"><br/>
+	#set($jsonMap=$!VmUtils.readJsonToMap($jsonData.data))
+	<form action="javascript:saveTinksgivingDay()" id="jsonData">
+		场次id：<input name="mpids" id="manmpid" value="$!jsonMap.get('mpid')"/>（多个为 ,隔开）<br/>
+		<input type="submit" value="保存"/>	
+	</form><br/>
+<script type="text/javascript">
+	function saveTinksgivingDay(){
+		var url = '${basePath}admin/subject/saveTanksgivingDay.xhtml';
+		var values = GewaraUtil.getValues('jsonData');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('设置成功!');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+#*视频模板右结构*#
+<div class="title mt20"><h2>$!left.title</h2><span class="linet"></span></div>
+<div class="videoTem_01" id="video_box_01">
+	#if($VmUtils.size($LshipinList) gt 0)
+	#set($firstshipin=$LshipinList.get(0))
+	<div class="videoBox_01" id="videoBox_01">
+		<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=7,0,19,0" width="500" height="375" id="myFlash">
+		   <param name="movie" value="$!firstshipin.newslink" />
+		   <param name="quality" value="high" />
+		   <param value="transparent" name="wmode" />
+		   <embed src="$!firstshipin.newslink" quality="high" pluginspage="http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash" width="500" height="375" wmode="transparent" name="myFlash"></embed>
+		</object>
+	</div>
+	<ul id="video_01">
+		#foreach($shipin in $LshipinList)
+		<li class="#if($foreach.index eq 0)start select#elseif($foreach.count eq 3)end #end" lang="$!shipin.newslink">
+			<span class="img video">
+				<img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('',$!shipin.newslogo)) 0 center no-repeat" width="128" height="72"/>
+				<span>play</span>
+				<em></em>
+			</span>
+			<p>$!shipin.newstitle</p>
+			<span class="pt"></span>
+		</li>
+		#end
+	</ul>
+	#end
+</div>
+#if($VmUtils.isNotBlank($!left.newslink))
+<div class="tar mt10"><a href="$!left.newslink" target="_blank">更多»</a></div>
+#end
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$('video_01').getElements('li').addEvent('click',function(){
+		if(!this.hasClass('select')){
+			$('video_01').getElements('li').removeClass('select');
+			this.addClass('select');
+			gewa.util.mask({'element':'video_box_01','title':'正在获取视频信息...'});
+			$("videoBox_01").empty();
+			setFlash(this.get('lang'),"videoBox_01",500,375);
+			gewa.util.clearMask();
+		}
+	});
+});
+</script>

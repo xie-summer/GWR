@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>支付网关配置页</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/layout.css"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/bms.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js"></script>
+</head>
+<body class="ui_orange">
+<div class="maintop">
+	<a href="javascript:void(0)" onclick="synGateway();" >同步支付网关数据</a>
+	&nbsp;|&nbsp;
+	<a href="javascript:void(0)" onclick="refreshPage();" >刷新</a>
+	&nbsp;|&nbsp;
+	<a href="${basePath}admin/pay/gateway/switch/list.xhtml" target="_blank">支付接口切换</a>
+</div>
+<div class="main">
+    <div class="info">
+      <table class="tablist mt10 " id="myTable">
+      	<tbody>
+      		<tr class="trbg">
+	  		     <td nowrap="nowrap">支付网关</td>
+	  		     <td nowrap="nowrap">支付网关名称</td>
+	  		     <td nowrap="nowrap">网关类型</td>
+	  		     <td nowrap="nowrap">状态</td>
+	  		     <td nowrap="nowrap">同步时间</td>
+	  		     <td nowrap="nowrap">商户路由类型</td>
+	  		     <td nowrap="nowrap">修改时间</td>
+	  		     <td nowrap="nowrap">修改人</td>
+	  		     <td nowrap="nowrap">操作</td>
+      		</tr>
+      		#foreach($gateway in $gatewayList)
+      		<tr class="">
+      	       	<td style="text-align: left">$!{gateway.gatewayCode}</td>
+      	       	<td style="text-align: left">$!{gateway.gatewayName}</td>
+      	       	<td style="text-align: left">$!{gateway.gatewayType}</td>
+      	       	<td style="text-align: left">$!{gateway.status}</td>
+      	       	<td style="text-align: left">$!DateUtil.format($!{gateway.updateTime},"yyyy-MM-dd HH:mm:ss")</td>
+      	       	<td style="text-align: left">
+      	       		<select name="routeStatus" onchange="chgRouteStatus(this,$!{gateway.id},this.value)">
+		     			<option value="none" #if($VmUtils.eq($!{gateway.routeStatus},'none')) selected #end>无</option>
+		     			<option value="city" #if($VmUtils.eq($!{gateway.routeStatus},'city')) selected #end>所属城市</option>
+		     			<option value="mercode" #if($VmUtils.eq($!{gateway.routeStatus},'mercode')) selected #end>指定商户标识</option>
+		     		</select>
+      	       	</td>
+      	       	<td style="text-align: left">$!DateUtil.format($!{gateway.modifyTime},"yyyy-MM-dd HH:mm:ss")</td>
+      	       	<td style="text-align: left">$!{gateway.modifyUser}</td>
+      	       	<td style="text-align: left" nowrap="nowrap">
+      	       		<a href="${basePath}admin/pay/gateway/merchant/list.xhtml?gwid=$!{gateway.id}" target="_blank">查看商户号</a>
+      	       		#if($VmUtils.eq("Y",$!{gateway.supportBank}))<br/><a href="${basePath}admin/pay/gateway/bank/list.xhtml?gwid=$!{gateway.id}" target="_blank">查看银行</a>#end
+      	       		<div id="routeBtnDiv_$!{gateway.id}" #if($VmUtils.eq("city",$!{gateway.routeStatus})) style="display:display;" #else style="display:none;" #end>
+      	       			<a href="${basePath}admin/pay/gateway/route/city/list.xhtml?gwid=$!{gateway.id}" target="_blank">配置商户路由</a>	
+      	       		</div>
+      	       		
+      	       	</td>
+      		</tr>
+      		#end
+      	</tbody>
+      </table>
+    </div>
+</div>
+<div class="edit" id="otherInfoDiv" style="display:none;">	
+	
+</div>
+<script type="text/javascript">
+
+	function synGateway(el){
+		var url = '${basePath}admin/pay/gateway/syn.xhtml';
+		var values = {};
+		GewaraUtil.mask(el);
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	
+	function chgRouteStatus(el,gwid,routeStatus){
+		var url = '${basePath}admin/pay/gateway/setRouteStatus.xhtml';
+		var values = {"gwid" : gwid,"routeStatus" : routeStatus};
+		GewaraUtil.mask(el);
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				if(routeStatus == "city"){
+					$("routeBtnDiv_" + gwid).style.display = "";
+				}else{
+					$("routeBtnDiv_" + gwid).style.display = "NONE";
+				}
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+
+</script>
+</body>
+</html>

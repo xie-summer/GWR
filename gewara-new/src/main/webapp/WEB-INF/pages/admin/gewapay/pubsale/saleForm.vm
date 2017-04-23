@@ -1,0 +1,117 @@
+<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+<form id="saleForm" name="saleForm" action="javascript:saveSale()">
+<div class="manageItemList" style="width: 690px;">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+		<table class="roomManageTable2" cellpadding="0" width="98%" cellspacing="0" border="0">
+			<tbody class="tbody saleForm" id="bform">
+				<tr>
+					<td>名&nbsp;&nbsp;&nbsp;&nbsp;称：<input type="hidden" name="id" id="id"  value="$!sale.id" /><input type="text" name="name" id="name" value="$!sale.name" class="validate['required']" style="width:360px;"/><span class="yellow">*</span></td>
+				</tr>
+				<tr>
+					<td>类&nbsp;&nbsp;&nbsp;&nbsp;型：
+					<input type="radio" name="saletype" value="goods" #if($sale.saletype eq 'goods')checked#end onclick="showCard('goods')" />实物
+					<input type="radio" name="saletype" value="card" #if($sale.saletype eq 'card')checked#end  onclick="showCard('card')"/>兑换券
+					<span class="yellow">*</span>
+					</td>
+				</tr>
+				<tr>
+					<td>城&nbsp;&nbsp;&nbsp;&nbsp;市：
+					<select name="citycode">
+						<option value="" #if($VmUtils.isBlank($charge.citycode))selected#end>请选择</option>
+						#foreach($citycode in $cityMap.keySet())
+						<option value="$citycode" #if($sale.citycode eq $citycode)selected#end>$cityMap.get($citycode)</option>
+						#end
+					</select>
+					<span class="yellow">*</span>
+					</td>
+				</tr>
+				<tr class="none">
+					<td>卡的密码：<input type="text" name="cardpass" id="cardpass" value="$!sale.cardpass" style="width: 380px;"/><span class="yellow">*</span></td>
+				</tr>
+				<tr>
+					<td>初始拍价：<input type="text" name="dlowerprice" id="dlowerprice" value="$!sale.gainRprice($!sale.lowerprice)" class="validate['required']"/><span class="yellow">*</span></td>
+				</tr>
+				<tr>
+					<td>提升金额：<input type="text" name="dupprice" id="dupprice" value="$!VmUtils.join($!sale.gainDupprice(),',')" class="validate['required']"/><span class="yellow">*</span></td>
+				</tr>
+				<tr>
+					<td>需要积分：<input type="text" name="needpoint" id="needpoint" value="$!sale.needpoint" class="validate['required','digit[0,5000]']"/><span class="yellow">*</span></td>
+				</tr>
+				<tr>
+					<td>倒&nbsp;计&nbsp;时：<input type="text" name="countdown" id="countdown" value="$!sale.countdown" class="validate['required','digit[1,5000]']"/><span class="yellow">*</span></td>
+				</tr>
+				<tr>
+					<td>所需压金的物品ID：<input type="text" name="goodsid" id="goodsid"  value="$!sale.goodsid"/></td>
+				</tr>
+				<tr>
+					<td>订单有效时间(分钟)：<input type="text" name="unitMinute" id="unitMinute"  value="$!sale.unitMinute" class="validate['required','digit[0,5000]']"/><span class="yellow">*</span></td>
+				</tr>
+				<tr>
+					<td>可兑拍周期：<input type="text" name="pubperiod" id="pubperiod"  value="$!sale.pubperiod" class="validate['required','digit[0,500000]']"/><span class="yellow">*</span></td>
+				</tr>
+				<tr>
+					<td>可兑拍次数：<input type="text" name="pubnumber" id="pubnumber"  value="$!sale.pubnumber" class="validate['required']"/><span class="yellow">*(不约束，则填为0)</span></td>
+				</tr>
+				<tr>
+					<td>开始时间：<input type="text" name="begintime" id="begintime" value="$!sale.begintime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" class="validate['required']"/><span class="yellow">*</span></td>
+				</tr>
+				<tr>
+					<td>结束时间：<input type="text" name="endtime" id="endtime" value="$!sale.endtime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly"/><span class="yellow">*</span></td>
+				</tr>
+				<tr>
+					<td>外部链接：<input type="text" name="source" id="source"  value="$!sale.source"  style="width:360px;"/></td>
+				</tr>
+				<tr>
+					<td>Logo：<input type="hidden" name="logo" id="logo" value="$!sale.logo"/>
+					<iframe class="center" height="25px" width="430px" frameborder="0" scrolling="no" id="uploadIFrame" 
+						src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updateLogo"></iframe><br/>
+					<img style="height:60px; margin-left:80px;" id='logoimg1' #if($sale.logo)src='${picPath}$sale.logo'#end/><br/>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						摘&nbsp;&nbsp;&nbsp;&nbsp;要：<textarea name="remark" id="remark" cols="45" rows="3">$!sale.remark</textarea><span class="yellow">*</span>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						描&nbsp;&nbsp;&nbsp;&nbsp;述：<textarea name="description" id="description" cols="45" rows="3" style="display:none;">$!sale.description</textarea><span class="yellow">*</span>
+					</td>
+				</tr>
+			</tbody>
+			<tr>
+					<td><input type="submit" value="提交" />&nbsp;<input type="button" value="关闭" onclick="hiDialog()"/></td>
+			</tr>	
+			<tr><td><div id="msg" style="color:red;"></div></td></tr>
+			<tr><td><div style="color:blue;">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div></td></tr>	
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+</form>
+	<script>
+	var ckeditor1, ckeditor2;
+	window.addEvent('domready',function(){
+		ckeditor1 = CKEDITOR.replace("remark");
+		ckeditor2 = CKEDITOR.replace("description");
+	});
+	window.addEvent('domready',function(){
+		new FormCheck('saleForm', {
+			tipsClass : 'fc-tbx',
+			display : {
+				scrollToFirst : true
+			}
+		});
+		showCard('$!sale.saletype');
+	});
+	function showCard(type){
+		if(type=='card') $('cardpass').getParent().getParent().removeClass('none');
+		else $('cardpass').getParent().getParent().addClass('none');
+	}
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg1').src='${basePath}' + picpath;
+	}
+</script>

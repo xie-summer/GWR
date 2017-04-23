@@ -1,0 +1,44 @@
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li><a class="admin" id="fast_tirger" href="javascript:void(0)"><span>$!theatre.realBriefname</span></a></li>
+			<li #if($isItem)class="currs"#end><a href="${basePath}admin/drama/dramaPlayItem/itemList.xhtml?theatreid=$theatre.id" class="admin"><span>场次列表</span></a></li>
+			<li><a href="javascript:toAdd('$theatre.id')" class="admin"><span>添加排片</span></a></li>
+			<li #if($isPre)class="currs"#end><a href="${basePath}admin/drama/dramaPlayItem/preDramaList.xhtml?theatreid=$theatre.id" class="admin"><span>上演话剧</span></a></li>
+		</ul>
+	</div>
+</div>
+<div id="dialog" style="padding:15px; visibility:hidden; z-index:1000;background:#F0F7FD;"></div>
+<script>
+function toAdd(theatreid){
+	var url = '${basePath}admin/drama/dramaPlayItem/itemDetail.xhtml';
+	var values = {'theatreid':theatreid};
+	GewaraUtil.sendLoad('dialog', url, values, function(result){
+		if(!result.success){
+			gewaUtil.alert(result.json.msg);
+		}else{
+			openDialog();
+		}
+		
+	});
+}
+function hiddenDialog(){
+	GewaraUtil.hideDialog("dialog");
+}
+function openDialog(){
+	GewaraUtil.showDialog('dialog');
+}
+function getItem(id, roomid){
+	var url = '${basePath}admin/drama/dramaPlayItem/itemDetail.xhtml';
+	var values = {'id':id};
+	GewaraUtil.sendLoad('dialog', url, values, function(result){
+		if(!result.success){
+			gewaUtil.alert(result.json.msg);
+		}else{
+			openDialog();
+		}
+		
+	});
+}
+</script>
+#parse('admin/theatreticket/searchTheatre.vm')

@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>影院列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="margin:auto">
+#set($targetUrl=$VmUtils.escapeHtml("admin/ticket/remote/qryCinema.xhtml"))
+<div class="logoPanel"></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore">影院列表</li>
+			<li class="currs"><a><span>基础数据下载</span></a></li>
+			<li style="float: right;">#parse('admin/common/adminProvinceLink.vm')</li>
+		</ul>
+	</div>
+</div>
+<div style="color:red" id="notifyWin"></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	#if($params.msg)<dir style="color:green">$params.msg</dir>#end
+	<div class="contentInfoList">
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+			<tr>
+				<th>影院ID</th>
+				<th>城市</th>
+				<th>影院名称</th>
+				<th>类型</th>
+				<th>设置</th>
+				<th>影厅</th>
+				<th>座位图</th>
+				<th>远程排片</th>
+			</tr>
+			</thead>
+			<tbody>
+			#foreach($cinema in $cinemaList)
+			<tr>
+				<td>${cinema.id}</td>
+				<td>$!cityMap.get($cinema.citycode).cityname</td>
+				<td>${cinema.name}</td>
+				<td>$profileMap.get($cinema.id).opentype</td>
+				<td><a href="${basePath}admin/ticket/baseData.xhtml?cid=$cinema.id" target="_blank">基础数据</a></td>
+				<td><a href="javascript:void(0)" onclick="updateRoom($cinema.id);">更新影厅</a></td>
+				<td><a href="${basePath}admin/ticket/remote/updateCinemaRoomSeat.xhtml?cid=$cinema.id" target="_blank">更新座位图</a></td> 
+				<td>
+					<a href="${basePath}admin/ticket/remote/refreshPlayItem.xhtml?cid=$cinema.id" target="_blank">下载一周</a>
+					<a href="${basePath}admin/ticket/remote/updatePlayItem.xhtml?cid=$cinema.id" target="_blank">增量更新</a>
+				</td>
+			</tr>
+			#end
+			</tbody>
+		</table>
+	</div>
+</div>
+<script type="text/javascript">
+	function updateRoom(cid){
+		var url = '${basePath}admin/ticket/remote/updateCinemaRoom.xhtml';
+		var values = {'cid':cid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('下载成功！');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

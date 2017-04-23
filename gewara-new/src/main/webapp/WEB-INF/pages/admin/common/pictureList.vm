@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>上传图片</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+</head>
+<body>	
+<div style="width: 1000px;margin-left: auto;margin-right: auto;">
+	<div>已经上传的图片 </div>
+	<ul style="width:1000px; list-style: none;" id="uploadedpic">
+	#foreach($picture in $pictureList)
+		<li id="p${picture.id}" style="float:left; height: 180px; border: 1px solid gray; margin: 5px; text-align: center;">
+			<div><a href="${picPath}$picture.picturename" target="_blank"><img style="height:100px;" src="${picPath}$picture.picturename" /></a></div>
+			<div><input readonly="readonly" id="d$picture.id" #if($params.tag eq 'characterroom')value="$!picture.description"#else value="$!picture.name" #end/></div>
+			<div>
+			<input type="button" id="b${picture.id}" value="修改名称" onclick="modifyDesc('$picture.id')" />
+			<input type="button" value="删除图片" onclick="deletePicture($picture.id)" /><br />
+			#if($placeList.contains($picture.tag))
+			#if($picture.picturename eq $!firstpic)
+			<input type="button" value="已设置" disabled="disabled" />
+			#else
+			#if(!($picture.tag eq "gymcoach"))<input type="button" value="设置图片为场馆首图" onclick="setFirstPicture('$picture.picturename')" />#end
+			#end
+			#end
+			</div>
+		</li>
+	#end
+		<li style="clear:both;"></li>
+	</ul>
+	<div style="clear: both; margin-top:10px;">上传新图片</div>
+	<form name='pictureForm' id='pictureForm' method='post' onsubmit="return checkFiles();" enctype="multipart/form-data" style="padding-top:5px" action="${basePath}common/uploadPicture.xhtml">
+		<input type="hidden" name="callbackUrl" value="${basePath}common/uploadPictureList.xhtml"/>
+		<input type="hidden" name="tag" id="btag" value="${params.tag}"/>
+		<input type="hidden" name="uploadPath" value="${params.uploadPath}"/>
+		<input type="hidden" name="relatedid" id="brelatedid" value="${params.relatedid}"/>
+		<input type="hidden" name="ukey" value="${math.random}"/>
+		<input type="hidden" name="notLimit" value="$!{params.piclimit}$!{params.notLimit}"/>
+		<input type="hidden" name="returnUrl" value="admin/common/pictureList.xhtml?tag=${params.tag}&relatedid=$!{params.relatedid}&piclimit=$!{params.piclimit}$!{params.notLimit}&ctypeRoomPic=$params.ctypeRoomPic&uploadPath=${params.uploadPath}"/>
+		<table class="table">
+		<thead><tr><th style="width:50%">文件</th>
+			#if($params.tag eq 'characterroom' || $params.ctypeRoomPic eq 'true')
+				<th >图片类型</th>
+			#end
+			<th >图片名称</th></tr></thead>
+		<tr><td><input type="file" id="file1" name="file1" size="30"/></td>
+		#if($params.tag eq 'characterroom')
+		<td>
+			<select name="name1">
+				<option value=""></option>
+				<option>影厅类型图</option>
+				<option>影厅效果图</option>
+			</select>
+		</td>
+		#elseif($params.ctypeRoomPic eq 'true')
+		<td>
+			<select name="name1">
+				<option value=""></option>
+				<option value="whyChoose">为什么选择?</option>
+				<option value="效果图">效果图</option>
+			</select>
+		</td>
+		#end
+		<td><input type="text" name="desc1" style="width:90%"/></td>
+		</tr>
+		<tr><td><input type="file" id="file2" name="file2" size="30"/></td>
+		#if($params.tag eq 'characterroom')
+		<td><select name="name2">
+				<option value=""></option>
+				<option>影厅类型图</option>
+				<option>影厅效果图</option>
+			</select></td>
+		#elseif($params.ctypeRoomPic eq 'true')
+		<td>
+			<select name="name2">
+				<option value=""></option>
+				<option value="whyChoose">为什么选择?</option>
+				<option value="效果图">效果图</option>
+			</select>
+		</td>
+		#end
+		<td><input type="text" name="desc2" style="width:90%"/></td>
+		</tr>
+		<tr><td><input type="file" id="file3" name="file3" size="30"/></td>
+		#if($params.tag eq 'characterroom')
+		<td><select name="name3">
+				<option value=""></option>
+				<option>影厅类型图</option>
+				<option>影厅效果图</option>
+			</select></td>
+		#elseif($params.ctypeRoomPic eq 'true')
+		<td>
+			<select name="name3">
+				<option value=""></option>
+				<option value="whyChoose">为什么选择?</option>
+				<option value="效果图">效果图</option>
+			</select>
+		</td>
+		#end
+		<td><input type="text" name="desc3" style="width:90%"/></td>
+		</tr>
+		<tr><td><input type="file" id="file4" name="file4" size="30"/></td>
+		#if($params.tag eq 'characterroom')
+		<td><select name="name4">
+				<option value=""></option>
+				<option>影厅类型图</option>
+				<option>影厅效果图</option>
+			</select></td>
+		#elseif($params.ctypeRoomPic eq 'true')
+		<td>
+			<select name="name4">
+				<option value=""></option>
+				<option value="whyChoose">为什么选择?</option>
+				<option value="效果图">效果图</option>
+			</select>
+		</td>
+		#end
+		<td><input type="text" name="desc4" style="width:90%"/></td>
+		</tr>
+		<tr><td><input type="file" id="file5" name="file5" size="30"/></td>
+		#if($params.tag eq 'characterroom')
+		<td><select name="name5">
+				<option value=""></option>
+				<option>影厅类型图</option>
+				<option>影厅效果图</option>
+			</select></td>
+		#elseif($params.ctypeRoomPic eq 'true')
+		<td>
+			<select name="name5">
+				<option value=""></option>
+				<option value="whyChoose">为什么选择?</option>
+				<option value="效果图">效果图</option>
+			</select>
+		</td>
+		#end
+		<td><input type="text" name="desc5" style="width:90%"/></td>
+		</tr>
+		</table>
+		<input type="submit" value="保存" />
+	</form>
+</div>
+	<script type="text/javascript">
+	function modifyDesc(id){
+		if($('b'+id).value=='修改名称'){
+			$('d' +id).set('readonly', '');
+			$('b'+id).value='保存修改';
+		}else{
+			$('d' +id).set('readonly', 'readonly');
+			$('b' +id).set('readonly', 'readonly');
+			var url = "${basePath}admin/common/ajax/updatePictureDesc.xhtml";
+			var values = {'pictureId':id,"desc":$('d' +id).value};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert("成功修改图片名称！");
+					$('b'+id).value='修改名称';
+				}else alert(result.msg);
+				$('b' +id).set('readonly', '');
+			});
+		}
+	}
+	function deletePicture(pictureId){
+		var url = "${basePath}admin/common/ajax/removePictureById.xhtml";
+		GewaraUtil.sendRequest(url,{"pictureId":pictureId}, function(result){
+			if(result.success) $("p"+pictureId).dispose();
+			else alert(result.msg);
+		});
+	}
+	function checkFiles(){
+		if($('file1').value=='' && $('file2').value=='' && $('file3').value=='' && $('file4').value=='' && $('file5').value==''){
+			alert("请选择图片上传！");
+			return false;
+		}
+		if($('file1').value=='') $('file1').dispose();
+		if($('file2').value=='') $('file2').dispose();
+		if($('file3').value=='') $('file3').dispose();
+		if($('file4').value=='') $('file4').dispose();
+		if($('file5').value=='') $('file5').dispose();
+		return true;
+	}
+	function setFirstPicture(picPath){
+		var url = '${basePath}admin/common/ajax/setFirstPicture.xhtml';
+		var values = {'picPath': picPath, 'tag':$('btag').value, 'relatedid':$('brelatedid').value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('设置成功!');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+#set($gmark=$VmUtils.getLastMarkStar($movie, "general", ${markCount},$!markData)) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+#set($movieOtherinfoMap = $VmUtils.readJsonToMap($movie.otherinfo))
+<div class="detail_head new_detail_head clear">
+	<div class="detail_head_pic"><img src="$VmUtils.randomPic('cw210h280',$movie.limg)" width="210" height="280" alt="$!obj.englishname" title="$!obj.englishname" class="bp"/></div>
+	<div class="detail_head_desc">
+		<div class="detail_head_desc_left clear">
+			<div class="detail_head_name">
+				<h1>$!obj.name</h1><strong title="$!obj.englishname">$!obj.englishname</strong>
+			</div>
+			#if($movie.highlight)<p><em>看点：</em><span title="$!movie.highlight">$!VmUtils.htmlabbr($!movie.highlight,52)...</span>#if($isDetail)<em class="ffst ml5 pointer" onclick="javascript:gewa.util.pagePos('showDown_content');" >详情</em>#end</p>#end
+			<div class="inside_half">
+				#if($movie.playdate)<p><em>首映：</em>$!movie.playdate</p>#end
+				#if($movie.state)<p><em>地区：</em>$!movie.state</p>#end
+				#if($movie.type)<p><em>类型：</em>$movie.type</p>#end
+				#if($movie.director)<p><em>导演：</em>$!movie.director</p>#end
+			</div>
+			<div class="inside_half">
+				#if($movie.language)<p class="brown"><em>语言：</em>$movie.language</p>#end
+				#if($movie.videolen)<p class="brown"><em>片长：</em>$movie.videolen分钟</p>#end
+				#if($movie.edition)<p class="brown"><em>版本：</em>$movie.edition</p>#end
+			</div>
+			#if($movie.actors)<p class="clear" style="clear:both;"><em>主演：</em>$!movie.actors</p>#end
+		</div>
+		<div class="detail_head_desc_right clear">
+			<div class="detail_movieTypeBox">
+				<div class="detail_movieTypeBotm">
+					<div class="ratingsSide clear">
+						#set($isBigStaticRating=true)
+						#parse('include/global/staticRating.vm')
+						<span><sub id="mark_integer">$gmark1</sub><sup id="mark_decimal">.$gmark2</sup></span>
+					</div>
+					<div class="ratingsGo">
+						<div class="mt10 center">
+							<span class="button minBt whiteBt" onclick="showMovieMark();"><span><em>我要评分</em></span></span>
+						</div>
+						#if($movie.generalmarkedtimes gt 50)<div class="gray center mt10"><span class="brown mr5"><strong>$!{goodPerc}%</strong></span>瓦友推荐</div>#end
+					</div>
+					<p class="center mt5"><span><b>$!movie.rclickedtimes</b>&nbsp;关注</span><em class="ml5 mr5">|</em><span><b>$!movie.boughtcount</b>&nbsp;购票</span></p>
+				</div>
+			</div>
+		</div>
+		<div class="cls"></div>
+		#if(!$VmUtils.isEmptyList($playdateList))
+		<div class="detail_moviePlay clear mt10">
+			#if($isDetail || $isPlayItem)
+				<a href="javascript:gewa.util.pagePos('moviePlayList');" class="button maxBt redBt left mt10"><span>选座购票</span></a>
+			#else
+				<a href="${basePath}movie/$!{movie.id}/playtable" class="button maxBt redBt left mt10"><span>选座购票</span></a>
+			#end
+			<ul class="left detail_privilege">
+				#foreach($spdiscount in $spdiscountList)
+				#if($foreach.count le 4)
+				#if($spdiscount.distype eq 'percent')
+				 	#set($discount=$!spdiscount.gainDiscount('true'))
+				#else
+				  #set($discount=$!spdiscount.discount)	
+				#end
+					<li #if($foreach.count gt 2)class="mt10"#end>
+						<span #if($spdiscount.hasDistype('fprice'))class="h"#end title='$!spdiscount.getDiscountText($!spdiscount.bankname,"$!discount","$!spdiscount.rebates")'>
+							<em>惠</em>
+							<b>#if(!$!VmUtils.eq($spdiscount.distype,'percent'))¥#end$!spdiscount.gainDiscount('true')#if($!VmUtils.eq($spdiscount.distype,'percent'))折#end</b>
+						</span>
+						<font title='$!spdiscount.getDiscountText($!spdiscount.bankname,"$!discount","$!spdiscount.rebates")'>
+							$!spdiscount.getDiscountText("<em>$!spdiscount.bankname</em>","<b>$!discount</b>","<b>$!spdiscount.rebates</b>")
+						</font>
+					</li>
+				#end
+				#end
+			</ul>
+		</div>
+		#elseif($videoPlay eq 'true')
+		<div class="detail_moviePlay clear mt10">
+			<a href="${basePath}movie/moviePlay.xhtml?mid=$!movie.id" class="button maxBt redBt left mt10" style="background: url('/css/movie/onlinePlay/btnPlay.gif') no-repeat scroll 0 0 transparent;">
+				<span style="background-image: none;width:85px">
+				</span>
+			</a>
+		</div>
+		#end
+	</div>
+</div>
+<div class="detail_nav" id="detail_nav">
+	<ul>
+		<li class="#if($isDetail) select #end"><a href="${basePath}movie/$!{movie.id}">影片首页</a></li>
+		<li class="navline"></li>
+		<li class="#if($isPlayItem) select #end"><a href="${basePath}movie/$!{movie.id}/playtable">排片/购票</a></li>
+		<li class="navline"></li>
+		<li class="#if($isDiary) select #end"><a href="${basePath}movie/$!{movie.id}/diarylist">影评<span>($!{diaryCount})</span></a></li>
+		<li class="navline"></li>
+		<li class="#if($isComment) select #end"><a #if($menucontent eq '影片首页')  #else rel="nofollow" #end  href="${basePath}movie/$!{movie.id}/commentlist">哇啦<span>($!{commentCount})</span></a></li>
+		<li class="navline"></li>
+		<li class="#if($isNews) select #end"><a #if($menucontent eq '影片首页')  #else rel="nofollow"  #end  href="${basePath}movie/$!{movie.id}/newslist">资讯<span>($!{newsCount})</span></a></li>
+		<li class="navline"></li>
+		<li class="#if($isVideo) select #end"><a href="${basePath}movie/$!{movie.id}/videolist">预告片<span>($!{allVideoCount})</span></a></li>
+		<li class="navline"></li>
+		<li class="#if($isPictureDetail) select #end"><a href="${basePath}movie/$!{movie.id}/piturelist">剧照<span>($!{allPictureCount})</span></a></li>
+	</ul>
+	<a href="${basePath}blog/cinema" class="goblog" target="_blank">电影论坛</a>
+</div>

@@ -1,0 +1,346 @@
+<div class="imgView" id="imgView">
+	<div class="imgList opiList">
+		<a href="#" class="prev"></a>
+		<a href="#" class="next"></a>
+		<ul>
+			#foreach($pic in $picList)
+			<li>
+				<a class="imgBox" href="$!pic.link" target="_blank" title="$!pic.title">
+					<img width="690" height="220" alt="$!pic.title" src="$VmUtils.randomPic('',$!pic.logo)" />
+				</a>
+				<div class="mask"></div>
+				<span>
+					<a title="$!pic.title" target="_blank" href="$!pic.link">$!pic.title</a>
+				</span>
+			</li>
+			#end
+		</ul>
+	</div>
+	<div class="countList">
+		#foreach($x in [1..$picList.size()])
+		<a href="#" #if($foreach.count eq 1)class="select"#end>$x</a>
+		#end
+	</div>
+</div>
+<div class="category_navs clear">
+	<a href="${basePath}drama/dramaList.xhtml?dramatype=drama" title="话剧" target="_blank"><i class="hj_s"></i><span>话剧</span></a>
+	<a href="${basePath}drama/dramaList.xhtml?dramatype=concert" title="演唱会" target="_blank"><i class="ych_s"></i><span>演唱会</span></a>
+	<a href="${basePath}drama/dramaList.xhtml?dramatype=musicale" title="音乐会" target="_blank"><i class="yyh_s"></i><span>音乐会</span></a>
+	<a href="${basePath}drama/dramaList.xhtml?dramatype=show" title="展会" target="_blank"><i class="zh_s"></i><span>展会</span></a>
+	<a href="${basePath}drama/dramaList.xhtml?dramatype=dance" title="舞蹈" target="_blank"><i class="wd_s"></i><span>舞蹈</span></a>
+	<a href="${basePath}drama/dramaList.xhtml?dramatype=acrobatics" title="曲艺杂技" target="_blank"><i class="qyzj_s"></i><span>曲艺杂技</span></a>
+	<a href="${basePath}drama/dramaList.xhtml?dramatype=race" title="体育赛事" target="_blank"><i class="tyss_s"></i><span>体育赛事</span></a>
+	<a href="${basePath}drama/dramaList.xhtml?dramatype=children" title="儿童亲子" target="_blank"><i class="etqz_s"></i><span>儿童亲子</span></a>
+	<a href="${basePath}drama/dramaList.xhtml?dramatype=attracticket" title="景点门票" target="_blank" style="margin-right:0;"><i class="jdmp_s"></i><span>景点门票</span></a>
+</div>
+<div class="mod_kong dramaStart">
+	<div class="mod_hd">
+		<div class="search_kuang right mt5">
+			<form action="javascript:searchKey();">
+				<input id="filmName" class="search_text searchText" type="text"  alt="请输入演出名称或艺人名字查找" name="filmName">
+				<label class="searchButton">
+					<input type="button" value="" onclick="searchKey();" />
+				</label>
+			</form>
+		</div>
+		<h2>看演出，从这里开始…</h2>
+		#*
+		<span class="tabList">
+		#foreach($key in $keyList)
+			<a href="$!key.link" title="" target="_blank">$!key.title</a>#if($foreach.count ne $picList.size())<i class="d_line">|</i>#end
+		#end
+		</span>
+		*#
+	</div>
+	<div class="mod_bd mt10">
+		<div class="onshowList clear" id="onshowList">
+			<ul>
+				#foreach($drama in $dramaList)
+				#set($hotDrama=$relatedHelper.getR1("dramaList",$drama.id))
+					<li #if($foreach.count%3==0)style="margin-right:0;"#end>
+						<a class="img_wrap" target="_blank" href="${basePath}drama/$hotDrama.id"><img width="210" height="280" alt="#if($!hotDrama.briefname)$hotDrama.briefname #else $hotDrama.dramaname #end" src="$VmUtils.randomPic('cw210h280', $!hotDrama.limg)" /></a>
+						<div class="tickArea">
+							<span class="mark_text"></span>
+							#if($openSeatList.contains($hotDrama.id))<span class="ico13"></span>#end
+							<p class="info_title"><a href="${basePath}drama/$hotDrama.id" title="#if($!hotDrama.briefname)$hotDrama.briefname #else $hotDrama.dramaname #end" target="_blank">#if($!hotDrama.briefname)$hotDrama.briefname #else $hotDrama.dramaname #end</a></p>
+						</div>
+						<div class="tickArea_s" style="display:none;">
+							<span class="mark_text_s"></span>
+							<div class="tickInfo">
+								<p class="info_title"><a href="${basePath}drama/$hotDrama.id" title="#if($!hotDrama.briefname)$hotDrama.briefname #else $hotDrama.dramaname #end" target="_blank">#if($!hotDrama.briefname)$hotDrama.briefname #else $hotDrama.dramaname #end</a></p>
+								<p class="info_time">$!DateUtil.format($!hotDrama.releasedate, 'MM月dd日') #if($hotDrama.enddate) - $!DateUtil.format($!hotDrama.enddate, 'MM月dd日') #end</p>
+								<p><a href="${basePath}drama/$hotDrama.id" target="_blank" class="chkTick"><span>#if($openSeatList.contains($hotDrama.id))选座购票 #elseif($bookingList.contains($hotDrama.id))立即购票 #else 查看评论 #end</span></a>
+									#if($dramaPriceMap.get($hotDrama.id).size() gt 0)
+									#set($s=$dramaPriceMap.get($hotDrama.id).size()+(-1))
+									#set($minprice=$dramaPriceMap.get($hotDrama.id).get(0))
+									#set($maxprice=$dramaPriceMap.get($hotDrama.id).get($s))
+									<b class="mark_price">#if($minprice eq $maxprice)¥$!{minprice}#else¥$!{minprice}~$!{maxprice}#end</b>
+									#end</p>
+							</div>
+						</div>
+					</li>
+				#end
+			</ul>
+		</div>
+		<div class="onshowList1 clear" id="onshowList1">
+			<ul>
+				#foreach($drama in $dramaAlList)
+				#set($nobDrama=$relatedHelper.getR1("dramaAlList",$drama.id))
+					<li #if($foreach.count%4==0)style="margin-right:0;"#end>
+						<a class="img_wrap" target="_blank" href="${basePath}drama/$nobDrama.id"><img width="150" height="200" alt="#if($!nobDrama.briefname)$nobDrama.briefname #else $nobDrama.dramaname #end" src="$VmUtils.randomPic('cw150h200', $!nobDrama.limg)" /></a>
+						<div class="tickArea">
+							<span class="mark_text"></span>
+							<p class="info_title"><a href="${basePath}drama/$nobDrama.id" title="#if($!nobDrama.briefname)$nobDrama.briefname #else $nobDrama.dramaname #end" target="_blank">#if($!nobDrama.briefname)$nobDrama.briefname #else $nobDrama.dramaname #end</a></p>
+						</div>
+						<div class="tickArea_s" style="display:none;">
+							<span class="mark_text_s"></span>
+							<div class="tickInfo">
+								<p class="info_title"><a href="${basePath}drama/$nobDrama.id" title="#if($!nobDrama.briefname)$nobDrama.briefname #else $nobDrama.dramaname #end" target="_blank">#if($!nobDrama.briefname)$nobDrama.briefname #else $nobDrama.dramaname #end</a></p>
+								<p><a href="${basePath}drama/$nobDrama.id" target="_blank" class="chkTick"><span>#if($openSeatList.contains($nobDrama.id))选座购票 #elseif($bookingList.contains($nobDrama.id))立即购票 #else 查看评论 #end</span></a>
+								#if($dramaPriceMap.get($nobDrama.id).size() gt 0)
+									#set($s=$dramaPriceMap.get($nobDrama.id).size()+(-1))
+									#set($minprice=$dramaPriceMap.get($nobDrama.id).get(0))
+									#set($maxprice=$dramaPriceMap.get($nobDrama.id).get($s))
+									<b class="mark_price" style="color:#fff;">#if($minprice eq $maxprice)¥$!{minprice}#else¥$!{minprice}~$!{maxprice}#end</b>
+									#end</p>
+							</div>
+						</div>
+					</li>
+				#end
+			</ul>
+		</div>
+	</div>
+</div>
+<div class="mod_kong newSale">
+	<div class="mod_hd">
+		<h2>最新开售</h2>
+		<a class="more" target="_blank" href="${basePath}drama/dramaList.xhtml?fyrq=1">更多&gt;&gt;</a>
+	</div>
+	<div class="mod_bd">
+		<div class="onshowList2 clear" id="onshowList2">
+			<ul>
+				#foreach($drama in $newSellDramaList)
+					<li #if($foreach.count%4==0)style="margin-right:0;"#end>
+						<a class="img_wrap clear" target="_blank" href="${basePath}drama/$drama.id"><img width="150" height="200" alt="#if($!drama.briefname)$drama.briefname #else $drama.dramaname #end" src="$VmUtils.randomPic('cw150h200', $!drama.limg)" /></a>
+						<div class="clear">
+							<p class="info_title mt5"><a href="${basePath}drama/$drama.id" title="#if($!drama.briefname)$drama.briefname #else $drama.dramaname #end" target="_blank">#if($!drama.briefname)$drama.briefname #else $drama.dramaname #end</a>#if($openSeatList.contains($drama.id))<span class="ico14"></span>#end</p>
+							<p class="info_date c999"><span>$!DateUtil.format($!drama.releasedate, 'MM月dd日') #if($drama.enddate) - $!DateUtil.format($!drama.enddate, 'MM月dd日') #end</span></p>
+						</div>
+						<div class="tickArea_s" style="display:none;">
+							<span class="mark_text_s"></span>
+							<div class="tickInfo">
+								<p><a href="${basePath}drama/$drama.id" target="_blank" class="chkTick"><span>#if($openSeatList.contains($drama.id))选座购票 #elseif($bookingList.contains($drama.id))立即购票 #else 查看评论 #end</span></a>
+								#if($dramaPriceMap.get($drama.id).size() gt 0)
+									#set($s=$dramaPriceMap.get($drama.id).size()+(-1))
+									#set($minprice=$dramaPriceMap.get($drama.id).get(0))
+									#set($maxprice=$dramaPriceMap.get($drama.id).get($s))
+									<b class="mark_price" style="color:#fff;">#if($minprice eq $maxprice)¥$!{minprice}#else¥$!{minprice}~$!{maxprice}#end</b>
+									#end</p>
+							</div>
+						</div>
+					</li>
+				#end
+			</ul>
+		</div>
+	</div>
+</div>
+#if($!subjectList)
+<div class="mod_kong drama_zt">
+	<div class="mod_hd">
+		<h2>专题</h2>
+		<a class="more" target="_blank" href="${basePath}news/theatre?type=subject">更多&gt;&gt;</a>
+	</div>
+	<div class="mod_bd">
+		<div class="ui_media zt_xq mt5">
+			<div class="ui_pic">
+				<a target="_blank" title="$!subjectList.title" href="$!subjectList.link" class="movieImg">
+					<img width="240" height="180" alt="" src="$VmUtils.randomPic('cw240h180', $!subjectList.logo)" />
+				</a>
+			</div>
+			<div class="ui_text">
+				<h3><a class="fs14 c80" title="$!subjectList.title" href="$!subjectList.link" target="_blank">$!subjectList.title</a></h3>
+				##<p class="t mt5">...</p>
+				<p class="tx mt5 c999">$!subjectList.summary<a class="ui_readMore" href="$!subjectList.link">[查看]</a></p>
+				<ul class="ui_list mt10">
+					#foreach($news in $newsList)
+					#set($newsb=$relatedHelper.getR1("newsList",$news.id))
+					<li>
+						<a title="$!newsb.title" target="_blank" href="${basePath}news/$newsb.id">[资讯]$!newsb.title</a>
+					</li>
+					#end
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+#end
+<div class="mod_kong drama_act">
+	<div class="mod_hd">
+		<h2>演出活动</h2>
+		<a class="more" target="_blank" href="${basePath}activity/activityList.xhtml">更多&gt;&gt;</a>
+	</div>
+	<div class="mod_bd">
+		<ul class="act_list clear mt5">
+			#foreach($activityGc in $activityList)
+			#set($activity=$relatedHelper.getR1("activityList",$activityGc.id))
+				<li #if($foreach.count%2==0)style="margin-right:0;"#end>
+					<dl class="ui_media">
+						<dt class="ui_pic">
+							<a href="${basePath}activity/$activity.id" title="$!activity.title" target="_blank">
+								<img src="$VmUtils.randomPic('cw96h128', $!activity.logo)" alt="$!activity.title" width="96" height="128"/>
+							</a>
+						</dt>
+						<dd class="ui_text c999">
+							<a href="${basePath}activity/$activity.id" title="$!activity.title" target="_blank" class="fs14 bold">$!activity.title</a>
+							<p class="mt10">$!DateUtil.format($!activity.startdate, 'MM月dd日')--$!DateUtil.format($!activity.enddate, 'MM月dd日')</p>
+							<p>$!activity.address</p>
+							<p class="mt10">$!activity.clickedtimes 关注 <span class="join ml10">$!activity.membercount</span></p>
+						</dd>
+					</dl>
+				</li>
+			#end
+		</ul>
+	</div>
+</div>
+<div class="mod_kong percentShow">
+		<div class="mod_hd">
+			<h2>明星/导演/社团</h2>
+			<a class="more" target="_blank" href="${basePath}drama/star">更多&gt;&gt;</a>
+		</div>
+		<div class="mod_bd">
+			<ul class="percentShow_list clear mt5" id="percentShow_list">
+				#foreach($startGc in $starList)
+				#set($start=$relatedHelper.getR1("starList",$startGc.id))
+				#set($dramaList=$starDramaCountMap.get($startGc.id))
+				#set($ty = $foreach.index % 3)
+				#if($ty == 0)
+				<li class="a1 isrelative">
+					<div class="b1 b">
+					<a href="${basePath}drama/star/$start.id" title="$!start.briefname" target="_blank">
+						<img src="$VmUtils.randomPic('cw180h240', $!start.logo)" alt="$!start.briefname" width="180" height="240"/>
+						<span class="ssh" style="display:none;">
+							<span class="mark8"></span>
+							<em class="ssh_in">
+								<b>$!start.name</b>
+								#foreach($startDrama in $dramaList)
+								<br/>$!startDrama.name
+								#end
+								<br/>
+								近期正在上演
+							</em>
+						</span>
+					</a>
+					</div>
+				</li>
+				#else
+				#if($ty == 1)
+				<li class="a2">
+					<ul>
+				#end
+					#if($ty == 1)
+						<li class="isrelative">
+							<div class="b2 b">
+								<a href="${basePath}drama/star/$start.id" title="$!start.briefname" target="_blank">
+									<img src="$VmUtils.randomPic('cw120h120', $!start.logo)" alt="$!start.briefname" width="120" height="120"/>
+									<span class="ssh" style="display:none;">
+										<span class="mark8"></span>
+										<em class="ssh_in">
+											<b>$!start.name</b>
+											#foreach($startDrama in $dramaList)
+											<br/>$!startDrama.name
+											#end
+											<br/>
+											近期正在上演
+										</em>
+									</span>
+								</a>
+							</div>
+						</li>
+					#elseif($ty == 2)
+						<li class="isrelative">
+							<div class="b3 b">
+								<a href="${basePath}drama/star/$start.id" title="$!start.briefname" target="_blank">
+									<img src="$VmUtils.randomPic('cw120h120', $!start.logo)" alt="$!start.briefname" width="120" height="120"/>
+									<span class="ssh" style="display:none;">
+										<span class="mark8"></span>
+										<em class="ssh_in">
+											<b>$!start.name</b>
+											#foreach($startDrama in $dramaList)
+											<br/>$!startDrama.name
+											#end
+											<br/>
+											近期正在上演
+										</em>
+									</span>
+								</a>
+							</div>
+						</li>
+					#end
+				#if($ty == 2 || $foreach.count==$VmUtils.size($starList))
+					</ul>
+				</li>
+				#end
+				#end
+				#end
+				<li class="a3">
+					<a href="${basePath}drama/dramaList.xhtml" target="_blank" >
+						<span>
+							<em>22</em>位明星<br>
+							<em>48</em>部剧目<br>
+							正在上演
+						</span>
+						<i class="go"></i>
+					</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="mod_kong hotComment">
+		<div class="mod_hd">
+			<h2>热门评论</h2>
+		</div>
+		<div class="mod_bd">
+			<div class="x mt10">
+				<ul>
+				#foreach($diaryGc in $diaryList)
+				#if($foreach.count lt 4)
+				#set($diary=$relatedHelper.getR1("diaryList",$diaryGc.id))
+				#set($dramaDir=$relatedHelper.getR2("diaryList",$diaryGc.id))
+				#set($key=$!{dramaDir.id}+'drama')
+				#set($dramaCount=$diaryConutMap.get($key))
+					<li>
+						<div class="ui_media">
+							<div class="ui_pic">
+								<a href="${basePath}drama/$dramaDir.id" title="$dramaDir.dramaname" target="_blank">
+									<img src="$VmUtils.randomPic('cw120h160', $!dramaDir.limg)" alt="$dramaDir.dramaname" width="120" height="160"/>
+								</a>
+								<p class="mt5"><a href="${basePath}drama/dramaDiaryList.xhtml?dramaid=$dramaDir.id" target="_blank">共$!{dramaCount}篇评论&gt;&gt;</a></p>
+							</div>
+							<div class="ui_text">
+								<i class="quotation"></i>
+								<h3><a class="fs14 c80" title="$!diary.subject" href="${basePath}blog/t$diary.id" target="_blank">$!diary.subject</a></h3>
+								<p class="t mt5"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!diary.memberid" target="_blank" class="mr10 c333">$!diary.membername</a><span>评论：</span>$dramaDir.dramaname</p>
+								<p class="tx mt5 c999">$VmUtils.escabbr($!diary.summary,380)<a class="ui_readMore" href="${basePath}blog/t$diary.id">[阅读全文]</a></p>
+							</div>
+						</div>
+					</li>
+					#end
+					#end
+				</ul>
+			</div>
+			<div class="crows">
+				<ul>
+					#foreach($diaryGc in $diaryList)
+					#if($foreach.count gt 3)
+					#set($diary=$relatedHelper.getR1("diaryList",$diaryGc.id))
+					#set($dramaDir=$relatedHelper.getR2("diaryList",$diaryGc.id))
+					<li>
+						<span class="right"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!diary.memberid" target="_blank" class="mr10 c333">$!diary.membername</a>评论：<a href="${basePath}drama/$dramaDir.id" target="_blank">$dramaDir.realBriefname</a></span>
+						<p><a href="${basePath}blog/t$diary.id" title="$!diary.subject" target="_blank" class="ati">$!diary.subject</a></p>
+					</li>
+					#end
+					#end
+				</ul>
+			</div>
+		</div>
+	</div>

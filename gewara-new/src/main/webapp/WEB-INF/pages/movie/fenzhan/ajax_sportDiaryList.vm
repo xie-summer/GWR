@@ -1,0 +1,28 @@
+<!-- SUCCESS_HEAD -->
+#if(!$VmUtils.isEmptyList($diaryList))
+<ul>
+	#set($diaryIndex = 0)
+	#foreach($relate in $diaryList)
+	#if($diaryIndex le 5 && $!relate.summary.length() gt 200)
+	#set($diaryIndex = $diaryIndex + 1)
+	<li class="mt20">
+		<dl class="ui_media">
+			<dt class="ui_pic center">
+				<a style="display:block; width:50px; margin:0 auto;" title="用户名" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!relate.memberid" target="_blank"><img width="50" height="50" alt="用户名" src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($relate.memberid).headpicUrl)"/></a>
+				<p class="mt5"><a target="_blank" title="$!VmUtils.escabbr($!relate.membername, 12)" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!relate.memberid">$!VmUtils.escabbr($!relate.membername, 12)</a></p>
+			</dt>
+			<dd class="ui_text">
+				<h3><a target="_blank" class="c333" href="${basePath}blog/t${relate.id}">$!VmUtils.escabbr($!relate.subject, 60)</a></h3>
+				<p class="mt5">$!VmUtils.htmlabbr($!relate.summary,240)...<a target="_blank" href="${basePath}blog/t${relate.id}" class="ui_readMore c333">全文</a></p>
+				<p class="info">
+					<span class="left">$!DateUtil.format($!relate.addtime,"yyyy-MM-dd HH:mm")</span>
+					<span class="right">$!{relate.clickedtimes}人关注丨$!{relate.flowernum}人推荐</span>
+				</p>
+			</dd>
+		</dl>
+	</li>
+	#end
+	#end
+</ul>
+#end
+<!-- SUCCESS_BOTTOM -->

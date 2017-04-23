@@ -1,0 +1,496 @@
+<div id="showPicture" style="width:760;margin:0 auto;">
+			
+</div>
+#if($logonMember)
+<div style="padding:10px 20px;">
+	<b class="brown">我也评下这张照片</b><span class="gray">（不超过200个字！）</span>
+	<ul class="ul-box">
+		<li style="margin-top:0px;">
+			<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$logonMember.id" class="pubpic"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($!logonMember.id).headpicUrl)) center center no-repeat"/></a>
+			<form id="searchForm" >
+				<input type="hidden" id="albumid" name="albumid" value="$!albumid"/>
+				<input type="hidden" id="imageid" name="imageid" value="$!curAlbumImage.id"/>
+				<textarea class="text" id="bodyid" name="body" class="text" style="width:340px;height:60px;"></textarea><br/>
+				<label for="commenBtn" class="button redBt minBt">
+					<input type="button" id="commenBtn" onclick="saveComment();" value="发表评论"/>
+				</label>
+			</form>
+		</li>
+	</ul>
+</div>
+#end
+<div style="border-top:1px solid #efefef;padding:0 20px;" id="TextElement">
+	#if(!$VmUtils.isEmptyList($imageCommentList))
+	#foreach($comment in $imageCommentList)
+	<ul class="ul-box clear" #if($foreach.index%2 eq 0) style="background:#f9f9f9" #end>
+		<li>
+			<a class="pubpic" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)) center center no-repeat;"/></a>
+			<p>
+			<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" class="brown" target="_blank">$cacheMemberMap.get($comment.memberid).nickname</a>说：&nbsp;&nbsp;
+			$!VmUtils.escapeHtml($!comment.body)
+			</p>
+			<p><span class="gray mr20">$DateUtil.getTimeDesc($comment.addtime)</span>
+			#if($!isShowCommuAlbum)
+			<a href="javascript:void(0);" onclick="deleteComment(this,$comment.id)" style="text-decoration: underline;"><span>删除</span></a>
+			#end</p>
+		</li>
+	</ul>
+	#end
+	#end
+</div>
+
+<div id="loadHtml" style="display:none"></div>
+<script type="text/javascript">
+function getAlbumImageMap(){
+	var albumImageMap = $VmUtils.getScriptObject($albumImageMap);
+	return albumImageMap;
+}
+function getAlbumImageIdList(){
+	var albumImageIdList = $VmUtils.getScriptObject($albumImageMap.keySet());
+	return albumImageIdList;
+}
+window.addEvent('domready',function(){
+	new pictureDetail({
+		'imgPath':'$picPath',
+		'url':'${basePath}quan/album/albumCommentList.xhtml',
+		'pictureSelect':'$!curAlbumImage.limg',
+		'pictureList':getAlbumImageMap(),
+		'pictureidList':getAlbumImageIdList(),
+		'curpic':'$!params.curAlbumPicId',
+		'requestUrl':'${basePath}image/updateImageInfo.xhtml'
+	});
+})
+var pictureDetail = new Class({
+	Implements: [Options,Events],
+	options: {
+		injectElement:'showPicture',
+		injectTextElement:'TextElement',
+		pictureList:{},
+		controlList:$empty,
+		showPicture:$empty,
+		pictureSelect:$empty,
+		historyPicture:$empty,
+		curpic:$empty,
+		pictureidList:$empty,
+		showDom:$empty,
+			tbd:$empty,
+			lbd:$empty,
+			rbd:$empty,
+			bbd:$empty,
+			topEvent:$empty,//向上
+			botEvent:$empty,//向下
+			leftEvent:$empty,//向上
+			rightEvent:$empty,//向下
+			flag:true,
+			scroll:$empty,
+			title:$empty,
+			description:$empty,
+			url:'',
+			requestUrl:'',
+			fx:$empty,
+			imgPath:''
+	},
+	initialize: function(options) {
+		this.setOptions(options);
+		this.createPictureOuterFace();
+		this.clickSelect();
+	},
+	createPictureOuterFace:function(){
+		var self = this;
+		var dom = new Element('div',{'styles':{'padding-left':'640px','margin-top':'20px'}}).addClass('clear').inject(this.options.injectElement);
+		var c = new Element('div',{'styles':{
+			'width':'120px',
+			'float':'right',
+			'padding':'40px 0',
+			'height':'340px',
+			'overflow':'hidden',
+			'position':'relative',
+			'float':'left'
+		}}).inject(dom);
+		this.options.controlList = new Element('div',{'styles':{
+			'height':'340px',
+			'width':'82px',
+			'overflow':'hidden',
+			'position':'relative'
+		}}).inject(c);
+		this.options.leftEvent = new Element('div',{'styles':{
+			'height':'23px',
+			'width':'82px',
+			'background':'#fff url(${picPath}css/home/top.jpg) 0 bottom no-repeat',
+			'position':'absolute',
+			'top':'20px',
+			'left':'0px',
+			'cursor':'pointer',
+			'border-bottom':'1px solid #efefef'
+		}}).addEvents({
+			'click':function(){self.previousPicture();},
+			'mouseenter':function(){this.setStyle('background-position','0 top')},
+			'mouseleave':function(){this.setStyle('background-position','0 bottom')}
+		}).inject(c);
+		this.options.rightEvent = new Element('div',{'styles':{
+			'height':'23px',
+			'width':'82px',
+			'background':'#fff url(${picPath}css/home/bottom.jpg) 0 bottom no-repeat',
+			'position':'absolute',
+			'bottom':'20px',
+			'left':'0px',
+			'cursor':'pointer',
+			'border-top':'1px solid #efefef'
+		}}).addEvents({
+			'click':function(){self.nextPicture();	},
+			'mouseenter':function(){this.setStyle('background-position','0 top')},
+			'mouseleave':function(){this.setStyle('background-position','0 bottom')}
+		}).inject(c);
+		var m = new Element('div',{'styles':{
+			'margin-left':'-760px',
+			'_margin-left':'-380px',
+			'float':'left',
+			'width':'574px',
+			'height':'100%'
+		}}).inject(dom)
+		this.options.showDom = new Element('div',{'styles':{
+			'width':'574px',
+			'height':'294px',
+			'padding':'33px',
+			'position':'relative',
+			'margin':'0 auto',
+			'z-index':2
+		}}).inject(m);
+		this.setDom(this.options.showDom);
+		this.options.showPicture = new Element('div',{'styles':{
+			'width':'100%',
+			'height':'100%',
+			'overflow':'hidden',
+			'position':'relative',
+			'z-index':1,
+			'background-image':'url(${picPath}css/home/loading.gif)',
+			'background-position':'center center',
+			'background-repeat':'no-repeat'
+		}}).inject(this.options.showDom);
+		
+		this.options.topEvent = new Element('div',{'styles':{
+			'width':'50%',
+			'height':'100%',
+			'line-height':'100%',
+			'left':'0',
+			'top':'0',
+			'z-index':9999,
+			'position':'absolute',
+			'cursor':'pointer',
+			'background-position':'0 center',
+			'background-repeat':'no-repeat',
+			'background-image':(Browser.Engine.version != 4)?'url(${picPath}css/home/left_01.png)':'url(${picPath}css/home/left_01.gif)'
+		}}).addEvents({
+			'click':function(){self.previousPicture();},
+			'mouseenter':function(){if(self.options.flag)this.setStyle('background-image',(Browser.Engine.version != 4)?'url(${picPath}css/home/left_02.png)':'url(${picPath}css/home/left_02.gif)');},
+			'mouseleave':function(){if(self.options.flag)this.setStyle('background-image',(Browser.Engine.version != 4)?'url(${picPath}css/home/left_01.png)':'url(${picPath}css/home/left_01.gif)');}	
+		}).inject(this.options.showDom);
+		this.options.botEvent = new Element('div',{'styles':{
+			'width':'50%',
+			'height':'100%',
+			'line-height':'100%',
+			'right':'0',
+			'top':'0',
+			'z-index':9999,
+			'position':'absolute',
+			'cursor':'pointer',
+			'background-position':'right center',
+			'background-repeat':'no-repeat',
+			'background-image':(Browser.Engine.version != 4)?'url(${picPath}css/home/right_01.png)':'url(${picPath}css/home/right_01.gif)'
+		}}).addEvents({
+			'click':function(){self.nextPicture();},
+			'mouseenter':function(){if(self.options.flag)this.setStyle('background-image',(Browser.Engine.version != 4)?'url(${picPath}css/home/right_02.png)':'url(${picPath}css/home/right_02.gif)');},
+			'mouseleave':function(){if(self.options.flag)this.setStyle('background-image',(Browser.Engine.version != 4)?'url(${picPath}css/home/right_01.png)':'url(${picPath}css/home/right_01.gif)');}	
+		}).inject(this.options.showDom);
+		var controlInner = new Element('div',{'styles':{
+			'width':'100%',
+			'height':'auto',
+			'margin':'0',
+			'padding':'0',
+			'position':'absolute'
+		}}).inject(this.options.controlList)
+		this.options.fx = new Fx.Elements(controlInner,{
+			wait: false,
+			duration: 2000,
+			transition: Fx.Transitions.linear
+		});
+		this.options.title = new Element('div',{'styles':{'font-size':'12px','margin':'0 20px','border-top':'2px solid #eee','padding-top':'10px'}}).inject(m);
+		this.options.description = new Element('div',{'styles':{'margin':'5px 20px 20px','font-size':'12px'}}).inject(m);
+		var hash = new Hash(this.options.pictureList),sbl = ((this.options.pictureidList.indexOf(this.options.curpic.toInt()))/5).toInt();
+		if(this.options.pictureidList.indexOf(this.options.curpic.toInt())+1 <= 5){
+			sbl = sbl==1?0:sbl
+		}
+		if(this.options.curpic)controlInner.setStyle('margin-top',-67*sbl*5)
+		hash.each(function(value,key){
+			var el = new Element('div',{'styles':{'height':'60px','width':'80px','margin':'5px 0','border':'1px solid #eee','overflow':'hidden','cursor':'pointer'}}).inject(controlInner);
+			new Asset.image(self.options.imgPath + 'sw80h60/' + value[0],{'id':key,'lang':value[0],'alt':value[1],'title':value[2],'onload':function(){
+				this.show();
+				if(self.options.curpic && value[0].test(self.options.pictureSelect)){
+					new Element('img',{'src':self.options.imgPath + value[0],'lang':value[0]}).addEvent('load',function(){
+						var zoomParam = self.clacImgZoomParam(574,430,this.width,this.height);
+						self.setOuter(zoomParam.width,zoomParam.height);
+						this.setStyles({'width':zoomParam.width,'height':zoomParam.height});
+					}).inject(self.options.showPicture)
+					this.getParent().setStyle('border-color','#666666');
+					self.options.title.set('text','图片名称：'+value[2]);
+					self.createUpdate(self.options.title,value[2],key,'图片名称：','name');
+					self.options.description.set('text','图片描述：'+value[1]);
+					self.createUpdate(self.options.description,value[1],key,'图片描述：','description');
+				}else{
+					if(self.options.pictureidList[0] == key && !self.options.curpic){
+						new Element('img',{'src':self.options.imgPath + value[0],'lang':value[0]}).addEvent('load',function(){
+							var zoomParam = self.clacImgZoomParam(574,430,this.width,this.height);
+							self.setOuter(zoomParam.width,zoomParam.height);
+							this.setStyles({'width':zoomParam.width,'height':zoomParam.height});
+						}).inject(self.options.showPicture)
+						this.getParent().setStyle('border-color','#666666');
+						self.options.title.set('text','图片名称：'+value[2]);
+						self.createUpdate(self.options.title,value[2],key,'图片名称：','name');
+						self.options.description.set('text','图片描述：'+value[1]);
+						self.createUpdate(self.options.description,value[1],key,'图片描述：','description');
+					}
+				}
+				self.autoSizePreview(this,this.width,this.height,el);
+			}}).hide().inject(el);
+		})
+	},
+	setDom:function(el){
+		new Element('div',{'styles':{'position':'absolute','top':'0','left':'0','width':'33px','height':'33px','background':'url(${picPath}css/home/remo_bg_nw.jpg) no-repeat'}}).inject(el);//边样式
+		this.options.tbd = new Element('div',{'styles':{'position':'absolute','height':'33px','width':'90%','background':'url(${picPath}css/home/remo_bg_n.jpg) repeat-x','left':'33px','top':'0'}}).inject(el);
+		new Element('div',{'styles':{'position':'absolute','height':'33px','width':'33px','background':'url(${picPath}css/home/remo_bg_ne.jpg) no-repeat','right':'0','top':'0'}}).inject(el);
+		this.options.lbd = new Element('div',{'styles':{'position':'absolute','width':'33px','height':'90%','background':'url(${picPath}css/home/remo_bg_w.jpg) repeat-y','left':'0','top':'33px'}}).inject(el);
+		this.options.rbd = new Element('div',{'styles':{'position':'absolute','width':'33px','height':'90%','background':'url(${picPath}css/home/remo_bg_e.jpg) repeat-y','right':'0','top':'33px'}}).inject(el);
+		new Element('div',{'styles':{'position':'absolute','height':'33px','width':'33px','background':'url(${picPath}css/home/remo_bg_sw.jpg) no-repeat','left':'0','bottom':'0px'}}).inject(el);
+		new Element('div',{'styles':{'position':'absolute','height':'33px','width':'33px','background':'url(${picPath}css/home/remo_bg_se.jpg) no-repeat','right':'0','bottom':'0px'}}).inject(el);
+		this.options.bbd = new Element('div',{'styles':{'position':'absolute','height':'33px','width':'90%','background':'url(${picPath}css/home/remo_bg_s.jpg) repeat-x','right':'33px','bottom':'0px'}}).inject(el);
+	},
+	setOuter:function(width,height){
+		this.options.showDom.setStyles({'width':width+'px','height':height+'px'});
+			this.options.tbd.setStyle('width',width+'px');
+			this.options.lbd.setStyle('height',height+'px');
+			this.options.rbd.setStyle('height',height+'px');
+			this.options.bbd.setStyle('width',width+'px');
+	},
+	anim: function(curUrl) {
+		var self = this;
+		var el = this.options.showPicture.getElement('img'), width = el.width;
+		if($('curAlbumImage'))$('curAlbumImage').value =curUrl.get('lang');
+		self.options.showPicture.setStyle('background','url(${picPath}css/home/loading.gif) center center no-repeat');
+		new Asset.image(self.options.imgPath + curUrl.get('lang'),{'lang':curUrl.get('lang'),'onload':function(){
+			var zoomParam = self.clacImgZoomParam(574,430,this.width, this.height);
+			this.set('width',zoomParam.width);
+			this.set('height',zoomParam.height);
+			new Fx.Tween(el,{
+				duration:500,
+				onComplete: function() {
+					el.dispose();
+					self.options.flag = true;
+					self.setOuter(zoomParam.width,zoomParam.height);
+					self.options.controlList.getElements('img').each(function(item){
+						item.getParent().setStyle('border-color','#eee');
+					})
+					curUrl.getParent().setStyle('border-color','#666666');
+					self.options.title.set('text','图片名称：'+curUrl.get('title'));
+					self.createUpdate(self.options.title,curUrl.get('title'),curUrl.get('id'),'图片名称：','name');
+					self.options.description.set('text','图片描述：'+curUrl.get('alt'));
+					self.createUpdate(self.options.description,curUrl.get('alt'),curUrl.get('id'),'图片描述：','description');
+					self.requestText(curUrl.get('id'));
+					if($('imageid'))$('imageid').value = curUrl.get('id');
+					self.options.showPicture.setStyle('background','transparent');
+				}.bind(this)
+			}).start('width',width,0);
+			this.show();
+		}}).hide().inject(this.options.showPicture);
+	},
+	nextPicture:function(){
+		if(this.options.flag){
+			var self = this,cur = this.options.showPicture.getElement('img');
+			this.options.controlList.getElements('img').each(function(item,index){
+				if(item.get('lang').test(cur.get('lang'))){
+					if(item.getParent().getNext()){
+						var el = item.getParent().getNext().getElement('img')
+						self.options.flag = false;
+						self.anim(el);
+						self.moveTo(el, "next");
+						self.options.topEvent.show();
+						self.options.leftEvent.show();
+					}else{
+						self.options.botEvent.hide();
+						self.options.rightEvent.hide();
+					}
+				}
+			})
+		}
+	},
+	previousPicture:function(){
+		if(this.options.flag){
+			var self = this,cur = this.options.showPicture.getElement('img');
+			this.options.controlList.getElements('img').each(function(item,index){
+				if(item.get('lang').test(cur.get('lang'))){
+					if(item.getParent().getPrevious()){
+						var el = item.getParent().getPrevious().getElement('img')
+						self.options.flag = false;
+						self.anim(el);
+						self.moveTo(el, "pre");
+						self.options.botEvent.show();
+						self.options.rightEvent.show();
+					}else{
+						self.options.topEvent.hide();
+						self.options.leftEvent.hide();
+					}
+				}
+			})
+		}
+	},
+	clickSelect:function(){
+		var self = this,f=true;
+		this.options.controlList.getElements('img').each(function(item){
+			if(!item.getParent().getStyle('border-color').test('#666666')){
+				item.addEvents({
+					'click':function(){
+						if(self.options.flag){
+							self.options.flag = false;
+							self.anim(this);
+							if(self.options.controlList.getElements('img').indexOf(this)>5)self.moveTo(this);
+							f = false;
+						}
+					},
+					'mouseenter':function(){if(f)this.getParent().setStyle('border-color','#666666');},
+					'mouseleave':function(){if(f)this.getParent().setStyle('border-color','#eee');}
+				})
+			}
+		})
+	},
+	moveTo:function(element, from){
+		var self = this,o={};
+		var mt = this.options.fx.elements[0].getStyle('margin-top').toInt();
+		if(from=="next"){
+			if(self.options.controlList.getElements('img').indexOf(element) % 5 == 0){
+				o[0] = {"margin-top":[mt, mt - 5*67]};
+				self.options.fx.start(o);
+			}
+		}else{
+			if(self.options.controlList.getElements('img').indexOf(element) % 5 == 0){
+				o[0] = {"margin-top":[mt, mt + 5 * 67 ]};
+				self.options.fx.start(o);
+			}
+		}
+		if(self.options.controlList.getElements('img').indexOf(element)<5){
+			o[0] = {"margin-top":[mt, 0]};
+			self.options.fx.start(o);
+		}
+	},
+	autoSizePreview:function(objPre, originalWidth, originalHeight,previewFake){
+		var zoomParam = this.clacImgZoomParam(80,60,originalWidth, originalHeight);
+		new Element('div',{'styles':{'height':zoomParam.top+'px','line-height':zoomParam.top+'px','font-size':'0px'}}).inject(previewFake,'top');
+		$(objPre).setStyles({
+			'width':zoomParam.width + 'px',
+			'height':zoomParam.height + 'px',
+			'margin-left':zoomParam.left + 'px'
+		})
+	},
+	clacImgZoomParam:function(maxWidth, maxHeight, width, height){
+		var param = {width:width,height:height,top:0,left:0};  
+		if( width>maxWidth || height>maxHeight ){  
+			rateWidth = width / maxWidth;  
+			rateHeight = height / maxHeight;  
+			if( rateWidth > rateHeight ){  
+					param.width = maxWidth;  
+					param.height = height / rateWidth;  
+			}else{  
+					param.width = width / rateHeight;  
+					param.height = maxHeight;  
+			}  
+		}  
+		param.left = (maxWidth - param.width) / 2;  
+		param.top = (maxHeight - param.height) / 2;  
+		return param;  
+	},
+	requestText:function(id){
+		var sendUrl = this.options.url+'?imageid='+id+"&math="+Math.random();
+		$(this.options.injectTextElement).load(sendUrl);
+	},
+	edit:function(element,defaultValue,id,text,textname){
+		var self = this;
+		element.set('text',text);
+		var editText = new Element('form').inject(element) 
+		new Element('input',{'type':'hidden','name':'albumimageid','value':id}).inject(editText);
+		new Element('textarea',{'value':defaultValue,'name':textname,'styles':{'width':'530px','height':'40px','overflow-x':'hidden','overflow-y':'auto'}}).addClass('text').addEvent('blur',function(){
+			var values = editText.toQueryString().parseQueryString();
+			if(textname == 'name'&&!$chk(this.value)){gewaUtil.alert(text.replace('：','')+'不能为空！');return false;}
+			if(textname == 'name' && this.value.length >50){
+				gewaUtil.alert(text.replace('：','')+'不能大于50字！');return false;
+			}
+			if(textname == 'description' && this.value.length >500){
+				gewaUtil.alert(text.replace('：','')+'不能大于500字！');return false;
+			}
+			if(this.value == defaultValue){
+				element.set('text',text+defaultValue);
+				self.createUpdate(element,defaultValue,id,text,textname);
+				editText.dispose();
+			}else{
+				var url = self.options.requestUrl;
+				GewaraUtil.sendRequest(url, values, function(result){
+					if(result.success){
+						element.set('text',text+result.retval);
+						self.createUpdate(element,result.retval,id,text,textname);
+						editText.dispose();
+					}else{
+						element.set('text',text+defaultValue);
+						self.createUpdate(element,defaultValue,id,text,textname);
+						editText.dispose();
+					}
+				})
+			}
+		}).inject(editText);
+	},
+	createUpdate:function(element,defaultValue,id,text,textname){
+		var self = this;
+		#if($!isShowCommuAlbum)
+		new Element('span',{'text':'修改','styles':{'text-decoration':'underline','margin-left':'20px','cursor':'pointer'}}).addClass('brown').addEvent('click',function(){
+			self.edit(element,defaultValue,id,text,textname);
+		}).inject(element,'bottom');
+		#end
+	}
+});
+function saveComment(){
+	checkLogin(true,function(){
+		if($('bodyid').value==''){
+			gewaUtil.alert('回复内容不能为空！');
+			return;
+		}
+		if($('bodyid').value.length > 200){
+			gewaUtil.alert("回复内容不能大于200字！");
+			return;
+		}
+		GewaraUtil.mask('commenBtn');
+		var url = '${basePath}home/album/saveAlbumComment.xhtml';
+		var myRequest = new Request({url: url, method: 'post',
+			onSuccess: function(resText){
+				GewaraUtil.unmask();
+				var fxel = new Element('div').inject($('TextElement'),'top'),el = $('loadHtml');
+				el.set('html',resText);
+				var myFx = new Fx.Tween($(fxel),{duration:1000}),datas = el.get('html');
+					myFx.start("height",0,68).chain(function(){
+					fxel.set("html", datas);
+					fxel.setStyle('height','auto');
+					$('bodyid').value='';
+				});
+			}
+		});
+		myRequest.send({'data':{'imageid':$('imageid').value,'albumid':$('albumid').value,'body':$('bodyid').value}});
+	});
+}
+	
+function deleteComment(self,commentid){
+	var url = '${basePath}home/album/deleteAlbumComment.xhtml';
+	var values = {'commentid':commentid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			new Fx.Reveal($(self).getParent('ul')).dissolve();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	})
+}
+</script>

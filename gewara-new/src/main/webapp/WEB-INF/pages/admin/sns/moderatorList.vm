@@ -1,0 +1,311 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>话题列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.hiddenBt{
+			visibility: hidden
+		}
+		.showBt{
+			visibility: visible;
+		}
+		.select{
+			color:red;
+		}
+	</style>
+</head>
+<body style="margin:auto; padding: 10px;">
+<div style="padding:1px;">
+		<div><input type="button"  onclick="showModeratorForm()" class="button" value="添加话题" /></div>
+		<hr/>
+		0:不显示，1：手机版，2：网站与手机，3：网站  <a href="#" onclick="refreshPage()">刷新</a>
+		<div>
+			<span style="width:300px;font-size:20px;"><a href="${basePath}admin/blog/setModeratorList.xhtml?atype=today" #if($VmUtils.eq($params.atype,'today')) class="select" #end>今日话题</a></span>&nbsp;
+			<span  style="width:300px;font-size:20px;padding-left:40px;"><a href="${basePath}admin/blog/setModeratorList.xhtml?atype=hot" #if($VmUtils.eq($params.atype,'hot')) class="select" #end>热门话题</a></span>
+			<span  style="width:300px;font-size:20px;padding-left:40px;"><a href="${basePath}admin/blog/setModeratorList.xhtml?atype=del" #if($VmUtils.eq($params.atype,'del')) class="select" #end>已删除话题</a></span>
+	  </div>
+	  #if($VmUtils.eq($atype, 'today'))
+		<table class="table clear">
+			#if(!$VmUtils.isEmptyList($moderatorTodayList))
+			<thead>
+			<tr>
+				<td colspan="8">今日话题 </td>
+			</tr>
+			<tr>
+				<td>话题ID</td>
+				<td>主持人ID</td>
+				<td>话题</td>
+				<td>话题数量</td>
+				<td>描述</td>
+				<td>添加时间</td>
+				<td>排序</td>
+				<td>状态</td>
+				<td>楼层显示</td>
+				<td>操作</td>
+			</tr>
+			</thead>
+			#foreach($moderator in $moderatorTodayList)
+			<tr>
+				<td>$!moderator.id</td>
+				<td>$!moderator.memberid</td>
+				<td>$!moderator.title</td>
+				<td>$!moderator.commentcount</td>
+				<td>$!moderator.summary</td>
+				<td>$!DateUtil.format($!moderator.addtime,'MM月dd日 HH:mm')</td>
+				<td><input type="text" style="width: 20px;" name="ordernum" value="$!moderator.ordernum" id="ordernum" onblur="setModeratorOrderNum($moderator.id,this.value)"/></td>
+				<td>
+					<select style="width: 68px;" onchange="setModeratorShowAddress($moderator.id,this.value)">
+						<option #if(!$!moderator.showaddress || $!moderator.showaddress eq 0) selected="selected"#end  value="0">不显示</option>
+						<option #if($!moderator.showaddress eq 1) selected="selected"#end value="1">手机版</option>
+						<option #if($!moderator.showaddress eq 3) selected="selected"#end value="3">网站</option>
+						<option #if($!moderator.showaddress eq 2) selected="selected"#end value="2">网站与手机版</option>
+					</select>
+				</td>
+				<td><select name="showfloor" id="showfloor" style="width: 60px;" onchange="isShowFloor($moderator.id,this.value)">
+						<option #if(!$moderator.showfloor || $moderator.showfloor eq 0 )selected="selected" #end value="0">不显示</option>
+						<option #if($moderator.showfloor eq 1)selected="selected" #end value = "1">显示</option>
+					</select>
+				</td>
+				<td>
+					<input type="button"  onclick='setModerator($!moderator.id,"$!moderator.memberid",$VmUtils.getScriptString($!moderator.title),$VmUtils.getScriptString($!moderator.summary),"$!moderator.type")' class="button" value="修改" />
+					<input type="button"  onclick='delModerator($!moderator.id)' class="button" value="删除" />
+				</td>
+			</tr>
+			#end
+			#else
+			<tr>
+				<td colspan="6">暂时没数据</td>
+			</tr>
+			#end
+		</table>
+		#end
+		
+		#if($VmUtils.eq($atype, 'hot'))
+		<table class="table clear">
+		#if(!$VmUtils.isEmptyList($moderatorHotList))
+			<thead>
+			<tr>
+				<td colspan="7">热门话题</td>
+			</tr>
+			<tr>
+				<td>话题ID</td>
+				<td>话题</td>
+				<td>话题数量</td>
+				<td>话题描述</td>
+				<td>添加时间</td>
+				<td>排序</td>
+				<td>状态</td>
+				<td>操作</td>
+			</tr>
+			</thead>
+			#foreach($moderatorhot in $moderatorHotList)
+			<tr>
+				<td>$!moderatorhot.id</td>
+				<td>$!moderatorhot.title</td>
+				<td>$!moderatorhot.commentcount</td>
+				<td>$!moderatorhot.summary</td>
+				<td>$!DateUtil.format($!moderatorhot.addtime,'MM月dd日 HH:mm')</td>
+				<td><input type="text" style="width: 20px;" value="$!moderatorhot.ordernum" name="ordernum" id="ordernum" onblur="setModeratorOrderNum($moderatorhot.id,this.value)"/></td>
+				<td>
+					<select style="width: 68px;" onchange="setModeratorShowAddress($moderatorhot.id,this.value)">
+						<option #if(!$!moderatorhot.showaddress || $!moderatorhot.showaddress eq 0) selected="selected"#end  value="0">不显示</option>
+						<option #if($!moderatorhot.showaddress eq 1) selected="selected"#end value="1">手机版</option>
+						<option #if($!moderatorhot.showaddress eq 3) selected="selected"#end value="3">网站</option>
+						<option #if($!moderatorhot.showaddress eq 2) selected="selected"#end value="2">网站与手机版</option>
+					</select>
+				</td>
+				<td>
+					<input type="button"  onclick='setModerator($!moderatorhot.id,"$!moderatorhot.memberid","$!VmUtils.trim($!moderatorhot.title)","$!VmUtils.trim($!moderatorhot.summary)","$!moderatorhot.type")' class="button" value="修改" />
+					<input type="button"  onclick='delModerator($!moderatorhot.id)' class="button" value="删除" />
+				</td>
+			</tr>
+			#end
+			#else
+			<tr>
+				<td colspan="6">暂时没数据</td>
+			</tr>
+			#end
+		</table>
+		#end
+		
+		 #if($VmUtils.eq($atype, 'del'))
+		<table class="table clear">
+			#if(!$VmUtils.isEmptyList($moderatorDeleteList))
+			<thead>
+			<tr>
+				<td colspan="5">已删除话题</td>
+			</tr>
+			<tr>
+				<td>话题ID</td>
+				<td>主持人ID</td>
+				<td>话题</td>
+				<td>话题数量</td>
+				<td>描述</td>
+				<td>添加时间</td>
+			</tr>
+			</thead>
+			#foreach($moderatorDelete in $moderatorDeleteList)
+			<tr>
+				<td>$!moderatorDelete.id</td>
+				<td>$!moderatorDelete.memberid</td>
+				<td>$!moderatorDelete.title</td>
+				<td>$!moderatorDelete.commentcount</td>
+				<td>$!moderatorDelete.summary</td>
+				<td>$!DateUtil.format($!moderatorDelete.addtime,'MM月dd日 HH:mm')</td>
+			</tr>
+			#end
+			#else
+			<tr>
+				<td colspan="4">暂时没数据</td>
+			</tr>
+			#end
+		</table>
+		#end
+		
+		<form name="moderatorForm" id="moderatorForm">
+			<input type="hidden" id="id" name= "id" />
+			<table class="table clear" style="visibility:hidden; z-index:20;width:800px" id="moderatorFormDiv">
+			<tr>
+				<td>添加话题数据</td>
+			</tr>
+			<tr>
+				<td>主持人ID:<input  type="text" name="memberid" id="memberid"/>(热门话题可不添加ID)</td>
+			</tr>
+			<tr>
+				<td>话题:<input style="margin-left:23px;width:250px;margin-top: 5px;" type="text" name="title" id="title"/>*</td>
+			</tr>
+			<tr>
+				<td>话题描述:<textarea rows="" style="vertical-align: top;width: 500px;height:70px;margin-top: 5px;" cols="" name="summary" id="summary"></textarea>（热门话题可不添加）</td>
+			</tr>
+			<tr>
+				<td>
+					话题类型:
+					<select name="type" id="type" style="margin-top: 5px;">
+						<option value="today" selected="selected">今日话题</option>
+						<option value="hot">热门话题</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<input type="button"  onclick="addModerator()" class="button" id="addmoderator" value="确定" />
+					<input type="button"  onclick="updateModerator()" class="button hiddenBt" id="updatemoderator" value="修改" />
+					<input type="button"  onclick="cancelModerator()" value="取消" class="button"/>
+				</td>
+			</tr>
+			</table>
+		</form>	
+</div>
+<script type="text/javascript">
+function isShowFloor(mid,value){
+	var url = "${basePath}admin/sns/showFloor.xhtml";
+	var values = {'mid':mid,'showfloor':value};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("设置成功！");
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function addModerator(){
+	if(!$chk($('title').value)){
+		alert("话题不能为空");
+		return;
+	}
+	var url = "${basePath}admin/blog/addModerator.xhtml";
+	var values = {'memberid':$('memberid').value,'title':$('title').value,'summary':$('summary').value,'type':$('type').value};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function setModeratorOrderNum(id,ordernum){
+	var url = "${basePath}admin/sns/setModeratorOrder.xhtml";
+	var values = {'id':id,'ordernum':ordernum};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("设置成功！");
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function setModeratorShowAddress(id,address){
+	var url = "${basePath}admin/sns/setModeratorAddress.xhtml";
+	var values = {'id':id,'showaddress':address};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("设置成功！");
+		}else{
+			alert(result.msg);
+		}	
+	});
+}
+
+function updateModerator(){
+	var url="${basePath}admin/blog/updateModerator.xhtml";
+	var values = {'id':$('id').value,'memberid':$('memberid').value,'title':$('title').value,'summary':$('summary').value,'type':$('type').value};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			alert("修改失败！");
+		}
+	});
+}
+
+function setModerator(id,memberid,title,summary,type){
+	$('id').value = id;
+	$('memberid').value = memberid;
+	$('title').value = title;
+	$('summary').value = summary;
+	$('type').value = type;
+	$('addmoderator').addClass('hiddenBt');
+	$('updatemoderator').addClass('button showBt');
+	//$('cancelmoderator').addClass('button showBt');
+	GewaraUtil.showDialog('moderatorFormDiv');
+}
+
+function cancelModerator(){
+	//$('addmoderator').removeClass('hiddenBt');
+	//$('updatemoderator').removeClass('showBt');
+	//$('cancelmoderator').removeClass('showBt');
+	
+	$('id').value = '';
+	$('memberid').value ='';
+	$('title').value ='';
+	$('summary').value ='';
+	$('type').value = 'today';
+	GewaraUtil.hideDialog('moderatorFormDiv');
+}
+
+function delModerator(mid){
+	if(confirm('确认删除吗？')){
+		var url="${basePath}admin/sns/deleteModerator.xhtml";
+		var values={'mid':mid};
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+}
+function showModeratorForm(){
+	GewaraUtil.showDialog('moderatorFormDiv');
+}
+</script>
+</body>
+</html>

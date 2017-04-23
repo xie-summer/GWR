@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>网友添加图片列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline}
+	</style>
+</head>
+<body style="width:75%; margin:auto" class="yui-skin-sam">
+<form id="attachForm" action="${basePath}admin/common/auditMPPictureList.xhtml">
+状态：
+<select name="astatus">
+	<option value="">请选择</option>
+	<option value="Y" #if($VmUtils.eq($astatus,'Y')) selected="selected" #end>审核通过</option>
+	<option value="N" #if($VmUtils.eq($astatus,'N')) selected="selected" #end>审核未通过</option>
+</select>
+类型：
+<select name="tag">
+	<option value="">请选择</option>
+	<option value="cinema" #if($VmUtils.eq($tag,'cinema')) selected="selected" #end>影院图片</option>
+	<option value="movie" #if($VmUtils.eq($tag,'movie')) selected="selected" #end>电影图片</option>
+	<option value="theatre" #if($VmUtils.eq($tag,'theatre')) selected="selected" #end>剧院图片</option>
+	<option value="drama" #if($VmUtils.eq($tag,'drama')) selected="selected" #end>话剧图片</option>
+	<option value="sport" #if($VmUtils.eq($tag,'sport')) selected="selected" #end>运动场馆图片</option>
+</select>
+用户ID:<input name="memberid" id="memberid" value="$!params.memberid" type="text" style="width:60px;"/> 
+<input type="submit" value="查询" style="width:45px"/>
+</form>
+<table width="75%" class="table">
+	<thead>
+	<tr>
+		<th>用户名</th>
+		<th>关联对象</th>
+		<th>图片名称</th>
+		<th>添加时间</th>
+		<th>查看详细</th>
+		<th>图片</th>
+		<th>审核</th>
+		<th>添加积分</th>
+		<th>状态</th>
+		<th>删除</th>
+	</tr>
+	</thead>
+	<tbody id="gymTable">
+	#foreach($attachMemberPicture in $mVideoList)
+	#set($member=$memberMap.get($attachMemberPicture.id))
+	#set($tagClass=$tagMap.get($attachMemberPicture.id))
+	#if($VmUtils.eq($attachMemberPicture.tag, 'movie'))#set($tag='movie')
+	#elseif($VmUtils.eq($attachMemberPicture.tag, 'cinema'))#set($tag='cinema')#end
+	<tr>
+		<td><a href="${absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!attachMemberPicture.memberid" target="_blank">$!cacheMemberMap.get($attachMemberPicture.memberid).nickname</a></td>
+		<td><a href="${basePath}$tag/$!tagClass.id" target="_blank">$!tagClass.name</td>
+		<td>$!attachMemberPicture.name</td>
+		<td>$DateUtil.format($attachMemberPicture.addtime,'yyyy-MM-dd hh:mm')</td>
+		<td>#if($!attachMemberPicture.description)$!VmUtils.getHtmlText($!attachMemberPicture.description, 160)...#end</td>
+		<td><img src="$VmUtils.randomPic('sw120h120',$!attachMemberPicture.picturename)"/></td>
+		<td>
+			<select name="status" onchange="changeStatus($attachMemberPicture.id, this.value)">
+				<option>请选择</option>
+				<option value="Y" #if($VmUtils.eq($attachMemberPicture.status,'Y')) selected="selected" #end>审核通过</option>
+				<option value="N" #if($VmUtils.eq($attachMemberPicture.status,'N')) selected="selected" #end>审核未通过</option>
+			</select>
+		</td>
+		<td align="center"><input type="text" name="pointvalue$attachMemberPicture.id" id="pointvalue$attachMemberPicture.id" style="width:60px" value=""/>
+		<input type="button" name="addPoint" id="addPoint" value="确定" onclick="addPoint('$attachMemberPicture.id');" style="width:45px"/></td>
+		<td align="center" style="color:red">#if($VmUtils.eq($attachMemberPicture.status,'Y'))已审核#elseif($VmUtils.eq($attachMemberPicture.status,'N'))未审核#end</td>
+		<td align="center">
+			#if($VmUtils.eq($attachMemberPicture.status,'N_DELETE'))已删除
+			#else<input type="button" value="删除" onclick="remove($attachMemberPicture.id)" style="width: 80px"/>
+			#end
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<div id="page">
+	#parse('include/pageUtil.vm')
+</div>
+<script type="text/javascript">
+	function remove(mpid){
+		var url = "${basePath}admin/common/ajax/removeMemberPicture.xhtml";
+		var values = {'mpid':mpid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result){
+				refreshPage();
+			}else alert("删除失败");
+		});
+	}
+	function changeStatus(mpid ,astatus){
+		var url = "${basePath}admin/common/ajax/changeMemberPictureStatus.xhtml";
+		var values = {'mpid':mpid,'status':astatus};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result){
+				refreshPage();
+			}else alert("删除失败");
+		});
+	}
+	function addPoint(memberpictureid){
+		var id="pointvalue"+memberpictureid;
+		var pointvalue=$(id).value;
+		if(pointvalue==''){
+			alert('积分不能空！');
+			return;
+		}
+		if(pointvalue==0){
+			alert('不添加零积分！');
+			return;
+		}
+		var url="${basePath}admin/common/ajax/addMemberPicturePoint.xhtml";
+		var values={'memberpictureid':memberpictureid,'pointvalue':pointvalue, 'tag':'pic'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('添加成功！');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+#if($pageUtil && $pageUtil.pageCount gt 1)
+<div id='page'>
+#if($pageUtil.isPrePage())
+	<a href="javascript:void(0);" class='pre' onclick="${pageFun}($math.sub($!pageUtil.currentPage,1)#if($pageUtil.scriptParams),$pageUtil.scriptParams, '$pageUtil.preurl'#end)"><span>上一页</span></a>
+#end
+#if($pageUtil.isFirstPage())
+	<a href="javascript:void(0);" onclick="${pageFun}('0'#if($pageUtil.scriptParams),$pageUtil.scriptParams, '$pageUtil.firsturl'#end)"><span>1</span></a><strong>...</strong>
+#end
+#foreach($pageInfo in $pageUtil.pageInfoList)
+	<a href="javascript:void(0);" onclick="${pageFun}($pageInfo.realPageNo#if($pageUtil.scriptParams),$pageUtil.scriptParams, '$pageInfo.url'#end)" 
+		#if($pageInfo.currentPage)class='match on'#end
+	><span>${pageInfo.pageNo}</span></a>
+#end
+#if($pageUtil.isLastPage())
+	<strong>...</strong><a href="javascript:void(0);" #if(${pageUtil.isOnLast($!{params.pageNo})})class='match on'#end onclick="${pageFun}('$math.sub(${pageUtil.pageCount},1)'#if($pageUtil.scriptParams),$pageUtil.scriptParams, '$pageUtil.lasturl'#end)" ><span>${pageUtil.pageCount}</span></a>
+#end
+#if($pageUtil.isNextPage())
+	<a href="javascript:void(0);" class='next' onclick="${pageFun}('$math.add($!pageUtil.currentPage,1)'#if($pageUtil.scriptParams),$pageUtil.scriptParams, '$!pageUtil.nexturl'#end)"><span>下一页</span></a>
+#end
+</div>
+#end

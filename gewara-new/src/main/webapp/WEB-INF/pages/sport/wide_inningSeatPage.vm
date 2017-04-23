@@ -1,0 +1,150 @@
+#if($sp.hasPretype('E'))
+<div class="ui_warning">
+	<b class="ico_g"></b>
+	#if($VmUtils.isNotBlank($sp.premessage))
+		$!sp.premessage
+	#else
+	代售场馆发票仅由场馆提供，且不可享受格瓦拉提供的积分、优惠券、活动、瓦币支付等各类会员特权。
+	#end
+</div>
+#end
+<div class="timeTitle">
+	<dl class="ui_media">
+		<dt class="ui_pic">选择时段：</dt>
+		<dd class="ui_text duration">
+			<input type="hidden" name="otiid" alt="durationTxt" value="$!curOti.id"/>
+			#foreach($oti in $otiList)
+			<span lang="$!oti.id" #if($VmUtils.eq($oti.id,$curOti.id)) class="select" #end>
+				$!{fieldMap.get($oti.fieldid).name}<br/>$!{oti.price}元#if($VmUtils.eq($oti.unitType,'time'))/${oti.unitMinute}分钟 #{else}不限时#end
+			</span>
+			#end
+		</dd>
+	</dl>
+	<dl class="ui_media">
+		<dt class="ui_pic">预计到达时间：</dt>
+		<dd class="ui_text">
+			<input type="hidden" name="starttime" alt="timeInterval_1" id="starttime" mustTxt="请选择时间" />
+			<span lang="timeInterval_1" class="new_fast_inner">请选择时间<em></em></span>
+			<span class="ui_warning">仅作为提醒短信发送及人数限制的依据。</span>
+		</dd>
+	</dl>
+	<dl class="ui_media">
+		<dt class="ui_pic">选择局数：</dt>
+		<dd class="ui_text">
+			<input type="hidden" name="quantity" alt="timeInterval_3" id="quantity" mustTxt="请选择局数"/>
+			<span class="new_fast_inner"  lang="timeInterval_3">请选择局数</span>
+		</dd>
+	</dl>
+</div>
+<div class="optionsPanel timeInterval" id="timeInterval_1" style="display:none;padding:10px 0; width:510px;">
+	<div style="right:auto;left:-1px;width:172px;*width:167px;" class="optionOver"></div>
+	<div class="penweb" style="margin-top:0px;">
+		<div>
+			<ul class="hasOption">
+				#foreach($time in $timeList)
+				<li >
+					<a href="javascript:void(0)" id="$time" onclick="changeTime(this);">$time</a>
+				</li>
+				#end
+			</ul>
+		</div>		
+	</div>
+</div>
+<div class="optionsPanel timeInterval" id="timeInterval_3" style="display:none;padding:10px 0; width:510px;">
+	<div style="right:auto;left:-1px;width:172px;" class="optionOver"></div>
+	<div class="penweb" style="margin-top:0px;">
+		<div>
+			<ul class="hasOption">
+				#foreach($x in [1..4])
+				<li>
+					<a href="javascript:void(0)" id="$x" onclick="changeQuantity(this)">$x</a>
+				</li>
+				#end
+			</ul>
+		</div>		
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	duration();
+	ReservationTime();
+});
+var price = $!curOti.price;
+changeTime = function(obj){
+	changePerent(obj);
+	var time = $('timeInterval_3').getElement('ul.hasOption');
+}
+
+duration = function(){
+	var duration = $$('.duration span');
+	duration.addEvent('click',function(){
+		loadOtiData(this.get('lang'));
+	});
+}
+showMsg = function(){
+	if($('starttime').value !='' && $('quantity').value != ''){
+		$('peroid').set('html', $('starttime').value + "-" + '$!curOti.endhour');
+		$('showpn').set('html', $('quantity').value);
+		#if($VmUtils.eq($curOti.unitType,'time'))
+			$('showup').innerHTML=price+'元/$!curOti.unitMinute分钟';
+		#else
+			$('showup').innerHTML=price+'元不限时';
+		#end
+		$('summarize').removeClass('none');
+	}
+}
+
+loadOtiData = function(oti){
+	var url = '${basePath}ajax/sport/getSeatPage.shtml';
+	var values = {'otiid':oti};
+	GewaraUtil.sendLoad('otiData', url, values, function(result){
+		if(!result.success)gewaUtil.alert(result.json.msg);
+	});
+}
+
+ReservationTime = function(){
+	$$('.new_fast_inner').addEvent('click',function(){//触发选择项目
+		var el = $(this.get('lang'));
+		if(el.getStyle('display')=='none'){
+			gewa.util.selectOptionsPosition(el,this,true);
+			gewa.util.removeBodyClick(el,this);
+			gewa.util.show(el);
+		}else{
+			$$('.optionsPanel').hide();
+			document.removeEvents('click');
+		}
+	})
+}
+gewa.util.selectOptionsPosition = function(){
+	var left = $(arguments[0]).getDimensions().x;
+	$(arguments[0]).position({
+		relativeTo:arguments[1],//触发源id
+		position:'bottomLeft',
+		offset:{x:(Browser.Engine.gecko?1:0),y:arguments[2]?-3:1}
+	});
+}
+
+changeQuantity = function(obj){
+	var quantity = $(obj).id;
+	var tmpPrice = quantity.toInt()* price;
+	changePerent(obj);
+	$$('.sum').set('html',quantity);
+	$('showPrice').set('html',tmpPrice);
+}
+changePerent = function(obj){
+	var els = {};
+	els.parent = $(obj).getParent('.optionsPanel');
+	els.text = document.getElement('*[lang='+els.parent.id+']');
+	els.value = document.getElement('*[alt='+els.parent.id+']');
+	els.text.set('text',$(obj).get('text'));
+	els.value.value=($(obj).id);
+	trigerHide(els.parent);
+	showMsg();
+}
+
+trigerHide = function(panel){
+	document.removeEvents('click');
+	$(panel).hide();
+}
+
+</script>

@@ -1,0 +1,36 @@
+#if($VmUtils.isBlank($member.mobile))
+<div class="ui_warning">
+	<p>你的账号没有绑定手机暂时不能查看密码！ <a href="${basePath}home/acct/memberinfo.xhtml?tag=cellphone" class="brown" target="_blank">立即绑定</a></p>
+</div>
+#end
+#if($VmUtils.eq($order.ordertype,'drama'))
+<table class="table miniTable" border="0" cellspacing="0" cellpadding="0">
+	<thead>
+		<tr>
+			<th><div>剧目</div></th>
+			<th><div>场次</div></th>
+			<th><div>取票密码</div></th>
+			<th><div>操作</div></th>
+		</tr>
+	</thead>
+	<tbody>
+		#foreach($note in $noteList)
+		#set($odi=$odiMap.get($note.smallitemid))
+		<tr>
+			<td>$!note.itemname</td>
+			<td>$!odi.gainItemName()</td>
+			<td align="center" width="20%"><b class="fs14">$!note.checkpass</b></td>
+			<td align="center" width="20%"><a href="javascript:sendOrderNote($note.id)">重发密码</a></td>
+		</tr>
+		#end
+	</tbody>
+</table>
+#else
+<div style="padding:20px; font-size:14px;">
+	$result
+	<p class="tar mt10">
+		<a href="javascript:sendOrderPWD($order.id)" class="button bigBt redBt"><span>重发短信</span></a>
+		<a href="javascript:gewa.util.container['repeatSendOrderSMSWindow'].dispose('repeatSendOrderSMSWindow');" class="button bigBt bigWhiteBt ml10"><span>取消</span></a>
+	</p>
+</div>
+#end

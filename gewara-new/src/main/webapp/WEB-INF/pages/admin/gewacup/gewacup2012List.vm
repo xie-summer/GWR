@@ -1,0 +1,516 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>gewaCup列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script> 
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		table{margin:40px 0;}
+		.tales60{overflow:hidden;width:100%;padding-left:60px;}
+		.tales60 dt{margin-left:-30px;_margin-left:-30px;width:60px;text-align:right;float:left;}
+		.tales60 dd{margin:0;}
+	</style>
+</head>
+<body>
+#set($typeMapData={'boysingle':'男单','boydouble':'男双','girlsingle':'女单','girldouble':'女双','mixeddouble':'混双'})
+#set($sexMapData={'boy':'男','girl':'女'})
+<div style="width:1300px;margin:auto;">
+<div class="clear">
+	<a href="javascript:showTime();">设置报名时间</a>
+	<a href="${basePath}admin/sport/gewacupList.xhtml?type=boysingle&yearsType=$!params.yearsType">男单</a>
+	<a href="${basePath}admin/sport/gewacupList.xhtml?type=girlsingle&yearsType=$!params.yearsType">女单</a>
+	<a href="${basePath}admin/sport/gewacupList.xhtml?type=boydouble&yearsType=$!params.yearsType">男双</a>
+	<a href="${basePath}admin/sport/gewacupList.xhtml?type=girldouble&yearsType=$!params.yearsType">女双</a>
+	<a href="${basePath}admin/sport/gewacupList.xhtml?type=mixeddouble&yearsType=$!params.yearsType">混双</a>
+	<a href="${basePath}admin/sport/ClubInfo.xhtml?yearsType=$!params.yearsType">俱乐部</a>
+	<a href="${basePath}admin/sport/gewacupList.xhtml?yearsType=$!params.yearsType">全部</a>
+	<a href="javascript:showTdPlayer('支付成功')">支付成功</a>
+	<a href="javascript:showTdPlayer('未支付')">未支付</a>
+	<div class="right">
+		已通过
+		<a href="${basePath}admin/sport/gewacupList.xhtml?type=boysingle&status=Y&yearsType=$!params.yearsType">男单</a>
+		<a href="${basePath}admin/sport/gewacupList.xhtml?type=girlsingle&status=Y&yearsType=$!params.yearsType">女单</a>
+		<a href="${basePath}admin/sport/gewacupList.xhtml?type=boydouble&status=Y&yearsType=$!params.yearsType">男双</a>
+		<a href="${basePath}admin/sport/gewacupList.xhtml?type=girldouble&status=Y&yearsType=$!params.yearsType">女双</a>
+		<a href="${basePath}admin/sport/gewacupList.xhtml?type=mixeddouble&status=Y&yearsType=$!params.yearsType">混双</a>
+		<a href="${basePath}admin/sport/reportAnswer.xhtml?yearsType=$!params.yearsType">查看举报信息</a>
+	</div>
+</div>
+#if(!$VmUtils.isEmptyList($!dataList))
+<table class="table">
+	<thead>
+		<tr>
+			<th width="60">用户ID</th>
+			<th width="100">用户名</th>
+			<th width="60">被举报人姓名</th>
+			<th>举报内容</th>
+			<th width="60">举报者姓名</th>
+			<th width="80">联系方式</th>
+			<th>举报图片</th>
+			<th width="60">举报时间</th>
+		</tr>
+	</thead>
+	<tbody class="paystatus">
+		#foreach($data in $dataList)
+		<tr>
+			<td>$!data.memberid</td>
+			<td>$!data.membername</td>
+			<td>$!data.toname</td>
+			<td>$!data.body</td>
+			<td>$!data.fromname</td>
+			<td>$!data.telephone</td>
+			<td>#if(!$VmUtils.isEmpty($!data.picurl))<a href="$VmUtils.randomPic('',$!data.picurl)" target="_blank"><img src="$VmUtils.randomPic('sw100h50',$!data.picurl)"/></a>#end</td>
+			<td>$DateUtil.formatTimestamp($!data.addtime)</td>
+		</tr>
+		#end
+	</tbody>
+</table>
+#end
+#if(!$VmUtils.isEmptyList($personalList))
+<table class="table">
+	<thead>
+	<tr>
+		<th>序号</th>
+		<th>姓名</th>
+		<th>搭档</th>
+		<th>报名时间</th>
+		<th width="90">&nbsp;</th>
+		<th>来源</th>
+		<th>手机</th>
+		<th>身份证</th>
+		<th>复印件</th>
+		<th>身份证</th>
+		<th>手机</th>
+		<th>复印件</th>
+		<th>参赛类型</th>
+		<th>报名类型</th>
+		<th>订单号</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	#set($siteNo = 1)
+	#set($playtime = '13:00')
+	#foreach($player in $personalList)
+	#set($playeridcards = $VmUtils.getByteLength($!player.idcards))
+	#set($partneridcards = $VmUtils.getByteLength($!player.partneridcards))
+	<tbody class="paystatus">
+		<tr>
+			<td>$foreach.count</td>
+			<td>$!player.name #if($VmUtils.eq($player.type,'mixeddouble'))（$!sexMapData.get($player.sex)）#end</td>
+			<td>$!player.partnerplayer #if($VmUtils.eq($player.type,'mixeddouble'))（$!sexMapData.get($player.partnersex)）#end</td>
+			<td>$!DateUtil.format($!player.addtime,'yyyy-MM-dd HH:mm:ss')</td>
+			<td></td>
+			<td>$!player.source</td>
+			<td>$!player.phone</td>
+			<td #if($playeridcards ne 15 && $playeridcards ne 18) style="color:red" #end> $!player.idcards</td>
+			<td>#if(!$VmUtils.isEmpty($!player.idcardslogo))<a href="$VmUtils.randomPic('',$!player.idcardslogo)" target="_blank"><img src="$VmUtils.randomPic('sw100h50',$!player.idcardslogo)"/></a>#end</td>
+			<td #if($partneridcards ne 15 && $partneridcards ne 18) style="color:red" #end>$!player.partneridcards</td>
+			<td>$!player.partnerphone</td>
+			<td>#if(!$VmUtils.isEmpty($!player.partneridcardslogo))<a href="$VmUtils.randomPic('',$!player.partneridcardslogo)" target="_blank"><img src="$VmUtils.randomPic('sw100h50',$!player.partneridcardslogo)"/></a>#end</td>
+			<td>$!typeMapData.get($player.type)</td>
+			<td>#if($VmUtils.isEmpty($player.club))个人#else俱乐部#end</td>
+			<td id="paystatus">
+			#if($VmUtils.eq($player.source,'iptv'))
+				#if($VmUtils.eq($player.iptvstatus,'Y'))支付成功#else未支付#end
+			#else
+				#if($VmUtils.eq($player.orderInfo.status,'paid_success'))支付成功#else未支付#end <input type="text" value="$!player.orderInfo.id" onblur="updateOrderid(this,'','$!player.id')" style="width:70px"/>
+			#end
+			</td>
+			<td><a href="javascript:deletePlayers('$player.mid');">删除</a>
+				<select #if(!$VmUtils.isEmpty($player.club)) disabled="disabled" #end onchange="updatePlayersStatus('$!player.mid','',this)">
+				<option value="Y_NEW" #if($VmUtils.eq($player.status,'Y_NEW')) selected #end)>申请中</option>
+				<option value="Y" #if($VmUtils.eq($player.status,'Y')) selected #end)>审核通过</option>
+				<option value="N" #if($VmUtils.eq($player.status,'N')) selected #end)>审核未通过</option>
+				</select><a href="javascript:showPlayerInfo('$player.mid');">修改</a>
+			</td>
+		</tr>
+		#if($foreach.count % 2 eq 1)
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td>
+				$siteNo号场地 $playtime
+				#if($siteNo eq 11)
+				#set($playtime = $DateUtil.format($DateUtil.addMinute($DateUtil.parseDate($playtime,"HH:mm"),15),"HH:mm"))
+				#end
+				#if($siteNo eq 11)#set($siteNo = 0)#end
+				#set($siteNo = $siteNo+1)
+			</td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+		#else
+		<tr>
+			<td colspan="15" height="30px"></td>
+		</tr>
+		#end
+	</tbody>
+	#end
+</table>
+#end
+
+#if(!$VmUtils.isEmptyList($clubMapList))
+	#foreach($club in $clubMapList)
+	#set($clubidcards = $VmUtils.getByteLength($!club.club.idcards))
+	<table class="table paystatus">
+	#set($boysingleList = $club.boysingleList)
+	#set($girlsingleList = $club.girlsingleList)
+	#set($boydoubleList = $club.boydoubleList)
+	#set($girldoubleList = $club.girldoubleList)
+	#set($mixeddoubleList = $club.mixeddoubleList)
+	<thead>
+	<tr>
+		<th>序号</th>
+		<th>俱乐部</th>
+		<th>联系人</th>
+		<th>手机</th>
+		<th>身份证</th>
+		<th colspan="2">复印件</th>
+		<th colspan="3">参赛人数</th>
+		<th>订单号</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody>
+	<tr>
+		<td>$foreach.count</td>
+		<td>$!club.club.communame</td>
+		<td>$!club.club.contact</td>
+		<td>$!club.club.phone</td>
+		<td #if($clubidcards ne 15 && $clubidcards ne 18) style="color:red" #end>$!club.club.idcards</td>
+		<td colspan="2">#if(!$VmUtils.isEmpty($!player.idcardslogo))<a href="$VmUtils.randomPic('',$!club.club.idcardslogo)" target="_blank"><img src="$VmUtils.randomPic('sw100h50',$!club.club.idcardslogo)"/></a>#end</td>
+		<td colspan="2">男单:$VmUtils.size($boysingleList)女单:$VmUtils.size($girlsingleList)男双:$VmUtils.size($boydoubleList)女双:$VmUtils.size($girldoubleList)混双:$VmUtils.size($mixeddoubleList)</td>
+		<td id="paystatus">#if($VmUtils.eq($club.orderInfo.status,'paid_success'))支付成功#else未支付#end <input type="text" value="$!club.orderInfo.id" onblur="updateOrderid(this,'$club.club.id','')" style="width:70px"/></td>
+		<td><select onchange="updatePlayersStatus('','$club.club.id',this)">
+				<option value="" selected>请选择</option>
+				<option value="Y")>审核通过</option>
+				<option value="N")>审核未通过</option>
+				</select>
+		</td>
+	</tr>
+	</tbody>
+	<thead>
+	<tr>
+		<th>序号</th>
+		<th>姓名</th>
+		<th>报名时间</th>
+		<th>手机</th>
+		<th>身份证</th>
+		<th>复印件</th>
+		<th>搭档</th>
+		<th>身份证</th>
+		<th>手机</th>
+		<th>复印件</th>
+		<th>参赛类型</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+		#foreach ($boysingle in $boysingleList)
+		#set($boysingleidcards = $VmUtils.getByteLength($!boysingle.idcards))
+		<tbody>
+			<tr>
+				<td>$foreach.count</td>
+				<td>$!boysingle.player</td>
+				<td>$!DateUtil.format($!boysingle.addtime,'yyyy-MM-dd HH:mm:ss')</td>
+				<td>$!boysingle.phone</td>
+				<td #if($boysingleidcards ne 15 && $boysingleidcards ne 18) style="color:red" #end>$!boysingle.idcards</td>
+				<td>#if(!$VmUtils.isEmpty($!boysingle.idcardslogo))<a href="$VmUtils.randomPic('',$!boysingle.idcardslogo)" target="_blank"><img src="$VmUtils.randomPic('sw100h50',$!boysingle.idcardslogo)"/></a>#end</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td>男单</td>
+				<td><a href="javascript:deletePlayers('$!boysingle.mid');">删除</a>
+					<select disabled="disabled">
+					<option value="Y_NEW" #if($VmUtils.eq($boysingle.status,'Y_NEW')) selected #end)>申请中</option>
+					<option value="Y" #if($VmUtils.eq($boysingle.status,'Y')) selected #end)>审核通过</option>
+					<option value="N" #if($VmUtils.eq($boysingle.status,'N')) selected #end)>审核未通过</option>
+					</select><a href="javascript:showPlayerInfo('$!boysingle.mid');">修改</a>
+				</td>
+			</tr>
+		</tbody>
+		#end
+		#foreach ($girlsingle in $girlsingleList)
+		#set($girlsingleidcards = $VmUtils.getByteLength($!girlsingle.idcards))
+		<tbody>
+			<tr>
+				<td>$foreach.count</td>
+				<td>$!girlsingle.player</td>
+				<td>$!DateUtil.format($!girlsingle.addtime,'yyyy-MM-dd HH:mm:ss')</td>
+				<td>$!girlsingle.phone</td>
+				<td #if($girlsingleidcards ne 15 && $girlsingleidcards ne 18) style="color:red" #end>$!girlsingle.idcards</td>
+				<td>#if(!$VmUtils.isEmpty($!girlsingle.idcardslogo))<a href="$VmUtils.randomPic('',$!girlsingle.idcardslogo)" target="_blank"><img src="$VmUtils.randomPic('sw100h50',$!girlsingle.idcardslogo)"/></a>#end</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td>女单</td>
+				<td><a href="javascript:deletePlayers('$!girlsingle.mid');">删除</a>
+					<select disabled="disabled">
+					<option value="Y_NEW" #if($VmUtils.eq($girlsingle.status,'Y_NEW')) selected #end)>申请中</option>
+					<option value="Y" #if($VmUtils.eq($girlsingle.status,'Y')) selected #end)>审核通过</option>
+					<option value="N" #if($VmUtils.eq($girlsingle.status,'N')) selected #end)>审核未通过</option>
+					</select><a href="javascript:showPlayerInfo('$!girlsingle.mid');">修改</a>
+				</td>
+			</tr>
+		</tbody>
+		#end
+		#foreach ($boydouble in $boydoubleList)
+		#set($boydoubleidcards = $VmUtils.getByteLength($!boydouble.idcards))
+		#set($boydoublepartneridcards = $VmUtils.getByteLength($!boydouble.partneridcards))
+		<tbody>
+			<tr>
+				<td>$foreach.count</td>
+				<td>$!boydouble.player</td>
+				<td>$!DateUtil.format($!boydouble.addtime,'yyyy-MM-dd HH:mm:ss')</td>
+				<td>$!boydouble.phone</td>
+				<td #if($boydoubleidcards ne 15 && $boydoubleidcards ne 18) style="color:red" #end>$!boydouble.idcards</td>
+				<td>#if(!$VmUtils.isEmpty($!boydouble.idcardslogo))<a href="$VmUtils.randomPic('',$!boydouble.idcardslogo)" target="_blank"><img src="$VmUtils.randomPic('sw100h50',$!boydouble.idcardslogo)"/></a>#end</td>
+				<td>$!boydouble.partnerplayer</td>
+				<td #if($boydoublepartneridcards ne 15 && $boydoublepartneridcards ne 18) style="color:red" #end>$!boydouble.partneridcards</td>
+				<td>$!boydouble.partnerphone</td>
+				<td>#if(!$VmUtils.isEmpty($!boydouble.partneridcardslogo))<a href="$VmUtils.randomPic('',$!boydouble.partneridcardslogo)" target="_blank"><img src="$VmUtils.randomPic('sw100h50',$!boydouble.partneridcardslogo)"/></a>#end</td>
+				<td>男双</td>
+				<td><a href="javascript:deletePlayers('$!boydouble.mid');">删除</a>
+					<select disabled="disabled">
+					<option value="Y_NEW" #if($VmUtils.eq($boydouble.status,'Y_NEW')) selected #end)>申请中</option>
+					<option value="Y" #if($VmUtils.eq($boydouble.status,'Y')) selected #end)>审核通过</option>
+					<option value="N" #if($VmUtils.eq($boydouble.status,'N')) selected #end)>审核未通过</option>
+					</select><a href="javascript:showPlayerInfo('$!boydouble.mid');">修改</a>
+				</td>
+			</tr>
+		</tbody>
+		#end
+		#foreach ($girldouble in $girldoubleList)
+		#set($girldoubleidcards = $VmUtils.getByteLength($!girldouble.idcards))
+		#set($girldoublepartneridcards = $VmUtils.getByteLength($!girldouble.partneridcards))
+		<tbody>
+			<tr>
+				<td>$foreach.count</td>
+				<td>$!girldouble.player</td>
+				<td>$!DateUtil.format($!girldouble.addtime,'yyyy-MM-dd HH:mm:ss')</td>
+				<td>$!girldouble.phone</td>
+				<td #if($girldoubleidcards ne 15 && $girldoubleidcards ne 18) style="color:red" #end>$!girldouble.idcards</td>
+				<td>#if(!$VmUtils.isEmpty($!girldouble.idcardslogo))<a href="$VmUtils.randomPic('',$!girldouble.idcardslogo)" target="_blank"><img src="$VmUtils.randomPic('sw100h50',$!girldouble.idcardslogo)"/></a>#end</td>
+				<td>$!girldouble.partnerplayer</td>
+				<td #if($girldoublepartneridcards ne 15 && $girldoublepartneridcards ne 18) style="color:red" #end>$!girldouble.partneridcards</td>
+				<td>$!girldouble.partnerphone</td>
+				<td>#if(!$VmUtils.isEmpty($!girldouble.partneridcardslogo))<a href="$VmUtils.randomPic('',$!girldouble.partneridcardslogo)" target="_blank"><img src="$VmUtils.randomPic('sw100h50',$!girldouble.partneridcardslogo)"/></a>#end</td>
+				<td>女双</td>
+				<td><a href="javascript:deletePlayers('$!girldouble.mid');">删除</a>
+					<select disabled="disabled">
+					<option value="Y_NEW" #if($VmUtils.eq($girldouble.status,'Y_NEW')) selected #end)>申请中</option>
+					<option value="Y" #if($VmUtils.eq($girldouble.status,'Y')) selected #end)>审核通过</option>
+					<option value="N" #if($VmUtils.eq($girldouble.status,'N')) selected #end)>审核未通过</option>
+					</select><a href="javascript:showPlayerInfo('$!girldouble.mid');">修改</a>
+				</td>
+			</tr>
+		</tbody>
+		#end
+		#foreach ($mixeddouble in $mixeddoubleList)
+		#set($mixeddoubleidcards = $VmUtils.getByteLength($!mixeddouble.idcards))
+		#set($mixeddoublepartneridcards = $VmUtils.getByteLength($!mixeddouble.partneridcards))
+		<tbody>
+			<tr>
+				<td>$foreach.count</td>
+				<td>$!mixeddouble.player（#if($VmUtils.eq($!mixeddouble.sex,'boy'))男#else女#end）</td>
+				<td>$!DateUtil.format($!mixeddouble.addtime,'yyyy-MM-dd HH:mm:ss')</td>
+				<td>$!mixeddouble.phone</td>
+				<td #if($mixeddoubleidcards ne 15 && $mixeddoubleidcards ne 18) style="color:red" #end>$!mixeddouble.idcards</td>
+				<td>#if(!$VmUtils.isEmpty($!mixeddouble.idcardslogo))<a href="$VmUtils.randomPic('',$!mixeddouble.idcardslogo)" target="_blank"><img src="$VmUtils.randomPic('sw100h50',$!mixeddouble.idcardslogo)"/></a>#end</td>
+				<td>$!mixeddouble.partnerplayer（#if($VmUtils.eq($!mixeddouble.partnersex,'boy'))男#else女#end）</td>
+				<td #if($mixeddoublepartneridcards ne 15 && $mixeddoublepartneridcards ne 18) style="color:red" #end>$!mixeddouble.partneridcards</td>
+				<td>$!mixeddouble.partnerphone</td>
+				<td>#if(!$VmUtils.isEmpty($!mixeddouble.partneridcardslogo))<a href="$VmUtils.randomPic('',$!mixeddouble.partneridcardslogo)" target="_blank"><img src="$VmUtils.randomPic('sw100h50',$!mixeddouble.partneridcardslogo)"/></a>#end</td>
+				<td>混双</td>
+				<td><a href="javascript:deletePlayers('$!mixeddouble.mid');">删除</a>
+					<select disabled="disabled">
+					<option value="Y_NEW" #if($VmUtils.eq($mixeddouble.status,'Y_NEW')) selected #end)>申请中</option>
+					<option value="Y" #if($VmUtils.eq($mixeddouble.status,'Y')) selected #end)>审核通过</option>
+					<option value="N" #if($VmUtils.eq($mixeddouble.status,'N')) selected #end)>审核未通过</option>
+					</select><a href="javascript:showPlayerInfo('$!mixeddouble.mid');">修改</a>
+				</td>
+			</tr>
+		</tbody>
+		#end
+		</table>
+	#end
+#end
+</div>
+<div id="infos" style="display:none">
+	<form action="javascript:addTime()" method="post" id="info" name="info" >
+	<input type="hidden" value="#if($params.yearsType)$params.yearsType#{else}gewaCup2012#end" name="type" id="type" />
+	<div style="color:red;font-size: 14px">羽毛球报名时间设置
+		<select name="tag" id="tag" onchange="saveTag(this)">
+			<option value="">请选择报名类型</option>
+			<option value="gewaCupPersonal">个人报名</option>
+			<option value="gewaCupCommu">俱乐部报名</option>
+		</select>
+	</div>
+	<div id="customerInfo">
+		<input type="hidden" name="thirteenstart" id="thirteenstart" value="$!DateUtil.format($!thirteenMap.starttime,'yyyy-MM-dd HH:mm:ss')"/>
+		<input type="hidden" name="pomstart" id="pomstart" value="$!DateUtil.format($!pomMap.starttime,'yyyy-MM-dd HH:mm:ss')"/>
+
+		<input type="hidden" name="thirteenend" id="thirteenend" value="$!DateUtil.format($!thirteenMap.endtime,'yyyy-MM-dd HH:mm:ss')"/>
+		<input type="hidden" name="pomend" id="pomend" value="$!DateUtil.format($!pomMap.endtime,'yyyy-MM-dd HH:mm:ss')"/>
+
+		<dl class="tales60">
+			<dt>开始时间:</dt>
+			<dd><label for="i_2"><input type="text" class="text" name="starttime" id="starttime" value="" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd 00:00:00'})"/></label></dd>
+		</dl>
+		<dl class="tales60">
+			<dt>结束时间:</dt>
+			<dd><label for="i_2"><input type="text" class="text" name="endtime" id="endtime" value="" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd 23:59:59'})"/></label></dd>
+		</dl>
+	</div>
+	</form>
+</div>
+<div id="playersInfo" style="display:none;">
+		<dl class="tales60">
+			<dt>姓名：</dt>
+			<dd><input type="text" value="" id="player" /></dd>
+		</dl>
+		<dl class="tales60">
+			<dt>身份证号：</dt>
+			<dd><input type="text" value="" id="idcards" /></dd>
+		</dl>
+		<dl class="tales60">
+			<dt>联系电话：</dt>
+			<dd><input type="text" value="" id="phone" /></dd>
+		</dl>
+		<dl class="tales60">
+			<dt>搭档姓名：</dt>
+			<dd><input type="text" value="" id="partnerplayer" /></dd>
+		</dl>
+		<dl class="tales60">
+			<dt>搭档身份证号：</dt>
+			<dd><input type="text" value="" id="partneridcards" /></dd>
+		</dl>
+		<dl class="tales60">
+			<dt>搭档联系电话：</dt>
+			<dd><input type="text" value="" id="partnerphone" /></dd>
+		</dl>
+</div>
+<script>
+function showTdPlayer(status){
+	$$('.paystatus').each(function(el){
+		if(el.getElement('#paystatus').innerHTML.contains(status)){
+			el.style.display = '';
+		}else{
+			el.style.display = 'none';
+		}
+	})
+}
+function showPlayerInfo(mid){
+	var values = {"mid" : mid };
+	GewaraUtil.sendRequest("${basePath}admin/sport/updatePlayers.xhtml", values , function(result){
+		if(result.success){
+			$('player').value = result.player;
+			$('idcards').value = result.idcards;
+			$('phone').value = result.phone;
+			if(result.type != 'boysingle' && result.type != "girlsingle"){
+				$('partnerplayer').value = result.partnerplayer;
+				$('partneridcards').value = result.partneridcards;
+				$('partnerphone').value = result.partnerphone;
+			}
+			gewa.util.issure('','playersInfo','报名信息：',420,'keys',function(){
+				savePlayerInfo(mid);
+			});
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function savePlayerInfo(mid){
+	var values = {'player':$('player').value,'idcards':$('idcards').value,'phone':$('phone').value,'partnerplayer':$('partnerplayer').value,'partneridcards':$('partneridcards').value,'partnerphone':$('partnerphone').value,'mid':mid};
+	GewaraUtil.sendRequest("${basePath}admin/sport/saveupdatePlayers.xhtml", values , function(result){
+		if(result.success){
+			gewaUtil.alert("修改成功！",refreshPage);
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function updatePlayersStatus(mid,commuid,el){
+	if(!confirm('修改前请检查是否下支付是否成功！'))return;
+	var url = "${basePath}admin/sport/updatePlayersStatus.xhtml";
+	GewaraUtil.sendRequest(url, {"mid":mid,"commuid":commuid,"status":el.value,"yearsType":"$!params.yearsType"}, function(result){
+		if(result.success){
+			gewaUtil.alert("修改成功！");
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function showTime(){
+	gewa.util.issure('','infos','报名时间：',420,'keys',function(){
+		addTime();
+	});
+}
+function addTime(){
+	var url = '${basePath}admin/newsubject/addtime.xhtml';
+	if($('tag').value == ''){
+		alert('请选择活动类型！');
+		return;
+	}
+	var values = GewaraUtil.getValues("info");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('保存成功！');
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function saveTag(el){
+	if(el.value == 'gewaCupPersonal'){
+		$('starttime').value = $('thirteenstart').value;
+		$('endtime').value = $('thirteenend').value;
+	}else if(el.value == 'gewaCupCommu'){
+		$('starttime').value = $('pomstart').value;
+		$('endtime').value = $('pomend').value;
+	}else{
+		$('starttime').value = '';
+		$('endtime').value = '';
+	}
+}
+function deletePlayers(mid){
+	if(!confirm('删除前请检查是否下支付成功！'))return;
+	if(!confirm('确定删除吗？请谨慎操作！'))return;
+	GewaraUtil.sendRequest("${basePath}admin/sport/deletePlayers.xhtml", {'mid':mid}, function(result){
+		if(result.success){
+			gewaUtil.alert('删除成功！',refreshPage);
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function updateOrderid(el,commuid,id){
+	if(!confirm('确定修改订单号码？'))return;
+	if(!confirm('确定修改订单号码？请谨慎操作！'))return;
+	GewaraUtil.sendRequest("${basePath}admin/sport/updateOrderid.xhtml", {'commuid':commuid,'orderid':el.value,'id':id}, function(result){
+		if(result.success){
+			gewaUtil.alert('修改成功！',refreshPage);
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

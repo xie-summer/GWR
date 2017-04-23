@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>话剧院厅信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline;}
+		a{text-decoration: none; white-space: nowrap;}
+		.roomPic{height: 130px; text-align: center; float: left; border: 1px solid gray; margin:3px;}
+	</style>
+</head>
+<body style="width:750px;margin:auto;" class="yui-skin-sam">
+<div id="roomDialog" class="yui-panel" style="width:550px; position: absolute;z-index: 200; left:250px; top:50px;">
+	<div class="hd" id="title">编辑分区厅数据</div>
+	<div class="bd">
+	<form name="roomForm" id="roomForm" action="javascript:saveRoom()">
+		<input type="hidden" name="id" id="id" value="$!room.id"/>
+		<input type="hidden" name="theatreid" id="theatreid" value="$!params.theatreid"/>
+		<input type="hidden" name="fieldid" id="fieldid" value="$!params.fieldid"/>
+		<div>
+			<label for="roomname">名称：</label>
+			<input name="roomname" type="text" id="roomname" value="$!room.roomname" style="width: 100px;"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="num">排序：</label>
+			<input name="num" id="num" type="text" value="$!room.num" style="width: 100px;"/>
+			<span class="req">*不能和该剧院的其他厅排序重复</span>
+		</div>
+		<div>
+			<label for="linenum">排数：</label>
+			<input name="linenum" id="linenum" type="text" value="$!room.linenum" style="width: 100px;"/>
+		</div>
+		<div>
+			<label for="ranknum">列数：</label>
+			<input name="ranknum" id="ranknum" type="text" value="$!room.ranknum" style="width: 100px;"/>
+		</div>
+		<div>
+			<label for="screenheight">银幕高：</label>
+			<input name="screenheight" id="screenheight" type="text" value="$!room.screenheight" style="width: 100px;"/>
+		</div>
+		<div>
+			<label for="content">其他说明：</label>
+			<textarea name="content" id="content" rows="5">$!room.content</textarea>
+		</div>
+		
+		<div>
+			<label>LOGO上传：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/theatre/theatreroom&callback=updateLogo"></iframe>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="hidden" name="logo" id="logo" value="$!{room.logo}" style="width:485px"/>
+			<img style="width:162px; height:57px;" id='logoimg'  #if($!{room.logo})src='${basePath}$room.logo'#end />
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="submit" class="button" id="btn"  style="width:100px" value="保存"/>
+		</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	function saveRoom(){
+		var values = GewaraUtil.getValues("roomForm");
+		var url = '${basePath}admin/theatre/saveRoom.xhtml'
+		GewaraUtil.mask('btn');
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert('保存成功！');
+				document.location='${basePath}admin/theatre/roomList.xhtml?theatreid=$!params.theatreid';
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg').src='${basePath}' + picpath;
+	}
+</script>
+</body>
+</html>

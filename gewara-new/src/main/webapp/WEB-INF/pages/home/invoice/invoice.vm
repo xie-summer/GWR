@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>申请发票_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,pagesNavigation,slimbox,scrollSpy,base_home&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.invoice{padding:20px;}
+		.invoice p b{color:#C03B0C;font-weight:bold;}
+	</style>
+</head>
+<body>
+#set($ishome=true)#set($myAccount = true)#set($isInvoice = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/myAccount.vm')
+			<form id="invoiceForm" name="invoiceForm" method="post" action="javascript:submitInvoice()">
+			<div id="_hidDV" style="display:none;"></div>
+			<div class="mt20 title"><h2>申请表单</h2><a class="ml10 fc_b" href="${basePath}home/invoice/invoiceList.xhtml?tagNo=$VmUtils.getRandom()" target="_blank">申请发票记录</a></div>
+			<ul class="ul-150 mt10 borderLine">
+				<li class="list_h">
+					<span class="left_150">发票项目：</span>
+					<select name="invoicetype" class="mt5">
+						<option value="movienote">电影票款</option>
+						<option value="dramanote">演出票款</option>
+						<option value="sportnote">运动票款</option>
+					</select>
+				</li>
+				<li class="list_h" style="height:60px;">
+					<span class="left_150">发票金额：</span>
+					<input id="account" type="text" class="text left" name="" onclick="getReceiveInvoice();" readonly="readonly"/><span class="fc_b ml10 left">*</span><span class="gray" style="font-size: 12px;display: block;clear: both;line-height: 18px;">申请金额不能小于100元！若申请的发票金额低于100元，可以直接联系在线客服。</span>
+				</li>
+				<li class="list_h">
+					<span class="left_150">发票抬头：</span>
+					<input id="title" type="text" class="text left" name="title"/><span class="fc_b ml10">*</span><span style="font-size: 12px;" class="gray">个人请填写“个人”或姓名，公司请填写公司全称</span>
+				</li>
+				<li class="list_h">
+					<span class="left_150">收件人：</span>
+					<input id="contactor" type="text" class="text left" name="contactor"/><span class="fc_b ml10">*</span>
+				</li>
+				<li class="list_h">
+					<span class="left_150">手机号码：</span>
+					<input type="text" class="text" name="phone" id="phone"/><span class="fc_b ml10">*</span>
+				</li>
+				<li class="list_h">
+					<span class="left_150">邮寄地址：</span>
+					<div id="ajaxLoadAddress"></div>
+				</li>
+				<li class="list_h">
+					<input id="address" type="text" class="text" name="address"/><span class="fc_b ml10">*</span><span style="font-size: 12px;" class="gray">为保证发票顺利送达，请务必填写完整地址</span>
+				</li>
+				<li class="list_h">
+					<span class="left_150">邮政编码：</span>
+					<input id="postcode" type="text" class="text" name="postcode"/><span class="fc_b ml10">*</span>
+				</li>
+				<li class="list_h clear">
+					<label class="button redBt minBt" for="disBtn"><input type="submit" value="提 交"  id="disBtn" style="padding:0 10px 0 0;"/></label>
+				</li>
+			</ul>
+			<div class="mt20"><strong>说明：</strong>1、系统支持为180天内的订单开据发票，若超出日期范围请联系客服开据：4000-406-506 ；<br/>
+			<span style="margin-left: 40px;">2、为便于邮递，2011年9月12日起所有邮递的发票统一采用平邮方式，发票开据后你将会收到系统短信通知；</span><br/>
+			<span style="margin-left: 40px;">3、请正确填写发票邮寄地址，如是邮寄地址的错误导致发票无法送达，格瓦拉将不负责重新补寄。</span></div>
+			<input type="hidden" id="orderidList" name="orderidList" />
+			</form>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+var pretypeArray = new Array();
+window.addEvent('domready',function(){
+	updateAddress();
+})
+function submitInvoice(){
+	if($('account').value<100){
+		gewaUtil.alert('申请金额不能小于100元！');
+		return;
+	}
+	if(!$('title').value){
+		gewaUtil.alert('请填写发票抬头！');
+		return;
+	}
+	if(!$('phone').value){
+		gewaUtil.alert('请填写联系电话!');
+		return;
+	}
+	if(!$('citycode').value){
+		gewaUtil.alert('请选择邮寄城市!');
+		return;
+	}
+	if(!$('address').value){
+		gewaUtil.alert('请填写邮寄地址!');
+		return;
+	}
+	if(!$('postcode').value){
+		gewaUtil.alert('请填写邮政编码!');
+		return;
+	}
+	if(pretypeArray.length>0){
+		var html = '<p class="fs14">订单号：<b>'+ pretypeArray.join(',')+ '</b>由格瓦拉票务平台代售，所申请发票需由主办方开据，请注意</p>';
+			html += '<p class="mt20">1、由演出主办方负责开具发票；</p>';
+			html += '<p>2、为你邮寄发票可能会有一些延迟，请耐心等待；</p>';
+		gewa.util.issure('','<div class="invoice">'+ html +'</div>','格瓦拉申请发票提示：',520, 'pay',function(){
+			saveInvoice();
+		});
+	}else{
+		saveInvoice();
+	}
+}
+
+function saveInvoice(){
+	var url = '${basePath}home/invoice/saveReceiveInvoice.xhtml';
+	GewaraUtil.mask("disBtn");
+	var values = GewaraUtil.getValues("invoiceForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			gewaUtil.alert('提交成功！发票开据后你将会收到手机短信通知。');
+			document.location.href="${basePath}home/invoice/invoiceList.xhtml";
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+
+function addTotal(el, orderid){
+	el = $(el);
+	if(el.checked == true){
+		$('showAmount').innerHTML = parseInt(el.value) + parseInt($('amount').value);
+		$('amount').value = parseInt(el.value) + parseInt($('amount').value);
+		splitData(el);
+	}else if(el.checked == false){
+		$('showAmount').innerHTML = parseInt($('amount').value) - parseInt(el.value);
+		$('amount').value = parseInt($('amount').value) - parseInt(el.value);
+		splitData(el);
+	}
+}
+function splitData(el){
+	var orderid = $('orderidList').value;
+	if(el.checked == true){ //选中
+		if(orderid != ""){
+			$('orderidList').value =$('orderidList').value + "," + el.get('id');
+		}else {
+			$('orderidList').value = el.get('id');
+			pretypeArray.empty();
+		}
+		if(el.get('lang') && el.get('lang') != 'M'){
+			pretypeArray.include(el.get('id'));
+		}
+	}else if(el.checked == false){ //去掉
+		var tmpArray = $('orderidList').value;
+		var data = Array.clone(tmpArray.split(","));
+		data.erase(el.get('id'));
+		$('orderidList').value = data.toString();
+		if(el.get('lang') && el.get('lang') != 'M'){
+			pretypeArray.erase(el.get('id'));
+		}
+	}
+}
+function updateAddress(){
+	var url = '${basePath}home/invocie/ajaxLoadAddress.xhtml';
+	var values = {'agtag':'PCR'};
+	GewaraUtil.sendLoad('ajaxLoadAddress', url, values, function(){
+	});
+}
+</script>
+<script type="text/javascript">
+	function getReceiveInvoice(){
+		$('orderidList').value="";
+		var url = "${basePath}home/invoice/getReceiveInvoice.xhtml";
+		gewaUtil.loadData('_hidDV', url, {}, function(result){
+			if(result.success){
+				gewaUtil.issure('', '_hidDV', '可申请的发票列表 ' , 720, '_hidDV',function(calls,id){
+					if(checkAccout())gewa.util.container['_hidDV'].dispose('_hidDV');
+				});
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

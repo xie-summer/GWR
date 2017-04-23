@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="Distribution" content="Global" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+		<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+		<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+		<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+		<script src="${staticPath}scripts/mootools.js" type="text/javascript" ></script>
+		<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,raphael,svg&v=${VmUtils.jsVersion}"></script>
+		<title>苗线布局</title>
+		<style type="text/css">
+		*{margin:0px;padding:0px;}
+		#img{float:left;}
+		.none{display:none;}
+		</style>
+	</head>
+<body>
+<div class="ml20 mt20 #if($VmUtils.isNotBlank($!field.limg)) none #end" style="width:300px;border-bottom-color: #fff;" id="fieldForm">
+	<input type="hidden" name="fieldid" value="$!field.id">
+	<div>
+		<label>LOGO上传：</label>
+		<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+			src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/theatre/theatreroom&callback=updateLogo"></iframe>
+		<br/><span>说明：上传图片必须是890*580像素的图片</span>
+	</div>
+	<div>
+		<label>&nbsp;</label>
+		<input type="hidden" name="logo" id="logo" value="$!{field.logo}" style="width:485px"/>
+		<img style="width:162px; height:57px;" id='logoimg'  #if($VmUtils.isNotBlank($field.logo))src='$VmUtils.randomPic("",$field.logo)'#end />
+	</div>
+	<div class="right">
+		<label>&nbsp;</label>
+		<input type="button" class="button" onclick="updateFieldLogo(this)" style="width:100px" value="保存"/>
+	</div>
+</div>
+
+<div class="ml20 mt20" id="dataFrom">
+		<input type="hidden" name="fieldid" value="$!field.id" />
+填写区域：<select style="width:500px;" id="roomid" onchange="changeArea(this);" mustTxt="区域不能为空！">
+			<option value="">请选择区域</option>
+			#foreach($fieldRoom in $areaList)
+				<option value="$!fieldRoom.id">$!fieldRoom.roomname $!{field.hotzone}</option>
+			#end
+		</select>
+		<input type="button" value="保存坐标" onclick="saveHotzone(this)" />
+		<span style="color:red;">请选择区域，再绘图！</span>
+</div>
+
+<div id="img" class="mt20"></div>
+<script type="text/javascript">
+var data = $!{areaZoneMap} || {};
+window.addEvent('domready',function(){
+	#if($VmUtils.isNotBlank($!field.limg))
+	SVG.init({'defualtImg':"$!VmUtils.randomPic('',$!field.limg)",'defualtData':data,isDrow:true});
+	SVG.init.delay(2000);
+	#end
+});
+
+function changeArea(el){
+	SVG.number = $(el).value;
+	if(SVG.pathAll[SVG.number]){
+		SVG.pathAll[SVG.number].node.remove();
+		SVG.pathAll[SVG.number].path = "";
+		SVG.pathAll[SVG.number] = "";
+	}
+}
+function saveHotzone(el){
+	if(!window.confirm('确定保存？')) return;
+	var url = "${basePath}admin/theatre/setHotzoneByFieldid.xhtml";
+	var values = GewaraUtil.getValues('dataFrom');
+	var temp = [];
+	Object.each(SVG.pathAll,function(group,key){
+		if(group && group != null){
+			var obj = {};
+			obj.roomid = key;
+			obj.hotzone = group.path;
+			temp.push(obj);
+		}
+	});
+	var hotzone = JSON.encode(temp);
+	values.hotzone = hotzone;
+	GewaraUtil.mask(el);
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			alert("保存成功！")
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function updateLogo(params){
+	var picpath = params['picpath'];
+	$('logo').value = picpath;
+	$('logoimg').src='${basePath}' + picpath;
+}
+
+function updateFieldLogo(el){
+	var url = "${basePath}admin/theatre/updateFieldLogo.xhtml";
+	var values = GewaraUtil.getValues('fieldForm');
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>分享文字管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.none{display:none;}
+		.tar{text-align:right;margin-top:10px;margin-right:10px;font-weight:bold;}
+		.tar a{color:red;}
+		.subMenu{overflow:hidden; background:#FFFFE0; border-bottom:1px solid #F9DFB2;}
+		.subMenu ul,.subMenu ul li{display:inline; float:left;}
+		.subMenu ul li{height:30px; line-height:30px;}
+		.subMenu ul li a{margin:5px; height:20px; padding:0 5px; line-height:20px; display:inline-block;}
+		.subMenu ul li a.select{background:#f60; color:#fff;}
+		.none{display:none!important;}
+		
+	</style>
+</head>
+<body>
+#set($shareDiaryMap={"share_diary_movie":"电影","share_diary_drama":"话剧","share_diary_topic":"其他"})
+#set($shareActivityMap={"share_activity_join":"参加","share_activity_launch":"发起"})
+#set($shareTicketMap={"share_ticket_drama":"话剧","share_ticket_movie":"电影"})
+#set($shareWalaMap={"share_wala_transfer":"转载","share_wala_topic":"普通","share_wala_drama":"话剧","share_wala_movie":"电影","share_wala_other":"其他"})
+#set($shareAgendaMap={"share_agenda_other":"全部"})
+#set($sharePointMap={"share_point_festival":"节日红包","share_point_rewards":"连续领取","share_point_bit_positive":"冒险正分","share_point_bit_negative":"冒险负分",
+							"share_point_brt":"微博控","share_point_stable":"稳定型","share_point_order":"购票成功页面分享领积分"})
+<div class="logoPanel"><a href="${absPath}">Gewara</a></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li id="share_diary"><a href="javascript:void(0);" class="admin"><span>帖子</span></a></li>
+			<li id="share_activity"><a href="javascript:void(0);" class="admin"><span>活动</span></a></li>
+			<li id="share_ticket"><a href="javascript:void(0);" class="admin"><span>购票</span></a></li>
+			<li id="share_wala"><a href="javascript:void(0);" class="admin"><span>哇啦</span></a></li>
+			<li id="share_agenda"><a href="javascript:void(0);" class="admin"><span>生活</span></a></li>
+			<li id="share_point"><a href="javascript:void(0);" class="admin"><span>红包</span></a></li>
+		</ul>
+	</div>
+</div>
+<div class="subMenu" id="subMenu">
+	<ul>
+		<li id="share_diary_content">#foreach($key in $shareDiaryMap.keySet())<a id="$key" href="javascript:getShareInfo('$key')">$shareDiaryMap.get($key)</a>#end</li>
+		<li id="share_activity_content" class="none">#foreach($key in $shareActivityMap.keySet())<a id="$key" href="javascript:getShareInfo('$key')">$shareActivityMap.get($key)</a>#end</li>
+		<li id="share_ticket_content" class="none">#foreach($key in $shareTicketMap.keySet())<a id="$key" href="javascript:getShareInfo('$key')">$shareTicketMap.get($key)</a>#end</li>
+		<li id="share_wala_content" class="none">#foreach($key in $shareWalaMap.keySet())<a id="$key" href="javascript:getShareInfo('$key')">$shareWalaMap.get($key)</a>#end</li>
+		<li id="share_agenda_content" class="none">#foreach($key in $shareAgendaMap.keySet())<a id="$key" href="javascript:getShareInfo('$key')">$shareAgendaMap.get($key)</a>#end</li>
+		<li id="share_point_content" class="none">#foreach($key in $sharePointMap.keySet())<a id="$key" href="javascript:getShareInfo('$key')">$sharePointMap.get($key)</a>#end</li>
+	</ul>
+</div>
+<div class="manageItemList">
+	<div style="margin:10px;">通用变量说明：time为时间，nick用户名</div>
+	<div class="variable" id="variable_share_diary_movie" style="margin:10px;">帖子(电影)变量说明：title标题，name电影</div>
+	<div class="variable" id="variable_share_diary_drama" style="margin:10px;">帖子(话剧)变量说明：title标题，name话剧</div>
+	<div class="variable" id="variable_share_diary_topic" style="margin:10px;">帖子(其他)变量说明：title标题</div>
+	<div class="variable" id="variable_share_activity_join" style="margin:10px;">活动(参加)变量说明：title标题</div>
+	<div class="variable" id="variable_share_activity_launch" style="margin:10px;">活动(发起)变量说明：title标题</div>
+	<div class="variable" id="variable_share_ticket_drama" style="margin:10px;">购票(话剧)变量说明：name话剧，venues剧场</div>
+	<div class="variable" id="variable_share_ticket_movie" style="margin:10px;">购票(电影)变量说明：name电影，venues影院</div>
+	<div class="variable" id="variable_share_wala_transfer" style="margin:10px;">哇啦(转载)变量说明：content内容，tnick被转载人，tcontent被转载的内容</div>
+	<div class="variable" id="variable_share_wala_topic" style="margin:10px;">哇啦(普通)变量说明：content内容</div>
+	<div class="variable" id="variable_share_wala_drama" style="margin:10px;">哇啦(话剧)变量说明：content内容，name话剧</div>
+	<div class="variable" id="variable_share_wala_movie" style="margin:10px;">哇啦(电影)变量说明：content内容，name电影</div>
+	<div class="variable" id="variable_share_wala_other" style="margin:10px;">哇啦(其他)变量说明：content内容，name话题</div>
+	<div class="variable" id="variable_share_agenda_other" style="margin:10px;">生活变量说明：title标题，address地址</div>
+	<div class="variable" id="variable_share_point_festival" style="margin:10px;">红包(节日红包)变量说明：point积分</div>
+	<div class="variable" id="variable_share_point_rewards" style="margin:10px;">红包(连续领取)变量说明：point积分</div>
+	<div class="variable" id="variable_share_point_bit_positive" style="margin:10px;">红包(冒险正分)变量说明：point积分</div>
+	<div class="variable" id="variable_share_point_bit_negative" style="margin:10px;">红包(冒险负分)变量说明：point积分</div>
+	<div class="variable" id="variable_share_point_brt" style="margin:10px;">红包(微博控)变量说明：point积分</div>
+	<div class="variable" id="variable_share_point_stable" style="margin:10px;">红包(稳定型)变量说明：point积分</div>
+	<div class="variable" id="variable_share_point_order" style="margin:10px;">红包(购票成功)变量说明：point积分</div>
+	<div id="shareInfo"></div>
+
+</div>
+	<a href="${basePath}admin/blog/searchShareHisList.xhtml">查看分享历史</a>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	getShareInfo('share_diary_movie');
+	new PanelGroup(['share_diary','share_activity','share_ticket','share_wala','share_agenda','share_point'], 'share_diary', "currs", "none", "click",function(){
+		var subKey = this.id+'_content';
+		var firstA = $(subKey).getElements('a')[0];
+		firstA.click();
+	});
+})
+function getShareInfo(tag){
+	var el = $(el);
+	var url = '${basePath}admin/blog/getShareInfo.xhtml';
+	var values = {'tag':tag};
+	var oA = $('subMenu').getElements('a');
+	oA.removeClass('select');
+	$(tag).addClass('select');
+	GewaraUtil.sendLoad('shareInfo', url, values, function(result){
+		if(result.success){
+			$$('.variable').removeClass('none');
+			$$('.variable').addClass('none');
+			var v = "variable_" + tag;
+			$(v).removeClass('none');
+		}else{
+			alert(result.json.msg);
+		}
+	})
+}
+</script>
+
+</body>
+</html>

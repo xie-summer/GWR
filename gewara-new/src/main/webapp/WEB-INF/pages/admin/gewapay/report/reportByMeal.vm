@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>报表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+<body style="width:85%; margin:auto">
+<div style="clear:both;"></div>
+<div>
+#set($byMeal=true)
+#parse('admin/gewapay/common.vm')
+</div>
+<form action="${basePath}admin/gewapay/reportByMeal.xhtml">
+<table  border="1" style="width: 90%" cellspacing="0" class="table">
+	<tr>
+	<td height="30">
+		<select name="cid" id="cid">
+			<option value="">请选择影院</option>
+			#foreach($cinema in $cinemaList)
+			#set($sno=$foreach.count)#if($sno lt 10) #set($sno='0' + $sno) #end
+			<option value="$cinema.id" #if($cinema.id eq $params.cid) selected #end>[$sno]$cinema.name</option>
+			#end
+		</select>
+		开始日期:<input type="text" name="starttime" id="starttime" value="$!params.starttime" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>&nbsp;
+		结束日期:<input type="text" name="endtime" id="endtime" value="$!params.endtime" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>&nbsp;
+		<input type="submit" value="查询" />
+	</td>
+	</tr>
+</table>
+<br/>
+</form>
+#if($params.cid)
+<table width="90%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+	<td colspan="8" align="center" class="td"><span>$cinema.name报表[$!{params.starttime}--$!{params.endtime}]</span></td>
+	</tr>
+	<tr class="td">
+		<td align="center" class="wd120">订单号</td>
+	<td align="center" class="wd120">手机</td>
+	<td align="center" class="wd120">下单时间</td>
+	<td align="center" class="wd120">取票时间</td>
+	<td align="center" align="center" class="wd60">数量</td>
+	<td align="center" align="center" class="wd60">买价</td>
+	<td align="center" align="center" class="wd60">成本价</td>
+	<td align="center" align="center" class="wd120">金额</td>
+	</tr>
+	#set($M=0) #set($rfee=0) #set($C=0)
+	#foreach($order in $orderList)
+	#set($costprice=$order.totalcost/$order.quantity)
+	#set($rquantity=0)
+	#set($title=$order.ordertitle) 
+	#set($M=$M+$order.totalAmount) 
+	#set($rfee=$order.totalAmount)  
+	#set($rquantity=$order.quantity) 
+	#set($runitprice=$order.unitprice)
+	#set($C=$C+$order.totalcost)
+	<tr class="td itable">
+		<td align="center" class="wd60">$order.tradeNo</td>
+	<td align="center" class="wd120">$!order.mobile</td>
+	<td align="center" class="wd60">$!DateUtil.format($order.addtime,'yyyy-MM-dd HH:mm:ss')</td>
+	<td align="center" class="wd60">$!DateUtil.format($orderResults.get($order.tradeNo).taketime,'yyyy-MM-dd HH:mm:ss')</td>
+	<td align="center" align="center" class="wd60">$!rquantity</td>
+	<td align="center" align="center" class="wd60">$!runitprice</td>
+	<td align="center" align="center" class="wd60">$!costprice</td>
+	<td align="center" align="center" class="wd120">$!rfee</td>
+	</tr>
+	#end
+	<tr class="td">
+	<td colspan="6" align="right" class="td"><span>共计:订单$VmUtils.size($orderList)(个)，成本总金额:$C(元)，销售总金额:$M(元)</span></td>
+	</tr>
+</table>
+#end
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>商家关闭场次规则</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline-block;width:90px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea {display:inline-block;}
+		input{width:200px;}
+		a{text-decoration: none; white-space: nowrap;}
+	</style>
+</head>
+<body style="width:850px;margin:auto" class="yui-skin-sam">
+<div id="priceDialog" class="yui-panel" style="width:720px;">
+	<div class="hd" id="title">商家关闭场次规则</div>
+	<div class="bd">
+	<form name="ruleForm" id="ruleForm" method="post">
+		<input type="hidden" name="ruleId" id="ruleId" value="$!rule.id"/>
+		<div style="line-height: 30px;">
+			<label>总体说明：</label><span style="color:red">符合下面条件的场次</span><span style="font-size: 18px; font-weight: bolder;color:red;">不对外开放</span>
+			<span>，如果类型为“屏蔽影片”或“屏蔽影院”，则<span style="font-size: 18px; font-weight: bolder; color:red;">场次时段、场次星期、卖价范围、成本差额、场次ID</span>无效</span>
+		</div><div>
+			<label for="ruletype">屏蔽类型：</label>
+			<select name="ruletype">
+				<option value="opi">屏蔽场次</option>
+				<option value="movie" #if($VmUtils.eq($rule.ruletype, 'movie'))selected="selected"#end>屏蔽影片</option>
+				<option value="cinema" #if($VmUtils.eq($rule.ruletype, 'cinema'))selected="selected"#end>屏蔽影院</option>
+			</select>
+			<span class="req">*</span>
+			<label for="opentime1">时间范围：</label>
+			<input name="opentime1" type="text" readonly="readonly" style="width:150px;" value="$!DateUtil.formatTimestamp($rule.opentime1)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})"/>
+			～
+			<input name="opentime2" type="text" readonly="readonly" style="width:150px;" value="$!DateUtil.formatTimestamp($rule.opentime2)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})"/>
+			<span class="req">*</span>
+		</div><div>
+			<label>&nbsp;</label><span style="color:red">如果类型为“屏蔽场次”，“时间范围”指的是场次的放映时间，其他为“用户上网的时间”</span>
+		</div><div>
+			<label for="partnerids">商家ID：</label>
+			<textarea name="partnerids" style="width:300px;">$!rule.partnerids</textarea>
+			<span class="req">*</span><span>000000表示全部商家</span>
+			<select name="pmatch">
+				<option value="inclue">包含</option>
+				<option value="exclude" #if($rule.pmatch eq 'exclude')selected="selected"#end>排除</option>
+			</select>
+		</div><div>
+			<label>&nbsp;</label><span style="color:red">“包含”指符合上面设置的商家，“排除”指除上面设置的其他商家，下面的影院类似！</span>
+		</div><div>
+			<label for="time1">场次时段：</label>
+			<input name="time1" type="text" style="width:90px;" value="$!rule.time1" onclick="WdatePicker({dateFmt:'HHmm'})" readonly="readonly"/><span>～</span>
+			<input name="time2" type="text" style="width:90px;" value="$!rule.time2" onclick="WdatePicker({dateFmt:'HHmm'})" readonly="readonly"/>
+			<span class="req">*</span>
+			<label for="weektype">场次星期：</label>
+			<input name="weektype" type="text" value="$!rule.weektype"/>
+		</div><div>
+			<label for="price1">卖价范围：</label>
+			<input name="price1" type="text" value="$!rule.price1"/><span>～</span>
+			<input name="price2" type="text" value="$!rule.price2"/>
+			<span class="req">*</span>
+		</div><div>
+			<label>&nbsp;</label>
+			<span style="color:blue">例如：20～100表示20&lt;=Gewa卖价&lt;=100的屏蔽</span>
+		</div><div>
+			<label for="pricegap">成本差额：</label>
+			<input name="pricegap" type="text" value="$!rule.pricegap"/>
+			<span class="req">*</span>
+			<label for="description">简要说明：</label>
+			<input name="description" value="$!rule.description" type="text"/>
+			<span class="req">*</span>
+		</div><div>
+			<label>&nbsp;</label>
+			<span style="color:blue">例如：2，表示“Gewa卖价-成本价”&lt;=2元的屏蔽</span>
+		</div><div>
+			<label for="cinemaids">影院ID：</label>
+			<textarea style="width:540px;" name="cinemaids">$!rule.cinemaids</textarea>
+			<select name="cmatch">
+				<option value="inclue">包含</option>
+				<option value="exclude" #if($rule.cmatch eq 'exclude')selected="selected"#end>排除</option>
+			</select>
+		</div><div>
+			<label for="movieids">影片ID：</label>
+			<textarea style="width:540px;" name="movieids">$!rule.movieids</textarea>
+		</div><div>
+			<label for="mpids">场次ID：</label>
+			<textarea style="width:540px;" name="mpids" id="mpids">$!rule.mpids</textarea>
+			<span style="color:blue;cursor:pointer;" onclick="mpidGather();">收集信息</span>
+		</div><div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" style="width:100px" onclick="saveRule()" value="保存"/>
+		</div>
+	</form>
+	</div>
+	<div id="showGather" class="selectMovie" style="display: none;"></div>
+</div>
+
+<script type="text/javascript">
+	function saveRule(){
+		var values = GewaraUtil.getValues("ruleForm");
+		var url = "${basePath}admin/ticket/partner/saveCloseRule.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('成功保存！');
+				$('ruleId').value=result.retval;
+			}else{
+				alert("保存失败！");
+			}
+			gewa.util.clearMask();
+		});
+	}
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('banner').value = picpath;
+		$('bannerImg').src='${basePath}' + picpath;
+	}
+	
+	function mpidGather(){
+		var url = '${basePath}admin/ticket/mpi/getMpidGather.xhtml';
+		var values = {'mpids':$('mpids').value};
+		GewaraUtil.sendLoad('showGather', url, values, function(result){
+			if(result.success){
+				gewa.util.maskContent('','showGather','收集场次数据',1000,'showGather');
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

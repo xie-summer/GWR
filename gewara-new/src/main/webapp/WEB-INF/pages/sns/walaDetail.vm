@@ -1,0 +1,212 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>格瓦拉社区 - 哇啦详情页</title>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=default,readwala,layout&v=$VmUtils.jsVersion" />
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,noobSlide,Autocompleter&v=$VmUtils.jsVersion"></script>
+<style type="text/css">
+.redBt{background-position:0 -0px;}
+.redBt span,.redBt input{background-position:right -23px;color:#fff;}
+</style>
+</head>
+
+<body>
+	<div id="snsHeader"></div>
+	<div class="ui_layout wala_detail">
+		#set($menuTag = 'index') #parse('sns/common/left.vm')
+		<div class="body_right">
+			<div class="person_info #if($!params.memberid)isMember#end">
+				#if($logonMember.id ne $comment.memberid)
+				<div class="pinfo">
+					<b>$!member.nickname</b> #if($!VmUtils.eq($!memberInfo.sex,'男')) <span class="address male">$!{liveplace}</span>#else
+					<span class="address">$!{liveplace}</span> #end
+				</div>
+				<div class="pinfo">
+					#if($!logonMember.id ne $!memberInfo.id) 
+						#if($!b) 
+						<span id="cancelPersonTewasureId" class="mr10 cancelBox left">
+						<span class="mr5">已关注</span>|<a href="javascript:void(0)" onclick="cancelMemberTreasure($!memberInfo.id,'micro')" class="ml5">取消</a></span> 
+						<span id="personTewasureId" style="display: none">
+						<a href="javascript:void(0)"class="apend_alink" onclick="addPersonMemberTreasure($!memberInfo.id,this)"><b>+</b>加关注</a></span> 
+						#else 
+						<span id="cancelPersonTewasureId" style="display: none" class="mr10 cancelBox left">
+						<span class="mr5">已关注</span>|<a href="javascript:void(0)" onclick="cancelMemberTreasure($!memberInfo.id,'micro')" class="ml5">取消</a></span> 
+						<span id="personTewasureId">
+						<a href="javascript:void(0)" class="apend_alink" onclick="addPersonMemberTreasure($!memberInfo.id,this)"><b>+</b>加关注</a></span> 
+						#end 
+					<a href="$!{basePath}home/sns/message/receUserMsgList.xhtml" target="_blank" class="ml10 mr5">发私信</a>
+					#end 
+				</div>
+				#else
+				<div class="pinfo">
+					<b>$!logonMember.nickname</b>
+					#if($!VmUtils.eq($!memberInfo.sex,'男')) 
+					<span class="address male">$!{liveplace}</span>
+					#else 
+					<span class="address">$!{liveplace}</span> 
+					#end
+					<span class="editInfo"><a href="$!{basePath}home/acct/memberinfo.xhtml" target="_blank">改资料</a></span>
+				</div>
+				#end
+			</div>
+			#set($tagname={'movie':'电影','cinema':'影院','theatre':'剧院','drama':'话剧','sport':'运动场馆','sportitem':'运动项目','gym':'健身场馆','gymcourse':'健身项目','gymcoach':'健身教练','activity':'活动','member_activity':'活动'})
+			<div class="body_nav">
+				#if(!$VmUtils.isNull($!tagname.get($tag)))<div class="detail_title">关联$!tagname.get($tag)：<a href="javascript:;">$!name</a>#*<span class="more"><sub style="margin:0px;">7</sub><sup>.4</sup></span>*#</div>#end
+			</div>
+			<div class="bodys" id="_bodys">
+				<div class="wala_detail_bodys">
+					<div class="wala_detail_main">
+						<p>
+							<a class="topic"></a>$!VmUtils.perlString($!comment.body, $basePath, $picPath)
+						</p>
+					</div>
+					<div class="relationBody">
+						#if(!$!VmUtils.isNull($!comment.picturename))
+						<img src="$VmUtils.randomPic('cw300h300',$!comment.picturename)" width="300" />
+						#end
+					</div>
+					<div class="uiWala_tabs clear">
+						<a #if(!$RorY)class="current"#end href="${basePath}home/sns/walaDetail.xhtml?cid=$!comment.id&RorY=false">搭话<span>($!comment.replycount)</span></a>
+						<a #if($RorY)class="current"#end href="${basePath}home/sns/walaDetail.xhtml?cid=$!comment.id&RorY=true">转发<span>($!comment.transfercount)</span></a>
+					</div>
+					<div id="isWala"></div>
+				</div>
+				<div id="on" style="display: none;"></div>
+				<script type="text/javascript">
+					var isScroll = true,marks = {};
+					window.addEvent('domready',function(){
+						Asset.javascript("${staticPath}scripts/gewara.js?n=snsUtil,snsPlugs&v=$VmUtils.jsVersion", {
+							'id':'walaDynaScript',
+							'OID':'$!comment.id',//对象ID
+							'OTAG':'',//对象属性
+							'OMARKS':marks,
+							'OTITLE':'',
+							'ORORY':'$!RorY',
+							'USERLOGO':"$VmUtils.randomPic('cw30h30',$logonMember.headpic)",
+							onLoad:function(){
+								gewa.util.pageNumber = 0;
+						    	var _body = $(document.body);
+						    	gewa.util.requestUrl = "home/sns/lazeDetail.xhtml";
+						    	gewa.util.values = {'pageNumber':gewa.util.pageNumber,'cid':getMyConfig('OID'),'title':getMyConfig("OTITLE"),'tag':getMyConfig("OTAG"),'RorY':getMyConfig("ORORY")};
+						    	if(_body.getSize().y < _body.getScrollSize().y){
+						    		window.addEvent('scroll',function(){
+						    			if(this.getScrollSize().y - this.getScroll().y - this.getSize().y <= 20 && isScroll){
+						    				isScroll = false;
+						    				gewa.util.loadwalas("isWala");
+						    			}
+						    		});
+						    	}else{
+						    		gewa.util.loadwalas("isWala");
+						    	}
+						    	gewa.util.loadwalas("isWala");
+						    	$('isWala').addEvent("click:relay(.uiWala_tabs a)",function () {
+						    		$$('.uiWala_tabs a').removeClass('current');
+						    		this.addClass('current');
+						    		if($$('.uiWala_tabs a').indexOf(this)==0) {
+						    			$('wala').set('checked','');
+						    		}else {
+						    			$('wala').set('checked','true');
+						    		}
+						    	});
+							}
+						});
+					})
+				</script>
+			</div>
+		</div>
+	</div>
+<div class="footer_warp">
+	<div class="isFooter"></div>
+</div>
+#parse('include/innerLogin.vm')
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=snsUtil,index_even&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript">
+function sendCommentMessage(cid,type){
+	var value = $('replycontent').value;
+	if(type == 'f'){
+		if(!$chk(value) && value.trim() == ""){value = "转发哇啦";}
+	}else{
+		if(!$chk(value) && value.trim() == ""){
+			$('replycontent').highlight('#f66d6d', '#fff');
+			return false;
+		}
+	}
+	if(value.length > 140){gewaUtil.alert('内容不能超过140个字符！');return;}
+	var url = "${basePath}home/sns/replyComment.xhtml";
+	var values = {'commentid': cid, 'type':type, 'body':value, #if($RorY)'isMicro':'on' #else 'isMicro':''#end}
+	#if($RorY)GewaraUtil.sendRequest#else GewaraUtil.sendLoad#end(#if(!$RorY)"on",#end url, values, function(result){
+		if(result.success){
+			gewaUtil.alert('#if($RorY)转发成功！#else搭话成功！#end',refreshPage);
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	},'get');
+}
+
+function deleteReComment(id,recommentid){
+	gewaUtil.confirm("确认要删除吗?", function(){
+		var url = "${basePath}home/sns/deleteMicroReComment.xhtml";
+		var values = {'mid':recommentid};
+		GewaraUtil.sendRequest(url, values , function(result){
+			if(result.success){
+				document.getElement('div[id='+recommentid+']').set('dissolve', {duration: 'long',onComplete:function(){
+					this.dispose()
+				}.bind(document.getElement('div[id='+recommentid+']'))}).dissolve();
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	})
+}
+
+/**
+**哇啦，添加关注
+***/
+function addPersonMemberTreasure(memberid,obj){
+	checkLogin(true, function(){
+		var url = GewaraUtil.basePath + "wala/addMicroAttention.xhtml";
+		new Request({
+			url:url,
+			method:'get',
+			onSuccess:function(resText){
+				eval(resText);
+				if(data.success){
+					$('personTewasureId').hide();
+					$('personTewasureId').getParent().getElement('b').hide();
+					$('cancelPersonTewasureId').setStyle('display','inline');
+				}else{
+		 			gewaUtil.alert(data.msg);
+				}
+				
+			}
+		}).send({'data':{'memberid':memberid}});
+	});
+}
+
+/**
+*取消关注人
+*/
+function cancelMemberTreasure(memberid,tag){
+	checkLogin(true, function(){
+		var url = GewaraUtil.basePath +"wala/cancelAttention.xhtml";
+		var values = {'memberid':memberid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				if(tag == 'micro'){
+					$('personTewasureId').setStyle('display','inline');
+					$('personTewasureId').getParent().getElement('b').setStyle('display','inline');
+					$('cancelPersonTewasureId').hide();
+				}else{
+	 				gewaUtil.alert(data.retval);
+	 			}
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		}, 'get');
+	});
+}
+</script>
+</body>
+</html>

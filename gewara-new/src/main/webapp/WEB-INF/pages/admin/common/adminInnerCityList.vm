@@ -1,0 +1,71 @@
+<div>
+	<label for="description">城市：</label>
+	<input type="checkbox" name="selectcitycodes" onclick="allCityChecked(this)" id="selectcitycodes" #if($!gc.citycode eq '000000') checked="checked" #end value="000000" style="width:15px;"/>全选-----
+	</br>
+	<div id="allcity">
+	#foreach($helper in $!province2CityList)
+	<fieldset>
+		<legend class="yellow">$helper.provincename
+			<input style="width:auto;" type="checkbox" name="provinceCode" onclick="selectProvinceCityAll(this)" id="$foreach.count" value="provinceCode$foreach.count"></input>
+		</legend>
+		<div id="pro$foreach.count">
+		#foreach($city in $helper.gewaCityList)
+			<input type="checkbox" name="selectcitycode" style="width:15px;" id="selectcitycode$city.citycode" onclick="quxiaoCityCheck(this)" value="$!city.citycode" #if($VmUtils.contains($!gc.citycode, $!city.citycode) || $!gc.citycode eq '000000') checked="checked" #end />$!city.cityname	
+		#end
+		</div>
+	</fieldset>
+	#end
+	</div>
+	<input type="hidden" name="citycode" id="citycode" value="$!citycode"/>
+	<span class="req">&nbsp;</span>
+</div>
+<script type="text/javascript">
+function selectProvinceCityAll(e){
+	quxiaoCityCheck(e);
+	$('pro'+e.id).getElements("input[type=checkbox]").each(function(el){
+		if(e.checked){
+			el.checked = true;
+		}else {
+			el.checked = false;	
+		}
+	});
+}
+function allCityChecked(th){
+	var provinceCodeNames = document.getElementsByName('provinceCode');
+	var names = document.getElementsByName('selectcitycode');
+	if(th.checked){
+		for(i=0;i<names.length;i++){
+		if(!names[i].checked){
+			names[i].checked=true;
+		   }
+		}
+		for(i=0;i<provinceCodeNames.length;i++){
+			if(!provinceCodeNames[i].checked){
+				provinceCodeNames[i].checked=true;
+			  }
+		}
+		
+	}else{
+		for(i=0;i<names.length;i++){
+		if(names[i].checked){
+			names[i].checked=false;
+		   }
+		}
+		
+		for(i=0;i<provinceCodeNames.length;i++){
+			provinceCodeNames[i].checked=false;
+		}
+	}
+}
+function quxiaoCityCheck(th){
+	if(th.checked==false){
+		document.getElementsByName('selectcitycodes').checked=false;
+	} else {
+		if(document.getElementsByName('selectcitycode').length == $$('selectcitycode').getElements('input[checked]').length){
+			document.getElementsByName('selectcitycodes').checked=true;
+		} else {
+			document.getElementsByName('selectcitycodes').checked=false;
+		}
+	}
+}
+</script>

@@ -1,0 +1,58 @@
+<!--纠错 -->
+<div id="expertWindow"  style="position:absolute; z-index: 500; visibility: hidden; top:0px; left:0px; width: 500px; height: 166px; background:url(${staticPath}css/images/login.png) 0 -1px repeat-x;">
+	<form name="expertForm" id="expertForm" action="javascript:saveExpert()">
+		<dl style="height:30px;">
+			<dd style="width:40%;float:left;padding-left:10px;text-align:left;line-height: 30px;font-weight: bolder;color:#FFF;font-size:14px;">申请格瓦拉知道</dd>
+			<dd style="width:40%;float:right;padding-right:10px;text-align:right;line-height: 30px;color:#FFF;font-family: Comic Sans MS;font-size:12px;"><span onclick="GewaraUtil.hideDialog('expertWindow');" style="cursor: pointer;"><img src="${staticPath}css/pub/exit.png" alt="退出格瓦拉"/></span></dd>
+			<dd id="height0"></dd>
+		</dl>
+		<div style="width:416px;border-right:2px solid #F79456;border-left:2px solid #F79456;border-bottom:2px solid #F79456;background:#FFF;padding:10px 40px;">
+			<ul>
+				<li>
+					我申请
+					<select name="tag" id="tag" class="ml5 mr5">
+						<option value="">请选择</option>
+						<option value="cinema">电影</option>
+						<option value="ktv">KTV</option>
+						<option value="bar">酒吧</option>
+						<option value="gym">健身</option>
+						<option value="sport">运动</option>
+						<option value="drama">演出</option>
+					</select>专家
+				</li>
+				<li>我的优势：</li>
+				<li><textarea rows="6" class="pubinput" name="reason" id="reason" cols="45" style="height:60px"></textarea></li>
+			</ul>
+			<dl>
+				<dd style="width:70px;float:left;text-align:right;margin:10px 0;">&nbsp;</dd>
+				<dd class="left mt10"><label class="button whiteBt minBt left"><input type="submit" value="确 定" /></label><label class="button whiteBt minBt left ml20"><input type="button" onclick="GewaraUtil.hideDialog('expertWindow');" value="取 消" /></label></dd>
+				<dd id="height0"></dd>
+			</dl>
+		</div>
+	</form>
+</div>
+	<script type="text/javascript">
+<!--
+	function saveExpert(){
+		checkLogin(true,function(){
+			var values = GewaraUtil.getValues($("expertForm"));
+			GewaraUtil.sendRequest('${basePath}qa/applyExpert.xhtml', values, saveExpertCallBack);
+		});
+	}
+	function saveExpertCallBack(result){
+		if(result.success){
+			$("expertWindow").setStyle("display","none");
+			gewaUtil.alert("成功申请，请等待管理员审核");
+			GewaraUtil.hideDialog('expertWindow');
+			refreshPage();
+		}else {
+		if(result.msg) gewaUtil.alert(result.msg);
+		}
+	}
+	function showApplyDialog(tag,relatedid){
+		checkLogin(true,function(){
+			GewaraUtil.showDialog('expertWindow',null,true);
+		});
+	}
+//-->
+</script>

@@ -1,0 +1,400 @@
+<div class="person_info #if($!params.memberid)isMember#end">
+	#if($!params.memberid)
+	<div class="pinfo"><b>$!member.nickname</b>
+	#if($!VmUtils.eq($!memberInfo.sex,'男'))  <span class="address male">$!{liveplace}</span>#else <span class="address">$!{liveplace}</span> #end
+	</div>
+	<div class="tokll">
+	#if($!logonMember.id ne $!memberInfo.id) 
+		#if($!b)
+		<span id="cancelPersonTewasureId" class="mr10 cancelBox left"><span class="mr5">已关注</span>|<a href="javascript:void(0)" onclick="cancelMemberTreasure($!memberInfo.id,'micro')" class="ml5">取消</a></span>
+		<span id="personTewasureId" style="display:none"><a href="javascript:void(0)" class="apend_alink" onclick="addPersonMemberTreasure($!memberInfo.id,this)"><b>+</b>加关注</a></span>
+		#else
+		<span id="cancelPersonTewasureId" style="display:none" class="mr10 cancelBox left"><span class="mr5">已关注</span>|<a href="javascript:void(0)" onclick="cancelMemberTreasure($!memberInfo.id,'micro')" class="ml5">取消</a></span>
+		<span id="personTewasureId"><a href="javascript:void(0)" class="apend_alink" onclick="addPersonMemberTreasure($!memberInfo.id,this)"><b>+</b>加关注</a></span>
+		#end
+		<a href="$!{basePath}home/sns/message/receUserMsgList.xhtml" target="_blank" class="ml10 mr5">发私信</a>#*|<a href="" class="ml5">@Ta</a>*#
+	#end
+		#*<div class="isAd">
+			<div id="publicize"></div>
+			<div class="isAdC" id="navControl">
+				#if(!$VmUtils.isEmptyList($jsonMapList))
+				   #foreach($jsonmap in $jsonMapList)
+					#if($jsonmap.adtype eq 'picture')
+						<a href="$jsonmap.link" onclick="_gaq.push(['_trackEvent', 'AD', '$!jsonmap.pid', '$!jsonmap.logicaldir']);" class="nav" name="$VmUtils.randomPic('',$!jsonmap.adpath)" target="_blank" title="$jsonmap.title">$foreach.count</a>
+					#elseif($jsonmap.adtype eq 'flash')
+						<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" id="adflv" width="660" height="80" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=5,0,0,0">	 
+							 <param name="quality" value="high" />
+							 <param name="movie" value="$jsonmap.adpath">
+							 <param name="quality" value="high" />
+							 <param name="wmode" value="transparent" />
+							 <embed allowScriptAccess="always" src="$jsonmap.adpath" wmode="transparent" quality="high" width="660" height="80" name="myFlash" swLiveConnect="true" TYPE="application/x-shockwave-flash" PLUGINSPAGE="http://www.macromedia.com/go/getflashplayer"></embed>
+						</object>
+					#else
+					#end
+					#end
+				#end
+			</div>
+		</div>*#
+	</div>
+	#else
+	<div class="pinfo"><b>$!member.nickname</b>#if($!VmUtils.eq($!memberInfo.sex,'男'))  <span class="address male">$!{liveplace}</span> #else <span class="address">$!{liveplace}</span> #end<span class="editInfo"><a href="$!{basePath}home/acct/memberinfo.xhtml?tagNo=$VmUtils.getRandom()" target="_blank">改资料</a></span></div>
+	<div class="tokll">
+		<form action="" id="bodyForm">
+			<textarea rows="" cols="" id="textBody"></textarea>
+			<div class="ope">
+				<span class="buttons">
+					<span class="iserm" id="iserm">表情</span>
+					<span class="ispic" onclick="gewa.util.dialogSingleUpdate(this,'','textBody')">图片</span>
+					<span class="isvideo" onclick="gewa.util.getVideo(this);">视频</span>
+					<span class="istokll" onclick="moderate()">话题</span>
+					<label class="issys" for="Wb">同步到：
+						<input type="checkbox" id="Wb" title="新浪" lang="${basePath}home/bind/sina/userApp.xhtml?source=close"/>
+					</label>
+				</span>
+				<span class="right">
+					<span class="isfont" id="isFont">140</span>
+					<input type="button" value="" onclick="submitMicro()" class="issubmit"/>
+				</span>
+			</div>
+		</form>
+		<div class="my_gift" id="my_gift">
+			<span class="icon_month">$!DateUtil.getCurrentMonth()/$!DateUtil.getCurrentDay()</span>
+			<b class="icon_week">$!DateUtil.getCnWeek($!DateUtil.currentTime())</b>
+		</div>
+		#if(!$VmUtils.isEmptyList($jsonMapList))
+		<div class="isAd">
+			<div id="publicize"></div>
+			<div class="isAdC" id="navControl">
+		   #foreach($jsonmap in $jsonMapList)
+			#if($jsonmap.adtype eq 'picture')
+				<a href="$jsonmap.link" onclick="_gaq.push(['_trackEvent', 'AD', '$!jsonmap.pid', '$!jsonmap.logicaldir']);" class="nav" name="$VmUtils.randomPic('',$!jsonmap.adpath)" target="_blank" title="$jsonmap.title">$foreach.count</a>
+			#elseif($jsonmap.adtype eq 'flash')
+				<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" id="adflv" width="660" height="80" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=5,0,0,0">	 
+					 <param name="quality" value="high" />
+					 <param name="movie" value="$jsonmap.adpath">
+					 <param name="quality" value="high" />
+					 <param name="wmode" value="transparent" />
+					 <embed allowScriptAccess="always" src="$jsonmap.adpath" wmode="transparent" quality="high" width="660" height="80" name="myFlash" swLiveConnect="true" TYPE="application/x-shockwave-flash" PLUGINSPAGE="http://www.macromedia.com/go/getflashplayer">
+					 </embed>
+				</object>
+			#else
+			#end
+			#end
+			</div>
+		</div>
+		#end
+	</div>
+	#end
+</div>
+<div class="body_nav">
+	<div class="navs">
+		<a #if(!$!params.memberid) href="$!{basePath}home/sns/personIndex.xhtml?tagNo=$VmUtils.getRandom()" #else href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!member.id" #end  #if($!VmUtils.isNull($!tag))class="select" #end>全部哇啦</a>
+		<a #if(!$!params.memberid) href="$!{basePath}home/sns/personIndex.xhtml?tag=sport_activity,member_activity,commu_activity&tagNo=$VmUtils.getRandom()" #else href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!member.id&tag=sport_activity,member_activity,commu_activity&tagNo=$VmUtils.getRandom()" #end  #if($!VmUtils.eq($!tag,'sport_activity,member_activity,commu_activity'))class="select" #end>活动</a>
+		<a #if(!$!params.memberid) href="$!{basePath}home/sns/personIndex.xhtml?tag=movie_release,movie_down,movie_comment,member_movieagenda,member_cinema,member_movieagenda&tagNo=$VmUtils.getRandom()" #else href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!member.id&tag=movie_release,movie_down,movie_comment,member_movieagenda,member_cinema,member_movieagenda&tagNo=$VmUtils.getRandom()" #end #if($!VmUtils.eq($!tag,'movie_release,movie_down,movie_comment,member_movieagenda,member_cinema,member_movieagenda'))class="select" #end>电影</a>
+		<a #if(!$!params.memberid) href="$!{basePath}home/sns/personIndex.xhtml?tag=member_dramaagenda,member_theatre,member_dramaagenda&tagNo=$VmUtils.getRandom()" #else href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!member.id&tag=member_dramaagenda,member_theatre,member_dramaagenda&tagNo=$VmUtils.getRandom()" #end #if($!VmUtils.eq($!tag,'member_dramaagenda,member_theatre,member_dramaagenda'))class="select" #end>演出</a>
+		<a #if(!$!params.memberid) href="$!{basePath}home/sns/personIndex.xhtml?tag=sportservice,member_sport,member_sportagenda&tagNo=$VmUtils.getRandom()" #else href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!member.id&tag=sportservice,member_sport,member_sportagenda&tagNo=$VmUtils.getRandom()" #end #if($!VmUtils.eq($!tag,'sportservice,member_sport,member_sportagenda'))class="select" #end>运动心得</a>
+		<!--  <a href="$!{basePath}home/sns/personIndex.xhtml?tag=">ktv</a>
+		<a href="$!{basePath}home/sns/personIndex.xhtml?tag=">酒吧</a>-->
+		<a #if(!$!params.memberid) href="$!{basePath}home/sns/personIndex.xhtml?tag=commu_activity,member_commu&tagNo=$VmUtils.getRandom()" #else href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!member.id&tag=commu_activity,member_commu&tagNo=$VmUtils.getRandom()" #end #if($!VmUtils.eq($!tag,'commu_activity,member_commu'))class="select" #end>圈子</a>
+	</div>
+</div>
+<div class="bodys" id="_body">
+	<div class="ui_plugs_actions" id="actionsCantainer">
+		<div class="ui_plugs_time" id="_time">&nbsp;</div>
+		<div class="readyMore" id="readyMore"></div>
+	</div>
+</div>
+<div class="changeNode" id="changeNode">
+	<dl class="select">
+		<dt>$!{curYear}年</dt>
+		<dd>
+			<a href="" lang="现在" style="display:none;">现在</a>
+			#foreach($x in[$!curMonth..1])
+			#if($foreach.index eq 0)<a href="" rel="$!{curYear}-$!{x}-1" lang="本月">本月</a>
+			#else
+			<a href="" rel="$!{curYear}-$!{x}-1" lang="$x月">$x月</a>
+			#end
+			#end
+		</dd>
+	</dl>
+	<dl>
+		<dt>$!yYear年</dt>
+		<dd style="dislpay:none">
+			#foreach($x in[12..1])
+			<a href="" rel="$!{yYear}-$!{x}-1" lang="#if($foreach.index eq 0)$!{yYear}-#end$!{x}月">$x月</a>
+			#end
+		</dd>
+	</dl>
+	<dl>
+		<dt>$!yyYear年</dt>
+		<dd style="dislpay:none">
+			#foreach($x in[12..1])
+			<a href="" rel="$!{yyYear}-$!{x}-1" lang="#if($foreach.index eq 0)$!{yyYear}-#end$!{x}月">$x月</a>
+			#end
+		</dd>
+	</dl>
+</div>
+<div class="gainPanel" id="userGainId" style="display:none">
+	#parse('include/home/userGain.vm')
+</div>
+<script type="text/javascript">
+var isWbOpen=true;
+var isBind = function(el){
+	if($(el)){
+		$(el).checked = true;
+		isWbOpen = false;
+	}
+	if(gewa.util.container['syscing'])gewa.util.container['syscing'].dispose('syscing');
+};
+var walaManager = $empty;
+window.addEvent('domready',function(){
+	walaManager = new messageManager({'userheader':#if($!params.memberid) '$VmUtils.randomPic('cw50h50',$logonMemberInfo.headpicUrl)' #else '$VmUtils.randomPic('cw50h50',$memberInfo.headpicUrl)' #end,'values':{'memberid':'$!member.id','type':'$!type','tag':'$!tag'}});
+	if($('iserm')){
+		var isIcon = new Icon();
+		$('iserm').addEvent('click',function(){
+			isIcon.innerHTML(this,'textBody');
+		})
+	}
+	if($('textBody'))new modifyTextArea('textBody','isFont');
+	var scroll = new ScrollWala({
+		onEnter: function() {
+			walaManager.isFrist = true;
+			walaManager.requestHTML();//滚动时加载数据
+		},
+		onDeep:function(){
+			this.options.deep = walaManager.options.deep;//设置数据下拉显示的位置
+		},
+		onCommand:function(){
+			if(this.commandList.length > 0){
+				var link = document.getElements('a[rel='+this.commandList[0].get('data')+']');
+				if(link.length > 0)walaManager.goWorlk(link[0]);
+			}
+		}
+	});
+	walaManager.requestHTML();//获取默认数据
+	if($('Wb')){
+		gewara.util.sendRequest('${basePath}ajax/member/synchroizaInfo.xhtml',{'rights':'moviecomment'},function(result){
+			if(result.success){
+				if(result.appList){
+					if(result.appList.contains('sina')){
+						$('Wb').checked=true;
+						isWbOpen = false;
+					}
+				}
+			}
+		});
+		$('Wb').addEvent('click',function(){
+			if(isWbOpen){
+				this.checked = '';
+				checkLogin(true, function(){
+					syscData(this.get('lang'),this.get('title'),'sina',this);
+				}.bind(this));
+			}
+		});
+	}
+	if($('my_gift')){
+		$('my_gift').addEvent('click',function(){
+			GewaraUtil.openwin('${basePath}everday/acct/mygift.xhtml','_blank');
+		});
+	}
+});
+window.addEvent('resize',function(){
+	walaManager.datePos();
+});
+
+function open(){
+	syscData('${basePath}home/bind/sina/userApp.xhtml?source=close','新浪微博','sina');
+}
+function syscData(url,title,tag){
+	var html = "",width=600;
+	if(tag == 'sina'){
+		html = new Element('iframe',{
+			'frameborder':0,
+			'scrolling':'no',
+			'height':'368',
+			'width':'600',
+			'src':url
+		});
+	}else{
+		html = new Element('div',{
+			'styles':{
+				'width':'620px',
+				'height':window.ActiveXObject?'380px':'330px',
+				'overflow':'hidden'
+			}
+		});
+		new Element('iframe',{
+			'frameborder':0,
+			'scrolling':'no',
+			'height':'850',
+			'width':'810',
+			'src':url,
+			'styles':{
+				'margin-top':'-280px',
+				'margin-left':'-160px'
+			}
+		}).inject(html);
+		width = 650;
+	}
+	gewa.util.maskContent('',html,'正在设置'+title+'的同步功能！',width,'syscing');
+}
+
+function submitMicro(){
+	var txt = $('textBody'),say_area = txt.value;
+	if(!$chk(say_area)){
+		txt.highlight('#f66d6d', '#fff');
+		return false;
+	}
+	if(say_area.length>140){
+		gewaUtil.alert('哇啦内容长度不可以超过140个字');
+		return false;
+	}
+	var contmp = '#请在这里输入自定义话题#';
+	if(say_area.contains(contmp)){
+		//showError.show('textBody');
+		moderate();
+		return false;
+	}
+	submitMicroDny();
+}
+//话题
+function moderate(){
+	var con = arguments[0]?arguments[0]:"请在这里输入自定义话题";
+	var contmp = "#"+con+"#";
+	var say_area = $('textBody').value; 
+	if(say_area.contains(contmp)){
+		$('textBody').value = say_area.replace(contmp, '');
+	}
+	$("textBody").value += "#"+con+"#";
+	var l = $("textBody").value.length;
+	if($("textBody").createTextRange){//IE浏览器
+			var range = $("textBody").createTextRange();
+			range.moveEnd("character",-l);
+			range.moveEnd("character",l-1);
+			range.moveStart("character", l-1-con.length);
+			range.select();
+	}else{
+			$("textBody").setSelectionRange(l-1-con.length,l-1);
+			$("textBody").focus();
+	}
+}
+function submitMicroDny(){
+	var url = '${basePath}home/sns/addMicroBlogDny.xhtml';
+	var videovalue = '';
+	var bodypic = '';
+	if($('video')){
+		videovalue = $('video').value;
+	}
+	if(document.getElement('input[name=bodypic]')){
+		bodypic =document.getElement('input[name=bodypic]').value;
+	}
+	var microbody = $('textBody').value;
+	var values = {'micrbody':microbody,'video':videovalue,'bodypic':bodypic,'tag':'topic','relatedid':null};
+	var doms = new Element('div');
+	GewaraUtil.sendLoad(doms,url, values, function(result){
+		if(result.success){
+			//gewaUtil.alert("发送成功",refreshPage);
+			walaManager.currentMessage(result.html);
+			$('textBody').value="";
+		}else{
+			badEggAlert(result.json.msg);
+			gewaUtil.alert(result.json.msg);
+		}
+	});
+}
+function badEggAlert(status){
+	if(status == '1'){
+		gewaUtil.alert('您的发表体验机会已用完，完善账户信息就可以使用哇啦、站内信、活动、知道、论坛的所有功能啦！', function(){gotoURL('${basePath}home/acct/safetyCenter.xhtml')});
+	}else if(status == '7'){
+		gewaUtil.alert('您的发表体验机会已用完，确认您的邮件地址就可以使用哇啦、站内信、活动、知道、论坛的所有功能啦！', function(){gotoURL('${basePath}home/acct/safetyCenter.xhtml')});
+	}else if(status == '0'){
+		gewaUtil.alert('非法请求！');
+	}else if(status == '51'){
+		gewaUtil.alert('操作过于频繁！');
+	}
+	if(status =='1' || status=='7' || status == '0' || status == '51'){
+		return;
+	}
+}
+function replyOther(el,con){
+	var content = con + ":";
+	$('body').value = content;
+}
+function deleteReComment(id,recommentid){
+	gewaUtil.confirm("确认要删除吗?", function(){
+		var url = '${basePath}home/sns/deleteMicroReComment.xhtml?r=' + GewaraUtil.rtime();
+		var values = {'mid':recommentid};
+		GewaraUtil.sendRequest(url, values , function(result){
+			if(result.success){
+				document.getElement('div[id='+recommentid+']').set('dissolve', {duration: 'long',onComplete:function(){
+					this.dispose()
+				}.bind(document.getElement('div[id='+recommentid+']'))}).dissolve();
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	})
+}
+
+function deleteAblmComment(recommentid){
+	gewaUtil.confirm("确认要删除吗?", function(){
+		var url = '${basePath}home/sns/ajax/deleteAlbumComment.xhtml?r=' + GewaraUtil.rtime();
+		var values = {'commentid':recommentid};
+		var replyid = 'a'+recommentid;
+		GewaraUtil.sendRequest(url, values , function(result){
+			if(result.success){
+				$(replyid+'').hide();
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	})
+}
+
+/**
+**哇啦，添加关注
+***/
+function addPersonMemberTreasure(memberid,obj){
+	checkLogin(true, function(){
+		var url = GewaraUtil.basePath + "wala/addMicroAttention.xhtml";
+		new Request({
+			url:url,
+			method:'get',
+			onSuccess:function(resText){
+				eval(resText);
+				if(data.success){
+					$('personTewasureId').hide();
+					$('personTewasureId').getParent().getElement('b').hide();
+					$('cancelPersonTewasureId').setStyle('display','inline');
+				}else{
+		 			gewaUtil.alert(data.msg);
+				}
+				
+			}
+		}).send({'data':{'memberid':memberid}});
+	});
+}
+
+/**
+*取消关注人
+*/
+function cancelMemberTreasure(memberid,tag){
+	checkLogin(true, function(){
+		var url = GewaraUtil.basePath +"wala/cancelAttention.xhtml";
+		var values = {'memberid':memberid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				if(tag == 'micro'){
+					$('personTewasureId').setStyle('display','inline');
+					$('personTewasureId').getParent().getElement('b').setStyle('display','inline');
+					$('cancelPersonTewasureId').hide();
+				}else{
+	 				gewaUtil.alert(data.retval);
+	 			}
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		}, 'get');
+	});
+}
+</script>

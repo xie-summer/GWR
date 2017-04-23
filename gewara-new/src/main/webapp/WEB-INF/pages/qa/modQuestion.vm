@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<title>格瓦拉-知道</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,qa,sns&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.plug .tales80{padding-left:80px;}
+		.plug .tales80 dt{margin-left:-80px;_margin-left:-40px;width:80px;}
+		.plug .tales60 .text{height:20px;background-position:right -654px;width:500px;padding:8px 8px 7px 0;}
+		.plug .tales60 .label{height:36px;background-position:0 -654px;padding:0px 0px 0px 8px;}
+		.plug .tales60 .labelHover{background-position:0 -704px}
+		.plug .tales60 .labelHover .text{background-position:right -704px}
+		.plug .tales60 dd{font-size:12px;display: table-cell;vertical-align: middle;}
+		.plug_tales dt{margin-top:0px;}
+		.plugFooter{height:22px;padding:5px 10px;background:#eee;}
+		.ui_80{padding-left:80px;}
+		.ui_80 dt{float:left;margin-left:-80px;_margin-left:-40px;text-align: right;color:#666;width:76px;}
+		.ui_80 dt b{display:block;margin:3px 8px 0 0;color:#333}
+		.ui_80 dd{float:left;width:100%;overflow:hidden;}
+		.ui_80 a{display: inline-block;width:auto;margin:0 6px 10px 0;}
+		.plugpanel .line{position: relative;z-index: 2;width:100%;height:0px;}
+		.textInfo{display:inline-block;margin-top:8px;float:left;margin-left:5px;}
+		.gr-r,.gr-l{width:50%;}
+		.plug_tales .button img,.ui_80 .button img{top:6px;left:auto;right:5px;background:url(${picPath}css/home/c_del.png) no-repeat;width:7px;height:7px;}
+		.plug_tales .button span,.ui_80 .button span{padding-right:16px;}
+		.plug .tales60 .w120{width:128px;}
+		.plug .tales60 .w120 .text{width:120px;}
+		.cke_skin_chris{width:590px !important;border-bottom:1px solid #bbb;float:left;}
+		.crumbs{position: relative;height:20px;line-height:20px;margin:0px 10px;border-bottom:1px solid #bbb}
+	</style>
+</head>
+<body>
+#set($tag="qa") #set($isqa=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+#parse('include/constant/cityParam.vm')
+<div class="gb-qa-panel plug">
+	<form id="questionForm" action="javascript:saveQuestion()">
+		<input type="hidden" name="logonuserid" value="$logonMember.id" />
+		<div class="gb-l">
+		<input type="hidden" name="id" id="id" value="$!{question.id}"/>
+		<div class="crumbs">
+			<a href="${basePath}">格瓦拉生活网</a>
+			<a href="${basePath}qa">知道</a>
+			<span>提问</span>
+			<span class="gr-r" style="width:100%"></span>
+		</div>
+		<dl class="tales60 tales80 mt20">
+			<dt>提问标题：</dt>
+			<dd>
+				<div class="clear"><label class="text label">
+				<input type="text" name="title" id="title" value="$!{question.title}" class="text"  mustTxt="请输入标题!" alt="请输入标题，最多不超过50字"/></label><br/></div>
+				<span class="gray">例如：练习瑜伽有什么帮助？</span>
+			</dd>
+		</dl>
+		<dl class="tales60 tales80 plug_tales">
+			<dt>问题关联：</dt>
+			<dd id="toplug" style="height:24px;overflow:hidden;position: relative;">
+				<div>
+					#set($activity = $question)
+					<label for="no0"><input type="radio" name="tag" class="switchDis" value="" id="no0" lang="" #if(!$activity.tag)checked="checked"#end/>不关联</label>
+					#if($VmUtils.contains($cityOtherRelate,'movie'))<label class="ml10" for="no_cinema"><input name="tag"  class="switchDis" id="no_cinema" lang="cinema" title="影片/影院"  type="radio" value="cinema" #if($VmUtils.eq($activity.tag, 'cinema'))checked="checked"#end align="middle"/>电影</label>#end
+					#if($VmUtils.contains($cityOtherRelate,'ktv'))<label class="ml10" for="no_ktv"><input name="tag"  class="switchDis" id="no_ktv" type="radio" lang="ktv" title="ktv场馆" value="ktv" #if($VmUtils.eq($activity.tag, 'ktv'))checked="checked"#end/>KTV</label>#end
+					#if($VmUtils.contains($cityOtherRelate,'bar'))<label class="ml10" for="no_bar"><input name="tag"  class="switchDis" id="no_bar" type="radio" lang="bar" title="酒吧场馆" value="bar" #if($VmUtils.eq($activity.tag, 'bar'))checked="checked"#end/>酒吧</label>#end
+					#if($VmUtils.contains($cityOtherRelate,'gym'))<label class="ml10" for="no_gym"><input name="tag"  class="switchDis" id="no_gym" type="radio" lang="gym" title="项目/场馆" value="gym" #if($VmUtils.eq($activity.tag, 'gym'))checked="checked"#end/>健身</label>#end
+					#if($VmUtils.contains($cityOtherRelate,'sport'))<label class="ml10" for="no_sport"><input name="tag"  class="switchDis" id="no_sport" type="radio" lang="sport" title="项目/场馆" value="sport" #if($VmUtils.eq($activity.tag, 'sport'))checked="checked"#end/>运动</label>#end
+					#if($VmUtils.contains($cityOtherRelate,'drama'))<label class="ml10" for="no_theatre"><input name="tag"  class="switchDis" id="no_theatre" type="radio" lang="theatre" title="演出场馆" value="theatre" #if($VmUtils.eq($activity.tag, 'theatre'))checked="checked"#end/>演出</label>#end
+					#if($VmUtils.contains($cityOtherRelate,'activity'))<label class="ml10" for="no_activity"><input name="tag"  class="switchDis" id="no_activity" type="radio" lang="activity" title="活动" value="activity" #if($VmUtils.eq($activity.tag, 'activity'))checked="checked"#end/>活动</label>#end
+				</div>
+			</dd>
+		</dl>
+		<dl class="tales60 tales80 plug_tales">
+			<dt>赏经验值：</dt>
+			<dd>
+				<span class="textInfo" style="margin:0px 10px 0 0;">
+					<select id="reward" name="reward">
+					#foreach($num in [0..10])
+					#set($reward=$num*10)
+					<option value=$reward #if($reward eq $!{question.reward}) selected #end>$reward</option>
+					#end
+					</select>
+				</span>
+				<span class="textInfo" style="margin:0px;">你目前的经验值：$!expvalue</span>
+			</dd>
+		</dl>
+		<dl class="tales60 tales80 plug_tales">
+			<dt>问题描述：<br/>（选填）</dt>
+			<dd><textarea class="textarea" name="content" id="content">$!{question.content}</textarea></dd>
+		</dl>
+		<div class="tales80">
+			<label for="withmicroblog"><input type="checkbox" name="withmicroblog" id="withmicroblog" value="1" />同时发表到"哇啦"</label>
+		</div>
+		<dl class="tales60 tales80">
+			<dt>验证码：</dt>
+			<dd>
+				
+				<input type="hidden" name="captchaId" id="captcha" />
+				<label class="text label w120"><input type="text" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" size="18" onfocus="GewaraUtil.refreshCaptcha('captcha');"/></label><span class="yellow">*</span>
+				<img id="captchaImg" src="${staticPath}css/images/blank.gif" style="cursor: pointer;vertical-align:middle;" onclick="GewaraUtil.refreshCaptcha('captcha');" title="看不清楚，请点击换一张图片"/>
+			</dd>
+		</dl>
+		<div class="tales80" id="jsq"><label class="button bigBt"><input id="disBtn" type="submit" value="发表提问"/></label></div>
+	</div>
+	</form>
+	#parse('include/qaright.vm')
+	<div id="height0"></div>
+</div>
+<script type="text/javascript">
+var tag='$!question.tag';
+function saveQuestion(){
+	checkLogin(true,function(){
+		var url = '${basePath}qa/saveQa.xhtml'
+		var values = GewaraUtil.getValues("questionForm");
+		gewa.util.mask({'element': "disBtn",'title':'正在提交，请稍等...'});
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				document.location.href="${basePath}qa/q" + result.retval;
+			}else{
+				gewa.util.clearMask();
+				if(result.retcode){
+					if(result.retcode == '403'){
+						gewaUtil.alert(result.retmsg, function(){gotoURL(result.returl)});
+					}
+				}else{
+					badEggAlert(result.msg);
+					gewaUtil.alert(result.msg);
+					GewaraUtil.refreshCaptcha('captcha');
+				}
+			}
+		})
+	});
+}
+function badEggAlert(status){
+	if(status == '1'){
+		gewaUtil.alert('您的发表体验机会已用完，完善账户信息就可以使用哇啦、站内信、活动、知道、论坛的所有功能啦！', function(){gotoURL('${basePath}home/acct/safetyCenter.xhtml')});
+	}else if(status == '7'){
+		gewaUtil.alert('您的发表体验机会已用完，确认您的邮件地址就可以使用哇啦、站内信、活动、知道、论坛的所有功能啦！', function(){gotoURL('${basePath}home/acct/safetyCenter.xhtml')});
+	}else if(status == '0'){
+		gewaUtil.alert('非法请求！');
+	}else if(status == '51'){
+		gewaUtil.alert('操作过于频繁！');
+	}
+	if(status =='1' || status=='7' || status == '0' || status == '51'){
+		GewaraUtil.refreshCaptcha('captcha');
+		return;
+	}
+}
+window.addEvent('domready',function(){
+	gewaUtil.textOver('.text');
+	updateModify();
+});
+function updateModify(){
+	var defiend = new modifyDefiend('.switchDis',{'to':'toplug','cookieCitycode':'$!{cookieCitycode}'});
+	var mapList = new Hash(),relList = new Hash(),catList = new Hash();
+	var related = {'rel':'relatedid','id':'$!activity.relatedid','name':'','text':'$!relate.name','lang':'$!{activity.tag}'}
+	var category = {'rel':'categoryid','id':'$!{activity.categoryid}','name':'$!{activity.category}','text':'$!{relate2.name}','lang':'#if(!$!activity.relatedid)$!{activity.tag}#end'}
+	relList.extend(related);
+	catList.extend(category);
+	mapList.set(0,relList);
+	mapList.set(1,catList);
+	mapList.each(function(item){
+		if(item.get('id'))defiend.reset(item);
+	})
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

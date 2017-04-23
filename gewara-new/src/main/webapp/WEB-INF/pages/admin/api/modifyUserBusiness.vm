@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>API用户管理</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		label {display:inline-block;width:120px;text-align:right;padding:1px 0 1px 0;margin-top:10px}
+		input,textarea { width:550px; display:inline}
+	</style>
+</head>#set($mkeyMap = {'A':'纯API调用 支付方式是合作商',
+							  'B':'选择影院和影片场次是API，选择座位是iframe嵌入 支付方式是合作商',
+							  'C':'选择影院和影片场次是API，选择座位是iframe嵌入 支付方式是格拉瓦', 
+							  'D':'纯iframe嵌入 支付方式是合作商',
+							  'E':'纯iframe嵌入 支付方式是格瓦拉',
+							  'F':'选择影院和影片是API，选择购票调转到格瓦拉'})
+<body class="yui-skin-sam" style="margin:auto">
+<div id="movieDialog" class="yui-panel" style="width:780px;margin:auto">
+	<div class="hd">[API账户管理]</div>
+	<div class="bd">
+		<form name="apiUserForm" id="apiUserForm" action="${basePath}admin/api/saveUserBusiness.xhtml" method="post">
+			<input type="hidden" name="uid" value="$!{params.uid}"/>
+			<div>
+				<label for="onTime">上线日期：</label>
+				<input name="onTime" value="$!DateUtil.formatTimestamp(${apiUser.onTime})" 
+					class='Wdate' readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width: 160px;"/>
+			</div>
+			<div>
+				<label for="offTime">下线日期：</label>
+				<input name="offTime" value="$!DateUtil.formatTimestamp(${apiUser.offTime})" 
+					class='Wdate' readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width: 160px;"/>
+			</div>
+			<div>
+				<label for="showModel">展示方式：</label>
+				<select name="showModel">
+					<option value="" #if($VmUtils.isBlank($apiUser.showModel))selected="selected"#end>请选择</option>
+					<option value="PC" #if($VmUtils.eq($apiUser.showModel,'PC'))selected="selected"#end>PC端</option>
+					<option value="WAP" #if($VmUtils.eq($apiUser.showModel,'WAP'))selected="selected"#end>WAP</option>
+					<option value="IOS" #if($VmUtils.eq($apiUser.showModel,'IOS'))selected="selected"#end>IOS</option>
+					<option value="ANDROID" #if($VmUtils.eq($apiUser.showModel,'ANDROID'))selected="selected"#end>Android</option>
+					<option value="TV" #if($VmUtils.eq($apiUser.showModel,'TV'))selected="selected"#end>电视机</option>
+				</select>
+			</div>
+			<div>
+				<label for="coopModel">合作模式：</label>
+				<select name="coopModel">
+					<option value="" #if($VmUtils.isBlank($apiUser.coopModel))selected="selected"#end>请选择</option>
+					#foreach($mkey in $mkeyMap.keySet())
+					<option value="$mkey" #if($VmUtils.eq($apiUser.coopModel,$mkey))selected="selected"#end>$mkeyMap.get($mkey)</option>
+					#end
+				</select>
+			</div>
+			<div>
+				<label for="createOrder">是否支持下单：</label>
+				<select name="createOrder">
+					<option value="Y" #if($VmUtils.eq($apiUser.createOrder,'Y'))selected="selected"#end>是</option>
+					<option value="N" #if($VmUtils.eq($apiUser.createOrder,'N'))selected="selected"#end>否</option>
+				</select>
+			</div>
+			<div>
+				<label for="moneyto">收款方：</label>
+				<select name="moneyto">
+					<option value="" #if($VmUtils.isBlank($apiUser.moneyto))selected="selected"#end>请选择</option>
+					<option value="GEWA" #if($VmUtils.eq($apiUser.moneyto,'GEWA'))selected="selected"#end>格瓦拉</option>
+					<option value="PARTNER" #if($VmUtils.eq($apiUser.moneyto,'PARTNER'))selected="selected"#end>合作商</option>
+				</select>
+			</div>
+			<div>
+				<label for="gewaBusUser">格瓦拉商务负责人：</label>
+				<input name="gewaBusUser" value="$!{apiUser.gewaBusUser}"/>
+			</div>
+			<div>
+				<label for="gewaTecUser">格瓦拉技术负责人：</label>
+				<input name="gewaTecUser" value="$!{apiUser.gewaTecUser}"/>
+			</div>
+			<div>
+				<label for="partnerBusUser">合作商商务联系人：</label>
+				<input name="partnerBusUser" value="$!{apiUser.partnerBusUser}"/>
+			</div>
+			<div>
+				<label for="partnerTecUser">合作商技术联系人：</label>
+				<input name="partnerTecUser" value="$!{apiUser.partnerTecUser}"/>
+			</div>
+			<div>
+				<label for="webSite">线上地址：</label>
+				<input name="webSite" id="webSite" value="$!{apiUser.webSite}"/>
+			</div>
+			<div>
+				<label for="remark">其他描述：</label>
+				<textarea rows="10" cols="2" name="remark">$!{apiUser.remark}</textarea>
+			</div>
+			<div>
+				<input type="submit" value="保存" style="width: 50px;"/>
+			</div>
+		</form>
+	</div>
+</div>
+</body>
+</html>

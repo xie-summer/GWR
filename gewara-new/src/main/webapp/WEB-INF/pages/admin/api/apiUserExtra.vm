@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>API扩展管理</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<style>
+		label {display:inline-block;width:120px;text-align:right;padding:1px 0 1px 0;margin-top:5px}
+		input,textarea { width:450px; display:inline}
+	</style>
+</head>
+<body class="yui-skin-sam" style="margin:auto">
+<div id="movieDialog" class="yui-panel" style="width:700px;margin:auto">
+	<div class="hd">[API扩展管理]</div>
+	<div class="bd">
+	<form name="apiUserForm" id="apiUserForm" action="javascript:extraUser()" method="post">
+		<input type="hidden" name="uid" value="$!{apiUser.id}"/>
+		<div>
+			<label for="partnername">公司名称：<font color="red">$!{apiUser.partnername}</font></label>
+		</div>
+		<div>
+			<label for="openDiscount">是否支持优惠：</label>
+			<select name="openDiscount" style="width:100px;">
+				<option value="N" #if($userExtra.openDiscount eq 'N' || $VmUtils.isBlank($userExtra.openDiscount))selected="selected"#end>不支持</option>
+				<option value="Y" #if($userExtra.openDiscount eq 'Y')selected="selected"#end>支持</option>
+			</select>
+		</div>
+		<div>
+			<label for="paymethod">支付方式：</label>
+			<textarea name="paymethod" style="width:520px;" rows="5">$!{userExtra.paymethod}</textarea>
+		</div>
+		<div>
+			<label for="specialmethod">特殊支付方式：</label>
+			<input name="specialmethod" type="text" value="$!{userExtra.specialmethod}"  style="width:520px;"/>
+			<div class="yellow" style="margin-left: 50px;">（默认不显示，特价活动时显示）</div>
+		</div>
+		<div>
+			<label for="chargemethod">默认充值支付方式：</label>
+			<input name="chargemethod" type="text" value="$!{userExtra.chargemethod}"  style="width:520px;"/>
+		</div>
+		<div>
+			<label for="proxyqry">订单反查询url：</label>
+			<input name="proxyqry" type="text" value="$!{userExtra.proxyqry}"  style="width:520px;"/>
+		</div>
+		<div>
+			<label for="authFields">高级字段认证：</label>
+			<textarea name="authFields">$!{userExtra.authFields}</textarea>
+		</div>
+		<div>
+			<label for="sourcemethod">渠道支付方式：</label>
+			<textarea name="sourcemethod">$!{userExtra.sourcemethod}</textarea>
+		</div>
+		<div>
+			<label for="otherinfo">其他信息：</label>
+			<textarea name="otherinfo">$!{userExtra.otherinfo}</textarea>
+		</div>
+		<div>
+			<input type="submit" value="保存" style="width: 50px;"/>
+		</div>
+		</form>
+	</div>
+	<div>
+	<table cellpadding="0" cellspacing="0" width="100%" border="1" style="border-collapse: collapse">
+	#foreach($paymethod in $paytextMap.keySet())
+	<tr>
+		<td>$paymethod</td>
+		<td>$paytextMap.get($paymethod)</td>
+ 	</tr>
+ 	#end
+ 	</table>
+ 	</div>
+</div>
+
+<script type="text/javascript">
+function extraUser(){
+	var url = "${basePath}admin/api/saveApiUserExtra.xhtml";
+	var values = GewaraUtil.getValues('apiUserForm');
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('保存成功！');
+		}else alert(result.msg);
+	});
+}
+
+</script>
+</body>
+</html>

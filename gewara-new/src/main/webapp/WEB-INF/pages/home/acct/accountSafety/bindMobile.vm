@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>绑定手机_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	#parse('home/acct/accountSafety/style.vm')
+</head>
+<body>
+#set($ishome=true)#set($safetyCenter = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			<div class="mod_tLine">
+				<div class="mod_hd"><h2>绑定手机</h2></div>
+				<div class="clew mt15" style="padding:5px 10px;">提示：#if($!params.flag && $!params.flag eq "pass")<span style="color:red">为了你的账户安全，设置支付密码之前，请先绑定手机；</span>#else为了你的账号安全,#end手机号一旦绑定后，只能更换不能解除绑定！</div>
+				<div class="mod_bd">
+				<form name="saveForm" id="saveForm">
+					<div class="modifyBox">
+						<ul>
+                      <li>
+                      	<div class="ui_media">
+									<div class="ui_pic">
+                             <span class="red ffst mr5">*</span>手机号：
+                           </div>
+                           <div class="ui_text">  
+                             <input name="mobile" id="mobile" type="text" class="text"/>
+                           </div>
+                          </div>            
+                      	<div class="ui_media mt15 clear" style="display:none;" id="showPassCaptcha">
+									<div class="ui_pic">
+                              <span class="red ffst mr5">*</span> 验证码：
+                           </div>
+                           <div class="ui_text">   
+                              <input type="hidden" name="captchaId" id="captchaMobile" />
+										<input type="hidden" name="tag" value="bind" />
+										<label class="label" for="captchaMobileInput" style="width:90px;"><input type="text" class="text captcha" id="captchaMobileInput" name="captcha" alt="点击获取" autocomplete="off"  style="width:90px" onfocus="GewaraUtil.refreshCaptcha('captchaMobile');"/></label>
+										<img id="captchaMobileImg" width="80" height="30" class="ml10 mt10" src="${staticPath}css/images/blank.gif" style="cursor: pointer; margin-bottom:10px;" onclick="GewaraUtil.refreshCaptcha('captchaMobile');" title="看不清楚，请点击换一张图片"/>			
+                           </div>
+                          </div>
+                          <div class="ui_media mt15">
+                          		<div class="ui_pic">&nbsp;</div>
+                               <div class="ui_text">   
+                              	<input type="button"  value="获取短信动态码" id="sendCkPs" class="btn whiteBtn"/>
+                              </div>
+                          </div>
+	                      #if($!hasPayPass)
+	                       <div class="ui_media mt15">
+	                           <div class="ui_pic">
+	                           	<span class="red ffst mr5">*</span> 支付密码： 
+	                           </div>
+	                           <div class="ui_text">
+	                           	<input name="password" id="password" type="password" class="text"/><span class="ml10">若忘记支付密码，请拨打客服热线4000-406-506验证后找回。</span>
+	                           </div>
+	                       </div>
+	                      #end
+                      	<div class="ui_media mt15">
+                           <div class="ui_pic">
+                          		<span class="red ffst mr5">*</span>短信动态码：
+                          	</div>
+                          	<div class="ui_text">
+                          		<input id="checkpass" name="checkpass" type="text" class="text"/>
+                          		<p class="mt20">
+                          			<a id="upMobileBtn" class="btn redBtn">完成绑定</a> #if($!params.flag && $!params.flag eq "pass")<span class="ml10">完成绑定后将进行支付密码设置</span>#end
+                          		</p> 
+                          	</div>
+                          </div>
+                  	</li>
+                  </ul>
+					</div>
+					</form>
+					<div class="clew mt15">
+						<ul class="ui_abeam maxw94">
+							<li class="abeam" style="padding:10px;margin:0;">
+								<div class="uipic"><img src="${picPath}css/home/ico_g.gif" class="mt5" /></div>
+								<div class="uiText">
+									<b>手机绑定可以做什么?</b>
+									<p>1、手机绑定后可以使用绑定的手机号码和登录密码登录格瓦拉生活网；</p>
+									<p>2、手机绑定后购买格瓦拉站内商品不需要重复输入手机号，系统默认会把绑定的手机号传到购票页面内；</p>
+									<p>3、手机绑定后将有特权参加站内抽奖、竞拍等优惠活动；</p>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+var isPhnoeCode2 = false;
+window.addEvent('domready',function(){
+	if($('sendCkPs')){
+		$('sendCkPs').addEvent('click',function(){
+			resend();
+		});
+	}
+	if($('upMobileBtn')){
+		$('upMobileBtn').addEvent('click',function(){
+			upMobile();
+		});
+	}
+	#if($!needCaptcha)
+		GewaraUtil.refreshCaptcha('captchaMobile');
+		$('showPassCaptcha').show();
+		isPhnoeCode2 = true;
+	#end
+});
+var second = 60,clearTime='';
+GetRTime = function (){  
+	if(second>=0){
+		var txt = '';
+		if($('sendCkPs')){
+			if(second == 0){
+				txt = '重新获取动态码';
+				$("sendCkPs").removeClass('botton_count_off');
+				$("sendCkPs").addEvent('click',function(){resend();});
+				if(isPhnoeCode2 && $('showPassCaptcha').getStyle('display') == 'none'){
+					GewaraUtil.refreshCaptcha('captchaMobile');
+					$('showPassCaptcha').show();
+				}
+			}else{
+				txt = second + '秒后重新获取';
+				$("sendCkPs").addClass('botton_count_off');
+			}
+			$('sendCkPs').value = txt;
+		}
+		second = second-1;
+	}else {  
+		if(clearTime)$clear(clearTime);
+		if($('sendCkPs')){
+			$("sendCkPs").addEvent('click',function(){resend();});
+			$("sendCkPs").setStyle("cursor","pointer"); 
+		}
+	}  
+} 
+resend = function(){
+	if(isPhnoeCode2 && $('showPassCaptcha').getStyle('display') == 'none'){
+		GewaraUtil.refreshCaptcha('captchaMobile');
+		$('showPassCaptcha').show();
+		return false;
+	}
+	if(isPhnoeCode2 && $('captchaMobileInput').value == ''){
+		GewaraUtil.showValidateErr('captchaMobileInput','请输入验证码！');
+		return false;
+	}
+	if($('mobile')){
+		if(!$('mobile').value){
+			gewaUtil.alert('请输入手机号码！');
+			return;
+		}
+	}
+	gewa.util.mask({'element': "sendCkPs",'title':'正在提交，请稍等...'});
+	var values = GewaraUtil.getValues('saveForm');
+	GewaraUtil.sendRequest('${basePath}home/acct/bmckps.xhtml', values, function(result){
+		gewa.util.clearMask();
+		if(result.refreshCaptcha){
+			isPhnoeCode2 = true;
+		}
+		if(result.success){
+			gewaUtil.alert(result.retval);
+			retime();
+			$('showPassCaptcha').hide();
+		}else{
+			if(result.msg) {
+				gewaUtil.alert(result.msg);
+			}else{
+				$('showPassCaptcha').show();
+				GewaraUtil.showErrorMsg('saveForm',result.errorMap);
+				GewaraUtil.refreshCaptcha('captchaMobile');
+			}
+		}
+	}, 'get');
+}
+retime = function(){
+	$("sendCkPs").removeEvents('click');
+	$("sendCkPs").setStyle("cursor","text");
+	second = 60;
+	if(clearTime)$clear(clearTime);
+	clearTime = GetRTime.periodical(1000);
+}
+upMobile = function(){
+	if($('mobile')){
+		if(!$('mobile').value){
+			gewaUtil.alert('请输入手机号码！');
+			return;
+		}
+	}
+	#if($!hasPayPass)
+	if(!$('password').value){
+		gewaUtil.alert('请输入支付密码！');
+		return;
+	}
+	#end
+	if(!$('checkpass').value){
+		gewaUtil.alert('请输入手机验证码！');
+		return;
+	}
+	var url = '${basePath}home/acct/sendBindMobile.xhtml';
+	GewaraUtil.mask("upMobileBtn");
+	var values = GewaraUtil.getValues('saveForm');
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			#if($!params.flag && $!params.flag eq "pass")
+				window.location.href='${basePath}home/acct/mbrMobileAuthPay.xhtml?op=mobileAuthPaySet&tagNo=$VmUtils.getRandom()'
+			#else window.location.href='${basePath}home/acct/bindMobile.xhtml';
+			#end
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

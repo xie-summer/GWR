@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>轨道交通管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}component/utilities.js"></script>
+	<script type="text/javascript" src="${staticPath}component/container-min.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width:750px; margin:auto" class="yui-skin-sam">
+<div align="center">
+<div id="station"></div>
+<table style="width:100%;margin-top: 20px;">
+	<thead class="th">
+		<tr><th>选择城市:
+			<select name="s_city" id="s_city" onchange="getSubwaylines();" style="width:200px">
+				<option value="" >请选择...</option>
+				#foreach($ck in $cityMap.keySet())
+					<option value="$ck" #if($ck eq $citycode)selected#end>$cityMap.get($ck)</option>
+				#end
+			</select>
+		</th>
+		<th>
+			<input type="hidden" name="selectLineId" id="selectLineId"/>
+			<div>
+				<span id="selectLine" style="color: blue;font-weight:bold"></span>的站点
+			</div>
+		</th></tr>
+	</thead>
+	<tbody>
+	<tr>
+		<td id="table_line" valign="top" style="width:60%;padding-left:0;padding-right: 0;"></td>
+		<td id="table_station" valign="top" style="width:40%;padding-left:0;padding-right: 0"></td>
+	</tr>
+	</tbody>
+</table>
+</div>
+<div id="lineDialog" class="yui-panel" style="width:300px; visibility:hidden; z-index:20;">
+	<div class="hd">输入地铁线路信息</div>
+	<div class="bd">
+		<form id="lineForm">
+			<input type="hidden" name="lid" id="id"/>
+			<input type="hidden" name="citycode" id="citycode"/>
+			<div>
+				<label for="linename">线路名称：</label><input type="text" id="linename" name="linename" />
+			</div><div>
+				<label for="remark">备注信息：</label><input type="text" id="remark" name="remark" /> 
+			</div><div>
+				<input type="button" value="保存" onclick="saveLine();"/><input type="button" value="取消" onclick="GewaraUtil.hideDialog('lineDialog')"/>
+			</div>
+		</form>
+	</div>
+</div>
+<div id="stationDialog" class="yui-panel" style="width:300px; visibility:hidden; z-index:20;">
+	<div class="hd">输入地铁线站点信息</div>
+	<div class="bd">
+		<form id="stationForm">
+			<input type="hidden" name="sid" id="sid"/>
+			<div>
+				<label for="stationname">站点名称：</label><input type="text" id="stationname" name="stationname" />
+			</div>
+			<div>
+				<input type="button" value="保存" onclick="saveStation();"/><input type="button" value="取消" onclick="GewaraUtil.hideDialog('stationDialog')"/>
+			</div>
+		</form>
+	</div>
+</div>
+<div id="line2Dialog" class="yui-panel" style="width:300px; visibility:hidden; z-index:20;">
+	<div class="hd">输入地铁线站点信息</div>
+	<div class="bd">
+		<form id="line2Form">
+			<input type="hidden" name="l2id" id="l2id" />
+			<input type="hidden" name="lineid" id="lineid" />
+			<div> 
+				<label for="stationname">站点ID：</label><input type="text" name="stationid" id="stationid" />
+			</div>
+			<div>
+				<input type="button" value="保存" onclick="saveLine2();"/><input type="button" value="取消" onclick="GewaraUtil.hideDialog('line2Dialog')"/>
+			</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		gewaUtil.loadData('station','${basePath}admin/common/ajax/getSubwaystationList.xhtml',{'pageNO':''});
+	});
+	function hide(id) {
+		GewaraUtil.hideDialog(id);
+	}
+	function show(id){
+		GewaraUtil.showDialog(id);
+	}
+
+	function getSubwaylines() {
+		var vcitycode = $("s_city").value;
+		$("table_line").empty;
+		$("table_station").empty;
+		gewaUtil.loadData('table_line','${basePath}admin/common/ajax/getSubwaylinesByCityCode.xhtml',{'citycode':vcitycode});
+	}
+	
+	function getStations(lineId,linename) {
+		$("selectLine").innerHTML = linename;
+		$("selectLineId").value = lineId;
+		gewaUtil.loadData('table_station','${basePath}admin/common/ajax/getLine2StationByLineId.xhtml',{'lid':lineId});
+	}
+	function newLine(){
+		show('lineDialog');
+	}
+	
+	function newStation(){
+		show('stationDialog');
+	}
+	
+	function newLine2(id){
+		$('lineid').value = id;
+		show('line2Dialog');
+	}
+</script>
+</body>
+</html>

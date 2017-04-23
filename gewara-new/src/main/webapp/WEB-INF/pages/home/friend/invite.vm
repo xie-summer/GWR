@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>邀请好友_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ul-60 li{padding-left:80px;clear: both;}
+		.ul-60 li .ul-60Inner{margin-left:-80px;_margin-left:-40px;width:80px;}
+	</style>
+</head>
+<body>
+#set($friend=true)#set($isInvite = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#*
+			#if(!$isFriend)
+				#parse('include/home/myfriend.vm')
+			#end
+			*#
+			#set($yaoqing="invite")
+			#parse('include/home/userInfo.vm')
+			<div class="mt20 title"><h2><img src="${staticPath}css/home/point.png" class="mr5"/>通过链接邀请</h2></div>
+			<p>邀请好友加入格瓦拉可获得一定积分奖励，当你邀请的好友在格瓦拉购买了电影票，你将获得所邀请朋友消费等额的积分奖励，若你邀请的好友参加了团购，你将获得200个积分的奖励。积分可直接用于支付或兑换其它礼品。</p>
+			<div class="mt20 clear">
+			<ul class="ul-80">
+				<li>
+					<div class="ul-80Inner">邀请链接：</div>
+					<input type="text" name="link" id="link" class="text left" readonly="readonly" style="width: 500px;" value="http://www.gewara.com${basePath}register.xhtml?from=${member.id}&encode=${encode}"/>
+					<input class="fdBt" type="button" value="复制" onclick="setCopy()" id="ieOrOther"/>
+					<span id="firefox" class="left"><embed height="24" width="84" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" quality="high" src="${basePath}flash/copy_values.swf"/></span>
+				</li>
+			</ul>
+			</div>
+			<div class="mt20 title"><h2><img src="${staticPath}css/home/point.png" class="mr5"/>通过MSN邀请</h2>
+			<a href="https://consent.live.com/Delegation.aspx?ps=Contacts.View&ru=${absPath}/common/inviteByMsn.xhtml?backurl=/home/friend/inviteFriend.xhtml&pl=http://www.gewara.com/policy.html"><b>邀请好友</b></a>
+			</div>
+			#set($msnMap=$VmUtils.readJsonToMap($!params.jsonMsnMap))
+			<div id="inviteFriendResult" #if($msnMap.size() eq 0)class="none"#end>
+				<table cellpadding="0" cellspacing="0" class="gui-table mt20" border="0">
+					<tr>
+						<td class="gui-tplt" valign="bottom" align="right"></td>
+						<td class="gui-tpct" valign="bottom"></td>
+						<td class="gui-tprt" valign="bottom" align="left"></td>
+					</tr>
+					<tr>
+						<td class="gui-ctlt"></td>
+						<td style="padding:2px;">&nbsp;&nbsp;发送邮件邀请好友</td>
+						<td class="gui-ctrt"></td>
+					</tr>
+					<tr>
+						<td class="gui-ctlt"></td>
+						<td style="padding:10px;">
+							<form id="msnEmailForm" name="msnEmailForm">
+							<div id="msnResult"></div>
+							<div class="mt5">
+								<input type="checkbox" name="allselect" id="allelect" onclick="selectAll(this)" checked="checked"/>全选</div>
+							<div class="mt5">
+								<label class="minBt redBt button left ml10" for="disBtn3">
+								<input type="button" id="disBtn3" value="邀请好友" onclick="sendMsnEmail();"/></label>
+							</div>
+							</form>
+						</td>
+						<td class="gui-ctrt"></td>
+					</tr>
+					<tr>
+						<td class="gui-btlt" valign="top" align="right"></td>
+						<td class="gui-btct" valign="top"></td><td class="gui-btrt" valign="top" align="left"></td>
+					</tr>
+				</table>
+			</div>
+			<div id="inviteFriendSystem" style="display:none">
+				<table cellpadding="0" cellspacing="0" class="gui-table mt20" border="0">
+					<tr>
+						<td class="gui-tplt" valign="bottom" align="right"></td>
+						<td class="gui-tpct" valign="bottom"></td>
+						<td class="gui-tprt" valign="bottom" align="left"></td>
+					</tr>
+					<tr>
+						<td class="gui-ctlt"></td>
+						<td style="padding:2px;">&nbsp;&nbsp;发送站内短信邀请好友</td>
+						<td class="gui-ctrt"></td>
+					</tr>
+					<tr>
+						<td class="gui-ctlt"></td>
+						<td style="padding:10px;">
+							<form id="msnInviteSystemForm" name="msnInviteSystemForm">
+							<div id="msnSystem"></div>
+							<div class="mt5"><input type="checkbox" name="allselect" id="allelect" onclick="selectAll(this)" checked="checked"/>全选</div>
+							<div class="mt5">
+								<label class="minBt redBt button left ml10" for="disBtn4"><input type="button" id="disBtn4" value="发送" onclick="inviteFriendSystem();"/></label>
+							</div>
+							</form>
+						</td>
+						<td class="gui-ctrt"></td>
+					</tr>
+					<tr>
+						<td class="gui-btlt" valign="top" align="right"></td>
+						<td class="gui-btct" valign="top"></td><td class="gui-btrt" valign="top" align="left"></td>
+					</tr>
+				</table>
+			</div>
+			<div class="mt20 title"><h2><img src="${staticPath}css/home/point.png" class="mr5"/>通过Email邀请</h2></div>
+			<form method="post" id="emailForm">
+				<input type="hidden" value="$!encode" name="encode" id="encode"/>
+				<div class="clear">
+				<ul class="ul-80">
+					<li><div class="ul-80Inner">朋友Email：</div><input type="text" name="email" id="email" class="text" style="width:430px"/>
+					<br/>如邀请多个好友，邮箱之间以英文","隔开。</li>
+					<li><div class="ul-80Inner">邀请主题：</div><input type="text" name="title" id="title" value="$!title" class="text" style="width:430px"/></li>
+					<li>
+					<div class="ul-80Inner">邀请留言：</div><textarea class="text" style="width:430px;height:110px;" name="body">格瓦拉生活网是一个提供都市休闲生活娱乐服务的网站，目前支持全国60余家电影院和上海10余家话剧院在线购票。你可以在网站上轻松查询最新上映的电影、话剧资讯，在线轻松购买电影票和话剧票，并能享受低至4折的购票优惠。你还可以参与每周五举办的5元抢票观影体验活动通过“哇啦！”随时分享发生在你身边的新鲜事儿，了解好友的最新动态、查看好友和与你有共同爱好的用户发表的电影影评和影院点评。
+					</textarea></li>
+					<li><div class="ul-80Inner">你的姓名：</div><input type="text" name="nickname" class="text" value="$!member.nickname"/></li>
+					<li>
+						<div class="ul-80Inner">验证码：</div><input type="hidden" name="captchaId" id="captcha" />
+						<label class="label" for="captchaInput">
+							<input type="text" name="captcha" alt="点击获取" autocomplete="off"  class="text captcha" id="captchaInput"  onfocus="GewaraUtil.refreshCaptcha('captcha');"/>
+						</label>
+						<img id="captchaImg" src="${staticPath}css/images/blank.gif" style="cursor:pointer; margin-top:2px" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清楚，请点击换一张图片"/>
+					</li>
+					<li>
+						<label class="button minBt redBt" for="disBtn2"><input type="button" id="disBtn2" value="发送邀请"  onclick="inviteFriend();"/></label>
+					</li>
+				</ul>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	if(navigator.userAgent.toLowerCase().indexOf('ie') > -1){
+		$('firefox').addClass('none');
+	}else{
+		$('ieOrOther').addClass('none');
+	}
+	inviteFriendMsn();
+})
+function setCopy(){    
+	var content = $('link').value;
+	if(navigator.userAgent.toLowerCase().indexOf('ie') > -1) {    
+			clipboardData.setData('Text',content);    
+			gewaUtil.alert ("该地址已经复制到剪切板");    
+	}
+}
+function flashCopy(){
+	return $("link").value;
+}
+function flashCopyBack(){
+	gewaUtil.alert("该地址已经复制到剪切板")
+}
+function inviteFriendMsn(){
+	#if($msnMap)
+	var msnMap = $VmUtils.getScriptObject($msnMap);
+	ul = new Element('ul',{'styles':{'height':'120px','overflow-y':'auto'}}).addClass('ul-28 ul-line clear').inject($('msnResult'));
+	ul2 = new Element('ul',{'styles':{'height':'120px','overflow-y':'auto'}}).addClass('ul-28 ul-line clear').inject($('msnSystem'));
+	var myHash = new Hash(msnMap);
+	myHash.each(function(value, key){
+		new Element('input',{'type':'checkbox','value':key,'name':'msnEmail','checked':'checked','id':'msn'+key}).inject(
+		new Element('label',{'text':value.substr(0,10)+'('+key+')','for':'msn'+key}).inject(new Element('li',{'styles':{'width':'45%','float':'left'}}).inject(ul)),'top');
+	});
+	#end
+}
+function skipMsnEmail(){
+	$('inviteFriendResult').hide();
+	$('inviteFriendSystem').show();
+}
+function inviteFriend(){
+	if($('email').value == ''){
+		gewaUtil.alert('请输入被邀请人的email');
+		return;
+	}
+	var url = '${basePath}home/inviteFriendByEmail.xhtml';
+	gewa.util.mask({'element': "disBtn2",'title':'正在提交，请稍等...'});
+	GewaraUtil.sendRequest(url, GewaraUtil.getValues("emailForm"), function(result){
+		if(result.success){
+			gewaUtil.alert('发送成功，请等候对方的确认！',refreshPage);
+		}else{
+			gewaUtil.alert(result.msg);
+			GewaraUtil.refreshCaptcha('captcha');
+		}
+		gewa.util.clearMask();
+	});
+}
+function sendMsnEmail(){
+	var url = '${basePath}home/friend/msnSendEmail.xhtml';
+	gewa.util.mask({'element': "disBtn3",'title':'正在提交，请稍等...'});
+	gewa.util.mask({'element': "disBtn2",'title':'正在提交，请稍等...'});
+	GewaraUtil.sendRequest(url, GewaraUtil.getValues("msnEmailForm", ","), function(result){
+		if(result.success){
+			gewaUtil.alert('发送成功，请等候对方的确认！');
+			refreshPage();
+		}else{
+			gewaUtil.alert('发送失败！');
+		}
+		gewa.util.clearMask();
+	});
+}
+function inviteFriendSystem(){
+	var url = '${basePath}home/friend/inviteFriendSystem.xhtml';
+	GewaraUtil.mask('disBtn4');
+	var values = GewaraUtil.getValues("msnInviteSystemForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			gewaUtil.alert('发送成功，请等候对方的确认！');
+			refreshPage();
+		}else{
+			gewaUtil.alert('发送失败！');
+		}
+	});
+}
+function selectAll(obj)
+{
+	var allInput = document.getElementsByTagName("input");
+	var loopTime = allInput.length;
+	for(i = 0;i < loopTime;i++){
+		if(allInput[i].type == "checkbox"){
+			allInput[i].checked = obj.checked;
+		}
+	}
+}
+</script>
+</body>
+</html>

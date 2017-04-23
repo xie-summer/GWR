@@ -1,0 +1,67 @@
+<div class="horn" id="login2" >
+	#if($member)
+	#parse('include/home/snsRightMenu.vm')
+	#else
+		<em class="m1"></em><em class="m2"></em>
+		<div class="m">
+	<div class="gui-title" style="text-indent:16px;border-color:#eee"><span class="fs14">登录格瓦拉生活网！</span><span class="ml30"><a class="brown" href="${basePath}home/loginPoint.xhtml">领取每日红包</a></span></div>
+		<form name="login2" action="javascript:asylogin()" id="login2">
+			<ul class="ul-60" style="margin-top:10px !important">
+				<li>
+					<div class="ul-60Inner">登录：</div>
+					<input type="text" class="text" style="width:180px" name="j_username" id="vusername"/>
+				</li>
+				<li class="mt5">
+					<div class="ul-60Inner">密码：</div>
+					<input type="password" class="text" style="width:180px" name="j_password" id="vpassword"/></li>
+				<li class="mt5">
+					<input type="hidden" name="captchaId"  id="pointLoginCaptcha"/>
+					<div class="ul-60Inner">验证码：</div>
+					<input type="text" class="text captcha" style="width:70px; float:left;" id="pointLoginCaptchaInput" name="captcha" alt="点击获取" autocomplete="off" onfocus="GewaraUtil.refreshCaptcha('pointLoginCaptcha');" />
+					<img id="pointLoginCaptchaImg" height="30" class="ml10 mt5" src="${staticPath}css/images/blank.gif" style="cursor: pointer;" onclick="GewaraUtil.refreshCaptcha('pointLoginCaptcha')" title="看不清楚，请点击换一张图片"/>
+				</li>
+				<li class="mt5">
+					<a href="${basePath}forgetPassword.xhtml" class="right brown" target="_blank">忘记密码？</a>
+					<div class="height0"></div>
+				</li>
+				<li style="height:100%;margin-top:5px;">
+					<label class="button minBt redBt"><input type="submit" value="登 录" class="left" /></label>
+					<a href="${basePath}register.xhtml" class="right brown fs14" style="width:60px;" target="_blank">立即注册</a>
+					<div class="height0"></div>
+				</li>
+			</ul>
+		</form>
+	</div>
+	<em class="m2"></em><em class="m1"></em>
+	#end
+</div>
+	#parse('include/ad/ad_point.vm')
+#*
+<div class="horn mt20 mb20">
+	<em class="m1"></em><em class="m2"></em>
+	<div class="m">
+		<div class="gui-title"><h2>论坛热帖</h2></div>
+		<ul class="pt10 ariclesUL">
+			#foreach($gc in $gcList)
+			<li><a href="$gc.simpleLink" target="_blank" title="$gc.title">· $!VmUtils.escabbr($gc.title, 40) </a></li>
+			#end
+		</ul>
+	</div>
+	<em class="m2"></em><em class="m1"></em>
+</div>
+*#
+	<script type="text/javascript">
+function asylogin(){
+	var par =  {"username":$('vusername').value, "password":$('vpassword').value,'captchaId':$('pointLoginCaptcha').value,'captcha':$('pointLoginCaptchaInput').value};
+	GewaraUtil.sendRequest("${basePath}ajax/common/asynchLogin.dhtml", par, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			GewaraUtil.refreshCaptcha('pointLoginCaptcha');
+			if(result.errorMap){
+				GewaraUtil.showErrorMsg('login2',result.errorMap);
+			}else gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>

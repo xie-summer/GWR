@@ -1,0 +1,308 @@
+<!Doctype html>
+<html>
+<head><!-- SUCCESS_HEAD -->#set($isDetail=true)
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>#if($VmUtils.isBlank($movie.seotitle))$!{movie.name}电影票购买_影评_剧情#else${movie.seotitle}#{end}- 格瓦拉生活网</title>
+	<meta name="keywords" content="#if($VmUtils.isBlank($movie.seodescription))${movie.name},热映电影,电影院排片,电影排片,网上购买电影票,电影资讯,最新电影,电影剧情,电影预告片#else${movie.seodescription}#end" />
+	<meta name="description" content="#if($VmUtils.isBlank($movie.seodescription))$!{movie.name}在线电影票购买,剧情介绍,高清预告片观看. $!{movie.name}火爆影评, 上映日期：$!DateUtil.format(${movie.releasedate},'yyyy年M月d日').$!{movie.highlight} #else${movie.seodescription}#end"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_movie&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,scrollerbar,tips,swfobject,raphael,picture&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#if($headInfo)
+		html{background:$!headInfo.css url($VmUtils.randomPic('',$!headInfo.logosmall)) 0 50px repeat-x;}
+		body{background:transparent url($VmUtils.randomPic('',$!headInfo.logobig)) center 50px no-repeat;}
+		#end
+	</style>
+</head>
+<body>
+#set($ismovie=true)
+#set($googleSpeedPageTag='/movie/movieDetail.xhtml')
+#set($obj=$movie)
+#set($relatedid=$movie.id)
+#*
+#set($isIndexBigAd=true)
+*#
+#parse('include/wide_header.vm')
+<input type="hidden" id="allPictureCount" value="$!{allPictureCount}"/>
+<input type="hidden" id="allVideoCount" value="$!{allVideoCount}"/>
+<div class="ui_layout detail_body">
+	#parse('movie/wide_movieHeader.vm')
+	<div class="detail_content clear">
+		<div class="ui_left" id="uiLeft">
+			<div class="mod_tabs mod_tabs_movie">
+				<div class="mod_hd" style="position:relative;">
+					#*暂时隐藏
+					<a id="showTemplate" class="mNotice right" href="javascript:showTemplate();" title="开放售票提醒">开放售票提醒</a>
+					*#
+					<ul class="nav_tabs">
+						<li class="select"><a href="${basePath}movie/$!movie.id?movieMpiList=true">排片购票</a></li>
+						<li><a href="javascript:void(0)" onclick="loadUiLeft('movie/movieInfoDetail.xhtml',{'mid':'$movie.id'})">剧情介绍</a></li>
+						<li><a href="javascript:void(0)" onclick="loadUiLeft('movie/movieWala.xhtml',{'mid':'$movie.id'})">哇啦<em>#if($commentCount gt 0)($!{commentCount})#end</em></a></li>
+						<li><a href="javascript:void(0)" onclick="loadUiLeft('movie/ajax/movieDiaryList.xhtml',{'mid':'$movie.id'})">影评<em>#if($diaryCount gt 0)($!{diaryCount})#end</em></a></li>
+						<li><a href="javascript:void(0)" onclick="loadUiLeft('movie/movieNewsList.xhtml',{'mid':'$movie.id'})" >资讯<em>#if($newsCount gt 0)($!{newsCount})#end</em></a></li>
+					</ul>
+				</div>
+				<div class="mod_bd clear">
+					<input type="hidden" id="paramsCinemaId" value="$!params.cid"/>
+					<input type="hidden" id="fyrq" value="$!params.fyrq"/>
+					<input type="hidden" id="paramsCinemaName" value="$!params.cinemaname"/>
+					<div id="moviePlayList" #if(!$VmUtils.isEmptyList($playdateList))style="height:520px;"#set($isOpend=1)#else#set($isOpend=0)#end></div>
+				</div>
+			</div>
+			#if($payMemberList && $payMemberList.size() gt 0)
+			<div class="mod_kong payUser">
+				<div class="mod_hd">
+					<h2>最近购票瓦友</h2>
+				</div>
+				<div class="mod_bd clear">
+					<ul>
+						#foreach($payMember in $payMemberList)
+						<li>
+							<a class="pubpic" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$memberMap.get($payMember.tradeNo).id" title="$!memberMap.get($payMember.tradeNo).nickname" target="_blank">
+								<img width="50" height="50" alt="$!memberMap.get($payMember.tradeNo).nickname" src="$VmUtils.randomPic('cw50h50',$memberMap.get($payMember.tradeNo).headpicUrl)"/>
+							</a>
+							<p>
+								<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$memberMap.get($payMember.tradeNo).id" title="$!memberMap.get($payMember.tradeNo).nickname" target="_blank">$!VmUtils.escabbr($!memberMap.get($payMember.tradeNo).nickname,8)</a>
+							</p>
+							<p class="c666">$!DateUtil.getDateDesc($payMember.paidtime)</p>
+						</li>
+						#end
+					</ul>
+				</div>
+			</div>
+			#end
+			<div class="mod_tabs mod_tabs_movie" id="walaContent">
+				<div class="mod_hd">
+					<ul class="nav_tabs">
+						<li class="walaCur select"><a onclick="getWalaList(this,'hot');" href="javascript:void(0);">热门哇啦</a></li>
+						<li class="walaCur"><a onclick="getWalaList(this,'');" href="javascript:void(0);">最新哇啦</a></li>
+					</ul>
+				</div>
+				<div class="mod_bd">
+					<div id="WalaDetail" class="mt20"></div>
+				</div>
+			</div>
+			<div class="mod_tabs mod_tabs_movie cinecism">
+				<div class="mod_hd">
+					<ul class="nav_tabs">
+						<li class="diaryCur select"><a onclick="loadMovieDiary(this,'');"  href="javascript:void(0);">热门影评</a></li>
+						<li class="diaryCur"><a onclick="loadMovieDiary(this,'addtime');" href="javascript:void(0);">最新影评</a></li>
+					</ul>
+					<a class="button redBt bigBt more" href="javascript:void(0)" onclick="submitDiary()"><span>发表影评</span></a>
+				</div>
+				<div class="mod_bd clear" style="border-top:none;" id="movieDiary">
+				</div>
+			</div>
+		</div>
+		<div class="ui_right">
+			#parse('include/movie/mod_spdiscount.vm')
+			#parse('include/movie/mod_hotActivity.vm')
+			#parse('include/movie/mod_news.vm')
+			#parse('include/movie/mod_hotShowMovie.vm')
+			#parse('include/movie/mod_bbs.vm')
+			#parse('include/movie/mod_qa.vm')
+		</div>
+	</div>
+</div>
+<div id="playItemMessage"></div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+function getTemplate(){
+	var url = "${basePath}movie/ajax/getCountyBooking.xhtml";
+	var values = {'movieid':'$!movie.id'};
+	GewaraUtil.sendLoad('playItemMessage', url, values, function(result){},'playItemMessage');
+}
+function loadPictureList(){
+	var options = {
+			type:"apic",
+			pictureType:"apic",
+			videoType:"avideo",
+			tag:"movie",
+			isAjax:true,
+			isPicture:'picture',
+			esc:true,
+			menu:{
+				pictureurl:'/movie/moviePictureDetail.xhtml',
+				videourl:'/movie/videoList.xhtml',
+				picturevalues:{mid:'$!movie.id','pvtype':'apic'},
+				videovalues:{mid:'$!movie.id'},
+				picturecount:$('allPictureCount').value,
+				videocount:$('allVideoCount').value
+			}
+		};
+		screenPicture.createPanel(options);
+}
+window.addEvent('domready',function(){
+	#if(!$VmUtils.isEmptyList($movieIdList))
+		var keys = "movieDetail_$!VmUtils.join($movieIdList, '@')";
+		GewaraUtil.sendRequest('${basePath}ajax/loadIndexKeyNumber.xhtml', {"keys":keys}, function(result){
+			if(result.success) {
+					#foreach($id in $movieIdList)
+						document.getElements('*[data-keynum=$!{id}_mark1]').set("text",(result.mark_$!{id}/10 + "").toInt());
+						document.getElements('*[data-keynum=$!{id}_mark2]').set("text","." + result.mark_$!{id}%10);
+						document.getElements('*[data-keynum=$!{id}_collectedtimes]').set("text",result.collectedtimes_$!{id});
+						document.getElements('*[data-keynum=$!{id}_xiangqu]').set("text",result.xiangqu_$!{id});
+						document.getElements('*[data-keynum=$!{id}_clickedtimes]').set("text",result.clickedtimes_$!{id});
+						document.getElements('*[data-keynum=$!{id}_boughtcount]').set("text",result.boughtcount_$!{id});
+					#end
+					if($('rating_$!{movie.id}')){
+						staticRating($('rating_$!{movie.id}'),result.mark_$!{movie.id});
+					}
+			}
+		});
+	#end
+	if(gewaUtil.getRequestParams("comment") == 'true'){
+		loadUiLeft('movie/movieWala.xhtml',{'mid':'$movie.id'});
+	}else if(gewaUtil.getRequestParams("diaryList") == 'true'){
+		loadUiLeft('movie/ajax/movieDiaryList.xhtml',{'mid':'$movie.id'});
+	}else{
+		#if(!$VmUtils.isEmptyList($playdateList))
+			Asset.javascript("${staticPath}scripts/movie/wide_inits.js?v=$VmUtils.jsVersion", {
+				"mid":"$movie.id",
+				"date":$('fyrq').value?$('fyrq').value:gewaUtil.getRequestParams('fyrq'),
+				"cinemaid":$('paramsCinemaId').value?$('paramsCinemaId').value:decodeURI(gewaUtil.getRequestParams('cinemaid')),
+				"cinemaname":$('paramsCinemaName').value?$('paramsCinemaName').value:gewaUtil.getRequestParams('cinemaname'),
+				'id':'movieDynaScript',
+				'isOpend':1
+			});
+			(function(){
+				getWala('hot');
+			}).delay(2000);
+			(function(){
+				loadMovieDiary(null,'');
+			}).delay(4000);
+		#else
+			if(gewaUtil.getRequestParams("movieMpiList") == 'true'){
+				Asset.javascript("${staticPath}scripts/movie/wide_inits.js?v=$VmUtils.jsVersion", {
+					"mid":"$movie.id",
+					"date":$('fyrq').value?$('fyrq').value:gewaUtil.getRequestParams('fyrq'),
+					"cinemaid":$('paramsCinemaId').value?$('paramsCinemaId').value:decodeURI(gewaUtil.getRequestParams('cinemaid')),
+					"cinemaname":$('paramsCinemaName').value?$('paramsCinemaName').value:gewaUtil.getRequestParams('cinemaname'),
+					'id':'movieDynaScript',
+					'isOpend':1
+				});
+				(function(){
+					getWala('hot');
+				}).delay(2000);
+				(function(){
+					loadMovieDiary(null,'');
+				}).delay(4000);
+			}else{
+				loadUiLeft('movie/movieInfoDetail.xhtml',{'mid':'$movie.id'})
+			}
+		#end
+	}
+	new PanelGroup(['tapsInMovie', 'tapsInDrama','tapsInSport'], 'tapsInMovie', "select", "none", "mouseover");
+	getTemplate();
+	myTreasure('movie','$movie.id');
+	if(gewaUtil.getRequestParams("pictureList") == 'true'){
+		loadPictureList();
+	}
+});
+
+</script>
+<script type="text/javascript">
+var isScroll = true,marks='';
+function getWalaList(e,order){
+	var e = $(e);
+	$$('.walaCur').removeClass('select');
+	if(e)e.getParent('li').addClass('select');
+	else $$('.walaCur')[0].addClass('select');
+	getWala(order);
+}
+function getWala(order,listNum){
+	var walaCount = true;
+	var flag = '';
+	if(order == 'hot'){
+		walaCount = false;
+		flag = 'ticket';
+	}
+	$('WalaDetail').innerHTML = '';
+	Asset.javascript("${staticPath}scripts/gewara.js?n=wide_wala,slimbox&v=$!{VmUtils.jsVersion}", {
+		'id':'walaDynaScript',
+		'isScroll':false,//用于控制是否支持鼠标滚动事件
+		'isTicket':true,
+		'bindWala':'WalaDetail',//把加载的哇啦放在什么位置
+		onLoad:function(){
+			Asset.css('${staticPath}css/wide_wala.css?v=$VmUtils.jsVersion',{'id':'walasCss'});
+			gewa.util.pageNumber = 0;
+	    	var _body = $(document.body);
+	    	gewa.util.requestUrl = 'ajax/common/qryComment.xhtml';
+	    	gewa.util.values = {
+    			pageNumber:gewa.util.pageNumber,//自动加载时的分页数
+    			relatedid:'$!relatedid',//关联对象的ID
+    			title:'',//话题的标题
+    			issue:true,//是否有发表框
+    			hasMarks:true,//是否支持评分
+    			tag:'movie',//关联那个板块的内容
+    			isPic:true,//是否支持传图片
+    			isVideo:false,//是否支持传视频
+	    		maxCount:listNum || 10,//如果设置，即是单页显示N条
+				userLogo:gewara.util.member.headUrl,//用户的头像
+				order:order,
+				isCount:walaCount,
+				flag:flag
+	    	};
+	    	gewa.util.init();
+		}
+	});
+}
+
+function loadUiLeft(url,values){
+	GewaraUtil.sendLoad($('uiLeft'), '${basePath}' + url,values,function(result){});
+}
+
+function showTemplate(){
+	checkLogin(true,function(){
+		gewa.util.issure('','movieInfo','开放购票通知',500,'movieInfo',function(){
+			$('mform').submit();
+		});
+	});
+}
+
+function loadMovieDiary(e,myOrder){
+	var e = $(e);
+	if($$('.diaryCur')){
+		$$('.diaryCur').removeClass('select');
+		if(e)e.getParent('li').addClass('select');
+		else if($$('.diaryCur')[0])$$('.diaryCur')[0].addClass('select');
+	}
+	GewaraUtil.sendLoad($('movieDiary'), '${basePath}movie/ajax/movieDiaryList.xhtml',{"movieDetail":"true","mid":"$movie.id","maxnum":"5","myOrder":myOrder}, function(result){});
+}
+
+function staticRating(el,gmark){
+	var status = "";
+	var marks = (gmark/10 + "").toInt();
+	el.getElements("li").each(function(item,index){
+		var vcount = (index + 1) * 10;
+		var floorValue = 0;
+		if(marks%2 == 0){
+			var markdiv = gmark/10 + 1;
+			floorValue = Math.round(markdiv);
+			floorValue = ((floorValue - 1) + "").toInt();
+		}else{
+			floorValue = Math.round(gmark/10);
+		}
+		var halfCount = floorValue * 10;
+		if(halfCount == vcount || halfCount > vcount){
+			if(index%2 == 0){
+				status = "half";
+			}else{
+				status = "on";
+			}
+		}else{
+			if(index%2 != 0){
+				status = "no";
+			}else{
+				status = "";
+			}
+		}
+		item.set("class",status);
+	});
+}
+</script>
+#parse('include/newMarkDialog.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>友情链接列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline}
+	</style>
+</head>
+<body style="width:85%; margin:auto" class="yui-skin-sam">
+<input type="button" value="添加" onclick="showDialog()" style="width: 80px"/>
+<table width="85%" class="table">
+	<thead>
+	<tr>
+		<th>Logo</th>
+		<th>名称</th>
+		<th>Url</th>
+		<th>操作</th>
+		<th>删除</th>
+	</tr>
+	</thead>
+	<tbody id="gymTable">
+	#foreach($link in $pictureLinkList)
+	<tr>
+		<th><img src='$!link.rlogo' width="85" height="30"/></th>
+		<td>$link.title</td>
+		<td>$!link.url</td>
+		<td>
+			<input type="button" value="修改" onclick="getLink($link.id)" style="width: 80px"/>
+			<input type="button" value="更新" onclick="update($link.id)" style="width: 80px"/>
+		</td>
+		<td align="center"><input type="button" value="删除" onclick="removeLink($link.id)" style="width: 80px"/></td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<hr/>
+<table width="85%" class="table">
+	<thead>
+	<tr>
+		<th>名称</th>
+		<th>Url</th>
+		<th>操作</th>
+		<th>删除</th>
+	</tr>
+	</thead>
+	<tbody id="gymTable">
+	#foreach($link in $textLinkList)
+	<tr>
+		<td>$link.title</td>
+		<td>$!link.url</td>
+		<td>
+			<input type="button" value="修改" onclick="getLink($link.id)" style="width: 80px"/>
+			<input type="button" value="更新" onclick="update($link.id)" style="width: 80px"/>
+		</td>
+		<td align="center"><input type="button" value="删除" onclick="removeLink($link.id)" style="width: 80px"/></td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<div id="linkDialog" class="yui-panel" style="width:600px; visibility:hidden; z-index:20;">
+	<div class="hd">
+		<span>修改Link数据</span>
+	</div>
+	<div class="bd">
+	<form name="linkForm" id="linkForm">
+		<input type="hidden" name="id" id="id" />
+		<div>
+			<label for="type">链接类型：</label>
+			<select name="type" id="types">
+				<option value="picture">图片</option>
+				<option value="text">文字</option>
+			</select>
+		</div>
+		<div>
+			<label for="title">标题：</label>
+			<input type="text" name="title" id="title" style="width: 85%"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="url">URL：</label>
+			<input type="text" name="url" id="url" style="width: 85%" value="http://"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label>上传图片：</label>
+			<input type="text" name="logo" id="logo"/>
+			<iframe class="left" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updateLogo"></iframe>
+			<div><img style="height:60px; margin-left:100px;" id='logoimg1' src="${staticPath}css/images/blank.gif"/></div>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="save();" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+function updateLogo(params){
+	var picpath = params['picpath'];
+	$('logo').value = picpath;
+	$('logoimg1').src='${basePath}' + picpath;
+}
+function getLink(id){
+	var url = "${basePath}admin/site/getLink.xhtml";
+	GewaraUtil.sendRequest(url, {'id':id}, function(result){
+		GewaraUtil.setValues(result);
+		$('types').value = result.type;
+	});	
+	showDialog();
+}
+function save(){
+	var values = GewaraUtil.getValues("linkForm");
+	var url = "${basePath}admin/site/saveLink.xhtml";
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('保存成功！');
+		}else{
+			alert(result.msg);
+		}
+		GewaraUtil.hideDialog('linkDialog');
+		refreshPage();
+	});
+}
+function update(id){
+	var url = "${basePath}admin/site/updateLink.xhtml";
+	GewaraUtil.sendRequest(url, {'id':id}, function(result){
+		if(result.success){
+			refreshPage();
+		}else alert("审核失败");
+	});
+}
+function removeLink(id){
+	var url = "${basePath}admin/site/removeLink.xhtml";
+	GewaraUtil.sendRequest(url, {'id':id}, function(result){
+		if(result.success){
+			alert('删除成功');
+			(function(){refreshPage()}).delay(500);
+		}else alert("审核失败");
+	});
+}
+function cancle(){
+	GewaraUtil.hideDialog('linkDialog');
+}
+function showDialog(){
+	GewaraUtil.showDialog("linkDialog");
+}
+</script>
+</body>
+</html>

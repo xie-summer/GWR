@@ -1,0 +1,71 @@
+<data>
+	<discountList>
+	#set($zero = 0) #set($one = 1)
+	#foreach($spdiscount in $spdiscountList)
+		<discount>
+			<id>$!spdiscount.id</id>
+		#if($disabledSdMap.containsKey($spdiscount.id))<!-- 不支持此场次活动  1支持  0不支持-->
+			<title><![CDATA[$!spdiscount.remark:$disabledSdMap.get($spdiscount.id)]]></title>
+			<description><![CDATA[$!spdiscount.remark]]></description>
+			<isenable>$zero</isenable>
+		#else
+			#set($fullRemark=$!spdiscount.getFullEnableRemark($!order.totalAmount, $!discountAmountMap.get($spdiscount.id)))
+			<title><![CDATA[#if($hasMobile)$!{fullRemark}#{else}$!{fullRemark}  <账户未绑定手机号，不能参加此活动>#end]]></title>
+			<description><![CDATA[$!{spdiscount.description}]]></description>
+			<isenable>#if($hasMobile)$one#else$zero#end</isenable>
+			#if($VmUtils.isNotBlank($spdiscount.verifyType))
+			<validUrl><![CDATA[${absWap}app/validSp.xhtml?tradeNo=$order.tradeNo&memberEncode=$memberEncode&spid=$!spdiscount.id]]></validUrl>
+			#end
+		#end
+			<usedDiscountId>#if($partnerDiscount.relatedid eq $spdiscount.id)$!partnerDiscount.id#end</usedDiscountId>
+			<cancelable>$cancelable</cancelable>
+			<paymethod><![CDATA[$!spdiscount.paymethod]]></paymethod>
+			<banklogo>
+			#if($VmUtils.isNotBlank($spdiscount.logo))
+				#if($VmUtils.startsWith($spdiscount.logo,'http'))${spdiscount.logo}
+				#else${picPath}${spdiscount.logo}
+				#end
+			#end
+			</banklogo>
+		</discount>
+	#end
+	</discountList>
+	<bindcardList>
+	#if($VmUtils.size($cardMap) gt 0)
+	#foreach($key in $cardMap.keySet())
+	#set($disCard = $cardMap.get($key))
+		<bindcard>
+			<cardno>$disCard.cardno</cardno>
+			<cardname>#if($disCard.ebatch.cardtype eq 'A')兑换券#else$disCard.ebatch.amount元抵值券#end</cardname>
+			<cardtype>$!disCard.ebatch.cardtype</cardtype>
+			<cardusage>$!disCard.gainUsage()</cardusage>
+			<carddiscountid>$!key</carddiscountid>
+		</bindcard>
+	#end
+	#end
+	</bindcardList>
+	#if($supportPoint)
+		#foreach($discount in $discountList)
+			#if($discount.tag eq 'partner')
+				#set($partnerDiscount=$discount)
+			#end
+		#end
+		#if($supportCard && $VmUtils.isEmpObj($pointDiscount) && $VmUtils.isEmpObj($partnerDiscount))
+		<carddiscount>
+			<isenable>$one</isenable>
+			<cancelable>$cancelable</cancelable>
+		</carddiscount>
+		#end
+		<pointdiscount>
+			<isenable>#if($cancelable && !$!lessPoint)$one#{else}$zero#end</isenable>
+			<minpoint>$!minpoint</minpoint>
+			<maxpoint>$!maxpoint</maxpoint>
+			<title>#if(!$cancelable)已确认或已支付的订单不能取消#elseif($lessPoint)积分少于$!minpoint不能使用积分抵值#{else}积分抵值#end</title>
+			#if($VmUtils.isNotEmpObj($pointDiscount))
+			<usedDiscountId>$!pointDiscount.id</usedDiscountId>
+			<description>$!pointDiscount.description</description>
+			<cancelable>$cancelable</cancelable>
+			#end
+		</pointdiscount>
+	#end
+</data>

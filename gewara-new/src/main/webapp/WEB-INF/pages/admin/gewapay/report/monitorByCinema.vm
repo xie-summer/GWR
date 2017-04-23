@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>2小时未出票影院</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+</head>
+<body>
+<!--top-->
+#set($cinema=true)
+#parse('admin/gewapay/report/monitorMenu.vm')
+<!--/top-->
+<div class="manageItemList">
+	<b class="b1f"></b>
+	<b class="b2f"></b>
+	<div class="contentInfoList">
+			<!--search form-->
+			<form action="${basePath}admin/gewapay/monitorByCinema.xhtml" method="post" >
+			<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th>
+						<label for="lable-city">城市：</label>
+						<select name="citycode">
+							<option value="">选择城市</option>
+							#foreach($citycode in $cityData.keySet())
+							<option value="$citycode" #if($citycode eq $params.citycode)selected="selected"#end>$cityData.get($citycode)</option>
+							#end
+						</select>
+						<lable>时间区间:</lable>$DateUtil.formatTimestamp($startTime) 至   $DateUtil.formatTimestamp($endTime)
+						<input type="submit" value="查询"/>
+						</th>
+					</tr>
+				</thead>
+			</table>
+			</form>
+			<!--/search form-->
+			
+			<!--2小时未出票的影院-->
+			<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th colspan="2">2小时未出票的影院</th>
+					</tr>
+					<tr>
+						<th>序号</th>
+						<th>影院名称</th>
+					</tr>
+				</thead>
+				<tbody id="tbody">
+					#foreach($map in $qryMapList)
+					<tr>
+						<td>$foreach.count</td>
+						<td>$!map.get('name')</td>
+					</tr>
+					#end
+				</tbody>
+			</table>
+			<!--/2小时未出票的影院-->
+			
+		</div>
+		<b class="b2f"></b><b class="b1f"></b>
+</div>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>推荐剧团</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$DWRUtils.jsVersion"></script> 
+	
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline}
+		a{text-decoration: none;}
+		.ua{text-decoration: none;color: red }
+		.bk{background:rgb(255, 246, 200)}
+	</style>
+</head>
+<body style="width:60%; margin:auto" class="yui-skin-sam">
+#set($typeMap={'star':'个人', 'director':'导演','troupe':'剧团'})
+<table width="60%" class="table" id="starattachFrm" style="line-height: 20px;" align="center">
+	<tr>
+		<td width="300px;">明星个人：$!dramaStar.name</td>
+		<td>类型: 
+			#if($VmUtils.contains($!dramaStar.startype,'director'))
+				$typeMap.get('director')
+			#elseif($VmUtils.eq($!dramaStar.startype,'troupe'))
+				$typeMap.get('troupe')
+			#else
+				$typeMap.get('star')
+			#end
+		</td>
+	</tr>
+	<tr>
+		<td >
+			<input type="hidden" name="starid" value="$!dramaStar.id" />
+			剧团ID：<input type="text" name="troupeid" style="width: 150px;"/>
+		</td>
+		<td >
+			<input type="button" value="关联" style="width: 80px" onclick="saveAttachTroupe()"/>
+		</td>
+	</tr>
+</table>
+#if($troupe)
+<div class="mt10" id="troupeDIV">
+已关联剧团:
+$troupe.name<a href="javascript:void(0);" onclick="deltroupe('$!dramaStar.id', '$troupe.id')">[删除]</a>
+</div>
+#end
+	<script type="text/javascript">
+	function saveAttachTroupe(){
+		var url = '${basePath}admin/drama/saveAttachTroupe.xhtml';
+		var values = GewaraUtil.getValues('starattachFrm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('设置成功!');
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+	
+	function deltroupe(starid, troupeid){
+		var url = '${basePath}admin/drama/delAttachTroupe.xhtml';
+		var values = {'starid': starid, 'troupeid': troupeid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$('troupeDIV').dispose();
+				alert('设置成功!');
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+</script>
+</body>
+</html>

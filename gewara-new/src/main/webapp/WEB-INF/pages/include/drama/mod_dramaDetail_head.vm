@@ -1,0 +1,269 @@
+<div class="mod_kong" style="margin-bottom:0;">
+	<div class="mod_hd detailPa1">
+		<div class="detailPa1_name clear">
+			<h1 class="left" title="$!drama.dramaname">$!VmUtils.escabbr($!drama.dramaname,50)</h1>
+			#*
+			<div class="ratingsCount left">
+				<ul>
+					<li>
+					<span><a class="ad" href="javascript:void(0);" onclick="showaddDrama('$!drama.id');">收藏</a></span>
+					## <span><a class="ad se none" href="javascript:void(0);" onclick="">取消收藏</a></span>
+					</li>
+				</ul>
+			</div>
+			*#
+			<div class="movieCountList">
+				<ul class="ui_inline">
+					#*
+					<li>
+						<b>$!drama.collectedtimes</b>
+						<span>收藏</span>
+					</li>
+					*#
+					<li class="first">
+						<b>$!drama.clickedtimes</b>
+						<span>关注</span>
+					</li>
+					<li>
+						<b>$!drama.boughtcount</b>
+						<span>购票</span>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="mod_bd detailPa2">
+		<div class="ui_left" style="">
+			<div class="detail_head_info detailMa">
+				<div class="ui_media">
+					<div class="ui_pic">
+						<img width="210" height="280" alt="" title="$!drama.dramaname" src="$VmUtils.randomPic('cw210h280',$!drama.limg)"/>
+						<div style="" id="bdshare" class="bdshare_t bds_tools get-codes-bdshare mt5" data="{'pic':'$VmUtils.randomPic('cw210h280',$!drama.limg)',}">
+							<span class="bds_more">分享到：</span><a class="bds_tsina"></a><a class="bds_tqq"></a><a class="bds_qzone"></a><a class="bds_renren"></a>
+						</div>
+					</div>
+					<div class="ui_text">
+						<div class="detail_head_text">
+						#if($drama.highlight)
+							<div class="detail_head_text1"><span class="q"></span><h2>$!VmUtils.htmlabbr($!drama.highlight,80)</h2><span class="h ml5"></span></div>
+						#end	
+							<div class="detail_head_text2">
+								<dl class="clear">
+									<dt>剧目类型：</dt>
+									<dd class="bold">$!dramaTypeMap.get($drama.dramatype) <span class="smalldrama">$!{drama.type}</span></dd>
+								</dl>
+								#if(!$VmUtils.isNull($drama.releasedate) || !$VmUtils.isNull($drama.enddate))
+								<dl class="clear">
+									<dt>演出日期：</dt>
+									<dd class="bold">$!DateUtil.format($!drama.releasedate, 'yyyy-MM-dd') #if(!$VmUtils.isNull($drama.releasedate) && !$VmUtils.isNull($drama.enddate))至#end $!DateUtil.format($!drama.enddate, 'yyyy-MM-dd')</dd>
+								</dl>
+								#end
+								#if($!curTheatre.name)
+								<dl class="clear">
+									<dt>演出场地：</dt>
+									<dd>$!curTheatre.name<span class="ffst ml5">[<a href="${basePath}common/baiduMap.xhtml?id=$!curTheatre.id&tag=theatre" target="_blank">地图</a>]</span></dd>
+								</dl>
+								#end
+								#set($dramaDataMap=$VmUtils.readJsonToMap($drama.getDramadata()))
+								#if(!$VmUtils.isEmptyList($directorsList) || $VmUtils.isNotBlank($!drama.directortext))
+								<dl class="clear starInfo">
+									<dt>导演：</dt>
+									<dd>
+										#if($VmUtils.size($directorsList) gt 0)
+										<em>
+										#foreach($dramaDirector in $directorsList)
+										<a href="${basePath}drama/star/$dramaDirector.id" target="_blank" lang="$dramaDirector.id" class="gold">$!dramaDirector.name</a>
+										#end
+										</em>
+										#end 
+										#if($VmUtils.isNotBlank($!drama.directortext))
+										<em>
+											$!VmUtils.replaceSeparator($!drama.directortext,',',' ')
+										</em>
+										#end
+										$!dramaDataMap.remove('导演')
+									</dd>
+								</dl>
+								#end
+								#if(!$VmUtils.isEmptyList($actorsList) || $VmUtils.isNotBlank($!drama.actorstext))
+								<dl class="clear starInfo">
+									<dt>主演：</dt>
+									<dd>
+										#if($VmUtils.size($actorsList) gt 0)
+										<em>
+										#foreach($dramaStar in $actorsList)
+											<a href="${basePath}drama/star/$dramaStar.id" target="_blank" lang="$dramaStar.id" class="gold">$!dramaStar.name</a>
+										#end
+										</em>
+										#end
+										#if($VmUtils.isNotBlank($!drama.actorstext))
+										<em>
+											$!VmUtils.replaceSeparator($!drama.actorstext,',',' ')
+										</em>
+										#end
+										$!dramaDataMap.remove('主演')
+									</dd>
+								</dl>
+								#end
+								#foreach($key in $dramaDataMap.keySet())
+								#if($VmUtils.isNotBlank($dramaDataMap.get($key)))
+								<dl class="clear">
+									<dt>${key}：</dt>
+									<dd>
+										<em>
+											$dramaDataMap.get($key)
+										</em>
+									</dd>
+								</dl>
+								#end
+								#end
+								#if(!$VmUtils.isEmptyList($allPriceList))
+								<dl class="clear">
+									<dt>票价(元)：</dt>
+									<dd><span class="fs14 mark_price">¥<b>#foreach($pirce in $allPriceList)$pirce#if($foreach.count ne $VmUtils.size($allPriceList))  #end#end</b></span></dd>
+								</dl>
+								#end
+								#set($otherInfoMap=$VmUtils.readJsonToMap($drama.otherinfo))
+								#if($otherInfoMap.get('lineseat') || $otherInfoMap.get('express') || $otherInfoMap.get('eticket'))
+								<dl class="clear">
+									<dt>支持：</dt>
+									<dd class="surAct">
+										#if($otherInfoMap.get('lineseat'))<span title="支持在线选座"><em class="S4 oSeat"></em>在线选座</span>#end
+										#if($otherInfoMap.get('eticket'))<span title="可凭取票密码至现场终端机打印电子票或工作人员处领取门票"><em class="S4 elecT"></em>电子票</span>#end
+										#if($otherInfoMap.get('express'))<span title="支持快递送票上门"><em class="S4 quickT"></em>快递送票</span>#end
+									</dd>
+								</dl>
+								#end
+								#if($otherInfoMap.get('pointpay') || $otherInfoMap.get('cardpay'))
+								<dl class="surAct1 clear">
+									<dt>优惠：</dt>
+									#if($otherInfoMap.get('pointpay'))<dd title="支持积分抵值"><em class="j S5">积</em>支持积分抵值(100积分=1元)</dd>#end
+									#if($otherInfoMap.get('cardpay'))<dd title="支持使用票券抵值"><em class="q S5">券</em>支持票券抵值</dd>#end
+									#if($drama.hasPretype('E'))<dd title="该剧目为代售剧目，不支持优惠"><em class="d S5">代</em>该剧目为代售剧目，不支持优惠</dd>#end
+								</dl>
+								#end
+							</div>
+						</div>
+						#if(!$VmUtils.isEmptyList($spdiscountList))
+						<div class="detail_privilege">
+							<ul>
+							#foreach($spdiscount in $spdiscountList)
+							#if($foreach.count le 4)
+							#if($spdiscount.hasDistype('percent'))
+							 	#set($discount=$!spdiscount.gainDiscount('true'))
+							#else
+							  #set($discount=$!spdiscount.discount)	
+							#end
+								<li #if($foreach.count gt 2)class="mt10"#end>
+									<span>
+										<em>惠</em>
+										<b>#if(!$spdiscount.hasDistype('percent')&&!$spdiscount.hasDistype('exp'))<i style="font-family:arial;font-style:normal;">¥</i>#end$!spdiscount.gainDiscount('true')#if($spdiscount.hasDistype('percent'))折#end</b>
+									</span>
+									<p class="left ml10">
+										$!spdiscount.getDiscountText("<em>$!spdiscount.bankname</em>","<b>$!discount</b>","<b>$!spdiscount.rebates</b>")
+									</p>
+								</li>
+							#end
+							#end
+							</ul>
+						</div>
+						#end
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="ui_right" style="width:310px;padding:0 10px 0 0;">
+			<div class="ratingsSide1 ratingsBox">
+				#set($gmark=$VmUtils.getSingleMarkStar($drama,"general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+				#set($isBigStaticRating=true)
+				#parse('include/global/staticRating.vm')
+				<span class="bigSubp"><sub id="mark_integer">$gmark1</sub><sup id="mark_decimal">.$gmark2</sup></span>
+				<a href="javascript:showMovieMark();" ><b class="jia">+</b>我要评分</a>
+			</div>
+			#*
+			<div class="ratingsSide2">
+				<p>推荐得分：<span class="ui_grades ui_grade10" title="10.0分"><b>10.0</b></span></p>
+				<p>用户得分：<span class="ui_grades ui_grade7" title="7.0分"><b>7.0</b></span></p>
+			</div>
+			*#
+			#if(!$VmUtils.isEmptyList($videoList))
+			<div class="drma_video">
+				<div class=mod_kong>
+					<div class="mod_hd">
+						<h2>视频/剧照</h2>
+						<a href="${basePath}drama/${drama.id}/videolist" class="more" target="_blank">更多&gt;&gt;</a>
+					</div>
+					<div class="mod_bd">
+						<ul class="ui_inline tips_album clear">
+							#set($imgCount=1)
+							#foreach($video in $videoList)
+							#if($imgCount lt 4)
+								<li #if($imgCount eq 3)style="margin-right:0;" #end>
+									<a class="img" title="预告片" href="${basePath}drama/dramaVideoDetail.xhtml?dramaid=$drama.id&vid=$video.id">
+									<img width="96" height="72" src="$VmUtils.randomPic('cw96h72',$!video.limg)" alt="预告片">
+										<span class="mask"></span>
+										<span class="ico_play"></span>
+									</a>
+								</li>
+								#set($imgCount = $imgCount+1)
+							#end
+							#end
+							#if($imgCount lt 4)
+							#foreach($picture in $dramaPictureList)
+							#if($imgCount lt 4)
+								<li #if($imgCount eq 3)style="margin-right:0;" #end>
+									<a class="img" title="剧照" href="${basePath}drama/dramaPicDetail.xhtml?dramaid=$drama.id&pid=$picture.id">
+									<img width="96" height="72" src="$VmUtils.randomPic('cw96h72',$!picture.picturename)" alt="剧照">
+										<span class="mask"></span>
+										<span class="ico_play"></span>
+									</a>
+								</li>
+							#end
+							#set($imgCount = $imgCount+1)
+							#end
+							#end
+						</ul>
+					</div>
+				</div>
+			</div>
+			#end
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready', function(){
+	starInfo();
+});
+function starInfo(){
+	var oListTags = $$('.starInfo em a');
+	if(oListTags && oListTags.length>0){
+		gewa.util.popo(oListTags,'','','up',function(){
+			if(arguments[0].get('lang') != null){
+				if(arguments[0].retrieve('key') == null){
+					GewaraUtil.sendRequest(GewaraUtil.basePath+"drama/ajax/star/detail.xhtml",{'starid':arguments[0].get('lang')}, function(result){
+						if(result.success){
+							var div = new Element('div');
+							div.innerHTML = result.retval;
+							this[0].store('key',div);
+							gewa.util.tips(this[0],div,380,this[1],this[2],this[3],'','',true);
+						}
+					}.bind(arguments),'key');
+				}else{
+					gewa.util.tips(arguments[0],arguments[0].retrieve('key'),380,arguments[1],arguments[2],arguments[3],'','',true);
+				}
+			}
+		},function(){
+			//isView = !isView;
+		});
+	}
+}
+</script>
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=560708" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+	try{
+		#set($sizeprice = $VmUtils.size($allPriceList) - 1)
+		var bds_config = {'bdText':'$!drama.highlight 《$!{drama.dramaname}》   $!DateUtil.format($!drama.releasedate, "MM月dd日")在$!curTheatre.name 开幕 ，#if(!$VmUtils.isEmptyList($allPriceList))票价¥ $allPriceList.get(0)- $allPriceList.get($sizeprice) #end， 分享给大家！@格瓦拉生活网  链接：','snsKey':{'tsina':'2536251945','tqq':'801037658'}};
+		document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + new Date().getHours();
+	}catch(e){}
+</script>

@@ -1,0 +1,80 @@
+#if($cinema.id)#set($map_tag='cinema')#set($map_place=$cinema)
+#elseif($bar.id)#set($map_tag='bar')#set($map_place=$bar)
+#elseif($ktv.id)#set($map_tag='ktv')#set($map_place=$ktv)
+#elseif($sport.id)#set($map_tag='sport')#set($map_place=$sport)
+#elseif($gym.id)#set($map_tag='gym')#set($map_place=$gym)
+#elseif($theatre.id)#set($map_tag='theatre')#set($map_place=$theatre)
+#elseif($activity.id)#set($map_tag=$activity.tag)#set($map_place=$!relate)
+#end
+#parse('include/constant/cityPoint.vm')
+#set($globalCurPoint=$globalCityPoint.get($cookieCitycode))
+#if(!$redirectUrl) #set($redirectUrl='common/baiduMap.xhtml') #end
+<script type="text/javascript">
+window.addEvent('load',function(){
+	gewa.util.getMap();
+});
+gewa.util.getMap = function(){
+	gewa.util.getMap.loading = new Element('div',{'styles':{'position':'absolute','width':'100%','height':'100%','left':0,'top':0,'background':'#fefefe url(${staticPath}css/images/loading.gif) center center no-repeat'}}).inject('loadMap');
+	(function(){
+		Asset.javascript('http://api.map.baidu.com/getscript?v=1.2&t='+gewara.util.rtime(), {
+		    id: 'baiduScript',
+		    onLoad: function(){
+		    	var map =new BMap.Map("map_canvas"); //创建Map实例
+				#if(!$VmUtils.isNull($map_place.bpointy) && !$VmUtils.isNull($map_place.bpointx))
+					var pointy = '$!map_place.bpointy';
+					var pointx = '$!map_place.bpointx';
+					if(!(pointx > -90 && pointx < 90) || !(pointy > -180 && pointy < 180)){
+						var point =new BMap.Point($!globalCurPoint[1] ,$!globalCurPoint[0]);	
+					}else{
+						var point =new BMap.Point($map_place.bpointy ,$map_place.bpointx); //创建点坐标
+					}
+				#else
+					var point =new BMap.Point($!globalCurPoint[1] ,$!globalCurPoint[0]);
+				#end
+				map.centerAndZoom(point,15); //初始化地图,设置中心点坐标和地图级别。
+				//创建标记
+				var marker=new BMap.Marker(point);
+				map.addOverlay(marker);
+				gewa.util.getMap.loading.dispose();
+		    }
+		});
+	}).delay(2000);
+}
+</script>
+<div class="map" id="loadMap">
+	<form action="${basePath}$redirectUrl" target="_blank">
+		<input type="hidden" name="tag" id="tag" value="$!map_tag"/>
+		<input type="hidden" name="id" id="id" value="$map_place.id"/>
+		<div id="map_canvas" style="width:258px;height: 210px;"></div>
+		<div class="mapInner">
+			<div style="position:relative; z-index:0; width:258px">
+			<div class="left bold">
+				从<input type="text" size="12" class="text" style="width:70px;*width:60px;" name="from" id="from" />
+				<span class="ml5 mr5">到这里</span>
+			</div>
+			<label class="left minBt button whiteBt"><input style="width:65px;" type="submit"  value="驾车查询"/></label>
+			</div>
+		</div>
+	</form>
+</div>
+<div style="padding:5px; background:#f3f3f3; border:1px solid #ccc;">
+   #if($VmUtils.isNotBlank($map_place.rTransport))
+	<dl class="ui_abeam">
+		<dt class="uipic mr0">公交信息：</dt><dd class="uiText" style="width:70%;">$!map_place.rTransport</dd>
+	</dl>
+	#end
+	#if($VmUtils.isNotBlank($map_place.stationname))
+	<dl class="ui_abeam">
+		<dt class="uipic mr0">地铁信息：</dt><dd class="uiText" style="width:70%;">$!map_place.getLineName($subwaylineMap)&nbsp;$!{map_place.stationname}站&nbsp;$!{map_place.exitnumber}</dd>
+	</dl>
+	#end
+	#if($VmUtils.isNotBlank($map_place.otherinfo))
+	#set($parkOtherInfoMap=$VmUtils.readJsonToMap($map_place.otherinfo))
+	#set($park = $parkOtherInfoMap.get('park'))
+	#if($park)
+	<dl class="ui_abeam">
+		<dt class="uipic mr0">停车信息：</dt><dd class="uiText" style="width:70%;">$!park</dd>
+	</dl>
+	#end
+	#end
+</div>

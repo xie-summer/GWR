@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>商家后台用户登录</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/partner.css?v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		html{background:#c2d8f2}
+		.m{margin:0 1px;padding:12px;border-width:0px 1px;border-style:solid;}
+		.title{height:26px;line-height: 26px;border-bottom:1px solid #00A0E9;}
+		.title h2{height:25px;line-height: 25px;color:#000;font-size:15px;}
+		.login-innerbox{padding-top:32px; position:relative;}
+		.login-innerbox dd{padding:0 60px;line-height: 30px;height:30px;}
+		.ipt{border-width:1px;border-style:solid;border-color:#404040 #CCC #CCC #404040;margin:0 3px;color:#666;height:18px;padding-top:2px;width:150px;}
+		.req{color:#ff6200}
+		.loginbt{background:url(${picPath}css/buss/login2.gif) no-repeat;height:25px;width:80px;border:0px;margin-left:60px;cursor: pointer;}
+		.q{color:#4971B4}
+		dd.ErrorMsg{width:200px;height:24px;line-height: 22px;padding:6px 0 0 120px;position:absolute;top:0px;left:-10px;} 
+		.err{position: absolute;width:130px;height:24px;line-height: 22px;display: none;background:url(${picPath}css/pub/loginpt.png) 0 6px no-repeat;padding-left:10px}
+		.ErrorMsg .m1,.ErrorMsg .m2,.ErrorMsg .m,.err .m1,.err .m2,.err .m{border-color:#eee;color:#FF9900;background:#EFEFEF;font-weight:bold}
+		.ErrorMsg .m1{margin:0 3px;}
+		.ErrorMsg .m2{margin:0 2px;}
+		.err .m1{margin-right:3px;}
+		.err .m2{margin-right:2px;}
+		.ErrorMsg .m,.err .m{padding:0 0 0 10px}.err .m{margin-right:1px;}
+		.layout1{width:430px;margin:17% auto;}
+	</style>
+</head>
+<body>
+#set($msg="无效的用户名或密码，请重试")
+#if($VmUtils.eq($params.errortype,'password'))
+#set($msg="密码错误！")
+#elseif($VmUtils.eq($params.errortype,'username'))
+#set($msg="用户不存在！")
+#elseif($VmUtils.eq($params.errortype,'captcha'))
+#set($msg="验证码错误！")
+#elseif($VmUtils.eq($params.errortype,'passOrName'))
+#set($msg="用户名或密码错误！")
+#elseif($VmUtils.eq($params.errortype,'rejected'))
+#set($msg="你的用户名被禁用，请联系客服！")
+#end
+<div class="layout1">
+	<em class="m1"></em><em class="m2"></em>
+	<div class="m" style="background:url(${staticPath}css/partner/0.png) repeat-x;height:180px;">
+		<div class="title"><h2>合作商户系统</h2></div>
+		<form method="post" id="loginForm" action="${basePath}cas/check_user.xhtml" onsubmit="return submitForm()">
+			<input type="hidden" name="ptn" value="partner"/>
+			<dl class="login-innerbox">
+				#if($VmUtils.isNotBlank($params.errortype))
+				<dd class="ErrorMsg">
+					<em class="m1"></em><em class="m2"></em>
+					<div class="m">$msg</div>
+					<em class="m2"></em><em class="m1"></em>
+				</dd>
+				#end
+				<dd>
+					<label for="j_username">登<span style="padding-left:11px;">录</span>：</label>
+					<input type="text" name="j_username" id="j_username" class='ipt'/>
+					<span class="req">*</span>
+				</dd>
+				<dd>
+					<label for="j_password">密<span style="padding-left:11px;">码</span>：</label>
+					<input type="password" name="j_password" id="j_password" class='ipt'/>
+					<span class="req">*</span>
+				</dd>
+				<dd>
+					<label for="captcha">验证码：</label>
+					<input type="hidden" name="captchaId" id="captcha"/>
+					<input type="text" name="captcha" id="captchaInput" class='ipt captcha' name="captcha" alt="点击获取" autocomplete="off" onfocus="GewaraUtil.refreshCaptcha('captcha');" style="width:90px"/>
+					<span class="req">*</span>
+					<img id="captchaImg" width="80" height="30" class="ml10 mt5" src="${staticPath}css/images/blank.gif" style="cursor: pointer;vertical-align:middle;" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清楚，请点击换一张图片"/>
+				</dd>
+				<dd>
+					<input type="submit" class="loginbt" name="login" value=""/>
+				</dd>
+			</dl>
+		</form>
+	</div>
+	<em class="m2"></em><em class="m1"></em>
+</div>
+<div class="err">
+	<em class="m1"></em><em class="m2"></em>
+	<div class="m" id="msg"></div>
+	<em class="m2"></em><em class="m1"></em>
+</div>
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	gewaUtil.textOver('.captcha');
+});
+function submitForm(){
+	vForm = $("loginForm");
+	var isValid = validateForm(vForm);
+	if(isValid) $("loginForm").submit();
+	return false;
+}
+function validateForm(form) {                                                      
+	if($('j_username').value==''){
+		$("j_username").focus();
+		$$(".err").show();
+		$$(".err").setStyles({"top":$("j_username").getTop(),"left":$("j_username").getLeft()+160});
+		$("msg").innerHTML = "用户名不能为空！";
+		return false;
+	}
+	if($("j_password").value==''){
+		$("j_password").focus();
+		$$(".err").setStyles({"top":$("j_password").getTop(),"left":$("j_password").getLeft()+160});
+		$("msg").innerHTML = "密码不能为空！";
+		$$(".err").show();
+		return false;
+	}
+	return true;
+}
+window.addEvent('domready',function(){
+	$$(".ipt").each(function(item){
+		item.addEvent("keyup",function(event){
+			if($chk(item.value)){
+				$$(".err").hide();
+			}
+		})
+	});
+	new DefaultValue("j_username","请输入登录账号");
+});
+var DefaultValue = new Class({
+	initialize: function(el, disp){
+		$(el).value = disp;
+		$(el).addEvents({
+			'blur':function(){
+				if(this.value.trim() == "") this.value = disp;
+			},
+			'focus':function(){
+				if(this.value.trim() == disp) this.value="";
+			}
+		});
+	}
+});
+</script>
+</body>
+</html>

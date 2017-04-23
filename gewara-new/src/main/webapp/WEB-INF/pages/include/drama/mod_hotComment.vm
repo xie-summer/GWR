@@ -1,0 +1,31 @@
+#if(!$VmUtils.isEmptyList($diaryList))
+<div class="mod_kong hotcom">
+	<div class="mod_hd">
+		<h2>热门评论</h2>
+		<a href="${basePath}blog/theatre" class="more ffst" target="_blank">更多&gt;&gt;</a>
+	</div>
+	<div class="mod_bd">
+		<ul>
+			#foreach($diary in $diaryList)
+			#set($relate=$relatedHelper.getR1("categoryIdList",$diary.categoryid))
+			<li class="mb15">
+				<dl class="ui_media">
+					<dt class="ui_pic">
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.memberid" title="" target="_blank">
+							<img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($diary.memberid).headpicUrl)" alt="" width="50" height="50"/>
+						</a>
+						#if($VmUtils.contains($comment.flag,'ticket'))
+						<span class="ico_buyTicket"></span>
+						#end
+					</dt>
+					<dd class="ui_text c666">
+						<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.memberid" title="" target="_blank" class="c999">$!cacheMemberMap.get($diary.memberid).nickname</a> #if($relate) 评论 <a href="${basePath}drama/$relate.id" title="$!relate.name" target="_blank" class="c80">《$!relate.name》</a>#end</p>
+						<p class="mt5">$VmUtils.htmlabbr($!diary.summary, 50)...  <a class="ui_readMore" href="${basePath}blog/t$!diary.id">阅读全文</a></p>
+					</dd>
+				</dl>
+			</li>
+			#end
+		</ul>
+	</div>
+</div>
+#end

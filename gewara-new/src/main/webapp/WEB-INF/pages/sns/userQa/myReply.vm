@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>格瓦拉社区</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/default.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,Autocompleter,page,noobSlide&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div id="snsHeader"></div>
+<div class="ui_layout">
+	#set($menuTag = 'know')
+	#parse('sns/common/left.vm')
+	<div class="body_right">
+		<div class="body_nav_tags">
+			<div class="navs">
+				<a id="answer" href="javascript:void(0);" class="select" onclick="getQuestionOrAnswer('answer',this)">#if((!$!params.memberid || $!params.memberid==$!logonMember.id) && !$VmUtils.eq($isMy, 'no'))我#else他#end的回答</a>
+				<a id="question" href="javascript:void(0);"  onclick="getQuestionOrAnswer('question',this)">#if((!$!params.memberid || $!params.memberid==$!logonMember.id) && !$VmUtils.eq($isMy, 'no'))我#else他#end的知道</a>
+			</div>
+			<div class="modules">
+				<a href="${basePath}qa/modQuestion.xhtml" class="addnew" target="_blank">我要提问</a>
+			</div>
+		</div>
+		<div class="bodys">
+			<div class="userQa" id="userQa">
+				#parse('sns/userQa/myQa.vm')
+			</div>
+		</div>
+	</div>
+</div>
+<div class="ui_view_menu"></div>
+<div class="footer_warp">
+	<div class="isFooter"></div>
+</div>
+#parse('include/innerLogin.vm')
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=snsUtil,index_even&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	if($('publicize'))new adSoild('publicize','navControl',{'position':{'x':#if($!params.memberid)280#{else}180#end,'y':#if($!params.memberid)80#{else}70#end},'width':14});
+	if($('slidePanel'))new noobSlide({
+		box: $('slidePanel'),
+		size:180,
+		items: $$('#slidePanel li'),
+		handle_event:'click',
+		addButtons: {
+			previous:$('eventL'),
+			next:$('eventR')
+		}
+	});
+});
+
+function getQuestionOrAnswer(type,obj){
+	var url = '${basePath}home/qa/newQuestionAndAnswerList.xhtml';
+	var values={'memberid':'#if($params.memberid)$params.memberid#else$logonMember.id#end','type':type};
+	gewaUtil.loadData('userQa', url, values, function(result){
+		if(result.success){
+			if(type == 'question'){
+				$('question').addClass('select');
+				$('answer').removeClass('select');
+			}else{
+				$('question').removeClass('select');
+				$('answer').addClass('select');
+			}
+		}else{
+			gewaUtil.alert(result.json.msg);
+		}
+	}, obj, 'get');
+}
+
+function ajaxPage(pageNo, params, url){
+	gewaUtil.loadData('userQa', url, {});
+}
+</script>
+#parse('sns/common/ga.vm')
+</body>
+</html>
+
+
+
+

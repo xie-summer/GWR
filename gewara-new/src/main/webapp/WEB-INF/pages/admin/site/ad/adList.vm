@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>广告列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;maradn-top:3px}
+		input,textarea { width:450px; display:inline}
+		a{text-decoration: none;}
+		.ua{text-decoration: none;color: red }
+		.bk{background:rgb(255, 246, 200)}
+	</style>
+</head>
+<body style="width:100%; maradn:auto" class="yui-skin-sam">
+<div>
+<input type="button" value="增加" onclick="modAd();" style="width:80px"/>
+</div>
+<table width="100%" class="table">
+	<thead>
+	<tr>
+		<th>标题</th>
+		<th>类型</th>
+		<th>链接</th>
+		<th>广告</th>
+		<th>操作</th>
+		<th>排序</th>
+		<th>状态</th>
+	</tr>
+	</thead>
+	<tbody id="gymTable">
+	#foreach($ad in $adList)
+	<tr>
+		<td>$!{ad.title}</td>
+		<td>$!{ad.adtype}</td>
+		<td>$!{ad.link}</td>
+		<td>#if($VmUtils.eq($ad.adtype,'picture'))#if($!{ad.ad})<img src="$VmUtils.randomPic('',$!{ad.ad})" width="120" height="60"/>#end#end</td>
+		<td align="center">
+		<input type="button" value="修改" onclick="modAd($ad.id)" style="width: 80px"/>
+		<!-- <input type="button" value="#if($VmUtils.eq($ad.status,'up'))广告下线↓#elseif($VmUtils.eq($ad.status,'down'))广告上线↑#end" onclick="udAd($ad.id)" style="width: 80px"/> -->
+		<input type="button" value="删除" onclick="removeAd($ad.id)" style="width: 80px"/>
+		</td>
+		<td><input type="text" name="ordernum" id="ordernum" value="$!ad.ordernum" style="width:40px;" onchange="changOrdernum($ad.id,this)"/></td>
+		<td>#if($ad.booking)线上#else线下#end</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<div id="adDialog" class="yui-panel" style="width:600px; visibility:hidden; z-index:20;">
+	
+</div>
+	<script type="text/javascript">
+	function addAd(){
+		GewaraUtil.showDialog("adDialog");
+	}
+	function cancle(){
+		GewaraUtil.hideDialog('adDialog');
+	}
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('ad').value = picpath;
+		$('logoimg1').src='${basePath}' + picpath;
+	}
+	function save(){
+		if($('logicaldir').value==''){
+			alert('逻辑目录必须填写！');
+			return;
+		}
+		var url = "${basePath}admin/site/ad/saveAd.xhtml";
+		var values = GewaraUtil.getValues("adForm");
+		GewaraUtil.sendRequest(url, values, saveCallBack);
+	}
+	function changOrdernum(id,obj){
+		if(obj.value == ''){
+			alert("排序不能为空!");
+			return;
+		}
+		var url = "${basePath}admin/site/ad/changOrdernum.xhtml";
+		var values = {"id":id,"ordernum":obj.value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$(obj).setStyle('background-color','red');
+				(function(){
+					$(obj).setStyle('background-color','');
+				}.bind(obj)).delay(800);
+			}else{
+				alert(result.msg);
+			}
+		}); 
+	}
+	function modAd(id){
+		var url = "${basePath}admin/site/ad/getAd.xhtml";
+		var values = $chk(id) ? {"id":id, "adpid":'$!params.adpid'} : {"adpid":'$!params.adpid'};
+		GewaraUtil.sendLoad('adDialog', url, values, function(result){
+			addAd();
+		});
+	}
+	function udAd(id){
+		var url = "${basePath}admin/site/ad/udAd.xhtml";
+		GewaraUtil.sendRequest(url, {"adpid":'$!params.adpid', "id":id}, udCallBack);
+	}
+	function removeAd(id){
+		if(confirm("确认要删除吗?")==false) return;
+		var url = "${basePath}admin/site/ad/removeAd.xhtml";
+		GewaraUtil.sendRequest(url, {"id":id}, removeCallBack);
+	}
+	function saveCallBack(result){
+		if(result.success){
+			alert("保存成功");
+			cancle();
+			refreshPage();
+		}else alert("保存失败");
+	}
+	function modCallBack(ad){
+		GewaraUtil.setValues(ad);
+	}
+	function removeCallBack(result){
+		if(result){
+			alert("成功删除")
+			refreshPage();
+		}else alert("删除失败");
+	}
+	function udCallBack(result){
+		if(result.success){
+			alert("成功设置")
+			refreshPage();
+		}else alert("设置失败");
+	}
+</script>
+</body>
+</html>

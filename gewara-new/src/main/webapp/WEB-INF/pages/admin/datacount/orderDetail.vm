@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>数据统计</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#fff;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		td, th{
+			text-align: left;
+			height: 23px;
+		}
+		span{
+			color: red;
+		}
+	</style>
+</head>
+<body>
+<div style="margin-left: 10px;width: 300px;background-color: #fff;height: auto;">
+	<div style="background-color: #ffffff;">
+		<table cellpadding="0" cellspacing="0" width="100%" border="1" style="border-collapse: collapse">
+			<tr>
+				<th colspan="2">订单基本信息</th>
+			</tr>
+			<tr>
+				<td>订单类型</td><td>#if($order.ordertype eq 'ticket')电影票#elseif($order.ordertype eq 'drama')演出订单#elseif($order.ordertype eq 'goods')物品订单#end</td>
+			</tr>
+			<tr>
+				<td>订单名称</td><td>$order.ordertitle</td>
+			</tr>
+			<tr>
+				<td>订单ID</td><td>$order.id</td>
+			</tr>
+			<tr>
+				<td>订单号</td><td>X$order.tradeNo</td>
+			</tr>
+			<tr>
+				<td>订单状态</td><td>${order.statusText}</td>
+			</tr>
+			<tr>
+				<td>手机号</td><td>$order.mobile</td>
+			</tr>
+			<tr>
+				<td>下单时间</td><td>$DateUtil.formatTimestamp($order.addtime)</td>
+			</tr>
+			<tr>
+				<td>有效时间</td><td>$DateUtil.formatTimestamp($order.validtime)</td>
+			</tr>
+			<tr>
+				<td>付款时间</td><td>$!DateUtil.formatTimestamp($order.paidtime)</td>
+			</tr>
+			<tr>
+				<td>用户ID</td><td>$order.memberid</td>
+			</tr>
+			<tr>
+				<td>用户昵称</td><td>$order.membername</td>
+			</tr>
+			<tr>
+				<td>订单总额</td><td>$order.totalAmount</td>
+			</tr>
+			<tr>
+				<td>折扣总额</td><td>$order.discount</td>
+			</tr>
+			<tr>
+				<td>应付款</td><td>$order.due</td>
+			</tr>
+			<tr>
+				<td>支付方式</td><td>$!order.paymethodText</td>
+			</tr>
+			#if($order.description2)
+			#set($descMap=$VmUtils.readJsonToMap($order.description2))
+			#foreach($m in $descMap.keySet())
+			<tr>
+				<td>$m</td><td>$!descMap.get($m)</td>
+			</tr>
+			#end
+			#end
+		</table>
+	</div>
+	<hr />
+	<p>$!order.disreason</p>
+	<hr />
+	#foreach($item in $itemList)
+	<div>同时购买：$item.goodsname数量$item.quantity单价$item.unitprice总价$item.totalfee</div>
+	#end
+</div>
+	<script type="text/javascript">
+	$$("tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+</script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<div class="mod_kong dramaScroll mt30">
+	<div class="mod_hd">
+		<h2>海报/剧照 </h2><span class="ml5 c999">(共$!VmUtils.size($dramaPictureList)张)</span>
+	</div>
+	<div class="mod_bd">
+		<div class="dramaScrollPic">
+		<div class="view_photo_con">
+			<div class="groupOutside">
+				<div class="groupImgs" id="img" >
+					<span class="prive" title="上一张">上一张</span>
+					<span class="nex" title="下一张" style="left:auto;right:0px;">下一张</span>
+				</div>
+			</div>
+			<div class="groupImgsControl">
+				<div id="control_list" class="control_list">
+					<ul id="scoll" class="clear" style="overflow:hidden;"></ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+var count=0,picList = getDramaImageMap(),flag = true,scroll = $empty;
+window.addEvent('domready',function(){
+	picsolid();
+	try{
+		taskCount();
+	}catch(e){}
+	
+});
+
+function getDramaImageMap(){
+	#set($picMapList=[])
+	#foreach($pics in $dramaPictureList)
+	#set($temp=$picMapList.add({"picturename":"$VmUtils.randomPic('',$!pics.picturename)","minpic":"$VmUtils.randomPic('cw128h96',$!pics.picturename)","description":"$!pics.description","membername":"$!pics.membername","posttime":"$!pics.posttime","id":"$!pics.id"}))
+	#end
+	var dramaImageMap = $VmUtils.getScriptObject($picMapList);
+	return dramaImageMap;
+}
+function picsolid(){
+	picList.each(function(img,index){
+		if(picList.length > 5){
+			new Element('img',{'src':"$VmUtils.randomPic('','css/images/blank.gif')",'lazeSrc':picList[index].minpic,'class':index==count?'select':'','styles':{'background-image':'url($VmUtils.randomPic('','css/images/loading3.gif'))','background-position':'center center','background-repeat':'no-repeat'}}).addEvent('click',function(){
+				count = index;
+				taskCount();
+			}).inject(new Element('li').inject('scoll'));
+		}else{
+			new Element('img',{'src':picList[index].minpic,'class':index==count?'select':''}).addEvent('click',function(){
+				count = index;
+				taskCount();
+			}).inject(new Element('li').inject('scoll'));
+		}
+	});
+	$('img').getElements('span').addEvent('click',function(){
+		if(flag){
+			if(this.get('title') == '上一张'){
+				if(count > 0)count--
+				else count = 0;
+				if(count == 0)this.hide();
+				$$('.nex').show();
+			}else{
+				if(count < picList.length-1) count++;
+				else count = picList.length-1;
+				if(count == picList.length-1)this.hide();
+				$$('.prive').show();
+			}
+			taskCount();
+		}
+	});
+	if(picList.length > 5)$('scoll').setStyle('width',114*picList.length);
+	scroll = new ScrollerBar('control_list',{mode:'horizontal','laze':true,wrapped:'scoll'});
+}
+function taskCount(){
+	if(flag){
+		flag = false;
+		$('img').PlayPicture(picList[count].picturename,630,410,function(collback){
+			flag = collback;
+			if(picList.length > 5){
+				scroll.setStyle(count,function(obj){
+					$('scoll').getElements('img').removeClass('select');
+					$(obj).getChildren().addClass('select');
+					scroll.slider.set(count*(scroll.getSub()/picList.length));
+				});
+			}else{
+				$('scoll').getElements('img').each(function(item,index){
+					if(index == count) item.addClass('select');
+					else item.removeClass('select');
+				});
+			}
+		});
+	}
+}
+</script>

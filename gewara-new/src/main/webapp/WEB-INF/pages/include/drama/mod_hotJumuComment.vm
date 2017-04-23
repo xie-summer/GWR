@@ -1,0 +1,75 @@
+#if(!$VmUtils.isEmptyList($dirayList))
+#foreach($diary in $dirayList)
+<img class="uiPt1" src="${staticPath}css/images/blank.gif" />
+<div class="ui_media jumucList">
+	<div class="ui_pic ui_pic1">
+		<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.memberid" target="_blank" title="$cacheMemberMap.get($diary.memberid).nickname">
+			<img src="$VmUtils.randomPic('sw50h50',$cacheMemberMap.get($diary.memberid).headpicUrl)" alt="$cacheMemberMap.get($diary.memberid).nickname" height="50" width="50" />
+		</a>
+		<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.memberid" target="_blank" title="$cacheMemberMap.get($diary.memberid).nickname">$cacheMemberMap.get($diary.memberid).nickname</a></p>
+	</div>
+	<div class="ui_text">
+		<div class="title">
+			<h2>
+				<a href="${basePath}blog/t${diary.id}" title="$!diary.subject" target="_blank" class="c80">$!VmUtils.escabbr($diary.subject, 60)</a>
+			</h2>
+		</div>
+		<div class="c999 mt10">
+			<p id="review_${diary.id}_short" style="font-size:12px;">
+				$!VmUtils.htmlabbr($diary.summary,200) 
+				#if($!VmUtils.getByteLength($diary.summary) gt 200)...   
+				<a id="af_${diary.id}" onclick="getBody('$!diary.id')" class="ui_readMore fs12" href="javascript:void(0)">展开全文&gt;&gt;</a>
+				#end
+			</p>
+			<p id="review_${diary.id}_full" style="display:none;font-size:12px;">
+				$!diary.summary    
+			</p>
+			<a id="uf_${diary.id}" onclick="getBody('$!diary.id')" class="ui_readMore fs12" style="display:none;" href="javascript:void(0)">收起全文&gt;&gt;</a>
+		</div>
+		<div class="supportOuter">
+			<div class="right">
+				<a onclick="showSupport($diary.id);" href="javascript:void(0);"><span class="iconBt"  title="对我有用"><span><em class="support">$!{diary.flowernum}</em></span></span></a>
+				<a onclick="showOppose($diary.id);" href="javascript:void(0);" ><span class="iconBt"  title="对我没用"><span><em class="oppose">$!{diary.poohnum}</em></span></span></a>
+			</div>
+			<span>#if($!$diary.addtime)发表于$DateUtil.format($diary.addtime, 'yyyy-MM-dd HH:mm') #end</span>
+		</div>
+		<div id="support$diary.id" class="film_review none mt10 clear">
+            <div class="film_review_text">
+				<img class="uiPt" src="${staticPath}css/images/blank.gif" />
+				<textarea id="say_support$diary.id"  name="body">说说支持理由</textarea>
+		  </div>
+		  <div class="tar mt5">
+		  		<dl class="left" style="margin:0;">
+					<dt class="left" style="margin-top:3px;">验证码：</dt>
+					<dd class="left">
+						<input type="hidden" id="captcha$diary.id" name="captchaId" />
+						<input type="text" class="text captcha" name="captcha" style="width:80px;" alt="点击获取" autocomplete="off"  id="captcha$!{diary.id}Input" onfocus="GewaraUtil.refreshCaptcha('captcha$!{diary.id}');" size="18" /><span class="yellow">*</span>
+						<img width="59" height="24"  id="captcha$!{diary.id}Img" onclick="GewaraUtil.refreshCaptcha('captcha$!{diary.id}');" src="${staticPath}css/images/blank.gif" style="cursor: pointer;vertical-align:middle;" title="看不清楚，请点击换一张图片"/>
+					</dd>
+				</dl>
+		     <a target="_blank" class="button minBt redBt" onclick="addComment(this,$diary.id,'support','say_support$diary.id','captcha$diary.id');">
+		     <span>发布</span></a>
+		  </div>
+   	</div>
+		<div id="oppose$diary.id" class="film_review none mt10 clear">
+              <div class="film_review_text">
+					<img class="uiPt" src="${staticPath}css/images/blank.gif" />
+					<textarea id="say_oppose$diary.id"  name="body" >说说反对理由</textarea>
+			  </div>
+			  <div class="tar mt5">
+			  		<dl class="left" style="margin:0;">
+						<dt class="left" style="margin-top:3px;">验证码：</dt>
+						<dd class="left">
+							<input type="hidden" name="captchaId" id="captchan$!{diary.id}"/>
+							<input type="text" class="text captcha" name="captcha" style="width:80px;" alt="点击获取"  id="captchan$!{diary.id}Input" onfocus="GewaraUtil.refreshCaptcha('captchan$!{diary.id}');" size="18"  value='点击获取' /><span class="yellow">*</span>
+							<img width="59" height="24" src="${staticPath}css/images/blank.gif" id="captchan$!{diary.id}Img" style="cursor: pointer;vertical-align:middle;" onclick="GewaraUtil.refreshCaptcha('captchan$!{diary.id}');" title="看不清楚，请点击换一张图片"/>
+						</dd>
+					</dl>
+			     <a target="_blank" class="button minBt redBt" onclick="addComment(this,$diary.id,'oppose','say_oppose$diary.id','captchan$diary.id');">
+			     <span>发布</span></a>
+			  </div>
+	   </div>
+	</div>
+</div>
+#end
+#end

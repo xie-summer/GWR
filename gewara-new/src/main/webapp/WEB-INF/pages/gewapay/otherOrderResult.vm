@@ -1,0 +1,203 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>支付成功_格瓦拉生活网</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.gui-title{height:auto;}
+		.gui-title h1{display:inline;font-weight:bold;color:#000;font-size:14px;}
+		h1,h2{font-weight:bold !important;color:#ff6200}
+		h1{color:#ff620 !important;line-height:30px;}
+		.ul-28 li{height:22px;line-height:22px;}
+		.percent_20{width:100%;overflow:hidden;}
+		.percent_20 li{width:19.9%;height:100%;overflow:hidden;float:left;text-align:center;display:block;}
+		.percent_20 li h3{font-size:12px;font-weight:normal;color:#C03B0C;text-align:left;}
+		
+		.bord{border:1px solid #ece1db;background:#fff9f3;padding:20px 30px;}
+		.lose h2{background:url(${picPath}css/buss/lose_icon.png) no-repeat;display:inline-block;height:48px;padding-left:60px;color:#4e4d4c;font-size:26px;line-height:48px;}
+		.ul_lose span{color:#ff6200;}
+	</style>
+</head>
+<body>
+#set($isPay = true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="gui-layout">
+	<ul class="payOrder">
+		<li style="margin-right:8px;">
+			<div class="step_order_inner">1、选择影片</div>
+			<div class="order_step_info">选择影片、影院及场次</div>
+		</li>
+		<li style="margin-right:8px;">
+			<div class="step_order_inner">2、选择座位</div>
+			<div class="order_step_info">选择座位，并输入用于取票的手机号码</div>
+		</li>
+		<li style="margin-right:8px;">
+			<div class="step_order_inner">3、在线支付</div>
+			<div class="order_step_info">选择网上支付</div>
+		</li>
+		<li>
+			<div class="step_order_inner select">4、自助取票<img src="${staticPath}css/buss/06_ioc.png"/></div>
+			<div class="order_step_info">$!profile.takeInfo</div>
+		</li>
+	</ul>
+#if($isvalid)
+	#if($success)
+	<div class="gui-global-panel">
+		<div class="gui-globalLeft">
+			<div class="showList">
+				<dl class="gui-120">
+					<dt class="gui-120Inner"><img src="${staticPath}css/buss/succ_i.png" class="mt20" alt="购买成功"/></dt>
+					<dd class="gui-left">
+						<div class="gui-title">
+							<h1>支付成功！你将在15分钟内收到取票短信。</h1>
+							</div>
+						<p class="mt5 fs14">请凭短信中的取票密码$!{profile.takeInfo}。
+							#if($topic.id)<a href="${basePath}blog/t$topic.id" class="brown normal">查看取票指南</a>#end
+						</p>
+						<span class="m20">订单号：<a href="${basePath}gewapay/showOrder.xhtml?orderId=$order.id" class="brown">$order.tradeNo</a></span>
+						<ul class="ul-28">#set($descMap=$VmUtils.readJsonToMap($order.description2))
+							<li>影片：《$descMap.get('影片')》</li>
+							<li>场次：$descMap.get('场次')</li>
+							<li>座位：$descMap.get('影票')</li>
+							#if($order.discount>0)<li>折扣：$order.discount</li>#end
+							<li>付款：<strong class="yellow" style="font-size:2em">$!fee</strong>元（已包含<a href="${basePath}helpCenter/index.dhtml?diaryId=3121496&dkey=helpcenter1308110047359" class="brown" target="_blank">服务费</a>#if($order.itemfee gt 0)，$!GewaOrderHelper.getBuyItemName($itemList)：${order.itemfee}元#end）</li>
+						</ul>
+						#if($gift && $goods)#set($qnum=$!gift.getRatenum($order.quantity))
+						<p class="mt10">
+						您获得<b class="fs14 yellow">$!{goods.goodsname}$qnum份</b>,凭收到的套餐密码至格瓦拉取票机上取票后兑换。
+						</p>
+						#end
+						#if($order.paymethod eq 'gewaPay') #set($point=${order.due}-${order.wabi}) #else #set($point=$order.due) #end
+						<p class="mt10">
+							#if($point gt 0)
+							本次消费你获得<b class="fs14 yellow">$point</b>积分。
+							<a href="${basePath}service/integral.dhtml" target="_blank" class="ml20 brown">积分有什么用?</a>
+							<br/>
+							#end
+							</p>
+						<div style="height:1px;line-height:1px;font-size:1px;border-top:1px solid #efe1da"></div>
+					</dd>
+				</dl>
+				<div class="height0"></div>
+				<div class="fs14 yellow bold mt5 mt10">到影院格瓦拉取票终端打印电影票时请核对打印出电影票的数量，每个座位打印一张电影票</div>
+				<div class="height0"></div>
+			</div>
+			#parse('include/movie/surtax.vm')
+			<!-- 购票成功后广告 start-->
+			#parse('include/ad/ad_ticket_success.vm')
+			<!-- 购票成功后广告 end-->
+			#if($topic.id)
+			<div class="showList">
+				<div class="gui-title"><h2>$order.ordertitle取票说明和影院取票机效果图：</h2></div>
+			</div>
+			<div class="showMap" style="padding:10px 40px;width:550px;overflow:hidden;height:100%;">
+				<img src="${staticPath}css/global/step.jpg"/><br/>
+				$diaryBody
+			</div>
+			#end
+		</div>
+		<div class="gui-globalRight" style="overflow: visible;">
+			<div style="position: relative;height:136px;margin-top:20px;">
+				<img src="#if($profile.takemethod eq 'U')${staticPath}css/buss/step_info_1.png#{else}${staticPath}css/buss/step_info.png#end" 
+				alt="取票流程图" style="position: absolute;top:0px;left:-46px;"/>
+			</div>
+			<div class="horn mt10">
+				<em class="m1"></em><em class="m2"></em>
+				<div class="m">
+					#if($VmUtils.size($memberList) gt 0)
+					<div class="gui-title fs14" style="border-bottom:1px solid #bbb;height:auto;">
+						和你一起观影《$!opi.moviename》的瓦友
+					</div>
+					<ul class="ul-33">
+						#foreach($memberid in $memberList)
+						<li>
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!memberid" class="pubpic" target="_blank">
+								<img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($memberid).headpicUrl)) center center no-repeat;"/>
+							</a>
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!memberid" class="brown" target="_blank">$cacheMemberMap.get($memberid).nickname</a>
+						</li>
+						#end
+					</ul>
+					<div class="height0"></div>
+					#end
+					<div style="padding:10px">
+						<div style="border-top:1px solid #bbb;padding-top:10px;">
+							<strong class="fs14 black">手机玩转格瓦拉</strong><br/>
+							<span class="fs14">手机购买电影票和即时在线评电影</span>
+						</div>
+						<div class="mt5 center">
+							<img src="${picPath}css/buss/wap.jpg" alt="格瓦拉手机访问地址：m.gewara.com"/>
+						</div>
+						<div class="mt5"><b>Wap版：</b>手机登录 m.gewara.com，随时随地查排片，与瓦友一起评电影…</div>
+						<ul class="ul-box" style="margin:0px;">
+							<li style="margin:0px;">
+								<div class="imgminbox"><img src="${picPath}css/buss/iphone.png" alt="Iphone版客服端"/></div>
+								<b>Iphone版：</b>支持Iphone机型，随时随地了解最新电影动态和你周边瓦友的影评…
+							</li>
+						</ul>
+					</div>
+				</div>
+				<em class="m2"></em><em class="m1"></em>
+			</div>
+		</div>
+		<div class="height0"></div>
+	</div>
+	#else
+	<table cellpadding="0" cellspacing="0" class="gui-table" border="0">
+		<tr><td class="gui-tplt" valign="bottom" align="right"></td><td class="gui-tpct" valign="bottom"></td><td class="gui-tprt" valign="bottom" align="left"></td></tr>
+		<tr>
+			<td class="gui-ctlt"></td>
+			<td style="padding:20px 60px;">
+				<dl class="gui-160" style="padding-left:260px;">
+					<dt class="gui-160Inner" style="margin-left:-200px;_margin-left:-100px;"><img src="${staticPath}css/buss/errorq.png" alt="购买失败"/></dt>
+					<dd style="width:98%;float:left;">
+						<h1 style="font-size:2em;font-weight:bold">该订单还未确认，可能是如下原因：$!msg</h1>
+						<p class="mt10">1、影院售票系统暂时不能正常访问</p>
+						<p>2、由于您未能在15分钟内完成支付，座位已被释放且被其他人占用</p>
+						<p>3、付款通知网络延迟，您可在2-5分钟后尝试刷新页面</p>
+						<ul class="ul-28">
+							<li>我们将尽快联系您，您也可拨打客服热线：<strong class="yellow">4000-406-506</strong></li>
+							<li>您的订单号为：<a href="${basePath}gewapay/showOrder.xhtml?orderId=$order.id" class="blue">$order.tradeNo</a></li>
+						</ul>
+					</dd>
+				</dl>
+			</td>
+			<td class="gui-ctrt"></td>
+		</tr>
+		<tr><td class="gui-btlt" valign="top" align="right"></td><td class="gui-btct" valign="top"></td><td class="gui-btrt" valign="top" align="left"></td></tr>
+	</table>
+	#end
+#else
+#parse('gewapay/bankResult.vm')
+#end
+</div>
+#set($pageTrack=${basePath} + 'cinema/order/success.html')
+#parse('include/bottom.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	successAd();
+});
+function successAd(){
+	$$(".ADPOSITION2").each(function(item){
+		var a = item.getElement('a');
+		var img = a.getElement('img');
+		GewaraUtil.sendRequest("${basePath}ajax/common/getMovieAd.xhtml",{"tag":"movie", "relatedid":"${movie.id}"}, function(result){
+			if(result.success && result.adpath){
+				item.removeClass("none");
+				img.src=result.adpath;
+				img.alt=result.title;
+				a.href=result.link;
+				a.title=result.title;
+				a.addEvent('click',function(){
+					_gaq.push(['_trackEvent', 'AD', result.pid, result.logicaldir]);
+				});
+			}
+		}, 'get');
+	});
+}
+</script>
+</body>
+</html>

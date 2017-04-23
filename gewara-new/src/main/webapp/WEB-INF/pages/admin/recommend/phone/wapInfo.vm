@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>推荐</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd400{width:400px;}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+	<td colspan="2" align="left" class="td">当前位置>>手机wap版活动介绍信息</td>
+	<td align="right" class="td" colspan="2">
+			<a class="aEvent" href="javascript:void(0);" onclick="showWapIndex()">增加</a>|
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+	</td>
+	</tr>
+	<tr class="td">
+		<td align="left" class="wd200"><b>标题</b></td>
+		<td align="left" class="wd200"><b>链接</b></td>
+		<td align="left" class="wd120"><b>推荐(0不推荐，大于0推荐)</b></td>
+		<td align="left" class="wd60"><b>操作</b></td>
+	</tr>
+	#foreach($gc in $gcList)
+	<tr class="td">
+		<td align="left" class="wd200">
+			$!gc.title
+		</td>
+		<td align="left" class="wd200">
+			$!gc.link
+		</td>
+		<td align="left" class="wd120">
+			<input type="text" value="$!gc.ordernum" id="gc$gc.id" style="width: 50px" onchange="orderNum($gc.id, this.value ,this)"/>#if($!gc.ordernum gt 0) (推荐) #else (不推荐) #end
+		</td>
+		<td align="left" class="wd60">
+			<a class="aEvent" href="javascript:void(0);" onclick="showWapIndex($!gc.id,'$!gc.title','$!gc.link','$!gc.citycode')">[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" onclick="javascript:delwapIndex($gc.id)">[删除]</a>
+		</td>
+		</tr>
+		#end
+</table>
+#parse('include/pageUtil.vm')
+
+<div id="wapIndexDiv" style="visibility: hidden;z-index: 300;width: 600px;height: 130px;background: #ffffff;border: 1px solid black;">
+<div class="ml15 mt5">
+<div style="text-align: center;"><span id="addtype">保存</span>手机客户端活动介绍信息</div>
+<hr/>
+<input type="hidden" name="id" id="id"/>
+<div class="mt5">
+	<label for="title">标题:</label>
+	<input type="text" name="title" id="title" class="text wd400"  />
+</div>
+<div class="mt5">
+	<label for="link">链接:</label>
+	<input type="text" name="link" id="link"  class="text wd400"/>
+</div>
+<div class="mt10 ml30">
+<input type="button" onclick="addwapIndex()" class="button" value="保存"/> <input type="button" class="button" value="取消" onclick="hidewapIndex()"/>
+</div>
+</div>		
+</div>
+<script type="text/javascript">
+	function showWapIndex(id,title,link){
+		$('id').value = id||'';
+		$('title').value = title||'';
+		$('link').value = link||'';
+		GewaraUtil.showDialog('wapIndexDiv');
+	}
+	
+	function hidewapIndex(){
+		$('id').value = '';
+		$('title').value = '';
+		$('link').src = '';
+		GewaraUtil.hideDialog('wapIndexDiv');
+	}
+	function addwapIndex(){
+		var id = $('id').value;
+		var title = $('title').value;
+		var link = $('link').value;
+		if(!$chk(title)){
+			gewaUtil.alert('请输入标题');
+			return;
+		}
+		var url = "${basePath}admin/mobile/addWapInfo.xhtml";
+		var values = {'id':id,'title':title,'link':link};
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){
+				gewaUtil.alert('保存成功！');
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	function delwapIndex(id){
+		gewaUtil.confirm('确认删除吗？',function(){
+			var url = "${basePath}admin/mobile/delWapIndex.xhtml";
+			var values = {'id':id};
+			GewaraUtil.sendRequest(url,values,function(result){
+				if(result.success) refreshPage();
+				else gewaUtil.alert('删除失败！');
+			});		
+		});
+	}
+	function orderNum(gcid, val, obj){
+		var url = "${basePath}admin/common/ajax/changeGCOrderNum.xhtml";
+		GewaraUtil.sendRequest(url, {'id':gcid, 'ordernum':val}, function(result){
+			if(result.success){
+				if($(obj)){
+					$(obj).setStyle('background-color','red');
+					(function(){
+						$(obj).setStyle('background-color','');
+					}.bind(obj)).delay(800);
+				}
+			}else{
+				alert('设置失败');
+			}
+		});
+	}
+</script>
+</body>
+</html>

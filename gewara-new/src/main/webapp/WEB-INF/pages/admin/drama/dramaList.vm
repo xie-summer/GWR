@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>演出列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width:750px; margin:auto">
+<div style="width:740px;">
+<form action="${basePath}admin/drama/dramaList.xhtml" style="width:740px;margin:3px">
+	名称：<input name="dramaname" type="text" style="width:80px" value="$!params.dramaname"/>
+	<input type="submit" class="button" value="查询"/>
+	<a href="${basePath}admin/drama/modifyDramaDetail.xhtml" target="_blank">添加演出</a>
+	<a href="${basePath}admin/common/newsList.xhtml?tag=theatre&newstype=2" target="_blank">添加新闻</a>
+	<a href="${basePath}admin/drama/checkBusDrama.xhtml" target="_blank">查看商家需审核演出</a>
+</form>
+<table class="table">
+	<thead>
+	<tr>
+		<th>演出名称</th>
+		<th>演出类型</th>
+		<th>编辑</th>
+		<th>图片</th>
+		<th>视频</th>
+		<th>前台页面</th>
+		<th>热门等级</th>
+		<th>历史记录</th>
+	</tr>
+	</thead>
+	<!-- object[0]:drama id,object[1]:dramaname -->
+	<tbody id="dramaTable">
+	#foreach($drama in $dramaList)
+	<tr>
+		<td>$!drama.dramaname</td>
+		<td style="color:red">$!dramaTypeMap.get($drama.dramatype)</td>
+		<td><a href="${basePath}admin/drama/modifyDramaDetail.xhtml?dramaId=$!drama.id" target="_blank">编辑详细</a></td>
+		<td><a href="${basePath}admin/common/pictureList.xhtml?tag=drama&relatedid=${drama.id}&uploadPath=images/drama" target="_blank">上传组图</a></td>
+		<td><a href="${basePath}admin/common/videoList.xhtml?tag=drama&relatedid=${drama.id}" target="_blank">上传视频</a></td>
+		<td><a target="_blank" href="$!{absPath}${basePath}drama/$!drama.id">前台页面</a></td>
+		<td nowrap="nowrap" id="b$!drama.id">
+			<select name='hotvalue' id='$!drama.id' onchange='setHotValue("$!drama.id")'>
+				<option value="70000" #if($!drama.hotvalue eq 70000) selected="selected" #end>搜索推荐</option>
+				<option value="50000" #if($!drama.hotvalue eq 50000) selected="selected" #end>推荐</option>
+				<option value="30000" #if($!drama.hotvalue eq 30000) selected="selected" #end>热门</option>
+				<option value="10000" #if($!drama.hotvalue eq 10000) selected="selected" #end>经典</option>
+				<option value="0" #if($!drama.hotvalue eq 0) selected="selected" #end>一般</option>
+				<option value="-30000" #if($!drama.hotvalue eq -30000) selected="selected" #end>冷门</option>
+				<option value="-50000" #if($!drama.hotvalue eq -50000) selected="selected" #end>非常冷门</option>
+			</select>
+		</td>
+		<td>
+			<a href="${basePath}admin/common/getChangeHis.xhtml?tag==Drama&relatedid=$!drama.id" target="_blank">历史</a>
+		</td>
+		</tr>
+	#end
+	</tbody>
+</table>
+</div>
+	<script type="text/javascript">
+	function setHotValue(vid){
+		var url = "${basePath}admin/drama/ajax/setDramaHotValue.xhtml";
+		var values = {'id':vid, "value":$(vid).value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) alert('成功设置！');
+		});
+	}
+</script>
+</body>
+</html>

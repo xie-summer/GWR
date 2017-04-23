@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场馆公告列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline}
+	</style>
+</head>
+<body style="width:760px;margin:auto" class="yui-skin-sam">
+<div>
+	${relate.name}的#if(${params.tag} eq 'sportTrain')培训#else公告#end信息<input type="button" class="button" style="width:80px" value="增加" onclick="addDiscountInfo();"/>
+</div>
+<table width="756px" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th width="300">题目</th>
+		<th width="600px">内容</th>
+		<th width="150px">操作</th>
+	</tr>
+	</thead>
+	<tbody id="discountInfoTable">
+	#foreach($discountInfo in $discountInfoList)
+		<tr id="discountInfo_${discountInfo.id}">
+			<td>$!{discountInfo.title}</td>
+			<td id="content_${discountInfo.id}">${discountInfo.content}</td>
+			<td id="bt_${discountInfo.id}">
+				<input type="button" class="button" style="width:60px" value="修改" onclick="modifyDiscountInfo(${discountInfo.id});"/>
+				<input type="button" class="button" style="width:60px" value="删除" onclick="deleteDiscountInfo(${discountInfo.id});"/>
+			</td>
+		</tr>
+	#end
+	</tbody>
+</table>
+<div id="discountInfoDialog" class="yui-panel" style="width:780px; visibility:hidden">
+	<div class="hd" id="titles">编辑#if(${params.tag} eq 'sportTrain')培训#else优惠#end信息数据
+	</div>
+	<div class="bd">
+	<form name="discountInfoForm" id="discountInfoForm" action="javascript:save()">
+		<input type='hidden' name='tag' value="${params.tag}"/>
+		<input type="hidden" name="relatedid" id="relatedid" value="${params.relatedid}"/>
+		<input type="hidden" name="id" id="id"/>
+		<div>
+			<label for="validtime">截止日期：</label>
+			<input name="validtime" id="validtime" readonly="readonly" onclick="WdatePicker()" type="text"/>
+		</div>
+		<div>
+			<label for="title">题目：</label>
+			<input type="text" name="title" id="title"/>
+		</div>
+		<div>
+			<label for="content">内容：</label>
+			<textarea name="content" id="content" ></textarea>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="submit" class="button" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+		<div id="msg" style="color:red;"></div>
+		<div style="color:blue;">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	var ckeditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("content",{customConfig : '/ckeditor/gewaConfig.js'});
+	});
+	function save(){
+		$("content").value=ckeditor.getData();
+		var values = GewaraUtil.getValues($("discountInfoForm"));
+		if (values.content == "") {
+			alert("请输入内容！");
+			return;
+		}
+		if (values.title == "") {
+			alert("请输入标题！");
+			return;
+		}
+		var url = "${basePath}admin/common/ajax/saveOrUpdateDiscountInfo.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert('保存成功！',refreshPage);
+			}
+			else{
+				alert("保存失败!");
+				$("msg").set("html", result.msg);
+			}
+		});
+	}
+	function cancle(){
+		GewaraUtil.hideDialog("discountInfoDialog");
+	}
+	var isModify = false;
+	function addDiscountInfo(){
+		$("id").value="";
+		isModify = false;
+		GewaraUtil.showDialog("discountInfoDialog");
+	}
+	function modifyDiscountInfo(discountInfoId){
+		$("id").value = discountInfoId;
+		var url = "${basePath}admin/common/ajax/getDiscountInfoById.xhtml";
+		GewaraUtil.sendRequest(url, {"discountInfoId":discountInfoId},function(result){
+			if(result.success){
+				GewaraUtil.setValues(result);
+				$("validtime").value=result.vaildtimeStr;
+				$("title").value=result.title
+				isModify = true;
+				ckeditor.setData(result.content);
+				$("discountInfoDialog").setStyle("display","");
+				GewaraUtil.showDialog("discountInfoDialog");
+			}else alert(result.msg);
+		});
+	}
+	var options = new Object();
+	options.escapeHtml = false;
+	options.rowCreator = function(opt){
+		var rowData = opt.rowData;
+		var tmpRow = document.createElement("tr");
+		tmpRow.id="discountInfo_" + rowData.id;
+		return tmpRow;
+	}
+	
+	var cellFunc = [
+		function(discountInfo){
+			return discountInfo.content;
+		},function(discountInfo){
+			var tmpLink = '<input type="button" class="button" style="width:70px" value="修改" onclick="modifyDiscountInfo(' + discountInfo.id+');"/>';
+			tmpLink +='<input type="button" class="button" style="width:70px" value="删除" onclick="deleteDiscountInfo(' + discountInfo.id + ');"/>';
+			return tmpLink;
+		},
+	]
+	
+	function addRow(discountInfo){
+		var discountInfoList=[discountInfo];
+		GewaraUtil.addRows("discountInfoTable", discountInfoList, cellFunc, options);
+		var cells = $("discountInfo_" + discountInfo.id).cells;
+		cells[0].id="content_"+discountInfo.id;
+		cells[1].id="bt_"+discountInfo.id;
+	}
+	function deleteDiscountInfo(discountInfoId){
+		var url = "${basePath}admin/common/ajax/removeDiscountInfoById.xhtml";
+		GewaraUtil.sendRequest(url, {"discountInfoId":discountInfoId},function(result){
+			if(result.success){
+				$("discountInfo_"+discountInfoId).dispose();
+				alert("删除成功！");
+			}else alert("删除失败！");
+		});
+	}
+	
+</script>
+</body>
+</html>

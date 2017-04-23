@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xmlns:tx="http://www.springframework.org/schema/tx"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+			http://www.springframework.org/schema/aop 
+			http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+			http://www.springframework.org/schema/tx
+			http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+			http://www.springframework.org/schema/context
+			http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+	<context:component-scan base-package="com.gewara.dao,com.gewara.service,com.gewara.untrans,com.gewara.config" />
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	<aop:config>
+		<aop:advisor id="serviceTx" advice-ref="txAdvice" pointcut="execution(public * com.gewara.service..*.*(..))" order="1" />
+	</aop:config>
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="*" rollback-for="Exception" />
+			<tx:method name="get*" read-only="true" propagation="SUPPORTS"/>
+			<tx:method name="load*" read-only="true" propagation="SUPPORTS"/>
+			<tx:method name="find*" read-only="true" propagation="SUPPORTS"/>
+			<tx:method name="is*" read-only="true" propagation="SUPPORTS"/>
+			<tx:method name="search*" read-only="true" propagation="SUPPORTS"/>
+			<tx:method name="init*" read-only="true" propagation="SUPPORTS"/>
+			<tx:method name="set*" read-only="true" propagation="SUPPORTS"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<bean id="mailService" class="com.gewara.untrans.impl.MailServiceImpl" />
+	<bean id="velocityEngine"
+		class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+		<property name="resourceLoaderPath" value="/WEB-INF/template"/>
+		<property name="configLocation" value="classpath:velocity.properties" />
+	</bean>
+	<bean id="velocityTemplate" class="com.gewara.support.VelocityTemplate" >
+		<property name="velocityEngine" ref="velocityEngine"/>
+		<property name="config" ref="config"/>
+	</bean>
+	<!-- jcapture bean -->
+	<bean id="captchaService" class="com.gewara.support.GewaCaptchaService" />
+	<bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+		<constructor-arg name="mongo" ref="mongo" />
+		<constructor-arg name="databaseName" value="${mongo.database}" />
+		<constructor-arg name="userCredentials">
+			<bean class="org.springframework.data.authentication.UserCredentials">
+				<constructor-arg name="username" value="${mongo.user}" />
+				<constructor-arg name="password" value="${mongo.pass}" />
+			</bean>
+		</constructor-arg>
+	</bean>
+	<bean id="gewaPicService" class="com.gewara.untrans.impl.HDFSPicServiceImpl">
+		<property name="hdfsUrl" value="${hdfs.url}" />
+	</bean>
+	<bean id="lockService" class="com.gewara.untrans.impl.LockServiceImpl"/>
+	<bean id="pageCacheService" class="com.gewara.untrans.impl.PageCacheServiceImpl"/>
+	<bean id="asynchTaskService4Job" class="com.gewara.untrans.impl.AsynchTaskServiceImpl">
+		<property name="threadPoolSize" value="${asynchTaskService.job.threadPoolSize}"/>
+	</bean>
+	<bean id="asynchTaskService4Opi" class="com.gewara.untrans.impl.AsynchTaskServiceImpl">
+		<property name="threadPoolSize" value="${asynchTaskService.job.threadPoolSize}"/>
+	</bean>
+	<bean id="asynchTaskService" class="com.gewara.untrans.impl.AsynchTaskServiceImpl">
+		<property name="threadPoolSize" value="${asynchTaskService.threadPoolSize}"/>
+	</bean>
+	<bean id="sysSelfCheckingService" class="com.gewara.untrans.monitor.impl.SysSelfCheckingServiceImpl">
+		<constructor-arg name="jobList" >
+			<list>
+				<bean class="com.gewara.untrans.monitor.job.SchedulerCheckingJob"/>
+				<bean class="com.gewara.untrans.monitor.job.DBstatusCheckingJob"/>
+				<bean class="com.gewara.untrans.monitor.job.DBstatusCheckingJob">
+					<property name="hbTemplateName" value="readOnlyTemplate"/>
+				</bean>
+				<bean class="com.gewara.untrans.monitor.job.MemberCacheCheckingJob"/>
+				<bean class="com.gewara.untrans.monitor.job.RegionCacheCheckingJob">
+					<property name="regionName" value="halfDay"/>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+	<bean id="ticketOrderJob" class="com.gewara.job.impl.TicketOrderJobImpl" />
+	<bean id="ticketRemoteJob" class="com.gewara.job.impl.TicketRemoteJobImpl" />
+	<bean id="dataCleanerJob" class="com.gewara.job.impl.DataCleanerJobImpl" />
+	<bean id="sportOrderJob" class="com.gewara.job.impl.SportOrderJobImpl" />
+	<bean id="everyDayJob" class="com.gewara.job.impl.EveryDayJobImpl" />
+	<bean id="goodsPriceJob" class="com.gewara.job.impl.GoodsPriceJobImpl" />
+	<bean id="sendMessageJob" class="com.gewara.job.impl.SendMessageJobImpl" />
+	<bean id="pageCacheJob" class="com.gewara.job.impl.PageCacheJobImpl" />
+	<bean id="theatreSeatPriceJob" class="com.gewara.job.impl.TheatreSeatPriceJobImpl" />
+	<bean id="specialDiscountJob" class="com.gewara.job.impl.SpecialDiscountJobImpl" />
+	<bean id="dramaOrderJob" class="com.gewara.job.impl.DramaOrderJobImpl" />
+</beans>

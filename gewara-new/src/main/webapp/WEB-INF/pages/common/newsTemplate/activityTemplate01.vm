@@ -1,0 +1,25 @@
+<div class="title mt20"><h2>$!left.title</h2><span class="linet"></span></div>
+#foreach($huodong in $LhuodongList)
+#set($activity=$huodong.get($huodong.boardrelatedid))
+<dl class="ui_abeam mt15 clear">
+	<dt class="uipic">
+		<a target="_blank" href="${basePath}activity/$!activity.id" title="$!activity.title">
+			<img width="96" height="128" src="$VmUtils.randomPic('cw96h128',$activity.limg)"/>
+		</a><br/>
+		<a class="button minBt redBt mt5" href="${basePath}activity/$!activity.id" target="_blank"><span>我要参加</span></a>
+	</dt>
+	<dd class="uiText cmt">
+		<h2><a target="_blank" href="${basePath}activity/$!activity.id">$!VmUtils.escapeHtml($!activity.title)</a></h2>
+		<p><em>活动时间：</em>$!DateUtil.format($!activity.startdate, 'MM月dd日')（$!DateUtil.getCnWeek($!activity.startdate)）#if($activity.starttime)$!activity.starttime#end
+				#if($activity.enddate)-- $!DateUtil.format($activity.enddate, 'MM月dd日')（$!DateUtil.getCnWeek($!activity.enddate)）#if($activity.endtime)$!activity.endtime#end#end</p>
+		#if($activity.address)<p><em>活动地点：</em>$!activity.address</p>#end
+		#if($!activity.duetime)<p><em>报名时间：</em>$!DateUtil.format($!activity.fromtime,'MM月dd日') $!DateUtil.format($!activity.fromtime,'HH:mm')~$!DateUtil.format($!activity.duetime,'MM月dd日') $!DateUtil.format($!activity.duetime,'HH:mm')#end</p>
+		<p><em>活动价格：</em>#if($!activity.priceinfo)$!activity.priceinfo#else免费#end</p>
+		<p><em>发起人：</em><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!activity.memberid" class="brown" target="_blank">$!{activity.membername}</a></p>
+		<p>$!{activity.clickedtimes}<em>人关注</em><span class="ml10">$!{activity.membercount}<em>人参加</em></span></p>
+	</dd>
+</dl>
+#end
+#if($VmUtils.isNotBlank($!left.newslink))
+<div class="tar"><a href="$!left.newslink" target="_blank">更多»</a></div>
+#end

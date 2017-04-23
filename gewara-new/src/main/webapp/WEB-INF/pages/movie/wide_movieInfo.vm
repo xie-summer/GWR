@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>#if($params.tag eq 'cinema'||$params.tag eq 'movie'||$params.tag eq 'holiday'||$params.tag eq'holipic')电影新闻_今日电影新闻_电影资讯#elseif($params.tag eq'gym')健身新闻#elseif($params.tag eq 'ktv')KTV#elseif($params.tag eq 'sport')运动新闻#elseif($params.tag eq 'bar')酒吧新闻#elseif($params.tag eq 'theatre')演出新闻#end _格瓦拉生活网</title>
+	<meta name="keywords" content="$!menucontent" />
+	<meta name="description" content="格瓦拉生活网电影新闻频道提供$!menucontent，最新电影动态等电影服务信息。"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_movie&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,noobSlide,slimbox&v=$VmUtils.jsVersion"></script>
+	#parse('movie/style.vm')
+</head>
+<body>
+#set($ismovie=true)
+#set($isNews = true)
+#if(!$VmUtils.eq($params.type, 'subject'))
+	#set($news=true)
+#else
+	#set($isSubjects=true)
+#end
+#parse($headUrl)
+#set($categoryMap={'sport':'运动','cinema':'电影','gym':'健身','theatre':'话剧','ktv':'ktv','bar':'酒吧'})
+#set($curDate=$DateUtil.currentTime())
+#parse('include/wide_header.vm')
+<div class="ui_layout bgtrans">
+	<div class="index_wrap clear">
+		#parse('include/movie/wide_menu_left.vm')
+		<div class="index_right">
+			<div class="mt10">
+				<div class="ui_left">
+					<div class="mod_kong">
+						<div class="mod_hd">
+							<h2>电影资讯</h2>
+						</div>
+						<div class="mod_bd">
+							<div class="infoTab clear">
+							#if(!$VmUtils.isEmptyList($topNewsListP))
+								<div class="inner_left movieTab">
+									<div class="moveBox">
+										<ul id="move_box">
+										#foreach($top in $topNewsListP)
+										#set($relate = $relatedHelper.getR1("topNewsListP",$top.id))
+											<li>
+												<a target="_blank" title="$!relate.title" href="${basePath}news/$!top.relatedid" class="movieImg">
+													<img width="240" height="180" alt="$!relate.title" src="$VmUtils.randomPic('cw260h180',$relate.limg)" />
+												</a>
+												<a class="movieTitle mt5 c333" title="$!relate.title" target="_blank" href="${basePath}news/$!top.relatedid"><span>$!VmUtils.escabbr($!relate.title,36)</span></a>
+												<p class="mt5">
+													#if($relate.content)$!VmUtils.htmlabbr($relate.content,70)...<a class="ui_readMore" href="${basePath}news/$!top.relatedid">[阅读全文]</a>#end
+												</p>
+											</li>
+										#end
+										</ul>
+									</div>
+									<div class="control_cir" id="move_tag">
+										#foreach($x in [1..$topNewsListP.size()])
+										<span #if($x == 1)class="select"#end>$x</span>
+										#end
+									</div>
+								</div>
+							#end
+								<div class="inner_right ml20">
+								#if(!$VmUtils.isEmptyList($titleNewsList))
+								#set($titleNews=$titleNewsList.get(0))
+								#set($relate = $relatedHelper.getR1("titleNewsList",$titleNews.id))
+									<h3><a class="fs14 cMovie" title="$relate.title" href="${basePath}news/$titleNews.relatedid" target="_blank">$relate.title</a></h3>
+									<p>#if($VmUtils.length($relate.content) gt 100)$!VmUtils.htmlabbr($relate.content,100)...#else $!relate.content #end<a class="ui_readMore" href="${basePath}news/$titleNews.relatedid">[阅读全文]</a></p>
+								#end
+									<ul>
+										#foreach($topNews in $topNewsList)
+										<li>
+											<span class="right c999">$!DateUtil.format($topNews.releasetime,"MM.dd")</span>
+											<a title="$topNews.title" target="_blank" href="$!topNews.getLink($basePath)">#if($VmUtils.getByteLength($topNews.title) gt 52) $!VmUtils.escabbr($topNews.title,48)...#else $topNews.title #end</a>
+										</li>
+										#end
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="ui_newsNav">
+						<ul class="clear">
+							<li #if($news && !$VmUtils.eq($params.newstype, 5))class="select"#end><a  #if($news && !$VmUtils.eq($params.newstype, 5))href="javascript:void(0)" #else href="${basePath}news/$!params.tag"#end title="$!categoryMap.get($params.tag)资讯">$!categoryMap.get($params.tag)资讯</a></li>
+							#if($figureCount)<li #if($news && $VmUtils.eq($params.newstype, 5)) class="select"#end><a #if($news && $VmUtils.eq($params.newstype, 5))href="javascript:void(0)" #else href="${basePath}news/$!params.tag?newstype=5" #end title="人物专访">人物专访</a></li>#end
+							<li #if($isSubjects) class="select" #end><a #if($isSubjects)href="javascript:void(0)" #else href="${basePath}news/$!params.tag?type=subject" #end title="$!categoryMap.get($params.tag)专题">$!categoryMap.get($params.tag)专题</a></li>
+						</ul>
+						<div class="topicSearch more">
+							<div class="search_kuang left">
+								<form>
+									<input id="searchKey" class="search_text searchText noradius" type="text"  alt="请输入搜索关键词"  name="searchKey" onkeydown="keyDownDef(event);" />
+									<label class="search_button noradius">
+										<input type="button" value="" onclick="searchNews();return false;"/>
+									</label>
+								</form>
+							</div>
+						</div>
+					</div>
+					<div class="ui_newsList">
+						<ul>
+						#if(!$VmUtils.isEmptyList($newsList))
+							#foreach($allNews in $!VmUtils.groupList($!newsList,3))
+							<li #if($foreach.count eq 3)style="margin-right:0;"#end>
+								#foreach($news in $allNews)
+								#set($newother = $VmUtils.readJsonToMap($news.otherinfo))
+								<div class="newsbox">
+									<div class="tbox">
+										<a href="$!news.getLink($basePath)" title="$news.title”" target="_blank" class="newImg">
+											<img width="200" #if($foreach.count % 3 eq 1) src="$!VmUtils.randomPic('cw200h150',$!news.limg)"  #elseif($foreach.count % 3 eq 2) src="$!VmUtils.randomPic('cw200h300',$!news.limg)"  #else src="$!VmUtils.randomPic('cw200h200',$!news.limg)"  #end alt="$news.title"/>
+										</a>
+										<h3><a href="$!news.getLink($basePath)" target="_blank" title="$news.title">$!news.title</a></h3>
+										<p>$!VmUtils.htmlabbr($news.content,80)...<a class="ui_readMore" target="_blank" href="$!news.getLink($basePath)">全文</a></p>
+									</div>
+									<div class="bbox mt10">
+										<p>$!DateUtil.format($news.addtime,'yyyy年MM月dd日')</p>
+										<p>#if($news.linksource)$!{news.linksource}#else格瓦拉生活网#end</p>
+									</div>
+								</div>
+								#end
+							</li>
+							#end
+						#elseif(!$VmUtils.isEmptyList($spList))
+							#foreach($allSp in $!VmUtils.groupList($spList,3))
+							<li #if($foreach.count eq 3)style="margin-right:0;"#end>
+								#foreach($sp in $allSp)
+								<div class="newsbox">
+									<div class="tbox">
+										<a class="newImg" target="_blank" title="$!sp.activityname" href="#if($VmUtils.isNotBlank($sp.website))$!sp.website#else${basePath}subject/$!sp.id#end">
+											<img width="200" src="$!VmUtils.randomPic('',$!spLogoMap.get($sp.id))" />
+										</a>
+										<h3><a title="$!sp.activityname" target="_blank" href="#if($VmUtils.isNotBlank($sp.website))$!sp.website#else${basePath}subject/$!sp.id#end">$!sp.activityname</a></h3>
+									</div>
+									<div class="bbox mt10">$!DateUtil.format($sp.addtime,'yyyy年MM月dd日')<br/></div>
+								</div>
+								#end
+							</li>
+							#end
+						#else
+							<div style="margin:0 10px;">
+									<div class="ui_warning center">没有查询到符合条件的内容，请重新搜索。</div>
+							</div>
+						#end
+						</ul>
+					</div>
+					#parse('include/pageUtil.vm')
+				</div>
+				<div class="ui_right">
+					#parse('include/movie/mod_hotActivity.vm')
+					#parse('include/movie/mod_hotMovieNews.vm')
+					#parse('include/movie/mod_recentHotPerson.vm')
+					#parse('include/movie/mod_hotShowMovie.vm')
+					#parse('include/movie/mod_newComment.vm')
+				</div>
+			</div>
+		
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		var keys = "ticketMovieCount,futureMovieCount,ticketCinemaCount,movieActivityCount";
+		#if(!$VmUtils.isEmptyList($movieIdList))
+			keys += ",movieDetail_$!VmUtils.join($movieIdList, '@')";
+		#end
+		GewaraUtil.sendRequest('${basePath}ajax/loadIndexKeyNumber.xhtml', {"keys":keys}, function(result){
+			if(result.success) {
+				$("keyNum_cinemaCount").set("text",result.ticketCinemaCount + "家");
+				$("keyNum_fetureMovieCount").set("text",result.futureMovieCount + "部");
+				$("keyNum_curMovieListCount").set("text",result.ticketMovieCount + "部");
+				$("keyNum_activityCount").set("text",result.movieActivityCount + "个");
+				#if(!$VmUtils.isEmptyList($movieIdList))
+					#foreach($id in $movieIdList)
+						document.getElements('*[data-keynum=$!{id}_mark1]').set("text",(result.mark_$!{id}/10 + "").toInt());
+						document.getElements('*[data-keynum=$!{id}_mark2]').set("text","." + result.mark_$!{id}%10);
+					#end
+				#end
+			}
+		});
+		new noobSlide({
+			box: $('move_box'),
+			items:$$('#move_box li'),
+			size:240,
+			handles:$$('#move_tag span'),
+			handle_event:'click',
+			autoPlay:true,
+			onWalk: function(currentItem,currentHandle){
+				this.handles.removeClass('select');
+				currentHandle.addClass('select');
+			}
+		});
+		$('searchKey').addEvents({
+		 	'focus':function(){this.getParents('div[class*="search_kuang"]').addClass('search_kuangClicked');},
+		 	'blur':function(){this.getParents('div[class*="search_kuang"]').removeClass('search_kuangClicked');}
+		}); 
+	});
+	function searchNews(){
+		var key = $('searchKey').value;
+		if(key == '请输入搜索关键词') key == '';
+		document.location.href="${basePath}news/$!params.tag?newstype=$!params.newstype&type=$!params.type&searchKey=" + key;
+	}
+	function keyDownDef(event){
+		if(event.keyCode == 13){
+			searchNews();
+		}
+	}
+</script>	
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	(function(){
+		gewaUtil.affix($('ui_left'));
+	}).delay(5000)
+});
+</script>
+</body>
+</html>

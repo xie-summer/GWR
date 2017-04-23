@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>推荐列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:300px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.tales60 dt,.tales60 dd{float:left; overflow:hidden; margin:0;}
+		.bg_blue{background:#E6F6FC;}
+	</style>
+</head>
+#parse('include/constant/city.vm')
+<body style="width:95%; margin:auto" class="yui-skin-sam">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td colspan="7"><span id="_resultSpan">推荐影院</span></td>
+		<td colspan="2" align="right" class="td">
+			<a class="p5Event" href="javascript:showCinema();">增加 </a>|			
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td">
+		<td align="left" class="wd120"><b>标题</b></td>
+		<td align="left" class="wd80"><b>省份</b></b></td>
+		<td align="left" class="wd80"><b>城市</b></b></td>
+		#foreach($card in $voucherCardList)
+		<td align="left" class="wd100"><b>$card.name</b></td>
+		#end
+		<td align="left" class="wd80"><b>排序</b></td>
+		<td align="left" class="wd80"><b>操作</b></td>
+	</tr>
+	#foreach($data in $cinemaList)
+	#set($index=$foreach.index)
+	<tr class="td #if($index % 2 == 0)bg_blue #end" id="ordernum$data.get('_id')">
+		<td align="left" class="wd120">
+		<span style="color: red;">$data.title</span>
+		</td>
+		<td align="left" class="wd80">$data.provincename</td>
+		<td align="left" class="wd80">$CITY_MAP.get($data.citycode)</td>
+		#foreach($card in $voucherCardList)
+		<td align="left" class="wd60">
+			#set($ordernum = $card.ordernum + '')
+			<input type="checkbox" #if($data.otherinfo && $data.otherinfo.contains($ordernum)) checked = "checked" #end  value="$!card.ordernum" />
+		</td>
+		#end
+		<td align="left" class="wd60">
+			<input type="text" value="$!data.ordernum" name="ordernum" style="width: 50px" onchange="changeOrdernum('$!data.get('_id')', this)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="p5Event" href="javascript:void(0);" onclick="updateCinema('$data.get('_id')');" >[保存]</a>|
+			<a href="javascript:void(0)" onclick="javascript:doDelete('$!data.get('_id')', this)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+#parse('include/pageUtil.vm')
+<div id="infos" style="display:none">
+        <dl class="tales60">
+			<dt>影院ID:</dt>
+			<dd><input type="text" class="text" name="relatedid" id="relatedid"/></dd>
+		</dl>
+</div>
+<div id="pointText" style="visibility:hidden; z-index:601;"></div>
+<script type="text/javascript">
+	function showCinema(){
+		gewa.util.issure('','infos','添加影院：',420,'keys',function(){
+			addCinema();
+		});
+	}
+		
+	function addCinema(){
+		var url = '${basePath}admin/content/sales/addCardCinema.xhtml';
+		var values = GewaraUtil.getValues("infos");
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function updateCinema(id){
+		var a = $('ordernum'+id).getElements('input[type="checkbox"]');
+		var otherinfo ="";
+		a.each(function(el){
+			if(el.checked){
+				otherinfo = otherinfo + el.value +",";
+			}
+		});
+		var url = '${basePath}admin/content/sales/changeCardCinema.xhtml';
+		var values = {"id":id, "stauts":otherinfo.toString()};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	doDelete = function (bsid, obj){
+		if(!window.confirm('确定删除？')) return false;
+		var url = '${basePath}admin/content/sales/delCardCinema.xhtml';
+		var values = {'id': bsid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.dispose($(obj).getParent('tr'));				
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function changeOrdernum(id, obj){
+		var url = '${basePath}admin/content/sales/changeCinemaOrderNum.xhtml';
+		var values = {'id':id, 'ordernum': $(obj).get('value')};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$(obj).setStyle('background-color','red');
+				(function(){
+					$(obj).setStyle('background-color','');
+				}.bind(obj)).delay(800);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

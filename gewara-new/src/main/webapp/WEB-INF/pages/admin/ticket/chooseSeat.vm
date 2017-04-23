@@ -1,0 +1,885 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>#set($isDetail=true)
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=7" />
+<title>${opi.cinemaname}-${opi.moviename}-$DateUtil.format($opi.playtime,"M月d日")在线购票_格瓦拉生活网</title>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_pay&v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,tips,scrollerbar&v=$VmUtils.jsVersion"></script>
+<style type="text/css">
+.hasSeat,.sellSeat,.checkSeat,.hAislet,.vAislet,.hWall,.hWallt,.vWall,.vWallt,.inoutBox span,.loverSeat,.pewNo .N,.spNoticeBox a.more{background:url(${staticPath}css/movie_wide/ico_seat.gif) no-repeat;}
+
+.seatGroup{overflow:hidden;}
+.ui_left,.ui_right{float:left;}
+.ui_left{width:870px;}
+.ui_right{width:310px; background:#fffaf4; margin-bottom:-30000px; padding-bottom:30000px;}
+.ui_right .inner{padding:20px 15px;}
+.seatView{position:relative; min-height:550px; border:1px solid #ffefdf;}
+.seatInfo{text-align:center; padding:10px;}
+.seatInfo span{margin:0 10px;}
+.seatInfo span img{vertical-align:-8px; cursor:default;}
+
+.changeScreen{position:relative;}
+.changeScreen .cs{position:absolute; padding-right:10px; right:0; top:0; font-size:12px; font-weight:normal; background:url(${staticPath}css/movie_wide/ico_pub.gif) right -346px no-repeat #fffaf4; cursor:pointer;}
+.changeScreen .select{background-position:right -370px;}
+
+.pewNo{position:absolute; z-index:5; width:22px; text-align:center; height:100%; bottom:60px; left:0px;}
+.pewNo span{display:block;width:22px;height:26px;line-height:26px;color:#fff; font-size:11px; background-color:#fff;}
+.pewNo .N{background-position:-40px 4px; background-color:#fff;}
+.room_screen{width:100%; height:38px; text-align:center; background:url(${staticPath}css/movie_wide/bg_screen.gif) center 0 no-repeat; line-height:29px; margin:10px auto 0 auto;}
+.room_screen span{color:#999; margin-left:10px;}
+.wrapper{position:relative;padding-bottom:20px;width:100%;overflow:hidden;}
+.showSeat{padding:0 60px 40px 60px; margin:20px auto 0; position:relative;}
+.inoutBox span{display:block; width:24px; height:49px; line-height:49px; color:#ccc; position:absolute; text-align:center;}
+.inoutBox span.lDoor01,.inoutBox span.lDoor02,.inoutBox span.lDoor03,.inoutBox span.lDoor04{background-position:0 -182px; left:30px;}
+.inoutBox span.rDoor01,.inoutBox span.rDoor02,.inoutBox span.rDoor03,.inoutBox span.rDoor04{background-position:0 -244px; right:30px;}
+.inoutBox span.bDoor01,.inoutBox span.bDoor02,.inoutBox span.bDoor03{background-position:0 -306px; bottom:0; width:60px; height:23px; line-height:23px;}
+.inoutBox span.lDoor01,.inoutBox span.rDoor01{top:0;}
+.inoutBox span.lDoor04,.inoutBox span.rDoor04{bottom:40px;}
+.inoutBox span.bDoor01{left:62px;}
+.inoutBox span.bDoor03{right:40px;}
+
+.seatlist dl{overflow:hidden;}
+.seatlist dd{float:left;width:30px;text-align: center;}
+.hasSeat,.sellSeat,.checkSeat,.hAisle,.hAislet,.vAisle,.vAislet,.hWall,.hWallt,.vWall,.vWallt{width:30px; height:26px; line-height:20px; cursor:pointer; font-size:14px; _font-size:8px; font-weight:bold; color:green; text-align:center;}
+.seatlist dl{overflow:hidden;}
+.checkSeat{background-position:4px -24px}
+.hasSeat{background-position:4px 4px;}
+.sellSeat{background-position:4px -54px;}
+.loverSeat{width:59px; height:26px; background-position:4px -86px;}
+.lover_l .hasSeat{background-position:4px -86px;}
+.lover_r .hasSeat{background-position:-26px -86px;}
+.lover_l .sellSeat{background-position:4px -146px;}
+.lover_r .sellSeat{background-position:-26px -146px;}
+.lover_l .checkSeat{background-position:4px -116px;}
+.lover_r .checkSeat{background-position:-26px -116px;}
+.hWall{background-position:0 -332px;}
+.hWallt{background-position:0 -357px;}
+.vWall{background-position:-39px -346px;}
+.vWallt{background-position:-39px -427px;}
+.hAislet{background-position:0 -386px;}
+.vAislet{background-position:-42px -385px;}
+.noSeat{width:30px; height:26px;}
+.hAisle,.hAislet,.vAisle,.vAislet,.hWall,.hWallt,.vWall,.vWallt{color:#ddd; font-size:12px; font-weight:normal; cursor:default;}
+.hAisle,.hAislet{border-top:1px dashed #ddd; border-bottom:1px dashed #ddd; height:22px; line-height:22px; margin:1px 0;}
+.vAisle,.vAislet{border-left:1px dashed #ddd; border-right:1px dashed #ddd; width:22px; line-height:22px; margin:0 3px;}
+
+.spNoticeBox{background:#ffd; border:1px solid #ffcb99; padding:10px; margin-bottom:10px; position:relative;}
+.spNoticeBox a.more{display:block; width:21px; height:21px; top:5px; right:5px; background-position:3px -471px; cursor:pointer;}
+.spNoticeBox a.more:hover{background-position:-42px -471px; background-color:#ffddc6;}
+
+
+.leftBox{padding:15px; border:1px solid #ffefdf; border-top:0; line-height:24px;}
+.rightBox{border-top:1px solid #fed; padding:15px 0;}
+.ui_layout h2{font-size:14px; font-weight:bold; padding-bottom:5px; display:inline-block;}
+p em,.ui_media .ui_pic{color:#666;}
+.pewSeat{padding-bottom:15px;}
+.pewSeat .innerCont p{line-height:24px; font-size:14px; font-weight:bold;}
+.pewSeat .innerCont p em{font-size:12px; font-weight:normal;}
+.mobileInfo{margin:15px 0 5px;}
+.mobileInfo .text{width:150px; font-size:16px; font-weight:bold; color:#333; font-family:verdana;}
+.packageBox{color:#666; padding-right:60px; position:relative;}
+.packageBox h2{color:#333; display:inline; background:#fdb; font-weight:normal; font-size:12px; padding:5px; overflow:hidden; height:18px;
+		-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+			  border-radius:5px;
+}
+.packageBox .more{position:absolute; top:2px; text-align:right; background:#fffaf4; _right:10px;}
+.pews{border:1px solid #fc9; color:#f60; background:#fff; float:left; width:96px; height:26px; line-height:26px; text-align:center; margin:0 5px 5px 0;}
+.ui_tips_tishi{position:absolute; left:-49px; cursor:pointer; top:65px; width:60px; height:46px; background-position:0 -526px; text-indent:-9999px; overflow:hidden;}
+.ui_right .ui_addInfo{float:left; margin:7px 0 0 20px;}
+</style>
+</head>
+<body>
+#set($isPay = true)#set($isChooseSeat = true)#set($movieFlag="buyticket")
+#set($googleSpeedPageTag='/admin/ticket/chooseSeat.shtml')
+#set($cfgHeader='header')
+#if($adspdiscount.banner && !$VmUtils.isBlank($adspdiscount.banner))
+<div class="banner"><img src="$VmUtils.randomPic('',$adspdiscount.banner)"/></div>
+#else
+<div class="banner none" id="ticketBanner">#parse('include/ad/ad_ticketorder.vm')</div>
+#end
+<div class="ui_layout clear">
+	<div class="inner">
+		<div class="seatGroup mt20 clear">
+			<div class="ui_left">
+			#if($VmUtils.isNotBlank($opi.remark))
+				<div class="spNoticeBox">
+					<a class="more" title="关闭" id="clsoeSpecNotice" href="javascript:void(0);"></a>
+					<h2>温馨提示：</h2>
+					<p>$!opi.remark</p>
+				</div>
+			#elseif($VmUtils.isBlank($opi.elecard))
+				<div class="spNoticeBox">
+					<a class="more" title="关闭" id="clsoeSpecNotice" href="javascript:void(0);"></a>
+					<h2>温馨提示：</h2>
+					<p>该场次为特殊场次，不支持使用任何优惠。</p>
+				</div>
+			#elseif($ElecCardHelper.supportAllCard($opi))
+				#if($VmUtils.contains($opi.edition,"IMAX"))
+				<div class="spNoticeBox">
+					<a class="more" title="关闭" id="clsoeSpecNotice" href="javascript:void(0);"></a>
+					<h2>温馨提示：</h2>
+					<p>该场次为特殊场次，券类优惠只支持使用格瓦拉绿券、IMAX券、抵扣券 。</p>
+				</div>
+				#end
+			#else #set($supportCard=$ElecCardHelper.getSupportCard($opi))
+				<div class="spNoticeBox">
+					<a class="more" title="关闭" id="clsoeSpecNotice" href="javascript:void(0);"></a>
+					<h2>温馨提示：</h2>
+					<p>
+						#if($VmUtils.isNotBlank($supportCard))该场次为特殊场次，券类优惠只支持使用格瓦拉${supportCard} 。
+						#else该场次为特殊场次，不支持券类优惠。#end
+					</p>
+				</div>
+			#end
+			#if(!$VmUtils.isEmptyList($movieMpiRemark))
+				<div class="spNoticeBox">
+					<a class="more" title="关闭" id="clsoeSpecNotice" href="javascript:void(0);"></a>
+					<h2>温馨提示：</h2>
+					#foreach($mpiRemark in $movieMpiRemark)
+					<p>$!mpiRemark.remark</p>
+					#end
+				</div>
+			#end
+			
+				<div class="seatView clear">
+					<div class="seatTable" id="seatTable">
+						<div class="inner">
+							<div class="seatInfo">
+								<span><img src="${staticPath}css/images/blank.gif" class="hasSeat" align="middle"/>可选座位</span>
+								<span><img src="${staticPath}css/images/blank.gif" class="checkSeat" align="middle"/>已选座位</span>
+								<span><img src="${staticPath}css/images/blank.gif" class="sellSeat" align="middle"/>不可选座位</span>
+								#if($room.loveflag eq 'Y')<span><img src="${staticPath}css/images/blank.gif" class="loverSeat" align="middle"/>情侣座</span>#end
+							</div>
+						</div>
+						<div class="inner">
+							<div class="wrapper" id="wrapper">
+								#set($lineStart = 1)
+								#set($rowStart = 1)
+								#set($lineEnd = $room.linenum)
+								#set($rowEnd = $room.ranknum)
+								#if($outerRingseats.contains('L0R'))
+									#set($lineStart = 0)
+									#set($lineNumt=$lineNum + 1)
+								#end
+								#set($lrMark = 'L' + ($room.linenum + 1) + 'R')
+								#if($outerRingseats.contains($lrMark))
+									#set($lineEnd = $room.linenum + 1)
+									#set($lineNumt=$lineNum + 1)
+								#end
+								#if($outerRingseats.contains('R0'))
+									#set($rowStart = 0)
+									#set($rankNum = $rankNum + 1)
+								#end
+								#set($lrMark = 'R' + ($room.ranknum + 1))
+								#if($outerRingseats.contains($lrMark))
+									#set($rowEnd = $room.ranknum + 1)
+									#set($rankNum = $rankNum + 1)
+								#end
+							
+								#set($maxwidth=22+30*$rankNum)
+								#set($scrollwidth=$maxwidth+120)
+								#set($hCenter=((30*$rankNum)/2)+32)
+								#set($vtop=((26*$lineNum)/3)+(-25))
+								#set($vbtm=((26*$lineNum)/3)+25)
+								<div id="wrapped" style="width: #if(${scrollwidth} gt 848)${scrollwidth}px;#else 848px #end; margin:0 auto; overflow:visible;">
+									#set($classMap={'0':'noSeat','A':'hasSeat','W':'sellSeat','S':'sellSeat','ZL':'noSeat','LK':'sellSeat'})
+									<div class="room_screen" style="width: #if(${maxwidth} gt 800) ${maxwidth}px #else 800px#end;">${opi.cinemaname}$room.roomname银幕<span>#if($room.screenwidth && $room.screenwidth gt 0)宽$!{room.screenwidth}m #end #if($room.screenheight && $room.screenheight gt 0)高$!{room.screenheight}m#end</span></div>
+									<div class="showSeat" style="margin:10px auto 0;width:${maxwidth}px">
+										<div class="inoutBox">
+											#if($room.roomDoor.contains('leftUp'))
+											<span class="lDoor01">入口</span>
+											#end
+											#if($room.roomDoor.contains('left1Door'))
+											<span class="lDoor02" style="top:${vtop}px;">出口</span>
+											#end
+											#if($room.roomDoor.contains('left2Door'))
+											<span class="lDoor03" style="bottom:${vbtm}px;">出口</span>
+											#end
+											#if($room.roomDoor.contains('leftDown'))
+											<span class="lDoor04">出口</span>
+											#end
+											#if($room.roomDoor.contains('rightUp'))
+											<span class="rDoor01">入口</span>
+											#end
+											#if($room.roomDoor.contains('right1Door'))
+											<span class="rDoor02" style="top:${vtop}px;">出口</span>
+											#end
+											#if($room.roomDoor.contains('right2Door'))
+											<span class="rDoor03" style="bottom:${vbtm}px;">出口</span>
+											#end
+											#if($room.roomDoor.contains('rightDown'))
+											<span class="rDoor04">出口</span>
+											#end
+											#if($room.roomDoor.contains('downLeft'))
+											<span class="bDoor01">出口</span>
+											#end
+											#if($room.roomDoor.contains('downCenter'))
+											<span class="bDoor02" style="left:${hCenter}px;">出口</span>
+											#end
+											#if($room.roomDoor.contains('downRight'))
+											<span class="bDoor03">出口</span>
+											#end
+										</div>
+										#if($seatMap)
+										<div class="seatlist" style="margin:0 auto;width:${maxwidth}px">
+											#set($rowList=$VmUtils.split($seatMap,"@@"))
+											#foreach($line in [$lineStart..$lineEnd])
+												#set($rows = '')
+												#if($line gt 0 && $line le $rowList.size())
+													#set($lineX = $line - 1)
+													#set($rows = $rowList.get($lineX))
+												#end
+											<dl class="clear">
+												#set($rankList = $VmUtils.split($rows, ","))
+												#foreach($row in [$rowStart..$rowEnd])
+													#set($rank = '')
+													#if($row gt 0 && $row le $rankList.size())
+														#set($rowY = $row - 1)
+														#set($rank = $rankList.get($rowY))
+													#end
+													#set($seatMark = 'L' + $line + 'R' + $!row)
+												<dd><div class="#if(!$classMap.get($rank))#if($outerRingseatMap.get($seatMark)) $outerRingseatMap.get($seatMark) #else noSeat #end 
+													#{else}
+														#if($classMap.get($rank) eq 'noSeat' && $outerRingseatMap.get($seatMark))
+															$outerRingseatMap.get($seatMark)
+														#else 
+															$classMap.get($rank)
+														#end 
+													#end"></div></dd>
+												#end
+											</dl>
+											#end
+										</div>
+										#end
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				#set($movieOtherinfoMap = $VmUtils.readJsonToMap($movie.otherinfo))
+				#set($cinemaOtherinfoMap = $VmUtils.readJsonToMap($cinema.otherinfo))
+				#if(($VmUtils.containsIgnoreCase(${opi.edition},'3D') && $VmUtils.isNotBlank($cinemaOtherinfoMap.get('3D'))) || $VmUtils.isNotBlank($cinemaOtherinfoMap.get('child')))
+				<div class="leftBox clear">
+					<div class="clear">
+						<h2 class="left">场次说明：</h2>
+						<span class="ui_privilege">
+							#if($VmUtils.isBlank($opi.elecard))
+							<em class="t" title="特殊场次不支持任何优惠">特</em>
+							#end
+							#if($opi.openPointPay)
+							<em class="j" title="支持积分抵值">积</em>
+							#end
+							#if($opi.openCardPay)
+							<em class="q" title="支持票券抵值">券</em>
+							#end
+							#if($opi.disCountPay)
+							<em class="y" title="支持优惠购票">惠</em>
+							#end
+							#if($!VmUtils.eq($!VmUtils.getJsonValueByKey($opi.otherinfo, 'isRefund'), 'Y') && $VmUtils.gt($!DateUtil.getDiffHour($opi.playtime,$DateUtil.currentTime()), 4))
+							<em class="k" title="放映前4小时可退票">退</em>
+							#end
+							#if($!VmUtils.getJsonValueByKey($opi.otherinfo, 'sptitle') eq '明星见面会')
+								<em class="x" title="明星见面会">星</em> 
+							#end 
+							#if($!goodsGift)
+								<em class="t" title="绑定套餐场次">餐</em>
+							#end
+						</span>
+					</div>
+					#set($indexx = 1)
+					#if($VmUtils.containsIgnoreCase(${opi.edition},'3D')&&$VmUtils.isNotBlank($cinemaOtherinfoMap.get('3D')))
+					<p>$!indexx、$cinemaOtherinfoMap.get('3D')</p>
+					   #set($indexx = 2)
+					#end
+					#if($VmUtils.isNotBlank($cinemaOtherinfoMap.get('child')))
+					<p>$!indexx、$cinemaOtherinfoMap.get('child')</p>
+					#end
+				</div>
+				#end
+				#set($otherinfo=$VmUtils.readJsonToMap($cinema.otherinfo))
+				<div class="leftBox clear">
+					#if($otherinfo)
+					<h2>影院信息：</h2>
+					<dl class="ui_media">
+						<dt class="ui_pic mr0">影院服务：</dt>
+						<dd class="ui_text">
+							<div class="ui_cinemaDesc">
+								#if($VmUtils.isNotBlank($otherinfo.get('park')))
+								<em class="ser_p" title="$otherinfo.get('park')"></em>
+								#end
+								#if($VmUtils.isNotBlank($otherinfo.get('imax')))
+								<em class="ser_imax" title="$otherinfo.get('imax')"></em>
+								#end
+								#if($VmUtils.isNotBlank($otherinfo.get('3D')))
+								<em class="ser_3d" title="$otherinfo.get('3D')"></em>
+								#end
+								#if($VmUtils.isNotBlank($otherinfo.get('pairseat')))
+								<em class="ser_lover" title="$otherinfo.get('pairseat')"></em>
+								#end
+								#if($VmUtils.isNotBlank($otherinfo.get('child')))
+								<em class="ser_child" title="$otherinfo.get('child')"></em>
+								#end
+								#if($VmUtils.isNotBlank($otherinfo.get('sale')))
+								<em class="ser_foods" title="$otherinfo.get('sale')"></em>
+								#end
+							</div>
+						</dd>
+					</dl>
+					#end
+					#if($VmUtils.isNotBlank($cinema.transport))
+					<p><em>公　　交：</em>$!cinema.rTransport</p>
+					#end
+					#if($VmUtils.isNotBlank($cinema.stationname))
+					<p><em>地　　铁：</em>$!cinema.getLineName($subwaylineMap)$!{cinema.stationname}站&nbsp;$!{cinema.exitnumber}</p>
+					#end
+					#if($otherinfo)
+					#set($park = $otherinfo.get('park'))
+					#if($park)
+					<p><em>停　　车：</em>$park</p>
+					#end
+					#end
+				</div>
+				<div class="leftBox clear">
+					<h2>使用说明：</h2>
+					<p>1、每笔订单最多可选购$!{opi.gainLockSeat()}张电影票，情侣座不单卖；</p>
+					<p>2、选座时，请尽量选择相邻座位，不要留下单个座位；</p>
+					<p>3、点击“完成选座”后，请在$!{opi.gainLockMinute()}分钟内完成支付，超时系统将释放你选定的座位。</p>
+				</div>
+			</div>
+			<div class="ui_right">
+				<div class="inner">
+					<div class="pewSeat">
+						<div class="ui_media">
+							<div class="ui_pic">
+								<a href="${basePath}movie/$movie.id" target="_blank" title="$movie.id"><img width="60" height="80" alt="$movie.moviename" src="$VmUtils.randomPic('cw60h80',$movie.limg)"/></a>
+							</div>
+							<div class="ui_text">
+								<h2><a href="${basePath}movie/$movie.id" class="c333" target="_blank" title="$movie.moviename">$movie.moviename</a></h2>
+								<p><em>语言版本：</em>$!opi.language   $!opi.edition</p>
+								#set($videoHour = $movie.videolen/60)
+								#set($videoM = $movie.videolen%60)
+								<p><em>时长：</em>#if($videoHour && $videoHour gt 0)$!{videoHour}小时#end$!{videoM}分钟</p>					 
+							</div>
+						</div>
+						<div class="innerCont mt15">
+							<p><em>影院：</em>$!{cinema.realBriefname}</p>
+							<p><em>影厅：</em>$room.roomname</p>
+							<p class="changeScreen">
+								<em>场次：</em><span class="cred">$DateUtil.format($opi.playtime,"MM-dd")($DateUtil.getCnWeek($opi.playtime)) $DateUtil.format($opi.playtime,"HH:mm")</span>
+								<span id="changeScreen" class="cs" onclick="getOpiList();">更换场次</span>
+							</p>
+						</div>
+						<div class="clear changeScreenArea" id="changeScreenArea"></div>
+						<dl class="ui_media mt10">
+							<dt class="ui_pic mr0">座位：</dt>
+							<dd class="ui_text">
+								<div class="clear" id="selectedSeat"></div>
+								<p id="seatNumP" style="display:none;">已选择<b class="cf60 ml5 mr5">0</b>个座位，再次单击座位取消。</p>
+								<div id="no">
+									<div class="clear"><span class="pews">还未选择座位</span></div>
+									<p>单击<span class="cf60 ml5 mr5">左侧座位图</span>选择座位，再次单击取消。</p>
+								</div>
+							</dd>
+						</dl>
+						<div class="innerCont mt10">
+							<p><em>总计：</em> <span class="ui_price">¥<b id="seatSumPrice">0</b></span></p>
+						</div>
+					</div>
+					<form id="orderForm">
+						<input type="hidden" name="quantity" id="quantity" value="1"/>
+						<input type="hidden" name="mpid" id="mpid" value="${opi.mpid}"/>
+						<input type="hidden" name="seatid" id="seatList" value=""/>
+						#set($captchaId=$VmUtils.randomCaptchaId)
+						<input type="hidden" name="captchaId" id="orderCaptcha" value="$!captchaId"/>
+						<div class="rightBox">
+							<p>输入订单号</p>
+							<div class="mobileInfo">
+								<p><em>订单号：</em><input type="text" class="text" maxlength="20" onkeyup="GewaraUtil.replaceStr(this);" id="tradeno" name="tradeno"/><span class="cred ffst ml5">*</span></p>
+								<!-- <p class="mt10">
+									<em>验证码：</em><input style="width:70px;" type="text" class="text" id="orderCaptchaInput" name="captcha" /><span class="cred ffst ml5">*</span>
+									<img id="orderCaptchaImg" src="${basePath}captcha.xhtml?captchaId=$!captchaId&r=$math.random" style="cursor: pointer;" onclick="GewaraUtil.refreshCaptcha('orderCaptcha')" title="看不清楚，请双击换一张图片"/>
+								</p> -->
+							</div>
+						</div>
+						<p style="padding-left:49px;">
+							<a class="button redBt maxBt left" onclick="submitOrder(this);"><span>完成选座</span></a>
+						</p>
+					</form>
+						<!-- #if($goodsGift)
+						<div class="rightBox">
+							<p>#if($!VmUtils.eq($goods.unitprice,0))购票免费获赠以下套餐 #else 本套票包含以下套餐 #end ：</p>
+							<div class="packageBox mt15">
+								<h2><input type="checkbox" id="checkCombo" name="checkCombo" #if($goodsGift) checked = "checked" disabled #end />&nbsp;$!goods.goodsname</h2>
+								<p class="mt10" title="$!goods.summary">$!VmUtils.escabbr($!goods.summary,100)</p>
+								<div class="more">
+									#set($sum = $goods.oriprice - $goods.unitprice)
+									<p><span class="ui_price">¥<b>$!goods.unitprice</b></span></p>
+									<p class="mt5">
+										<select id="selectCount" #if($goodsGift) disabled #end>
+											<option selected="selected" value="0">0份</option>
+											<option value="1">1份</option>
+											<option value="2">2份</option>
+											<option value="3">3份</option>
+											<option value="4">4份</option>
+											<option value="5">5份</option>
+										</select>
+									</p>
+								</div>
+							</div>
+						</div>
+						#elseif(!$VmUtils.isEmptyList($goodsList))
+						<div class="rightBox" id="addGoodsBox">
+							<p>选择卖品套餐</p>
+							#foreach($goods in $goodsList)
+							<div class="packageBox mt15">
+								<h2><label><input type="checkbox" id="checkCombo$foreach.index" name="checkCombo" value="$!goods.id" goodsprice="$!goods.unitprice" />&nbsp;$!goods.goodsname</label></h2>
+								<p class="mt10" title="$!goods.summary">
+									<a href="${basePath}goods/buyGoods.xhtml?gid=$!goods.id" target="_blank">
+										$!VmUtils.escabbr($!goods.summary,100)
+									</a>
+								</p>
+								<div class="more">
+									#set($sum = $goods.oriprice - $goods.unitprice)
+									#*
+									#if($goods.oriprice && $sum gt 0)<p>立省<b class="yellow">$sum</b>元</p>#end
+									*#
+									<p><span class="ui_price">¥<b>$!goods.unitprice</b></span></p>
+									<p class="mt5">
+										<select id="$!goods.id" onchange="chooiceGoods(this,'$!goods.id')">
+											<option selected="selected" value="0">0份</option>
+											<option value="1">1份</option>
+											<option value="2">2份</option>
+											<option value="3">3份</option>
+											<option value="4">4份</option>
+											<option value="5">5份</option>
+										</select>
+									</p>
+								</div>
+							</div>
+							#end
+						</div>
+						#end
+						<p style="padding-left:49px;">
+							<a class="button redBt maxBt left" onclick="submitOrder(this);"><span>完成选座</span></a>
+							#if($goodsGift)
+							#elseif(!$VmUtils.isEmptyList($goodsList))
+							<a href="javascript:void(0);" id="addGoods" class="ui_addInfo none">+ 展开卖品</a>
+							<a href="javascript:void(0);" id="addGoods2" class="ui_addInfo">- 收起卖品</a>
+							#end
+						</p>
+					 -->
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#set($pageTrack=${basePath} + 'admin/ticket/chooseSeat.shtml')
+<script type="text/javascript">
+function choiceOpiList(){//切换场次
+	var isView = true;
+	gewa.util.popo(document.getElements("*[ config=tirger]"),'','','left',function(){
+		var args = arguments;
+		if(args[0].retrieve('key') == null){
+			var url = "${basePath}ajax/seatView.shtml?mpid="+args[0].get('mpid');
+			GewaraUtil.sendRequest(url, '', function(result){
+				if(result.success){
+					var div = new Element('div').addClass('viewSeatPanel');
+					div.innerHTML = result.viewPage;
+					if(args[0].retrieve('isher') != null){
+						args[0].store('isher',null);
+						args[0].store('key',div);
+						var width = div.getFirst().getComputedSize().totalWidth+40;
+						gewa.util.tips(args[0],div,width,args[1],args[2],args[3]);
+					}else{
+						args[0].store('isher',null);
+						args[0].store('key',div);
+					}
+				}
+			}.bind(this),'key');
+		}else{
+			var width = args[0].retrieve('key').getFirst().getComputedSize().totalWidth+40;
+			gewa.util.tips(args[0],args[0].retrieve('key'),width,args[1],args[2],args[3]);
+		}
+	},function(){
+		isView = !isView;
+	});
+	var tgheight = new Fx.Toggle('changeScreenArea',{duration:400, link: 'cancel'}),toggleE = $('triggerPlug'),container = $('changeScreenArea'),ael = container.getElements('a').length; height = ael * 37 + 100;
+	container.setStyle('height',(ael >= 5)?285:height);
+	if(ael <= 5)$('triggerPlug').hide();
+	$('changeScreen').addEvent('click',function(){
+		container.morph({
+			opacity:1,
+			display:'block',
+			'overflow':'visible',
+			height:(ael >= 5)?285:height
+		});
+		container.toPos('changeScreen','bottomLeft',-388,10);
+		bindClick(container,this,function(){
+			container.morph({
+				opacity:0,
+				display:'none',
+				'overflow':'visible',
+				height:(ael >= 5)?285:height
+			});
+		});
+		$('changeScreenArea').getElements('[config=tips]').each(function(item,index,array){
+			if(item.hasClass('select')){
+				if(index >= 2){
+					var alist;
+					if(index < 5){
+						if(array.length < 6)alist = array.slice(0,array.length - index - 1);
+						else alist = array.slice(0,4-index);
+					}else if(index - 4 != 0){
+						alist = array.slice(0,index - 4)
+					}
+					alist.each(function(item){item.addClass('none')});
+				}
+			}
+		});
+	});
+	toggleE.addEvent('click', function(event) {
+		exetoggleheight();
+	});
+	var toggle=[];
+	var exetoggleheight = function(){
+		tgheight.toggleHeight((height >= 285)?285:height,function(){
+			var v1='收起',v2='展开',v3 = toggleE.get('text').indexOf(v2)<0?v2:v1,v4 = toggleE.get('text').indexOf(v2)==0?v2:v1;
+			toggleE.set('text',toggleE.get('text').replace(v4,v3));
+			if(toggle.length == 0){
+				$('changeScreenArea').getElements('[config=tips]').each(function(item,index){
+					if(item.hasClass('none') ){
+						toggle.push(item);
+					}
+				});
+			}
+		});
+		toggle.each(function(item){item.toggleClass('none');});
+	}
+	var bindClick = function(element,self,callback){
+		element = $(element);
+		document.addEvent('click',function(e){
+			var target = $(e.target);
+			if(target != element && !element.contains(target) && target != self && isView){
+				document.removeEvent('click',arguments.callee);
+				element.hide();
+				if(callback)callback();
+			}
+		});
+	}
+}
+function getOpiList(){
+	var url = '${basePath}admin/ticket/getOpiListByMpid.xhtml';
+	var values = {'mpid':$opi.mpid};
+		if($('changeScreenArea').retrieve('key') == null){
+			gewa.util.mask({'element': "changeScreen",'title':'正在查询数据...'});
+			GewaraUtil.sendLoad('changeScreenArea', url, values,function(){
+				choiceOpiList();
+				$('changeScreenArea').store('key',true);
+				$('changeScreen').fireEvent('click');
+				gewa.util.clearMask();
+			},'key');
+		}else{
+			$('changeScreen').fireEvent('click');
+		}
+}
+var selectedSeat=[$!jsSeatList];
+window.addEvent('domready',function(){
+	#if($logonMember)
+		asychRefreshSeat();	
+	#else
+		refreshSeat();
+	#end
+	showTips();
+	if($('clsoeSpecNotice')){
+		$('clsoeSpecNotice').addEvent('click',function(){
+			this.getParent('div.spNoticeBox').addClass('none');
+		});
+	};
+	addGoods();
+});
+
+function asychRefreshSeat(){
+	#if($opi.hasGewara() || $seatCached)
+		gewa.util.mask({'element': "seatTable",'title':'正在查询数据...', "opacity":"0.4"});
+		refreshSeat();
+	#else
+		gewa.util.mask({'element': "seatTable",'title':'正在连接影院...', "opacity":"0.4"});
+		var url = "${ticketPath}asynch/getRemoteLockSeat";
+		var values = {"seqno":'$!{opi.seqNo}','t':'$!{cur}', 'checkStr':'$!{checkStr}', "validtime":'$!{validtime}'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				refreshSeat();
+			}else{
+				gewa.util.maskContent("seatTable", '<span style="cursor:pointer">暂时无法连接影院服务器，请稍后再试！</span>');
+			}
+		});
+	#end
+}
+function addCheckCombo(){
+	var combolist = document.getElements('input[type=checkbox][name=checkCombo]');
+	if(combolist.length > 0){
+		combolist.addEvent('click',function(){
+			var filterList = combolist.filter(function(check){//删除其他复选框
+				if(this != check)check.checked = false;
+				return this != check;
+			}.bind(this));
+			if(this.checked){
+				$('goodsid').value = this.value;
+				var selects = document.getElements('select[id='+this.value+']');
+				if(selects.length > 0){
+					$('quantity').value = selects[0].value;
+				}
+			}else{
+				$('goodsid').value = '';
+				$('quantity').value = '';
+			}
+		});
+	}
+}
+function refreshSeat(){
+	var url = '${basePath}admin/ticket/getSeatPage.shtml';
+	GewaraUtil.sendRequest(url, {'mpid':$opi.mpid, 'r':Date.now()}, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			$("seatTable").innerHTML = result.seatPage;
+			if($('wrapper') && $('wrapped') && $('wrapped').getStyle('width').toInt() > 848){
+				new ScrollerBar('wrapper',{mode:'horizontal',wrapped:'wrapped',flag:true});
+			}
+			addPriceEvent();
+			addCheckCombo();
+			new seat({cloneList:result.seatList});
+			#if($params.price)
+			$$(".seatlist dd div").each(function(item){
+				selectSeat(item,'$params.price');
+			});
+			#end
+			$$('#wrapped .hasSeat,#wrapped .sellSeat').each(function(ps){
+				ps.amTips({position:'top',content:function(){return ps.get('istips')}});
+			})
+		}else{
+			if(result.msg.indexOf("请先登录")>=0) {
+				$$('.seatlist .clear div').addEvent('click',function(){
+					if($('logins')){
+						showLogin(refreshPage);
+					}
+				});
+				if($('wrapper') && $('wrapped') && $('wrapped').getStyle('width').toInt() > 848){
+					new ScrollerBar('wrapper',{mode:'horizontal',wrapped:'wrapped',flag:true});
+				}
+			}else{
+				gewa.util.maskContent("seatTable", '<span style="cursor:pointer">'+result.msg+'</span>');
+			}
+		}
+	}, "get");
+}
+
+var seat = new Class({
+	Implements: [Options, Events],
+	initialize: function(options) {
+		this.setOptions({
+			table:'wrapper',//容器id
+			event:".hasSeat,.checkSeat",//可选、不可选
+			open:'checkSeat',//选中
+			cancel:'hasSeat',//取消
+			toggleClose:'no',//选座提示
+			toggleOpen:'selectedSeat',//选座容器
+			notice:"seatNumP",
+			creatEl:'',
+			arraList:[],
+			cloneList:[],
+			input:'seatList',
+			money:0,
+			flag:false
+		}, options);
+		this.toggleOpen = $(this.options.toggleOpen);
+		this.toggleClose=  $(this.options.toggleClose);
+		this.notice = $(this.options.notice);
+		this.input = $(this.options.input);
+		this.construct();
+	},
+	construct:function(){
+		var self = this;
+		this.table = $(this.options.table);
+		this.table.getElements(this.options.event).addEvent('click',function(){
+			if(this.hasClass(self.options.open)){
+				this.set('class',self.options.cancel);
+				self.deleteValue(this.id);
+				$('seatSumPrice').innerHTML = Number($('seatSumPrice').innerHTML) - Number(this.get('seatPrice'));
+				if(self.options.arraList == 0){
+					self.toggleOpen.hide();
+					self.toggleClose.show();
+					self.notice.hide();
+				}
+				if(this.retrieve('key') != null){
+					this.retrieve('key').dispose();
+					this.store('key',null);
+				}
+				self.notice.set('html','已选择<b class="m5 cf60">'+self.options.arraList.length+'</b>个座位，再次单击座位取消。')
+				setcombonum(self.options.arraList.length);
+			}else{
+				if(self.options.arraList.length >= 5){
+					gewaUtil.alert("每个订单最多选择五个座位");
+					return;
+				}
+				this.set('class',self.options.open);
+				self.createElement(this);
+			}
+		});
+		this.defSetDate();
+	},
+	createElement:function(el){
+		var self = this,pos = el.getPosition();
+		this.toggleOpen.show();
+		this.toggleClose.hide();
+		this.notice.show();
+		this.setValue(el.id);
+		this.notice.set('html','已选择<b class="m5 cf60">'+self.options.arraList.length+'</b>个座位，再次单击取消。');
+		setcombonum(self.options.arraList.length);
+		var issite = new Element('div',{'html':el.get('istips'),'styles':{'top':pos.y,'left':pos.x}}).addClass('pews').inject(document.body);
+		issite.addEvent('click',function(){});
+		issite.store('key',el);
+		el.store('key',issite);
+		issite.set('move', {duration: '600',onComplete:function(){
+			if(el.retrieve('key') != null){
+				var isel = el.retrieve('key');
+				isel.inject(this.toggleOpen);
+				isel.setStyle('position','static');
+			}
+		}.bind(this)}).move({
+			relativeTo:this.toggleOpen,
+			position:"center",
+	   	offset:{x:90,y:0}
+	   })
+	   $('seatSumPrice').innerHTML = Number($('seatSumPrice').innerHTML) + Number(el.get('seatPrice'));
+	},
+	setValue:function(val){
+		this.options.arraList.push(val);
+		this.input.value = this.options.arraList.join(",");
+	},
+	getValue:function(){
+		return this.options.arraList;
+	},
+	deleteValue:function(val){
+		this.options.arraList.erase(val);
+		this.input.value = this.options.arraList.join(",");
+	},
+	defSetDate:function(){
+		if(this.options.cloneList.length>0){
+			this.options.cloneList.each(function(item){
+				var el = this.table.getElement("*[id="+item.id+"]");
+				this.createElement(el);
+			}.bind(this));
+		}
+	},
+	removeAllDate:function(callback){
+		this.toggleOpen.hide();
+		this.toggleClose.show();
+		this.notice.hide();
+		this.input.value = '';
+		this.options.arraList = [];
+		if(callback)callback();
+	}
+});
+function setcombonum(quantity){
+	#if($goodsGift)
+		var q = 0;
+		var rateList = '$goodsGift.rateinfo';
+		var rates = rateList.split(',');
+		for(var i=0;i<rates.length;i++){
+			var rate = rates[i];
+			if(rate.split(":")[0]==quantity) {
+				q = rate.split(":")[1];
+			}
+		}
+		$('selectCount').value = q;
+		$('quantity').value = q;
+	#end
+}
+function addPriceEvent(){
+	$$("#pc input").addEvent("click",function(){
+		var obj = $$(".seatlist dd div[class*='hasSeat']");
+		var ipt = this;
+		obj.each(function(item){
+			selectSeat(item, ipt.value);
+		});
+	});
+}
+
+function selectSeat(item, price){
+	if(item.getParent().id==price) item.innerHTML="●";
+	else item.innerHTML="";
+}
+
+function showTips(){
+	var oListTags = $$('.ui_privilege em,.ui_cinemaDesc em');
+	oListTags.each(function(item){
+		new amTips(item,{position:'top',center:false,width:600});
+	});
+}
+
+function seatImplament(){
+	$('selectedSeat').empty().hide();
+	$('no').show();
+	$('seatNumP').set('html','你已选<b class="cf60 ml5 mr5">3</b>个座位，再次单击座位取消。');
+	$('seatNumP').hide();
+	$('seatList').value = '';
+	$('seatSumPrice').innerHTML = '0';
+	refreshSeat();
+}
+function isNumber(str){return /^\d+$/.test(str);}
+
+function submitOrder(el){
+	var err = "",val=$("tradeno").value.trim();
+	if((!isNumber(val) || val.length > 20) && val != "") err = "请输入正确的订单号！";
+	if(val == ""){err = "请输入订单号！"}
+	if($("seatList").value.trim()=="") err = "请先选择座位！";
+	if($("quantity").value > 5) err = "商品购买数量有误！";
+	if(err.length>0){
+		gewaUtil.alert(err); 
+		return;
+	}
+	gewa.util.mask({'element':el,'title':'正在提交，请稍等...'});
+	var url = "${basePath}admin/ticket/saveTicketOrder.xhtml";
+	var values = GewaraUtil.getValues("orderForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if (result.success) {
+			window.location.href = "${basePath}admin/ticket/confirmOrder.xhtml?orderId="+result.retval;
+		} else {
+			gewa.util.clearMask();
+			gewaUtil.alert(result.msg);
+		}	
+	});
+}
+
+function addGoods(){
+	if($('addGoods')){
+		$('addGoods').addEvent('click',function(){
+			this.addClass('none');
+			$('addGoods2').removeClass('none');
+			if($('addGoodsBox'))$('addGoodsBox').removeClass('none');
+		});
+	}
+	if($('addGoods2')){
+		$('addGoods2').addEvent('click',function(){
+			this.addClass('none');
+			$('addGoods').removeClass('none');
+			if($('addGoodsBox'))$('addGoodsBox').addClass('none');
+		});
+	}
+}
+function chooiceGoods(el,number){
+	var radios = document.getElements('input[type=checkbox][value='+number+']');
+	if(radios.length > 0){
+		$('quantity').value = $(el).value;
+		radios[0].checked = true;
+		radios[0].fireEvent('click');
+	}
+}
+</script>
+</body>
+</html>

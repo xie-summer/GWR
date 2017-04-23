@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>运动场所价格信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:350px; display:inline}
+	</style>
+</head>
+<body style="width:750px;margin:auto" class="yui-skin-sam">
+<div style="width:740px;">${priceTable.tablename}的价格信息
+<input type="button" class="button" style="width:80px" value="增加" onclick="addSportPrice();"/>
+</div>
+<div style="width:745px;">
+<table class="table" style="width:520px">
+	<thead>
+	<tr>
+		<th width="100px">星期</th>
+		<th width="100px">时间范围</th>
+		<th width="75px">参考价格</th>
+		<th width="75px">排序</th>
+		<th width="150px">操作</th>
+	</tr>
+	</thead>
+	<tbody id="priceTable">
+	#foreach($sportprice in $priceList)
+		<tr id="sportprice_${sportprice.id}">
+			<td id="weektype_${sportprice.id}">${sportprice.weektype}</td>
+			<td id="timerange_${sportprice.id}">${sportprice.timerange}</td>
+			<td id="price_${sportprice.id}">${sportprice.price}</td>
+			<td><input type="text" value="$!{sportprice.ordernum}" onchange="orderNum(${sportprice.id}, this.value)" id="ordernum_${sportprice.id}" style="width: 50px" /></td>
+			<td>
+				<input type="button" class="button" style="width:60px" value="修改" onclick="modifySportPrice(${sportprice.id});"/>
+				<input type="button" class="button" style="width:60px" value="删除" onclick="deleteSportPrice(${sportprice.id});"/>
+			</td>
+		</tr>
+	#end
+	</tbody>
+</table>
+</div>
+<div id="sportPriceDialog" class="yui-panel" style="width:450px; visibility:hidden;">
+	<div class="hd" id="title">编辑运动场价格数据</div>
+	<div class="bd">
+	<form name="sportPriceForm" id="sportPriceForm">
+		<input type="hidden" name="id" id="id"/>
+		<div>
+			<label for="weektype">星期:</label>
+			<select name="weektype" id="weektype">
+				<option value="1">周一</option>
+				<option value="2">周二</option>
+				<option value="3">周三</option>
+				<option value="4">周四</option>
+				<option value="5">周五</option>
+				<option value="6">周六</option>
+				<option value="7">周日</option>
+				<option value="1,2,3,4">周一到周四</option>
+				<option value="1,2,3,4,5">周一到周五</option>
+				<option value="1,2,3,4,5,6">周一到周六</option>
+				<option value="1,2,3,4,5,6,7">周一到周日</option>
+				<option value="1,2,3,4,7">周日到周四</option>
+				<option value="1,2,3,4,5,7">周日到周五</option>
+			</select>
+		</div>
+		<div>
+			<label for="timerange" title="例如：20:30-22:10">时间范围:</label>
+			<input name="timerange" id="timerange" type="text"/>
+		</div>
+		<div>
+			<label for="price">参考价格:</label>
+			<input name="price" id="price" type="text"/>
+		</div>
+		<div>
+			<label for="memberprice">会员价格:</label>
+			<input name="memberprice" id="memberprice" type="text"/>
+		</div>
+		<div>
+			<label for="memberprice">预订价格:</label>
+			<input name="bookingprice" id="bookingprice" type="text"/>
+		</div>
+		<div>
+			<label for="unit">计价单位:</label>
+			<input name="unit" id="unit" title="元/小时，全场,可不写" type="text"/>
+		</div>
+		<div>
+			<label for="remark">备注:</label>
+			<textarea name="remark" id="remark" rows="2"></textarea>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="save();" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	var weektypes = {
+		"1":"周一",
+		"2":"周二",
+		"3":"周三",
+		"4":"周四",
+		"5":"周五",
+		"6":"周六",
+		"7":"周日",
+		"1,2,3,4":"周一到周四",
+		"1,2,3,4,5":"周一到周五",
+		"1,2,3,4,5,6":"周一到周六",
+		"1,2,3,4,5,6,7":"周一到周日",
+		"1,2,3,4,7":"周日到周四",
+		"1,2,3,4,5,7":"周日到周五"
+	};
+	function showDialog(){
+		GewaraUtil.showDialog("sportPriceDialog");
+	}
+	function save(){
+		var values = GewaraUtil.getValues($("sportPriceForm"));
+		if (values.price == "") {
+			alert("请输入价格！");
+			return;
+		}
+		values.sportPriceTableId = ${priceTable.id};
+		var url = "${basePath}admin/sport/ajax/saveOrUpdateSportPrice.xhtml";
+		GewaraUtil.sendRequest(url, values , saveCallBack);
+	}
+	function cancle(){
+		GewaraUtil.hideDialog("sportPriceDialog");
+	}
+	var isModify = false;
+	function addSportPrice(){
+		$("id").value="";
+		isModify = false;
+		showDialog();
+	}
+	function saveCallBack(sportprice){
+		if(sportprice){
+			cancle();
+			if(isModify){
+				$("weektype_" + sportprice.id).innerHTML = weektypes[sportprice.weektype];
+				$("timerange_" + sportprice.id).innerHTML = sportprice.timerange;
+				$("price_" + sportprice.id).innerHTML = sportprice.price;
+			} else addRow(sportprice);
+		}
+		else alert("保存失败");
+	}
+	function modifySportPrice(priceId){
+		var values = {'sportPriceId':priceId}
+		var url = "${basePath}admin/sport/ajax/getSportPriceById.xhtml";
+		GewaraUtil.sendRequest(url, values , function(sportprice){
+			GewaraUtil.setValues(sportprice);
+			isModify = true;
+			showDialog();
+		});
+	}
+	var options = new Object();
+	options.escapeHtml = false;
+	options.rowCreator = function(opt){
+		var rowData = opt.rowData;
+		var tmpRow = document.createElement("tr");
+		tmpRow.id="sportprice_" + rowData.id;
+		return tmpRow;
+	}
+	var cellFunc = [
+		function(sportprice){
+			return weektypes[sportprice.weektype];
+		},function(sportprice){
+			return sportprice.timerange;
+		},function(sportprice){
+			return sportprice.price;
+		},function(sportprice){
+			var tmpLink = '<input type="button" class="button" style="width:60px" value="修改" onclick="modifySportPrice(' + sportprice.id+');"/>';
+			tmpLink +='<input type="button" class="button" style="width:60px" value="删除" onclick="deleteSportPrice(' + sportprice.id + ');"/>';
+			return tmpLink;
+		}
+	]
+	
+	function addRow(sportprice){
+		var sportpriceList=[sportprice];
+		GewaraUtil.addRows("priceTable", sportpriceList, cellFunc, options);
+		var cells = $("sportprice_" + sportprice.id).cells;
+		cells[0].id="itemname_"+sportprice.id;
+		cells[1].id="weektype_"+sportprice.id;
+		cells[2].id="timerange_"+sportprice.id;
+		cells[3].id="price_"+sportprice.id;
+	}
+	function deleteSportPrice(sportpriceId){
+		var values = {'sportPriceId':sportpriceId}
+		var url = "${basePath}admin/sport/ajax/removeSportPriceById.xhtml";
+		GewaraUtil.sendRequest(url, values , function(result){
+			if(result.success){
+				$("sportprice_"+sportpriceId).dispose();
+				alert("删除成功！");
+			}else alert(result.msg);
+		});
+	}
+	function orderNum(gcid, val, obj){
+		var url = "${basePath}admin/common/ajax/changeSportPriceOrderNum.xhtml";
+		GewaraUtil.sendRequest(url, {'id':gcid, 'ordernum':val}, function(result){
+			if(result.success){
+				alert('成功设置！');
+			}else{
+				alert('设置失败');
+			}
+		});
+	}
+</script>
+</body>
+</html>

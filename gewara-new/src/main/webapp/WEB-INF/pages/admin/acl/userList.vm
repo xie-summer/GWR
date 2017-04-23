@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<title>用户列表</title>
+</head>
+<body style="width:900px;margin:auto" class="yui-skin-sam">
+	<div style="margin:5px 0 5px 0;width:750px">
+		<a href="${basePath}admin/acl/editUser.xhtml">增加用户</a>
+	</div>
+	<table class="table" id="users">
+		<thead><tr>
+			<th>用户名</th>
+			<th>角色</th>
+			<th>是否启用</th>
+			<th>外部IP是否禁用</th>
+			<th>操作</th>
+			<th>菜单</th>
+		</tr></thead>
+		<tbody>
+		#foreach($user in $userList)
+		<tr>
+			<td>${user.username}<br />$!{user.nickname}<br />$user.id</td>
+			<td>
+			#foreach($role in $user.roles)
+			<label style="display: inline-block;width: 18%;height: 20px;">$!{role.description}&nbsp;&nbsp;</label>
+			#end
+			</td>
+			<td>
+				#if($user.enabled)已启用#else 已禁用 #end
+			</td>
+			<td>
+				#if($abnormalIPMap.get($user.id))<span style="color:red;">禁止外部IP使用</span>#end 
+			</td>
+			<td><a href="${basePath}admin/acl/editUser.xhtml?userId=${user.id}" target="_blank">用户设置</a></td>
+			<td>
+				<a href="javascript:void(0)" onclick="userWebModule($user.id, '$user.nickname')">菜单</a>
+			</td>
+		</tr>
+		#end
+		</tbody>
+	</table>
+<div id="wmDialog" class="yui-panel" style="width:300px;  z-index:20;visibility:hidden">
+	<div class="hd">
+		<span id="username">用户</span>
+	</div>
+	<div class="bd" id="pdetail"></div>
+</div>
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+});
+	function showWM(){
+		GewaraUtil.showDialog("wmDialog");
+	}
+	function cancle(){
+		GewaraUtil.hideDialog('wmDialog');
+	}
+	function userWebModule(userid, username){
+		$('pdetail').innerHTML='正在请求数据......';
+		var url = "${basePath}admin/acl/ajax/getUserWebModule.xhtml";
+		GewaraUtil.sendLoad('pdetail', url, {'userid':userid});
+		$('username').innerHTML = "【"+username+"】的权限树";
+		showWM();
+	}
+</script>
+</body>
+</html>

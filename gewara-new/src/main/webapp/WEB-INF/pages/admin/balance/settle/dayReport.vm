@@ -1,0 +1,104 @@
+<table class="table" style="width:600px;">
+<thead>
+	<tr class="td">
+	<th>时间</th>
+	<th>成功数量</th>
+	<th>成功结算金额</th>
+	<th>退款数量</th>
+	<th>退款结算金额</th>
+	<th>详细</th>
+	</tr>
+</thead>
+<tbody>
+	#set($M=0) #set($Q=0) #set($sumRetQ=0) #set($sumRetM=0)
+	#foreach($tmpt in $tempTime.keySet())
+	#set($dataMap=$timeDataMap.get($tmpt))
+	#if($dataMap.quantity) 
+		#set($quantity=$dataMap.quantity) #set($retquantity=$dataMap.retquantity)
+		#set($price=$dataMap.price) #set($retprice=$dataMap.retprice) 
+	#else 
+		#set($quantity=0) #set($retquantity=0)
+		#set($price=0) #set($retprice=0)
+	#end
+	#set($Q=$Q+$quantity) #set($sumRetQ=$sumRetQ + $retquantity)
+	#set($M=$M+$price) #set($sumRetM=$sumRetM+$retprice)
+	<tr class="td itable">
+	<td>$DateUtil.formatTimestamp($!{tmpt}) -- $DateUtil.formatTimestamp($tempTime.get($tmpt))</td>
+	<td>$quantity</td>
+	<td>$price</td>
+	<td>$retquantity</td>
+	<td>$retprice</td>
+	<td>
+		<a href="${basePath}admin/gewapay/reportByCinemaAddtime.xhtml?cinemaid=$cinema.id&datefrom=$DateUtil.formatTimestamp($!{tmpt})&dateto=$DateUtil.formatTimestamp($tempTime.get($tmpt))&opentype=$!params.opentype">详细</a>
+	</td>
+	</tr>
+	#end
+	<tr class="td">#set($totalQ=$Q+$sumRetQ) #set($totalM=$M+$sumRetM)
+	<td>共计:票数:$totalQ(个)，结算金额:$totalM(元)</td>
+	<td>$Q</td>
+	<td>$M</td>
+	<td>$sumRetQ</td>
+	<td>$sumRetM</td>
+	<td>&nbsp;</td>
+	</tr>
+</tbody>
+</table>
+#set($lastTotalDiff=0)
+#if($lastRefundList.size() gt 0)
+<div>上期退款</div>
+<table width="90%" border="0"  cellspacing="0" class="table">
+<thead>
+<tr><th>订单号</th><th>当前结算</th><th>原始状态</th><th>新状态</th><th>数量</th><th>原结算金额</th><th>新结算金额</th><th>差额(原-新)</th><th>描述</th></tr>
+</thead>
+<tbody>
+#set($totalOldAmount=0) #set($totalNewAmount=0)  
+#foreach($refund in $lastRefundList)
+#set($order=$orderMap.get($refund.tradeno)) #set($diff= $refund.oldSettle - $refund.newSettle)
+#set($totalOldAmount = $totalOldAmount + $refund.oldSettle)
+#set($totalNewAmount = $totalNewAmount + $refund.newSettle)
+<tr>
+	<td>$refund.tradeno</td>
+	<td>$order.settle</td>
+	<td>$refund.orderstatus</td>
+	<td>$order.status</td>
+	<td>$order.quantity</td>
+	<td>$refund.oldSettle</td>
+	<td>$refund.newSettle</td>
+	<td>$diff</td>
+	<td>$order.description2</td>
+</tr>
+#end
+#set($lastTotalDiff = $totalOldAmount - $totalNewAmount)
+<tr><td colspan="4">汇总信息</td><td>$lastRefundQuantity</td><td>$totalOldAmount</td><td>$totalNewAmount</td><td>$totalDiff</td><td>&nbsp;</td></tr>
+</tbody>
+</table>
+#end
+#set($curTotalDiff=0)
+#if($curRefundList.size() gt 0)
+<div>本期退款</div>
+<table width="90%" border="0"  cellspacing="0" class="table">
+<tr><td>订单号</td><th>当前结算</th><td>原始状态</td><td>新状态</td><td>数量</td><td>原结算金额</td><td>新结算金额</td><td>差额(新-原)</td><td>描述</td></tr>
+#set($totalOldAmount=0) #set($totalNewAmount=0)  
+#foreach($refund in $curRefundList)
+#set($order=$orderMap.get($refund.tradeno)) #set($diff= $refund.oldSettle - $refund.newSettle)
+#set($totalOldAmount = $totalOldAmount + $refund.oldSettle)
+#set($totalNewAmount = $totalNewAmount + $refund.newSettle)
+<tr>
+	<td>$refund.tradeno</td>
+	<td>$order.settle</td>
+	<td>$refund.orderstatus</td>
+	<td>$order.status</td>
+	<td>$order.quantity</td>
+	<td>$refund.oldSettle</td>
+	<td>$refund.newSettle</td>
+	<td>$diff</td>
+	<td>$order.description2</td>
+</tr>
+#end
+#set($curTotalDiff = $totalOldAmount - $totalNewAmount)
+<tr><td colspan="4">汇总信息</td><td>$curRefundQuantity</td><td>$totalOldAmount</td><td>$totalNewAmount</td><td>$curTotalDiff</td><td>&nbsp;</td></tr>
+</table>
+#end
+<dir style="font-size: 24px; font-weight: bolder; color: red;">#set($curTotalAmount = $totalM - $lastTotalDiff - $curTotalDiff )
+	本期结算金额（结算金额$totalM  - 上期差额$!lastTotalDiff - 本期差额$curTotalDiff）：$curTotalAmount
+</dir>

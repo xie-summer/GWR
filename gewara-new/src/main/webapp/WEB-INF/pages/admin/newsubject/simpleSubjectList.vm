@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>单一影片固定模板列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline;float:left;width:80px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:400px; display:inline}
+		tr{height: 25px;}
+	</style>
+</head>
+<body style="width:850px;margin:auto;padding: 10px;" class="yui-skin-sam">
+<div style="width:750px; height: 20px;">
+	<span style="width: 60px; margin-left:60px;"></span>
+	<a href="${basePath}admin/newsubject/addSimpleSubject.xhtml#if($!params.tag)?tag=$!params.tag#end#if($!params.signname)&signname=$!params.signname#end" target="_blank">增加专题</a>
+	<span style="width: 60px; margin-left:60px;"></span>
+	<a href="javascript:refreshPage()">刷新</a>
+	<span style="width: 60px; margin-left:60px;"></span>
+	<span id="callbackMsg"></span>
+</div>
+<table width="780px" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th style="width:15%;">专题名称</th>
+		<th style="width:12%;">添加日期</th>
+		<th style="width:12%;">模块配置</th>
+		<th style="width:12%;">操作</th>
+	</tr>
+	</thead>
+	<tbody id="roomTable">
+		#foreach($data in $list)
+		<tr>
+			<td><a href="${basePath}subject/s/$data.id" target="_blank">$data.title</a></td>
+			<td>$DateUtil.format($data.addtime, 'yyyy-MM-dd HH:mm')</td>
+			<td><a href="${basePath}admin/newsubject/subSubjectList.xhtml?parentid=$data.id" target="_blank">模块配置</a></td>
+			<td>
+				<a href="${basePath}admin/newsubject/addSimpleSubject.xhtml?id=$data.id" target="_blank">[修改]</a>|
+				<a href="javascript:void(0);" onclick="opeDelete('$data.id', this)">[删除]</a>
+			</td>
+		</tr>
+		#end
+	</tbody>
+</table>
+#parse('admin/newsubject/commonjs.vm')
+</body>
+</html>

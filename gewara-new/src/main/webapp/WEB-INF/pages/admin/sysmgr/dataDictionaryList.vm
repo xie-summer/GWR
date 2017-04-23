@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>轨道交通管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}component/utilities.js"></script>
+	<script type="text/javascript" src="${staticPath}component/container-min.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width:900px;margin:auto" class="yui-skin-sam">
+<div style="margin-top: 20px;">
+	<form action="${basePath}admin/sysmgr/dataDictionaryList.xhtml">
+	对象名称：<input type="text" name="objectName" value="$!params.objectName" /> 
+	<input type="submit" value="查询"/>
+	<input type="button" style="float: right;" onclick="getDictionary('', this)" value="新增"/>
+	</form>
+</div>
+<div align="center">
+<table style="width:100%" class="table">
+	<thead class="th">
+		<tr>
+			<th width="20%">对象名称</th>
+			<th width="20%">字段名称</th>
+			<th width="10%">字段中文名</th>
+			<th width="10%">数据类型</th>
+			<th width="10%">字段长度</th>
+			<th width="10%">是否必填</th>
+			<th width="10%">操作</th>
+		</tr>
+	</thead>
+	<tbody>
+		#foreach($dictionary in $dictionaryList)
+		<tr>
+			<td>$dictionary.objectName</td>
+			<td>$dictionary.propertyName</td>
+			<td>$dictionary.propertyRealName</td>
+			<td>$dictionary.dataType</td>
+			<td>$dictionary.propertyLength</td>
+			<td>#if($VmUtils.eq($dictionary.required,'Y'))否#{else}是#end</td>
+			<td>
+				<a href="javascript:void(0)" onclick="getDictionary('$!dictionary.id', this)">修改</a>
+				<a href="javascript:void(0)" onclick="delDictionary('$!dictionary.id', this)">删除</a>
+			</td>
+		</tr>
+		#end
+	</tbody>
+</table>
+<div style="float: right;">#parse('include/scriptPageUtil.vm')</div>
+<div id="dataDictionary" class="yui-panel" style="width:300px; visibility:hidden; z-index:20;">
+	<div class="hd">新增或修改对象数据字典</div>
+	<div class="bd">
+		<form id="dataForm">
+			<input type="hidden" name="id" id="id"/>
+			<div>
+				<label for="objectName">对象名称：</label><input type="text" id="objectName" name="objectName" />
+			</div>
+			<div>
+				<label for="propertyName">属性名称：</label><input type="text" id="propertyName" name="propertyName" /> 
+			</div>
+			<div>
+				<label for="propertyRealName">属性中文名称：</label><input type="text" id="propertyRealName" name="propertyRealName" /> 
+			</div>
+			<div>
+				<label for="dataType">属性类型：</label><input type="text" id="dataType" name="dataType" /> 
+			</div>
+			<div>
+				<label for="propertyLength">属性长度：</label><input type="text" id="propertyLength" name="propertyLength" /> 
+			</div>
+			<div>
+				<label for="required">是否为空：</label>
+				<select name="required" id="required">
+					<option value="Y">否</option>
+					<option value="N">是</option>
+				</select>
+			</div>
+			<div>
+				<input type="button" id="dBrt" value="保存" onclick="saveDictionary();"/><input type="button" value="取消" onclick="GewaraUtil.hideDialog('dataDictionary')"/>
+			</div>
+		</form>
+	</div>
+</div>
+</div>
+<script type="text/javascript">
+	function saveDictionary(){
+		var url = '${basePath}admin/sysmgr/saveDataDictionary.xhtml';
+		var values = GewaraUtil.getValues('dataForm');
+		GewaraUtil.mask('dBrt');
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert('保存成功！');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function getDictionary(id, obj){
+		if(id != null && id != ''){
+			var url = '${basePath}admin/sysmgr/getDataDictionary.xhtml';
+			var values = {'id': id};
+			GewaraUtil.mask(obj);
+			GewaraUtil.sendRequest(url, values, function(result){
+				GewaraUtil.unmask();
+				if(result.success){
+					GewaraUtil.setValues(result);
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+		GewaraUtil.showDialog('dataDictionary');
+	}
+	
+	function delDictionary(id, obj){
+		if(id != null && id != ''){
+			var url = '${basePath}admin/sysmgr/delDataDictionary.xhtml';
+			var values = {'id': id};
+			GewaraUtil.mask(obj);
+			GewaraUtil.sendRequest(url, values, function(result){
+				GewaraUtil.unmask();
+				if(result.success){
+					$(obj).getParent('tr').dispose();
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+		GewaraUtil.showDialog('dataDictionary');
+	}
+</script>
+</body>
+</html>

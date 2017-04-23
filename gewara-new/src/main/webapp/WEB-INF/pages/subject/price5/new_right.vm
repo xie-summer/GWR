@@ -1,0 +1,173 @@
+<style type="text/css">
+<!--
+		/*哇啦*/
+	.isuss textarea {
+    border: #dbdbdb 2px solid;
+    height: 74px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 3px;
+    width: 239px;
+}
+	.isuss{padding:0px;font-size:12px;}
+	.isuss .issueTips{top:24px;left:8px;}
+	.isuss .dialogs{left:10px;}
+	
+	.titie_wala{background-position:0 -460px;width:39px;height:26px;display:block;}
+	/*哇啦 end*/
+
+-->
+</style>
+<div class="mt10">
+			<div class="titleRightP"></div>
+			<div class="price5TBg">
+				<div class="titie_wala ml15"></div>
+			</div>
+		</div>
+		<div class="inner">
+		<!-- ********************************************** -->
+			<div class="isuss">
+				<p>我要发表</p>
+				<span class="more" style="right:10px;" id="font">你还可以输入<b>140</b>字</span>
+				<label class="issueTips" for="say_area" id="issueTips">哇啦一下关于#$moderate#</label>
+				<div class="dialogs" id="dialogs">
+					<img src="${staticPath}css/images/blank.gif" style="background:url(${picPath}css/home/look.png) no-repeat;" width="48" height="15"/>
+					#parse('wala/uidialog.vm')
+				</div>
+				<span class="synch">
+					<span class="left">同步：</span>
+					<input class="left" id="Wb" type="checkbox" title="新浪微博" lang="${basePath}home/bind/sina/userApp.xhtml?source=close" style="margin-top:2px;*margin:-2px;"/>
+					<label class="Wb" for="Wb">微博</label>
+				</span>
+				<textarea name="body" id="say_area"></textarea>
+				<a id="diswara" class="button redBt minBt more" style="margin-top:112px;" href="javascript:submitMicro()"><span>发布</span></a>
+			</div>
+			<div id="container" class="maxw71"></div>
+			<div><a class="right button redBt minBt ml5 mt10 mr5" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=searchModeratorInfo.xhtml?title=$moderate" target="_blank"><span>更多哇啦»</span></a></div>
+<script type="text/javascript">
+	var selector=$empty,delFun = $empty;
+	window.addEvent('domready', function(){
+		selector = new selectpic('say_area','uidialog');
+		new issue('say_area',{'font':'font','tips':'issueTips'});
+		new dialogs('dialogs',{'width':'360px'});
+		showError = new ShowErrorTextArea();
+		#if($VmUtils.isNotBlank($!moderate))
+		new DynWaraTemplate({'preURL':'${basePath}', 'container':'container', 'moderator':'#$!moderate#', 'count':'7'});
+		#end
+	});
+	
+	submitMicro = function(){
+		checkLogin(true,function(){
+			sendMicro();
+		});
+	}
+	//发表哇啦
+	sendMicro = function(){
+		var say_area = $('say_area').value;
+		if(!$chk(say_area)){
+			showError.show('say_area');
+			return false;
+		}
+		if(say_area.length>140){
+			showError.show('say_area');
+			return false;
+		}
+		var link = "<a href='"+document.location.href+"' target='_blank'>链接地址</a>";
+		GewaraUtil.mask('diswara');
+		var url = '${basePath}dnySendMicroModer.xhtml';
+		var values = {'micrbody':$('say_area').value, 'moderate':'$moderate', 'link':link};
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				var moderate = result.retval;
+				new DynWaraTemplate({'preURL':'${basePath}', 'container':'container', 'moderator':'#$!moderate#', 'count':'7'});
+				$('say_area').value = '';
+				$('issueTips').show();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	}
+	
+	var isQbOpen = true,isWbOpen=true;
+	window.addEvent('domready', function(){
+		new issue('say_area',{'font':'font','tips':'issueTips'});
+		showError = new ShowErrorTextArea();
+		selector = new selectpic('say_area','uidialog');
+		new dialogs('dialogs',{'width':'360px','flag':true});
+		gewara.util.sendRequest('${basePath}ajax/member/synchroizaInfo.xhtml',{'rights':'moviecomment'},function(result){
+			if(result.success){
+				if(result.appList){
+					if(result.appList.contains('sina')){$('Wb').checked = true;isWbOpen = false;}
+				}
+			}
+		});
+		$('Wb').addEvent(
+		'click',function(){
+			if(isWbOpen){
+				this.checked = '';
+				checkLogin(true, function(){
+					syscData(this.get('lang'),this.get('title'),'sina',this);
+				}.bind(this));
+			}
+		});
+		$$('.Weibo').addEvents({
+			'click':function(){
+				checkLogin(true, function(){
+					if((this.get('role') == 'sina' && isWbOpen)){
+						this.checked = '';
+						if(this.getNext('span').get('lang')){
+							syscData(this.getNext('span').get('lang'),this.get('title'),this.get('role'),this);
+						}else{
+							syscData(this.get('lang'),this.get('title'),this.get('role'),this);
+						}
+					}
+				}.bind(this));
+			}
+		})
+	})
+	function syscData(url,title,tag,el){
+		var html = "",width=600;
+		if(tag == 'sina'){
+			html = new Element('iframe',{
+				'frameborder':0,
+				'scrolling':'no',
+				'height':'368',
+				'width':'600',
+				'src':url
+			});
+		}else{
+			html = new Element('div',{
+				'styles':{
+					'width':'620px',
+					'height':window.ActiveXObject?'380px':'330px',
+					'overflow':'hidden'
+				}
+			});
+			new Element('iframe',{
+				'frameborder':0,
+				'scrolling':'no',
+				'height':'850',
+				'width':'810',
+				'src':url,
+				'styles':{
+					'margin-top':'-280px',
+					'margin-left':'-160px'
+				}
+			}).inject(html);
+			width = 650;
+		}
+		gewa.util.maskContent('',html,'正在设置'+title+'的同步',width,'syscing');
+	}
+	var isBind = function(el){
+		if($(el)){
+			$(el).checked = true;
+			isWbOpen = false;
+		}
+		if(gewa.util.container['syscing'])gewa.util.container['syscing'].dispose('syscing');
+	}
+</script>
+	
+	
+<!-- *********************************************** -->
+</div>

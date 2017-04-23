@@ -1,0 +1,46 @@
+<style>
+	#gcForm ul li{padding: 3px;}
+	.disabled{background-color: #D4D0C8; color: #808080;}
+	.cke_skin_chris{width:700px !important;}
+</style>
+<div class="table" style="width:500px;height:auto;position:relative;top:30px;left:-10px; padding: 3px;">
+<div id="gcForm">
+	<ul>
+	<li>
+		<input type="hidden" name="id" id="id" value="$!pic.get('_id')"/>
+		<input type="hidden" name="type" id="type" value="$!params.type"/>
+		<input type="hidden" name="tag" id="tag" value="$!params.tag"/>
+	</li>
+	<li>标题：&nbsp;&nbsp;<input type="text" name="title" id="title" value="$!pic.title" style="width: 300px;"/></li>
+	<li>内容：&nbsp;&nbsp;<input type="text" value="$!pic.content" name="content" id="content" style="width: 300px;"/>
+	<li>内容2：&nbsp;<textarea name="content2" id="content2" style="width: 300px;">$!pic.content2</textarea></li>
+	<li>图片：&nbsp;&nbsp;<input type="text" value="$!pic.newslogo" name="newslogo" id="newslogo" style="width: 300px;"/>
+					<iframe class="center" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame" 
+						src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updateSmallLogo&notLimit=true"></iframe>
+					<img style="height:100px; margin-left:80px;" id='logoimg2' src='${picPath}$pic.newssmalllogo' onerror="this.src='${picPath}img/default_head.png'"/>
+	<li>链接：&nbsp;&nbsp;<input type="text" value="$!pic.newslink" name="newslink" id="newslink" style="width: 300px;"/></li>
+	<li>&nbsp;&nbsp;<input type="button" onclick="save()" value="保存" style="width: 50px;"/>
+	<input type="button" onclick="javascript:GewaraUtil.hideDialog('pointText');" value="取消" style="width: 50px;"/></li>
+	</ul>
+</div>
+</div>
+<script>
+save  = function(){
+	var url = "${basePath}admin/newsubject/savePictrue.xhtml";
+	var values = GewaraUtil.getValues("gcForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("信息添加成功！");
+			refreshPage();
+		}else {
+			alert(result.msg);
+		}
+	});
+}
+
+updateSmallLogo = function(params){
+	var picpath2 = params['picpath'];
+	$('newslogo').value = picpath2;
+	$('logoimg2').src='${picPath}' + picpath2;
+}
+</script>

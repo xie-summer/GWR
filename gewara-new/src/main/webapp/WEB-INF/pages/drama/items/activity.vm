@@ -1,0 +1,28 @@
+#if($VmUtils.size($activityList) gt 0)
+<div class="mod_kong">
+	<div class="mod_hd">
+		<h2>相关活动</h2>
+		<a class="more ffst brown" target="_blank" href="${basePath}activity/activityList.xhtml">更多&gt;&gt;</a>
+	</div>
+	<div class="mod_bd">
+		<ul class="ui_abeam">
+			#foreach($activity in $activityList)
+			#set($relate = $relatedHelper.getR1("activityList",$activity.relatedid))
+			<li class="#if($foreach.count gt 1)mt20#end clear">
+				<div class="uipic">
+					<a title="$!activity.title" target="_blank" href="${basePath}activity/$!activity.id">
+					<img alt="$!activity.title" src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw96h128',$!activity.limg)) center 0 no-repeat;" height="128" width="96" /></a>
+				</div>
+				<div class="uiText text_right_activity">
+					#if($VmUtils.eq($activity.atype , "gewa"))<span title="格瓦拉官方认证活动" class="official mr5" ></span>#end<a href="${basePath}activity/$!activity.id" target="_blank" class="a_color" title="$!activity.title">$VmUtils.htmlabbr($activity.title,40)</a>
+					<p class="mt10"><em>时间：</em>$!DateUtil.format($activity.startdate,'M月d日')#if($activity.enddate)--$DateUtil.format($activity.enddate,'M月d日')#end</p>
+					<p><em>地点：</em>#if($relate)<a href="${basePath}${relate.url}" class="a_color" target="_blank">$!relate.name</a>#end $!activity.address</p>
+					<p class="mt10"><a target="_blank" title="立即参加" href="${basePath}activity/$activity.id" class="button minBt yellowBt mr5"><span>立即参加</span></a><span class="c999">$!activity.clickedtimes人关注</span></p>
+				</div>
+			</li>
+			#end
+		</ul>
+	</div>
+	<div class="micon mv_line"></div>
+</div>
+#end

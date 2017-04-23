@@ -1,0 +1,615 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>#if($!{news.title})$!{news.title}#else新闻#{end}_格瓦拉生活网</title>
+	<meta name="keywords" content="$!news.newslabel"/>
+	<meta name="description" content="$!news.summary"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout&v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/slider.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,pagesNavigation,slimbox,base_home&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	.gui-title{padding:0 0 5px;}
+	.ui_left{width:680px; overflow:hidden;}
+	.ui_right{width:260px; overflow:hidden; margin-left:20px;}
+	.ui_layout .ui_left .news_contentBox{width:620px; margin:0 auto;}
+	.uiText a {color:#c30;}
+	.yellowBt span{color:#f60 !important;}
+	.uiText em {color:#999;}
+	
+	.news_header{border-bottom:1px solid #ccc; padding-bottom:6px;}
+	.news_header h1{color:#333; line-height:34px; font-size:24px; text-align:center; font-family:"微软雅黑","黑体",Arial; display:block; font-weight:normal;}
+	.news_header h2{font-size:14px; font-weight:blod; color:#666; display:block; margin-top:10px;}
+	.news_header p{ margin-top:20px; text-align:center; color:#666;}
+	.news_brief{border:1px solid #e5e5e5; padding:10px; width:598px; margin:15px auto; background:#f2f2f2;}
+	.news_brief p{text-indent:2em; line-height:24px;}
+	.switch_ui_outside .inner, .switch_ui_inside .inner{padding:25px 30px!important;}
+	.news_cont{width:620px; margin:0 auto;}
+	.news_cont img{margin:10px auto;}
+	.news_cont p{line-height:24px; margin:15px 0; font-size:14px;}
+	.news_cont p span{font-size:14px; line-height:24px;}
+	.news_tip{width:55px; height:70px; border:1px solid #cc6633; cursor:pointer;}
+	.news_tip .tip_top{display:block;width:100%; height:50px; line-height:50px; border-bottom:1px solid #cc6633; text-align:center; font-size:30px; color:#fff;
+		background: #ff6e2b; /* Old browsers */
+		background: -moz-linear-gradient(top, #ff8f0a 0%, #ff6e2b 100%); /* FF3.6+ */
+		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ff8f0a), color-stop(100%,#ff6e2b)); /* Chrome,Safari4+ */
+		background: -webkit-linear-gradient(top, #ff8f0a 0%,#ff6e2b 100%); /* Chrome10+,Safari5.1+ */
+		background: -o-linear-gradient(top, #ff8f0a 0%,#ff6e2b 100%); /* Opera11.10+ */
+		background: -ms-linear-gradient(top, #ff8f0a 0%,#ff6e2b 100%); /* IE10+ */
+		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff8f0a', endColorstr='#ff6e2b',GradientType=0 ); /* IE6-9 */
+		background: linear-gradient(top, #ff8f0a 0%,#ff6e2b 100%); /* W3C */
+	}
+	.news_tip .tip_bottom{text-align:center; display:block; cursor:pointer;}
+	
+	.add_favs{display:inline-block; float:left; width:38px; height:20px; line-height:20px; text-align:center; padding:4px 45px 4px 5px; background: url(${staticPath}css/home/add_favs.gif) no-repeat 0 0; overflow:hidden; cursor:pointer;}
+	#bdshare{display:inline-block; *width:170px;}
+	.small_inner{padding:5px 0 0 15px;}
+	.next_news{clear:both;border:1px solid #e5e5e5; height:24px; line-height:24px; line-height:26px\9; overflow:hidden; background:#f2f2f2; position:relative; padding:0 10px;}
+	.news_lists{width:48.4%;_width:43%; float:left; margin-left:10px;}
+	.news_lists li{line-height:26px; width:100%;}
+	.news_comment{width:620px; position:relative; padding-left:10px;}
+	.comment_lists{margin-left:10px; width:620px;}
+	.line{border-bottom:1px dashed #ccc;}
+	.comment_text{width:90%;}
+	.moive_info,.sport_info{width:54.7%;}
+	.drama_info p{line-height:24px;}
+	.drama_info .d_map{font-weight:normal; font-size:12px; top:10px; right:10px;}
+	.jumu{margin-left:45px;}
+	.drama_person{width:56.8%;}
+	.person_pic{margin-right:5px;}
+	.activity_text{width:59.2%;}
+	.activity_text p{line-height:26px;}
+	.title strong{font-size:16px; font-family:'微软雅黑','宋体';}
+	.ul-50{clear:none; margin-top:10px;}
+	.ul-50 li{height:24px; line-height:24px; margin-right: 10px; float: left;overflow: hidden; padding-left: 10px; width: 46%;}
+	.movie_color{color:#C03B0C;}
+	.drama_color{color:#960;}
+	.sport_color{color:#329ACD;}
+	.ktv_color{color:#AD0E70;}
+	.bar_color{color:#3D0560;}
+	.gym_color{color:#3F8E0B;}
+	.bigBt {background-position: 0 -4165px !important;height: 32px;line-height: 32px;padding-left: 20px;}
+	.bigBt:hover{background-position:0 -3532px!important;}
+	.bigBt span, .bigBt input {background-position: right -4198px !important;color: #FFFFFF;float: left;font-size: 14px;font-weight: bold;height: 32px;padding-right: 20px;}
+	.bigBt:hover span, .bigBt:hover input{background-position: right -3565px !important;color: #FFFFFF;}
+	.redBt{background-position:0 -4054px;}
+	.redBt span,redBt input,.minBt span, .minBt input{background-position:right -4077px; color:#fff;}
+	.redBt:hover span,.redBt:hover input{background-position:right -3445px; color:#fff;}
+	.redBt:hover{background-position: 0 -3421px;}
+	.d_redBt{background-position:0 -4695px;}
+	.d_redBt span{background-position:right -4720px; color:#fff}
+	.ul72 li{border-bottom: 1px dashed #CCCCCC;height: 100%;line-height: 22px;padding-left: 40px !important;position: relative; padding-bottom:5px;}
+	.ul72 li .noBox{color: #FFFFFF;font-weight: bold;height: 24px;left: 8px;line-height: 20px;position: absolute;text-align: center;top: 1px;width: 25px; background:url(${staticPath}css/movie/def_movie_bg.png) no-repeat; background-position:0 -681px;}
+	.ul-dot li {background: url(${staticPath}css/home/dot.gif) no-repeat 3px center;text-indent:2px;}
+	.ui_abeam .abeam{margin:10px 0 0;padding-bottom:0;}
+	.official{display: inline-block;height: 20px;vertical-align: middle;width: 36px; background:url(${staticPath}css/movie/def_movie_bg.png) 0 -2392px no-repeat;}
+	/*框架*/
+	.kuang {padding:15px; width:226px;}
+	.kuang h2{ font-family:"微软雅黑","宋体"; font-size:16px; font-weight:bold;}
+	/*影视相关*/
+	.yingyuan {}
+	.yingyuan p{ margin-top:2px;}
+	.yingyuan a,.yingyuan b { color:#c30}
+	.yingyuan em,.yingyuan dt{ color:#999;}
+	.yingyuan dt,.yingyuan dd { float:left;}
+	.yingyuan dt {width:42px;}
+	.yingyuan dd {width:184px;}
+	/*一周热门电影资讯*/
+	.ul72 li{border-bottom: 1px dashed #CCCCCC;height: 100%;line-height: 22px;padding-left: 40px !important;position: relative; padding-bottom:5px;}
+	.ul72 li .noBox{color: #FFFFFF;font-weight: bold;height: 24px;left: 8px;line-height: 20px;position: absolute;text-align: center;top: 1px;width: 25px; background:url(${staticPath}css/movie/def_movie_bg.png) no-repeat; background-position:0 -681px;}
+	.recom .uipic {width:96px;}
+	.recom .uiText {width:120px;}
+	/*通用按钮*/
+	.redBt{background-position:0 -4054px;}
+	.redBt span,.redBt input{background-position:right -4077px;}
+	.bigBt{background-position:0 -4165px !important;}
+	.bigBt span,.bigBt input{background-position:right -4198px !important;color:#fff;}
+	.bigBt:hover,label.bg_hover{background-position:0 -3532px !important;}
+	.bigBt:hover span,label.bg_hover input{background-position:right -3565px !important;color:#fff;}
+	#if($params.tag eq 'sport')
+	.uiText a{ color:#39c;}
+	#end
+	#if($params.tag eq 'gym')
+	.uiText a{ color:#390;}
+	#end
+	#if($params.tag eq 'theatre')
+	.uiText a{ color:#b07000;}
+	#end
+	</style>
+	
+</head>
+<body>
+#set($isNews = true)
+<!-- 电影 -->
+#if($news.tag eq 'cinema'||$news.tag eq 'movie'||$news.tag eq 'holiday'||$news.tag eq 'holipic'||$news.tag eq 'spa')
+#set($tag="cinema")#set($ismovie=true)
+#set($comeMovie=true)
+#set($headUrl = 'include/navigation.vm')
+<!-- 健身 -->
+#elseif($news.tag eq 'gym')
+#set($tag="gym")#set($isgym=true)
+#set($comeGym=true)
+#set($headUrl = 'include/navigation.vm')
+<!-- KTV -->
+#elseif($news.tag eq 'ktv')
+#set($tag="ktv") #set($isktv=true)
+#set($comeKtv=true)
+#set($headUrl = 'include/navigation.vm')
+<!-- 做运动 -->
+#elseif($news.tag eq 'sport')
+#set($tag='sport') #set($issport=true)
+#set($comeSport=true)
+#set($headUrl = 'include/navigation.vm')
+<!-- 酒吧 -->
+#elseif($news.tag eq 'bar')
+#set($tag='bar') #set($isbar=true)
+#set($comeBar=true)
+#set($headUrl = 'include/navigation.vm')
+<!-- 话剧 -->
+#elseif($news.tag eq 'theatre') #set($relatedtag='drama')
+#set($tag='theatre') #set($isTheatre=true) 
+#set($comeTheatre=true) #set($dramaHeadFlag = 'isNews')
+#set($headUrl = 'include/navigation.vm')
+#end
+#set($cfgHeader='header')
+#parse($headUrl)
+#set($categoryMap={'sport':'运动','cinema':'电影','gym':'健身','theatre':'话剧','ktv':'ktv','bar':'酒吧'})
+<div class="ui_layout" style="background:none;">
+	<div class="gui-title ffst">
+		<a href="${basePath}" class="#if($VmUtils.eq($news.tag, 'cinema'))movie_color#elseif($VmUtils.eq($news.tag, 'theatre'))drama_color#elseif($VmUtils.eq($news.tag, 'ktv'))ktv_color#elseif($VmUtils.eq($news.tag, 'bar'))bar_color#elseif($VmUtils.eq($news.tag, 'sport'))sport_color#elseif($VmUtils.eq($news.tag, 'gym'))gym_color#end mr5">格瓦拉生活网</a>&gt;
+		<a href="#if($comeMovie) ${basePath}movie/ #elseif($comeGym) ${basePath}gym/ #elseif($comeKtv) ${basePath}ktv/ #elseif($comeSport) ${basePath}sport/ #elseif($comeBar) ${basePath}gym/ #elseif($comeTheatre)${basePath}drama/#end" class="#if($VmUtils.eq($news.tag, 'cinema'))movie_color#elseif($VmUtils.eq($news.tag, 'theatre'))drama_color#elseif($VmUtils.eq($news.tag, 'ktv'))ktv_color#elseif($VmUtils.eq($news.tag, 'bar'))bar_color#elseif($VmUtils.eq($news.tag, 'sport'))sport_color#elseif($VmUtils.eq($news.tag, 'gym'))gym_color#end mr5 ml5">
+			#if($comeMovie) 
+				电影 
+			#elseif($comeGym) 
+				健身 
+			#elseif($comeKtv) 
+				KTV 
+			#elseif($comeSport) 
+				运动 
+			#elseif($comeBar)
+				酒吧
+			#elseif($comeTheatre)
+				演出					
+			#end
+		</a>&gt;
+		<a href="${basePath}news/$news.tag" class="#if($VmUtils.eq($news.tag, 'cinema'))movie_color#elseif($VmUtils.eq($news.tag, 'theatre'))drama_color#elseif($VmUtils.eq($news.tag, 'ktv'))ktv_color#elseif($VmUtils.eq($news.tag, 'bar'))bar_color#elseif($VmUtils.eq($news.tag, 'sport'))sport_color#elseif($VmUtils.eq($news.tag, 'gym'))gym_color#end ml5 mr5">
+			#if($comeMovie) 
+				电影资讯
+			#elseif($comeGym)
+				健身资讯
+			#elseif($comeKtv)
+				KTV资讯
+			#elseif($comeSport)
+				运动资讯
+			#elseif($comeBar)
+				酒吧资讯
+			#elseif($comeTheatre)
+				演出资讯
+			#end
+		</a>&gt;
+		<span class="ml5">正文</span>
+	</div>
+	<div class="ui_left">
+		<div class="switch_ui_outside">
+			<div class="switch_ui_t"><div class="switch_ui_t"></div></div>
+			<div class="switch_ui_c">
+				<div class="switch_ui_c">
+					<div class="inner news_contentBox">
+						<div class="news_header">
+							<h1>$!news.title</h1>
+							#if($VmUtils.isNotBlank($!news.secondtitle))<h2 class="center">$!VmUtils.escabbr($!news.secondtitle, 40)</h2>#end
+							<p><span>$!DateUtil.format($!news.releasetime, "yyyy-MM-dd HH:mm:ss")</span><span class="ml10">#if($news.linksource)$!{news.linksource}#else格瓦拉生活网#end</span></p>
+						</div>
+						#if($VmUtils.isNotBlank($!news.summary))
+						<div class="news_brief mt20">$!news.summary</div>
+						#end
+						<div class="news_cont mt20 checkData">$!content</div>
+						#if(!$VmUtils.isNull($news.pagesize) && $news.pagesize gt 1)
+						<div id="page" class="center">
+							#if($!params.pageno)#set($pn=$!params.pageno)#else#set($pn=1)#end
+							#if($VmUtils.gt($pageno, 1))
+							#set($temp=$pageno - 1)
+							<a class='pre' href="${basePath}news/$news.id?pageno=$temp"><span>上一页</span></a>
+							#end
+							#foreach($i in [1..$news.pagesize])
+							<a #if($!pn eq $i) class="on" #end href="${basePath}news/$news.id?pageno=$i"><span>$i</span></a>
+							#end
+							#if($pageno && $pageno lt $news.pagesize)
+							#set($temp=$pageno + 1)
+							<a class='next' href="${basePath}news/$news.id?pageno=$temp"><span>下一页</span></a>
+							#end
+						</div>
+						#end
+						<div class="cls"></div>
+						<div class="clear" style="width:260px; margin:0 auto;">
+						    #set($tips = $VmUtils.readJsonToMap($news.otherinfo).get("tips"))
+						    <div class="add_favs" id="tip_num" title="我喜欢">#if($tips)$!tips#else 0#end</div>
+						    <div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare">
+					        <span class="bds_more">分享到：</span>
+						        <a class="bds_tsina"></a>
+						        <a class="bds_tqq"></a>
+						        <a class="bds_qzone"></a>
+						        <a class="bds_renren"></a>
+						    </div>
+							#*
+							<div class="news_tip right" id="tip">
+								#set($tips = $VmUtils.readJsonToMap($news.otherinfo).get("tips"))
+								<span class="tip_top" id="tip_num">#if($tips)$!tips#else 0#end</span>
+								<span class="tip_bottom">顶一下</span>
+							</div>
+							*#
+						</div>
+						<div class="next_news mt20">
+							<a href="${basePath}movie/" target="_blank" class="#if($VmUtils.eq($news.tag, 'cinema'))movie_color#elseif($VmUtils.eq($news.tag, 'theatre'))drama_color#elseif($VmUtils.eq($news.tag, 'ktv'))ktv_color#elseif($VmUtils.eq($news.tag, 'bar'))bar_color#elseif($VmUtils.eq($news.tag, 'sport'))sport_color#elseif($VmUtils.eq($news.tag, 'gym'))gym_color#end">返回电影首页</a> | <a href="javascript:gewa.util.pagePos('wayouReport')" class="#if($VmUtils.eq($news.tag, 'cinema'))movie_color#elseif($VmUtils.eq($news.tag, 'theatre'))drama_color#elseif($VmUtils.eq($news.tag, 'ktv'))ktv_color#elseif($VmUtils.eq($news.tag, 'bar'))bar_color#elseif($VmUtils.eq($news.tag, 'sport'))sport_color#elseif($VmUtils.eq($news.tag, 'gym'))gym_color#end">我要评论</a>
+							<p class="more" style="padding-left:16px;background:url($VmUtils.randomPic('','css/pub/next.jpg')) 0 center no-repeat;">#if($nextNews)下一篇：<a href="${basePath}news/$nextNews.id" class="#if($VmUtils.eq($news.tag, 'cinema'))movie_color#elseif($VmUtils.eq($news.tag, 'theatre'))drama_color#elseif($VmUtils.eq($news.tag, 'ktv'))ktv_color#elseif($VmUtils.eq($news.tag, 'bar'))bar_color#elseif($VmUtils.eq($news.tag, 'sport'))sport_color#elseif($VmUtils.eq($news.tag, 'gym'))gym_color#end" target="_blank">$!VmUtils.escabbr($nextNews.title, 44)</a>#else这是最后一篇#end</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="switch_ui_b"><div class="switch_ui_b"></div></div>
+		</div>
+		#if(!$VmUtils.isEmptyList($newsList))
+		<div class="title mt10">
+			<h2><strong>相关资讯</strong></h2>
+		</div>
+		<div class="switch_ui_outside">
+			<div class="switch_ui_t"><div class="switch_ui_t"></div></div>
+			<div class="switch_ui_c">
+				<div class="switch_ui_c">
+					<div class="small_inner clear">
+						<ul class="ul-50 ul-dot"style="margin:0;">
+							#foreach($relateNews in $newsList)
+							<li><a title="$!relateNews.title" href="${basePath}news/$relateNews.id" class="#if($VmUtils.eq($news.tag, 'cinema'))movie_color#elseif($VmUtils.eq($news.tag, 'theatre'))drama_color#elseif($VmUtils.eq($news.tag, 'ktv'))ktv_color#elseif($VmUtils.eq($news.tag, 'bar'))bar_color#elseif($VmUtils.eq($news.tag, 'sport'))sport_color#elseif($VmUtils.eq($news.tag, 'gym'))gym_color#end">$!VmUtils.htmlabbr($!relateNews.title, 30)</a></li>
+							#end
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="switch_ui_b"><div class="switch_ui_b"></div></div>
+		</div>
+		#end
+		<div class="title mt10" id="wayouReport">
+			<h2><strong>瓦友评论</strong></h2>
+		</div>
+		<div class="switch_ui_outside" style="padding-bottom:30px;">
+			<div class="switch_ui_t"><div class="switch_ui_t"></div></div>
+			<div class="switch_ui_c">
+				<div class="switch_ui_c">
+					<div class="small_inner clear" style="padding:10px;">
+						<div id="walaDiary"></div>
+					</div>
+				</div>
+			</div>
+			<div class="switch_ui_b"><div class="switch_ui_b"></div></div>
+		</div>
+	</div>
+	<div class="ui_right">
+	#if($VmUtils.eq($news.category, 'movie') || $VmUtils.eq($news.category, 'drama'))
+	#if($relate2)
+	#set($gmark=$VmUtils.getLastMarkStar($relate2, "general",$markCountMap2.get($relate2.id),$!markData))
+	#set($gmark1=$gmark/10) #set($gmark2=$gmark % 10)
+	#set($tagName={'movie':'影片','drama':'剧目'})
+		<!-- 与此影院相关 -->
+		<div class="ui_panel kuang">
+			<div class="title">
+				<h2>与此$!tagName.get($news.category)相关</h2>
+			</div>
+			<div class="ui_abeam mt10 yingyuan">
+				<div class="center">
+					<a href="${basePath}$news.category/$!relate2.id" title="" target="_blank"><img width="150" height="200" src="$!VmUtils.randomPic('cw150h200',$relate2.limg)" alt=""/></a>
+				</div>
+				<div class="title mt10">
+					<h3 class="left"><a class="bold" target="_blank" title="$!relate2.name" href="${basePath}$news.category/$!relate2.id">$!relate2.name</a></h3>
+					<span class="left">
+						<!-- 传评分数gmark -->
+						#*
+						<em class="initRating cursor_auto">
+							#foreach($x in [1..10])
+							#set($vCount=$foreach.count*10)
+							#set($marks=$math.toInteger($math.div($gmark,10)))
+							#if($marks%2 eq 0)
+								#set($markdiv=$math.add($math.div($gmark,10),1))
+								#set($floorValue=$math.round($markdiv))
+								#set($floorValue=$math.sub($floorValue,1))
+							#else
+								#set($floorValue=$math.round($math.div($gmark,10)))
+							#end
+							#set($halfCount=$floorValue*10)
+							#if($halfCount ge $vCount)
+								#if($foreach.index%2 eq 0)
+									#set($status='half')
+								#else
+									#set($status='on')
+								#end
+							#else
+								#if($foreach.index%2 ne 0)
+									#set($status='no')
+								#else
+									#set($status='')
+								#end
+							#end
+							<span class="$status"></span>
+							#end
+						</em>
+						*#
+						<span><sub id="mark_integer">$gmark1</sub><sup id="mark_decimal">.$gmark2</sup></span>
+					</span>
+				</div>
+				#if($relate2.highlight)<p><em>精彩看点：</em>$!VmUtils.escabbr($!relate2.highlight,40)...<a class="ffst" href="${basePath}$news.category/$!relate2.id"" target="">详情</a></p>#end
+				#if($relate2.director || $relate2.directortext)<p><em>导演：</em>
+					#if(!$VmUtils.isEmptyList($directorsList))#foreach($directors in $directorsList)$directors.name #end
+					#elseif($relate2.director)$!relate2.director
+					#end
+					#if($!relate2.directortext)$!relate2.directortext#end</p>
+				#end
+				#if($relate2.actors || $relate2.actorstext)<p><em>主演：</em>
+					#if(!$VmUtils.isEmptyList($actorsList))#foreach($actors in $actorsList)$actors.name #end
+					#elseif($relate2.actors)$!VmUtils.escabbr($!relate2.actors, 36)
+					#end
+					#if($relate2.actorstex)
+					$!VmUtils.escabbr($!relate2.actorstext, 36)
+					#end</p>
+				#end
+				<p><em>上映日期：</em>$!DateUtil.format($!relate2.releasedate, "yyyy-MM-dd")</p>
+				#if($VmUtils.gt($relate2.maxprice,0))<p><em>价格：</em><b>$!{relate2.minprice}-$!{relate2.maxprice}</b>元<a href="${basePath}$news.category/$!relate2.id" class="button minBt redBt ml10" target="_blank"><span>选座购票</span></a></p>#end
+			</div>
+		</div>
+	#end
+	#end
+		#if($VmUtils.eq($news.category, 'dramastar'))
+		#if($relate2)
+			<div class="switch_ui_outside mt10">
+			<div class="switch_ui_t"><div class="switch_ui_t"></div></div>
+			<div class="switch_ui_c">
+				<div class="switch_ui_c">
+					<div class="small_inner clear">
+						<ul>
+							<li>
+								<div class="uipic person_pic"><a href="" title="$!relate2.name" target="_blank"><img width="96" style="background:url($!VmUtils.randomPic('cw96h128',$relate2.limg)) center center no-repeat;" src="${staticPath}css/images/blank.gif"/></a></div>
+								<div class="uiText drama_person">
+									<h4><a href="" title="$!relate2.name" class="fs14 bold" target="_blank">$!relate2.name</a> <span class="ml5">#if($VmUtils.contains($relate2.startype, 'star'))演员#elseif($VmUtils.contains($relate2.startype, 'troupe'))剧团#elseif($VmUtils.contains($relate2.startype, 'director'))导演#end</span></h4>
+									#set($key=$news.category+"_"+$!relate2.id)
+									#if(!$VmUtils.isEmptyList($relatedMap.get($key)))
+									<p class="mt5">近期作品：
+										#foreach($relateInfo in $relatedMap.get($key))
+										#if($foreach.count lt 4)
+										<a href="${basePath}/drama/$relateInfo.id" target="_balnk">《$relateInfo.name》</a>
+										#end
+										#end
+									</p>
+									#end
+									#if(!$VmUtils.isEmptyList($historyMapList))
+									<p>代表作品：
+										#foreach($drama in $historyMapList)
+										<a href="${basePath}drama/$drama.id" target="_balnk">《$drama.name》</a>
+										#end
+									</p>
+									#end
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="switch_ui_b"><div class="switch_ui_b"></div></div>
+		</div>
+		#end
+		#end
+		#if($VmUtils.eq($news.category, 'sportservice') || $VmUtils.eq($news.category, 'gymcourse'))
+		#if($relate2)
+				<div class="switch_ui_outside mt10">
+			<div class="switch_ui_t"><div class="switch_ui_t"></div></div>
+			<div class="switch_ui_c">
+				<div class="switch_ui_c">
+					<div class="small_inner clear">
+						<ul>
+							<li>
+								<div class="uipic"><a #if($VmUtils.eq($news.category, 'sportservice'))href="${basePath}sport/item/$!relate2.id"#elseif($VmUtils.eq($news.category, 'gymcourse'))href="${basePath}gym/course/$!relate2.id"#end title="$!relate2.name" target="_blank"><img width="96" height="90" style="background:url($!VmUtils.randomPic('cw96h128',$relate2.limg)) center center no-repeat;" src="${staticPath}css/images/blank.gif"/></a></div>
+								<div class="uiText sport_info">
+									<h4><a #if($VmUtils.eq($news.category, 'sportservice'))href="${basePath}sport/item/$!relate2.id"#elseif($VmUtils.eq($news.category, 'gymcourse'))href="${basePath}gym/course/$!relate2.id"#end title="$!relate2.name" class="fs14 bold" target="_blank">$!relate2.name</a></h4>
+									#set($key=$news.category+"_"+$!relate2.id)
+									#if(!$VmUtils.isEmptyList($relatedMap.get($key)))
+									<p class="mt5">热门场馆：
+										#foreach($relateInfo in $relatedMap.get($key))
+										#if($foreach.count lt 6)
+										<a #if($VmUtils.eq($news.category, 'sportservice'))href="${basePath}sport/$relateInfo.id"#elseif($VmUtils.eq($news.category, 'gymcourse'))href="${basePath}gym/$relateInfo.id"#end class="#if($VmUtils.eq($news.category, 'sportservice'))sport_color #elseif($VmUtils.eq($news.category, 'gymcourse'))gym_color#end" target="_balnk">$!relateInfo.name</a>
+										#end
+										#end
+									</p>
+									#end
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="switch_ui_b"><div class="switch_ui_b"></div></div>
+		</div>
+		#end
+		#end
+		<!-- 与此影院相关 -->
+		#if($VmUtils.eq($news.tag, 'cinema') || $VmUtils.eq($news.tag, 'theatre') || $VmUtils.eq($news.tag, 'ktv') || $VmUtils.eq($news.tag, 'bar') || $VmUtils.eq($news.tag, 'sport') || $VmUtils.eq($news.tag, 'gym'))
+		#if($relate)
+		#set($tagName={'cinema':'影院','theatre':'剧院','ktv':'ktv','bar':'酒吧','sport':'运动场馆','bar':'酒吧','gym':'健身场馆'})
+		#set($gmark=$VmUtils.getLastMarkStar($relate, "general",$markCountMap.get($relate.id),$!markData))
+		#set($gmark1=$gmark/10) #set($gmark2=$gmark % 10) 
+		<div class="ui_panel kuang mt20">
+			<div class="title">
+				<h2>与此$!tagName.get($news.tag)相关</h2>
+			</div>
+			<div class="ui_abeam mt10 yingyuan">
+				<div class="center">
+					<a href="${basePath}$news.tag/$!relate.id" title="" target="_blank"><img width="200" height="160" src="$!VmUtils.randomPic('cw200h160',$relate.firstpic)" alt=""/></a>
+				</div>
+				<div class="title mt10">
+					<h3 class="left"><a class="bold" target="_blank" title="$relate.name" href="${basePath}$news.tag/$!relate.id">$!VmUtils.escabbr($!relate.name, 12)</a></h3>
+					<span class="left">
+						<!-- 传评分数gmark -->
+					#*
+					<em class="initRating cursor_auto"><!-- 小评分 -->
+							#foreach($x in [1..10])
+							#set($vCount=$foreach.count*10)
+							#set($marks=$math.toInteger($math.div($gmark,10)))
+							#if($marks%2 eq 0)
+								#set($markdiv=$math.add($math.div($gmark,10),1))
+								#set($floorValue=$math.round($markdiv))
+								#set($floorValue=$math.sub($floorValue,1))
+							#else
+								#set($floorValue=$math.round($math.div($gmark,10)))
+							#end
+							#set($halfCount=$floorValue*10)
+							#if($halfCount ge $vCount)
+								#if($foreach.index%2 eq 0)
+									#set($status='half')
+								#else
+									#set($status='on')
+								#end
+							#else
+								#if($foreach.index%2 ne 0)
+									#set($status='no')
+								#else
+									#set($status='')
+								#end
+							#end
+							<span class="$status"></span>
+							#end
+						</em>
+						*#
+						<span><sub id="mark_integer">$gmark1</sub><sup id="mark_decimal">.$gmark2</sup></span>
+					</span>
+				</div>
+				<dl>
+					<dt>地址：</dt>
+					<dd>$!VmUtils.escabbr($!relate.address, 64)<a href="${basePath}common/baiduMap.xhtml?id=$!relate.id&tag=$!news.tag">[地图]</a></dd>
+				</dl>
+				<dl>
+					<dt>交通：</dt>
+					<dd>$!relate.briefaddress</a></dd>
+				</dl>
+			</div>
+		</div>
+		#end
+		#end
+		<!-- 与此活动相关 -->
+		#if(!$VmUtils.isEmptyList($activityList))
+		<div class="ui_panel kuang mt20">
+			<div class="title">
+				<h2>热门活动</h2>
+			</div>
+			<div class="recom">
+				#foreach($activity in $activityList)
+				<dl class="ui_abeam mt10">
+					<dt class="uipic">
+						<a target="_blank" title="$activity.title" href="${basePath}activity/$activity.id">
+							<img width="96" height="128" alt="" style="background:url($VmUtils.randomPic('cw96h128',$activity.limg)) center center no-repeat;" src="${staticPath}css/images/blank.gif" />
+						</a>
+					</dt>
+					<dd class="uiText">
+						#if($VmUtils.eq($activity.atype,'gewa') || $VmUtils.contains($activity.flag, "renzheng"))<span class="official" title="格瓦拉官方认证活动"></span>#end
+						<a target="_blank" title="$activity.title" href="${basePath}activity/$activity.id"><b>$!VmUtils.escabbr($activity.title,14)</b></a>
+						<p class="mt5">
+							<span><em>时间：</em>$!DateUtil.format($!activity.startdate, 'MM月dd日')</span><br/>
+							#if($activity.address)<span><em>地点：</em>$!VmUtils.escabbr($!activity.address, 40)</span><br/>#end
+							<em>已有#if($!activity.clickedtimes)$!activity.clickedtimes #else 0 #end人关注</em>
+						</p>
+						<p class="mt10"><a target="_blank" class="button minBt yellowBt" href="${basePath}activity/$activity.id"><span>立即参加</span></a></p>
+					</dd>
+				</dl>
+				#end
+			</div>
+		</div>
+		#end
+		<!-- 一周热门电影资讯 -->
+		#if(!$VmUtils.isEmptyList($hotNewsList))
+		<div class="ui_panel kuang mt20">
+			<div class="title">
+				<a target="_blank" class="right ffst" href="${basePath}news/$!news.tag">更多</a>
+				<h2>一周热门资讯</h2>
+			</div>
+			<div class="ui_abeam ul72">
+				<ul>
+					#foreach($hotNews in $hotNewsList)
+					<li class="mt10" #if($foreach.count eq 6)style="border-bottom:none;"#end>
+						<div class="noBox" #if($foreach.count lt 3) style="background-position:0 -710px;" else  style="background-position:0 -681px" #end>$foreach.count</div>
+						<a href="${basePath}news/$!hotNews.id" target="_blank" title="$!hotNews.title">$!VmUtils.escabbr($!hotNews.title, 28)</a>
+					</li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$('.checkData').each(function(item){
+		resizePicture(item.getElements('img'), 560, true);
+	});
+	slidePicture();
+	new PanelGroup(["wait","already"],"wait","cus","none","mouseover");
+	if($('tip_num')){
+		$('tip_num').addEvent('click',function(){
+				var num=parseInt($('tip_num').innerHTML)+1;
+				GewaraUtil.sendRequest("${basePath}ajax/news/addTips.xhtml", {'nid':$news.id}, function(result){
+					if(result.success){
+						$('tip_num').innerHTML=num;
+					}else{
+						gewaUtil.alert(result.msg);
+					}
+				});
+		});
+	}
+	#*
+	if($('wayouReport')){
+		var func = function(){
+			gewa.util.pagePos('wayouReport');
+		}
+		func.delay(1000);
+	}
+	*#
+});
+</script>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+var isScroll = true,marks='';
+window.addEvent('domready',function(){
+	(function(){
+		Asset.javascript("${staticPath}scripts/gewara.js?n=wala,slimbox&v=$VmUtils.jsVersion", {
+			'id':'walaDynaScript',
+			'isScroll':false,//用于控制是否支持鼠标滚动事件
+    		'bindWala':'walaDiary',//把加载的哇啦放在什么位置
+			onLoad:function(){
+				Asset.css('${staticPath}css/new_wala.css?v=$VmUtils.jsVersion',{'id':'walasCss'});
+				gewa.util.pageNumber = 0;
+		    	var _body = $(document.body);
+		    	gewa.util.requestUrl = 'ajax/common/qryComment.xhtml';
+		    	gewa.util.values = {
+	    			pageNumber:gewa.util.pageNumber,//自动加载时的分页数
+	    			relatedid:'$!news.id',//关联对象的ID
+	    			title:'',//话题的标题
+	    			issue:true,//是否有发表框
+	    			hasMarks:false,//是否支持评分
+	    			tag:'news',//关联那个板块的内容
+	    			isPic:true,//是否支持传图片
+	    			isVideo:false,//是否支持传视频
+	    			pages:true,//是否分页
+		    		maxCount:6,//如果设置，即是单页显示N条
+					userLogo:gewara.util.member.headUrl//用户的头像
+		    	};
+		    	gewa.util.init();
+			}
+		})
+	}).delay(1000);
+});
+</script>
+<p id="newsContent" class="none">$!newsContent</p>
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=560708" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+var newsContentN = $('newsContent').innerHTML.clean();
+var bds_config = {'bdText':'【$!news.title】'+newsContentN,'snsKey':{'tsina':'2536251945','tqq':'801037658'}};
+document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + new Date().getHours();
+</script>
+</body>
+</html>

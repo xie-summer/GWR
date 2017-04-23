@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>积分详细信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		label {display:inline-block;width:70px;text-align:right;padding:1px 0 1px 0; }
+		input,textarea {width:450px;}
+		a{text-decoration: none; white-space: nowrap;}
+	</style>
+</head>
+<body style="width:750px; margin:auto" class="yui-skin-sam">
+<table class="table" style="width:720px">
+	<thead>
+	<tr>
+		<th>用户ID</th>
+		<th>用户名称</th>
+		#if($!params.tag eq 'invitefriend_ticket')<th>被邀人ID</th>#end
+		<th>积分</th>
+		<th>积分来源</th>
+		<th>积分时间</th>
+		<th>添加人员</th>
+	</tr>
+	</thead>
+	<tbody id="goodsTable">
+	#set($reasonMap={'invite':'成功邀请','confirm':'高级确认','exchange':'兑换物品','corr':'页面纠错','charge':'账户充值',
+		'trade':'订单成交','content':'手动输入原因','diarymovie':'发表影评','commentcinema':'影院点评','commentdrama':'话剧点评','commentsport':'运动点评',
+		'add_place':'添加场所信息','update_place':'更新场馆信息','perfect_place':'完善场馆信息','corr_place':'场馆信息纠错',
+		'add_item':'添加项目信息','update_item':'更新项目信息','perfect_item':'完善项目信息','corr_item':'项目信息纠错',
+		'newtask':'新手任务','login':'用户注册','pay':'充值','loginactivity':'每日积分领取','add_movie':'添加电影',
+		'add_coach':'添加教练','ext':'漂流积分','invitefriend_ticket':'邀请好友订票','invitefriend_goods':'邀请好友买商品',
+		'addinfo':'添加信息(影片、场馆等）','correct':'纠错(影片、场馆、项目等）','order_share':'购票分享微博',
+		'replymessagemovie':'电影短信回复','replymessagedrama':'话剧短信回复','replymessagesport':'运动短信回复'}) 
+		#foreach($point in $pointList)
+		#set($user=$userMap.get($!point.id))
+		<tr>
+			<td>$!{point.memberid}</td>
+			<td>$!{memberPoint.nickname}</td>
+			#if($!{point.tag} eq 'invitefriend_ticket')<td>$!{point.tagid}</td>#end
+			<td>$!{point.point}</td>
+			<td>#if($!{point.tag} ne 'content')$!reasonMap.get($!{point.tag})#else$!{point.reason} #end</td>
+			<td>$!{point.addtime}</td>
+			<td>$!user.username</td>
+		</tr>
+		#end
+		#foreach($point in $pointHists)
+		#set($user=$userMap.get($!point.id))
+		<tr>
+			<td>$!{point.memberid}</td>
+			<td>$!{memberPoint.nickname}</td>
+			#if($!{point.tag} eq 'invitefriend_ticket')<td>$!{point.tagid}</td>#end
+			<td>$!{point.point}</td>
+			<td>#if($!{point.tag} ne 'content')$!reasonMap.get($!{point.tag})#else$!{point.reason} #end</td>
+			<td>$!{point.addtime}</td>
+			<td>$!user.username</td>
+		</tr>
+		#end
+	</tbody>
+</table>
+#parse('include/pageUtil.vm')
+</body>
+</html>

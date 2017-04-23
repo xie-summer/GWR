@@ -1,0 +1,306 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title>${theatre.name}_图片 - 格瓦拉生活网</title>
+	<meta name="keywords" content="" />
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,slideshow,pagesNavigation,slimbox,base_home,scrollerbar&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.percent_50 li{text-align:left;}
+	</style>
+</head>
+<body>
+#set($isPictureDetail=true)
+#set($relatedtag='drama')
+#set($dramaHeadFlag='isDramatheatre')
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout detail_body">
+	<div class="inner">
+		<div class="switch_ui_t"><div class="switch_ui_t"></div></div>
+		<div class="switch_ui_c">
+			<div class="switch_ui_c">
+			  #parse('drama/theatre/new_theatreHead.vm')
+				<div class="detail_body_left">
+					<div class="fs14 title"><b class="fs14 mr10">海报/剧照</b>(共 <span>$!{picCount}</span> 张)</div>
+					<div class="groupOutside">
+						<div class="groupImgs" id="img" style="">
+							<span class="prive" title="上一张">上一张</span>
+							<span class="nex" title="下一张" style="left:auto;right:0px;">下一张</span>
+						</div>
+					</div>
+					<div class="title">
+						<span class="right fs14">[<a href="$VmUtils.randomPic('',$!mapList.get($!recordCount).picturename)" id="picLink" target="_blank">查看原图</a>]</span>
+						<span class="fs14">上传人：<span id="upmenber" class="brown">&nbsp;</span><span class="gray ml20" id="uptime">上传时间：&nbsp;</span></span>
+					</div>
+					<div id="container" class="groupImgsControl">
+						<ul id="scoll" class="clear" style="overflow:hidden;"></ul>
+					</div>
+					<div class="mt30"><h2 class="fs14">分享你的剧照评论...</h2></div>
+						<div class="send_wala ui_abeam mt10" id="walaDialog">
+							<div class="uipic mt5">
+								<a target="_blank" class="pubpic" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!logonMember.id" id="logonMember"><img id="logonMemberPic" src="${staticPath}css/images/blank.gif" style="background:url(${picPath}sw50h50/img/default_head.png) center center no-repeat;"/></a>
+							</div>
+							<div class="uiText">
+								<div class="wala_text">
+									<span class="pl"></span>
+									<label for="walaL_say_area" id="wala_defV" class="wala_defV">分享你的剧照评论，内容越多越精彩…</label>
+									#if(!$VmUtils.isEmptyList($pictureList))<input type="hidden" id="relatedid" name="relatedid" value="$pictureList.get(0).id"/>#else
+									<input type="hidden" id="relatedid" name="relatedid" value="$!pictureid"/>
+									#end
+									<div class="wala_text_inner">
+										<textarea title="哇啦输入框" onkeyup="microChange(this)" name="body" id="walaL_say_area" class="walaL_say_area"></textarea>
+									</div>
+								</div>
+								<div class="linkd">
+									<div class="left mt5">
+										<div class="dialogs" id="dialogs" style="float: left;">
+										<a class="face">表情<span class="dmore"></span></a>
+										#parse('wala/uidialog.vm')
+									</div>
+									<dl class="moved">
+										<dt>同步到：</dt><dd class="tSina"><input class="left" id="Wb" type="checkbox" title="新浪微博" lang="${basePath}home/bind/sina/userApp.xhtml?source=close" style="margin-top:2px;*margin:-2px;"/><label for="Wb">新浪微博</label></dd>
+									</dl>
+									</div>
+									<div class="right">
+										<span class="num mr10 left" id="font"></span>
+										<a onclick="submitMicro();return false;" class="ibutton w90_button right" href="#">发&nbsp;&nbsp;布</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					<!-- star -->
+					<div id="showComment"></div>
+					<!-- end -->
+				</div>
+				<div class="detail_body_right">
+					#parse('drama/theatre/new_theatreRight.vm')
+				</div>
+				<div class="cls"></div>
+			</div>
+		</div>
+		<div class="switch_ui_b"><div class="switch_ui_b"></div></div>
+	</div>
+</div>
+#parse('include/treasure.vm')
+#parse('include/global/new_scorelevel.vm')
+#parse('include/newMarkDialog.vm')
+<script type="text/javascript">
+window.addEvent('domready', function(){
+    myTreasure('theatre','$theatre.id', 'logonMember');
+});
+function getDramaImageMap(){
+	#set($picMapList=[])
+	#foreach($pics in $mapList)
+	#set($temp=$picMapList.add({"picturename":"$VmUtils.randomPic('',$!pics.picturename)","minpic":"$VmUtils.randomPic('cw128h96',$!pics.picturename)","description":"$!pics.description","membername":"$!pics.membername","posttime":"$!pics.posttime","id":"$!pics.id"}))
+	#end
+	var dramaImageMap = $VmUtils.getScriptObject($picMapList);
+	return dramaImageMap;
+}
+var count=0;
+#if($recordCount)
+count=$!recordCount;
+#end
+var picList = getDramaImageMap(),flag = true,scroll = $empty;
+window.addEvent('domready', function(){
+	new issue('walaL_say_area',{'font':'font','tips':'wala_defV'});
+	showError = new ShowErrorTextArea();
+	selector = new selectpic('walaL_say_area','uidialog');
+	new dialogs('dialogs',{'width':'360px','flag':true});
+	gewara.util.sendRequest('${basePath}ajax/member/synchroizaInfo.xhtml',{'rights':'dramacomment'},function(result){
+		if(result.success){
+			if(result.appList){
+				if(result.appList.contains('sina')){$('Wb').checked=true;$('isWb').checked=true;isWbOpen = false;}
+			}
+		}
+	});
+	$('Wb').addEvent('click',function(){
+		if(isWbOpen){
+			this.checked = '';
+			checkLogin(true, function(){
+				syscData(this.get('lang'),this.get('title'),'sina',this);
+			}.bind(this));
+		}
+	});
+	gewa.util.pagePos();
+	picsolid();
+	taskCount();
+})
+function picsolid(){
+	picList.each(function(img,index){
+		if(picList.length > 4){
+			new Element('img',{'src':"$VmUtils.randomPic('','css/images/blank.gif')",'lazeSrc':picList[index].minpic,'class':index==count?'select':'','styles':{'background-image':'url($VmUtils.randomPic('','css/images/loading3.gif'))','background-position':'center center','background-repeat':'no-repeat'}}).addEvent('click',function(){
+				count = index;
+				taskCount();
+			}).inject(new Element('li').inject('scoll'));
+		}else{
+			new Element('img',{'src':picList[index].minpic,'class':index==count?'select':''}).addEvent('click',function(){
+				count = index;
+				taskCount();
+			}).inject(new Element('li').inject('scoll'));
+		}
+	})
+	$('img').getElements('span').addEvent('click',function(){
+		if(flag){
+			if(this.get('title') == '上一张'){
+				if(count > 0)count--
+				else count = 0;
+				if(count == 0)this.hide();
+				$$('.nex').show();
+			}else{
+				if(count < picList.length-1) count++;
+				else count = picList.length-1;
+				if(count == picList.length-1)this.hide();
+				$$('.prive').show();
+			}
+			taskCount();
+		}
+	});
+	if(picList.length > 4){
+		$('scoll').setStyle('width',138*picList.length);
+		scroll = new ScrollerBar('container',{mode:'horizontal','laze':true,wrapped:'scoll'});
+	}
+}
+function taskCount(){
+	if(flag){
+		flag = false;
+		$('img').PlayPicture(picList[count].picturename,632,395,function(collback){
+			flag = collback;
+			if(picList.length > 4){
+				scroll.setStyle(count,function(obj){
+					$('scoll').getElements('img').removeClass('select');
+					$(obj).getChildren().addClass('select');
+					scroll.slider.set(count*(scroll.getSub()/picList.length));
+				});
+			}else{
+				$('scoll').getElements('img').each(function(item,index){
+					if(index == count) item.addClass('select');
+					else item.removeClass('select');
+				});
+			}
+			$('upmenber').innerHTML = picList[count].membername;
+			$('uptime').innerHTML = picList[count].posttime;
+			$('picLink').set('href',picList[count].picturename);
+			//哇啦搭话
+			$('relatedid').value=picList[count].id;
+			commentList(picList[count].id);
+		});
+	}
+}
+function deleteComment(commentid){
+	var url = '${basePath}ajax/comment/deleteComment.xhtml';
+	var values = {'commentid':commentid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewaUtil.dispose($('comment'+commentid));
+	})
+}
+function commentList(pictureid){
+	var values={'relatedid':pictureid, 'tag':'picture'}
+	var url="${basePath}ajax/comment/commentList.xhtml"
+	GewaraUtil.sendLoad('showComment', url, values, function(result){
+		if(!result.success){
+			gewaUtil.alert(result.msg);
+		}
+	},pictureid);
+}
+var isQbOpen = true,isWbOpen=true;
+function microChange(obj){
+	var num=140;
+	if($chk($(obj).value)){
+		var num = 140-$(obj).value.length;
+	}
+	if(num<0){ 
+		var value = Math.abs(num);
+		$('font').set('text','已超出'+value+"个字");
+		$('font').set('styles',{'color':'red'});
+	}else{
+		$('font').set('text','你还可以输入'+num+'个字');
+		$('font').set('styles',{'color':'black'});
+	}
+}
+function doSubmitMicro(){
+	if($('walaL_say_area').value != ''){
+		if($('walaL_say_area').value.trim().length >140){
+			gewaUtil.alert('最多输入140字符!');
+			return false;
+		}
+	}
+	var url="${basePath}ajax/comment/savePictureMicroBlog.xhtml";
+	var values={'body':$('walaL_say_area').value, 'relatedid':$('relatedid').value, 'tag':"picture", 'type':'$!type','ttag':'theatre'};
+	gewaUtil.loadData('showComment', url, values, function(result){
+		if(result.success){
+			$('walaL_say_area').value = '';
+		}else{
+			if(result.json.msg == 'success') {
+				gewaUtil.alert('发表成功！');
+				$('walaL_say_area').value = '';
+				$('wala_defV').show();
+				$('font').innerHTML = '你还可以输入<b>140</b>字';
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		} 
+	});
+}
+//发表哇啦
+function submitMicro(){
+	var say_area = $('walaL_say_area').value;
+	if(!$chk(say_area)){
+		showError.show('walaL_say_area');
+		return false;
+	}
+	if(say_area.length>140){
+		showError.show('walaL_say_area');
+		return false;
+	}
+	checkLogin(true,function(){
+		doSubmitMicro();
+	}); 
+}
+
+function syscData(url,title,tag,el){
+	var html = "",width=600;
+	if(tag == 'sina'){
+		html = new Element('iframe',{
+			'frameborder':0,
+			'scrolling':'no',
+			'height':'368',
+			'width':'600',
+			'src':url
+		});
+	}else{
+		html = new Element('div',{
+			'styles':{
+				'width':'620px',
+				'height':window.ActiveXObject?'380px':'330px',
+				'overflow':'hidden'
+			}
+		});
+		new Element('iframe',{
+			'frameborder':0,
+			'scrolling':'no',
+			'height':'850',
+			'width':'810',
+			'src':url,
+			'styles':{
+				'margin-top':'-280px',
+				'margin-left':'-160px'
+			}
+		}).inject(html);
+		width = 650;
+	}
+	gewa.util.maskContent('',html,'正在设置'+title+'的同步',width,'syscing');
+}
+var isBind = function(el){
+	if($(el)){
+		$(el).checked = true;
+		isWbOpen = false;
+	}
+	if(gewa.util.container['syscing'])gewa.util.container['syscing'].dispose('syscing');
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

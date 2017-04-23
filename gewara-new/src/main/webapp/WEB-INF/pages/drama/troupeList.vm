@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	#set($isCityParam=true)
+	#parse('include/constant/cityParam.vm')
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>#if($VmUtils.eq($params.type,'star'))话剧演员_话剧导演 - 格瓦拉生活网#else $!{cookieCityname}话剧社_话剧工作室_话剧团 - 格瓦拉生活网#end</title>
+	<meta name="keywords" content="话剧,话剧查询,话剧演出,话剧购票,话剧院,话剧院查询,话剧院购票"/>
+	<meta name="description" content="#if($VmUtils.eq($params.type,'star'))格瓦拉生活网提供话剧演员及话剧导演人物介绍,主要作品,近期演出动态信息.最全面的话剧人物查询网站.#else格瓦拉生活网提供$!{cookieCityname}话剧社及各类话剧工作室及话剧团介绍及近期演出动态.全国最专业的话剧演出查询网站.#end"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	  .ui_layout{background:none;}
+	  .ui_panel_search{border-radius:5px;}
+	</style>
+</head>
+<body>
+#set($relatedtag='drama')
+#if($VmUtils.eq($type,'troupe'))
+#set($dramaHeadFlag = 'isDdramastarTroupe')
+#else
+#set($dramaHeadFlag = 'isDdramastar')
+#end
+#set($cfgHeader='header')#parse('include/navigation.vm')
+
+<div class="ui_layout">
+	<div class="ui_left">
+		<div class="inner">
+			<div class="yh_title">
+				#if($VmUtils.eq($type,'troupe'))
+				<h2>剧社</h2>
+				#else
+				<h2>人物</h2>
+				#end
+			</div>
+			<form id="searchForm" action="${basePath}drama/star/index.xhtml">
+				<input type="hidden" name="type" id="type" value="$!VmUtils.escapeHtml($params.type)"/>
+				<input type="hidden" name="startype" id="startype" value="$!VmUtils.escapeHtml($params.startype)"/>
+				<input type="hidden" name="searchkey" id="searchkey" value="$!VmUtils.escapeHtml($params.searchkey)"/>
+				<input type="hidden" name="order" id="order" value="$!VmUtils.escapeHtml($params.order)"/>
+			</form>
+			<div class="ui_panel ui_panel_search mod_bd">
+				<div class="b_bg">
+					<ul class="ul-80 clear">
+						#if(!$VmUtils.eq($type,'troupe'))
+						<li>
+							<span class="ul-80Inner">选择职业：</span>
+							<a #if($VmUtils.eq('star',$params.startype)) class="select" #set($searchTJ1='演员') #else href="javascript:search('startype', 'star')"  #end>演员</a>
+							<a #if($VmUtils.eq('director',$params.startype)) class="select" #set($searchTJ1='导演') #else href="javascript:search('startype', 'director')"  #end>导演</a>
+						</li>
+						#end
+						<li>
+							<span class="ul-80Inner">快速查询：</span>
+							<input type="text" value="$VmUtils.dft($!params.searchkey, '请输入搜索关键词')" name="searchkey2" id="searchkey2" onblur="setDefault(this)" onfocus="clearDefault(this)" class="text left" name="" style="padding:4px;width:280px;border:1px solid #a6a6a6;height:15px;margin-left:7px;" title="请输入搜索关键词" onkeydown="keyDownDef(event)"/>
+							<input type="button" onclick="searchname('searchkey',$('searchkey2').value)" class="inIco left" style="height:25px;background-position:-25px -104px;width:82px" value="搜 索"/>
+						</li>
+					</ul>
+				</div>
+				<div class="selectedMenus inner clear">
+					<div class="right">
+						<span class="left">排序：</span>
+						<select onchange="javascript:search('order', this.value)">
+							<option value="" #if($VmUtils.isBlank($!params.order))selected #end>默认排序</option>
+							<option value="clickedtimes" #if($VmUtils.eq('clickedtimes',$!params.order))selected#end>按人气</option>
+						</select>
+					</div>
+					<div class="left">
+						#if(${searchTJ1} || $VmUtils.isNotBlank($params.searchkey))
+						<span class="fs14">已选条件：</span>
+							#if(${searchTJ1})
+								<span class="selections"><span onclick="searchRemoveKey('startype','$searchTJ1')" class="select">$!searchTJ1</span></span>
+							#end
+							#if($VmUtils.isNotBlank($params.searchkey))
+								<span class="selections"><span onclick="searchRemoveKey('searchkey','$params.searchkey')" class="select" >$!params.searchkey</span></span>
+							#end
+						#end
+						<span class="menuNav" id="countspan">共<b class="cf60">$!starcount</b>#if($VmUtils.eq($type,'troupe'))家剧社#else名人物#end</span> 
+					</div>
+				</div>
+			</div>
+			<ul class="ui_abeam">
+				#foreach($star in $starList)
+				#set($key2=$star.id+"dramastar")
+				<li class="abeam effectWala">
+					<div class="uipic" style="width:96px; overflow:hidden;">
+						<a href="${basePath}drama/star/$!star.id" target="_blank" title="$!star.name"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw96h128',$!star.limg)) center center no-repeat;" width="96" height="128" /></a>
+					</div>
+					<div class="uiText gewa_outer_text">
+						<div class="switch_ui_outside">
+							<div class="switch_plugs">
+								<div class="switch_ui_t"><div class="switch_ui_t"></div></div>
+								<div class="switch_ui_c">
+									<div class="switch_ui_c">
+										<span class="pl"></span>
+										<div class="inner">
+											<div class="title">
+												<h2><a target="_blank" class="fs14" href="${basePath}drama/star/$!star.id">$!star.name</a></h2>
+												<span class="c999">($!star.clickedtimes关注)</span>
+											</div>
+											#if(!$VmUtils.eq($type,'troupe'))<p>职业：#if($star.startype.contains('star'))演员#end#if($star.startype.contains('star') && $star.startype.contains('director'))/#end#if($star.startype.contains('director'))导演#end</p>#end
+											<p>$!VmUtils.htmlabbr($!star.content, 160)#if($star.content)...#end</p>
+											<div class="mt10 masterpiece">&nbsp;
+												#if($historyDramaListMap.get($star.id))
+												代表作：
+												#foreach($drama in $historyDramaListMap.get($star.id))
+												<a href="${basePath}drama/$!drama.id" class="brown mr5" target="_blank">《$drama.name》</a>
+												#end
+												#end
+												<a class="wmore" href="javascript:void(0);">
+												#set($key=$star.id+"dramastar")
+												共<span>#if($!commentMap.get($!key))$!commentMap.get($!key)#{else}0#end</span>条哇啦!</a>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="switch_ui_b"><div class="switch_ui_b"></div></div>
+							</div>
+						</div>						
+						#if($!commentMap.get($!key))
+						<div class="objTips" id="$star.id" style="display:none;">
+						</div>	
+						#end					
+					</div>
+				</li>
+				#end
+			</ul>
+			<div class="clear">
+				#parse('include/pageUtil.vm')
+			</div>
+		</div>
+	</div>
+	<div class="ui_right">
+		<div class="inner">
+		  #if(!$VmUtils.isEmptyList($curDramaList))
+			<div class="tBg title">
+				<h2 style="background-position:0 -974px;"><strong>热门推荐</strong></h2>
+				<a href="${basePath}drama/dramaList.xhtml" target="_blank" class="more a_color">更多»</a>
+			</div>
+			#foreach($curDrama in $curDramaList)
+			#if($foreach.count % 2 eq 1)
+			<ul class="percent_50 clear">
+			#end
+				<li>
+					<div class="clear">
+						<a target="_blank" href="${basePath}drama/$!curDrama.id" title="$!curDrama.dramaname"><img width="96" height="128" style="margin-bottom:5px;" src="$VmUtils.randomPic('cw96h128',$!curDrama.limg)"></a><br />
+						<a class="fs14 a_color" target="_blank" href="${basePath}drama/$!curDrama.id">$!curDrama.dramaname</a>
+					</div>
+				</li>
+			#if($foreach.count % 2 eq 0 || $foreach.count eq $curDramaList.size())	
+			</ul>
+			#end
+			#end
+			#end
+			#if(!$VmUtils.isEmptyList($diaryList))
+			<div class="micon mv_line"></div>
+			<div class="tBg mt10 title">
+				<h2 style="background-position:0 -913px;"><strong>辣评榜</strong></h2>
+				<a href="${basePath}blog/theatre" target="_blank" class="more a_color">更多»</a>
+			</div>
+			#foreach($diary in $diaryList)
+			#set($relate=$relatedHelper.getR1("categoryIdList",$diary.categoryid))
+			<ul class="ui_abeam">
+				<li class="mt10 clear">
+					<div class="uipic">
+						<a title="$cacheMemberMap.get($diary.memberid).nickname" target="_blank" class="pubpic" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.memberid"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($diary.memberid).headpicUrl)" width="50" height="50" alt=""/></a>
+					</div>
+					<div style="width:74.8%;" class="uiText">
+						<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.memberid" class="mr5" title="Sheer">$cacheMemberMap.get($diary.memberid).nickname</a>评论<a href="${basePath}drama/$!relate.id" class="ml5" title="《$!relate.dramaname》">《$!relate.dramaname》</a></p>
+						<p class="c666">$VmUtils.htmlabbr($!diary.summary, 30)...<a href="${basePath}blog/t$!diary.id" title="查看">查看</a></p>
+					</div>
+				</li>
+			</ul>
+			#end
+			#end
+			#if(!$VmUtils.isEmptyList($commuList))
+			<div class="micon mv_line"></div>
+			<div class="tBg mt10 title">
+				<h2 style="background-position:0 -1004px;"><strong>圈子</strong></h2>
+				<a href="${basePath}quan/index.xhtml?tag=theatre" target="_blank" class="more a_color">更多»</a>
+			</div>
+			<ul>
+				#foreach($commu in $commuList)
+				<li class="mt20 clear">
+					<div class="uipic">
+						<a title="$!commu.name" target="_blank" class="quanpic" href="${basePath}quan/$!commu.id"><img src="$VmUtils.randomPic('cw50h50',$!commu.rlogo)" width="50" height="50" alt=""/></a><br />
+						#if($isJoinCommuMap.get($commu.id) eq 'true')<a href="${basePath}quan/$!commu.id" target="_blank"><span class="addAttentioned">已加入</span></a>
+						#else<span class="addAttention" onclick="applyAddCommu($commu.id)">加入</span>
+						#end
+					</div>
+					<div style="width:70%;" class="uiText">
+						<p><a href="${basePath}quan/$!commu.id" class="mr5" title="$!commu.name" target="_blank">$!commu.name</a></p>
+						<p>成员：$!commu.commumembercount人 | 话剧</p>
+						<p>$VmUtils.htmlabbr($!commu.info, 30)...</p>
+					</div>
+				</li>
+				#end
+			</ul>
+			<p class="tar mt10"><a class="joinquan" href="${basePath}home/commu/addCommu.xhtml" title="创建圈子">创建圈子</a></p>
+			#end
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+function search(field, value){
+	$(field).value = value
+	$('searchForm').submit();
+}
+function searchname(field, value){
+	if($('searchkey2').value=='请输入搜索关键词' || $('searchkey2').value == ''){
+		$('searchkey2').focus();
+		$('searchkey2').value = '';
+		return;
+	}
+	if(field !='searchkey2') $('searchkey').value = '';
+	$(field).value = value
+	$('searchForm').submit();
+}
+function searchRemoveKey(key, value){
+	$(key).value = '';
+	$('searchForm').submit();
+}
+window.addEvent('domready',function(){
+	var autoTips = document.body.autoTips({width:290,bgColor:'#f7e7ce',clazz:'wmore_hover1'});
+	$$('.effectWala').addEvents({
+		'mouseenter':function(){this.getElement('.wmore').addClass('wmore_hover');},
+		'mouseleave':function(){this.getElement('.wmore').removeClass('wmore_hover');}
+	})
+	$$('.wmore').addEvents({
+		'mouseenter':function(){
+			var el = this.getParent('.effectWala').getElement('.objTips');
+			if(el){
+				var id = el.get('id');
+				showWala(id,el,this,autoTips);
+			}
+		},
+		'mouseleave':function(){
+			autoTips.isAttach = false;
+			autoTips.hide.delay(200);
+		}
+	})
+})
+function showWala(id,el,ele,autoTips){
+	var url = '${basePath}ajax/common/qryTopComment.xhtml';
+	var values = {'tag':'dramastar','relatedid':id};
+	GewaraUtil.sendLoad(id,url, values, function(result){
+		if(result.success){
+			autoTips.property.content(el,ele);
+			autoTips.show();
+		}
+	},id,'get');
+}
+function applyAddCommu(id){
+	checkLogin(true,function(){
+		window.top.location.href="${basePath}home/commu/applyAddCommu.xhtml?commuid="+id;
+	});
+}
+function keyDownDef(event){
+	if(event.keyCode == 13){
+		searchname('searchkey',$('searchkey2').value);
+	}
+}
+</script>
+#parse('include/bottom.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

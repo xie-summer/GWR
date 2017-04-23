@@ -1,0 +1,58 @@
+#set($newQa=true)
+#set($sendQa=true)
+#set($isShow=false)
+#if($!rights.get(6) eq 'qa_public')
+#set($isShow=true)
+#elseif($!rights.get(6) eq 'qa_friend'&& $isMyFriend)
+#set($isShow=true)
+#end
+#if(!$!rights)
+	#set($isShow=true)
+#end
+#if($isShow)
+	#if(!$VmUtils.isEmptyList($listQuestion))
+	<table cellpadding="0" cellspacing="0" class="titleTable" border="0">
+		<thead>
+			<tr>
+				<th width="45%">标题（共${count}项）</th>
+				<th><span class="inIco ico" style="background-position:0 -2280px;">经验值</span></th>
+				<th><span class="inIco ico" style="background-position:0 -2054px;">回答数</span></th>
+				<th><span class="inIco ico" style="background-position:0 -2001px;">剩余时间</span></th>
+				<th><span class="inIco ico" style="background-position:0 -2001px;">发表时间</span></th>
+			</tr>
+		</thead>
+		<tbody>
+			#set($tag={'cinema':'电影','gym':'健身','sport':'运动','bar':'酒吧','ktv':'KTV','activity':'活动','theatre':'话剧','':'其他'})
+			#foreach($question in $listQuestion)
+			#set($dayCount=$dayMap.get($question.id))
+			<tr>
+				<td #if($question.questionstatus eq 'Z'||$question.questionstatus eq 'N'||$question.questionstatus eq 'noproper') class="qus" #elseif($question.questionstatus eq 'Y' ) class="solve" #end>
+				<a href="${basePath}qa/q${question.id}" target="_blank" title="$!question.title">$!question.title</a>
+				【#if($VmUtils.eq($!question.tag,null))$tag.get('')#else<a href="${basePath}#if($question.tag eq 'cinema')movie#elseif($question.tag eq 'theatre')drama #else$question.tag#end" class="ml5" target="_blank">$!tag.get($question.tag)</a>#end
+				#if($mapQuestionTag.get($question.id) eq 'movie')<a href="${basePath}movie/${mapQuestion.get($question.id).id}">-$mapQuestion.get($question.id).moviename </a>#end
+				#if($mapQuestionTag.get($question.id) eq 'gymcourse')<a href="${basePath}gym/course/$mapQuestion.get($question.id).id">-$mapQuestion.get($question.id).coursename </a>#end 
+				#if($mapQuestionTag.get($question.id) eq 'sportservice')<a href="${basePath}sport/item/$mapQuestion.get($question.id).id">-$mapQuestion.get($question.id).itemname </a>#end
+				】
+				</td>
+				<td>$!question.reward</td>
+				<td>$!question.replycount</td>
+				<td>#if($question.questionstatus eq 'Z'||$question.questionstatus eq 'N' ) $!dayCount#elseif($question.questionstatus eq 'Y' ) 已解决 #end</td>
+				<td>$DateUtil.format($question.addtime,'M月d日 HH:mm')</td>
+			</tr>
+			#end
+		</tbody>
+	</table>
+	#else
+	<div class="clew mt20 title"><span class="left">你还未向瓦友们发表问题，</span><a href="${basePath}qa/modQuestion.xhtml" style="margin-top:2px;"  class="button whiteBt minBt left" target="_blank"><span>我要发问</span></a></div>
+	#end
+#else
+	<div class="clew mt20">
+	#if($!rights.get(6) eq 'qa_private')
+		【$member.nickname】的知道设置了权限为【全体不可见】
+	#elseif($!rights.get(6) eq 'qa_friend')
+		【$member.nickname】的知道设置了权限为【仅好友可见】,<a href="${basePath}home/friend/addFriend.xhtml?memberid=$member.id" class="brown">加为好友</a>即可一睹为快!
+	#end
+	</div>
+#end
+#set($pageFun="ajaxPage")
+#parse('include/scriptPageUtil.vm')

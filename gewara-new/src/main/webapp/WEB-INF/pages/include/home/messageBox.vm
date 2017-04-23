@@ -1,0 +1,111 @@
+#if($dialogMessage)
+<div id="markWindow" style="display:none";>
+	#end
+	<span id="messageContent"></span>
+	<form action="javascript:sendMsg()" id="msgForm" name="msgForm">
+	#if($uma)
+	<input type="hidden" name="tomemberid" id="tomemberid" value="$!{uma.frommemberid}"/>
+	#elseif($toMember)
+	<input type="hidden" name="tomemberid" id="tomemberid" value="$!{toMember.id}"/>
+	#else
+	<input type="hidden" name="tomemberid" id="tomemberid" value=""/>
+	#end
+	<input type="hidden" name="groupid" id="groupid" value="$!uma.groupid">
+	<input type="hidden" name="memberidList" id="memberIdList" value="" />
+	<ul class="ul-60" #if($dialogMessage)style="padding:10px;width:auto;"#elseif($messageDetail)style="margin-top:50px;"#end>
+		#if(!$messageDetail)
+		<li><div class="ul-60Inner">发送给：</div>
+			<input type="text" name="userKey" id="userKey" class="text" value="$!{toMember.nickname}"/>
+			<span class="gray">Email或手机号</span>
+			<!--<label class="minBt whiteBt button ml5"><input type="button" value="+好 友" onclick="showFriend();"/></label>-->
+		</li>
+		<li class="mt10 clear"><div class="ul-60Inner">标&nbsp;&nbsp;题：</div>
+			<input type="text" class="text" name="subject" id="subject" value="$!resubject"/>#else<input type="hidden" class="text" name="subject" id="subject" value="$!userMeSubject"/>
+		</li>
+		#end
+		<li class="mt10 clear">
+			<div class="ul-60Inner">内&nbsp;&nbsp;容：</div>
+			<textarea rows="3" cols="60" class="text textABd" name="content" id="content" style="#if($messageDetail || $receMessageList || $sendMessage)width:350px; #else width:330px; #end height:120px;"></textarea>
+			<br/>
+			<span><img src="${staticPath}css/home/look.png" alt="表情" class="tips" id="iconT" style="cursor: pointer;"/></span>
+		</li>
+		<li class="mt10 clear" style="height:40px;">
+			<div class="ul-60Inner">验证码：</div>
+			<input type="hidden" name="captchaId" id="captcha" />
+			<label class="left" style="width:60px">
+			<input type="text" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" size="18" style="width:60px" mustTxt="请输入验证码!" onfocus="GewaraUtil.refreshCaptcha('captcha');"/></label>
+			<img id="captchaImg" src="${staticPath}css/images/blank.gif" class="ml20" style="cursor: pointer;vertical-align: middle;float:left;height:30px; width:80px;" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清楚，请点击换一张图片"/>
+		</li>
+		<li class="mt20 clear">
+			<label class="minBt redBt button" for="disBtn"><input type="submit" id="disBtn" value="发 送"/></label>
+			#if($messageDetail || $sendMessage) #else<label class="minBt whiteBt button ml10" for="disBt2"><input type="button" id="disBt2" onclick="hideMark('markWindow')" value="取 消"/></label>#end
+		</li>
+	</ul>
+	</form>
+	#if($dialogMessage)
+</div>
+#end
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	var icon = new Icon();
+	$('iconT').addEvent('click',function(){
+		icon.innerHTML('iconT','content');
+	})
+});
+#if($dialogMessage)
+function showMark(el,sValue,groupid, tomemberid, subject){
+	$('subject').value = subject;
+	$('userKey').value = sValue;
+	$('groupid').value = groupid;
+	$('tomemberid').value = tomemberid;
+	gewa.util.maskContent('',el,'发送短消息',490,'keys',function(){
+		//sendMsg();
+	})
+}
+function hideMark(){
+	$('content').value = "";
+	$('userKey').value = "";
+	$('subject').value = "";
+	gewa.util.container['keys'].dispose('keys');
+}
+#end
+function sendMsg(){
+	if($('subject').value=='') {gewaUtil.alert('标题不能为空！');return;}
+	if($('content').value=='') {gewaUtil.alert('内容不能为空！');return;}
+	checkLogin(true, function(){
+		var url = '${basePath}home/message/saveUserMessage.xhtml';
+		var values = GewaraUtil.getValues("msgForm");
+		GewaraUtil.mask('disBtn');
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				gewaUtil.alert('发送成功！', function(){
+					#if($dialogMessage)hideMark();
+					#else
+					refreshPage();
+					#end
+				});
+			}else{
+				badEggAlert(result.msg);
+				gewaUtil.alert(result.msg);
+				GewaraUtil.refreshCaptcha('captcha');
+			}
+		})
+	});
+}
+function badEggAlert(status){
+	if(status == '1'){
+		gewaUtil.alert('您的发表体验机会已用完，完善账户信息就可以使用哇啦、站内信、活动、知道、论坛的所有功能啦！', function(){gotoURL('${basePath}home/acct/safetyCenter.xhtml')});
+	}else if(status == '7'){
+		gewaUtil.alert('您的发表体验机会已用完，确认您的邮件地址就可以使用哇啦、站内信、活动、知道、论坛的所有功能啦！', function(){gotoURL('${basePath}home/acct/safetyCenter.xhtml')});
+	}else if(status == '0'){
+		gewaUtil.alert('非法请求！');
+	}else if(status == '51'){
+		gewaUtil.alert('操作过于频繁！');
+	}
+	if(status =='1' || status=='7' || status == '0' || status == '51'){
+		GewaraUtil.refreshCaptcha('captcha');
+		return;
+	}
+}
+</script>

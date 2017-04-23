@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>格瓦拉影院自助终端系统 - 格瓦拉生活网</title>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/partner/juxiang/layout.css"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/base.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+</head>
+
+<body>
+<div class="ui_layout">
+	<div class="ui_header"><h1>格瓦拉影院自助终端系统</h1></div>
+    <div class="ui_content">
+    	<div class="ui_step ui_step2"></div>   
+        <div class="ui_left">
+        	<div class="mod_kong chooseList">
+            	<div class="mod_hd">
+                	<h2>选择影院</h2>
+                    <p>已选条件：<span>$!{DateUtil.format($fyrq,'M月d日')}</span><span>$!{movie.name}</span><span>$!{county.countyname}</span></p>
+                </div>
+                <div class="mod_bd">
+                	<ul class="cinemaList event_tags clear">
+                		#foreach($cinema in $cinemaList)
+                        <li><a href="javascript:chooseCinema('$!{cinema.id}');">$!{cinema.name} <em>($!{countys.get($cinema.countycode).countyname})</em></a></li>
+                        #end
+                    </ul>
+                </div>
+            </div>
+            <div class="pageTag">
+            	#if($upPage)<a class="pre" href="${basePath}partner/juxiang/chooseCinema.xhtml?pageNo=$!{prePageNo}&movieid=$!{movie.id}&fyrq=$!{DateUtil.format($fyrq,'yyyy-MM-dd')}&countyCode=$!{county.countycode}&width=$!{width}">上一页</a>#end
+                #if($nextPage)<a class="next" href="${basePath}partner/juxiang/chooseCinema.xhtml?pageNo=$!{nextPageNo}&movieid=$!{movie.id}&fyrq=$!{DateUtil.format($fyrq,'yyyy-MM-dd')}&countyCode=$!{county.countycode}&width=$!{width}">下一页</a>#end
+            </div>
+        </div>
+        <div class="ui_right">
+        	<div class="mod_kong">
+            	<div class="mod_hd">
+                	<h2>影院信息</h2>
+                </div>
+                <div class="mod_bd">
+                	<h3>$!{cinema.name}</h3>
+                    <p>地址：$!{cinema.address}</p>
+                    <p>$!VmUtils.htmlabbr($!cinema.content,400) ...</p>                  
+                </div>
+            </div>
+            <a class="bigBt choosePlay" href="javascript:chooseOpi(0);">立即购票</a>
+        </div>      
+    </div>
+    <div class="ui_footer">    	
+        <a class="goBack" href="${basePath}partner/juxiang/chooseArea.xhtml?movieid=$!{movie.id}&fyrq=$!{DateUtil.format($fyrq,'yyyy-MM-dd')}&width=$!{width}">返回</a>
+        <a class="logOut" href="javascript:window.external.FromExit();">退出</a>
+    </div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	selectTags();
+});
+var cinemaId = "";
+function chooseCinema(cinemaIds){
+	cinemaId = cinemaIds;
+}
+function chooseOpi(){
+	if(cinemaId.trim() == ""){
+		alert("请选择影院!");
+	}else{
+		document.location.href = "${basePath}partner/juxiang/chooseOpi.xhtml?pageNo=0&movieId=$!{movie.id}&fyrq=$!{DateUtil.format($fyrq,'yyyy-MM-dd')}&width=$!{width}&cinemaId=" + cinemaId;
+	}
+}
+</script>
+<script type="text/javascript">
+var pageCode="Showtimelist"
+</script>
+#parse('partner/googleGa.vm')
+</body>
+</html>

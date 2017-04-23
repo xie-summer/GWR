@@ -1,0 +1,34 @@
+#if(!$!VmUtils.isEmptyList($!movieNewsList))
+#set($movieNewsFirst = $!movieNewsList.get(0))
+<div class="mod_kong">
+	<div class="mod_hd">
+		<h2>电影资讯</h2>
+		<a href="${basePath}news/cinema" class="more" target="_blank">更多</a>
+	</div>
+	#if(!$movieNewsListFirst)
+	<div class="mod_bd">
+		<a href="${basePath}news/$!movieNewsFirst.relatedid" title="$!movieNewsFirst.title" target="_blank">
+			<img width="310" height="120" alt="$!movieNewsFirst.title" src="$VmUtils.randomPic('',$!movieNewsFirst.limg)"/>
+		</a>
+		<p class="mt10"><a class="fs14" href="${basePath}news/$!movieNewsFirst.relatedid" title="$!movieNewsFirst.title" target="_blank">$VmUtils.escabbr($!movieNewsFirst.title,42)</a></p>
+		<ul class="ui_list mt5">
+			#foreach($movieNews in $!movieNewsList)
+				#if($foreach.count gt 1)
+					#set($relate=$relatedHelper.getR1("movieNewsList",$movieNews.id))
+					<li><a href="${basePath}news/$!movieNews.relatedid" target="_blank" title="$!movieNews.title">$VmUtils.escabbr($!movieNews.title,48)</a></li>
+				#end
+			#end
+		</ul>
+	</div>
+	#else
+	<div class="mod_bd">
+		<ul class="ui_list mt5">
+			#foreach($movieNews in $!movieNewsList)
+				#set($relate=$relatedHelper.getR1("movieNewsList",$movieNews.id))
+				<li><a href="${basePath}news/$!movieNews.id" target="_blank" title="$!movieNews.title">$VmUtils.escabbr($!movieNews.title,48)</a></li>
+			#end
+		</ul>
+	</div>
+	#end
+</div>
+#end

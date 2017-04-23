@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+    #set($isPictureDetail=true)
+	#set($isCityParam=true)
+	#parse('include/constant/cityParam.vm')
+	#macro(d)#if($drama.dramatype eq 'drama' )演出#elseif($drama.dramatype eq 'show' )演出#elseif($drama.dramatype eq 'musicale' )音乐会#elseif($drama.dramatype eq 'ballet' )芭蕾#elseif($drama.dramatype eq 'opera' )歌剧#elseif($drama.dramatype eq 'other' )演出#end#end
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>$!{drama.dramaname}#d()剧照 - 格瓦拉生活网</title>
+	<meta name="keywords" content="话剧,话剧查询,话剧演出,话剧购票,话剧院,话剧院查询,话剧院购票"/>
+	<meta name="description" content="$!{drama.dramaname}#d()最新官方剧照,$!{drama.dramaname}高清剧照,海报.剧中人物照片及影片截图等。"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,pagesNavigation,slimbox,base_home,scrollerbar&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#if($headInfo)
+		html{background:$!headInfo.css url($VmUtils.randomPic('',$!headInfo.logosmall)) 0 78px repeat-x;}
+		body{background:transparent url($VmUtils.randomPic('',$!headInfo.logobig)) center 78px no-repeat;}
+		#end
+		.title h2{font-weight:bold;}
+		.gewa_outer_text{width:550px;}
+		.switch_ui_inside{overflow:visible;}
+		.switch_plugs{padding-left:0;}
+		.switch_ui_inside .pl{left:-8px;}
+		.switch_uis_c .t{color:#999;}
+		.uiText a.w90_button{color:#fff!important;}
+		.still .brown{font-weight:normal; font-size:12px;}
+		.detail_head .detail_head_desc{width:675px; background:none; padding:9px 0 15px;}
+	</style>
+</head>
+<body>
+#set($relatedtag='drama')
+#set($isdrama=true)#set($isPicture=true)
+#set($tag="drama")
+#set($relatedname=$drama.name)
+#set($relatedid=$drama.id)
+#set($obj=$drama)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout detail_body">
+	<div class="inner">
+		<div class="switch_ui_t"><div class="switch_ui_t"></div></div>
+		<div class="switch_ui_c">
+			<div class="switch_ui_c">
+				#parse('drama/dramaHeader.vm')
+				<div class="detail_body_left">
+					<div class="fs14 title bold still">海报/剧照 （<span>共 $!{pictureCount} 张</span>）
+					<a href="javascript:void(0);" onclick="addDramaPicture();" class="more button redBt minBt" ><span>我来添加图片</span></a></div>
+					<div id="pictureDetail"></div>
+					
+					<div id="memberPictureDetail"></div>
+				</div>
+				<div class="detail_body_right">
+					#parse('drama/dramaRight.vm')
+				</div>
+				<div class="cls"></div>
+			</div>
+		</div>
+		<div class="switch_ui_b"><div class="switch_ui_b"></div></div>
+	</div>
+</div>
+#parse('include/treasure.vm')
+#parse('include/global/new_scorelevel.vm')
+#parse('include/newMarkDialog.vm')
+<script type="text/javascript">
+	window.addEvent('domready', function(){
+	    myTreasure('drama','$drama.id');
+		moviePictureDetail('apic');
+		moviePictureDetail('mpic');
+		gewara.util.sendRequest('${basePath}ajax/member/synchroizaInfo.xhtml',null,function(result){
+			if(result.success){
+				if(result.appList){
+					if(result.appList.contains('sina')){$('isWb').checked=true;isWbOpen = false;}
+				}
+			}
+		});
+	});
+	
+	function moviePictureDetail(el){
+		var url="${basePath}drama/ajax/newDramaPictureList.xhtml";
+		
+		if(el == 'apic'){
+			var values={'relatedid':'$drama.id','type':el};
+			gewaUtil.loadData('pictureDetail', url, values, function(result){});
+		}
+		if(el == 'mpic'){
+			var values={'relatedid':'$drama.id','type':el};
+			gewaUtil.loadData('memberPictureDetail', url, values, function(result){});
+		}
+	}
+	function addDramaPicture(){
+		checkLogin(true,function(){
+			location.href = "${basePath}drama/newAttachDramaPicture.xhtml?tag=$tag&relatedid=$drama.id";
+		});
+	}
+</script>
+#parse('include/bottom.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

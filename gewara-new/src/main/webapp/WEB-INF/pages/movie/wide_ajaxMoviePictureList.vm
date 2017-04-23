@@ -1,0 +1,87 @@
+#if($VmUtils.size($pictureList) gt 0 && $VmUtils.eq($type ,'apic'))
+<ul class="clear" id="aPictureList">
+#foreach($picture in $pictureList)
+	<li #if($foreach.count % 6==0) style="margin-right:0;" #end>
+		<a href="javascript:javascript:void(0)" pictureId="${picture.id}" title="" >
+			<img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw128h96',$picture.picturename)) center center no-repeat;" alt="" width="126" height="92"/>
+		</a>
+	</li>
+#end 
+</ul>
+#set($pageFun="ajaxPage")
+#parse('include/scriptPageUtil.vm')
+<script>
+ajaxPage = function(pageNo, params, url){
+	gewaUtil.loadData('pictureDetail', url, {});
+}
+window.addEvent('domready',function(){
+	$$('#aPictureList a').each(function(item){
+		item.addEvent('click',function(e){
+			e.preventDefault();
+			var options = {
+				type:"apic",
+				pictureType:"apic",
+				videoType:"avideo",
+				tag:"movie",
+				isAjax:true,
+				isPicture:'picture',
+				esc:true,
+				menu:{
+					pictureurl:'${basePath}movie/moviePictureDetail.xhtml',
+					videourl:'${basePath}movie/videoList.xhtml',
+					picturevalues:{mid:'$relatedid','pvtype':'apic','pid':this.get('pictureId')},
+					videovalues:{mid:'$relatedid'},
+					picturecount:$('allPictureCount').value,
+					videocount:$('allVideoCount').value
+				}
+			};
+			screenPicture.createPanel(options);
+		});
+	});
+});
+</script>
+#elseif($VmUtils.size($memberPictureList) gt 0 && $VmUtils.eq($type ,'mpic'))
+<ul class="clear" id="memberPictureList" >
+#foreach($memberPicture in $memberPictureList)
+<li #if($foreach.count % 6==0) style="margin-right:0;" #end>
+	<a href="javascript:void(0)" pictureId="${memberPicture.id}">
+		<img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw128h96',$memberPicture.picturename)) center center no-repeat;" width="126" height="92"/>
+	</a>
+</li>
+#end
+</ul>
+#set($pageFun="ajaxMPage")
+#if($pageUtil && $pageUtil.pageCount gt 1)
+#parse('include/scriptPageUtil.vm')
+#end
+<script>
+ajaxMPage = function(pageNo, params, url){
+	gewaUtil.loadData('memberPictureDetail', url, {});
+}
+window.addEvent('domready',function(){
+	$$('#memberPictureList a').each(function(item){
+		item.addEvent('click',function(e){
+			e.preventDefault();
+			var options = {
+				type:"mpic",
+				pictureType:"mpic",
+				videoType:"avideo",
+				tag:"movie",
+				isAjax:true,
+				isPicture:'picture',
+				esc:true,
+				menu:{
+					pictureurl:'${basePath}movie/moviePictureDetail.xhtml',
+					videourl:'${basePath}movie/videoList.xhtml',
+					picturevalues:{mid:'$relatedid','pvtype':'mpic','pid':this.get('pictureId')},
+					videovalues:{mid:'$relatedid'},
+					picturecount:$('allPictureCount').value,
+					videocount:$('allVideoCount').value
+				}
+			};
+			screenPicture.createPanel(options);
+		});
+	});
+});
+</script>
+#end

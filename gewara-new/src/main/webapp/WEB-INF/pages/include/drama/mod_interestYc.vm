@@ -1,0 +1,49 @@
+#if(!$VmUtils.isEmptyList($interestDramaList))
+<div class="mod_kong interYc">
+	<div class="mod_hd">
+		<h2>你可能感兴趣的演出</h2>
+		<a class="more" target="_blank" href="${basePath}drama/dramaList.xhtml">更多&gt;&gt;</a>
+	</div>
+	<div class="mod_bd">
+		<ul class="clear">
+			#foreach($interestDrama in $interestDramaList)
+			<li #if($foreach.count eq 1)class="mt5" #end>
+				<dl class="ui_media drBt">
+					<dt class="ui_pic">
+						<a href="${basePath}drama/$interestDrama.id" title="#if($!interestDrama.briefname)$interestDrama.briefname #else $interestDrama.dramaname #end"  target="_blank">
+							<img src="$VmUtils.randomPic('cw150h200', $!interestDrama.limg)" alt="#if($!interestDrama.briefname)$interestDrama.briefname #else $interestDrama.dramaname #end"  width="96" height="128"/>
+						</a>
+					</dt>
+					<dd class="ui_text">
+						<a href="${basePath}drama/$interestDrama.id" title="#if($!interestDrama.briefname)$interestDrama.briefname #else $interestDrama.dramaname #end"  target="_blank" class="bold fs14">#if($!interestDrama.briefname)$interestDrama.briefname #else $interestDrama.dramaname #end</a>
+						#if($interestDrama.highlight)
+						<p class="mt5 ryjm_t"><span class="q"></span>$!VmUtils.htmlabbr($!interestDrama.highlight,40)<span class="h"></span></p>
+						#end
+						#if(!$VmUtils.isEmptyList($theatreMap.get($!interestDrama.id)))
+						<p  class="mt5 c666">
+							#foreach($theatre in $theatreMap.get($!interestDrama.id))
+								$!theatre.realBriefname
+							#end
+						</p>
+						#end
+						#if(!$VmUtils.isEmptyList($priceListMap.get($interestDrama.id)))
+						<p class="mt5">
+							#set($s=$priceListMap.get($interestDrama.id).size()+(-1))
+							#set($minprice=$priceListMap.get($interestDrama.id).get(0))
+							#set($maxprice=$priceListMap.get($interestDrama.id).get($s))
+							<span class="mark_price">¥<b>#if($minprice eq $maxprice)$!{minprice}#else$!{minprice} ~ $!{maxprice}#end</b></span>
+						</p>
+						#end
+						<p class="mt10">
+							<a class="button bigBt #if($bookingList.contains($interestDrama.id))redBt #else bigWhiteBt #end" target="_blank" href="${basePath}drama/$!interestDrama.id">
+							<span>#if($openseatList.contains($interestDrama.id))<em class="bt_seat">选座购票</em> #elseif($bookingList.contains($interestDrama.id))立即购票 #else 查看评论 #end</span>
+							</a>
+						</p>
+					</dd>
+				</dl>
+			</li>
+			#end
+		</ul>
+	</div>
+</div>
+#end

@@ -1,0 +1,31 @@
+#if(!$VmUtils.isEmptyList($interestDramaList))
+<div class="mod_kong">
+	<div class="mod_hd">
+		<h2>你可能感兴趣的演出</h2>
+		#if($VmUtils.eq(dramatype, "drama"))<a href="${basePath}drama/dramaList.xhtml?dramatype=more" class="ffst more a_color">更多&gt;&gt;</a>
+		#else<a href="${basePath}drama/dramaList.xhtml?dramatype=drama" class="ffst more a_color">更多&gt;&gt;</a>#end
+	</div>
+	<div class="mod_bd">
+		#foreach($interestDrama in $interestDramaList)
+		<dl class="ui_abeam #if($foreach.count gt 1)mt20#end">
+			<dt class="uipic">
+				<a href="${basePath}drama/$!interestDrama.id" title="$!interestDrama.name" target="_blank"><img width="96" height="128" alt="$!interestDrama.name" src="$VmUtils.randomPic('cw96h128',$!interestDrama.limg)"/></a>
+			</dt>
+			<dd class="uiText text_activity">
+				<a  href="${basePath}drama/$!interestDrama.id" title="$!interestDrama.name" class="fs14 bold" target="_blank">$!VmUtils.escabbr($!interestDrama.name, 18)</a>
+				#if($dramaTypeMap.get($interestDrama.dramatype))<p><em>类型：</em><b class="cf60">$!dramaTypeMap.get($interestDrama.dramatype)</b></p>#end
+				#set($interestTheatre = $!interestTheatreMap.get($interestDrama.id))
+				<p><em>剧院：</em>$!VmUtils.escabbr($!interestTheatre.name, 18)</p>
+				#if(!$VmUtils.isEmptyList($interestPriceListMap.get($interestDrama.id)))
+				#set($is=$interestPriceListMap.get($interestDrama.id).size()+(-1))
+				#set($iminprice=$interestPriceListMap.get($interestDrama.id).get(0))
+				#set($imaxprice=$interestPriceListMap.get($interestDrama.id).get($is))
+				<p><em>票价(元)：</em>#if($iminprice eq $imaxprice)$!{iminprice}#else$!{iminprice} ~ $!{imaxprice}#end</p>
+				#end
+			</dd>
+		</dl>
+		#end
+	</div>
+	<div class="micon mv_line"></div>
+</div>
+#end

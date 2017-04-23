@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影节环节列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		label {float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px;}
+		.button{width:100px;}
+	</style>
+</head>
+<body style="width:750px; margin: auto;" class="yui-skin-sam">
+	<div><input type="button" class="button" onclick="addMovieLink(0)" value="增加一级环节"/></div>
+	<table class="table">
+		<thead valign="top"><tr>
+			<th width="20%">环节名称</th>
+			<th>电影节标识</th>
+			<th>排序</th>
+			<th width="45%">操作</th>
+		</tr></thead>
+		<tbody >
+			#foreach($gc in $gcList)
+				<tr>
+					<td>$!gc.title</td>
+					<td>$!gc.tag</td>
+					<td>$!gc.ordernum</td>
+					<td><input type="button" onclick='updateMovieLink($!gc.id,$!gc.parentid,"$!gc.title",$!gc.ordernum,"$!gc.tag")' value="修改"/> <input type="button" onclick="delMovieLink($gc.id)" value="删除"/><input type="button" value="增加子环节" onclick="addMovieLink($gc.id)" /></td>
+				</tr>
+				#set($childList = $childrenGcMap.get($gc.id))
+				#foreach($childgc in $childList)
+					<tr>
+						<td>$gc.title>>$!childgc.title</td>
+						<td>$!childgc.tag</td>
+						<td>$!childgc.ordernum</td>
+						<td><input type="button" onclick='updateMovieLink($!childgc.id,$!childgc.parentid,"$!childgc.title",$!childgc.ordernum,"$!childgc.tag")' value="修改"/> <input type="button" onclick="delMovieLink($childgc.id)" value="删除"/></td>
+					</tr>
+				#end
+			#end
+		</tbody>
+	</table>
+	<div id="movieLinkDialog" class="yui-panel" style="width:330px;visibility:hidden;">
+	<div class="hd">输入环节信息</div>
+	<div class="bd" style="padding-left: 20px;">
+		<input type="hidden" name="id" id="id"/>
+		<input type="hidden" name="parentid" id="parentid"/>
+		<div>
+			<label for="name">环节名称：</label>
+			<input type="text" name="title" id="title"/>
+		</div>
+		<div>
+			<label for="ordernum">排序：</label>
+			<input type="text" name="ordernum" id="ordernum"/>
+		</div>
+		<div>
+			<label for="tag">电影节标识：</label>
+			<input name="tag" id="tag" type="text"/>
+		</div>
+		<div class="mt5">
+			<input type="button" value="保存" onclick="addOrUpdate()"/> <input type="button" value="取消" onclick="cancelMovieLink()" /> 
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	function addMovieLink(parentid){
+		$('parentid').value = parentid;
+		$('id').value = '';
+		$('title').value = '';
+		$('ordernum').value = 0;
+		$('tag').value = '';
+		GewaraUtil.showDialog('movieLinkDialog');
+	}
+	
+	function cancelMovieLink(){
+		$('parentid').value = 0;
+		$('id').value = '';
+		GewaraUtil.hideDialog('movieLinkDialog');
+	}
+	
+	function updateMovieLink(id,parentid,title,ordernum,tag){
+		$('id').value = id;
+		$('title').value = title;
+		$('ordernum').value = ordernum;
+		$('parentid').value = parentid;
+		$('tag').value = tag;
+		GewaraUtil.showDialog('movieLinkDialog');
+	}
+	
+	function addOrUpdate(){
+		var id = $('id').value;
+		var ordernum = $('ordernum').value;
+		var tag = $('tag').value;
+		var title = $('title').value;
+		var parentid = $('parentid').value;
+		if(!$chk(title)) {
+			gewaUtil.alert('环节名称不能为空！');
+			return;
+		}
+		var url = "${basePath}admin/mobile/saveOrUpdateMovieLink.xhtml";
+		GewaraUtil.sendRequest(url,{'id':id,'title':title,'parentid':parentid,'tag':tag,'ordernum':ordernum},function(result){
+			if(result.success){
+				refreshPage();
+			}
+		});
+	}
+	function delMovieLink(id){
+		gewaUtil.confirm("确认删除吗？",function(){
+			var url = "${basePath}admin/mobile/deleteMovieLink.xhtml";
+			GewaraUtil.sendRequest(url,{'id':id},function(result){
+				if(result.success){
+					refreshPage();
+				}
+			});
+		});
+	}
+	
+</script>
+</body>
+</html>

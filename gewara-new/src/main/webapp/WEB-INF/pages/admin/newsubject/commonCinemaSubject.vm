@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>推荐列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:300px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+#parse('include/constant/city.vm')
+<body style="width:95%; margin:auto" class="yui-skin-sam">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td colspan="4"><span id="_resultSpan">推荐#if($!params.style eq 'movie')电影#else影院#end</span></td>
+		<td align="right" class="td">
+			<a class="p5Event" href="${basePath}noSubjectLink.xhtml?type=$!params.type&tag=$!params.tag&style=$!params.style">增加 </a>|			
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td">
+		<td align="left" class="wd120"><b>标题</b></td>
+		<td align="left" class="wd200"><b>内容</b></td>
+	    <td align="left" class="wd40">#if($!type ne 'pepsiCola')<b>参与数</b>#end</td>
+		<td align="left" class="wd40"><b>排序</b></td>
+		<td align="left" class="wd80"><b>操作</b></td>
+	</tr>
+	#foreach($data in $cinemaList)
+	<tr class="td">
+		<td align="left" class="wd200">
+		<span style="color: red;">$data.title</span>
+		</td>
+		<td align="left" class="wd60">
+			$!data.content <br/>
+			$!data.content2
+		</td>
+		<td align="left" class="wd60">
+		#if($!type ne 'pepsiCola')
+			<input type="text" value="$!data.support" name="support" style="width: 50px" onchange="changeOrdernum('$!data.get('_id')', this, 'support')"/>
+		#end
+		</td>
+		
+		<td align="left" class="wd60">
+			<input type="text" value="$!data.ordernum" name="ordernum" style="width: 50px" onchange="changeOrdernum('$!data.get('_id')', this)"/>
+		</td>
+		<td align="left" class="wd120">
+			#if($!params.style ne 'movie' && ($!type ne 'pepsiCola') && ($!type ne 'invitation'))
+			<a href="${basePath}admin/newsubject/commonSubjectList_singles.xhtml?type=session_cinema&parentid=$!data.get('_id')" >[设置]</a>|#end
+			<a class="p5Event" href="${basePath}noSubjectLink.xhtml?id=$!data.get('_id')&type=$!params.type&tag=$!params.tag&style=$!params.style">[修改]</a>|
+			<a href="javascript:void(0)" onclick="javascript:doDelete('$!data.get('_id')', this)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+<div id="pointText" style="visibility:hidden; z-index:601;"></div>
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		$$('.p5Event').addEvent('click',function(e){
+			e.preventDefault();
+			var url = "${basePath}admin/newsubject/addCinema.xhtml";
+			var values = {};
+			var ul = this.get('href').split('?');
+			if($defined(ul[1])){
+				values = ul[1].parseQueryString();
+			}
+			gewaUtil.loadData('pointText',url, values, function(result){
+				if(result.success){
+					GewaraUtil.showDialog('pointText');
+				}else{
+					gewaUtil.alert(result.json.msg);
+				}
+			});
+		});
+	});
+	doDelete = function (bsid, obj){
+		if(!window.confirm('确认删除吗? 该操作将删除所有记录，请谨慎操作！')) return false;
+		if(!window.confirm('请再次确认删除，请谨慎操作！')) return false;
+		var url = '${basePath}admin/newsubject/delCinema.xhtml';
+		var values = {'id': bsid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.dispose($(obj).getParent('tr'));				
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function changeOrdernum(id, obj, type){
+		if(type == 'support'){
+			if(!window.confirm('确认修改吗? 请谨慎操作！')) return false;
+		}
+		var url = '${basePath}admin/newsubject/changeOrdernumCinema.xhtml';
+		var values = {'id':id, 'num': $(obj).get('value'), 'type':type};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$(obj).setStyle('background-color','red');
+				(function(){
+					$(obj).setStyle('background-color','');
+				}.bind(obj)).delay(800);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

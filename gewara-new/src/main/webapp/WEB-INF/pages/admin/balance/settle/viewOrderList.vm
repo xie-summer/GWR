@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>订单明细</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+</head>
+<body style="width:95%; margin:auto">
+<div style="clear:both;"></div>
+<form action="${basePath}admin/balance/settle/viewOrderList.xhtml" method="post" target="reportResult">
+	<table  border="1" style="width:98%;position:relative;" cellspacing="0" class="table">
+		<tr>
+		<td height="30">
+			影院名称：$cinema.name<br /><br />
+			订单日期：$settle.timefrom~$settle.timeto&nbsp;&nbsp;&nbsp;&nbsp;<br />
+			退款时间：$settle.lasttime~$settle.curtime<br /><br />
+			展示方式：<select name="split">
+				<option value="byOrder">普通模式[按订单]</option>
+				<option value="bySeat">鼎新模式[按座位]</option>
+			</select>
+			时间：<select name="timetype">
+				<option value="addtime">按下单时间</option>
+				<option value="playtime">按场次时间</option>
+			</select>
+			<input type="hidden" name="isXls" id="isXls"/>
+			<input type="hidden" name="settleId" value="${settle.id}"/>
+			<input type="submit" value="查询" />
+			<a style="position:absolute; right:20px; bottom:10px;" href="javascript:report.downloadxls()">导出Xls</a>
+		</td>
+		</tr>
+	</table>
+</form>
+<iframe name="reportResult" id="reportResult" src="${basePath}blank.html" frameborder="0" width="100%" height="100%"></iframe>
+<script type="text/javascript">
+var apps = {};
+apps.scroll = function(){
+	$("reportResult").setStyle('height',$(document.body).getSize().y - 72);
+};
+window.addEvents({
+	'domready':function(){
+		apps.scroll();
+	},
+	'resize':function(){apps.scroll();}
+});
+</script>
+<script>
+var report=report||{};
+report.downloadxls=function(){
+	if(document.forms[0]){
+		$("isXls").value="downloadxls";
+		document.forms[0].submit();
+		$("isXls").value="";
+	}else{
+		var a=document.location.href;
+		a=a+"&isXls=download";
+		document.location.href=a;
+	}
+};
+
+</script>
+</body>
+</html>
+

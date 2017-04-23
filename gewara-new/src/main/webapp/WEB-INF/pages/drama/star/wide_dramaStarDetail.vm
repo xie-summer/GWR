@@ -1,0 +1,94 @@
+<!Doctype html>
+<html>
+<head>
+	<!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>演员【$!{dramaStar.name}】_演出 - 格瓦拉生活网</title>
+	<meta name="description" content="演员【$!{dramaStar.name}】，$!{VmUtils.getHtmlText($!dramaStar.content, 140)}"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,slimbox,index_even,raphael,picture&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ui_layout{background:none;}
+	</style>
+</head>
+<body>
+#set($dramaHeadFlag='isDramaIndex')#set($relatedtag='drama')
+#set($isIndexBigAd = true)
+#set($relatedid=$dramaStar.id)
+#set($markrelatedid=$dramaStar.id)
+#set($marktag='dramastar')
+#parse('include/wide_header.vm')
+<div class="ui_layout theDetail_body">
+	<div class="starDetail_head clear">
+		#parse('include/drama/mod_dramaStarDetail_head.vm')
+	</div>
+	<div class="starDetail_content clear">
+		<div class="ui_left">
+		#parse('include/drama/mod_dramaStarData.vm')
+		</div>
+		#*ui_left over*#
+		<div class="ui_right">
+			#if(!$VmUtils.isEmptyList($troupeList))
+			<div class="mod_kong">
+				<div class="mod_hd cgInfo">
+					<h2>喜欢此明星的还关注</h2>
+					<a class="more" target="_blank" href="${basePath}drama/star?type=star">更多&gt;&gt;</a>
+				</div>
+				<div class="mod_bd">
+					<div class="inner">
+						<ul class="ul_26">
+							#foreach($troupe in $troupeList)
+							<li>
+								<dl class="ui_media">
+									<dt class="ui_pic">
+										<a href="${basePath}drama/star/$!troupe.id" title="$!troupe.name" target="_blank">
+											<img src="$VmUtils.randomPic('sw96h128',$!troupe.limg)" alt="$!troupe.name" width="96" height="128"/>
+										</a>
+									</dt>
+									<dd class="ui_text">
+										<a href="${basePath}drama/star/$!troupe.id" title="$!troupe.name" target="_blank" class="bold fs14">$!troupe.name</a>
+										#if($!dramaStar.graduated)<p class="mt10"><em>毕业院校：</em>$!dramaStar.graduated</p>#end
+										#if($!dramaStar.job)<p><em>职&nbsp;&nbsp;业：</em>$!dramaStar.job</p>#end
+										#if(!$VmUtils.isEmptyList($troupeMap.get($!troupe.id)))
+										<p>
+											<em>近期演出：</em>
+											#foreach($drama in $troupeMap.get($troupe.id))
+											<span class="ml5">
+												<a href="${basePath}drama/$drama.id" target="_blank" style="word-warp:break-word;">$drama.name</a>
+											</span>
+											#end
+										</p>
+										#end
+									</dd>
+								</dl>
+							</li>
+							#end
+						</ul>
+					</div>
+				</div>
+			</div>
+			#end
+			#parse('include/drama/mod_ychd.vm')
+			#parse('include/drama/mod_ryjm.vm')
+		</div>
+		#*ui_right over*#
+	</div>
+</div>
+
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	myTreasure('dramastar','$dramaStar.id');
+});
+</script>
+#parse('include/newMarkDialog.vm')
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=560708" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+var bds_config = {'bdText':'我在 @格瓦拉生活网 看到了一篇关于#$!{dramaStar.name}#的介绍，他参与的 #foreach($curDrama in $curDramaList)《$!{curDrama.name}》 #end 的作品很值得推崇，分享给你们也来看看${basePath}drama/star/$!{dramaStar.id} <img src="$!VmUtils.randomPic("",$!dramaStar.limg)" /> @格瓦拉生活网！','snsKey':{'tsina':'2536251945','tqq':'801037658'}};
+	document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + new Date().getHours();
+</script>
+</body>
+<!-- SUCCESS_BOTTOM -->
+</html>

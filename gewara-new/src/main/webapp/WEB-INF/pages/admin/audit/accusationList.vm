@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>帖子审核</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}scripts/page.js?v=${VmUtils.jsVersion}"></script>
+	<style type="text/css">
+		#content{width:960px;}
+	</style>
+</head>
+<body>   
+#set($tmp='accusation')
+<div id="content">
+<div class="bc1"></div>
+<div id="content_left" style="width:98%;margin:auto;">
+	<div class="panelTop"><em></em></div>
+	<div class="panelMid">
+	#parse('admin/audit/common.vm')
+	<div><font color='red'>***重要说明***[举报属实，举报的相关帖子或者回复等，将不会在前台显示]</font></div>
+	#parse('include/pageUtil.vm')
+	<table id="checktable" style="width:100%;" class="blogtable">
+		<thead>
+			<tr>
+				<th width="80">举报人 Email</th>
+				<th width="80">被举报人ID</th>
+				<th width="120">主题内容</th>
+				<th width="20">前台页面</th>
+				<th width="120">举报说明</th>
+				<th width="80">提交时间</th>
+				<th width="60">审核操作</th>
+			</tr>
+		</thead>
+			#foreach($acc in $accList)
+			<tr>
+			<td width="80"><a href="${absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!acc.memberid" target="_blank">$!cacheMemberMap.get($!acc.memberid).nickname</a> <a href="mailto:$acc.email">$!acc.email</a></td>
+			<td width="80"><a href="${absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!acc.relatedid2" target="_blank">$!cacheMemberMap.get($!acc.relatedid2).id</a> <a href="mailto:$!cacheMemberMap.get($!acc.relatedid2).email">$!cacheMemberMap.get($!acc.relatedid2).email</a></td>
+			<td width="120" title="$!acc.message">$!acc.message</td>
+			<td width="20"><a href="$acc.referer" target="_blank">前台地址</td>
+			<td width="120" title="$acc.body">$VmUtils.htmlabbr($!acc.body,70)</td>
+			<td width="80">$DateUtil.format($!acc.addtime,'yyyy-MM-dd')</td>
+			#if($VmUtils.eq($acc.status,'processed_y'))
+				<td align="center">屏蔽内容</td>
+			#elseif($VmUtils.eq($acc.status,'processed_n'))
+			<td align="center" width="60">暂不处理</td>
+			#elseif($VmUtils.eq($acc.status,'new'))
+				<td align="center"><input type="button" style="width: 80px" onclick="pass($acc.id, 'y')" value="屏蔽内容"/>
+				<input type="button" style="width: 80px" onclick="pass($acc.id, 'n')" value="暂不处理"/></td>
+			#end
+		</tr>
+		#end
+	</table>
+	<div id="height0"></div>
+	</div><!-- end panelMid-->
+	<div class="panelBot"><em></em></div>
+</div><!-- end content_left -->
+<div id="height0"></div>
+</div><!--end content-->
+<div id="panel_bottom"></div>
+	<script type="text/javascript">
+function pass(id, p){
+	if(p=="y"){
+		if(confirm("确认要屏蔽前台的内容吗？")==false) return;
+	}else {
+		if(confirm("确认？")==false) return;
+	}
+	var url = "${basePath}admin/audit/ajax/clerkAccusation.xhtml";
+	GewaraUtil.sendRequest(url, {'accid':id, "p":p}, function(result){
+		if(result.success){
+			refreshPage();
+		}else alert("屏蔽失败");
+	});
+}
+function remove(id){
+	var url = "${basePath}admin/audit/ajax/removeAccusation.xhtml";
+	GewaraUtil.sendRequest(url, {'accid':id}, function(result){
+		if(result.success){
+			refreshPage();
+		}else alert("屏蔽失败");
+	});
+}
+</script>
+<div id="height0"></div>
+</body>
+</html>

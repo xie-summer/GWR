@@ -1,0 +1,56 @@
+<!--纠错 -->
+<div id="mistakeWindow"  style="display:none">
+	<form name="corrForm" id="corrForm" action="javascript:saveCorr()">
+		<input type="hidden" name="relatedid" id="relatedid" />
+		<input type="hidden" name="mistag" id="mistag" />
+		<div><strong class="brown">使用格瓦拉账号纠错，可获取<font class="brown">20</font>积分</strong></div>
+		<ul class="ul-60 clear mt10">
+			<li>
+				<div class="ul-60Inner">内&nbsp;&nbsp;容：</div>
+				<textarea rows="6" name="corrcontent" id="corrcontent" cols="45" class="text" style="width:408px;"></textarea>
+			</li>
+			<li class="mt10">
+				<div class="ul-60Inner mt5">验证码：</div>
+				#set($captchaId1=$VmUtils.randomCaptchaId)
+				<input type="hidden" name="captchaId" id="corrCaptcha" />
+				<input type="text" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="corrCaptchaInput" size="18" style="width:80px;" onfocus="GewaraUtil.refreshCaptcha('corrCaptcha');"/><font class="brown ml5">*</font>
+				<img src="${staticPath}css/images/blank.gif" id="corrCaptchaImg" style="cursor:pointer;vertical-align:middle;width:58px;height:28px;border:1px solid #eee;" onclick="GewaraUtil.refreshCaptcha('corrCaptcha');" title="看不清楚，请点击换一张图片"/>
+			</li>
+		</ul>
+	</form>
+</div>
+	<script type="text/javascript">
+	function validCorr(){
+		if($('corrcontent').value.length<5) {
+			gewaUtil.alert("纠错内容不够详细！");
+			return false;
+		}
+		return true;
+	}
+	function saveCorr(){
+		if(validCorr()){
+			var url = '${basePath}common/saveCorr.xhtml'
+			GewaraUtil.mask('mistakeWindow');
+			var values = GewaraUtil.getValues("mistakeWindow");
+			GewaraUtil.sendRequest(url, values, function(result){
+				GewaraUtil.unmask();
+				if(result.success){
+					gewa.util.container['mistakeWindow'].dispose('mistakeWindow');
+					gewaUtil.alert('感谢你的纠错,我们会尽快审核！');
+				}else{
+					gewaUtil.alert(result.msg);
+					GewaraUtil.refreshCaptcha('corrCaptcha');
+				}
+			});
+		}
+	}
+	function showCorrDialog(tag,relatedid){
+		checkLogin(true,function(){
+			$('mistag').value=tag;
+			$('relatedid').value=relatedid;
+			gewa.util.issure('','mistakeWindow','欢迎使用网站纠错',560,'mistakeWindow',function(){
+				saveCorr();
+			})
+		});
+	}
+</script>

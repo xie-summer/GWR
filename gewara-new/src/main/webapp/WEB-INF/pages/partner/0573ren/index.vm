@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>格瓦拉电影、电影列表-嘉兴人论坛</title>
+<meta name="keywords" content="电影排片表查询,电影放映时间查询" />
+<meta name="description" content="近期各大影院上映电影的排片表、放映时间查询。" />
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=new_partner&v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=mootools,gewara-util,Autocompleter&v=$VmUtils.jsVersion"></script>
+<style type="text/css">
+	.gewaT{
+			height:45px;
+			line-height:22px;
+			padding:10px;
+			background:#fff url(${staticPath}css/buss/logo.gif?v=0001) 0 0 no-repeat;
+			font-size:12px;
+			color:#045FA5;
+			position: relative;
+			width:960px;
+			margin:10px auto;
+		}
+		.gewaT .gocity{width:40px;height:30px;line-height:30px;padding:0 26px 0 4px;display:inline-block;position: absolute;left:221px;top:11px;cursor: pointer;text-align:center;overflow:hidden;color:#333;font-weight:bold;font-size:14px;font-family: '宋体'}
+		.gewaT .p{height:22px;width:86%;position: absolute;left:90px;bottom:3px;overflow:hidden;}
+		.gewaT .more{top:10px; position:absolute; right:0; text-align:right;}
+</style>
+</head>
+<body>
+<div class="ui_layout" style="width:980px;overflow:hidden;overflow-y:auto;position: relative;margin:0 auto;">
+	<div class="gewaT">
+		<div class="more">
+			<p><img src="${staticPath}css/buss/serverPhone.gif?v=0001"/></p>
+			<p>在线选座购票服务由格瓦拉生活网提供</p>
+		</div>
+		<div class="p">
+			<span class="left">
+				#if(!$VmUtils.isNull($gewaCommend))
+				<a href="$!gewaCommend.link" class="dot" target="_blank">$!gewaCommend.title </a>
+				#end
+			</span>
+		</div>
+	</div>
+	<dl class="movie_T">
+		<dd class="ui_area left"><span>嘉兴人电影频道在线订票</span></dd>
+		<dd class="ui_seek right">
+		</dd>
+	</dl>
+	<div class="i_title"><h2>正在上映</h2><span>(共$pageUtil.rowsCount部)</span></div>
+	#foreach($movie in $movieList)
+	#set($vgmark=$VmUtils.getSingleMarkStar($movie, "general"))
+	#set($gmark1=$vgmark/10) #set($gmark2=$vgmark % 10)
+	#set($movieDA = $!movie.director + "/" + $!movie.actors)
+	#if($foreach.index%2 eq 0)
+	<div class="clear">
+	#end
+		<div class="wtp5 movie_list">
+			<dl class="ui_abeam">
+				<dt class="uipic">
+					<a href="${basePath}partner/${partner.partnerpath}/movieDetail.xhtml?movieid=$movie.id&encQryStr=$!encQryStr" class="bp" title="$movie.name">
+						<img width="120" height="160" src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw120h160',$movie.limg)) center 0px no-repeat;" alt=""/>
+					</a>
+				</dt>
+				<dd class="uiText">
+					<div class="title">
+						<h2><a href="${basePath}partner/${partner.partnerpath}/movieDetail.xhtml?movieid=$movie.id&encQryStr=$!encQryStr&$!paramsStr" tilte="$movie.name" >$movie.name</a></h2>
+					</div>
+					<span class="ui_grades ui_grade$gmark1" style="margin:5px 0;" title="$gmark1.$gmark2分">$gmark1.$gmark2</span>
+					<p><em>上映日期：</em>$!DateUtil.format(${movie.releasedate},"yyyy年M月d日")</p>
+					<p><em>语言/片长：</em>$!{movie.language}#if($movie.videolen)/$!{movie.videolen}分钟#end</p>
+					<p><em>导演/主演：</em>$!VmUtils.htmlabbr($!{movieDA},34)...</p>
+					<p><em>精彩看点：</em>#if($!movie.highlight)$!VmUtils.htmlabbr($!{movie.highlight},33) ...#end</p>
+					<a class="opiBt mt5" href="${basePath}partner/${partner.partnerpath}/movieDetail.xhtml?movieid=$movie.id&encQryStr=$!encQryStr&$!paramsStr">选座购票</a>
+				</dd>
+			</dl>
+		</div>
+	#if($foreach.count % 2 eq 0 || $movieList.size() eq $foreach.count)
+	</div>
+	#end
+	#end
+	<div class="page">
+		#parse('include/pageUtil.vm')
+	</div>
+</div>
+<script src="${staticPath}scripts/loaderProxy.js?v=$VmUtils.jsVersion" data-frameid="frame_content"  data-timer="600" data-proxy="http://www.0573ren.com/gewala.html"></script>
+<script type="text/javascript">
+var pageCode="movielist"
+</script>
+#parse('partner/googleGa.vm')
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次扩展信息设定</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/admin.css?v=$VmUtils.jsVersion"/>
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#set($maxwidth=33+30*$room.ranknum)
+		#content{ width: ${maxwidth}px; background:#fff;}
+		.stype dd, .stype dt{float: left; width: 90px; height: 30px; line-height: 30px; vertical-align: middle;}
+		.stype input, .stype span{float:left; line-height: normal; margin-top: 10px;}
+		.stype div{float:left;}
+		.stype input{width:50px;}
+		.seatpic dt, .head dt{width:30px;}
+		.warp{width:960px; margin:0 auto;}
+		.contentInfoList{border:1px solid #bbb;}
+	</style>
+</head>
+<body>
+<div class="logoPanel warp"><a href="${basePath}">Gewara</a></div>
+<div class="manageItemList warp">
+	<div class="contentInfoList">	
+		#if($opiExt)
+		<fieldset style="margin-top: 30px;height: 350px;">
+			<legend class="yellow">场次扩展信息</legend>
+			<div style="width:370px;margin:10px;background:#FFF;">
+				<div class="bd" style="text-align:center;" id="extForm">
+					<input type="hidden" name="mpid" value="$!opiExt.mpid" />
+					<div style="padding:5px 40px;text-align:left">
+						<label for="actualprice" class="left" title="差额=系统录入结算价 - 场次实际结算价，“0”表示不设置">结算差额：</label>
+						<input type="text" name="actualprice" id="actualprice" class="left" value="$!opiExt.actualprice" style="width: 100px"/>
+						<span class="yellow req left">*</span>
+						<div class="height0"></div>
+					</div>
+					<div style="padding:5px 40px;text-align:left">
+						<label for="totalcost" class="left">虚拟场包场总成本：</label>
+						<input type="text" name="totalcost" id="totalcost" class="left" value="$!opiExt.totalcost" style="width: 100px"/>
+						<span class="yellow req left">*</span>
+						<div class="height0"></div>
+					</div>
+					<div style="padding:5px 40px;text-align:left;">
+						<label for="seatnum" class="left">虚拟场包场座位数：</label>
+						<input type="text" name="seatnum" id="seatnum" class="left" value="$!opiExt.seatnum"  style="width: 100px"/>
+						<span class="yellow req left">*</span>
+						<div class="height0"></div>
+					</div>
+					<div style="padding:5px 40px;text-align:left;">
+						<label class="left">是否结算：</label>
+						<span class="ml10"><input type="radio" name="settle" value="$!opiExt.settle" #if($VmUtils.eq($!opiExt.settle,'Y'))checked="checked" #end/>是</span>
+						<span class="ml10 mr10"><input type="radio" name="settle" value="$!opiExt.settle" #if($VmUtils.eq($!opiExt.settle,'N'))checked="checked" #end/>否</span>
+						<span class="yellow req">*</span>
+						<div class="height0"></div>
+					</div>
+					<div style="padding:5px 40px;text-align:left;">
+						<label class="left">是否预付费：</label>
+						<span class="ml10"><input type="radio" name="imprest" value="$!opiExt.imprest" #if($VmUtils.eq($!opiExt.imprest,'Y'))checked="checked" #end/>是</span>
+						<span class="ml10 mr10"><input type="radio" name="imprest" value="$!opiExt.imprest" #if($VmUtils.eq($!opiExt.imprest,'N'))checked="checked" #end/>否</span>
+						<span class="yellow req">*</span>
+						<div class="height0"></div>
+					</div>
+					<div style="padding:5px 40px;text-align:left;">
+						<label for="remark" class="left">备注：</label>
+						<textarea rows="3" cols="20" name="remark" class="left" >$!opiExt.remark</textarea>
+						<span class="req left"></span>
+						<div class="height0"></div>
+					</div>
+					<div style="text-align:center;height:20px;line-height: 20px;">
+						<span class="yellow">* 为必填项，0表示不设置</span>
+					</div>
+					<div>
+						<label>&nbsp;</label>
+						<input type="button" onclick="saveExt(this)" class="cbt1"  value="保存"/>
+					</div>
+				</div>
+			</div>
+		</fieldset>
+		#end
+		<fieldset style="margin-top: 30px;height: 150px;">
+			<legend class="yellow">积分设定</legend>
+			<div style="width:350px;margin:10px;background:#FFF;">
+				<div style="text-align:center;height:20px;line-height: 20px;">
+					<strong>修改积分数据</strong>
+				</div>
+				<div class="bd" style="text-align:center;">
+						<div style="padding:5px 40px;text-align:left">
+							<label for="minpoint" class="left">最少使用：</label>
+							<input type="text" name="minpoint" id="minpoint" class="left" value="$!opi.minpoint" style="width: 100px"/>
+							<span class="req left">*</span>
+							<div class="height0"></div>
+						</div>
+						<div style="padding:5px 40px;text-align:left">
+							<label for="maxpoint" class="left">最多使用：</label>
+							<input type="text" name="maxpoint" id="maxpoint" class="left" value="$!opi.maxpoint" style="width: 100px"/>
+							<span class="req left">*</span>
+							<div class="height0"></div>
+						</div>
+						<div>
+							<label>&nbsp;</label>
+							<input type="button" onclick="savePointParams()" class="cbt1"  value="保存"/>
+						</div>
+				</div>
+			</div>
+		</fieldset>
+		<fieldset style="margin-top: 30px;height: 45px;">
+			<legend class="yellow">给积分</legend>
+			<div>
+				给积分：<input type="text" name="givepoint" id="givepoint" value="$opi.givepoint" style="width: 100px;"/>
+				<input type="button" value="保存" onclick="givePoint()"/>
+				重要说明：<span class="yellow">负值表示扣用户积分，正数表示给用户积分</span>
+			</div>
+		</fieldset>
+		<fieldset style="margin-top: 30px;height: 45px;">
+			<legend class="yellow">特价活动</legend>
+			<div>特价活动：<input type="text" name="spflag" id="spflag" value="$!opi.spflag" style="width: 100px;"/>
+				<input type="button" value="保存" onclick="setSpflag()"/>
+			</div>
+		</fieldset>
+		<div id="height0"></div>
+	</div>
+</div>
+<script type="text/javascript">
+	function givePoint(){
+		var el = $('givepoint');
+		el.setStyle("background","gray");
+		var url = "${basePath}admin/ticket/mpi/setOpiGivepoint.xhtml";
+		GewaraUtil.sendRequest(url, {"opid":$opi.id, "point":el.value}, function(result){
+			if(result.success){el.setStyle("background","");}
+			else alert("设置价格失败：" + result.msg);
+		});
+	}
+	function setSpflag(){
+		var el = $('spflag');
+		el.setStyle("background","gray");
+		var url = "${basePath}admin/ticket/mpi/setOpiSpflag.xhtml";
+		GewaraUtil.sendRequest(url, {"opid":$opi.id, "spflag":el.value}, function(result){
+			if(result.success){el.setStyle("background","");}
+			else alert("设置特价活动失败：" + result.msg);
+		});
+	}
+	function savePointParams(){
+		var values = {"opid":$opi.id, "minpoint":$('minpoint').value, "maxpoint":$('maxpoint').value};
+		var url = "${basePath}admin/ticket/mpi/savePointParams.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) { 
+				alert('保存成功！');
+			}else alert(result.msg);
+		});
+	}
+	function saveExt(bt){
+		var url = "${basePath}admin/ticket/saveOpenPlayItemExt.xhtml";
+		var values = GewaraUtil.getValues('extForm');
+		GewaraUtil.mask(bt);
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(!result.success){
+				alert(result.msg);
+			}else{
+				alert('保存成功！');
+			}
+		});
+	}
+</script>
+</body>
+</html>

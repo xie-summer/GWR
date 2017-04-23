@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>优惠信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+</head>
+<body class="yui-skin-sam" style="margin:auto;width:740px">
+#set($status='cinemaDisc')
+#parse('admin/cinema/cinemaFormHead.vm')
+<div id="discountDialog" class="yui-panel" style="width:700px; margin: auto; margin-top:15px;">
+	<div class="hd" id="title">请修改优惠信息[${cinema.name}]</div>
+	<div class="bd">
+	<form name="discountForm" id="discountForm" action="javascript:save()">
+		<input type="hidden" id="type" name="type" value="admin"/>
+		<div>
+			<textarea id="content" name="content">$!cinema.discount</textarea>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="submit" class="button" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+		<div id="msg" style="color:red;"></div>
+		<div style="color:blue;">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+	var ckeditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("content");
+	});
+	function save(){
+		gewa.util.mask({'title':"正在保存数据..."});
+		$("content").value=ckeditor.getData();
+		var url = "${basePath}admin/cinema/ajax/saveCinemaDiscount.xhtml";
+		var values = {'cinemaid':'$cinema.id', "discount":$('content').value, "type":$('type').value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('成功保存！');
+				$("msg").set("html", '');
+				gewa.util.clearMask();
+				window.close();
+			}else{
+				alert("保存失败！");
+				$("msg").set("html", result.msg);
+				gewa.util.clearMask();
+			}
+		});
+	}
+	function cancle(){
+		window.close();   	
+	}
+</script>
+</body>
+</html>

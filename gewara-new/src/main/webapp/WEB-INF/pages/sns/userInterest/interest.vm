@@ -1,0 +1,148 @@
+<div class="inner">
+	#if(!$VmUtils.isEmptyList($treasureList))
+	#foreach($treasure in $treasureList)
+	#set($treasureObj=$treasureMap.get($!treasure.id))
+	#if($!treasure.tag eq 'activity')
+	#set($currentTime=$DateUtil.format($DateUtil.currentTime(),"yyyy-MM-dd"))
+	#set($enddate=$!DateUtil.format(${treasureObj.enddate},"yyyy-MM-dd"))
+	<dl class="ui_abeam" id="interest$!{treasure.id}">
+		<dt class="uipic">
+			<a title="$treasureObj.name" href="${basePath}activity/$!{treasureObj.id}" target="_blank">
+				<img width="96" height="128" src="$VmUtils.randomPic('cw96h128',$!treasureObj.logo)" alt="" />
+				<span #if($!treasureObj.sign eq 'starmeet') class="acType fanMeeting" #elseif($!treasureObj.sign eq 'price5') class="acType robTicket" #elseif($!treasureObj.sign eq 'pubsale') class="acType auction" #elseif($!treasureObj.sign eq 'reserve') class="acType ispk" #end></span>
+				#*fanMeeting 见面会  prize 有奖  robTicket 抢票  auction 竞拍  presale 预售  ispk 约战*#
+			</a>
+		</dt>
+		<dd class="uiText">
+			<h2><em class="ffst">[#if($treasureObj.tag eq 'sport')运动#else活动#end]</em><a href="${basePath}activity/$treasureObj.id" title="$treasureObj.name" target="_blank">$treasureObj.name</a></h2><br/>
+			<span>日期：$!DateUtil.format($!treasureObj.startdate, 'MM月dd日') $!DateUtil.getCnWeek($!treasureObj.startdate) #if($treasureObj.starttime)$!treasureObj.starttime#end&nbsp;--&nbsp;#if(!$VmUtils.eq($treasureObj.enddate, $treasureObj.startdate))$!DateUtil.format($!treasureObj.enddate, 'MM月dd日') $!DateUtil.getCnWeek($!treasureObj.enddate)#end #if($treasureObj.endtime)$!treasureObj.endtime#end</span><br/>
+			#if($treasureObj.address)<span>地点：$!treasureObj.address</span><br/>#end
+			<span>价格：#if($treasureObj.priceinfo)$!{treasureObj.priceinfo}#else免费#end</span><br/>
+			<span>发起人：<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!treasureObj.memberid" title="" target="_blank">$!{treasureObj.membername}</a></span><br/>
+			<p>
+				#if($VmUtils.gt($currentTime,$enddate))<span class="right iEnd">已结束</span>#elseif($VmUtils.eq($currentTime,$enddate))#if($VmUtils.gt($DateUtil.format($DateUtil.currentTime(),"HH:mm"),$!{activity.endtime}))<span class="right iEnd">已结束</span>#end#end#*iTime 剩余时间    iEnd 已结束*#
+				<em>$!treasureObj.clickedtimes人关注 </em><em class="iHeart">$!treasureObj.collectedtimes </em><em class="iUsers">$!treasureObj.membercount </em>
+			</p>
+			<span #if($VmUtils.gt($currentTime,$enddate)) class="iDate ieng" #elseif($VmUtils.eq($currentTime,$enddate)) #if($VmUtils.gt($DateUtil.format($DateUtil.currentTime(),"HH:mm"),${activity.endtime})) class="iDate ieng" #else class="iDate" #end #else class="iDate" #end><em>$!DateUtil.getMonth($!treasureObj.startdate)月</em><b>$!DateUtil.getDay($!treasureObj.startdate)</b></span>#*ieng 添加变灰色*#
+		</dd>
+	</dl>
+	#end
+	#if($!treasure.tag eq 'movie')
+	<dl class="ui_abeam" style="background-color:#fff;" id="interest$!{treasure.id}">
+		<dt class="uipic">
+			<a title="$treasureObj.name" href="${basePath}movie/$!{treasureObj.id}" target="_blank">
+				<img width="96" height="128" src="$VmUtils.randomPic('cw96h128',$!treasureObj.logo)" alt="" />
+			</a>
+		</dt>
+		<dd class="uiText">
+			<h2><em class="ffst">[电影]</em><a href="${basePath}movie/$!treasureObj.id" title="$treasureObj.name" target="_blank">$treasureObj.name</a></h2><br/>
+			#if($VmUtils.isNotBlank($!treasureObj.highlight))<span>精彩看点：$!treasureObj.highlight</span><br/>#end
+			#if($VmUtils.isNotBlank($!treasureObj.type))<span>电影类型：$treasureObj.type</span><br/>#end
+			#if($VmUtils.isNotBlank($!treasureObj.director) || $VmUtils.isNotBlank($!treasureObj.actors))<span>导演/主演：$VmUtils.getLight($!{treasureObj.director},$!queryString)#if(($VmUtils.getLight($!{treasureObj.director},$!queryString) ne "")&&($VmUtils.getLight($!{treasureObj.actors},$!queryString) ne ""))/#end$VmUtils.getLight($!{treasureObj.actors},$!queryString)</span><br/>#end
+			#if($VmUtils.isNotBlank($!treasureObj.releasedate))<span>上映日期：$!DateUtil.format(${treasureObj.releasedate},"yyyy-M-d")</span><br/>#end
+			<p>
+				#if($VmUtils.eq($logonMember.id,${member.id}))<a class="right" href="javascript:void(0)" onclick="delInterest('$!treasure.id')">删除</a>#end
+				<em title="$!treasureObj.rclickedtimes人关注">$!treasureObj.rclickedtimes人关注</em>
+			</p>
+		</dd>
+	</dl>
+	#end
+	#if($!treasure.tag eq 'cinema' || $!treasure.tag eq 'ktv' || $!treasure.tag eq 'bar' || $!treasure.tag eq 'gym' || $!treasure.tag eq 'sport' || $!treasure.tag eq 'theatre')
+	<dl class="ui_abeam userStadium" id="interest$!{treasure.id}"> #*userStadium 在“感兴趣的场馆”的时候添加到userInterest后面就可以了*#
+		<dt class="uipic">
+			<a title="$!treasureObj.name" href="${basePath}$!treasure.tag/$!{treasureObj.id}" target="_blank">
+				<img width="120" height="60" src="$VmUtils.randomPic('cw96h128',$!treasureObj.logo)">
+			</a>
+		</dt>
+		<dd class="uiText">
+			<h2><em class="ffst">[场馆]</em><a href="${basePath}$!treasure.tag/$!{treasureObj.id}" title="$!treasureObj.name" target="_blank">$!treasureObj.name</a></h2><br/>
+			<span>场馆特色：
+			#if($!treasure.tag eq 'gym')
+			$!VmUtils.htmlabbr($!treasureObj.content,160)
+			#else
+			$!VmUtils.htmlabbr($!treasureObj.feature,160)
+			#end
+			</span><br/>
+			<span>详细地址：$!treasureObj.address<span class="ffst ml5">[<a href="${basePath}common/baiduMap.xhtml?id=$!treasureObj.id&tag=$!treasure.tag" class="blue" title="" target="_blank">地图</a>]</span></span><br/>
+			<span>联系电话：$!treasureObj.contactphone</span><br/>
+			#if($!treasure.tag eq 'cinema')
+			#set($movieList=$movieListMap.get($!treasure.relatedid))
+			#if(!$VmUtils.isEmptyList($movieList))
+			<span>热映电影：
+			#foreach($movie in $movieList)
+			#if($!foreach.count lt 5)
+			<a href="${basePath}movie/$movie.id" title="$movie.name" target="_blank">$movie.name</a>&nbsp;&nbsp;
+			#end
+			#end
+			</span><a href="${basePath}$!treasure.tag/$!{treasureObj.id}" class="ffst" title="查看更多" target="_blank">更多</a>
+			#end
+			#end
+			<p>
+				#if($VmUtils.eq($logonMember.id,${member.id}))<a class="right" href="javascript:void(0)" onclick="delInterest('$!treasure.id')">删除</a>#end
+				<em title="$!treasureObj.clickedtimes人关注">$!treasureObj.clickedtimes人关注</em>
+			</p>
+		</dd>
+	</dl>
+	#end
+	#if($!treasure.tag eq ('drama'))
+	<dl class="ui_abeam" id="interest$!{treasure.id}">
+		<dt class="uipic">
+			<a title="$!treasureObj.name" href="${basePath}drama/$!{treasureObj.id}" target="_blank">
+				<img width="96" height="128" src="$VmUtils.randomPic('cw96h128',$!treasureObj.logo)" alt="" />
+			</a>
+		</dt>
+		<dd class="uiText">
+			<h2><em class="ffst">[演出]</em><a href="${basePath}drama/$!{treasureObj.id}" title="$!treasureObj.name" target="_blank">$!treasureObj.name</a></h2><br/>
+			#if($!treasureObj.highlight)<span>精彩看点：$!VmUtils.htmlabbr($!treasureObj.highlight,60)</span><br/>#end
+			<span>题材：#if($treasureObj.dramatype eq 'drama')话剧#else其他演出#end #if($treasureObj.type) / $!VmUtils.htmlabbr($VmUtils.replaceSeparator($!treasureObj.type, ',', '、'), 10) #end</span><br/>
+			<span>导演/主演：$VmUtils.getLight($!{treasureObj.director},$!queryString)#if(($VmUtils.getLight($!{treasureObj.director},$!queryString) ne "")&&($VmUtils.getLight($!{treasureObj.actors},$!queryString) ne ""))/#end$VmUtils.getLight($!{treasureObj.actors},$!queryString)</span><br/>
+			<span>演出日期：$!DateUtil.format($!treasureObj.releasedate, 'yyyy.MM.dd') #if(!$VmUtils.isNull($treasureObj.releasedate) && !$VmUtils.isNull($treasureObj.enddate))-#end $!DateUtil.format($!treasureObj.enddate, 'yyyy.MM.dd')</span><br/>
+			<p>
+				#if($VmUtils.eq($logonMember.id,${member.id}))<a class="right" href="javascript:void(0)" onclick="delInterest('$!treasure.id')">删除</a>#end
+				<em title="$!treasureObj.clickedtimes人关注">$!treasureObj.clickedtimes人关注</em>
+			</p>
+		</dd>
+	</dl>
+	#end
+	#if($!treasure.tag eq ('gymcourse') || $!treasure.tag eq ('sportservice'))
+	#set($indexMap=$VmUtils.readJsonToMap($treasureObj.otherinfo))
+	#set($ratio=$indexMap.get('ratio'))
+	#set($ratio2 = 10-$math.abs($ratio))
+	<dl class="ui_abeam" id="interest$!{treasure.id}">
+		<dt class="uipic">
+			<a title="$!treasureObj.name" href="#if($!treasure.tag eq 'sportservice')${basePath}sport/item/$!{treasureObj.id}#elseif($!treasure.tag eq 'gymcourse')${basePath}gym/course/$!{treasureObj.id}#end" target="_blank">
+				<img width="96" height="128" src="$VmUtils.randomPic('cw96h128',$!treasureObj.logo)" alt="" />
+			</a>
+		</dt>
+		<dd class="uiText">
+			<h2><em class="ffst">[项目]</em><a href="#if($!treasure.tag eq 'sportservice')${basePath}sport/item/$!{treasureObj.id}#elseif($!treasure.tag eq 'gymcourse')${basePath}gym/course/$!{treasureObj.id}#end" title="$!treasureObj.name" target="_blank">$!treasureObj.name</a></h2><br/>
+			#if($!treasure.tag eq ('sportservice'))
+			<span>$!VmUtils.escabbr($!treasureObj.seodescription, 110)</span><br/>
+			#if($VmUtils.isNotBlank($indexMap.get('explosive')))<span>爆发力指数：<b>$!indexMap.get('explosive')0</b></span>#end
+			#if($VmUtils.isNotBlank($indexMap.get('calorie')))<span>卡路里消耗指数：<b>$!indexMap.get('calorie')0</b></span>#end
+			#if($VmUtils.isNotBlank($indexMap.get('endurance')))<span>耐力指数：<b>$!indexMap.get('endurance')0</b></span>#end
+			#if($VmUtils.isNotBlank($indexMap.get('ratio')))<span style="margin-right:0">男女喜好比例：<b>$!{ratio}:$!{ratio2}</b></span>#end
+			<br/>
+			#end
+			#if($!treasure.tag eq ('gymcourse'))
+			<span>$!VmUtils.htmlabbr($!treasureObj.content, 110)</span><br/>
+			<span>瘦身指数：<b>$!course.thinindex</b></span>
+			<span>柔韧指数：<b>$!course.flexindex</b></span>
+			<span>性感指数：<b>$!course.sexyindex</b></span>
+			<span>流行指数：<b>$!course.popularindex</b></span>
+			<br/>
+			#end
+			<p>
+				#if($VmUtils.eq($logonMember.id,${member.id}))<a class="right" href="javascript:void(0)" onclick="delInterest('$!treasure.id')">删除</a>#end
+				<em title="$!treasureObj.clickedtimes人关注">$!treasureObj.clickedtimes人关注</em>
+			</p>
+		</dd>
+	</dl>
+	#end
+	#end
+	#set($pageFun="ajaxPage")
+	#parse('include/scriptPageUtil.vm')
+	#else
+	<div class="ui_warning">该分类没有感兴趣项目！</div>
+	#end
+</div>

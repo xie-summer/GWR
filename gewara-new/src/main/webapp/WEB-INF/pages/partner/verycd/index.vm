@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>购票首页</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,play,kaixin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,Autocompleter&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		body{color:#666666;background:#dae7ef;}
+		.gewaT{
+			height:50px;
+			line-height:22px;
+			padding:10px;
+			background:#f8fcfd url($VmUtils.randomPic('','css/buss/wifiLogo.png?v=0001')) 8px 4px no-repeat;
+			font-size:12px;
+			color:#045FA5;
+			position: relative;
+			border:1px solid #cfdade;
+			width:593px;
+			margin:0 auto;
+		}
+		.gewaT .p{height:22px;width:86%;position: absolute;right:16px;bottom:3px;overflow:hidden;}
+		
+		.gewaT .more{top:12px;}
+		.wd-left em{color:#5d84a3}
+		.wifi{width:583px;margin:0 auto;height:36px;line-height:36px;padding-left:30px;color:#577389;font-size:14px;font-weight:bold;background:#DAE7EF url($VmUtils.randomPic('','css/buss/cmwifi_tag.png')) 0 center no-repeat;border-width:0 1px;border-style:solid;border-color:#CFDADE}
+		.seachPanel{height:28px;width:300px;overflow:hidden;}
+		.seach{height:18px;padding:3px;width:200px;border:1px solid #bcc6cf;float:left;}
+		.sbt{float:left;width:76px;height:28px;background:url($VmUtils.randomPic('','css/buss/wifi_sreach.png')) no-repeat;border:0px;margin-left:10px;cursor:pointer;}
+		.autocompleter-choices li.autocompleter-selected, .classW li.autocompleter-selected{background-color:#3366CC}
+		.dot{padding-left:8px;background:url($VmUtils.randomPic('','css/home/dot.gif')) 0 center no-repeat;}
+		.ul-50{position: relative;}
+		html,body{background:#fff;}
+		#if($!{come} eq 'mzone')
+		.gewaT,a:link, a:visited,.wifi{color:#f9a547}
+		.wd-left em{color:gray}
+		
+		.site_menu li a.select, .site_menu li a:hover{background-position:0 -142px;}
+		.site_menu li a.select span, .site_menu li a:hover span{background-position:right -193px;}
+		.site_menu{background-position:0 -115px;}
+		.brown, .choices a,.payOrder li div.select,.site_menu li a span{color:#f9a547}
+		.choices a.select, .choices a:hover{background:#f9a547}
+		.payOrder li div.select{border-bottom-color:#f9a547}
+		.choiceDialog{background:#eee;}
+		.cmwifi_minBt{background-position:0 -22px;}
+		.payOrder li div.select img{background:url($VmUtils.randomPic('','css/buss/05_ioc.png')) no-repeat;}
+		#elseif($!{come} eq 'easyown')
+		.gewaT,a:link, a:visited,.wifi{color:#079694}
+		.wd-left em{color:gray}
+		
+		
+		.site_menu li a.select, .site_menu li a:hover{background-position:0 -290px;}
+		.site_menu li a.select span, .site_menu li a:hover span{background-position:right -341px;}
+		.site_menu{background-position:0 -263px;}
+		.brown, .choices a,.payOrder li div.select,.site_menu li a span{color:#079694}
+		.choices a.select, .choices a:hover{background:#079694}
+		.payOrder li div.select{border-bottom-color:#079694}
+		.choiceDialog{background:#eee;}
+		.cmwifi_minBt{background-position:0 -44px;}
+		.payOrder li div.select img{background:url($VmUtils.randomPic('','css/buss/07_ioc.png')) no-repeat;}
+		#end
+	</style>
+</head>
+<body>
+<div style="height:100%;width:615px;overflow:hidden;position: relative;margin:0 auto;">
+	<div class="gewaT">
+		<div class="more">
+			<div class="seachPanel">
+				<form action="${basePath}partner/verycd/opiList.xhtml" id="gForm">
+					<input type="text" class="seach"  autocomplete="off" id="moviename" name="moviename" value="$!VmUtils.escapeHtml($params.moviename)" title="请输入影片名..."/>
+					<input type="hidden" name="encQryStr" value="$!encQryStr" />
+					<input type="submit" class="sbt" value=""/>
+				</form>
+			</div>
+		</div>
+		<div class="p">
+			<span class="left">
+				#if(!$VmUtils.isNull($gewaCommend))
+				<a href="$!gewaCommend.link" class="dot" target="_blank">$!gewaCommend.title </a>
+				#end
+			</span>
+			<span class="right">在线选座购票服务由格瓦拉生活网提供</span>
+		</div>
+	</div>
+	<div class="wifi">最新上映</div>
+	<div class="clear" style="width: 613px;border:1px solid #cfdade;margin:0 auto;">
+		#parse('partner/verycd/movieList.vm')
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$('.hover').addEvents({'mouseenter':function(){
+			this.addClass('bgHover');
+		},
+		'mouseleave':function(){
+			this.removeClass('bgHover');
+		}
+	});
+	gewa.util.textOver('.seach');
+	new Autocompleter.Request.JSON("moviename", '${basePath}partner/verycd/search.xhtml', {
+		'delay': 100,
+		'maxChoices': 10,
+		'minLength':1,
+		'unselect':'',
+		'select':'',
+		'postVar':'moviename',
+		'form':$("gForm")
+	});
+})
+function clearInit(){
+	$('skey').focus();
+	if($('skey').value === ''){
+		return false;
+	}else{return true;}
+}
+</script>
+<script src="${staticPath}scripts/loaderProxy.js?v=$VmUtils.jsVersion" data-frameid="gewara_tickets"  data-timer="600" data-hParams="iframe_height" data-idParams="iframe_id" data-proxy="http://www.verycd.com/iframe_proxy.html"></script>
+<script type="text/javascript">
+var pageCode="movielist"
+</script>
+#parse('partner/googleGa.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

@@ -1,0 +1,36 @@
+#set($customerTag={'advise':'网站建议','evaluate':'服务反馈','mobile':'手机客户端','other':'其它问题'})
+#set($pageFun='_ajaxAutoPage')
+
+#if(!$VmUtils.isEmptyList($customerList))
+<table class="titleTable mt20" width="98%">
+<thead>
+	<tr>
+		<th width="50%">反馈内容</th>
+		<th width="20%">反馈时间</th>
+		<th width="10%">来源</th>
+		<th>状态</th>
+	</tr>
+</thead>
+<tbody>
+#foreach($customer in $customerList)
+<tr #if($foreach.index%2 eq 1)class="even"#end>
+	<td>
+		【$!customerTag.get($!customer.tag)】
+		<a class="hfColor ml5" href="${basePath}home/acct/customerDetail.xhtml?qid=${customer.id}">$!VmUtils.htmlabbr($!customer.body,48)#if($customer.pic)<img src="$VmUtils.randomPic('','img/pic.jpg')" />#end</a>
+	</td>
+	<td><span class="ml5">$DateUtil.format($customer.addtime,'yyyy-MM-dd HH:mm')</span></td>
+	<td>$!customer.fromFlag</td>
+	<td>#if($customer.statusText eq '已回复')<a href="${basePath}home/acct/customerDetail.xhtml?qid=${customer.id}" target="_blank">【已回复】</a> #else $customer.statusText#end</td>
+</tr>
+#end
+<tr><td colspan="3" width="100%" style="border-bottom: 0;">#parse('include/scriptPageUtil.vm')</td></tr>
+</tbody>
+</table>
+#end
+
+<script>
+_ajaxAutoPage = function(pageNo){
+	var url = '${basePath}home/blog/customerQList.xhtml';
+	gewaUtil.loadData('customerList', url+"?pageNo="+pageNo, {});
+}
+</script>

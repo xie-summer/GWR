@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>${curAlbum.subject}_图片浏览_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($photo=true)
+#set($isShow=false)
+#if($!rights.get(1) eq 'album_public')
+#set($isShow=true)
+#elseif($!rights.get(1) eq 'album_friend' && $isMyFriend)
+#set($isShow=true)
+#end
+#if(!$!rights)
+	#set($isShow=true)
+#end
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#if($isShow)
+			#if($isCanShow)
+			<ul class="ui_abeam" >
+				<li>
+					<div class="uipic"><img src="${staticPath}css/images/blank.gif" width="60" height="60" style="background:url($VmUtils.randomPic('sw60h60',$curAlbum.limg)) center center no-repeat;"/></div>
+					<div class="uiText gewa_outer_text">
+						<b>$curAlbum.subject</b>
+						<p>创建者：<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$curAlbum.memberid" class="brown">$!curAlbumMember.nickname</a>
+							#if($!curAlbum.description)<br/>
+								描述：$!curAlbum.description
+							#end
+						</p>
+					</div>
+				</li>
+			</ul>
+			<div class="title mt20 line">
+			#set($ta = 'TA')
+			#if($!isShowCommuAlbum)
+				<a href="${basePath}home/new/uploadPicture.xhtml?tag=member&relatedid=$!logonMember.id&albumid=$!curAlbum.id" class="mr10">上传图片</a>
+				<a href="javascript:setCover();" class="mr10" title="把当前图片设置成相册封面">设置封面</a>
+				<input type="hidden" name="curAlbumImage" id="curAlbumImage" value="$curAlbumImage.limg"/>
+			#end
+				<a href="${basePath}home/album/albumList.xhtml?memberid=$!member.id">返回#if($logonMember.id eq $member.id)我#else$ta#end的相册</a>
+			</div>
+			#parse('include/global/groupPicture.vm')
+			#else
+			<div class="clew mt20">
+				#if($!curAlbum.rights eq 'private')
+					[$member.nickname]的相册【$!curAlbum.subject】设置了权限为【全体不可见】
+				#elseif($!curAlbum.rights eq 'friend')
+					[$member.nickname]的相册【$!curAlbum.subject】设置了权限为【仅好友可见】,<a href="${basePath}home/friend/addFriend.xhtml?memberid=$member.id" class="brown">加为好友</a>即可一睹为快!
+				#end
+			</div>
+			#end
+			#else
+			<div class="clew mt20">
+			#if($!rights.get(1) eq 'album_private')
+				【$member.nickname】的相册设置了权限为【全体不可见】
+			#elseif($!rights.get(1) eq 'album_friend')
+				【$member.nickname】的相册设置了权限为【仅好友可见】,<a href="${basePath}home/friend/addFriend.xhtml?memberid=$member.id" class="brown">加为好友</a>即可一睹为快!
+			#end
+			</div>
+			#end
+		</div>
+	</div>
+</div>
+	<script type="text/javascript">
+	function setCover(){
+		var albumId = $curAlbum.id;
+		var values = {'albumId':albumId,'imageUrl':$('curAlbumImage').value};
+		var url = "${basePath}home/album/setAlbumCover.xhtml";
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){ gewaUtil.alert("设置成功！", refreshPage);}
+			else gewaUtil.alert(result.msg);
+		});
+	}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

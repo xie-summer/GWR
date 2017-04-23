@@ -1,0 +1,35 @@
+#if(!$VmUtils.isEmptyList($jsonDataList))
+#set($jsonData=$jsonDataList.get(0))
+#set($dataMap=$VmUtils.readJsonToMap($jsonData.data))
+#end
+<input type="hidden" id="tag" name="tag" value="$!tag"/>
+<div style="margin-left: 25px;">
+	<textarea name="content" style="width:900px; height:40px;" id="content">$!dataMap.content</textarea>
+</div>
+<div style="margin-left: 670px;margin-top: 10px;"><input type="button" id="btnMit" value="提&nbsp;&nbsp;交" onclick="saveShareInfo();"/></div>
+
+<script type="text/javascript">
+saveShareInfo = function(){
+	if($('tag').value == ''){
+		alert(' 参数错误！');
+		return false;
+	}
+	if($('content').value == ''){
+		alert(' 分享内容不能为空！');
+		return false;
+	}
+	if($('content').value.length > 120){
+		alert(' 分享内容不能超过120个字！');
+		return false;
+	}
+	var url = '${basePath}admin/blog/saveShareInfo.xhtml';
+	var values = {'tag':$('tag').value,'content':$('content').value};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('保存成功！');
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+</script>

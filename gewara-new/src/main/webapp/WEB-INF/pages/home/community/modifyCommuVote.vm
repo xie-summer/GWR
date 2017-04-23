@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>添加圈子投票_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,commnu,bbs&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	#parse('home/community/commnu_style.vm')
+	<style type="text/css">
+		.cke_skin_chris{width:644px !important;border-bottom:1px solid #bbb;float:left;}
+	</style>
+</head>
+<body>
+#set($isFlase=true)#set($tag="home")#set($communityTopic = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+#parse('include/home/communityHeadMenu.vm')
+<h1>添加圈子投票</h1>
+<div class="commnu_layout">
+	<div class="commnu_left">
+		<div class="showList" style="margin-top:0px;">
+		#if($isCommuMember)
+		<form id="voteForm">
+			<input type="hidden" name="communityid" value="$!VmUtils.escapeHtml($params.cid)" />
+			<dl class="mt5" id="p">
+				<dt><span>标题：</span><input type="text" name="subject" id="subject" value="" class="ipt" style="width:500px;"/><span class="ml5">(数字在30字以内)</span></dt>
+				#set($!activity = $topic)
+				<dd class="mt5">
+					<div style="float: left; margin-left: -30px;_margin-left: -20px;text-align: right; width: 66px;">关联：</div>
+					<label for="no0"><input type="radio" name="tag" value="" id="no0" onclick="clearSelect()" checked="checked" #if(!$activity.tag)checked="checked"#end/>不关联</label>
+					<label class="ml10" for="no_cinema"><input name="tag" id="no_cinema" type="radio" value="cinema" onclick="trigerSelect(this)" #if($VmUtils.eq($activity.tag, 'cinema'))checked="checked"#end/>电影</label>
+					<label class="ml10" for="no_ktv"><input name="tag" id="no_ktv" type="radio" value="ktv" onclick="trigerSelect(this)" #if($VmUtils.eq($activity.tag, 'ktv'))checked="checked"#end/>KTV</label>
+					<label class="ml10" for="no_bar"><input name="tag" id="no_bar" type="radio" value="bar" onclick="trigerSelect(this)" #if($VmUtils.eq($activity.tag, 'bar'))checked="checked"#end/>酒吧</label>
+					<label class="ml10" for="no_gym"><input name="tag" id="no_gym" type="radio" value="gym" onclick="trigerSelect(this)" #if($VmUtils.eq($activity.tag, 'gym'))checked="checked"#end/>健身</label>
+					<label class="ml10" for="no_sport"><input name="tag" id="no_sport" type="radio" value="sport" onclick="trigerSelect(this)" #if($VmUtils.eq($activity.tag, 'sport'))checked="checked"#end/>运动</label>
+					<label class="ml10" for="no_theatre"><input name="tag" id="no_theatre" type="radio" value="theatre" onclick="trigerSelect(this)" #if($VmUtils.eq($activity.tag, 'theatre'))checked="checked"#end/>演出</label>
+				</dd>
+				<dd style="margin-left: 40px;" class="#if(!($!activity.tag || $!activity.countycode || $!activity.relatedid))none#end seleczz">
+					<em id="countycode"><input type="hidden" name="countycode" value="$!activity.countycode"/></em><span #if(!$!county.countyname) style="display:none"#end>$!county.countyname</span>
+					<em id="relatedid"><input type="hidden" name="relatedid" value="$!activity.relatedid"/></em><span #if(!$!activity.relate.name) style="display:none" #end>$!activity.relate.name</span>
+					<em id="categoryid"><input type="hidden" name="categoryid" value="$!activity.categoryid"/></em><span #if(!$!activity.relate2.name) style="display:none"#end>$!activity.relate2.name</span>
+					<input type="hidden" id="category" name="category" value="$!{topic.category}"/>
+					<em class="edits" onclick="trigerSelect();">重新选择</em>
+				</dd>
+			</dl>
+			<div id="height0"></div>
+			<dl class="lh25">
+				<dd class="left oneDay" style="width:630px;">
+					<dl class="mt10">
+						<dd class="left">选项：</dd>
+						<dd class="left ml20"><input type="radio" name="radio_multi" id="dx" value="topic_vote_radio" checked="checked" style="width:20px;"/>单选</dd>
+						<dd class="left ml20"><input type="radio" name="radio_multi" id="fx" value="topic_vote_multi" class="ml10" style="width:20px;"/>多选</dd>
+						<dd class="left ml30 center">截止日期：<input class="Wdate" type="text" size="15" id="overdate" name="overdate" value="$!diary.updatetime" onclick="WdatePicker({minDate:'${DateUtil.curDateStr}'})" readonly="readonly"/></dd>
+					</dl>
+					<div id="height0"></div>
+					<dl style="margin-left:50px;">
+						#foreach($i in [1..5])
+						<dd style="line-height: 30px;height:30px;">
+							$i.<input type="text" class="ipt" style="width:435px;" name="option$i" id="option$i"/>
+						</dd>
+						#end
+					</dl>
+					<dl style="margin-left:50px; display:none;" id="more" >
+						#foreach($i in [6..20])
+						<dd style="line-height: 30px;height:30px;" id="odiv$i" class="none">
+							$i.<input type="text" class="ipt" style="width:435px;" name="option$i" id="option$i"/>
+						</dd>
+						#end
+					</dl>
+					<div style="margin-left:50px; color:red">投票选项提交以后不能修改</div>
+					<div style="margin-left:50px;" id="all"><a href="javascript:showMore()"><span id="shmore">更多选项...</span></a></div>
+				</dd>
+				<dd id="height0"></dd>
+			</dl>
+			<dl class="mt5">
+				<dt class="left" style="width:45px;">内容：</dt>
+				<dd class="left" style="width:650px;height:255px;">
+					<textarea id="body" name="body"></textarea>
+				</dd>
+				<dd id="height0"></dd>
+			</dl>
+			<div style="height:55px;line-height:55px;">
+				输入验证码：
+				<input type="hidden" name="captchaId" id="captcha" />
+				<input type="text" class="ipt text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" size="18" onfocus="GewaraUtil.refreshCaptcha('captcha');"/><span class="yellow">*</span>
+				<img id="captchaImg" src="${staticPath}css/images/blank.gif" style="cursor: pointer;vertical-align: middle;" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清? 点我刷新"/>
+			</div>
+			<div style="margin-left:36px;margin-top:10px;" id="jsq"><input class="stepBt"  type="button" onclick="saveVote();" value="写好了，加上去"/></div>
+			<div id="height0"></div>
+		</form>
+		#else
+		这个圈子为非公开圈子，你还没有加入这个圈子。
+		#end
+		</div>
+		</div>
+		<div class="commnu_right">
+		#parse('include/home/commuRightMenu.vm')
+		#parse('include/home/commuRightList.vm')
+		</div>
+	<div class="height0"></div>
+</div>
+#parse('blog/modifyTypeJs.vm')
+	<script type="text/javascript">
+	var ckeditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("body", {customConfig : '/ckeditor/gewaConfig.js',width:671});
+		ckeditor.on('paste',function(e){
+			if($chk(e.data.html)){
+				var data = this.getData();
+				var htm = e.data.html;
+				if(e.data.html.indexOf('data:image/') > 0){
+					gewa.util.alert('图片不能直接粘贴，请点击图像上传！',function(){
+						this.setData(data);
+					}.bind(this));
+				}else if((htm.indexOf('&lt;script&gt;') > 0 || htm.indexOf('<script>') > 0 )
+				 && (htm.indexOf('&lt;style&gt;') > 0 || htm.indexOf('<style>') > 0)){
+					gewa.util.alert('粘贴非法数据，请在文本中过滤后再进行粘贴！',function(){
+						this.setData(data);
+					}.bind(this));
+				}
+			}
+		})
+	});
+	function saveVote(){
+		if($('subject').value.length < 4){ 
+			gewaUtil.alert('投票标题不能少于4个字！');
+			return;
+		}
+		if($('overdate').value==""){ 
+			gewaUtil.alert('截止日期不能为空!');
+			return;
+		}
+		if($('option1').value=="" || $('option2').value==""){ 
+			gewaUtil.alert('设置答案至少2个,并按顺序填写！');
+			return;
+		}
+		el = $('jsq').getElement('input');
+		el.disabled=true;
+		checkLogin(true,function(){
+			$('body').value = ckeditor.getData();
+			gewa.util.mask({'element': el,'title':'正在提交，请稍等...'});
+			var values = GewaraUtil.getValues("voteForm");
+			var url = '${basePath}blog/saveVote.xhtml';
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					document.location = '${basePath}blog/t'+result.retval;
+				}else{
+					el.disabled=false;
+					GewaraUtil.captcha('captchaImg');
+					gewaUtil.alert(result.msg);
+					gewa.util.clearMask();
+				}
+			});
+		}, function(){el.disabled=false;});
+	}
+	var atemp=0;var rtemp=0;
+	function showMore(){
+		if(atemp<3){
+			atemp = atemp+1;
+			rtemp = rtemp+1;
+			for(var i=5*atemp;i<=5*atemp+5;i++){
+				if(i!=5){
+					$('more').setStyle('display','');
+					$('odiv'+i).removeClass('none');
+				}
+				if(atemp==3){
+					$('shmore').innerHTML='隐藏选项...';
+				}
+			}
+		}else{
+			for(var i=5*rtemp+5;i>5*rtemp;i--){
+				$('odiv'+i).addClass('none');
+			}
+			rtemp = rtemp-1;
+			if(rtemp==0){
+				atemp=0;
+				$('shmore').innerHTML='更多选项...';
+			}
+		}
+		if($('captchaInput').retrieve('label') != null){
+			OverText.update();
+		}
+	}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

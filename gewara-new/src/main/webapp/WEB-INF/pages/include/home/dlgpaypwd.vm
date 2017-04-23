@@ -1,0 +1,55 @@
+<div id="updatePaypwdDV" style="display:none">
+<div class="mt20 fs14 ml30">
+	为了你的账户安全请修改后牢记支付密码
+</div>
+<ul class="ul-150">
+	<li class="list_h"><span class="left_150">当前支付密码：</span><input type="password" mustTxt="当前支付密码不能为空！" class="text left validate['required','length[6,12]']" maxlength="12" name="oldPassword" /><b class="fc_b ml10">*</b></li>
+	<li class="list_h"><span class="left_150">新支付密码：</span><input type="password" mustTxt="新支付密码不能为空！" class="text left validate['required','length[6,12]']" maxlength="12" name="password" /><b class="fc_b ml10">*</b></li>
+	<li class="list_h"><span class="left_150">确认支付密码：</span><input type="password" mustTxt="确认支付密码不能为空！" class="text left validate['confirm[password]']" maxlength="12" name="confirmPassword" /><b class="fc_b ml10">*</b></li>
+	<li class="fs14">
+		<span style="margin-left: 120px; cursor: pointer;" class="fc_b">
+			<a href="${basePath}home/acct/mbrMobileAuthPay.xhtml?op=mobileAuthPayGet&tagNo=$VmUtils.getRandom()" class="ml5 brown">忘记支付密码？</a>
+		</span>
+	</li>
+</ul>
+</div>
+<script>
+	// 忘记密码
+	function chargePayPass(){
+		var url = '${basePath}home/acct/changePayPass.xhtml';
+		GewaraUtil.sendRequest(url, {}, function(result){
+			if(result.success){
+				gewaUtil.alert("邮件已发送到您绑定的邮箱中，请接收邮件完成修改支付密码!");
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	}
+	
+	function bindPaypwd(){
+		gewa.util.issure('','updatePaypwdDV','支付密码设置',470,'updatePaypwdDV',function(){
+			submitFrm();
+		})
+	}
+	
+	function updatePaypwd(){
+		gewaUtil.issure('','updatePaypwdDV','支付密码修改',470,'updatePaypwdDV',function(){
+			submitFrm();
+		})
+	}
+	
+	function submitFrm(){
+		if(!GewaraUtil.baseValidForm('updatePaypwdDV'))return false;
+		var url = '${basePath}home/saveAccountPwd.xhtml';
+		var values = GewaraUtil.getValues('updatePaypwdDV');
+		GewaraUtil.mask();
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				gewaUtil.alert('设置成功!', refreshPage);
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	}
+</script>

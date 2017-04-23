@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>查看订单</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=template&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	
+	<style type="text/css">
+		.itemsList dl dt{margin-left: 30px;}
+		.itemsList dl dd{margin-left: 60px;}
+	</style>
+</head>
+<body>
+<div class="panel" style="margin-top: 5px;">
+	<form action="${basePath}admin/orderqry/getOrder.xhtml">
+		订单号：<input type="text" name="tradeNo" id="tradeNo" value="$!params.tradeNo" style="width: 200px;"/>
+		<input type="submit" value="查询" />
+		#if($order)<span class="right"><input type="button" value="查询银行付款情况" onclick="qryBank(this)"/></span>#end
+	</form>
+	#if($order)
+	<div class="itemsList mt5">
+		<dl id="bankRes">
+		</dl><br/>
+		<dl>
+			<dt class="black bold">1、基本信息</dt>
+			<dd>
+				<table class="roomManageTable" id="all_content" cellpadding="0" width="40%" cellspacing="0" border="1" style="margin:0">
+					<tr>
+						<td class="bold">订单状态</td><td>${order.statusText}</td>
+					</tr>
+					<tr>
+						<td class="bold">手机号码</td><td>${order.mobile}</td>
+					</tr>
+					<tr>
+						<td class="bold">用户ID</td><td>$!order.memberid</td>
+					</tr>
+					<tr>
+						<td class="bold">用户名</td><td>$!order.membername</td>
+					</tr>
+					<tr>
+						<td class="bold">下单时间</td><td>$DateUtil.formatTimestamp($order.addtime)</td>
+					</tr>
+					<tr>
+						<td class="bold">付款时间</td><td>$!DateUtil.formatTimestamp($order.paidtime)</td>
+					</tr>
+				</table>
+			</dd>
+		</dl>
+		<dl>
+			<dt class="black bold">2、商品信息</dt>
+			<dd><span class="bold">商品名称：</span>
+			#if($order.ordertype eq 'goods')<a href="${basePath}gewapay/showGoods.xhtml?gid=$order.goodsid" class="blue" target="_blank">${order.ordertitle}</a>
+			#else ${order.ordertitle} #end
+			</dd>
+			<dd>
+				#if($order.description2)
+					<table class="roomManageTable" id="all_content" cellpadding="0" width="40%" cellspacing="0" border="1" style="margin:0">
+						#set($descMap=$VmUtils.readJsonToMap($order.description2))
+						#foreach($m in $descMap.keySet())
+						<tr>
+							<td class="bold">$m</td><td>$!descMap.get($m)</td>
+						</tr>
+						#end
+					</table>
+				#end
+				#foreach($item in $itemList)
+				,同时购买：$item.goodsname数量$item.quantity单价$item.unitprice总价$item.totalfee
+				#end
+			</dd>
+		</dl>
+		<hr style="margin:10px 20px;border:1px solid #EFE1DA;height:1px"/>
+		<dl>
+			<dt class="black bold">3、订单结算</dt>
+			<dd><span class="bold">订单总额：<strong class="yellow">${order.totalAmount}</strong>元</dd>
+			#if($VmUtils.size($discountList) gt 0)
+			#foreach($discount in $discountList)
+			<dd>$discount.description,<strong class="yellow">${discount.amount}元</strong></dd>
+			#end
+			#end
+			<dd><span class="bold">应&nbsp;&nbsp;付&nbsp;&nbsp;款：</span><strong class="yellow">${order.due}</strong>元</dd>
+			<dd><span class="bold">付款方式：</span>$!order.paymethodText</dd>
+		</dl>
+		#if($VmUtils.isNotBlank($order.remark))
+		<hr style="margin:10px 20px;border:1px solid #EFE1DA;height:1px"/>
+		<dl>
+			<dt class="black bold">备注：</dt>
+			<dd>$!order.text('remark')</dd>
+		</dl>
+		#end
+		#if($VmUtils.isNotBlank($order.otherinfo))
+		<hr style="margin:10px 20px;border:1px solid #EFE1DA;height:1px"/>
+		<dl>
+			<dt class="black bold">4、其他信息：</dt>
+			<dd>$!VmUtils.readJsonToMap($order.otherinfo)</dd>
+		</dl>
+		#end
+		#if($order.paidFailure)
+		<dl>
+			<dt class="black bold">处理方法</dt>
+			<dd></dd>
+			<dd><span class="bold">商品描述：</span>${order.description2}</dd>
+		</dl>
+		#end
+	</div>
+	#end
+</div>
+<script type="text/javascript">
+	function qryBank(el){
+		var url = '${basePath}admin/orderqry/qryOrder.xhtml';
+		var values = {'tradeNo':$('tradeNo').value, 't':GewaraUtil.rtime()};
+		gewa.util.mask({'element': el,'title':'正在提交，请稍等...'});
+		GewaraUtil.sendLoad('bankRes', url, values, function(result){
+			gewa.util.clearMask();
+		}, null, "post");
+	}
+</script>
+</body>
+</html>

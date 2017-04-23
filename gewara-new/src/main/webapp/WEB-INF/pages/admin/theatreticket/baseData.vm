@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>基础数据设置</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.contentInfoList li{margin-top:5px;}
+		.grayBg td input{width: 80px;}
+	</style>
+</head>
+<body>#set($isBase=true)
+#parse('admin/theatreticket/menu.vm')
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		#if($!params.msg)
+			<script>
+				alert('$!params.msg');
+			</script>
+		#end
+		<form method="post" id="baseForm">
+			<input type="hidden" name="tid" value="${theatre.id}" />
+			<ul>
+				<li>
+					<span>取票短信(电子票)：</span>
+					<input type="text" name="notifymsg1" value="$!profile.notifymsg1" style="width:600px;"/><span style="color: red;">(最大支持100字)</span>
+				</li>
+				<li>
+					<span>电子票取票短信设置说明：变量dateweektime在固定日期场次是 场次日期，在非固定日期是 场次结束日期，drama剧目名称， seat座位号或张数，gewapass取票密码 </span>
+				</li>
+				<li>
+					<span>取票短信(快递)：</span>
+					<input type="text" name="notifyRemark" value="$!profile.notifyRemark" style="width:600px;"/><span style="color: red;">(最大支持100字)</span>
+				</li>
+				<li>
+				<span>快递送票成功短信设置说明：变量dateweektime在固定日期场次是 场次日期，在非固定日期是 场次结束日期，drama剧目名称， seat座位号或张数，没有取票密码变量</span>
+				</li>
+				<li>
+					<span>温馨提醒：</span>
+					<input type="text" name="notifymsg2" value="$!profile.notifymsg2" style="width:600px;"/><span style="color: red;">(最大支持100字)</span>
+				</li>
+					<li>
+					<span>温馨提醒短信设置说明：变量time是演出开始日期，drama剧目名称</span>
+				</li>
+			<!-- 
+			<li>
+				<span>成功短信3：</span>
+				<input type="text" name="notifymsg3" value="$!profile.notifymsg3" style="width:600px;"/><span style="color: red;">(最大支持100字)</span>
+			</li>
+			 -->
+			<li>
+				<span>取票帖子ID：</span>
+				<input type="text" name="topicid" value="$!profile.topicid" style="width:600px;"/>
+			</li>
+			<li>
+				<span>是&nbsp;否&nbsp;开&nbsp;放：</span>
+				<select name="status" id="status">
+					<option value="open" #if($VmUtils.eq($!{profile.status},'open'))selected#end>开放</option>
+					<option value="close" #if($VmUtils.eq($!{profile.status},'close'))selected#end>关闭</option>
+				</select>
+			</li>
+			<li>
+				<span>取&nbsp;票&nbsp;方&nbsp;式：</span>
+				<br/>
+			<!-- 	<span class="ml30">现场派送&nbsp;&nbsp;：<input type="radio" name="takemethod" value="P" #if($profile.takemethod eq 'P')checked#end/><input type="text" name="takemsgp" value="$!profile.takemsgp" style="width: 600px;"/><br/></span>
+				<span class="ml30">售票窗口&nbsp;&nbsp;：<input type="radio" name="takemethod" value="W" #if($profile.takemethod eq 'W')checked#end/><input type="text" name="takemsgw" value="$!profile.takemsgw" style="width: 600px;"/><br/></span>
+			 -->
+				<span class="ml30">快&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;递：<input type="checkbox" name="takemethod" value="E" #if($VmUtils.contains($profile.takemethod,'E')) checked="checked" #end/></span>
+				<span class="ml30">电子票：<input type="checkbox" name="takemethod" value="A" #if($VmUtils.contains($profile.takemethod,'A')) checked="checked" #end/>
+			</li>
+			<li>
+				<span>默认电子票时间：</span>
+				<input type="text" name="eticketHour" value="$!profile.eticketHour" mustTxt="默认电子票时间不能为空！" style="width:50px;"/>
+				<span>(周末)：</span>
+				<input type="text" name="eticketWeekHour" value="$!profile.eticketWeekHour" mustTxt="默认电子票时间(周末)不能为空！" style="width:50px;"/>（单位：小时）
+			</li>
+			<li><span>第三方场馆类型：</span>
+				<select name="opentype" #if($VmUtils.isNotBlank($profile.opentype)) disabled="disabled" #end>
+					<option value="" >请选择场馆类型</option>
+					#foreach($parnterKey in $partnerTextMap.keySet())
+					<option value="$parnterKey" #if($VmUtils.eq($profile.opentype,$parnterKey)) selected="selected" #end >$partnerTextMap.get($parnterKey)</option>
+					#end
+				</select>
+			</li>
+			<li>
+				<span>取票说明：</span>
+				<input type="text" name="takemsg" value="$!profile.takemsg" style="width:600px;"/><span style="color: red;">(最大支持100字)</span>
+			</li>
+			<li><input type="button" onclick="saveData()" value="保存修改" /></li>
+			</ul>
+		</form>
+		#foreach($field in $fieldList)
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0" id="body">
+			<thead>
+				<tr>
+					<th>类型</th>
+					<th>编号</th>
+					<th>序号</th>
+					<th>区域名或场地名</th>
+					<th>排数</th>
+					<th>列数</th>
+					<th>座位数</th>
+					<th>保存</th>
+					<th>安排座位</th>
+					<th>初始状态</th>
+					<th>预览图</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				<tr style="background:#fbe7db !important;">
+					<td>$!{partnerTextMap.get($!field.fieldtype)}[<span style="color: red;">场地</span>]</td>
+					<td>$!field.id</td>
+					<td colspan="2">$!field.name</td>
+					<td colspan="6">$!{field.fieldnum}[序号]</td>
+					<td>
+						<a href="${basePath}admin/theatre/fieldDetail.xhtml?fieldid=$!field.id" target="_blank">修改</a>
+						<a href="${basePath}admin/theatre/getFieldAreaSite.xhtml?fieldid=$!field.id" target="_blank">设置区域座标</a>
+					</td>
+				</tr>
+				#foreach($section in $roomMap.get($field.id))
+				<tr class="grayBg" id="r$section.id">
+					<td>$!partnerTextMap.get($!field.fieldtype)</td>
+					<td>$section.id</td>
+					<td><input type="text" name="num" value="$!section.num" /></td>
+					<td>$section.roomname<input type="hidden" value="${section.id}" name="secid"/></td>
+					<td><input type="text" value="$!{section.linenum}" name="linenum"/></td>
+					<td><input type="text" value="$!{section.ranknum}" name="ranknum"/></td>
+					<td><input type="text" value="$!{section.seatnum}" name="seatnum"/></td>
+					<td><input type="button" value="保存" onclick="saveRoom('r$section.id');"/></td>
+					<td><a href="${basePath}admin/dramaTicket/baseRoomseat.xhtml?rid=$section.id" target="_blank">安排座位</a></td>
+					<td><a href="${basePath}admin/dramaTicket/seatInitstatus.xhtml?rid=$section.id" target="_blank">设置</a></td>
+					<td><a href="${basePath}admin/dramaTicket/updateTheatreRoomSeatMapStr.xhtml?roomid=$section.id" target="_blank">更新</a></td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+		#end
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<script type="text/javascript">
+function saveRoom(elid){
+	GewaraUtil.mask();
+	var url = '${basePath}admin/dramaTicket/updateRoom.xhtml';
+	var values = GewaraUtil.getValues(elid);
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			alert("保存成功！");
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function saveData(){
+	if(!GewaraUtil.baseValidForm("baseForm", 'admin')){
+		return;
+	}
+	var url = '${basePath}admin/dramaTicket/saveBaseData.xhtml';
+	var values = GewaraUtil.getValues('baseForm',",");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('保存成功！');
+		}else{
+			alert(result.msg);
+		}
+		
+	});
+}
+</script>
+</body>
+</html>

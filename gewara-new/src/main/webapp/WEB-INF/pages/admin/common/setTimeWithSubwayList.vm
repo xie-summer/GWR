@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>编辑地铁数据</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+</head>
+<body class="yui-skin-sam" style="width:800px;margin:auto">
+<div style="color: red;margin-top: 20px">$!errorMsgs</div>
+<form method="post" action="${basePath}admin/common/subwayList.xhtml" target="_self" id="editForm">
+<div id="cinemaDialog" class="yui-panel" style="width:750px;margin:auto">
+	<div class="hd">编辑地铁数据</div>
+	<div class="bd">
+		<div>
+			<div style="background-color: #ddf;height:20px;padding-top:8px;font-size:12pt;">
+				<select name="lineId" onchange="javascript:loadStation();" id="lineListId">
+				#foreach($line in $lineList)
+					<option value="$line.id" #if($curLine.id eq $line.id)selected='selected' #end >$line.linename</option>
+				#end
+				</select>
+			</div>
+			<ul style="margin-left: 8px" id="stationUL">
+			</ul>
+			<div class="height0"></div>
+		</div>
+	</div>
+	<div><input type="button" value="确定" onclick="saveForm();"/>
+	</div>
+</div>
+</form>
+	<script type="text/javascript">
+	function loadStation(lineId){
+		if(!lineId){
+			lineId = $('lineListId').value;
+		}
+		GewaraUtil.sendLoad('stationUL', '${basePath}admin/common/ajax/loadStation.xhtml', {"lineId":lineId}, function(result){});
+	}
+	
+	window.addEvent('domready',function(){
+		loadStation('$!{curLine.id}');
+		gewaUtil.textOver('.titleinput');
+	});
+	function saveForm(){
+		var values = GewaraUtil.getValues("editForm");
+		var url = "${basePath}admin/common/ajax/setLine2StationTime.xhtml";
+		gewa.util.mask({'title':"正在保存数据..."});
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('成功保存！');
+				refreshPage();
+			}else{
+				alert("保存失败！" + result.msg);
+			}
+			gewa.util.clearMask();
+		});
+	}
+</script>
+</body>
+</html>

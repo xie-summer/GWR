@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>发送短信</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width: 800px; margin:auto" class="yui-skin-sam">
+<form action="javascript:sendMsg('dissubmitbtn')" name="msgForm" id="msgForm" >
+<table class="table">
+	<thead>
+	<tr>
+		<th width="100">发送通道:</th>
+		<th width="500"><select name="channel" id="channel">
+			<option value="gewamail">GewaMail</option>
+			</select>
+		</th>
+		<th width="200"></th>
+	</tr>
+	<tr>
+		<th>手机号码:</th>
+		<th>
+			<textarea name="mobile" id="mobile" style="width:500px; height:200px;"></textarea>
+		</th>
+		<th></th>
+	</tr>
+	<tr>
+		<th>发送内容:<br />
+			<span id="wordcount"></span>
+		</th>
+		<th>
+			<textarea name="msg" id="msg" style="width:500px; height:150px;" onkeyup="microChange(this)"></textarea>			
+		</th>
+		<th>
+			<p style="float:left;margin:0;padding:0;line-height:24px;">
+				<span class="num mr10" style="color: red" id="font"></span><br/>
+				<span class="num mr10" style="color: red" id="errorInfo"></span>
+			</p>
+		</th>
+	</tr>
+	<tr>
+		<th colspan="3">
+			<input type="submit" value="发送" id="dissubmitbtn"/>&nbsp;&nbsp;&nbsp;&nbsp;
+			<input type="button" onclick="javascript:showTestSendPanel();" value="&nbsp;测试&nbsp;"/>
+		</th>
+	</tr>
+	</thead>
+</table>
+</form>
+<div class="edit" id="testSendPanelDiv" style="display:none;">
+	<div class="mobileB">
+		<dl>
+			<dt>测试手机号：</dt>
+			<dd>
+				<input type="text" style="width:180px;" value="" id="testMobile" class="text"/><span style="color: red">&nbsp;&nbsp;*</span>
+			</dd>
+		</dl>
+		<div style="padding-left:70px;"><input type="button" onclick="javascript:testSend();" value="&nbsp;发送&nbsp;"/>&nbsp;&nbsp;<input type="button" onclick="javascript:closePanel('testSendPanelDiv');" value="&nbsp;返回&nbsp;"></div>
+	</div>
+</div>
+	<script type="text/javascript">
+	function sendMsg(el){
+		if($("mobile").value==""){alert("请填写手机号码！");return}
+		if($("msg").value==""){alert("请填写短信内容！");return}
+		gewa.util.mask({'element': el,'title':'正在提交，请稍等...'});
+		var url = "${basePath}admin/message/sendBatchMobileMsg.xhtml"
+		GewaraUtil.sendRequest(url, {"mobile":$("mobile").value, "msg":$("msg").value,"channel":$("channel").value}, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				$("mobile").value = "";
+				gewaUtil.alert(result.retval);
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	
+	function microChange(obj){
+		var num=0;
+		if($chk($(obj).value)){
+			num = $(obj).value.length;
+		}
+		if(num > 0){ 
+			$('font').set('text','已经输入' + num + '个字符，超过65按照多条发送，建议不超过65个字符！');
+		}else{
+			$('font').set('text','');
+		}
+	}
+	
+
+	function showTestSendPanel(){
+		var content = $("msg").value;
+		var channel = $("channel").value;
+		if(content == ""){
+			gewaUtil.alert('请输入短信内容！');
+			return;
+		}
+		if(channel == ""){
+			gewaUtil.alert('请选择短信通道！');
+			return;
+		}
+		gewa.util.maskContent('','testSendPanelDiv','测试发送一条',300,'testSendPanelDiv');
+	}
+	function testSend(){
+		var testMobile = $("testMobile").value;
+		var content = $("msg").value;
+		var channel = $("channel").value;
+		if(testMobile == ""){
+			gewaUtil.alert('请正确输入测试手机号！');
+			return;
+		}
+		if(content == ""){
+			gewaUtil.alert('请输入短信内容！');
+			return;
+		}
+		if(channel == ""){
+			gewaUtil.alert('请选择短信通道！');
+			return;
+		}
+		 
+		var url = "${basePath}admin/message/sendBatchMobileMsg/test.xhtml";
+		gewa.util.mask({'element': "testSendPanelDiv",'title':'正在提交，请稍等...'});
+		GewaraUtil.sendRequest(url, {"mobile":testMobile,"msg":content,"channel":channel}, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				gewaUtil.alert(result.retval);
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	
+	function closePanel(el){
+		gewa.util.container[el].dispose(el);
+	}
+
+</script>
+</body>
+</html>

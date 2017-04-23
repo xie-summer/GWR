@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>Flash抽奖_格瓦拉生活网</title>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/layout.css?v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+<script language=JavaScript>
+<!--
+function resend(tag){
+	checkLogin(true,function(){
+		gewa.util.mask({'element': "btn2",'title':'正在提交，请稍等...'});
+		var values = {"mobile":$('umobile').value,'tag':tag};
+		GewaraUtil.sendRequest('${basePath}home/bindmobile/receive.xhtml', values, function(result){
+			if(result.success){
+				gewa.util.clearMask();
+				retime();
+			}else{
+				gewa.util.clearMask();
+				if(result.msg) gewaUtil.alert(result.msg);
+			}
+		}, 'get');
+	});
+}
+var second = 60;
+GetRTime = function (){  
+	if(second>=0){
+		$('showMessage').setStyle('display','block');  
+		$('timecount').set('html', second);
+		second = second-1;
+		setTimeout("GetRTime()",1000);
+	}else {  
+		$("btn2").set("disabled", false); 
+		$('showMessage').setStyle('display','none');
+		$("btn2").setStyle("cursor","pointer"); 
+	}  
+} 
+retime = function(){
+	$("btn2").set("disabled", true);
+	$("btn2").setStyle("cursor",""); 
+	second = 60;
+	GetRTime();
+}
+
+function upMobile(){
+	if(!$('umobile').value){
+		gewaUtil.alert('请输入手机号码！');
+		return;
+	}
+	GewaraUtil.mask('disBtnMobile');
+	var url = '${basePath}home/acct/sendExchangeMobile.xhtml';
+	var values = GewaraUtil.getValues("upMoibleForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			gewaUtil.alert('设置成功！');
+			refreshPage();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+var InternetExplorer = navigator.appName.indexOf("Microsoft") != -1;
+function myFlash_DoFSCommand(command, args){
+	var myFlashObj = InternetExplorer ? myFlash : document.myFlash;
+	if(args == 'nologin'){
+		showLogin();
+	}else if(args == 'nodrawcount'){
+		gewaUtil.alert("你今天已经抽过奖了，明天再来吧！");
+	}else if(args == 'nostart'){
+		gewaUtil.alert("本次活动未开始或已结束！");
+	}else if(args == 'syserror'){
+		gewaUtil.alert("操作失败！请重试！");
+	}else if(args == 'noprize'){
+		gewaUtil.alert("本次活动奖品已送完，感谢参与！");
+	}else if(args == 'nobindMobile'){
+		gewa.util.issure('','updateMemberInfo','绑定手机：',420,'keys',function(){
+			upMobile();
+		});
+	}else if(args == 'addCustomerInfo'){
+		gewa.util.issure('','infos','收货地址：',420,'keys',function(){
+			addinfo();
+		});
+	}else if(args == 'noticket'){
+		gewaUtil.alert("你未购买特定影片，不能参加此次活动！");
+	}else if(args == 'nopoint'){
+		gewaUtil.alert("你的积分不足，不能抽奖！");
+	}else if(args == 'noemail'){
+		gewaUtil.alert("未绑定邮箱！");
+	}else if(args == 'frequent'){
+		gewaUtil.alert("请不要操作过于频繁！");
+	}else if(args == 'noweibo'){
+		gewaUtil.alert("请绑定微博后参与抽奖！");
+	}else if(args == 'nocount'){
+		gewaUtil.alert("你已在活动期间抽过奖了！");
+	}
+}
+if (navigator.appName && navigator.appName.indexOf("Microsoft") != -1 && 
+  navigator.userAgent.indexOf("Windows") != -1 && navigator.userAgent.indexOf("Windows 3.1") == -1) {
+  document.write('<script language=VBScript\> \n');
+  document.write('on error resume next \n');
+  document.write('Sub myFlash_FSCommand(ByVal command, ByVal args)\n');
+  document.write(' call myFlash_DoFSCommand(command, args)\n');
+  document.write('end sub\n');
+  document.write('</script\> \n');
+}
+function addinfo(){
+	var url = "${basePath}subject/hallowmas/addCarbInfo.xhtml";
+	var values = GewaraUtil.getValues("info");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.alert("提交成功！", refreshPage);
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+//-->
+</script>
+<style type="text/css">
+	.redBt{background-position:0 -4054px;}
+	.redBt span,.redBt input{background-position:right -4077px;color:#fff;}
+	.tales60{padding:8px 0 8px 70px;}
+	.tales60 dt{width:70px;margin-left:-70px;_margin-left:-35px;}
+</style>
+</head>
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<body>
+#if($tag eq "laohuji")
+	#parse('subject/jlbhd/pullpa.vm')
+#elseif($tag eq "zhuanpan")
+	#parse('subject/jlbhd/turntable.vm')
+#else
+	#parse('subject/jlbhd/squares.vm')
+#end
+<div id="updateMemberInfo"  style="display:none">
+	<form id="upMoibleForm" name="upMoibleForm" method="post" action="javascript:upMobile()" style="margin-bottom: 10px;">
+		<ul class="ul-80" style="margin-top: 15px;">
+			<li class="clear">
+				<div class="ul-80Inner">填写手机号：</div>
+				<div style="float:left;width:100%">
+					<input name="mobile" id="umobile" type="text" class="text" style="width:100px;"value="$!logonMember.mobile" />
+					<label class="button whiteBt minBt ml5">
+						<input type="button" onclick="resend('change');" value="发送验证码" id="btn2"></input>
+					</label>
+					<span id="showMessage" style="display:none;" class="brown">
+						没有收到短信验证码，可在<span class="ml5 mr5" id="timecount"></span>秒后重新发送
+					</span>
+				</div>	
+			</li>
+			<li><div class="ul-80Inner">短信验证码：</div><input name="mobile2" id="mobile2" type="text" class="text" style="width:100px;"/></li>
+		</ul>
+	</form>
+</div>
+<div id="infos" style="display:none">
+	<div style="color:red;font-size: 14px">在活动结束后，我们会在5-7个工作日送出！</div>
+	<form action="javascript:addinfo()" method="post" id="info" name="info" >
+	<div id="customerInfo">
+		<dl class="tales60">
+			<dt>收货地址：</dt>
+			<dd><label for="i_2" class="text label"><input type="text" class="text" name="address" id="address" /></label></dd>
+		</dl>
+	</div>
+	</form>
+</div>
+<div>
+	#parse('include/bottom.vm')
+</div>
+</body>
+</html>

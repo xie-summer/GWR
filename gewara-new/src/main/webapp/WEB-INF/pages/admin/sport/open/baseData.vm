@@ -1,0 +1,474 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>基础数据</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/admin.css?v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		input{
+			margin-top: 5px;
+		}
+	</style>
+</head>
+<body>
+#set($isBaseData=true)
+#parse('admin/sport/open/menu.vm')
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<div class="checkMenu">
+			<ul>
+				<li #if(!$curitem)class="chooseItem" #end>
+					<div style="line-height:50px;"><a href="${basePath}admin/sport/open/baseData.xhtml?sportid=$!cursport.id">场馆基础数据</a></div>
+					<h2></h2>
+				</li>
+				#foreach($item in $itemList)
+				<li #if($curitem.id eq $item.id)class="chooseItem"#end>
+					<div style="line-height:50px;"><a href="${basePath}admin/sport/open/baseData.xhtml?sportid=$cursport.id&itemid=$!item.id">$item.itemname</a></div>
+					<h2></h2>
+				</li>
+				#end
+			</ul>
+		</div>
+		#if(!$curitem)
+		<form id="formid">
+			<input type="hidden" name="id" value="$!{cursport.id}" />
+			<input type="hidden" name="encryptCode" value="$!{profile.encryptCode}" />
+			<ul>
+				<li>
+					<span>是否预定：</span>
+					<select name="booking">
+						<option value="open" #if($profile.booking eq 'open')selected#end>是</option>
+						<option value="close" #if($profile.booking eq 'close')selected#end>否</option>
+					</select>
+				</li>
+				<li>
+					<span>每日开放时间：</span><input type="text" name="opentime" value="$!profile.opentime"/>
+					<span>每日关闭时间：</span><input type="text" name="closetime" value="$!profile.closetime"/>
+					<span style="color:red;">默认为全天(00:00~24:00)， 如6:00开放写成0600</span>
+				</li>
+				<li>
+					<span>是不代售：</span>
+					<select name="pretype" #if($profile.hasPretype('E')) disabled="disabled" #end >
+						<option value="M" #if($profile.hasPretype('M'))selected#end>非代售场馆</option>
+						<option value="E" #if($profile.hasPretype('E'))selected#end>代售场馆</option>
+					</select>
+				</li>
+				<li>
+					<span>说明：（代售场馆说明）</span>
+					<input type="text" name="premessage" value="$!profile.premessage" style="width: 600px;" />
+				</li>
+				<li>场馆排序:<input type="text" name="sortnum" id="sortnum" value="$!profile.sortnum"></li>
+				<li>所属公司:<input type="text" name="company" id="company" value="$!profile.company"></li>
+				<li><input type="button" onclick="saveupdate()" value="保存修改" /></li>
+			</ul>
+		</form>
+		#else
+		<form id="itemData">
+			<input type="hidden" name="id" value="$!sport2Item.id"/>
+			<input type="hidden" name="sportid" value="$!{cursport.id}" />
+			<input type="hidden" name="itemid" value="$!{curitem.id}"/> 
+			<ul>
+				#if($VmUtils.eq($!curitem.openType,'period'))
+				<li>
+					<span>替换说明：</span>
+					datet：消费日期(比如：10月22日)  item:项目（比如：羽毛球等等） starttime,endtime：消费时间（比如：5:00）
+				</li>
+				<li>
+					<span>提前一天：</span>
+					温馨提示：date starttime至endtime您要address游泳，祝您生活愉快！
+				</li>
+				<li>
+					<span>提前三小时：</span>
+				温馨提示：今天starttime至endtime您要去 address游泳，祝您生活愉快！
+				</li>
+				<li>
+					<span>结束后：</span>
+					温馨提示：
+				</li>
+				<li>
+					<span>短信样式1：</span>
+					您已成功预订date starttime至endtime quantity人去上海游泳馆游泳，凭手机号和取票密码password验证入场 
+				</li>
+				#else
+				<li>
+					<span>替换说明：</span>
+					datet：消费日期(比如：10月22日)  item:项目（比如：羽毛球等等） item：消费时间（比如：5:00）
+				</li>
+				<li>
+					<span>提前一天：</span>
+					温馨提示：datetime您将去格瓦拉生活网打item，祝生活愉快！客服4000406506
+				</li>
+				<li>
+					<span>提前三小时：</span>
+				温馨提示：今天time您要去格瓦拉生活网(茅台路1068号)打item，祝您生活愉快！
+				</li>
+				<li>
+					<span>结束后：</span>
+					温馨提示：
+				</li>
+				<li>
+					<span>短信样式1：</span>
+					已成功预订date场馆itemhour，凭手机号和订单尾号tradeno入场
+				</li>
+				#end
+				<li>
+					<span>取票短信1：</span>
+					<input type="text" name="notifymsg1" value="$!sport2Item.notifymsg1" style="width:600px;"/>（发送取票密码）
+				</li>
+				<li>
+					<span>提示短信1：</span>
+					<input type="text" name="notifymsg2" value="$!sport2Item.notifymsg2" style="width:600px;"/>（提前1天）
+				</li>
+				<li>
+					<span>提示短信2：</span>
+					<input type="text" name="notifymsg3" value="$!sport2Item.notifymsg3" style="width:600px;"/>（提前3小时）
+				</li>
+				<li>
+					<span>结束后短信：</span>
+					<input type="text" name="overmsg" value="$!sport2Item.overmsg" style="width:600px" />
+				</li>
+				<li>
+					<span>是否预定：</span>
+					<select name="booking">
+						<option value="open" #if($sport2Item.booking eq 'open')selected#end>是</option>
+						<option value="close" #if($sport2Item.booking eq 'close')selected#end>否</option>
+					</select>
+				</li>
+				
+				<li>场馆排序:<input type="text" name="sortnum" id="sortnum" value="$!sport2Item.sortnum"></li>
+				<li>提前多长时间关闭场次（分钟）:<input type="text" name="limitminutes" id="limitminutes" value="$!sport2Item.limitminutes"></li>
+				<li>是否支持退票:<select name="exitsreturn" id="exitsreturn" onchange="selectreturn()">
+									<option value="">--选择--</option>
+									<option value="Y" #if($!sport2Item.exitsreturn eq 'Y') selected=true #end>是</option>
+									<option value="N" #if($!sport2Item.exitsreturn eq 'N') selected=true #end>否</option>
+							   </select>
+				
+					<span id="returnId" #if($!sport2Item.exitsreturn eq 'Y') style="display:inline-block" #else style="display:none" #end>
+						  限制时间（分钟）：<input type="text" id="returnminutes" name="returnminutes" value="$!sport2Item.returnminutes"/>
+						  收费方式：<select name="returnmoneytype" id="returnmoneytype" onchange="selectmoneyType()">
+						  				<option value="A" #if($!sport2Item.returnmoneytype eq 'A') selected=true #end>--选择--</option>
+										<option value="D" #if($!sport2Item.returnmoneytype eq 'D') selected=true #end>订单百分比</option>
+										<option value="C" #if($!sport2Item.returnmoneytype eq 'C') selected=true #end>场次固定价格</option>
+								  </select>
+							<span id="moneytypeid">
+						 		#if($!sport2Item.returnmoneytype eq 'D') 订单百分比 #elseif($!sport2Item.returnmoneytype eq 'C') 场次固定价格 #else 价格#end  ：
+						 	</span>
+						<input type="text" name="returnmoney" id="returnmoney" value="$!sport2Item.returnmoney"/>
+						<span id="rsmallmoney" #if($!profile.returnmoneytype eq 'D') style="display:inline-block" #else style="display:none" #end>
+							最高不超过：<input type="text" name="returnsmallmoney" id="returnsmallmoney" value="$!sport2Item.returnsmallmoney"/>
+						</span>
+					</span>
+						   
+				</li>
+				<li>是否支持换票:<select name="exitschange" id="exitschange" onchange="selectchange()">
+									<option value="">--选择--</option>
+									<option value="Y" #if($!sport2Item.exitschange eq 'Y') selected=true #end>是</option>
+									<option value="N" #if($!sport2Item.exitschange eq 'N') selected=true #end>否</option>
+							   </select>
+				
+					<span id="changeid" #if($!sport2Item.exitschange eq 'Y') style="display:inline-block" #else style="display:none" #end>
+					限制时间（分钟）：<input type="text" name="changeminutes" id="changeminutes" value="$!sport2Item.changeminutes"/>
+					收费方式：<select name="changemoneytype" id="changemoneytype" onchange="selectchangemoneytype()"> 
+										<option value="A" #if($!sport2Item.changemoneytype eq 'A') selected=true #end>--选择--</option>
+										<option value="D" #if($!sport2Item.changemoneytype eq 'D') selected=true #end>订单百分比</option>
+										<option value="C" #if($!sport2Item.changemoneytype eq 'C') selected=true #end>场次固定价格</option>
+								  </select>
+							<span id="cmoneytypeid">
+						 		#if($!sport2Item.changemoneytype eq 'D') 订单百分比 #elseif($!sport2Item.changemoneytype eq 'C') 场次固定价格 #else 价格#end  ：
+						 	</span>
+						<input type="text" name="changemoney" id="changemoney" value="$!sport2Item.changemoney"/>
+						<span id="csmallmoney" #if($!sport2Item.changemoneytype eq 'D') style="display:inline-block" #else style="display:none" #end>
+							最高不超过：<input type="text" name="changesmallmoney" id="changesmallmoney" value="$!sport2Item.changesmallmoney"/>
+						</span>
+					</span>	
+				</li>
+				<li>帖子ID:<input type="text" name="diaryid" id="diaryid" value="$!sport2Item.diaryid"></li>
+				
+				<li>取票方式:<select name="tickettype" id="tickettype">
+								<option value="B" #if($!sport2Item.tickettype eq 'B') selected=true #end>POS机取票①，场馆方取票</option>
+								<option value="C" #if($!sport2Item.tickettype eq 'C') selected=true #end>POS机取票②，自行取票</option>
+								<option value="D" #if($!sport2Item.tickettype eq 'D') selected=true #end>凭手机人工识别，场馆工作人员核对信息</option>
+								<option value="E" #if($!sport2Item.tickettype eq 'E') selected=true #end> 现场派票，格瓦拉工作人员派票</option>
+							</select>
+				</li>
+				<li><input type="button" onclick="saveitem()" value="保存修改" /></li>
+			</ul>
+		</form>
+		#end
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th width="10%">项目ID</th>
+					<th width="10%">项目名</th>
+					<th>场地</th>
+					<th>时间段</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				#if($curitem)
+				<tr class="grayBg">
+					<td>$curitem.id</td>
+					<td>$curitem.itemname</td>
+					<td>
+						#foreach($field in $fieldMapList.get($curitem.id))
+						<a href="javascript:getField($field.id)"><span class="left ml10" title="$field.remoteid">${field.name}[$field.id][$field.status]&nbsp;</span>#if($foreach.count%6 eq 0)<br/>#end
+						#end
+					</td>
+					<td>
+						<a href="${basePath}admin/sport/open/programItemList.xhtml?sportid=$!cursport.id&itemid=$curitem.id">时间段数据</a>
+					</td>
+				</tr>
+				#else
+				#foreach($item in $itemList)
+				<tr class="grayBg">
+					<td>$item.id</td>
+					<td>$item.itemname</td>
+					<td>
+						#foreach($field in $fieldMapList.get($item.id))
+						<a href="javascript:getField($field.id)"><span class="left ml10" title="$field.remoteid">${field.name}[$field.id][$field.status]&nbsp;</span>#if($foreach.count%6 eq 0)<br/>#end
+						#end
+					</td>
+					<td>
+						<a href="${basePath}admin/sport/open/programItemList.xhtml?sportid=$!cursport.id&itemid=$item.id">时间段数据</a>
+					</td>
+				</tr>
+				#end
+				#end
+			</tbody>
+		</table>
+		#if($curitem)
+			<table class="roomManageTable" cellpadding="0" width="50%" cellspacing="0" border="0">
+				<thead>
+					<tr><th colspan="3" width="80%">场地列表</th><th><input type="button" value="新增场地" onclick="showFieldData('fielddata')"/></th></tr>
+					<tr>
+						<th>场地名称</th>
+						<th>状态</th>
+						<th>排序</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					#foreach($field in $fieldMapList.get($curitem.id))
+					<tr class="grayBg">
+						<td>$field.name</td>
+						<td><a href="javascript:getField(32749846)">[$field.id][$field.status]</a></td>
+						<td><input type="text" value="$field.ordernum"  onchange="updateOrdernum('$!field.id',this);" style="width:40px;"/></td>
+						<td><input type="button" onclick="getFieldData('$!field.id');" value="修改"/></td>
+					</tr>
+					#end
+				</tbody>
+			</table>
+			<div  id="fielddata" style="display:none;">
+				<input type="hidden" name="id" id="id"/>
+				<input type="hidden" name="sportid" id="sportid" value="$!cursport.id"/>
+				<input type="hidden" name="itemid" id="itemid" value="$!curitem.id"/>
+				<ul>
+					<li style="margin-top:10px;">
+						<span>场地名称：</span>
+						<input type="text"  name="name" id="name" style="width:80px;" mustTxt="场地名称不能为空！"/>
+					</li>
+					<li>
+						<input type="button" onclick="saveFieldData(this)" value="保存修改" />
+						<input type="button" onclick="hideFieldData('fielddata')" value="取消"/>
+					</li>
+				</ul>
+			</div>
+		#end
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+	场地ID:
+	<input type="text" name="sid" id="sid" />
+	<input type="button" value="操作" onclick="saveField()"/>
+</div>
+<script type="text/javascript">
+	function showField(id, itemid){
+		$('id').value=id;
+		$('itemid').value=itemid;
+		if(id) getField(id, itemid);
+		else {
+			$('name').value='';
+			$('ordernum').value='1';
+			$('description').value='';
+		}
+		GewaraUtil.showDialog('dialog');
+	}
+	function saveField(){
+		var values = {"sid":$('sid').value};
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/modSportField.xhtml', values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				if(result.msg) alert(result.msg);
+			}
+		});
+	}
+	
+	function selectreturn(){
+		var value=$('exitsreturn').value;
+		if(value=='Y'){
+			$('returnId').show();
+		}else{
+			$('returnId').hide();
+			$('returnminutes').value=0;
+			$('returnmoneytype').value='A';
+			$('returnmoney').value=0;
+		}
+	}
+	
+	function selectchange(){
+		var value=$('exitschange').value;
+		if(value=='Y'){
+			$('changeid').show();
+		}else{
+			$('changeid').hide();
+			$('changeminutes').value=0;
+			$('changemoneytype').value='A';
+			$('changemoney').value=0;
+		}
+	}
+	
+	function selectmoneyType(){
+		var v=$('returnmoneytype').value;
+		if(v=='D'){
+			$('moneytypeid').innerHTML='订单百分比';
+			$('rsmallmoney').show();
+		}
+		if(v=='C'){
+			$('moneytypeid').innerHTML='场次固定价格';
+			$('rsmallmoney').hide();
+			$('returnsmallmoney').value=0;
+		}
+	}
+	
+	function selectchangemoneytype(){
+		var v=$('changemoneytype').value;
+		if(v=='D'){
+			$('cmoneytypeid').innerHTML='订单百分比';
+			$('csmallmoney').show();
+		}
+		if(v=='C'){
+			$('cmoneytypeid').innerHTML='场次固定价格';
+			$('csmallmoney').hide();
+			$('changesmallmoney').value=0;
+		}
+	}
+	
+	function saveitem(){
+		var valueminutes=$('limitminutes').value;
+		if(valueminutes==null || valueminutes==''){
+			alert('提前多长时间不可以为空');
+			return false;
+		}
+		if(valueminutes.length>4){
+			alert('长度不能大于4位数');
+			return false;
+		}
+		var returnminutes=$('returnminutes').value;
+		if(returnminutes.length>4){
+			alert('长度不能大于4位数');
+			return false;
+		}
+		var returnmoney=$('returnmoney').value;
+		if(returnmoney.length>4){
+			alert('长度不能大于4位数');
+			return false;
+		}
+		var changeminutes=$('changeminutes').value;
+		if(changeminutes.length>4){
+			alert('长度不能大于4位数');
+			return false;
+		}
+		var changemoney=$('changemoney').value;
+		if(changemoney.length>4){
+			alert('长度不能大于4位数');
+			return false;
+		}
+		
+		var url = '${basePath}admin/sport/open/saveSport2Item.xhtml';
+		var values = GewaraUtil.getValues('itemData');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function saveupdate(){
+		var ordernum=$('sortnum').value;
+		if(ordernum==null || ordernum==''){
+			alert('排序不可以为空');
+			return false;
+		}
+		var url = '${basePath}admin/sport/open/saveBaseData.xhtml';
+		var values = GewaraUtil.getValues('formid');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function getField(field){
+		$('sid').value=field;
+	}
+	var odlValues = GewaraUtil.getValues('fielddata');
+	function showFieldData(el){
+		GewaraUtil.setValues(odlValues);
+		gewa.util.maskContent('',el,'场地数据管理', 300, el);
+	}
+	function hideFieldData(el){
+		if(gewa.util.container[el]){
+			gewa.util.container[el].dispose(el);
+		}
+	}
+	
+	function getFieldData(id){
+		var url = "${basePath}admin/sport/open/getSportField.xhtml";
+		var values = {'id': id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				GewaraUtil.setValues(result);
+				gewa.util.maskContent('','fielddata','场地数据管理',300,'fielddata');
+			}else alert(result.msg);
+		});
+	}
+	function saveFieldData(obj){
+		var url = '${basePath}admin/sport/open/saveOrUpdateField.xhtml';
+		if(!GewaraUtil.baseValidForm('fielddata','admin'))return;
+		var values = GewaraUtil.getValues("fielddata");
+		GewaraUtil.mask(obj);
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert('保存成功！');
+				hideFieldData('fielddata');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function updateOrdernum(id,obj){
+		var url = '${basePath}admin/sport/open/setFieldOrdernum.xhtml';
+		var values = {'id':id,'ordernum':$(obj).value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('设置成功！');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

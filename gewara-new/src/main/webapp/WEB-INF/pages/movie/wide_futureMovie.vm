@@ -1,0 +1,281 @@
+<!Doctype html>
+<html>
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>近期上映电影_最近新上映电影_新片上映 - 格瓦拉生活网</title>
+	<meta name="keywords" content="网上预订电影票,$!{cookieCityname}电影票优惠,$!{cookieCityname}打折电影票,购电影票,网上预定电影票,网上订票电影票,电影票订购,$!{cookieCityname}折扣电影票,$!{cookieCityname}电影影片,电影折扣,折扣电影,$!{cookieCityname}电影院最新上映电影,电影优惠,$!{cookieCityname}电影券"/>
+	<meta name="description" content="近期上映电影,格瓦拉生活网提供最近新上映电影预告信息.新片上映通告,大片,新片上映时间信息查询."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_movie&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.movieList{border-left:3px solid #fff6ee; margin-left:26px; padding-left:60px;}
+	</style>
+	#parse('movie/style.vm')
+</head>
+<body>
+#set($ismovie=true)
+#parse('include/wide_header.vm')
+<form id="searchForm" action="${basePath}movie/futureMovie.xhtml">
+	<input type="hidden" name="order" id="order" value="$!params.order"/>
+</form>
+<div class="ui_layout bgtrans">
+	<div class="index_wrap clear">
+		#parse('include/movie/wide_menu_left.vm')
+		<div class="index_right">
+		<div class="mt10">
+			<div class="ui_left">
+				<div class="mod_kong" style="margin-bottom:0px">
+					<div class="mod_hd">
+						<h2>即将上映</h2>
+					</div>
+					<div class="mod_bd">
+						<ul class="ulist">
+							<li>
+								<div class="condition">
+									<dl class="clear dlTy">
+										<dt>
+											<span class="typeTitle mr10">影片类型</span>
+										</dt>
+										<dd>
+											#set($typeList=['动作','喜剧','爱情','科幻','魔幻','灾难','恐怖','纪录','犯罪','战争','冒险','剧情','其他'])
+											#foreach($tp in $typeList)
+												<a #if($VmUtils.eq($tp,$!params.type)) class="selected"  #set($searchTJ4=${tp}) #else href="${basePath}movie/futureMovie.xhtml?$qb.getQueryStr('type',$tp)" #end>$!{tp}</a>
+											#end
+										</dd>
+									</dl>
+								</div>
+							</li>
+							<li>
+								<div class="condition mt5">
+									<dl class="clear dlTy">
+										<dt>
+											<span class="typeTitle left">影片查询</span>
+										</dt>
+										<dd>
+											<div class="search_kuang left">
+												<form id="searchForm" action="${basePath}movie/futureMovie.xhtml">
+													<input name="type" type="hidden" id="type" value="$!VmUtils.escabbr($params.type,100)" />
+													<input id="keyW" value="$!VmUtils.escabbr($!params.keyW,100)" class="search_text searchText noradius" type="text"  alt="请输入搜索关键词"  name="keyW">
+													<label class="search_button noradius">
+														<input type="submit" value="" />
+													</label>
+												</form>
+											</div>						
+										</dd>
+									</dl>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="selectedMenus clear" style="margin-bottom:20px">
+					<div class="right">
+						<div class="ui_simulate">
+							<div class="simulate_select">
+								<div class="select_value">默认(按首映日期)</div>
+								<a class="select_arrow" href="javascript:void(0);"></a>
+								<input class="simulate_value" type="hidden" value="" name="order">
+							</div>
+							<ul class="simulate_options">
+								<li><a href="javascript:void(0);" data-value="">默认(按首映日期)</a></li>
+								<li><a href="javascript:void(0);" data-value="clickedtimes">按关注(由高到低)</a></li>
+							</ul>
+						</div>
+					</div>
+					<div class="left">
+						<span>
+							共<b class="colorRed" id="keyNum_fetureMovieListCount">$!searchrowsCount</b>部影片
+						</span>
+					</div>
+				</div>
+				<div class="movieList">
+					<ul>
+					#foreach($movie in $!movieList)
+					#if(!$movieIdList.contains($movie.id))
+						#set($addMId = $movieIdList.add($movie.id))
+					#end 
+						<li class="effectLi" style="display:block;">
+							#if($movie.playdate)
+							#set($playdate = $DateUtil.parseDate($movie.playdate,'yyyy-MM-dd'))
+							#set($pmdate = $DateUtil.parseDate($movie.playdate,'yyyy-MM'))
+							<p class="more date" style="left:-89px;">
+								#if($playdate)
+								<span class="month">$!DateUtil.format($playdate,'M')月</span>
+								<span class="day">$!DateUtil.format($playdate,'dd')</span>
+								#elseif($pmdate)
+								<span class="month">$!DateUtil.format($pmdate,'M')月</span>
+								<span class="month">待定</span>
+								#else
+								<span class="month">尚未</span>
+								<span class="month">公布</span>
+								#end
+							</p>
+							#end
+							<div class="ui_media">
+								<div class="ui_pic">
+									<a href="$!{basePath}movie/$!movie.id" target="_blank" class="ui_movieType" title="$!movie.moviename">
+										#if($VmUtils.contains($movie.edition, '4D'))<span class="ui_type4d"></span>
+										#elseif($VmUtils.contains($movie.edition, 'IMAX3D'))<span class="ui_typeImax3d"></span>
+										#elseif($VmUtils.contains($movie.edition, 'IMAX'))<span class="ui_typeImax"></span>
+										#elseif($VmUtils.contains($movie.edition, '3D'))<span class="ui_type3d"></span>
+										#end
+										<img src="$VmUtils.randomPic('cw120h160',$movie.limg)" alt="$!movie.moviename" height="160" width="120"/>
+									</a>
+									#if($opiMovieList && $opiMovieList.contains($movie.id))
+									<p class="mt10">
+										<a class="button redBt bigBt" href="$!{basePath}movie/$!movie.id" target="_blank"><span>选座购票</span></a>
+									</p>
+									#end
+								</div>
+								<div class="ui_text">
+									<div class="title">
+										<h2>
+											<a href="$!{basePath}movie/$!movie.id" title="$!movie.moviename" target="_blank" class="color3">$!movie.moviename</a>
+										</h2>
+										<span class="ml5">(<span data-keynum="$!{movie.id}_clickedtimes">$!movie.rclickedtimes</span>人关注 | <span data-keynum="$!{movie.id}_xiangqu">$movie.xiangqu</span>人想看)</span>
+										#if($opiMovieList.contains($movie.id))
+										<span class="presellM"></span>
+										#end
+									</div>
+									<p class="mt10">类型：$!{movie.type}</p>
+									#if($movie.state)
+									<p>国家：$!movie.state</p>
+									#end
+									<p>语言：$!{movie.language}</p>
+									#if($movie.videolen)
+									<p>
+										片长：#if($movie.videolen)#set($videoHour = $movie.videolen/60)#set($videoM = $movie.videolen%60)#if($videoHour gt 0)$!{videoHour}小时#end$!{videoM}分钟#end
+									</p>
+									#end
+									<p>导演：$VmUtils.getLight($!{movie.director},$!queryString)#if(($VmUtils.getLight($!{movie.director},$!queryString) ne "")&&($VmUtils.getLight($!{movie.actors},$!queryString) ne ""))</p>
+									<p>主演：#end$VmUtils.getLight($!{movie.actors},$!queryString)</p>
+									<div class="yuPhoto mt10 fs14">
+										#set($key1 = $!movie.id + "movie")
+										#if($videoCountMap.get($key1) && $videoCountMap.get($key1) gt 0)
+										<a href="$!{basePath}movie/$!movie.id?videoList=true" target="_blank"><span class="prevuing mr20">预告片($videoCountMap.get($key1))</span></a>
+										#end
+										#if($!pictureCountMap.get($key1))
+										<a href="$!{basePath}movie/$!movie.id?pictureList=true" target="_blank" class="moviePhoto"><span class="stagePhoto">剧照<em>($!pictureCountMap.get($key1))</em></span></a>
+										#end
+										#if(!$opiMovieList.contains($movie.id))
+										#*<a href="javascript:void(0)" onclick="showTemplate('$movie.name','$movie.id')" class="button minBt whiteBt wlook"><span>想看</span></a>*#
+										#end
+									</div>
+								</div>
+							</div>
+						</li>
+						#end
+					</ul>
+					<div style="padding:0 15px;">#parse('include/pageUtil.vm')</div>
+				</div>
+			</div>
+			<div class="ui_right">
+				#parse('include/movie/mod_hotExpectList.vm')
+				#parse('include/movie/mod_hotShowMovie.vm')
+				#parse('include/movie/mod_hotActivity.vm')
+			</div>
+		</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<input type="hidden" name="moviename" id="moviename"/>
+<div id="movieInfo" style="display:none; padding:15px 20px;">
+<form method="post" action="javascript:saveTemplate();" id="mform" name="mform">
+	<p class="fs14">影片名 ：<b class="cMovie" id='dvname'></b></p>
+	<p class="mt15 fs14">手机号：<input type="text" class="text" name="mobile" style="width:120px" id="mobile" value="" mustTxt="请填写短信通知的手机号码！"/></p>	
+	<p class="mt15 fs14 clear">
+		<span class="left">验证码：</span>
+		<input type="hidden" name="captchaId" id="captcha" />
+		<input type="text" class="text captcha left" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" size="18" style="width:60px" mustTxt="请输入验证码!" onfocus="GewaraUtil.refreshCaptcha('captcha');"/>
+		<img id="captchaImg" src="${staticPath}css/images/blank.gif" class="ml10" style="cursor: pointer;vertical-align: middle;float:left;height:36px;" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清楚，请点击换一张图片"/>
+	</p>
+	<p class="c999 clear">说明：开放购票后你将收到短信提醒。</p>
+	<input type="hidden" name="mpcategoryid" id="mpcategoryid"/>
+	<input type="hidden" name="type" id="type" value="moveTag"/>
+	<input type="hidden" name="mptag" id="mptag" value="cinema"/>
+</form>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	var keys = "ticketMovieCount,futureMovieCount,ticketCinemaCount,movieActivityCount";
+	#if(!$VmUtils.isEmptyList($movieIdList))
+		keys += ",movieDetail_$!VmUtils.join($movieIdList, '@')";
+	#end
+	GewaraUtil.sendRequest('${basePath}ajax/loadIndexKeyNumber.xhtml', {"keys":keys}, function(result){
+		if(result.success) {
+			$("keyNum_cinemaCount").set("text",result.ticketCinemaCount + "家");
+			$("keyNum_fetureMovieCount").set("text",result.futureMovieCount + "部");
+			$("keyNum_curMovieListCount").set("text",result.ticketMovieCount + "部");
+			$("keyNum_activityCount").set("text",result.movieActivityCount + "个");
+			$("keyNum_fetureMovieListCount").set("text",result.futureMovieCount);
+			#if(!$VmUtils.isEmptyList($movieIdList))
+				#foreach($id in $movieIdList)
+					document.getElements('*[data-keynum=$!{id}_mark1]').set("text",(result.mark_$!{id}/10 + "").toInt());
+					document.getElements('*[data-keynum=$!{id}_mark2]').set("text","." + result.mark_$!{id}%10);
+					document.getElements('*[data-keynum=$!{id}_xiangqu]').set("text",result.xiangqu_$!{id});
+					document.getElements('*[data-keynum=$!{id}_clickedtimes]').set("text",result.clickedtimes_$!{id});
+				#end
+			#end
+		}
+	});
+	gewaUtil.affix($('ui_left'));
+	selectBar();
+	 #if($params.order && !$VmUtils.isBlank($params.order))
+		var simulateSelect = $$('.simulate_select');
+		simulateSelect.each(function(item){
+			var e = item.getNext().getElement('a[data-value=$!{params.order}]')
+			item.getElement('.select_value').set('html',e.get('html'));
+			item.getElement('.simulate_value').set('value',e.get('data-value'));
+		});
+	#end
+});
+function selectBar(){
+	var simulateSelect = $$('.simulate_select');
+	simulateSelect.each(function(item){
+		item.addEvent('click',function(){
+			item.getNext().toggle();
+		})
+		item.getParent().addEvent('mouseleave',function () {
+			item.getNext().hide();
+		})
+		item.getNext().getElements('a').addEvent('click',function (e){
+			e.preventDefault();
+			if(item.getElement('.simulate_value').get('value') != this.get('data-value')) {
+				search('order',this.get('data-value') ? this.get('data-value') : "");
+			}
+		});
+	});
+}
+function search(field, value){
+	$(field).value = value;
+	$('searchForm').submit();
+}
+function showTemplate(name,id){
+	$('dvname').innerHTML=name;
+	$('mpcategoryid').value=id;
+	checkLogin(true,function(){
+		gewa.util.issure('','movieInfo','购票提醒',350,'movieInfo',function(){
+			$('mform').submit();
+		});
+	});
+}
+saveTemplate = function(){
+	var url = "${basePath}ajax/movie/savePlayItemMessage.xhtml";
+	var values = GewaraUtil.getValues('mform');
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.alert('添加成功，开放购票后你将收到短信提醒！');
+			gewa.util.container['movieInfo'].dispose('movieInfo');
+		}else{
+			gewaUtil.alert(result.msg);
+			gewa.util.container['movieInfo'].dispose('movieInfo');
+		}
+	});
+}
+
+</script>
+</body>
+<!-- SUCCESS_BOTTOM -->
+</html>

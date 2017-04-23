@@ -1,0 +1,86 @@
+<div class="clear mt20">
+	<div style="padding-bottom:10px;"><h2>券号：$!spdiscount.bankname</h2></div>
+	<table cellpadding="0" class="table" cellspacing="0" border="0">
+		<tr>
+		  <td width="12%">有效日期：</td>
+		  <td width="45%">$!{DateUtil.format($spdiscount.timefrom, "yyyy年MM月dd日")}-$!{DateUtil.format($spdiscount.timeto, "yyyy年MM月dd日")}</td>
+		  <td>票券类型：</td>
+		  <td>
+			$!spdiscount.enableRemark
+		  </td>
+		</tr>
+		<tr>
+		  <td>有效时间段：</td>
+		  <td>$VmUtils.joinStr($!{spdiscount.time1},":",2) ~ $VmUtils.joinStr($!{spdiscount.time2},":",2)</td>
+		  <td width="10%">使用类型：</td>
+		  <td>#if($VmUtils.eq($spdiscount.tag, 'movie'))电影#elseif($VmUtils.eq($spdiscount.tag, 'goods'))物品#elseif($VmUtils.eq($spdiscount.tag, 'drama'))话剧#elseif($VmUtils.eq($spdiscount.tag, 'sport'))运动#end</td>
+		</tr>
+		<tr>
+		  <td>指定影院：</td>
+		  <td align="left">
+		  	#if(!$VmUtils.isEmptyList($cinemaList))
+		  		#foreach($cinema in $cinemaList)
+		  		<a href="${basePath}cinema/$cinema.id" target="_blank">$!cinema.name</a>#if(!$VmUtils.eq($VmUtils.size($cinemaList), $foreach.count)) |#end
+		  		#end
+		  	#else不限#end
+		  </td>
+		  <td>指定影片：</td>
+	 	  <td>
+	 	  	#if(!$VmUtils.isEmptyList($movieList))
+		 	  	#foreach($movie in $movieList)
+		 	  		<a href="${basePath}movie/$movie.id" target="_blank">$!movie.name</a>#if(!$VmUtils.eq($VmUtils.size($movieList), $foreach.count)) |#end
+		 	  	#end
+	 	  	#else不限#end
+	 	  </td>
+		</tr>
+		<tr>
+		  <td>
+		 	适用城市：
+		  </td>
+		  #set($citys = $VmUtils.split($spdiscount.citycode, ","))
+		  <td align="left">#if($VmUtils.eq($spdiscount.citycode, '000000'))不限 
+		  	#else
+			  	#foreach($city in $citys)
+				$!AdminCityContant.citycode2CitynameMap.get($city)&nbsp; 
+				#end
+			#end
+		  </td>
+		  <td width="10%">指定星期：</td>
+		  <td>#if($strweek)${strweek}#else不限#end</td>
+		</tr>
+		<tr>
+			<td>适用版本：</td>
+		  <td colspan="3" align="left">
+		  		$!spdiscount.edition
+		  </td>
+		</tr>
+		<tr>
+			<td>支付限制：</td>
+		  <td colspan="3" align="left">
+		  		#if($VmUtils.isBlank($spdiscount.paymethod))
+		  			不限
+		  		#else
+		  			#set($pmList = $VmUtils.split($spdiscount.paymethod, ","))
+		  			#foreach($pmkey in $pmList)
+		  			$paytextMap.get($pmkey)&nbsp;
+		  			#end
+		  		#end
+		  </td>
+		</tr>
+		<tr>
+		  <td>使用说明：</td>
+		  <td colspan="3" align="left">
+		  		$!spdiscount.description
+		  </td>
+		</tr>
+		#*
+		<tr>
+		  <td>补充说明：</td>
+		  <td colspan="3" align="left" style="color:red">
+		  </td>
+		</tr>
+		*#
+	</table>
+	<div class="clear mt5">
+	</div>
+</div>

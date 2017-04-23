@@ -1,0 +1,76 @@
+<!--  选择城市 弹出框begin -->
+<div id="showCityDialog" class="yui-panel" style="width:560px; visibility:hidden;">
+	<div class="hd" id="title">关联显示城市</div>
+	<div class="bd">
+	<form name="showCityForm" id="showCityForm">
+		<input type="hidden" name="tag" value="$!tag">
+		<input type="hidden" name="relatedid" id="relatedid" value="$!relatedid">
+		<input type="hidden" name="flag" id="flag" value="$!flag">
+		<div>
+			<label class="labelspan">是否全部：</label>
+			<input type="checkbox" name="relatecityAll" id="relatecityAll" style="width: 20px;" value="000000" onclick="checkSelAll(this)" #if($VmUtils.contains($selcitycode, '000000')) checked #end>
+			<label class="labelfor" for="relatecityAll">全部</label>
+			<br />
+		</div>
+		<div style="margin-top: 20px;" id="subCitys">
+			<label class="labelspan">开放城市：</label>
+			#foreach($city in $cityMap.keySet())
+				<input type="checkbox" name="relatecity" style="width: 15px;" id="ct$city" value="$city" onclick="checkSelSingle(this)" #if($VmUtils.contains($selcitycode, $city)) checked #end>
+				<label class="labelfor" for="ct$city">$cityMap.get($city)</label>
+			#end
+		</div>
+		
+		<div>
+			<br />
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="saveRelateCity();" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="GewaraUtil.hideDialog('showCityDialog');" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+<!-- 选择城市 弹出框end -->
+	<script>
+	window.addEvent('domready', function(){
+		if($('relatecityAll').checked){
+			checkSelAll($('relatecityAll'));
+		}
+	})
+	// 全选
+	checkSelAll = function(obj){
+		$each($('subCitys').getElements('input'), function(n, i){
+			n.checked = obj.checked;
+		})
+	}
+	// 单选
+	checkSelSingle = function(obj){
+		if(!obj.checked){
+			$('relatecityAll').checked = false;
+		}else{
+			if($('subCitys').getElements('input').length == $('subCitys').getElements('input[checked]').length){
+				$('relatecityAll').checked = true;
+			}
+		}
+	}
+	// 保存关联城市
+	saveRelateCity = function(){
+		var relatedid = $('relatedid').value;
+		var url = '${basePath}admin/common/saveRelateToCity.xhtml';
+		var values = GewaraUtil.getValues('showCityForm', ',');
+		var relatecity = values['relatecity'];
+		if(!$chk(relatecity)){
+			alert('至少选择一个城市!');
+			return false;
+		}
+		var el = $('notp'+relatedid).getElement('span');
+		if(el) el.empty();
+		GewaraUtil.sendLoad(el, url, values, function(result){
+			if(!result.success){
+				alert(result.msg);
+			}else{
+				GewaraUtil.hideDialog('showCityDialog');
+				$('notp'+relatedid).removeClass('none');
+			}
+		})
+	}
+</script>

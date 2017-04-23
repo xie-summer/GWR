@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>添加好友_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body>
+#set($tag="home")#set($isInvite = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#if(!$isFriend)
+				#parse('include/home/myfriend.vm')
+			#end
+			<form id="addAgentmemberForm" name="addAgentmemberForm">
+				<input type="hidden" name="inviteid" value="$memberInfo.id"/>
+				<input type="hidden" name="isAdd" id="isAdd" value="0"/>
+				<ul class="ul-150 mt10">
+					<li class="list_h"><span class="left_150">姓名：</span><input type="text" mustTxt="姓名不能为空！" class="text" name="realname" id="realname" onblur="checkMember();"/></li>
+					<li class="list_h"><span class="left_150">Email：</span><input type="text" name="email"  class="text" id="email" onblur="checkMember();"/></li>
+					<li class="list_h"><span class="left_150">手机：</span><input type="text"  class="text" name="mobile" id="mobile"/></li>
+					<li class="mt20">
+						<label for="addMember" class="button minBt redBt ml39"><input type="button" name="submit" value="添&nbsp;&nbsp;加" id="addMemberBtn" onclick="saveAddMember();"/></label>
+					</li>
+					<li class="list_h"><span class="left_150"></span></li>
+				</ul>
+			</form>
+			<div id="addMemberInfo"></div>
+		</div>
+	</div>
+</div>
+	<script type="text/javascript">
+	function saveAddMember(){
+		if(!GewaraUtil.baseValidForm('addAgentmemberForm')) return false;
+		GewaraUtil.mask('addMemberBtn');
+		var url ="${basePath}home/friend/saveAddMember.xhtml";
+		var values= GewaraUtil.getValues('addAgentmemberForm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				gewaUtil.alert('邀请成功！');
+				document.location.href = "${basePath}home/friend/friendList.xhtml?ftag=livefriend";
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	}
+	function checkMember(){
+		var nickName = document.getElementById('realname').value;
+		var email = document.getElementById('email').value;
+		var url = '${basePath}home/friend/existFriendList.xhtml';
+		var values = {'nickName':nickName,'email':email};
+		GewaraUtil.sendLoad('addMemberInfo', url, values, function(result){
+			if(!result.success){
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

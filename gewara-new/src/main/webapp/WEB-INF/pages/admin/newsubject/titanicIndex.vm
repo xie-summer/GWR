@@ -1,0 +1,197 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>泰坦尼克号专题</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.tales60{overflow:hidden;width:100%;padding-left:60px;}
+		.tales60 dt{margin-left:-60px;_margin-left:-30px;width:60px;text-align:right;float:left;}
+		.tales60 dd{margin:0;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td colspan="8" align="left" class="td"><span>专题数据(泰坦尼克号专题)</span></td>
+		<td align="right" class="td"><a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+	</tr>
+	#if($VmUtils.isBlank($!info))
+	<tr class="td">
+		<td align="left" class="wd200"><a href="javascript:void(0)" onclick="showTime()" >各活动时间设置</a></td>
+		<td align="left" class="wd200"><a href="${basePath}admin/newsubject/titanicIndex.xhtml?info=show" target="_blank">明信片信息</a></td>
+		<td align="left" class="wd200"><a href="${basePath}admin/newsubject/commonPictrue.xhtml?type=titanic&tag=vote" target="_blank">首页广告位</a></td>
+		<td align="left" class="wd200"><a href="${basePath}admin/newsubject/commonPictrue.xhtml?type=titanic&tag=childActivity" target="_blank">分站资讯和广告</a></td>
+		<td align="left" class="wd200"><a href="${basePath}admin/newsubject/commonPictrue.xhtml?type=titanic&tag=childType" target="_blank">各分站影片类型</a></td>
+	</tr>
+	#else
+	<tr class="td">
+		<td width="50">添加时间</td>
+		<td width="80">用户姓名</td>
+		<td width="80">收件人姓名</td>
+		<td width="80">收件人邮编</td>
+		<td width="80">收件人地址</td>
+		<td width="200">个性感言</td>
+		<td width="80">寄信人姓名</td>
+		<td width="80">寄信人地址</td>
+		<td width="60">寄信人邮编</td>
+	</tr>
+	#foreach($postcard in $postcardList)
+	<tr class="td">
+		<td width="50">$!DateUtil.formatTimestamp($!postcard.addtime)</td>
+		<td width="80">$!postcard.membername</td>
+		<td width="80">$!postcard.toname</td>
+		<td width="80">$!postcard.topostcode</td>
+		<td width="80">$!postcard.receiptAddress</td>
+		<td width="100">$!postcard.content</td>
+		<td width="80">$!postcard.fromname</td>
+		<td width="80">$!postcard.fromaddress</td>
+		<td width="60">$!postcard.frompostcode</td>
+	</tr>
+	#end
+	#parse('include/pageUtil.vm')
+	#end
+	
+	
+</table>
+<div id="infos" style="display:none">
+	<form action="javascript:addTime()" method="post" id="info" name="info" >
+	<input type="hidden" value="titanic" name="type" id="type" />	
+	<div style="color:red;font-size: 14px">泰坦尼克号
+		<select name="tag" id="tag" onchange="saveTag(this)">
+			<option value="">请选择活动类型</option>
+			<option value="postcard">明信片活动</option>
+			<option value="vote">爱情还是面包</option>
+			#*<option value="scene_love">穿越现场(活动三)</option>
+			<option value="happy">晒幸福照片(活动四)</option>
+			<option value="phone_daren">手机达人(活动五)</option>*#
+		</select>
+	</div>
+	<div id="customerInfo">
+		<input type="hidden" name="id" id="id"/>
+		<input type="hidden" name="thirteenid" id="thirteenid" value="$!postcard.id"/>
+		<input type="hidden" name="pomid" id="pomid" value="$!vote.id"/>
+		<input type="hidden" name="treeid" id="treeid" value="$!treeMap.id"/>
+		<input type="hidden" name="partyid" id="partyid" value="$!partyMap.id"/>
+		<input type="hidden" name="phoneid" id="phoneid" value="$!phoneMap.id"/>
+		
+		<input type="hidden" name="thirteenstart" id="thirteenstart" value="$!DateUtil.format($!postcard.starttime,'yyyy-MM-dd HH:mm:ss')"/>
+		<input type="hidden" name="pomstart" id="pomstart" value="$!DateUtil.format($!vote.starttime,'yyyy-MM-dd HH:mm:ss')"/>
+		<input type="hidden" name="treestart" id="treestart" value="$!DateUtil.format($!treeMap.starttime,'yyyy-MM-dd HH:mm:ss')"/>
+		<input type="hidden" name="partystart" id="partystart" value="$!DateUtil.format($!partyMap.starttime,'yyyy-MM-dd HH:mm:ss')"/>
+		<input type="hidden" name="phonestart" id="phonestart" value="$!DateUtil.format($!phoneMap.starttime,'yyyy-MM-dd HH:mm:ss')"/>
+		
+		<input type="hidden" name="thirteenend" id="thirteenend" value="$!DateUtil.format($!postcard.endtime,'yyyy-MM-dd HH:mm:ss')"/>
+		<input type="hidden" name="pomend" id="pomend" value="$!DateUtil.format($!vote.endtime,'yyyy-MM-dd HH:mm:ss')"/>
+		<input type="hidden" name="treeend" id="treeend" value="$!DateUtil.format($!treeMap.endtime,'yyyy-MM-dd HH:mm:ss')"/>
+		<input type="hidden" name="partyend" id="partyend" value="$!DateUtil.format($!partyMap.endtime,'yyyy-MM-dd HH:mm:ss')"/>
+		<input type="hidden" name="phoneend" id="phoneend" value="$!DateUtil.format($!phoneMap.endtime,'yyyy-MM-dd HH:mm:ss')"/>
+		
+		<dl class="tales60">
+			<dt>开始时间:</dt>
+			<dd><label for="i_2"><input type="text" class="text" name="starttime" id="starttime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:00:00'})" value="$!DateUtil.format($!timeMap.get('starttime'),'yyyy-MM-dd HH:mm:ss')" /></label></dd>
+		</dl>
+		<dl class="tales60">
+			<dt>结束时间:</dt>
+			<dd><label for="i_2"><input type="text" class="text" name="endtime" id="endtime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:00:00'})" value="$!DateUtil.format($!timeMap.get('endtime'),'yyyy-MM-dd HH:mm:ss')"/></label></dd>
+		</dl>
+	</div>
+	</form>
+</div>
+<script type="text/javascript">
+	function showUrl(){
+		gewa.util.issure('','urlinfo','10元抢票',420,'keys',function(){
+			addUrl();
+		});
+	}
+	function addUrl(){
+		if($('url').value == ''){
+			alert('请填写链接！');
+			return;
+		}
+		var values = GewaraUtil.getValues("urlform");
+		var url = '${basePath}admin/newsubject/addtime.xhtml';
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function showTime(){
+		gewa.util.issure('','infos','活动时间：',420,'keys',function(){
+			addTime();
+		});
+	}
+	function saveTag(el){
+		if(el.value == 'postcard'){
+			$('id').value = $('thirteenid').value;
+			$('starttime').value = $('thirteenstart').value;
+			$('endtime').value = $('thirteenend').value;
+		}else if(el.value == 'vote'){
+			$('id').value = $('pomid').value;
+			$('starttime').value = $('pomstart').value;
+			$('endtime').value = $('pomend').value;
+		}else if(el.value == 'scene_love'){
+			$('id').value = $('treeid').value;
+			$('starttime').value = $('treestart').value;
+			$('endtime').value = $('treeend').value;
+		}else if(el.value == 'happy'){
+			$('id').value = $('partyid').value;
+			$('starttime').value = $('partystart').value;
+			$('endtime').value = $('partyend').value;
+		}else if(el.value == 'phone_daren'){
+			$('id').value = $('phoneid').value;
+			$('starttime').value = $('phonestart').value;
+			$('endtime').value = $('phoneend').value;
+		}else{
+			$('id').value = '';
+			$('starttime').value = '';
+			$('endtime').value = '';
+		}
+	}
+	function addTime(){
+		var url = '${basePath}admin/newsubject/addtime.xhtml';
+		if($('tag').value == ''){
+			alert('请选择活动类型！');
+			return;
+		}
+		var values = GewaraUtil.getValues("info");
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

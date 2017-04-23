@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>培训机构列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width:750px; margin:auto">
+<div style="width:740px;">
+<form action="${basePath}admin/agency/getAgencyList.xhtml" style="width:740px;margin:3px">
+	名称：<input name="searchKey" type="text" style="width:80px" value="$!params.searchKey"/>
+	<input type="submit" class="button" value="查询"/>
+	<a href="${basePath}admin/agency/modifyAgencyDetail.xhtml" target="_blank">添加培训机构</a>
+</form>
+<table class="table">
+	<thead>
+	<tr>
+		<th>ID</th>
+		<th>机构名称</th>
+		<th>配置</th>
+		<th>状态</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody>
+	#foreach($agency in $agencyList)
+	<tr>
+		<td>$!agency.id</td>
+		<td style="color:red">$!agency.name</td>
+		<td>
+			<a href="${basePath}admin/agency/getAgencyToVenueList.xhtml?agencyId=$!agency.id" target="_blank">场馆管理</a>
+			<a href="${basePath}admin/agency/getSportStarList.xhtml?agencyId=$!agency.id" target="_blank">教练</a>
+			<a href="${basePath}admin/common/pictureList.xhtml?tag=agency&relatedid=$!agency.id&uploadPath=images/agency" target="_blank">图片</a>
+			<a href="${basePath}admin/common/videoList.xhtml?tag=agency&relatedid=$!agency.id" target="_blank">视频</a>
+			<a href="${basePath}admin/common/discountInfoList.xhtml?tag=agency&relatedid=$!agency.id" target="_blank">公告</a>
+		</td>
+		<td nowrap="nowrap">
+			<select name='hotvalue' id='$!agency.id' onchange='setHotValueOrStatus("$!agency.id","","")'>
+				<option value="30000" #if($!agency.hotvalue eq 30000) selected="selected" #end>热门</option>
+				<option value="0" #if($!agency.hotvalue eq 0) selected="selected" #end>一般</option>
+			</select>
+		</td>
+		<td>
+			<a href="${basePath}admin/agency/modifyAgencyDetail.xhtml?agencyId=$!agency.id" target="_blank">编辑</a>
+			<a href="${basePath}admin/common/getChangeHis.xhtml?tag=Agency&relatedid=$!agency.id" target="_blank">历史</a>
+			#if($VmUtils.eq($agency.status, 'Y'))
+			<a href='javascript:setHotValueOrStatus("$!agency.id","status","N");'>隐藏</a>
+			#else
+			<a href='javascript:setHotValueOrStatus("$!agency.id","status","Y");'>展示</a>
+			#end
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+</div>
+<script type="text/javascript">
+function setHotValueOrStatus(vid,type,value){
+	var url = "${basePath}admin/agency/ajax/updateAgencyHotValueOrStatus.xhtml";
+	var values;
+	if(type == "status"){
+		values = {'agencyId':vid, "status":value};
+	}else{
+		values = {'agencyId':vid, "hotvalue":$(vid).value};
+	}
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success) alert('设置成功！');
+		else alert(result.msg);
+	});
+}
+</script>
+</body>
+</html>

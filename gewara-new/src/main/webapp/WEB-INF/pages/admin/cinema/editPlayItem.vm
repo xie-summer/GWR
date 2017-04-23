@@ -1,0 +1,353 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影院排片编辑-$cinema.name</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/admin.css?v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		html,body{background: none;}
+		.table thead th, .table tbody th{background-color: gray; color:white; vertical-align: middle; text-align: center;}
+		.table tbody th{ text-align: right;}
+		select{width:120px;_width:117px;}
+		textarea{height:130px; width:120px; font-family: "宋体" Arial; font-size: 16px; }
+		label{display:block; width: 150px; margin: 5px;}
+		.tab_title li{line-height: 18px;}
+	</style>
+</head>
+<body>
+<div>
+	<div>
+		<p style="padding:5px;">说明：<br />
+			1、对于指定电影在指定影厅上映，就在影厅对应的列中输入排片，无排片则为空。<span style="color:blue">对于没有明确放映厅的排片，在<span style="color:red">不分厅排片</span>列中输入</span><br />
+			2、录入格式为每行一场，两场之间必须用换行来分隔(票价后面不能有空格)。<br />
+			3、半角输入，时间与价格间用一个空格，时间为五位，9:00应该输入09:00，正确的为：<br />
+			&nbsp; 09:00 70 <br />
+			&nbsp; 20:00 100 <br />
+			4、如果有连映的电影，可以使用“增加连映排片”来增加。<br />
+			5、语言可以为：中文、原版、英语、粤语
+		</p>
+	</div>
+	<ul class="tab_title mt10" style="width: 1200px; height:35px;">#foreach($day in $dateList)
+		<li><a href="${basePath}admin/cinema/editPlayItem.xhtml?date=$day&cinemaId=$cinema.id" #if($day eq $curDate)class="active"#end>$dateMap.get($day)<br />(${countMap.get($day)}场)</a></li>#end
+	</ul>
+	<div id="tools" class="mt5">
+		<a class="blank7Bt left ml10" onclick="showCopy()">选一天复制排片</a>
+	</div>
+	<table class="table mt5">
+		<thead>
+			<tr>
+				<th rowspan="2" style="width:150px;"><span class="left ml5">电影</span><span class="right mr5">影厅</span></th>
+				<th rowspan="2">不分厅排片</th>
+				<th colspan="$VmUtils.size($roomList)">分厅排片</th>
+			</tr>
+			<tr>#foreach($cinemaroom in $roomList)<th>$cinemaroom.roomname</th>#end</tr>
+		</thead>
+		#set($rownum = 1)
+		<tbody id="editContent">
+		#foreach($curMovie in $curMovieList)
+		#foreach($langAndEdition in $langMap.get($curMovie.id))
+		#set($lepair=$langAndEdition.split("@")) #set($lang=$lepair.get(0).trim())#set($edition=$lepair.get(1).trim())
+		<tr id="row$rownum">
+			<th>
+				<input type="hidden" id="mold${rownum}" value="$curMovie.id"/>
+				<label><select id="m${rownum}" onchange="changeMovie('$rownum', this)">
+					#foreach($movie in $movieList)<option value="$movie.id"#if($curMovie.id eq $movie.id) selected="selected" #end>$!{VmUtils.substring($movie.pinyin,0,1)}-$movie.name</option>#end
+					</select></label>
+				<input type="hidden" id="lold${rownum}" value="$!{lang}" />
+				<label>语言：<input id="l${rownum}" type="text" value="$!lang" onchange="changeLang('$rownum', this)" style="width:100px;" /></label>
+				<input type="hidden" id="eold${rownum}" value="$!editionMap.get($key1)" />
+				<label>版本：<input id="e${rownum}" type="text" value="$!edition" onchange="changeEdition('$rownum', this)" style="width:90px;" /></label>
+				<label><input type="button" class="button" onclick="deleteRow('$rownum', this)" value="清除此行排片"/></label>
+			</th>#set($key3='' + $curMovie.id + $langAndEdition) #set($key4='mpi' + $curMovie.id + $langAndEdition)
+			<td>
+				<textarea id="row${rownum}R" onchange="savePlayItems('', '$rownum')">$!mpiMap.get($key3)</textarea>
+				<input type="hidden" id="mpi${rownum}R" value="$!mpiMap.get($key4)" />
+			</td>
+			#foreach($cinemaroom in $roomList)
+			#set($key='' + $curMovie.id + $langAndEdition + $cinemaroom.id)
+			#set($key2='mpi' + $curMovie.id + $langAndEdition + $cinemaroom.id)
+			<td>
+				<textarea id="row${rownum}R$cinemaroom.id" title="$cinemaroom.roomname" onchange="savePlayItems('$cinemaroom.id', '$rownum')">$!mpiMap.get($key)</textarea>
+				<input type="hidden" id="mpi${rownum}R$cinemaroom.id" value="$!mpiMap.get($key2)" />
+			</td>
+			#end
+		</tr>
+		#set($rownum = $rownum + 1)
+		#end <!-- end of lang -->
+		#end <!-- end of if curMovie -->
+		#set($maxrownum = $rownum+5)
+		#foreach($rownum in [$rownum .. $maxrownum])
+		<tr id="row$rownum">
+			<th>
+				<input type="hidden" id="mold${rownum}" value=""/>
+				<label><select id="m${rownum}" onchange="changeMovie('$rownum')">
+					<option value="">请选择...</option>
+					#foreach($movie in $movieList)<option value="$movie.id">${VmUtils.substring($movie.pinyin,0,1)}-$movie.name</option>#end
+				</select></label>
+				<input type="hidden" id="lold${rownum}" value="中文" />
+				<label>语言：<input id="l${rownum}" value="中文" onchange="changeLang('$rownum', this)" style="width:90px;" /></label>
+				<input type="hidden" id="eold${rownum}" value="2D" />
+				<label>版本：<select id="e${rownum}" onchange="changeEdition('$rownum', this)" style="width:100px;">
+					<option value="2D">2D</option>
+					<option value="3D">3D</option>
+					<option value="双机3D">双机3D</option>
+					<option value="IMAX2D">IMAX2D</option>
+					<option value="IMAX3D">IMAX3D</option>
+					<option value="巨幕2D">巨幕2D</option>
+					<option value="巨幕3D">巨幕3D</option>
+					<option value="4D">4D</option>
+				</select></label>
+				<input type="button" class="button" onclick="deleteRow('$rownum', this)" value="清除此行排片"/>
+			</th>
+			<td>
+				<textarea id="row${rownum}R" onchange="savePlayItems('', '$rownum')"></textarea>
+				<input type="hidden" id="mpi${rownum}R" value="" />
+			</td>
+			#foreach($cinemaroom in $roomList)
+			<td>
+				<textarea id="row${rownum}R$cinemaroom.id" title="$cinemaroom.roomname" onchange="savePlayItems('$cinemaroom.id', '$rownum')"></textarea>
+				<input type="hidden" id="mpi${rownum}R$cinemaroom.id" value="" />
+			</td>
+			#end
+		</tr>
+		#end
+		</tbody>
+	</table>
+	<div class="clear"><input type="button" onclick="addRow()" value="增加一行"/><input type="button" class="ml20" value="保存所有" onclick="alert('保存成功！')"/></div>
+</div>
+<div id="copyDialog" style="z-index: 10; visibility: hidden; background-color:#ccc;border:1px solid blue;width:220px;height:110px; padding: 10px;">
+	<br />
+	<label>请选择日期：<input type="text" style="width:100px;" id="fromDate" readonly="readonly" onclick="WdatePicker()"/></label><br />
+	<input type="button" value="确定" onclick="copyFrom();" />
+	<input type="button" value="取消" onclick="GewaraUtil.hideDialog('copyDialog');" />
+</div>
+<script type="text/javascript">
+	window.addEvent('domready', function(){
+		rowcount = ${maxrownum} + 1 ;
+		keyList = [''];
+		for(var i=1; i< rowcount; i++){
+			keyList[i] = $('m'+i).value + $('l'+i).value + $('e'+i).value;
+		}
+	});
+	function savePlayItems(roomid, rownum){
+		#if(!$modifiable)alert("对接影院不可更改排片");return;#end
+		var movieId = $("m" + rownum).value;
+		var language = $("l" + rownum).value;
+		var edition = $("e" + rownum).value;
+		var msg = "";
+		if(!movieId) msg += "请先在左侧选择电影！";
+		var el = $("row" + rownum + "R" + roomid);
+		var data = el.value.trim();
+		//判断数据的格式
+		var rowList = data.split("\n");
+		var time = new RegExp("^([0-1]\\d|2[0-3]):[0-5]\\d$");
+		var price = new RegExp("^\\d*$");
+		var i = 1;
+		rowList.each(function(row){
+			if(row){
+				var parts = row.split(" ");
+				if(parts.length>2){
+					msg +="第" + i + "行有多余的空格\n";
+				}else{
+					if(!time.test(parts[0])){msg +="第" + i + "行时间格式不对\n";}
+					if(parts.length>1 && isNaN(parts[1])){msg +="第" + i + "行价格格式不对\n";}
+					i++;
+				}
+			}
+		});
+		if(msg){//有错误
+			$("row" + rownum + "R" + roomid).setStyle('background-color','red');
+			$("row" + rownum + "R" + roomid).set('title', msg);
+			$("row" + rownum + "R" + roomid).focus();
+			return;
+		}
+		//if(!data) alert("数据清除！");
+		$("row" + rownum + "R" + roomid).setStyle('background-color','green');
+		var idList = $("mpi" + rownum + "R" + roomid).value;
+		var url = "${basePath}admin/cinema/ajax/savePlayItems.xhtml";
+		var values = {'playdate':'$curDate', 'cinemaId':'$cinema.id', 'movieId':movieId, 
+				'roomid':roomid, 'language':language, 'edition':edition, 'data':data,'idList':idList};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$("row" + rownum + "R" + roomid).setStyle('background-color','');
+				$("row" + rownum + "R" + roomid).set('title','数据已经保存');
+				$("mpi" + rownum + "R" + roomid).value=result.newidList;
+				if(result.msg.length > 0){
+					alert(result.msg);
+					refreshPage();
+				}
+			}
+		}); 
+	}
+	function repeatRow(rownum){
+		#if(!$modifiable)alert("对接影院不可更改排片");return;#end
+		var tmpkey = $('m'+rownum).value + $('l'+rownum).value + $('e'+rownum).value;
+		for(var i=1; i<rowcount; i++){
+			if(keyList[i]==tmpkey) return i;
+		};
+		return 0;
+	}
+	
+	function changeMovie(rownum){
+		#if(!$modifiable)alert("对接影院不可更改排片");return;#end
+		var oldvalue = $('mold'+rownum).value;
+		var newvalue = $('m'+rownum).value;
+		var repeat = repeatRow(rownum)
+		if(repeat > 0){
+			alert('不能与第' + repeat + "行重复！");
+			$('m'+rownum).value = oldvalue;
+			return;
+		}
+		keyList[rownum]=$('m'+rownum).value + $('l'+rownum).value + $('e'+rownum).value;
+		$('mold'+rownum).value = newvalue;
+		if(!newvalue){//新值为空, 还原原来的值。
+			alert("必须选择一个电影");
+			$('mold'+rownum).value = oldvalue;
+			$('m'+rownum).value = oldvalue;
+		}else{ //更改
+			$('row'+rownum).getElements('textarea').each(function(item){
+				if(item.value && item.value.length >= 5){
+					roomid = item.id.substring(('row' + rownum + 'R').length);
+					savePlayItems(roomid, rownum);
+				}
+			});
+		}
+	}
+	function changeLang(rownum, el){
+		#if(!$modifiable)alert("对接影院不可更改排片");return;#end
+		var oldvalue = $('lold'+rownum).value;
+		var newvalue = $('l'+rownum).value;
+		var movieId = $('m'+rownum).value;
+		var repeat = repeatRow(rownum)
+		if(repeat > 0){
+			alert('不能与第' + repeat + "行重复！");
+			$('l'+rownum).value = oldvalue;
+			return;
+		}
+		if(!movieId){
+			$("row" + rownum + "R" + roomid).setStyle('background-color','red');
+			$("row" + rownum + "R" + roomid).set('title','请先在左侧选择电影！');
+			return;
+		}
+		GewaraUtil.mask(el);
+		var roomid = '';
+		$('row'+rownum).getElements('textarea').each(function(item){
+			if(item.value && item.value.length >= 5){
+				roomid = item.id.substring(('row' + rownum + 'R').length);
+				savePlayItems(roomid, rownum);
+			}
+		});
+		keyList[rownum]=$('m'+rownum).value + $('l'+rownum).value + $('e'+rownum).value;
+		$('lold'+rownum).value = newvalue;
+		gewa.util.clearMask();
+	}
+	function changeEdition(rownum, el){
+		#if(!$modifiable)alert("对接影院不可更改排片");return;#end
+		var oldvalue = $('eold'+rownum).value;
+		var newvalue = $('e'+rownum).value;
+		var repeat = repeatRow(rownum)
+		if(repeat > 0){
+			alert('不能与第' + repeat + "行重复！");
+			$('e'+rownum).value = oldvalue;
+			return;
+		}
+		var movieId = $('m'+rownum).value;
+		gewa.util.mask({'element':el,'title':'正在提交，请稍等...'});
+		var roomid = '';
+		if(!movieId){
+			$("row" + rownum + "R" + roomid).setStyle('background-color','red');
+			$("row" + rownum + "R" + roomid).set('title','请先在左侧选择电影！');
+			return;
+		}
+		$('row'+rownum).getElements('textarea').each(function(item){
+			if(item.value && item.value.length >= 5){
+				roomid = item.id.substring(('row' + rownum + 'R').length);
+				savePlayItems(roomid, rownum);
+			}
+		});
+		keyList[rownum]=$('m'+rownum).value + $('l'+rownum).value + $('e'+rownum).value;
+		$('eold'+rownum).value = newvalue;
+		gewa.util.clearMask();
+	}
+	function deleteRow(rownum, el){
+		#if(!$modifiable)alert("对接影院不可更改排片");return;#end
+		var s = window.confirm("你确定要清除此行的排片吗？");
+		if(!s) return;
+		var movieId = $('m'+rownum).value;
+		if(!movieId){ //没有数据要删除，直接删除行
+			$('row' + rownum).dispose();
+			return;
+		}
+		var roomid = '';
+		$('row'+rownum).getElements('textarea').each(function(item){
+			if(item.value && item.value.length >= 5){
+				item.value='';
+				roomid = item.id.substring(('row' + rownum + 'R').length);
+				savePlayItems(roomid, rownum);
+			}
+		});
+	}
+	
+	function addRow(){
+		#if(!$modifiable)alert("对接影院不可更改排片");return;#end
+		gewa.util.mask({'title':"正在处理数据..."});
+		var url = "${basePath}admin/cinema/ajax/getRowPage.xhtml";
+		var values = {'cinemaId':'$cinema.id', "rownum":rowcount};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				var tmpEl = new Element("div", {"html":result.retval});
+				var rowel = new Element('tr', {'id':'row' + rowcount});
+				new Element("th",{"html":tmpEl.getElement("div").innerHTML}).inject(rowel);
+				tmpEl.getElements("p").each(function(el){
+					new Element("td",{"html":el.innerHTML}).inject(rowel);
+				});
+				rowel.inject('editContent');
+				tmpEl.dispose();
+				rowcount ++;
+				gewa.util.clearMask();
+			}
+		});
+	}
+	function copyBefore(){
+		#if(!$modifiable)alert("对接影院不可更改排片");return;#end
+		var s = window.confirm("你确定要将$beforeDate的排片复制到$curDate吗？");
+		if(!s) return;
+		gewa.util.mask({'title':"正在复制数据..."});
+		var url = "${basePath}admin/cinema/ajax/copyPlayItem.xhtml";
+		var values = {'from':'$beforeDate', "to":'$curDate', 'cinemaId':'$cinema.id'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}
+			gewa.util.clearMask();
+		});
+	}
+	function showCopy(){
+		GewaraUtil.showDialog('copyDialog');
+	}
+	function copyFrom(){
+		var date = $('fromDate').value;
+		if(!date) {alert('请选择日期！'); return; }
+		var s = window.confirm("你确定要将" + date + "的排片复制到$curDate吗？");
+		if(!s) return;
+		GewaraUtil.hideDialog('copyDialog');
+		gewa.util.mask({'title':"正在复制数据..."});
+		var url = "${basePath}admin/cinema/ajax/copyPlayItem.xhtml";
+		var values = {'from':date, "to":'$curDate', 'cinemaId':'$cinema.id'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}
+			gewa.util.clearMask();
+		});
+	}
+</script>
+</body>
+</html>

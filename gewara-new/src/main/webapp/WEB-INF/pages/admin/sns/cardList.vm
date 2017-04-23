@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>用户票券查询</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div class="ui_layout">
+	<div class="ui_right">
+		<div class="inner">
+			<form action="${basePath}admin/eticket/getCardListByUser.xhtml" method="post">
+			<div class="clew mt20 clear" style="position:relative;z-index:0;"id="useCardDv">
+				票券类型：<select name="tag">
+					<option value="movie">电影票券</option>
+					<option value="drama">话剧票券</option>
+					<option value="sport">运动票券</option>
+				</select>
+				条件类型：<select name="ukeyName">
+					<option value="id">用户id</option>
+					<option value="email">Email</option>
+					<option value="mobile">手机号码</option>
+					<option value="nickname">昵称</option>
+				</select>
+				<input name="ukeyValue" value=""/>
+				<input value="查询" type="submit"/>
+			</div>
+			</form>
+			<div class="clew mt20 clear">
+				用户ID：<input name="memberid" value="" id="memberid"/>
+			批次号:<input name="batchid" value="" id="batchid"/>
+				<input type="button" onclick="batchLockElecCard('memberid','batchid');" value="批量冻结"/>
+				<input type="button" onclick="batchUnLockElecCard('memberid','batchid');" value="批量解冻"/>
+			</div>
+			<div id="card" style="display:none"></div>
+			<div style="text-align: center;">$!msg</div>
+			<div id="ajaxLoadCardListTable" class="mt5">
+				#set($pageFun='_ajaxAutoPage')
+				<table cellpadding="0" class="table" cellspacing="0" border="0">
+					<thead>
+						<tr>
+							<th>类别</th>
+							<th>券号</th>
+							<th>有效期范围</th>
+							<th>说明信息</th>
+							<th>状态</th>
+						</tr>
+					</thead>
+					<tbody>
+					#foreach($card in $cardList)
+						<tr #if($foreach.count%2 eq 0) class="tdHover" #end>
+							<td>#if($VmUtils.eq($card.ebatch.cardtype, 'A'))兑换类#elseif($VmUtils.eq($card.ebatch.cardtype, 'C') || $VmUtils.eq($card.ebatch.cardtype, 'D'))优惠类#end</td>
+							<td>$card.cardno</td>
+							<td>$!{DateUtil.format($card.timefrom, "yyyy年MM月dd日")}~~$!{DateUtil.format($card.timeto, "yyyy年MM月dd日")}</td>
+							<td>#if($VmUtils.eq($card.ebatch.cardtype, 'A'))兑换一张票#elseif($VmUtils.eq($card.ebatch.cardtype, 'C') || $VmUtils.eq($card.ebatch.cardtype, 'D'))优惠$!card.ebatch.amount 元 #end</td>
+							<td>#set($isPassNum = $DateUtil.getDiffSecond(${DateUtil.millTimestamp},$DateUtil.parseTimestamp(${card.timeto})))
+							 #if($card.status eq 'Y') 
+								 #if($isPassNum gt 0)
+								 <font color="gray">已过期</font>
+								 #else
+								 	<font color="green">未使用</font>
+								 	<font color="green" onclick="lockCard('$!card.id',this)">冻结</font>
+								 #end
+							 #elseif($card.status eq 'U')
+							 	<font color="red">已使用</font>
+							 #elseif($card.status eq 'L')
+							 	<font color="green" onclick="unlockCard('$!card.id',this)">解冻</font>
+							 #elseif($card.status eq 'D')废弃
+							 #elseif($card.status eq 'N')待售
+							 #end
+							 </td>
+						</tr>
+					#end
+					</tbody>
+				</table>
+				<div class="clear">#parse('include/pageUtil.vm')</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+function manageLoding(mtag){
+	as.removeClass('off');
+	var url = '${basePath}admin/sns/ajaxCardListTable.xhtml';
+	var values = {'tag': mtag};
+	var el = $('st_'+mtag);
+	gewaUtil.loadData('ajaxLoadCardListTable', url, values, function(result){
+		if(result.success){
+			el.addClass('off');
+			selectPosition(el,'selectNavs',0,'linear',function(){
+				as.removeClass('seleced');
+				el.addClass('seleced');
+			});
+		}else{
+			gewaUtil.alert(result.json.msg);
+		}
+	});
+}
+	function lockCard(cid,obj){
+		var url = '${basePath}admin/eticket/manu/lockElecCard.xhtml';
+		GewaraUtil.mask(obj);
+		GewaraUtil.sendRequest(url, {'cardId':cid}, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				$(obj).dispose();
+				alert('操作成功！');				
+			}else alert(result.msg);
+		});
+	}
+	function unlockCard(cid,obj){
+		var url = '${basePath}admin/eticket/manu/unlockElecCard.xhtml';
+		GewaraUtil.mask(obj);
+		GewaraUtil.sendRequest(url, {'cardId':cid}, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				$(obj).dispose();
+				alert('操作成功！');				
+			}else alert(result.msg);
+		});
+	}
+	
+	function batchLockElecCard(memberid,batchid){
+		var url = '${basePath}admin/eticket/manu/lockElecCardByMemberid.xhtml';
+		var values = {"memberid":$(memberid).value,"batchid":$(batchid).value};
+		GewaraUtil.mask();
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert(result.retval);
+				refreshPage();				
+			}else alert(result.msg);
+		});
+	}
+	function batchUnLockElecCard(memberid,batchid){
+		var url = '${basePath}admin/eticket/manu/unLockElecCardByMemberid.xhtml';
+		var values = {"memberid":$(memberid).value,"batchid":$(batchid).value};
+		GewaraUtil.mask();
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert(result.retval);
+				refreshPage();				
+			}else alert(result.msg);
+		});
+	}
+</script>
+</body>
+</html>

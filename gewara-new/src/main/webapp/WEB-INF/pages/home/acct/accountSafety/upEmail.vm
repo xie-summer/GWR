@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>#if($!email)修改#else绑定#end登录邮箱_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	#parse('home/acct/accountSafety/style.vm')
+</head>
+<body>
+#set($ishome=true)#set($safetyCenter = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			<div class="mod_tLine">
+				<div class="mod_hd"><h2>#if($!email)修改#else绑定#end登录邮箱</h2></div>
+				<div class="mod_bd">
+					<div class="payStep01">
+						<ul class="payOrderSteps clear">
+							<li class="step1">1、验证身份</li>
+							<li class="step2">2、#if($!email)修改邮箱验证#else绑定邮箱验证#end</li>
+							<li class="step3">3、完成</li>
+						</ul>
+					</div>
+					<div class="ui_warning">
+						<p>
+							<em>为保障您的账户安全，请使用您已有的安全邮箱！</em>
+						</p>
+					</div>
+					<div  class="modifyBox">
+						<ul>
+							#if($!email)
+							<li class="line">
+								<div class="ui_media">
+									<div class="ui_pic">当前登录邮箱：</div>
+									<div class="ui_text">
+										<b class="photoNum">$!email</b>
+									</div>
+								</div>
+							</li>
+							#end
+							<li>
+								<form id="upEmailForm" name="upEmailForm" method="post" action="javascript:submitUpEmail()">
+									#if($!email)
+									<dl class="ui_media">
+										<dt class="ui_pic">新邮箱：</dt>
+										<dd class="ui_text"><label for="email1" class="label"><input id="email1" type="text" class="in text" name="email1" data-alt="新邮箱"/></label><font class="fc_b ml10" style="line-height:38px;">*</font></dd>
+									</dl>
+									<dl class="ui_media mt10">
+										<dt class="ui_pic">确认邮箱：</dt>
+										<dd class="ui_text"><label for="email2" class="label"><input id="email2" type="text" class="in text" name="email2" data-alt="确认邮箱"/></label><font class="fc_b ml10" style="line-height:38px;">*</font></dd>
+									</dl>
+									#else
+									<dl class="ui_media mt10">
+										<dt class="ui_pic">安全邮箱：</dt>
+										<dd class="ui_text"><label for="secrityemail" class="label"><input id="secrityemail" type="text" class="in text" name="email" data-alt="邮箱地址"/></label><font class="fc_b ml10" style="line-height:38px;">*</font></dd>
+									</dl>
+									#end
+									<dl class="ui_media mt10" >
+										<dt class="ui_pic">登录密码：</dt>
+										<dd class="ui_text"><label for="password" class="label"><input id="password" type="password" class="in text" name="password" data-alt="登录密码"/></label><font class="fc_b ml10" style="line-height:38px;">*</font></dd>
+									</dl>
+									<dl class="ui_media mt10">
+										<dt class="ui_pic">验证码：</dt>
+										<dd class="ui_text">
+											<input type="hidden" name="captchaId" id="emailCaptcha" />
+											<label for="emailCaptchaInput" style="width:100px;" class="label"><input type="text" class="in text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="emailCaptchaInput" style="width:100px;" size="18" onfocus="GewaraUtil.refreshCaptcha('emailCaptcha');"/></label><font class="fc_b ml10" style="line-height:38px;">*</font>
+											<img id="emailCaptchaImg" src="${staticPath}css/images/blank.gif" style="cursor: pointer;height:38px;width:80px;" align="top" onclick="GewaraUtil.refreshCaptcha('emailCaptcha');" title="看不清楚，请点击换一张图片"/>
+										</dd>
+									</dl>
+									<dl class="ui_media mt10">
+										<dt class="ui_pic">&nbsp;</dt>
+										<dd class="ui_text">
+											<a href="#" id="disBtn" onclick="submitUpEmail();" class="btn redBtn">确认无误，验证</a>
+										</dd>
+									</dl>
+								</form>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+function submitUpEmail(){
+	if(#if($!email)checkBlank($('email1')) || checkBlank($('email2'))#{else}checkBlank($('secrityemail'))#end || checkBlank($('password'))){
+		return;
+	}
+	#if($!email)
+	if($('email1').value != $('email2').value){
+		gewaUtil.alert('确认邮箱与新邮箱不一致，请重新输入！');
+		return;
+	}
+	#end
+	var url = #if($!email)'${basePath}home/acct/sendExchangeEmail.xhtml'#else"${basePath}home/acct/sendSecurityEmail.xhtml"#end;
+	var values = GewaraUtil.getValues("upEmailForm");
+	GewaraUtil.mask("disBtn");
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			gewaUtil.alert(result.retval,function(){
+				document.location.href="${basePath}home/acct/safetyCenter.xhtml?tagNo=$VmUtils.getRandom()";
+			});
+		}else{
+			GewaraUtil.refreshCaptcha('emailCaptcha');
+			gewaUtil.alert(result.msg);
+		}
+	})
+}
+function checkBlank(that){
+	if(!that.value){
+		gewaUtil.alert('请输入'+that.get('data-alt'));
+		return true;
+	}else return false;
+}
+</script>
+</body>
+</html>

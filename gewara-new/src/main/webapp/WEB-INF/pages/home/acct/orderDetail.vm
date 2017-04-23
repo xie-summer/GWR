@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>查看订单_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,pagesNavigation,slimbox,scrollSpy,base_home&v=$VmUtils.jsVersion"></script>
+	<style>
+		.table td{height:68px;}
+	</style>
+	
+</head>
+<body>
+#set($myAccount = true)#set($myOrderManage = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">		
+			#parse('include/home/myAccount.vm')
+			<div class="partBg mt20">
+				订单号：<b>$!order.tradeNo</b>
+				<span class="ml30">当前状态：<b>$!order.statusText2</b></span>
+			</div>
+			<div class="btLine2">
+				<div class="titleB mt20"><h2>商品清单</h2></div>
+			</div>
+			<table cellpadding="0" cellspacing="0" border="0" class="table mt10">
+				<thead>
+					<tr>
+						<th>订单号</th>
+						<th>下单时间</th>
+						<th>商品名称</th>
+						<th>数量</th>
+						<th>优惠</th>
+						<th>总价格</th>
+						<th>交易状态</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr #if($foreach.index % 2 eq 1)class="tdHover"#end>
+						<td>
+							<div class="uipic">
+								#if($order.ordertype eq 'ticket')
+								<a href="${basePath}movie/$!cMap.get($order.id).id" target="_blank">
+								#elseif($order.ordertype eq 'drama')
+								<a href="${basePath}drama/$!cMap.get($order.id).id" target="_blank">
+								#elseif($order.ordertype eq 'sport')
+								<a href="${basePath}sport/$!cMap.get($order.id).id" target="_blank">
+								#elseif($order.ordertype eq 'pubsale')
+								<a href="${basePath}pubsale/$!cMap.get($order.id).id" target="_blank">
+								#end
+								<img alt="" src="${staticPath}css/images/blank.gif" style="background: url($VmUtils.randomPic('cw50h50',$!cMap.get($order.id).limg)) center center no-repeat" width="50" height="50"/>
+								#if($order.ordertype eq 'ticket' || $order.ordertype eq 'drama' || $order.ordertype eq 'sport' || $order.ordertype eq 'pubsale')
+								</a>
+								#end
+							</div>
+							<div class="left">
+								<span class="fs14">#if($order.ordertype eq 'goods')$VmUtils.escabbr($!cMap.get($order.id).goodsname,20)
+							#else $VmUtils.escabbr($!cMap.get($order.id).name,20)#end</span>
+								<br/>$order.tradeNo
+							</div>
+						</td>
+						<td>$!DateUtil.format($order.addtime,'yyyy-MM-dd')<br /><span class="gray">$!DateUtil.format($order.addtime,'HH:mm')</span></td>
+						<td style="width:130px;">
+							<div style="width:130px;">#if($order.ordertype eq 'goods')${order.ordertitle}#else ${order.ordertitle} #end</div>
+						</td>
+						<td>$!order.quantity</td>
+						<td>#if($!order.discount gt 0)$!order.discount#else无优惠#end</td>
+						<td><b>￥$!order.totalfee</b></td>
+						<td>$!order.statusText2</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="btLine2" >
+				<div class="titleB mt20" ><h2>您的订单信息#if($msg)(<span style="color:red; font-weight: bolder;">$msg</span>)#end</h2></div>
+			</div>
+			#set($orderDesc=$VmUtils.readJsonToMap($order.description2))
+			<ul class="InfoBgC mt10 " >
+				<li><span>订单号：</span>$order.tradeNo</li>
+				<li><span>下单时间：</span>$!DateUtil.formatTimestamp($order.addtime)</li>
+				#if($!DateUtil.formatTimestamp($order.paidtime))
+				<li><span>付款时间：</span>$!DateUtil.formatTimestamp($order.paidtime)</li>
+				#end
+				#if($VmUtils.size($orderDesc) gt 0)
+					#foreach($m in $orderDesc.keySet())
+							#if(($m eq '套票' && $VmUtils.isNotBlank($orderDesc.get($m))) || $m ne '套票')<li><span>$m：</span>$!orderDesc.get($m)</li>#end
+					#end
+					#if($order.ordertype eq 'ticket')
+						#if($VmUtils.isNotBlank($!cMap.get($order.id).remark))
+						<li><span>其他信息：</span>$!cMap.get($order.id).remark</li>
+						#end
+					#end
+				#else
+					<li><span>明细：</span>$order.description2</li>
+				#end
+				#if($!DateUtil.formatTimestamp($order.paidtime))
+				<li><span>付款方式：</span>$!order.paymethodText</li>
+				#end
+				<li><span>联系电话：</span>$VmUtils.getSmobile($!order.mobile)</li>
+				#if($VmUtils.size($!itemList) gt 0)
+				<li></li>
+				#foreach($item in $itemList)
+				<li><span>物品信息：</span>
+					$item.goodsname 
+				</li>
+				#if($VmUtils.isNotBlank($!item.summary))
+				<li><span>物品描述：</span>
+					$!item.summary
+				</li>
+				#end
+				<li><span>物品数量：</span>
+					$!item.quantity
+				</li>
+				<li><span>物品单价：</span>
+					$item.unitprice 元
+				</li>
+				#if($VmUtils.isNotBlank($item.remark))
+				<li><span>物品说明：</span>
+					$!item.remark 
+				</li>
+				#end
+				#end
+				#end
+				#if($order.PaidSuccess)
+				#set($due=$order.due)
+				#if($order.paymethod eq 'gewaPay')#set($due=${order.gewapaid}-${order.wabi})#end
+				<li>
+					<span>开票状态：</span>
+					#if($orderExtra)
+						#if(!$VmUtils.eq($!orderExtra.invoice,'F'))
+							#if($due gt 0)
+								#if($VmUtils.eq($!orderExtra.invoice,'Y'))已开发票#else未开票，可开发票金额<font color='red'>$due</font>元#end
+							#else
+								不可开票
+							#end
+						#else
+							不可开票
+						#end
+					#else
+						已过期
+					#end
+				</li>
+				#end
+				#set($orderMap = $VmUtils.readJsonToMap($!order.otherinfo))
+				#if(!$VmUtils.isBlank($!orderMap.get('expressMode')) && !$VmUtils.isBlank($!orderMap.get('expressNo')) )
+				<li><span>快递方式：</span>$!orderMap.get('expressMode')</li>
+				<li><span>快递单号：</span><em class="cF60">$!orderMap.get('expressNo')</em></li>
+				#end
+			</ul>
+			#if($order.new)
+			<div  style="margin:10px 0 0 70px;"><a href="${basePath}gewapay/confirmOrder.xhtml?orderId=$order.id" class="minBt redBt button"><span>确认付款</span></a></div>
+			#end
+			
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+</body>
+</html>

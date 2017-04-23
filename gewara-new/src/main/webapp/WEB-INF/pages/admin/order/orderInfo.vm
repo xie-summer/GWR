@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>订单号查询</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/layout.css"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/bms.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js"></script>
+	<style type="text/css">
+		.orderInfo_con table{border-collapse:collapse;width:100%;margin-bottom:30px;}
+		.orderInfo_con tr,.orderInfo_con td{border:1px solid #E1E1E1;}
+		.orderInfo_con td{padding:2px 4px;text-align:center;}
+		.orderInfo_con td.desc{width:6%;}
+		.useCao label{color:#555555;font-weight:bold;font-size:14px;}
+		.useCao .init-text{width:160px;padding:2px 1px;vertical-align:middle;border:1px solid #ccc;margin-right:20px;height:19px;line-height:19px;}
+	</style>
+</head>
+<body>
+<div class="main">
+	#set($order=$orderMap.order)
+	#set($profile=$orderMap.profile)
+	#set($opi=$orderMap.schedule)
+	#set($descriptionMap=$VmUtils.readJsonToMap($order.description2))
+	#set($!otherInfoMap=$VmUtils.readJsonToMap($!order.otherinfo))
+	#set($changeHisMap=$VmUtils.readJsonToMap($order.changehis))
+	<div class="useCao">
+		<form action="${basePath}admin/order/orderDetail.xhtml">
+		 	<div>
+			  	<label>输入订单号查询：</label><input class="init-text" type="text" name="tradeNo" value="$!order.tradeNo"/>
+			  	<span class="button minBt redBt"><input type="submit" value="查&nbsp;&nbsp;询" /></span>
+		 	</div>
+		</form>
+	</div>
+	#set($keyTypeMap={'ticket':'影票','drama':'演出','sport':'运动','gym':'键身','goods':'物品','membercard':'会员卡','pubsale':'竞拍'})
+    <div class="orderInfo_con mt20">
+      #if($order)
+	      <table>
+	      	<tbody>
+	      		<tr class="trbg">
+		      		<td rowspan="5" class="desc">基本信息</td>
+				    <td>订单号：</td>
+				    <td>$!order.tradeNo</td>
+				    <td>内部订单号：</td>
+				    <td>$!order.id</td>
+				    <td>外部支付号：</td>
+				    <td>$!order.payseqno</td>
+				    <td>订单状态：</td>
+				    <td>${order.statusText}，<p>原始状态：$order.status</p></td>
+	      		</tr>
+	      		<tr class="trbg">
+		      		<td>下单时间：</td>
+				    <td>$!DateUtil.formatTimestamp($!order.addtime)</td>
+				    <td>付款时间：</td>
+				    <td>$!DateUtil.formatTimestamp($!order.paidtime)</td>
+				    <td>有效时间：</td>
+				    <td>$!DateUtil.formatTimestamp($!order.validtime)</td>
+				    <td>商家ID/名称</td>
+				    <td>$!{order.partnerid}/$!{apiUser.partnername}</td>
+	      		</tr>
+	      		<tr class="trbg">
+		      		<td>用户ID：</td>
+				    <td><a style="color:blue;" href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$!order.memberid" target="_blank">$order.memberid</a></td>
+				    <td>用户昵称：</td>
+				    <td>$!order.membername</td>
+				    <td>原订单号：</td>
+				    <td>#if($VmUtils.isNotBlank($!changeHisMap.get('changeSeat')))<a href="${basePath}admin/order/orderDetail.xhtml?tradeNo=$!changeHisMap.get('changeSeat')" target="_blank">$!changeHisMap.get('changeSeat')</a>#end</td>
+				    <td>订单类别：</td>
+				    <td>$!{keyTypeMap.get($order.ordertype)}[$!{order.ordertype}]</td>
+	      		</tr>
+	      		<tr class="trbg">
+		      		<td>订单总金额：</td>
+				    <td>$!order.totalAmount</td>
+				    <td>订单总成本：</td>
+				    <td>$!order.totalcost</td>
+		    		<td>订单优惠金额：</td>
+				    <td #if($VmUtils.gt($!order.discount,0)) style="color:red;" #end>$!order.discount</td>
+				    <td>实付金额：</td>
+				    <td><span style="color:red;">$!order.due</span></td>
+	      		</tr>
+	      		<tr class="trbg">
+	      			<td>瓦币支付：</td>
+				    <td>$!order.wabi</td>
+	      			<td>Gewa付款：</td>
+				    <td>$!order.gewapaid</td>
+	      			<td>网络付款：</td>
+				    <td>$!order.alipaid</td>
+				    <td>支付方式：</td>
+					<td>
+						#if($order.paymethod eq 'partnerPay')
+							$!order.paymethodText/$VmUtils.substringAfter(${order.membername},'@')
+						#else
+							$!{order.paymethod}
+						#end
+						#if($VmUtils.eq($order.status,'paid_return'))
+							<a #if($VmUtils.isNotBlank($payMethod.mangerUrl)) href="$!payMethod.mangerUrl" #else href="javascript:urlWarning()" #end target="_blank">
+								查询第三方状态
+							</a>
+						#end
+					</td>
+	      		</tr>
+	      	</tbody>
+	      </table>
+	      #if($VmUtils.eq($order.ordertype,'ticket'))
+	      	#parse('admin/order/ajax/ticketOrder.vm')
+	      #elseif($VmUtils.eq($order.ordertype,'sport'))
+	      	#parse('admin/order/ajax/sportOrder.vm')
+	      #elseif($VmUtils.eq($order.ordertype,'gym'))
+	      	#parse('admin/order/ajax/gymOrder.vm')
+	      #elseif($VmUtils.eq($order.ordertype,'goods'))
+	      	#parse('admin/order/ajax/goodsOrder.vm')
+	      #elseif($VmUtils.eq($order.ordertype,'pubsale'))
+	      	#parse('admin/order/ajax/pubsaleOrder.vm')
+	      #end
+	      #parse('admin/order/ajax/buyItemOrder.vm')
+	      #parse('admin/order/ajax/discountOrder.vm')
+	      #parse('admin/order/ajax/otherFeeOrder.vm')
+	      #parse('admin/order/ajax/orderRefund.vm')
+	      #parse('admin/order/ajax/expressOrder.vm')
+	      <div id="takeInfo" style="background: none repeat scroll 0 0 #FFF8F2">
+	      	
+	      </div>
+      #end
+    </div>
+</div>
+<script type="text/javascript">
+	sendMessage = function(id, el){
+		if(el && el == true){
+			if(!window.confirm('短信已发送成功，确定重发?')) return;
+		}
+		var url = "${basePath}admin/order/sendOrderNoteSms.xhtml";
+		var values = {"id":id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('发送成功');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function getTakeInfo(tradeNo){
+		var url = '${basePath}admin/order/orderTakeInfo.xhtml';
+		var values={'tradeNo':tradeNo};
+		GewaraUtil.sendLoad('takeInfo', url, values, function(result){});
+	}
+	getTakeInfo('$!params.tradeNo');
+	
+	setResultValue=function(tradeno,value){
+		var url = "${basePath}admin/synch/ajax/updateOrderOrderNoteValue.xhtml";
+		var values = {'tradeno':tradeno, "value":value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) alert('成功设置！');
+			else alert(result.msg);
+		});
+	}
+	updateMobile=function(tradeno,value){
+		var url = "/admin/synch/ajax/updateOrderMobile.xhtml";
+		var values = {'tradeno':tradeno, "mobile":value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('成功设置！');
+			}else alert(result.msg);
+		});
+	}
+	urlWarning = function(){
+		gewaUtil.alert('退款处理状态请咨询财务部！');
+	}
+</script>
+</body>
+</html>

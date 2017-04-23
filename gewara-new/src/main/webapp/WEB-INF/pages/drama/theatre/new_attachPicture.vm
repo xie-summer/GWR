@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title>${theatre.name}_图片 - 格瓦拉生活网</title>
+	<meta name="keywords" content="" />
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,slideshow,pagesNavigation,slimbox,base_home,scrollerbar&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.percent_50 li{text-align:left;}
+	</style>
+</head>
+<body>
+#set($isPictureDetail=true)
+#set($relatedtag='drama')
+#set($dramaHeadFlag='isDramatheatre')
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout">
+	<div class="inner">
+	#parse('drama/theatre/new_theatreHead.vm')
+	</div>
+	<div class="ui_left">
+		<div class="inner">
+			<div class="fs14">添加剧照…</div>
+			<div class="ml10 mt20">
+				<p class="gray">添加与剧院相关的剧照图片，支持jpeg,jpg,png,gif等格式图片，最大不超过2M</p>
+				<p class="gray">通过管理员审核通过后，你将有机会获得一定积分奖励。<a class="ml10 brown" href="${basePath}service/integral.dhtml">什么是积分？</a></p>
+				<div class="mt30">
+					<div name="myform">
+						<div class="title mt10"><span class="left">图片名称：</span><input class="text fs14 left"style="height:15px;"type="text" name="pname" id="pname"/>&nbsp;&nbsp;<span class="brown">*</span></div>
+						<div class="title mt10"><span class="left">上传图片：</span>
+						<iframe name="uploadwarapic" id="uploadwarapic" style="display:none"></iframe>
+						<form id="uploadmicroForm" target="uploadwarapic" onsubmit="return this.file.value.length > 0" enctype="multipart/form-data" action="${basePath}common/uploadPicture.xhtml" style="margin: 0px; padding: 0px;" method="post" name="fileUpload">
+							<input id="callbackUrl" type="hidden" value="${basePath}common/afterUploadPicture.xhtml?uploadtag=moviePic&callbackf=_afterupdatePic" name="callbackUrl" />
+							<div id="dispFileDiv" style="position: relative; height: 30px; z-index: 0;">
+								<input type="hidden" name="relatedid" id="relatedid" value="$!VmUtils.escapeHtml($params.relatedid)"/>
+								<input type="hidden" name="tag" id="tag" value="$!VmUtils.escapeHtml($params.tag)"/>
+								<input type="hidden" name="uploadPath" id="uploadPath" value="images/memberpicture"/>
+								<input type="hidden" name="callback" id="callback" value="updateLogo"/>
+								<input type="file" name="file" id="file" onkeyup="this.value='';" size="38" />
+								<input type="submit" name="upload" value="上传文件" />
+							</div>
+						</form>
+						<input type="hidden" name="logo" id="logo" value=""/>
+						</div>
+						<div class="mt10" style="padding-left:60px;display: none" id="slogoimg"><img style="width:48px;heigh:64px; display: none" id='logoimg' src="${staticPath}css/images/blank.gif"/></div>
+						<div class="clear"></div>
+						<div class="title mt10"><span class="left" style="padding-left:55px;">&nbsp;</span>
+							<label class="left">
+							<input type="hidden" name="captchaId" id="captcha"/>
+							<input type="text" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" size="18" style="width:120px" mustTxt="请输入验证码!" onfocus="GewaraUtil.refreshCaptcha('captcha');"/></label>
+							<img id="captchaImg" src="${staticPath}css/images/blank.gif"  class="ml10" style="cursor: pointer;vertical-align: middle;float:left;height:36px;" onclick="GewaraUtil.refreshCaptcha('captcha');" title="看不清楚，请点击换一张图片"/>
+						</div>
+						<div class="clear"></div>
+						<div class="title mt20"><label class="button left minBt redBt" for="disBtn"><input type="button" id="disBtn" value="确认，保存" onclick="saveAttachPicture()"></input></label>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="ui_right">
+		<div class="inner">
+			<div class="fs14 gray">上传规范</div>
+			<ul class="mt10 gray">
+				<li>1. 画面变形或不清晰、有转帖来源水印或Logo、被修改过的图片不在格瓦拉电影图片收录之列。</li>
+				<li>2. 与现有图片内容重复且尺寸较小、质地较差的图片将被删除或合并。</li>
+				<li>3. 灌水,与该电影毫无关系的内容。</li>
+				<li>4. 违反互联网电子公告服务管理规定的内容。</li>
+			</ul>
+		</div>
+	</div>
+</div>
+#parse('include/global/new_scorelevel.vm')
+#parse('include/treasure.vm')
+#parse('include/bottom.vm')
+#parse('include/newMarkDialog.vm')
+<script type="text/javascript" >
+window.addEvent('domready',function(){
+	myTreasure('theatre','$theatre.id');
+	gewara.util.sendRequest('${basePath}ajax/member/synchroizaInfo.xhtml',null,function(result){
+		if(result.success){
+			if(result.appList){
+				if(result.appList.contains('sina')){$('isWb').checked=true;isWbOpen = false;}
+			}
+		}
+	});
+});
+	function saveAttachPicture(){
+		checkLogin(true,function(){
+			var pname=$('pname').value;
+			var logo=$('logo').value;
+			if(pname.length == 0){
+				gewaUtil.alert('图片名称不能为空！');
+				return;
+			}
+			if(logo.length == 0){
+				gewaUtil.alert('图片不能为空！');
+				return;
+			}
+			var ttag=$('tag').value;
+			var pname=$('pname').value;
+			if($VmUtils.getByteLength(pname) > 60){
+				gewaUtil.alert('图片名称不能超过60位！');
+				return;
+			}
+			var url="${basePath}ajax/common/saveAttachPicture.xhtml";
+			var values={'relatedid':$('relatedid').value,'pname':$('pname').value,'logo':$('logo').value, 'tag':ttag, 'captcha':$('captchaInput').value, 'captchaId':$('captcha').value};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewaUtil.alert('上传成功！');
+					 if(ttag=='theatre'){
+						document.location.href="${basePath}theatre/$params.relatedid/picturelist";
+					 }
+				}else{
+					GewaraUtil.captcha('captchaImg');
+					gewaUtil.alert(result.msg);
+				}
+			})
+		});
+	}
+function _afterupdatePic(paramsMap){
+	if(paramsMap == null){
+		gewaUtil.alert("上传文件出错! 请检查文件格式! ");
+		recover();
+		return false;
+	}
+	var imgpath = paramsMap["picpath"]; 
+	if(paramsMap["msg"] != 'ok'){
+		recover();
+		return false;
+	}
+	$('slogoimg').toggleDisplay();
+	$('logo').value=paramsMap.picpath;
+	$('logoimg').src='${picPath}sw48h64/'+paramsMap.picpath;
+	$('logoimg').toggleDisplay();
+}
+function updateLogo(params){
+	var picpath = params['picpath'];
+	$('logo').value = picpath;
+	$('logoimg').src='${basePath}' + picpath;
+	$('logoimg').setStyle('display','');
+	$('slogoimg').setStyle('display','');
+}
+</script>
+</body>
+</html>

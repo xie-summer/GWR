@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>特殊折扣列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin,bbs&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore">特价活动订单展示后台&nbsp;</li>
+		</ul>
+	</div>
+</div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<form action="${basePath}admin/gewapay/spdiscount/orderList.xhtml" id="searchForm" name="searchForm" method="post">
+			活动ID：<input type="text" name="discountIds" id="discountIds" size="60" value="$!discountIds"/>
+			查询时间：<input name="fromTime" id="fromTime" readonly="readonly" onclick="WdatePicker()" type="text" style="width:90px" class="Wdate" value="$!DateUtil.formatDate($fromTime)"/>至
+			<input name="endTime" id="endTime" readonly="readonly" onclick="WdatePicker()" type="text"  style="width:90px" class="Wdate" value="$!DateUtil.formatDate($endTime)"/>
+			每页记录数：<select name="maxnum" id="maxnum">
+							<option value="20" #if($!VmUtils.eq('20', $maxnum)) selected="selected" #end)>20</option>
+							<option value="500" #if($!VmUtils.eq('500', $maxnum)) selected="selected" #end>500</option>
+							<option value="1000" #if($!VmUtils.eq('1000', $maxnum)) selected="selected" #end>1000</option>
+							<option value="2000" #if($!VmUtils.eq('2000', $maxnum)) selected="selected" #end>2000</option>
+							<option value="5000" #if($!VmUtils.eq('5000', $maxnum)) selected="selected" #end>5000</option>
+						</select>
+			<input type="button" class="cbt1" value="查询" onclick="submitForm();"/>
+		</form>
+		<div><strong>说明：请在活动ID输入，<span class="red">同一类型的特价活动</span>，比如都是电影的特价活动以,分割。<span class="red">查询的是线上的数据库，时间跨度限制在30天以内</span></strong></div> 
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>影院/剧院/场馆</th>
+					<th>电影/话剧/运动</th>
+					<th>放映时间</th>
+					<th>订单号</th>
+					<th>外部订单号</th>
+					<th>出票数量</th>
+					<th>订单金额</th>
+					<th>网络支付金额</th>
+					<th>用户名称</th>
+					<th>下单时间</th>
+					<th>付款时间</th>
+					<th>卡号</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+			#if(!$VmUtils.isEmptyList($orderList))
+				#foreach($order in $orderList)
+				<tr>
+					<td>
+						#if($VmUtils.eq('movie',$tag))
+							#if($cinemaMap.get($order.cinemaid))
+								$!cinemaMap.get($order.cinemaid).name
+							#end
+						#elseif($VmUtils.eq('sport',$tag))
+							#if($cinemaMap.get($order.sportid))
+								$!cinemaMap.get($order.sportid).name
+							#end
+						#else
+							#if($cinemaMap.get($order.theatreid))
+								$!cinemaMap.get($order.theatreid).name
+							#end
+						#end
+						
+					</td>
+					<td>
+						#if($VmUtils.eq('movie',$tag))
+							#if($movieMap.get($order.movieid))
+								$!movieMap.get($order.movieid).name
+							#end
+						#elseif($VmUtils.eq('sport',$tag))
+							#if($movieMap.get($order.itemid))
+								$!movieMap.get($order.itemid).name
+							#end
+						#else
+							#if($movieMap.get($order.dramaid))
+								$!movieMap.get($order.dramaid).name
+							#end
+						#end
+					</td>
+					<td>#if($!DateUtil.formatTimestamp($!order.playtime))$!DateUtil.formatTimestamp($!order.playtime)#else - #end</td>
+					<td>$!order.tradeNo</td>
+					<td>#if($!order.payseqno)$!order.payseqno#else - #end</td>
+					<td>$!order.quantity</td>
+					<td>$!order.totalAmount</td>
+					<td>#if($order.alipaid)$!order.alipaid #else 0 #end</td>
+					<td>#if($memberMap.get($order.memberid))$!memberMap.get($order.memberid).nickname#else - #end</td>
+					<td>$!DateUtil.formatTimestamp($!order.addtime)</td>
+					<td>#if($!order.paidtime)$!DateUtil.formatTimestamp($!order.paidtime)#else - #end</td>
+					<td>
+						#set($cardNum = $!VmUtils.readJsonToMap($!order.otherinfo).get("cardNumber"))
+						#if($cardNum)
+							#set($cardNumLength = $VmUtils.length($cardNum) - 6)
+							$VmUtils.substring($cardNum, 0,6)****$!VmUtils.substring($cardNum, $cardNumLength)
+						#else - 
+						#end
+					</td>
+				</tr>
+				#end
+			#else
+				<tr>
+					<td colspan="12"><strong><span class="red">#if($msg)$!msg#else没有记录#end</span></strong></td>
+				</tr>
+			#end
+			</tbody>
+		</table>
+	</div>
+	#parse('include/pageUtil.vm')
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<script type="text/javascript">
+function submitForm () {
+	if ($("discountIds").value=="") {
+		alert("活动ID必须填写！");
+		return ;
+	}
+	if ($("fromTime").value=="" || $("endTime").value=="") {
+		alert("查询时间必须填写！");
+		return ;
+	}
+	$("searchForm").submit();
+}
+</script>
+</body>
+</html>

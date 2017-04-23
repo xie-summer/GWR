@@ -1,0 +1,83 @@
+#if($VmUtils.size($commentList) gt 0)
+<ul>
+	#foreach($comment in $commentList)
+	#set($mComment=$contentMap.get($comment.id))
+	<li>
+		<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" title="$comment.nickname" target="_blank">$comment.nickname</a>：
+		$!VmUtils.getWebBody($!mComment,$picPath)
+			<a class="ml10" onclick="replayComment('@$!{comment.nickname}  ')" href="javascript:void(0)" >
+				回复#if($!comment.replycount gt 0)$!comment.replycount #else 0 #end
+			</a>
+		</p>
+		<p class="c666">$DateUtil.format($comment.addtime,'yyyy-MM-dd HH:mm:ss')</p>
+	</li>
+	#end
+</ul>
+#set($pageFun="ajaxPage")
+#parse('include/scriptPageUtil.vm')
+<script>
+ajaxPage = function(pageNo, params, url){
+	gewaUtil.loadData('tips_ablum_right', url, {});
+}
+</script>
+#else
+<ul class="ui_abeam btLine"></ul>
+#end
+<div class="mt30">
+	<textarea rows="" cols="20" id="walaL_say_area"></textarea>
+	<p class="tar mt10"><a onclick="submitMicro();return false;"  href="#" class="button redBt bigBt"><span>发&nbsp;&nbsp;布</span></a></p>
+</div>
+<script type="text/javascript">
+replayComment = function(replayComment){
+	 $('walaL_say_area').value = replayComment;
+}
+//发表哇啦
+submitMicro = function(){
+	var say_area = $('walaL_say_area').value;
+	if(!$chk(say_area)){
+		gewaUtil.alert('请输入内容再进行发布！');
+		return false;
+	}
+	if(say_area.length>140){
+		gewaUtil.alert('哇啦过长');
+		return false;
+	}
+	checkLogin(true,function(){
+		doSubmitMicro();
+	}); 
+}
+doSubmitMicro = function(){
+	if($('walaL_say_area').value != ''){
+		if($('walaL_say_area').value.trim().length >140){
+			gewaUtil.alert('最多输入140字符!');
+			return false;
+		}
+	}
+	var url="${basePath}ajax/comment/savePictureMicroBlog.xhtml";
+	var type = $('miniType').value;//avideo
+	var ttag = $('miniTtag').value;//movie
+	var values={'body':$('walaL_say_area').value, 'relatedid':'$!relatedid', 'tag':"$!tag",'type':type,'ttag':ttag};
+	$('walaL_say_area').value = '';
+	gewaUtil.loadData('showComment1', url, values, function(result){
+		if(result.success){
+		}else{
+			if(result.json){
+				if(result.json.msg == 'success') {
+					gewaUtil.alert('发表成功！');
+				}else{
+					gewaUtil.alert(result.json.msg);
+					$('walaL_say_area').value = values.body;
+				}
+			}else{
+				GewaraUtil.sendLoad('tips_ablum_right', "${basePath}ajax/comment/qryCommentList.xhtml", {'relatedid':'$!relatedid','tag':'$!tag','pageNo':0,'maxnum':5}, function(result){
+					if(result){
+						if(!result.success && result.json){
+							gewaUtil.alert(result.json.msg);
+						}
+					}
+				})
+			}
+		}
+	}); 
+}
+</script>

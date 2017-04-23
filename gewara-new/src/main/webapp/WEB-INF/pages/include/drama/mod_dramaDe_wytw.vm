@@ -1,0 +1,175 @@
+<div class="wy_question_area ui_media">
+	<div class="ui_pic">
+		<a #if($logonMember)href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$logonMember.id" #else href="javascript:void(0);" #end>
+			<img src="${staticPath}css/images/blank.gif" style="background:url('$VmUtils.randomPic('cw50h50',$!cacheMemberMap.get($logonMember.id).headpicUrl)') center center no-repeat;" height="50" width="50"/>
+		</a>
+	</div>
+	<div class="ui_text">
+		<span class="font" id="font">你还可以输入<b>50</b>字！</span>
+		<form id="questionForm" action="javascript:saveQuestion()">
+			<input name="tag"  type="hidden" value="theatre" />
+			<input name="category" type="hidden" value="drama" />
+			<input name="categoryid" type="hidden" value="$drama.id" />
+			<input name="reward" type="hidden" value="0" />
+			<div class="q_area">
+				<div class="text untext input">
+					<textarea class="input_detail" id="input_detail" name="title" onfocus="inputFocus(this)" onblur="inputBlur(this);"title="哇友问题输入框" ></textarea>
+					<label class="overTxtLabel" for="input_detail" id="issueTips" style="position:absolute; cursor:text;color:#999999;left:9px;top:5px;display:block;" >你对该演出有什么疑问可以在这里提问，瓦友和小编会努力帮你解答</label>
+				</div>
+				<div class="q_addInfo">
+					<div class="right c999">
+						<input type="checkbox" name="reply" class="mr5"/>有回复时站内信通知我
+					</div>
+					<div class="left">
+						<a href="#" title="问题补充" class="addQ1 ffst" id="addQ">问题补充<em class="c666">[选填]</em></a><i class="d_line mr5 ml5">|</i><span>关联：<em class="c80" title="$!drama.dramaname">$!VmUtils.escabbr($!drama.dramaname,40)</em></span>
+					</div>
+				</div>
+			</div>
+			<div id="answerMore" class="ans_more" style="display:none;">
+				<div class="untext">
+					<textarea class="input_detail" id="input_detail_context" name="content" onfocus="inputFocus(this)" onblur="inputBlur(this);"title="哇友问题输入框" ></textarea>
+					<label class="overTxtLabel" for="input_detail_context"  style="position:absolute; cursor:text;color:#999999;left:9px;top:5px;display:block;" ></label>
+				</div>
+			</div>
+			<div class="verify right drBt mt10">
+		  		<dl class="clear left">
+					<dt class="left" style="margin-top:3px;">验证码：</dt>
+					<dd class="left">
+						<input type="hidden" name="captchaId" id="captcha"/>
+						<input type="text" class="text" name="captcha" id="captchaInput" onfocus="GewaraUtil.refreshCaptcha('captcha');" style="width:80px;" alt="" /><span class="c80">*</span>
+						<img id="captchaImg" width="59" height="24" onclick="GewaraUtil.refreshCaptcha('captcha');" src="${staticPath}css/images/blank.gif" style="cursor:pointer;vertical-align:middle;" title="看不清楚，请点击换一张图片" />
+					</dd>
+				</dl>
+		     <a target="_blank" class="left button bigBt redBt" onclick="saveQuestion();"><span>提交问题</span></a>
+		  </div>
+		</form>
+	</div>
+</div>
+<div class="ans_area2">
+	<div class="ans_con">
+		<ul>
+			#foreach($question in $questionList)
+			#set($answers=$answersMap.get($question.id))
+			<li>
+				<div class="ui_media">
+					<div class="ui_pic">
+						<img src="${staticPath}css/images/blank.gif" height="30" width="30"/>
+					</div>
+					<div class="ui_text">
+						<dl class="ans_con_q">
+			  				<dt><span>${question.title}</span><em>${question.membername} $!DateUtil.formatTimestamp($!question.addtime)<a href="javascript:showAnswerForm('$question.id');"><i class="more anser"></i></a></em></dt>
+			  				#if(!$VmUtils.isEmptyList($answers))
+			  				#foreach($answer in $answers)
+			  				<dd><span>$!cacheMemberMap.get($answer.memberid).nickname：</span> $!{answer.content} <em>$!DateUtil.formatTimestamp($!answer.addtime)</em></dd>
+			  				#end
+			  				#end
+			  			</dl>
+			  			<div id="answerFormDiv$question.id" class="none">
+							<form id="replyForm$question.id">
+								<input type="hidden" name="questionid" id="questionid" value="$question.id"/>
+								<div class="clear mt10">
+									<div class="text untext">
+										<textarea class="input_detail" name="content" onfocus="inputFocus(this)" onblur="inputBlur(this);"  title="帮助回复瓦友的提问..." ></textarea>
+										<label class="overTxtLabel" for="input_detail" style="position:absolute;color:#999999;left:9px;top:3px;display:block;" ></label>
+									</div>
+									<div class="verify right mt10">
+								  		<dl class="clear left">
+											<dt class="left" style="margin-top:3px;">验证码：</dt>
+											<dd class="left">
+												<input type="hidden" name="captchaId" id="${question.id}captcha" />
+												<input type="text" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="${question.id}captchaInput" size="18" style="width:80px" mustTxt="请输入验证码!" onfocus="GewaraUtil.refreshCaptcha('${question.id}captcha');"/>
+												<span class="c80">*</span>
+												<img width="59" height="24" style="cursor:pointer;vertical-align:middle;" src="${staticPath}css/images/blank.gif" id="${question.id}captchaImg" onclick="GewaraUtil.refreshCaptcha('${question.id}captcha')" title="看不清楚，请点击换一张图片" />
+											</dd>
+										</dl>
+								     <a target="_blank" class="right button bigBt redBt" onclick="answer('$question.id');"><span>回复问题</span></a>
+								  </div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</li>
+			#end
+		</ul>
+		#parse('include/pageUtil.vm')
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	new issue('input_detail',{'font':'font','tips':'issueTips','num':50});
+	var answerMore = $('answerMore');
+	$('addQ').addEvent('click', function(event){
+	    event.stop();
+	    this.toggleClass('addQ2')
+	    answerMore.toggle();
+	    OverText.update();
+	  });
+	gewaUtil.textOver('.text');
+});
+function inputFocus(obj){
+	var obj=$(obj);
+	obj.getParent().getElement('.overTxtLabel').hide();
+}
+function inputBlur(obj){
+	var obj=$(obj);
+	if(obj.value == '')
+		obj.getParent().getElement('.overTxtLabel').show();
+}
+function answer(id){
+	checkLogin(true,function(){
+		var values = GewaraUtil.getValues("replyForm"+id);
+		GewaraUtil.sendRequest('/qa/saveAnswer.xhtml', values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				if(result.msg) gewaUtil.alert(result.msg);
+				GewaraUtil.refreshCaptcha(id+'captcha');
+			}
+		});
+	});
+}
+function saveQuestion(){
+	checkLogin(true,function(){
+		var url = '${basePath}qa/saveQa.xhtml';//<dd><textarea class="textarea" name="content" id="content">$!{question.content}</textarea></dd>
+		var values = GewaraUtil.getValues("questionForm");
+		var saytitle = $('input_detail').value;
+		if(saytitle.length==0){
+			gewaUtil.alert("提问标题不能为空");
+			return ;
+		}
+		if(saytitle.length>50){
+			gewaUtil.alert("提问内容最多支持50个字，若需更加详细描述问题请在'问题补充'中添加!");
+			return ;
+		}
+		gewa.util.mask({'element': "disBtn",'title':'正在提交，请稍等...'});
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				gewa.util.clearMask();
+				if(result.retcode){
+					if(result.retcode == '403'){
+						gewaUtil.alert(result.retmsg, function(){gotoURL(result.returl)});
+					}
+				}else{
+					gewaUtil.alert(result.msg);
+					GewaraUtil.refreshCaptcha('captcha');
+				}
+			}
+		})
+	});
+}
+function showAnswerForm(formId){
+	checkLogin(true,function(){
+		var el = $('answerFormDiv'+formId);
+		if(el){
+			el.toggleClass('none');
+			if(!el.hasClass('none')) {
+				el.getElement('textarea').focus();
+			}
+		}
+	});
+}
+
+</script>

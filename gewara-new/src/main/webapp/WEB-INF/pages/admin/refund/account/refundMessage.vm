@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>退款短信提醒模板</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/layout.css"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/bms.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js"></script>
+	<style type="text/css">
+		.tablist .trbg td{padding:0; height:40px; line-height:40px;}
+		#page,.rowCount{margin:5px 0;}
+		.useCao label{color:#555555;font-weight:bold;font-size:12px;}
+		.useCao .init-text{width:160px;padding:2px 1px;vertical-align:middle;border:1px solid #ccc;margin-right:40px;}
+		.useCao .fline{font-size:15px;margin:0 5px;}
+		.useCao .btn{padding:2px 8px;cursor:pointer;}
+		.useCao .t_ico{background:url(${staticPath}css/sport/cus_icon.png?v=4545) no-repeat right -159px;}
+		.tablist .trbg{background:#efefef;color:#555;}
+		.tablist .trbg:hover{background:#f1f5ff;}
+		.tablist .trbg td{height: 30px;line-height: 30px;padding: 0;}
+	</style>
+</head>
+<body class="ui_orange">
+<div class="maintop">退款短信提醒模板</div>
+<div class="main">
+	<div class="useCao">
+    	<div>
+	    	<span class="button minBt redBt"><input onclick="getMessage('refundaccount')" value="增加或修改站内短信" style="width:150px;" /></span>
+	    	<span class="button minBt redBt"><input onclick="getMessage('refundbank')" value="增加或修改银行短信" style="width:150px;" /></span>
+    	</div>
+    </div>
+    #set($templateType={'refundaccount':'站内短信','refundbank':'银行短信'})
+    <div class="info">
+      <table class="tablist mt10 " id="myTable" width="100%">
+      	<tbody id="tbody">
+      		<tr class="trbg">
+			    <td>编号</td>
+			    <td width="70%;">短信内容</td>
+			    <td>有效时间</td>
+      		</tr>
+      		#if($accountMessage)
+      		#set($dataMap=$VmUtils.readJsonToMap($!accountMessage.data))
+      		<tr>
+      			<td>$!templateType.get($!accountMessage.dkey)</td>
+      			<td>$!dataMap.get('notifymsg')</td>
+      			<td>$!DateUtil.formatTimestamp($!accountMessage.validtime)</td>
+      		</tr>
+      		#end
+      		#if($bankMessage)
+      		#set($dataMap=$VmUtils.readJsonToMap($!bankMessage.data))
+      		<tr>
+      			<td>$!templateType.get($!bankMessage.dkey)</td>
+      			<td>$!dataMap.get('notifymsg')</td>
+      			<td>$!DateUtil.formatTimestamp($!bankMessage.validtime)</td>
+      		</tr>
+      		#end
+      	</tbody>
+      </table>
+    </div>
+</div>
+<div id="template" style="display:none;"></div>
+<script type="text/javascript">
+	function getMessage(dkey){
+		var url = "${basePath}admin/refund/account/getMessage.xhtml";
+		var values = {'dkey':dkey};
+		GewaraUtil.sendLoad("template", url, values, function(result){
+			if(result.success){
+				$("template").show();
+				gewaUtil.issure('','template','增加或修改短信',580,'template', function(){
+					saveTemplate();
+				});
+			}else{
+				
+			}
+		});
+	}
+	function saveTemplate(){
+		var url = "${basePath}admin/refund/account/saveMessage.xhtml";
+		var values = GewaraUtil.getValues('messageData');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert('保存成功！',function(){
+					gewa.util.container['template'].dispose('template');
+				});
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

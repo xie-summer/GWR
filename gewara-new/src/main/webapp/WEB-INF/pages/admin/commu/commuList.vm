@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>圈子列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+</head>
+<body style="margin:auto;">
+<div style="padding:1px;">
+	<form action="${basePath}admin/audit/commu/searchCommu.xhtml" method="post" onsubmit="return searchCommu()" >
+		搜索条件：圈子编号：<input type="text" name="commuid" id="commuid" style="width:80px"/>
+					圈子名称:<input type="text" name="commuName" id="commuName"/>
+					圈主昵称:<input type="text" name="nickName" style="width:80px" id="nickName"/>
+					<select name="status">
+						<option value="Y" selected="selected">未删除</option>
+						<option value="N_DELETE">已删除</option>
+					</select>
+		<input type="submit" class="button" value="查询"/>
+	</form>
+</div>
+<table class="table clear" style="text-align: center;">
+	<thead>
+	<tr>
+		<th>圈子编号</th>
+		<th>圈主昵称</th>
+		<th>圈子名称</th>
+		<th>创建时间</th>
+		<th>圈子说明</th>
+		<th>操作
+			<a href="javascript:selectAllCheck()">全选</a>
+			<a href="javascript:invertSelection()">反选</a>
+			<br/>
+			<input type="checkbox" id="addblack"/>加黑
+			<input type="button" value="批删除" onclick="deleteCommuAll()"/>
+		</th>
+	</tr>
+	</thead>
+	<tbody id="pointTable">
+	#foreach($commu in $mapCommu.listCommu)
+	<tr>
+		<td>$!commu.id</td>
+		<td>$!mapCommu.mapMember.get($!commu.adminid).nickname</td>
+		<td>$!VmUtils.escabbr($!commu.name,40)</td>
+		<td>$DateUtil.format($!commu.addtime,'yyyy-MM-dd')</td>
+		<td>$!VmUtils.escabbr($!commu.info,60)</td>
+		<td>
+			#if($!commu.status eq 'N_DELETE')
+				<a href="javascript:void(0)" onclick="cancelDeleteCommu($!commu.id)">取消删除</a>
+			#else
+				<a href="javascript:void(0)" onclick="deleteCommu($!commu.id)">删除</a>
+				<input type="checkbox" name="deleteCheck" value="$!commu.id" lang="$!commu.adminid"/>
+			#end
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+#parse('include/pageUtil.vm')
+	<script type="text/javascript">
+var checkFlag = true;
+function selectAllCheck(){
+	document.getElements("input[name=deleteCheck]").each(function(item){
+		if(checkFlag){
+			item.checked = 'checked';
+		}else{
+			item.checked = '';
+		}
+	})
+	if(checkFlag){
+		checkFlag = false;
+	}else{
+		checkFlag = true;
+	}
+}	
+function invertSelection(){
+	document.getElements("input[name=deleteCheck]").each(function(item){
+		if(item.checked){
+			item.checked = '';
+		}else{
+			item.checked = 'checked';
+		}
+	})
+}
+	function searchCommu(){
+		var commuid=$("commuid").value;
+		if(commuid.length!=0){
+			if(!parseInt(commuid)){
+				alert("圈子编号只能是整数!");
+				return false;
+			}
+		}
+	}
+function deleteCommuAll(){
+	if(confirm("您确定删除选中项吗？")){
+		var commuids = "";
+		var memberids = "";
+		document.getElements("input[name=deleteCheck]").each(function(item){
+			if(item.checked){
+				commuids += ',' + item.value;
+				memberids += ',' + item.lang;					
+			}
+		});
+		if($('addblack').checked && memberids != ""){
+			var url="${basePath}admin/blog/addBlackMemberByIds.xhtml";
+			var values = {'memberIds':memberids};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					deleteCommuAllByIds(commuids);
+				}else{
+					alert(result.msg);
+				}
+			});
+		}else{
+			deleteCommuAllByIds(commuids);
+		}
+	};
+}
+function deleteCommuAllByIds(commuids){
+	var url="${basePath}admin/audit/commu/deleteBatchCommu.xhtml";
+	var values = {'commuids':commuids};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function doDeleteCommu(data1){
+	var url="${basePath}admin/audit/commu/deleteCommu.xhtml";
+	var values = {'commuid':data1};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});	
+}
+	function deleteCommu(data1){
+		if(confirm("您确定删除吗？")){
+			doDeleteCommu(data1);
+		}
+	}
+	
+	function cancelDeleteCommu(data1){
+		if(confirm("您确定取消删除吗？")){
+			var url="${basePath}admin/audit/commu/cancelDeleteCommu.xhtml";
+			var values = {'commuid':data1};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert("取消删除成功！");
+					refreshPage();
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+	}
+</script>
+</body>
+</html>

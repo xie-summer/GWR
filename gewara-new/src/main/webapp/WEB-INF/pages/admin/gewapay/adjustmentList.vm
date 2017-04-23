@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>退款管理</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		html,body{background: none;}
+		form label{display:inline-block;width:90px;text-align:right;}
+		form div{margin-top:5px;}
+		.add,.add_order{background: red; color: white;}
+	</style>
+</head>
+<body style="width:900px; margin:auto" class="yui-skin-sam">
+<div style="padding:1px;">
+	<a href="${basePath}admin/account/adjustmentList.xhtml">申请调整</a>
+	<a href="${basePath}admin/account/adjustmentList.xhtml?status=success" class="ml20">调整成功</a>
+	<a href="${basePath}admin/account/adjustmentList.xhtml?status=cancel" class="ml20">取消调整</a>
+	<input type="button" onclick="applyAdjustment()" value="申请余额调整"/>
+	<label for="mid">用户ID：</label><input type="text" name="mid" id="mid"/>
+	<input type="button" onclick="createAccount()" value="建立账户"/>
+</div>
+<table width="900px" class="table">
+	<thead>
+	<tr>
+		<th>用户名</th>
+		<th>金额</th>
+		<th>类型</th>
+		<th>状态</th>
+		<th>时间</th>
+		<th>说明</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="refundTable">
+	#set($typeMap={"add":"增加账户余额","add_order":"退订单款到余额","sub":"减少账户余额","sub_refund":"退余额款到银行"})
+	#foreach($adjustment in $adjustmentList)
+	<tr id="r$adjustment.id" class="$adjustment.correcttype">
+		<td>#if($adjustment.status eq 'new')<input type="checkbox" name="adjustmentids" value="$adjustment.id"/>#end<a href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$adjustment.memberid">$!{adjustment.membername}[$adjustment.memberid]</a></td>
+		<td>$adjustment.amount</td>
+		<td>$typeMap.get($adjustment.correcttype)</td>
+		<td>$adjustment.status</td>
+		<td>$!adjustment.updatetime</td>
+		<td>$!adjustment.content</td>
+		<td>
+			#if($adjustment.status eq 'new')
+			<input type="button" value="确认调整" onclick="approveAdjustment($adjustment.id)" />
+			<input type="button" value="删除" onclick="removeAdjustment($adjustment.id)"/>
+			#end
+		</td>
+	</tr>
+	#end
+	</tbody>
+	<tfoot>
+	#if($params.status != 'success' && $params.status != 'cancel')
+	<tr>
+		<td>全选<input type="checkbox" onchange="updateSelect(this);" /></td>
+		<td colspan="7">
+			<input type="button" value="确认调整已选" onclick="allapproveAdjustment()" />
+			<input type="button" value="删除已选" onclick=""/>
+		</td>
+	</tr>
+	#end
+	<tr>
+		<td colspan="7">#parse('include/pageUtil.vm')</td>
+	</tr>
+	</tfoot>
+	
+</table>
+<div id="adjustDialog" class="yui-panel" style="width:340px; margin: auto; margin-top:15px; z-index:30;">
+	<div class="hd" id="title">申请余额调整</div>
+	<div class="bd">
+	<form name="adjustForm" id="adjustForm">
+		<div>
+			<label for="member">用户ID：</label>
+			<input type="text" name="member" id="member" onchange="getInfo()" style="width:200px" />
+		</div>
+		<div>
+			<label for="correcttype">调整类型：</label>
+			<select name="correcttype" id="correcttype" style="width:200px" onchange="showTradeno(this)">
+				<option value="" selected>请选择</option>
+				<option value="sub_refund">[-]余额退款到银行</option>
+				<option value="sub">[-]减少账户余额</option>
+				<option value="add_order">[+]订单退款到余额</option>
+				<option value="add">[+]增加账户余额</option>
+			</select>
+		</div>
+		
+		<div id="trade" class="none">
+			<label for="tradeno"><b>订单号：</b></label>
+			<input type="text" name="tradeno" id="tradeno" style="width:200px" maxlength="16"/>
+		</div>
+		<fieldset style="width: 80%;text-align: center;margin-left: 10px;">
+			<legend>原始金额</legend>
+			<div>
+				<label for="oldamount">金额：</label>
+				<input type="text" name="oldamount" id="oldamount" style="width:80px" readonly/>
+			</div>
+			
+			<div>
+				<label for="oldbankcharge">可退金额：</label>
+				<input type="text" name="oldbankcharge" id="oldbankcharge" style="width:80px" readonly/>
+			</div>
+			<div>
+				<label for="oldothercharge">不可退金额：</label>
+				<input type="text" name="oldothercharge" id="oldothercharge" style="width:80px" readonly/>
+			</div>
+		</fieldset>
+		
+		<fieldset style="width: 80%;text-align: center;margin-left: 10px;">
+			<legend>金额设置</legend>
+			<div>
+				<label for="amount">金额：</label>
+				<input type="text" name="amount" id="amount" style="width:80px" />
+			</div>
+			
+			<div>
+				<label for="bankcharge">可退金额：</label>
+				<input type="text" name="bankcharge" id="bankcharge" style="width:80px" />
+			</div>
+			<div>
+				<label for="othercharge">不可退金额：</label>
+				<input type="text" name="othercharge" id="othercharge" style="width:80px" />
+			</div>
+		</fieldset>
+		
+		<div>
+			<label for="memberid">用户ID：</label>
+			<input type="text" name="memberid" id="memberid" style="width:200px" readonly="readonly"/>
+		</div>
+		<div>
+			<label for="content">详细说明：</label>
+			<textarea name="content" id="content" style="width:200px" rows="3"></textarea>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="save();" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="GewaraUtil.hideDialog('adjustDialog');" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+
+<script type="text/javascript">
+	function updateSelect(el){
+		$('refundTable').getElements('input[type=checkbox]').each(function(item){
+			item.checked = $(el).checked;			
+		})
+	}
+	function allapproveAdjustment(){
+		var c = window.confirm("确定调整已选中的吗？");
+		if(c){
+			$('refundTable').getElements('input[type=checkbox]').each(function(item){
+				if(item.checked){
+					var url = "${basePath}admin/account/ajax/approveAdjustment.xhtml";
+					GewaraUtil.sendRequest(url, {"aid":item.value}, function(result){
+						if(!result.success) alert(result.msg);
+					});
+				}			
+			})
+			alert("调整成功！");
+		}
+	}
+	function approveAdjustment(rid){
+		var c = window.confirm("确定调整吗？");
+		if(c){
+			var url = "${basePath}admin/account/ajax/approveAdjustment.xhtml";
+			GewaraUtil.sendRequest(url, {"aid":rid}, function(result){
+				if(result.success) alert("调整成功，请填写备注！");
+				else alert(result.msg);
+			});
+		}
+	}
+	function removeAdjustment(rid){
+		var c = window.confirm("确定要删除此记录？");
+		if(c){
+			var url = "${basePath}admin/account/ajax/removeAdjustment.xhtml";
+			GewaraUtil.sendRequest(url, {"aid":rid}, function(result){
+				if(result.success) $('r'+rid).dispose();
+				else alert(result.msg);
+			});
+		}
+	}
+	function applyAdjustment(){
+		$("adjustForm").reset();
+		GewaraUtil.showDialog("adjustDialog");
+	}
+	function getInfo(){
+		if($('member').value=="") return;
+		var url = "${basePath}admin/account/ajax/getAdjustmentInfo.xhtml";
+		GewaraUtil.sendRequest(url, {"memberid":$('member').value}, function(result){
+			if(result.success){
+				$("memberid").value=result.memberid;
+				$("oldamount").value=result.amount;
+				$("oldbankcharge").value=result.bankcharge;
+				$("oldothercharge").value=result.othercharge;
+			}else alert(result.msg);
+		})
+	}
+	function save(){
+		if($("memberid").value==''){alert("请输入用户ID"); return;}
+		var url = "${basePath}admin/account/ajax/applyAdjustment.xhtml";
+		var values={"memberid":$("memberid").value, "type":$("correcttype").value, "content":$("content").value, "amount":$("amount").value,"bankcharge":$('bankcharge').value,"othercharge":$('othercharge').value}
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+				alert("增加成功！");
+			}else alert(result.msg);
+			
+		});
+	}
+	function createAccount(){
+		if($("mid").value==''){alert("请输入用户ID！");return;}
+		var url = "${basePath}admin/account/ajax/createAccount.xhtml";
+		GewaraUtil.sendRequest(url, {"memberid":$("mid").value}, function(result){
+			if(result.success) alert("成功建立账户");
+			else alert(result.msg);
+		});
+	}
+	function showTradeno(e){
+		if(e.value=='add_order')$('trade').removeClass('none');
+		else $('trade').addClass('none');
+	}
+</script>
+</body>
+</html>

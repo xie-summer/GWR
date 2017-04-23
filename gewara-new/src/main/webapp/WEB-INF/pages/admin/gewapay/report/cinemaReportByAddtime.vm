@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>报表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.mc{height:26px;vertical-align: middle;color:red;font-size:14px;font-weight:bold}
+	</style>
+</head>
+<body style="width:85%; margin:auto">
+<div style="clear:both;"></div>
+<div>
+#set($byCinemaAddtime=true)
+#parse('admin/gewapay/common.vm')
+</div>
+<form action="${basePath}admin/gewapay/reportByCinemaAddtime.xhtml">
+<input type="hidden" name="cinemaId" value="$!params.cinemaId"/>
+<input type="hidden" name="type" value="$!params.type"/>
+<table  border="1" style="width: 95%" cellspacing="0" class="table">
+	<tr>
+	<td height="30">
+		<select name="cinemaid" id="cinemaid">
+			<option value="">请选择影院</option>
+			#foreach($map in $cinemaList)
+			#set($sno=$foreach.count)#if($sno lt 10) #set($sno='0' + $sno) #end
+			<option value="$map.get('cinemaid')" #if($map.get('cinemaid') eq $cinema.id) selected #end>[$sno]$map.get('cinemaname')</option>
+			#end
+		</select>
+		开始日期:<input type="text" name="datefrom" id="datefrom" value="$!params.datefrom" style="width: 140px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})"/>&nbsp;
+		结束日期:<input type="text" name="dateto" id="dateto" value="$!params.dateto" style="width: 140px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})"/>&nbsp;
+		<input type="radio" name="opentype" value="" #if($VmUtils.isBlank($!params.opentype))checked#end/>全部
+		<input type="radio" name="opentype" value="GEWA" #if($VmUtils.eq($!params.opentype,'GEWA'))checked#end/>格瓦拉
+		<input type="radio" name="opentype" value="HFH" #if($VmUtils.eq($!params.opentype,'HFH'))checked#end/>火凤凰
+		<input type="submit" value="查询" />
+	</td>
+	</tr>
+</table>
+<br/>
+</form>
+#if($cinema && $params.datefrom && $params.dateto)
+<table width="90%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+	<td colspan="9" align="center" class="td"><span>$cinema.name报表[$!{params.datefrom}--$!{params.dateto}]</span></td>
+	</tr>
+	<tr class="td">
+	<td align="center" class="wd120">订单号</td>
+	<td align="center" class="wd120">场次</td>
+	<td align="center" class="wd120">电影名称</td>
+	<td align="center" align="center" class="wd120">下单时间</td>
+	<td align="center" align="center" class="wd80">确认号</td>
+	<td align="center" align="center" class="wd60">影厅</td>
+	<td align="center" align="center" class="wd60">价格</td>
+	<td align="center" align="center" class="wd60">数量</td>
+	<td align="center" align="center" class="wd60">金额</td>
+	<td align="center" class="wd120">放映时间</td>
+	</tr>
+	#set($M=0)#set($Q=0)#set($T=0)
+	#foreach($map in $dataMap)
+	#set($T=$map.quantity*$map.costprice)
+	#set($M=$M+$T)
+	#set($Q=$Q+$map.quantity)
+	#set($playtime=$map.get('playtime'))
+	<tr class="td itable">
+		<td align="center" class="wd120">$!map.tradeNo</td>
+		<td align="center" class="wd120"><a href="${basePath}admin/gewapay/reportDetail.xhtml?mpid=$!map.mpid" target="_blank">$!map.mpid</a></td>
+	<td align="center" class="wd120">$!map.moviename</td>
+	<td align="center" align="center" class="wd120">$!DateUtil.format($!map.get('addtime'),'M月d HH:mm')</td>
+	<td align="center" align="center" class="wd60">#if($playtime.compareTo($curtime) le 0)$!map.hfhpass#else&nbsp;#end</td>
+	<td align="center" align="center" class="wd60">$!map.roomname</td>
+	<td align="center" align="center" class="wd60">$!map.costprice</td>
+	<td align="center" align="center" class="wd60">$!map.quantity</td>
+	<td align="center" align="center" class="wd60">$!T</td>
+	<td align="center" class="wd60">$!DateUtil.format($map.playtime,'M月d HH:mm')</td>
+	</tr>
+	#end
+	<tr class="td">
+	<td colspan="9" align="right" class="td"><span>共计:票数:$Q(个)，金额:$M(元)</span></td>
+	</tr>
+</table>
+#end
+</body>
+</html>

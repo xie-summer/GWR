@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>电影院列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="margin:auto">
+<div style="padding:1px;">
+	<form action="${basePath}admin/cinema/cinemaList.xhtml" style="margin:3px; width:300px; float: left;">
+		搜索(名称+拼音+区县+地址)：<input name="key" type="text" style="width:80px" value="$!params.key"/>
+		<input type="hidden" name="city" id="city" value="$!params.city"/>
+		<input type="submit" class="button" value="查询"/>
+	</form>
+</div>
+<div style="width:650px;float:left"> 
+	<a href="${basePath}admin/common/bulletinList.xhtml?tag=cinema" target="_blank">1、公告管理</a>
+	<a href="${basePath}admin/cinema/modifyCinemaDetail.xhtml" target="_blank">2、增加新影院</a>
+	<a href="${basePath}admin/cinema/prevueList.xhtml">3、新片速递</a>
+	<a href="${basePath}admin/common/newsList.xhtml?tag=cinema&newstype=1" target="_blank">4、专题</a>
+	<a href="${basePath}admin/common/newsList.xhtml?tag=cinema&newstype=2" target="_blank">5、新闻</a>
+	<a href="${basePath}admin/common/bulletinList.xhtml?tag=sysmsg&relatedid=0" target="_blank">6、系统公告</a>
+	<a href="${basePath}admin/common/mpiCheck.xhtml" target="_blank">7、场次检查</a>
+</div>
+<table class="table clear">
+	<thead>
+	<tr>
+		<th>电影院名称</th>
+		<th>修改</th>
+		<th>排片</th>
+		<th>优惠</th>
+		<th>公告</th>
+		<th>放映厅</th>
+		<th>图片</th>
+		<th>地图</th>
+		<th>百度地图</th>
+		<th>导出排片</th>
+		<th>前台页面</th>
+		<th>热门</th>
+		<th>历史记录</th>
+	</tr>
+	</thead>
+	<tbody id="cinemaTable">
+	#foreach($cinema in $cinemaList)
+	<tr>
+		<td>${cinema.name}</td>
+		<td><a href="${basePath}admin/cinema/modifyCinemaDetail.xhtml?cinemaId=${cinema.id}" target="_blank">编辑</a></td>
+		<td><a href="${basePath}admin/cinema/editPlayItem.xhtml?cinemaId=${cinema.id}" target="_blank">编辑排片</a></td>
+		<td><a href="${basePath}admin/cinema/discount.xhtml?cinemaId=${cinema.id}" target="_blank">优惠信息</a></td>
+		<td><a href="${basePath}admin/common/bulletinList.xhtml?tag=cinema&relatedid=${cinema.id}" target="_blank">公告</a></td>
+		<td><a href="${basePath}admin/cinema/roomList.xhtml?cinemaId=${cinema.id}" target="_blank">放映厅</a></td>
+		<td><a href="${basePath}admin/cinema/pictureList.xhtml?tag=cinema&relatedid=${cinema.id}&uploadPath=images/cinema" target="_blank">上传组图</a></td>
+		<td><a href="${basePath}admin/common/mappoint.xhtml?id=$cinema.id&tag=cinema" target="_blank">地图</a></td>
+		<td><a href="${basePath}admin/common/mapbpoint.xhtml?id=$cinema.id&tag=cinema&name=${cinema.name}" target="_blank">百度地图</a></td>
+		<td><a href="${basePath}admin/cinema/export.xhtml?cinemaId=${cinema.id}" target="_blank">导出Excel</a></td>
+		<td><a href="$!{absPath}${basePath}cinema/$cinema.id" target="_blank">前台</a></td>
+		<td nowrap="nowrap" id="b$cinema.id">
+			<input type="text" name='hotvalue' id='$cinema.id' onchange='setHotValue("$cinema.id")' value="$cinema.hotvalue" style="width: 50px;"/>
+		</td>
+		<td>
+			<a href="${basePath}admin/common/getChangeHis.xhtml?tag=Cinema&relatedid=$cinema.id" target="_blank">历史</a>
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<script type="text/javascript">
+	function setHotValue(vid){
+		var url = "${basePath}admin/cinema/ajax/setCinemaHotValue.xhtml";
+		var values = {'cinemaId':vid, "value":$(vid).value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) alert('成功设置！');
+		});
+	}
+</script>
+</body>
+</html>

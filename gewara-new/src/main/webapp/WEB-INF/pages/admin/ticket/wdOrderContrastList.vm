@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>万达格瓦拉订单差异列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="margin:auto">
+<div style="padding:1px;">
+	<form action="${basePath}admin/ticket/wdOrderList.xhtml" style="margin:3px; width:900px; float: left;">
+		影院名称： <select name="cinemaId">
+					<option value="">全部</option>
+					#foreach($c in $cinemaList)
+					<option value="$c.id" #if($cinemaId eq $c.id)selected = 'selected'#end>$c.name</option>
+					#end
+				 </select>
+		交易日期： <input type="text" name="startDate" id="startDate" value="$!startDate" readonly="readonly" onclick="WdatePicker()" />~
+		<input type="text" name="endDate" id="endDate" value="$!endDate" readonly="readonly" onclick="WdatePicker()" />
+		<input type="submit" class="button" value="查询"/>
+	</form>
+</div>
+<table class="table clear">
+	<thead>
+	<tr>
+		<th  rowspan = 2>日期</th>
+		<th  rowspan = 2>城市</th>
+		<th  rowspan = 2>影院名称</th>
+		<th colspan="3">万达系统</th>
+		<th colspan="3">格瓦拉系统</th>
+		<th colspan="3">差异数量（万达-格瓦拉）</th>
+		<th rowspan = 2>操作</th>
+	</tr>
+	<tr>
+		<th >总订单笔数</th>
+		<th >总票数</th>
+		<th >总结算金额</th>
+		<th >总订单笔数</th>
+		<th >总票数</th>
+		<th >总结算金额</th>
+		<th >总订单笔数</th>
+		<th >总票数</th>
+		<th >总结算金额</th>
+	</tr>
+	</thead>
+	<tbody id="cinemaTable">
+	#set($gGT = 0)
+	#set($gTT = 0)
+	#set($gMT = 0)
+	#set($wGT = 0)
+	#set($wTT = 0)
+	#set($wMT = 0)
+	#foreach($c in $contrastList)
+	#set($gGT = $gGT + $c.get('gOrderTotal'))
+	#set($gTT = $gTT + $c.get('gTicketTotal'))
+	#set($gMT = $gMT + $c.get('gMoneyTotal'))
+	#set($wGT = $wGT + $c.get('wOrderTotal'))
+	#set($wTT = $wTT + $c.get('wTicketTotal'))
+	#set($wMT = $wMT + $c.get('wMoneyTotal'))
+	<tr>
+		<td>${c.get('date')}</td>
+		<td>$!cinemaMap.get($c.get('cinemaId')).getCityname()</td>
+		<td>$!cinemaMap.get($c.get('cinemaId')).getName()</td>
+		<td>#if($c.get('gOrderTotal'))${math.toInteger($c.get('wOrderTotal'))}#else 0#end</td>
+		<td>#if($c.get('gTicketTotal'))${math.toInteger($c.get('wTicketTotal'))}#else 0#end</td>
+		<td>#if($c.get('gMoneyTotal'))${math.toInteger($c.get('wMoneyTotal'))}#else 0#end</td>
+		<td>#if($c.get('gOrderTotal'))${math.toInteger($c.get('gOrderTotal'))}#else 0#end</td>
+		<td>#if($c.get('gTicketTotal'))${math.toInteger($c.get('gTicketTotal'))}#else 0#end</td>
+		<td>#if($c.get('gMoneyTotal'))${math.toInteger($c.get('gMoneyTotal'))}#else 0#end</td>
+		#set($ot = $c.get('wOrderTotal') - $c.get('gOrderTotal'))
+		<td>$math.toInteger($ot)</td>
+		#set($tt = $c.get('wTicketTotal') - $c.get('gTicketTotal'))
+		<td>$math.toInteger($tt)</td>
+		#set($mt = $c.get('wMoneyTotal') - $c.get('gMoneyTotal'))
+		<td>$math.toInteger($mt)</td>
+		<td nowrap="nowrap" id="b$cinema.id">
+		<a href="${basePath}admin/ticket/wdOrderContrastDetail.xhtml?cinemaId=$!c.get('cinemaId')&date=${c.get('date')}" target="_blank">查看差异明细</a>
+		</td>
+	</tr>
+	#end
+	<tr>
+		<th ></th>
+		<th  ></th>
+		<th  >合计</th>
+		<th >$wGT</th>
+		<th >$wTT</th>
+		<th >$wMT</th>
+		<th >$gGT</th>
+		<th >$gTT</th>
+		<th >$gMT</th>
+		#set($ot = $wGT - $gGT)
+		<th >$math.toInteger($ot)</th>
+		#set($ot = $wTT - $gTT)
+		<th >$math.toInteger($ot)</th>
+		#set($ot = $wMT - $gMT)
+		<th >$math.toInteger($ot)</th>
+		<th></th>
+	</tr>
+	</tbody>
+</table>
+</body>
+</html>

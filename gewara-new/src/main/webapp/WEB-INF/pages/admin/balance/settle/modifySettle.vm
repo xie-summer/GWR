@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>编辑结算</title>
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width:800px; margin: auto;">
+<div style="background-color: #D7E9F5;">
+<form id="settleForm" style="margin-left: 10px;">
+	<input type="hidden" name="settleId" value="$!settle.id" />
+	<input type="hidden" name="cinemaid" value="$!cinema.id" />
+	影院名称：$cinema.name<br /><br />
+	#if($settle)
+	订单截止时间：<input type="text" name="timeto" value="$!settle.timeto" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'$dateFmt'})"/>(订单开始时间：$settle.timefrom)<br /><br />
+	结账截止时间：<input type="text" name="curtime" value="$!settle.curtime" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:00:00'})"/>(结账开始时间：$settle.lasttime)<br /><br />
+	#elseif($lastSettle)
+	订单截止时间：<input type="text" name="timeto" value="$!settle.timeto" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'$dateFmt'})"/>(订单开始时间：${lastSettle.timeto}[上期截止])<br /><br />
+	结账截止时间：<input type="text" name="curtime" value="$!settle.curtime" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:00:00'})"/>(结账开始时间：${lastSettle.curtime}[上期截止])<br /><br />
+	#else
+	订单时间范围：
+	<input type="text" name="timefrom" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd 06:00:00'})"/>~
+	<input type="text" name="timeto" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd 06:00:00'})"/><br /><br />
+	结账时间范围：
+	<input type="text" name="lasttime" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:00:00'})"/>~
+	<input type="text" name="curtime" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:00:00'})"/><br /><br />
+	#end
+	本期结算金额：<input type="text" name="amount" value="$!settle.amount"/>(从报表中copy，开始填写0)<br /><br />
+	上期订单退款差额：<input type="text" name="lastOrderRefund" value="$!settle.lastOrderRefund"/>(从报表中copy，开始填写0)<br /><br />
+	本期订单退款差额：<input type="text" name="curOrderRefund" value="$!settle.curOrderRefund"/>(从报表中copy，开始填写0)<br /><br />
+	手工调整金额：<input type="text" name="adjustment" value="$!settle.adjustment"/>(正数表示多结算给影院，负数表示少结算给影院，开始填写0)<br /><br />
+	结算说明：<textarea name="remark">$!settle.remark</textarea><br /><br />
+	预期下次结账时间：<input type="text" name="nexttime" value="$!settle.nexttime" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:00:00'})"/>(只是用于下期结账提醒)<br /><br />
+	<input type="button" id="btns" value="保存" onclick="saveSettle()" />
+</form>
+</div>
+<script type="text/javascript">
+	function saveSettle(){
+		var values = GewaraUtil.getValues($("settleForm"));
+		var url = "${basePath}admin/balance/settle/saveSettle.xhtml";
+		gewa.util.mask({'element': "btns",'title':'正在保存...', "opacity":"0.4"});
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				alert("保存成功！");
+				document.location.href="${basePath}admin/balance/settle/modifySettle.xhtml?settleId=" + result.retval;
+			}else {
+				alert(result.msg);			
+			}
+		});
+	}
+</script>
+</body>
+</html>

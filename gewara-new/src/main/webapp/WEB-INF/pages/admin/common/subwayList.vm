@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>编辑地铁数据</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+</head>
+<body class="yui-skin-sam" style="width:800px;margin:auto">
+<div style="color: red;margin-top: 20px">$!errorMsgs</div>
+<form method="post" action="${basePath}admin/common/subwayList.xhtml" target="_self" id="editForm">
+<div id="cinemaDialog" class="yui-panel" style="width:750px;margin:auto">
+	<div class="hd">编辑地铁数据</div>
+	<div class="bd">
+		#foreach($line in $lineList)
+		#set($strlineid=$line.id + '')
+		<div>
+			<div style="background-color: #ddf;height:20px;padding-top:8px;font-size:12pt;">$line.linename</div>
+			<ul style="margin-left: 8px">
+			#foreach($st in $stationMap.get($line.id))
+				<li style='float:left;width:19%'>
+				<label for="st$st.id" style="display:inline-block;#if($VmUtils.isNotBlank($!params.stationid) && ($!params.stationid eq $st.id))color: red#end">
+					<input type="radio" name="stations" id="st$st.id" value="$st.id" onclick="getLineidList($st.id)" #if($VmUtils.isNotBlank($!params.stationid) && ($!params.stationid eq $st.id))checked#end/>$st.stationname
+				</label>
+				</li>
+			#end
+			</ul>
+			<div class="height0"></div>
+		</div>
+		#end
+		<input type="hidden" name="lineidlist" id="lineidlist" value="$!params.lineidlist" />
+	</div>
+	<div><input type="button" value="确定" onclick="saveForm();"/>
+	<span style="color: red">(点击确定后, 需要在父页面进行保存.)</span>
+	</div>
+</div>
+</form>
+	<script type="text/javascript">
+	function saveForm(){
+		var formEl = document.getElementById("editForm");
+		var radiovalue = $$('input[name=stations]:checked').map(function(e){return e.value});
+		var sid = window.opener.document.getElementById("stationid");
+		sid.value = radiovalue;
+		var lidlist = window.opener.document.getElementById("lineidlist");
+		lidlist.value = $('lineidlist').value;
+		
+		formEl.submit();
+		window.close();
+	}
+	function getLineidList(sid){
+		var values = {"sid":sid};
+		GewaraUtil.sendRequest('${basePath}common/getLineidList.xhtml', values, function(result){
+			if(result.success){
+				$('lineidlist').value = result.retval;
+			}
+		});
+	}
+</script>
+</body>
+</html>

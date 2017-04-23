@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>搭话  消息  格瓦拉社区</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/default.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,Autocompleter,page,noobSlide&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div id="snsHeader"></div>
+<div class="ui_layout">
+	#parse('sns/common/left.vm')
+	<div class="body_right">
+	
+	#set($reply=true)
+	#parse("sns/message/menu.vm")
+	<div class="bodys" id="_body">
+
+	<div class="body_nav_second">
+		<div class="navs" id="at-tab-wraper">
+			<a href="javascript:;" id="at-wa-btn">收到的搭话</a>
+			<a href="javascript:;" id="at-reply-btn">发出的搭话</a>
+		</div>
+	</div>
+	
+	<div>
+		<ul class="mymessage" id="wala-list-wraper">
+			
+		</ul>
+	</div>
+	
+	<div class="readyMore" id="load-more" style="margin:10px auto;">查看更多</div>
+	
+	
+	
+</div>
+<script type="text/javascript">
+
+	var currentUrl="";
+	var loadAtMeWaLaUrl="${basePath}home/message/wala/loadReCommentData.xhtml";
+	var loadAtMeReplyUrl="${basePath}home/message/wala/loadMyReCommentData.xhtml";
+	var atTabWraper=$("at-tab-wraper");
+	var atWaBtn=$("at-wa-btn");
+	var atRelyBtn=$("at-reply-btn");
+	var walaList=$("wala-list-wraper");
+	var loadMore=$("load-more");
+	
+	//选中样式切换
+	function changeStyle(o){
+		atTabWraper.getElements("a").removeClass("hover");
+		o.addClass("hover");
+	}
+	
+	//翻页码状态保存
+	function scrollPage(page){
+		loadMore.set("data-page",page);
+	}
+	
+	//获取当前页码
+	function getCurrentPage(){
+		return parseInt(loadMore.get("data-page"));
+	}
+
+	//加载哇啦
+	function loadWala(o,url,page){
+		var lock=o.get("lock");
+		if(lock=="true"){
+			return;
+		}
+		o.set("lock","true");
+		var req = new Request({
+		    url: url+"?pageNo="+page,
+		    method: 'get',
+		    onRequest: function(){
+		        loadMore.set('html','<img src="${picPath}css/home/home_loading.gif" style="margin:10px 0;"/>');
+		    },
+		    onSuccess: function(responseHTML){
+		    	var e=new Element('div',{'html':responseHTML});
+		    	e.getChildren().inject(walaList);
+		    	o.set("lock","false");
+		    	if(responseHTML.length>0){
+		    		loadMore.set('html','查看更多');
+		    		scrollPage(page+1);
+		    	}else{
+		    		loadMore.set('html','没有更多哇啦了！');
+		    	}
+		    },
+		    onFailure: function(){
+		    	o.set("lock","false");
+		    	loadMore.set('html','读取数据失败！请再试一次');
+		    }
+		});
+		req.send();
+	}
+	
+	//载入绑定
+	window.addEvent('domready',function(){
+		
+		//@我的哇啦
+		atWaBtn.addEvent('click',function(){
+			walaList.empty();
+			changeStyle(this);
+			currentUrl=loadAtMeWaLaUrl;
+			loadWala(this,currentUrl,0);
+		});
+		
+		//@我的搭话
+		atRelyBtn.addEvent('click',function(){
+			walaList.empty();
+			changeStyle(this);
+			currentUrl=loadAtMeReplyUrl;
+			loadWala(this,currentUrl,0);
+		});
+		
+		//翻页
+		loadMore.addEvent('click',function(){
+			loadWala(this,currentUrl,getCurrentPage());
+		});
+		
+		//默认加载@我的哇啦
+		atWaBtn.fireEvent('click');
+		
+	});
+</script>
+</div>
+</div>
+<div class="ui_view_menu"></div>
+<div class="footer_warp">
+	<div class="isFooter"></div>
+</div>
+#parse('include/innerLogin.vm')
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=snsUtil,index_even&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	if($('publicize'))new adSoild('publicize','navControl',{'position':{'x':#if($!params.memberid)280#{else}180#end,'y':#if($!params.memberid)80#{else}70#end},'width':14});
+	if($('slidePanel'))new noobSlide({
+		box: $('slidePanel'),
+		size:180,
+		items: $$('#slidePanel li'),
+		handle_event:'click',
+		addButtons: {
+			previous:$('eventL'),
+			next:$('eventR')
+		}
+	});
+});
+</script>
+#parse('sns/common/ga.vm')
+</body>
+</html>

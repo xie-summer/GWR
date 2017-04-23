@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>设置支付密码_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	#parse('home/acct/accountSafety/style.vm')
+</head>
+<body>
+#set($ishome=true)#set($safetyCenter = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			<div class="mod_tLine">
+				<div class="mod_hd"><h2>设置支付密码</h2></div>
+				<div class="mod_bd">
+					<div class="payStep02">
+						<ul class="payOrderSteps clear">
+							<li class="step1">1、验证身份</li>
+							<li class="step2">2、设置支付密码</li>
+							<li class="step3">3、完成</li>
+						</ul>
+					</div>
+					<div class="ui_warning">
+						<p>
+							<em>为保障您的验证信息的有效性，请在30分钟内务必完成设置；否则视为身份认证过期，需要重新验证！</em>
+						</p>
+					</div>
+					<div class="modifyBox" id="upPassForm">
+						<form id="accountForm" action="javascript: submitUpPass();" method="post">
+						<ul>
+							<li>
+								<div class="ui_media">
+									<div class="ui_pic"><span class="red ffst mr5">*</span>真实姓名：</div>
+									<div class="ui_text">
+										<input type="text" name="realname" class="text validate['required','length[2,15]']" value=""/><span class="ml10">此信息仅用于身份验证，请务必填写真实信息</span>
+									</div>
+								</div>
+								<div class="ui_media mt15">
+								<div class="ui_pic"><span class="red ffst mr5">*</span>证件类型：</div>
+								<div class="ui_text">
+									<select name="certtype">
+										<option value="0" selected>身份证</option>
+										<option value="1">护照</option>
+										<option value="2">军官证</option>
+									</select>
+								</div>
+								</div>
+								<div class="ui_media mt15">
+									<div class="ui_pic"><span class="red ffst mr5">*</span>证件号码：</div>
+									<div class="ui_text">
+										<input type="text" name="idcard" class="text validate['required','%checkCardLength']" value=""/><span class="ml10">此信息仅用于身份验证，请务必填写真实信息</span>
+									</div>
+								</div>
+								<div class="ui_media mt15">
+									<div class="ui_pic"><span class="red ffst mr5">*</span>紧急联系人：</div>
+									<div class="ui_text">
+										<input type="text" name="emcontact" class="text validate['required','length[2,15]']" value=""/><span class="ml10">此信息仅用于身份验证，请务必填写真实信息</span>
+									</div>
+								</div>
+								<div class="ui_media mt15">
+									<div class="ui_pic"><span class="red ffst mr5">*</span>紧急联系人手机号码：</div>
+									<div class="ui_text">
+										<input type="text" name="emmobile" class="text validate['required','%checkMobile']" value=""/><span class="ml10">此信息仅用于身份验证，请务必填写真实信息</span>
+									</div>
+								</div>
+								<div class="ui_media mt15">
+									<div class="ui_pic"><span class="red ffst mr5">*</span>支付密码：</div>
+									<div class="ui_text">
+										<input type="password" id="password" name="password"  class="text validate['required','%checkPassword']"/>
+									</div>
+								</div>
+								<div class="ui_media mt15">
+									<div class="ui_pic"><span class="red ffst mr5">*</span>确认支付密码：</div>
+									<div class="ui_text">
+										<input type="password" id="confirmPassword" name="confirmPassword"  class="text validate['required','%checkPassword']"/>
+										<p class="mt20">
+											<input type="submit" id="disBtn" class="btn redBtn" value="确认提交"/><span class="gray ml10">以上信息仅作为验证身份使用！</span>
+										</p>
+									</div>
+								</div>
+							</li>
+						</ul>
+						<input type="hidden" name="checkpass" value="$!params.checkpass"/>
+						</form>
+					</div>
+					<div class="clew mt15">
+						<ul class="ui_abeam maxw94">
+							<li class="abeam" style="padding:10px;margin:0;">
+								<div class="uipic"><img src="${picPath}css/home/ico_g.gif" class="mt5" /></div>
+								<div class="uiText">
+									<b>为什么会填写姓名、证件、紧急联系人及联系方式?</b>
+									<p>1、首先你填写的内容只用于你在格瓦拉的核心利益验证时使用，不会在网站上公开及商用；一旦填写不会被展示。</p>
+									<p>2、在格瓦拉积分、票券、哇币等都是当钱用；使用时都需要支付密码，如果支付密码丢了，只有通过以上填写的信息找回啦。</p>
+									<p>3、为了你的账户安全，当你在切换手机号码时，也会用到以上填写信息。</p>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+function checkCardLength(el){
+	if(!el.value.test(/^[A-Za-z0-9_]*$/g)){
+		GewaraUtil.showValidateErr(el,'证件号码格式不正确！');
+		return false;
+	}
+	if(el.value.length<6){
+		GewaraUtil.showValidateErr(el,'证件号码格式不正确！');
+      return false;
+	}
+}
+function checkMobile(el){
+	if(!gewara.util.isMobile(el.value) || !el.value){
+		GewaraUtil.showValidateErr(el,'紧急联系人手机号码不正确！');
+      return false;
+	}
+}
+function checkPassword(el){
+	if(!/^[\w+$]{6,18}$/.test(el.value) || !el.value){
+		GewaraUtil.showValidateErr(el,'密码格式不正确！');
+      return false;
+	}
+}
+function submitUpPass(){
+	if(!$('password').value||!$('confirmPassword').value){
+		gewaUtil.alert('支付密码不能为空！');
+		return;
+	}
+	if($('password').value!=$('confirmPassword').value){
+		gewaUtil.alert('两次设置的支付密码不一致！');
+		return;
+	}
+	var url = '${basePath}home/acct/saveAccountCkPs.xhtml';
+	GewaraUtil.mask('disBtn');
+	var values = GewaraUtil.getValues("upPassForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			window.location.href='${basePath}home/acct/successPage.xhtml?msg=恭喜你，支付密码设置成功！&title=设置支付密码';
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

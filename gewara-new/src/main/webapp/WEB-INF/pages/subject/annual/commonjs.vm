@@ -1,0 +1,197 @@
+<script language=JavaScript>
+<!--
+function resend(tag){
+	checkLogin(true,function(){
+		gewa.util.mask({'element': "btn2",'title':'正在提交，请稍等...'});
+		var values = {"mobile":$('umobile').value,'tag':tag};
+		GewaraUtil.sendRequest('${basePath}home/bindmobile/receive.xhtml', values, function(result){
+			if(result.success){
+				gewa.util.clearMask();
+				retime();
+			}else{
+				gewa.util.clearMask();
+				if(result.msg) gewaUtil.alert(result.msg);
+			}
+		}, 'get');
+	});
+}
+var second = 60;
+GetRTime = function (){  
+	if(second>=0){
+		$('showMessage').setStyle('display','block');  
+		$('timecount').set('html', second);
+		second = second-1;
+		setTimeout("GetRTime()",1000);
+	}else {  
+		$("btn2").set("disabled", false); 
+		$('showMessage').setStyle('display','none');
+		$("btn2").setStyle("cursor","pointer"); 
+	}  
+} 
+retime = function(){
+	$("btn2").set("disabled", true);
+	$("btn2").setStyle("cursor",""); 
+	second = 60;
+	GetRTime();
+}
+
+function upMobile(){
+	if(!$('umobile').value){
+		gewaUtil.alert('请输入手机号码！');
+		return;
+	}
+	GewaraUtil.mask('disBtnMobile');
+	var url = '${basePath}home/acct/sendExchangeMobile.xhtml';
+	var values = GewaraUtil.getValues("upMoibleForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			gewaUtil.alert('设置成功！');
+			refreshPage();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+var InternetExplorer = navigator.appName.indexOf("Microsoft") != -1;
+function myFlash_DoFSCommand(command, args){
+	var myFlashObj = InternetExplorer ? myFlash : document.myFlash;
+	if(args == 'nologin'){
+		showLogin();
+	}else if(args == 'nodrawcount'){
+		gewaUtil.alert("该组的奖品已领取，你还可以参加其它类型电影评选！");
+	}else if(args == 'nostart'){
+		gewaUtil.alert("本次活动未开始或已结束！");
+	}else if(args == 'syserror'){
+		gewaUtil.alert("操作失败！请重试！");
+	}else if(args == 'noprize'){
+		gewaUtil.alert("本次活动奖品已送完，感谢参与！");
+	}else if(args == 'nobindMobile'){
+		gewa.util.issure('','updateMemberInfo','绑定手机：',420,'keys',function(){
+			upMobile();
+		});
+	}else if(args == 'addCustomerInfo'){
+		gewa.util.issure('','infos','收货地址：',420,'keys',function(){
+			addinfo();
+		});
+	}else if(args == 'noticket'){
+		gewaUtil.alert("你未购买特定影片，不能参加此次活动！");
+	}else if(args == 'nopoint'){
+		gewaUtil.alert("你的积分不足，不能抽奖！");
+	}else if(args == 'noemail'){
+		gewaUtil.alert("未绑定邮箱！");
+	}else if(args == 'frequent'){
+		gewaUtil.alert("请不要操作过于频繁！");
+	}else if(args == 'noweibo'){
+		gewaUtil.alert("请绑定微博后参与抽奖！");
+	}else if(args == 'nocount'){
+		gewaUtil.alert("该组的奖品已领取，你还可以参加其它类型电影评选！");
+	}
+}
+if (navigator.appName && navigator.appName.indexOf("Microsoft") != -1 && 
+  navigator.userAgent.indexOf("Windows") != -1 && navigator.userAgent.indexOf("Windows 3.1") == -1) {
+  document.write('<script language=VBScript\> \n');
+  document.write('on error resume next \n');
+  document.write('Sub myFlash_FSCommand(ByVal command, ByVal args)\n');
+  document.write(' call myFlash_DoFSCommand(command, args)\n');
+  document.write('end sub\n');
+  document.write('</script\> \n');
+}
+function addinfo(){
+	var url = "${basePath}subject/hallowmas/addCarbInfo.xhtml";
+	var values = GewaraUtil.getValues("info");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.alert("提交成功！", refreshPage);
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+//-->
+var isWbOpen=true;
+function submitMicro(title){
+	var say_area = $('microText').value;
+	if(say_area.length<=0){
+		gewaUtil.alert("评论不能为空!");
+		return false;
+	}
+	if(say_area.length>140){
+		showError.show('microText');
+		return false;
+	}
+	checkLogin(true,function(){
+		var url = "${basePath}subject/sendwalaSubject.xhtml";
+		var values = {"content":$('microText').value, "tag":"$!tag", "title":title};
+		GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.alert("提交成功！", refreshPage);
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+	}); 
+}
+window.addEvent('domready', function(){
+	new issue('microText',{'font':'font','tips':'wala_defV'});
+	showError = new ShowErrorTextArea();
+	selector = new selectpic('microText','uidialog');
+	new dialogs('dialogs',{'width':'360px','flag':true});
+	gewara.util.sendRequest('${basePath}ajax/member/synchroizaInfo.xhtml',{'rights':'moviecomment'},function(result){
+		if(result.success){
+			if(result.appList){
+				if(result.appList.contains('sina')){$('Wb').checked=true;isWbOpen = false;}
+			}
+		}
+	});
+	$('Wb').addEvent('click',function(){
+		if(isWbOpen){
+			this.checked = '';
+			checkLogin(true, function(){
+				syscData(this.get('lang'),this.get('title'),'sina',this);
+			}.bind(this));
+		}
+	});
+	gewa.util.pagePos();
+})
+function syscData(url,title,tag,el){
+	var html = "",width=600;
+	if(tag == 'sina'){
+		html = new Element('iframe',{
+			'frameborder':0,
+			'scrolling':'no',
+			'height':'368',
+			'width':'600',
+			'src':url
+		});
+	}else{
+		html = new Element('div',{
+			'styles':{
+				'width':'620px',
+				'height':window.ActiveXObject?'380px':'330px',
+				'overflow':'hidden'
+			}
+		});
+		new Element('iframe',{
+			'frameborder':0,
+			'scrolling':'no',
+			'height':'850',
+			'width':'810',
+			'src':url,
+			'styles':{
+				'margin-top':'-280px',
+				'margin-left':'-160px'
+			}
+		}).inject(html);
+		width = 650;
+	}
+	gewa.util.maskContent('',html,'正在设置'+title+'的同步',width,'syscing');
+}
+var isBind = function(el){
+	if($(el)){
+		$(el).checked = true;
+		isWbOpen = false;
+	}
+	if(gewa.util.container['syscing'])gewa.util.container['syscing'].dispose('syscing');
+}
+</script>

@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>增加抢票列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		input, textarea, span {width:550px;}
+		#adForm div{padding:2px;}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:720px;margin:auto">
+<div id="movieDialog" class="yui-panel" style="width:700px;margin:auto">
+	<div class="hd">
+		<span>编辑#if($VmUtils.eq($!tag,'promotion'))促销活动#else抢票数据#end</span>
+	</div>
+	<div class="bd">
+	<form name="adForm" id="adForm" action="javascript:save()">
+		<input type="hidden" name="id" id="id" value="$!subject.id"/>
+		<input type="hidden" name="tag" id="tag" value="$!tag"/>
+		#if($VmUtils.eq($params.tag, 'promotion') || $VmUtils.eq($subject.tag, 'promotion'))
+		<div>
+			<label>专题类型：</label>
+			<select name="flag" id="flag" onchange="changeFlag()">
+				<option value="new" #if($subject.flag eq 'new') selected #end>灵活专题</option>
+				<option value="old" #if($subject.flag ne 'new') selected #end>固定专题</option>
+			</select>
+			页头页尾选择：
+			<select name="marker">
+				<option value="Y" #if($subject.marker eq 'Y') selected #end>是</option>
+				<option value="N" #if($subject.marker eq 'N') selected #end>否</option>
+			</select>
+		</div>
+		#end
+		<div>
+			<label for="title">标&nbsp;&nbsp;&nbsp;&nbsp;题：</label>
+			<input  name="title" id="title" type="text" style="width: 250px" value="$!subject.title"/>
+			<span class="req">*</span>
+		</div>
+		#if($!params.tag eq 'xprice' || $subject.tag eq 'xprice')
+		<div>
+			<label for="price">价&nbsp;&nbsp;&nbsp;&nbsp;格：</label>
+			<input  name="price" id="price" type="text" style="width: 50px" value="$!subject.price"/>
+			<span class="req">*</span>
+		</div>
+		#end
+		#if($VmUtils.eq($subject.tag, 'promotion') || $VmUtils.eq($tag, 'promotion'))
+		<div id="seokey" #if($subject.flag ne 'new') class="none" #end>
+			<label for="seokeywords">SEO关键字：</label>
+			<input  name="seokeywords" id="seokeywords" type="text" value="$!subject.seokeywords" style="width: 500px"/>
+			<span>以半角","区别</span>
+		</div>
+		<div id="seodes" #if($subject.flag ne 'new') class="none" #end>
+			<label for="seodescription">SEO描述：</label>
+			<textarea name="seodescription" id="seodescription" style="width: 500px">$!subject.seodescription</textarea>
+			<span>以半角","区别</span>
+		</div>
+		<div id="headbg" #if($subject.flag ne 'new') class="none" #end>
+			<label for="relatedid">头部背景ID：</label>
+			<input type="text" name="relatedid" id="relatedid" style="width: 120px" value="$!subject.relatedid"/>
+			<a href="javascript:void(0);" onclick="openAddHead();">添加头部信息</a>
+		</div>
+		#end
+		<div id="heightPic" #if($subject.flag eq 'new') class="none" #end>
+			<label for="picheight">图片高度：</label>
+			<input  name="picheight" id="picheight" type="text" style="width: 40px" value="$!subject.picheight"/>
+			<span class="req">px</span>
+		</div>
+		#if($VmUtils.eq($!subject.tag,'price5')||$VmUtils.eq($tag,'price5'))
+		<div>
+			<label for="movieid">影片ID：</label>
+			<input  name="movieid" id="movieid" type="text" style="width: 100px" value="$!subject.movieid"/>
+			<span class="req">（5元抢票必填项）</span>
+		</div>
+		#end
+		<div>
+			<label for="starttime">开始时间：</label>
+			<input name="starttime" id="starttime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" type="text" style="width: 150px" value="$!subject.starttime"/><span class="req">*</span>
+		</div>
+		<div>
+			<label for="description">#if($VmUtils.eq($subject.tag, 'promotion') || $VmUtils.eq($tag, 'promotion'))  备&nbsp;&nbsp;&nbsp;&nbsp;注： #else 描&nbsp;&nbsp;&nbsp;&nbsp;述： #end</label>
+			<textarea  name="description" id="description" style="width: 500px">$!subject.description</textarea>
+			<span class="req">&nbsp;</span>
+		</div>
+		<div id="uploadDiv" #if($subject.flag eq 'new') class="none" #end>
+			<label>图&nbsp;&nbsp;&nbsp;&nbsp;片：</label>
+			<input type="hidden" name="logo" id="logo" readonly="readonly" value="$!subject.logo"/>
+			<img style="height:60px;" id='logoimg' src="${basePath}$!subject.logo"/>
+		</div><br />
+		<div id="uploadPic" #if($subject.flag eq 'new') class="none" #end>
+			<label>上&nbsp;&nbsp;&nbsp;&nbsp;传：</label>
+			<iframe class="center" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updateLogo&notLimit=true"></iframe>
+			<div><img style="height:60px; margin-left:100px;" id='logoimg1' src="${staticPath}css/images/blank.gif"/></div>
+		</div>
+		<div id="picDiv">
+			<label>专题简介图片上传：</label><iframe class="center" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame" 
+			src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/header/&callback=updatePic&notLimit=y"></iframe><br/>
+			<img style="height:60px; margin-left:80px;" id='logoimgpic' src='${staticPath}css/images/blank.gif'/><br/>
+		</div>
+		<div>
+			<label for="content">专题简介：</label><br /><br />
+			<textarea name="content" id="content">$!subject.content</textarea>
+		</div>
+		<div>
+			<input type="submit" class="button" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+		<div id="msg" style="color:red;"></div>
+		<div style="color:blue;">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+	</form>
+	</div>
+</div>
+<div class="table" id="gcForm"  style="display:none;">
+	<input type="hidden" name="id" id="id" value="$!headInfo.id"/>
+	<input type="hidden" name="board" value="promotion"/>
+	#if($!headInfo.ordernum)<input type="hidden" name="ordernum" id="ordernum" value="$!headInfo.ordernum"/>#end
+	<label>标题：</label><input type="text" name="title" id="title" value="$!headInfo.title" style="width: 300px;" mustTxt="标题为必填项！"/><br/>
+	<label>链接：</label><input type="text" name="link" id="link" value="$!headInfo.link" style="width: 300px;"/><br/>
+	<label>修饰图：</label><iframe class="center" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame" 
+			src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/header/&callback=updateLogoSmall&notLimit=y"></iframe>*为背景缺失部分图<br/>
+			<img style="height:60px; margin-left:80px;" id='logoimgsmall' #if($!headInfo.logosmall)src='${picPath}$!headInfo.logosmall'#end/><br/>
+			<p><input type="text" style="width: 300px; margin-left: 70px;" name="logosmall" id="logosmall" value="$!headInfo.logosmall"/></p>
+	<label>背景图：</label><iframe class="center" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame" 
+			src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/header/&callback=updateLogoBig&notLimit=y"></iframe>*背景正文显示图<br/>
+			<img style="height:60px; margin-left:80px;" id='logoimgbig' #if($!headInfo.logobig)src='${picPath}$!headInfo.logobig'#end/><br/>
+			<p ><input type="text" style="width: 300px; margin-left: 70px;" name="logobig" id="logobig" value="$!headInfo.logobig"/></p>
+	<label>样式：</label><textarea name="css" id="css">$!headInfo.css</textarea>*添加一个缺失的背景颜色如（#ffffff）<br/>
+	<label>头部滑动：</label><select name="isslide">
+	<option value="N">不滑动</option>
+	<option #if($VmUtils.eq($!headInfo.isslide,'Y'))selected="selected"#end value="Y">滑动</option>
+	</select>
+	<br/>
+	<label>&nbsp;&nbsp;</label><input type="button" value="保存" style="width: 50px;" onclick="saveHead();"/><br/>
+</div>
+	<script type="text/javascript">
+	var ckeditor, deceditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("content");
+		#if(!($VmUtils.eq($params.tag,'promotion')||$VmUtils.eq($subject.tag,'promotion')))
+		deceditor = CKEDITOR.replace("description", {'height':70});
+		#end
+	});
+	function addPrice5(){
+		GewaraUtil.showDialog("adDialog");
+	}
+	function cancle(){
+		GewaraUtil.hideDialog('adDialog');
+	}
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg').src='${basePath}' + picpath;
+		$('uploadDiv').setStyle('display','');
+	}
+	function save(){
+		$("content").value=ckeditor.getData();
+		#if(!($VmUtils.eq($params.tag,'promotion')||$VmUtils.eq($subject.tag,'promotion')))
+		$("description").value=deceditor.getData();
+		#end
+		var values = GewaraUtil.getValues($("adForm"));
+		if (values.title == "") {
+			alert("请输入标题！");
+			return;
+		}
+		if(values.starttime=="") {
+			alert("开始时间不能为空！");
+			return;
+		}
+		var url = "${basePath}admin/common/ajax/saveGrabTicketSubject.xhtml";
+		GewaraUtil.sendRequest(url, values,function(result){
+			if(result.success) {
+				alert('添加成功！');
+				$("msg").set("html", '');
+				document.location.href='${basePath}admin/subject/price5Detail.xhtml?gid='+result.id;
+			}else {
+				alert("保存失败！");
+				$("msg").set("html", result.msg);
+			}
+		})
+	}
+	function changeFlag(){
+		if($('flag').value == 'new'){
+			$('heightPic').addClass('none');
+			$('uploadDiv').addClass('none');
+			$('uploadPic').addClass('none');
+			$('seokey').removeClass('none');
+			$('seodes').removeClass('none');
+			$('headbg').removeClass('none');
+		}else{
+			$('seokey').addClass('none');
+			$('seodes').addClass('none');
+			$('headbg').addClass('none');
+			$('heightPic').removeClass('none');
+			$('uploadDiv').removeClass('none');
+			$('uploadPic').removeClass('none');
+		}
+	}
+	function openAddHead(){
+		gewa.util.maskContent('','gcForm','添加头部背景',660,'gcForm');
+	}
+	function saveHead(){
+		if(!GewaraUtil.baseValidForm("gcForm", 'admin'))return false;
+		var values = GewaraUtil.getValues('gcForm');
+		var url="${basePath}admin/site/header/saveHeadInfo.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					$('relatedid').value=result.id;
+					gewa.util.container['gcForm'].dispose('gcForm');
+				}
+		});
+	}
+	var num=1;
+	function updatePic(params){
+		var picpath = params['picpath'];
+		if(num <=20){
+			new Element('input',{'value':'${picPath}'+picpath}).inject(new Element('div',{'text':'图片'+num+'：','styles':{'margin':'5px 0 5px 16px'}}).inject('picDiv'))
+			num++;
+		}
+		$('logoimgpic').src='${basePath}' + picpath;
+	}
+	function updateLogoSmall(params){
+		var picpath = params['picpath'];
+		$('logosmall').value = picpath;
+		$('logoimgsmall').src='${basePath}' + picpath;
+	}
+	
+	function updateLogoBig(params){
+		var picpath = params['picpath'];
+		$('logobig').value = picpath;
+		$('logoimgbig').src='${basePath}' + picpath;
+	}
+</script>
+</body>
+</html>

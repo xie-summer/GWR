@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>推荐列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+#parse('include/constant/city.vm')
+<body style="width:95%; margin:auto" class="yui-skin-sam">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td colspan="2"><span id="_resultSpan" class="ml20"></span></td>
+		<td align="right" class="td">
+			<a class="bEvent" href="${basePath}noSubjectLink.xhtml?parentid=$!params.parentid&tag=$!params.tag&signname=$!params.signname#if($!params.newstitle)&newstitle=true#end#if($!params.newssubject)&newssubject=true#end#if($!params.newslink)&newslink=true#end#if($!params.newslogo)&newslogo=true#end#if($!params.newssmalllogo)&newssmalllogo=true#end#if($!params.newsboard)&newsboard=true#end#if($!params.page)&page=$!params.page#end">增加</a>|			
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td">
+		<td align="left" class="wd200"><b>标题</b></td>
+		<td align="left" class="wd60"><b>排序</b></td>
+		<td align="left" class="wd120"><b>操作</b></td>
+	</tr>
+	#set($typeMap={'drama':'话剧','movie':'电影','activity':'活动','diary':'帖子','ktv':'KTV场馆','bar':'酒吧场馆','gym':'健身场馆','sport':'运动场馆'})
+	#foreach($data in $list)
+	<tr class="td">
+		<td align="left" class="wd200">
+		#if($data.object && $!params.page) 
+		#if($!params.page eq 'activity')
+		<span style="color: red;">[$!CITY_MAP.get($!data.object.citycode)]</span>$!data.object.title
+		#elseif($!params.page eq 'movie')
+		<span style="color: red;"></span>$!data.object.moviename
+		#elseif($!params.page eq 'drama')
+		<span style="color: red;"></span>$!data.object.dramaname
+		#elseif($!params.page eq 'diary')
+		<span style="color: red;"></span>$!data.object.subject
+		#end
+		#else
+			#if($VmUtils.isNotBlank($data.newstitle))
+				$data.newstitle
+			#else
+				#if($data.newsboard)($typeMap.get($data.newsboard))#end $!data.newssubject
+			#end	
+		#end
+		</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$!data.ordernum" name="ordernum" style="width: 50px" onchange="changeOrdernum('$!data.id', this)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="bEvent" href="${basePath}noSubjectLink.xhtml?id=$!data.id&parentid=$!params.parentid&&tag=$!params.tag&signname=$!params.signname#if($!params.newstitle)&newstitle=true#end#if($!params.newssubject)&newssubject=true#end#if($!params.newslink)&newslink=true#end#if($!params.newslogo)&newslogo=true#end#if($!params.newssmalllogo)&newssmalllogo=true#end#if($!params.newsboard)&newsboard=true#end#if($!params.page)&page=$!params.page#end">[修改]</a>|
+			<a href="javascript:void(0)" onclick="javascript:opeDelete('$!data.id', this)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+#parse('admin/newsubject/commonjs.vm')
+</body>
+</html>

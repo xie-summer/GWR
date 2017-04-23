@@ -1,0 +1,51 @@
+<data>
+	<dramaPlayItem>
+		$!VmUtils.xmlOutput('', $resMap, $hasField, $fieldList)
+		<linenum>$room.linenum</linenum>
+		<ranknum>$room.ranknum</ranknum>
+		<firstline>$room.firstline</firstline>
+		<firstrank>$room.firstrank</firstrank>
+		<seatList>
+			#foreach($row in [$room.firstline..$room.linenum])
+			<row>
+				<rownum>$row</rownum>
+				<rowid>$!rowMap.get($row)</rowid>
+				<columnSeatList>
+					#foreach($rank in [$!{room.firstrank}..$room.ranknum])
+						#set($sid='row'+${row}+'rank'+$rank)
+						#if($seatMap.get($sid)) #set($seat=$seatMap.get($sid))
+							#if($rLockList.contains($seat.key)) #set($status='LK')
+							#else
+								#if($seatStatusUtil.getFullStatus($seat) eq 'A') 
+									#set($seatPrice=$seatPriceMap.get($seat.seattype))
+									#if($VmUtils.isNotEmpObj($seatPrice) && $seatPrice.retail ne 'Y') 
+										#set($status='LK')
+									#else
+										#set($status='A')
+									#end
+								#else
+									#set($status='LK')
+								#end
+							#end
+						<columnSeat>
+							<seatrank>$seat.seatrank</seatrank>
+							<seatline>$seat.seatline</seatline>
+							<status>$status</status>
+							<loveInd>$seat.loveInd</loveInd>
+							<price>$!seat.price</price>
+							<lineno>$!seat.lineno</lineno>
+							<rankno>$!seat.rankno</rankno>
+							<seattype>$!seat.seattype</seattype>
+							<theatreprice>$seat.theatreprice</theatreprice>
+						</columnSeat>
+						#else
+						<columnSeat><status>ZL</status></columnSeat>
+						#end
+					#end
+				</columnSeatList>
+			</row>
+			#end
+		</seatList>
+		
+	</dramaPlayItem>
+</data>

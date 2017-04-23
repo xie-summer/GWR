@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>城市列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width:80%; margin:auto">
+<div style="width:75%;">
+<table class="table">
+	<thead>
+	<tr>
+		<th>省份code</th>
+		<th>省份名称</th>
+		<th>排序</th>
+		<th>城市<a href="${basePath}admin/city/refreshGewaCity.xhtml" target="_blank">刷新</a>|
+		<a href="${basePath}admin/city/addGewaCity.xhtml" target="_blank">添加</a></th>
+	</tr>
+	</thead>
+	<tbody id="movieTable">
+	#foreach($pro in $proList)
+	<tr>
+		<td>$pro.provincecode</td>
+		<td>$pro.provincename</td>
+		<td><input type="text" value="$pro.provinceSort" id="$pro.provincecode" style="width: 25px;" onchange="proSort(this)"/></td>
+		<td><a href="javascript:showCity('$pro.provincecode')">展开</a></td>
+	</tr>
+	<tr class="none" id="city$pro.provincecode">
+		#set($cityList=$proMap.get($pro.provincecode))
+		<td colspan="5">
+				#foreach($city in $cityList)
+				<span style="width: 120px;">${city.cityname}</span>
+				<span style="width: 120px;"><input type="text" value="$city.citySort" id="$city.citycode" style="width: 25px;" onchange="citySort(this)"/></span>
+				<span style="width: 120px;">
+				<select onchange="showIdx(this)" id="$city.citycode">
+					<option value="Y" #if($city.showIdx eq 'Y')selected="selected"#end>展示</option>
+					<option value="N" #if($city.showIdx eq 'N')selected="selected"#end>不展示</option>
+				</select></span>
+				<span style="width: 120px;">
+				<select onchange="showHot(this)" id="$city.citycode">
+					<option value="Y" #if($city.showHot eq 'Y')selected="selected"#end>热门</option>
+					<option value="N" #if($city.showHot eq 'N')selected="selected"#end>一般</option>
+				</select></span>
+				<span style="width: 120px;">
+				<select onchange="manmethod(this)" id="$city.citycode">
+					<option value="auto" #if($city.manmethod eq 'auto')selected="selected"#end>自动</option>
+					<option value="manual" #if($city.manmethod eq 'manual')selected="selected"#end>手动</option>
+				</select>
+				</span>
+				<span style="width: 120px;">
+				<select onchange="changeServiceType(this)" id="$city.citycode">
+					<option value="more" #if($city.serviceType eq 'more')selected="selected"#end>多业务</option>
+					<option value="single" #if($city.serviceType eq 'single')selected="selected"#end>单业务</option>
+				</select>
+				</span>
+				<a href="${basePath}admin/city/mapbpoint.xhtml?citycode=$city.citycode" target="_blank">百度地图</a>
+				<span style="width: 120px;">$!{city.pinyin}|$!{city.py}</span>
+				
+				<select onchange="showAdm(this)" id="$city.citycode">
+					<option value="Y" #if($city.showAdm eq 'Y')selected="selected"#end>手机展示</option>
+					<option value="N" #if($city.showAdm eq 'N')selected="selected"#end>手机不展示</option>
+				</select></span>
+				
+				<br/><br/>
+				#end
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+</div>
+<script type="text/javascript">
+function proSort(el){
+	el.style.backgroundColor = 'red';
+	var url = "${basePath}admin/city/proSort.xhtml";
+	GewaraUtil.sendRequest(url, {"provincecode":el.id, "sortnum":el.value},function(result){
+		el.style.backgroundColor = '#fff';
+	});
+}
+function citySort(el){
+	el.style.backgroundColor = 'red';
+	var url = "${basePath}admin/city/citySort.xhtml";
+	GewaraUtil.sendRequest(url, {"citycode":el.id, "sortnum":el.value},function(result){
+		el.style.backgroundColor = '#fff';
+	});
+}
+function showIdx(el){
+	el.style.backgroundColor = 'red';
+	var url = "${basePath}admin/city/showIdx.xhtml";
+	GewaraUtil.sendRequest(url, {"citycode":el.id, "showIdx":el.value},function(result){
+		el.style.backgroundColor = '#fff';
+	});
+}
+function showAdm(el){
+	el.style.backgroundColor = 'red';
+	var url = "${basePath}admin/city/showAdm.xhtml";
+	GewaraUtil.sendRequest(url, {"citycode":el.id, "showAdm":el.value},function(result){
+		el.style.backgroundColor = '#fff';
+	});
+}
+function showHot(el){
+	el.style.backgroundColor = 'red';
+	var url = "${basePath}admin/city/showHot.xhtml";
+	GewaraUtil.sendRequest(url, {"citycode":el.id, "showHot":el.value},function(result){
+		el.style.backgroundColor = '#fff';
+	});
+}
+function manmethod(el){
+	el.style.backgroundColor = 'red';
+	var url = "${basePath}admin/city/manmethod.xhtml";
+	GewaraUtil.sendRequest(url, {"citycode":el.id, "manmethod":el.value},function(result){
+		if(result.success) el.style.backgroundColor = '#fff';
+		else alert(result.msg);
+	});
+}
+
+function changeServiceType(el){
+	el.style.backgroundColor = 'red';
+	var url = "${basePath}admin/city/changeServiceType.xhtml";
+	GewaraUtil.sendRequest(url, {"citycode":el.id, "serviceType":el.value},function(result){
+		if(result.success) el.style.backgroundColor = '#fff';
+		else alert(result.msg);
+	});
+}
+function showCity(code){
+	var el = $('city'+code);
+	if(el.hasClass('none')){
+		el.removeClass('none');
+	}else {
+		el.addClass('none');
+	}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<xml>#set($smsSize=$VmUtils.size($smsList))
+	<ToUserName><![CDATA[$!reply.toUserName]]></ToUserName>
+	<FromUserName><![CDATA[$!reply.fromUserName]]></FromUserName>
+	<CreateTime>$!reply.createTime</CreateTime>
+	<MsgType><![CDATA[text]]></MsgType>
+	#if($smsSize eq 0)
+	<Content><![CDATA[不好意思，无任何可使用取票密码：（]]></Content>
+	#else
+	<Content>
+	<![CDATA[#foreach($sms in $smsList)${sms.content}
+#set($fc=$foreach.count)
+#if($fc lt $smsSize)
+
+#end
+#end
+]]></Content>
+	#end
+</xml>

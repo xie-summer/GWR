@@ -1,0 +1,23 @@
+<data>
+	<cardList>
+		#foreach($card in $cardList)
+		#set($curtime = ${DateUtil.millTimestamp})
+		#set($timeto=${card.timeto})
+		<card>
+			<cardno>$!card.cardno</cardno>
+			<name>#if($card.ebatch.cardtype eq 'A')兑换券#else$card.ebatch.amount元抵值券#end</name>
+			<cardtype>$!card.ebatch.cardtype</cardtype>
+			<starttime>$!DateUtil.format($!card.timefrom, "yyyy/MM/dd HH:mm")</starttime>
+			<endtime>$!DateUtil.format($!card.timeto, "yyyy/MM/dd HH:mm")</endtime>
+			<stime>$!DateUtil.formatTimestamp($!card.timefrom)</stime>
+			<etime>$!DateUtil.formatTimestamp($!card.timeto)</etime>
+			<status>#if($card.status eq 'U')已使用
+				#elseif($card.status eq 'Y')#if($timeto.before($curtime))已过期#else未使用#end
+				#elseif($card.status eq 'D')废弃
+				#elseif($card.status eq 'N')待售#end</status>
+			<edition>$!card.ebatch.edition</edition>
+			<amount>$!card.ebatch.amount</amount>
+		</card>
+		#end
+	</cardList>
+</data>

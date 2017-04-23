@@ -1,0 +1,26 @@
+<xml>#set($orderSize=$VmUtils.size($orderList))
+	<ToUserName><![CDATA[$!reply.toUserName]]></ToUserName>
+	<FromUserName><![CDATA[$!reply.fromUserName]]></FromUserName>
+	<CreateTime>$!reply.createTime</CreateTime>
+	<MsgType><![CDATA[text]]></MsgType>
+#if($VmUtils.size($orderList) eq 0)
+<Content><![CDATA[最近1个月没有任何订单]]></Content>
+#else
+<Content><![CDATA[#foreach($order in $orderList)#set($orderMap=$VmUtils.readJsonToMap($order.getDescription2()))#set($movie=$movieMap.get($order.movieid))#set($opi=$opiMap.get($order.mpid))
+你于$!DateUtil.format($order.createtime, 'MM月dd日')成功购买了$DateUtil.format($opi.playtime, 'dd日 HH:mm')的${opi.moviename}
+
+订单号：$order.tradeNo
+票数：$order.quantity
+影院：$!{opi.cinemaname}
+影片：$opi.moviename
+影厅：$opi.roomname
+场次：$DateUtil.format($opi.playtime, 'dd日 HH:mm')
+取票密码：$order.checkpass
+座位：$!orderMap.get('影票')
+#set($fc=$foreach.count)
+#if($fc lt $orderSize)
+
+#end
+#end]]></Content>
+#end
+</xml>

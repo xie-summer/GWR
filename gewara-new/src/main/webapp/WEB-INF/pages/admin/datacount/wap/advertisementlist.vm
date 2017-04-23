@@ -1,0 +1,401 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>广告位列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;maradn-top:3px}
+		input,textarea { width:450px; display:inline}
+		a{text-decoration: none;}
+		.ua{text-decoration: none;color: red }
+		.bk{background:rgb(255, 246, 200)}
+	</style>
+</head>
+<body style="width:100%; maradn:auto" class="yui-skin-sam">
+<div>
+<input type="button" class="button" style="width:80px" value="增加广告位" onclick="addAdPosition('add')"/>
+</div>
+<table width="100%" class="table">
+	<thead>
+	<tr>
+		<th>id</th>
+		<th>广告类型</th>
+		<th>广告图片</th>
+		<th>链接</th>
+		<th>标题</th>
+		<th>应用类型</th>
+		<th>系统类型</th>
+		<th>开始时间</th>
+		<th>失效时间</th>
+		<th>是否显示</th>
+		<th>排序</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="gymTable">
+	#foreach($advertisement in $phoneAdvertisementlist)
+	<tr>
+		<td>$!{advertisement.id}</td>
+		<td>
+		#if($advertisement.advertType eq 'normal')
+			普通
+		#end
+		#if($advertisement.advertType eq 'grabTicket')
+			抢票
+		#end
+		</td>
+		<td><img src="$VmUtils.randomPic('cw96h128',$advertisement.advlink)"/></td>
+		<td>$!{advertisement.link}</td>
+		<td>$!{advertisement.title}</td>
+		<td>
+			#if($advertisement.apptype eq 'ciname')
+				影院
+			#end
+			#if($advertisement.apptype eq 'sport')
+				运动
+			#end
+			#if($advertisement.apptype eq 'bar')
+				酒吧
+			#end
+			#if($advertisement.apptype eq 'cinema_cmcc')
+				移动android客户端
+			#end
+		</td>
+		<td>$!advertisement.osType</td>
+		<td>$!DateUtil.format($!advertisement.starttime,'yyyy-MM-dd hh:mm:ss')</td>
+		<td>$!DateUtil.format($!advertisement.endtime,'yyyy-MM-dd hh:mm:ss')</td>
+		<td>
+		$!advertisement.isshow
+		</td>
+		<td>$!advertisement.rank</td>
+		<td align="center">
+		<input type="button" value="修改" onclick="modAdPosition($advertisement.id)" style="width: 80px"/>
+		 <input type="button" value="删除" onclick="removeAdPosition($advertisement.id)" style="width: 80px"/>
+	</tr>
+	#end
+	</tbody>
+</table>
+<div id="adDialog" class="yui-panel" style="width:600px; visibility:hidden; z-index:20;">
+
+	<div class="hd">
+		<span>编辑广告位数据</span>
+	</div>
+	<div class="bd">
+	<form name="adForm" id="adForm">
+	<input type="hidden" name="adid" id="adid"/>
+		<div>
+			<label for="position">地址链接：</label>
+			<input  name="link" id="link" type="text"/>
+			<span class="req">&nbsp;</span>
+		</div>
+		<div>
+			<label for="position">关联ID：</label>
+			<input  name="relatedid" id="relatedid" type="text"/>
+			<span class="req">&nbsp;</span>
+		</div>
+		
+		<div>
+			<label for="position">真实活动ID：</label>
+			<input  name="activityid" id="activityid" type="text"/>
+			<span class="req">&nbsp;</span>
+		</div>
+		
+		<div>
+			<label for="position">广告类型：</label>
+			<select name="advertType" id="advertType">
+				<option value="normal">普通</option>
+				<option value="grabTicket">抢票</option>
+			</select>
+			<span class="req">&nbsp;</span>
+		</div>
+		
+		<div>
+			<label for="position">标题：</label>
+			<input  name="title" id="title" type="text"/>
+			<span class="req">&nbsp;</span>
+		</div>
+		<div>
+			<label>开始时间：</label>
+			<input name="starttime" type="text" id="starttime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" />
+		</div>
+		<div>
+			<label >失效时间：</label>
+			<input name="endtime" id="endtime" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" />
+		</div>
+		
+		<div>
+			<label for="description">应用类型：</label>
+			<select name="apptype" id="apptype">
+				<option value="ciname">影院</option>
+				<option value="bar">酒吧</option>
+				<option value="sport">运动</option>
+				<option value="cinema_cmcc">移动android客户端</option>
+				<option value="weixin">微信营销</option>
+			</select>
+			<span class="req">&nbsp;</span>
+		</div>
+		<div>
+			<label for="description">系统类型：</label>
+			<select name="osType" id="osType">
+				<option value="ANDROID">ANDROID</option>
+				<option value="IPHONE">IPHONE</option>
+				<option value="ALL">所有</option>
+			</select>
+			<span class="req">&nbsp;</span>
+		</div>
+		
+		#parse("admin/common/adminInnerCityList.vm")
+		#*
+		<div>
+			<label for="description">城市：</label>
+				<input type="checkbox" name="selectcitycodes" onclick="allchecked(this)" id="selectcitycodes" style="width:15px;"/>全选-----
+			#foreach($city in $citynameMap.keySet())
+				<input type="checkbox" name="selectcitycode" style="width:15px;" id="selectcitycode" onclick="quxiao(this)" value="$!city" />
+				$citynameMap.get($!city)|
+			#end
+			<input type="hidden" name="citycode" id="citycode" value="$!citycode"/>
+			<span class="req">&nbsp;</span>
+		</div>
+		*#
+		
+		<div>
+			<label for="description">是否显示：</label>
+			<select name="isshow" id="isshow">
+				<option value="Y">是</option>
+				<option value="N">否</option>
+			</select>
+			<span class="req">&nbsp;</span>
+		</div>
+		
+		<div>
+			<label for="sharefriend">是否分享：</label>
+			<select name="sharefriend" id="sharefriend">
+				<option value="N">否</option>
+				<option value="Y">是</option>
+			</select>
+			<span class="req">&nbsp;</span>
+		</div>
+		
+		<div>
+			<label for="rank">排序：</label>
+			<input name="rank" id="rank" style="width:50px;" />
+			<span class="req">数字越小越靠前</span>
+		</div>
+		
+		<div>
+			<label for="pid">图片：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+					src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/adv&callback=updateLogo">
+			</iframe>
+			<br/>
+			图片地址：<input type="text" name="advlink" id="advlink" value="$!advlink"/>
+			<div><img style="height:80px; margin-left:70px;" id='logoimg1' src="${staticPath}css/images/blank.gif"/></div>
+		</div>
+		<div>
+			<label for="position">活动摘要：</label>
+			<textarea name="summary" id="summary"></textarea>
+			<span class="req">&nbsp;</span>
+		</div>
+		
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="save();" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	function save(){
+		var stime=$('starttime').value;
+		var etime=$('endtime').value;
+		var linkv=$('link').value;
+		var summary=$('summary').value;
+		var relatedid=$('relatedid').value;
+		var summary=$('summary').value;
+		var rank=$('rank').value;
+		var advlink=$('advlink').value.trim();
+		
+		if(linkv==''){
+			alert('地址连接不能为空');
+			return false;
+		}
+		if(summary==''){
+			alert('活动摘要不能为空');
+			return false;
+		}
+    	if(isNaN(relatedid)){
+    		alert('关联ID必须为数字');
+    		return false;
+    	}
+		if(stime==''){
+			alert('开始时间不能为空');
+			return false;
+		}
+
+		if(etime==''){
+			alert('结束时间不能为空');
+			return false;
+		}
+		if(stime>etime)
+		{
+			alert('开始时间不能大于结束时间');
+			return false;
+		}
+		if(summary==''){
+			alert('摘要不可以为空');
+			return false;
+		}
+		if(summary.length>600){
+			alert('摘要不能大于300个字');
+			return false;
+		}
+		
+		if(isNaN(rank)){
+			alert('排序必须是数字');
+			return false;
+		}
+		
+		if(advlink==""){
+			alert('请填写图片地址');
+			return false;
+		}
+		
+		var values='';
+		var names = document.getElementsByName('selectcitycode');
+		for(i=0;i<names.length;i++){
+			if(names[i].checked){
+				var vm = names[i].value;
+				if(values==''){
+					values=vm;
+				}else{
+					values=values+','+vm;
+				}
+			}
+		}
+		$('citycode').value=values;
+		if(values==''){
+			alert('城市不能为空');
+			return false;
+		}
+		var values = GewaraUtil.getValues($("adForm"));
+		var url = "${basePath}admin/mobile/addOrUpdateAdvertisement.xhtml";
+		GewaraUtil.sendRequest(url, values, saveCallBack);
+	}
+	function modAdPosition(id){
+		var url = "${basePath}admin/mobile/toUpdateAdvertisementPage.xhtml";
+		GewaraUtil.sendRequest(url, {"id":id},modCallBack);
+	}
+	function addAdPosition(type){
+		if(type=='add'){
+			$('link').value='';
+			$('title').value='';
+			$('starttime').value='';
+			$('endtime').value='';
+			$('relatedid').value='';
+			$('activityid').value='';
+			$('advlink').value='';
+			$('summary').value='';
+			$('rank').value='';
+			var codes = document.getElementById('selectcitycodes');
+			codes.checked=false;
+			var names = document.getElementsByName('selectcitycode');
+			for(i=0;i<names.length;i++){
+				if(names[i].checked){
+					names[i].checked=false;
+				}
+			}
+		}
+		GewaraUtil.showDialog("adDialog");
+	}
+	function removeAdPosition(id){
+		if(confirm("确认要删除吗?")==false) return;
+		var url = "${basePath}admin/mobile/deleteAdvertisementbyid.xhtml";
+		GewaraUtil.sendRequest(url, {"adid":id},removeCallBack);
+	}
+	function saveCallBack(result){
+		if(result.success){
+			alert("保存成功");
+			cancle();
+			refreshPage();
+		}else alert("保存失败");
+	}
+	function modCallBack(ad){
+		GewaraUtil.setValues(ad);
+		$('adid').value=ad.id;
+		$('rank').value=ad.rank;
+		$('summary').value=ad.summary;
+		addAdPosition();
+		var names = document.getElementsByName('selectcitycode');
+		var values = $('citycode').value;
+		for(i=0;i<names.length;i++){
+			var vm = names[i].value;
+			if(values.contains(vm)){
+				names[i].checked=true;
+			}
+		}
+	}
+	function removeCallBack(result){
+		if(result){
+			alert("成功删除")
+			refreshPage();
+		}else alert("删除失败");
+	}
+	function cancle(){
+		$('adid').value= '';
+		GewaraUtil.hideDialog('adDialog');
+	}
+	
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('advlink').value = picpath;
+		$('logoimg1').src='${basePath}' + picpath;
+	}
+	function checkSelSingle(){
+		var values='';
+		var names = document.getElementsByName('selectcitycode');
+		for(i=0;i<names.length;i++){
+			if(names[i].checked){
+				var vm = names[i].value;
+				if(values==''){
+					values=vm;
+				}else{
+					values=values+','+vm;
+				}
+			}
+		}
+		$('citycode').value=values;
+	}
+	
+	function allchecked(th){
+		var names = document.getElementsByName('selectcitycode');
+		if(th.checked){
+			for(i=0;i<names.length;i++){
+			if(!names[i].checked){
+				names[i].checked=true;
+			   }
+			}	
+		}else{
+			for(i=0;i<names.length;i++){
+			if(names[i].checked){
+				names[i].checked=false;
+			   }
+			}
+		}
+	}
+	
+	function quxiao(th){
+		if(th.checked==false){
+			document.getElementById('selectcitycodes').checked=false;
+		}
+	}
+</script>
+</body>
+</html>

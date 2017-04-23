@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>用户列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.hiddenBt{
+			visibility: hidden
+		}
+		.showBt{
+			visibility: visible;
+		}
+		.select{
+			color:red;
+		}
+	</style>
+</head>
+<body style="margin:auto; padding: 10px;">
+<div style="padding:1px;">
+		<hr/>
+	  <a href="#" onclick="refreshPage()">刷新</a>
+		<table class="table clear">
+			#if(!$VmUtils.isEmptyList($memberList))
+			<thead>
+			<tr>
+				<td>用户ID</td>
+				<td>用户姓名</td>
+				<td>qq号</td>
+				<td>邮箱</td>
+				<td>添加时间</td>
+				<td>状态</td>
+			</tr>
+			</thead>
+			#foreach($membermap in $memberList)
+			<tr>
+				<td>$!membermap.get('id')</td>
+				<td>$!membermap.get('membername')</td>
+				<td>$!membermap.get('qq')</td>
+				<td>$!membermap.get('email')</td>
+				<td>$!DateUtil.format($!membermap.get('addtime'),'MM月dd日 HH:mm')</td>
+				<td><select name="showfloor" id="showfloor" style="width: 60px;" onchange="examineBetaMember($!membermap.get('id'),this.value)">
+						<option #if($!VmUtils.eq($!membermap.get('status'),'Y')) selected="selected" #end value="Y">审核通过</option>
+						<option #if($!VmUtils.eq($!membermap.get('status'),'N')) selected="selected" #end value = "N">审核未通过或者还未审核</option>
+					</select>
+				</td>
+				<td>
+					<input type="button"  onclick='delMember($!membermap.get('id'))' class="button" value="删除" />
+				</td>
+			</tr>
+			#end
+			#else
+			<tr>
+				<td colspan="6">暂时没数据</td>
+			</tr>
+			#end
+		</table>
+</div>
+<script type="text/javascript">
+function examineBetaMember(id,value){
+	var url = "${basePath}admin/examineBetaMember.xhtml";
+	var values = {'id':id,'examineStatu':value};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("设置成功！");
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function setModeratorShowAddress(id,address){
+	var url = "${basePath}admin/sns/setModeratorAddress.xhtml";
+	var values = {'id':id,'showaddress':address};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("设置成功！");
+		}else{
+			alert(result.msg);
+		}	
+	});
+}
+function setModerator(id,membername,reason){
+	$('memberid').value = id;
+	$('membername').value = membername;
+	$('reason').value = reason;
+	GewaraUtil.showDialog('memberFormDiv');
+}
+
+function delMember(id){
+	if(confirm('确认删除吗？')){
+		var url="${basePath}admin/deleteBetaMember.xhtml";
+		var values={'id':id};
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<style type="text/css">
+.issue{height:130px;position:relative;width:650px;overflow:hidden;margin-top:20px;}
+.say_area,.say_areaBg{width:497px;height:95px;position: absolute;top:0px;left:30px;}
+.say_area{z-index:999;border:0px;background:transparent;overflow-x:hidden;overflow-y:auto;padding:0px;margin:5px;width:487px;height:85px;border:0px;}
+.say_areaBg{
+	z-index:1;
+	background:url(${picPath}css/home/wl_textArea.png) no-repeat;
+}
+.issueTips{position: absolute;top:3px;left:36px;z-index: 10}
+.say_submit{background:url(${picPath}css/home/main.png) right -395px no-repeat;width:102px;height:33px;position: absolute;z-index: 9;top:95px;left:405px;padding:0px;border:0px;cursor:pointer;}
+.ui_abeam,.ui_abeam .abeam{width:100%;overflow:hidden;}
+.ui_abeam .abeam{margin:16px 0 0;padding-bottom:16px}
+.uipic,.uiText{margin-bottom:-30000px;padding-bottom:30000px;float:left;}
+.uipic{margin-right:10px;display:inline-block;width:auto;}
+.uiText{min-width:70%;max-width:78.2%;}
+.title{height:26px;position:relative;line-height:26px;width:100%;overflow:hidden;}
+.font_more{position:absolute;left:90px;top:97px;font-size:12px;}
+.font_more b{color:#ff6200;font-size:14px;font-family: Constantia,Georgia;}
+.title h2,.title h3,.uiText h2,.uiText h3{font:14px normal;line-height:26px;}
+.uiText h4,.uiText h5,.uiText h6{font-size:12px;font-weight:normal;}
+.btLine .abeam{border-bottom:1px solid #ececec}
+a{color:#C03B0C;}
+a:hover{color:#ff6200}
+.dialogs{width:48px;height:15px;position:absolute;left:30px;top:100px;cursor: pointer;}
+.uidialog span{display:inline-block;text-decoration:none !important;float:left;margin:1px;border:1px solid #efefef;}
+.uidialog .select{border-color:#333}
+/*头像*/
+.pubpic,.picmin,.picmax{display:inline-block;width:50px;height:50px;background:#f9f9f9;margin:0 auto;overflow:hidden;}
+.pubpic span,.pubpic img,.picmin span,.picmin img,.picmax span,.picmax img{width:50px;height:50px;display:inline-block;cursor:pointer;}
+.picmin,.picmin span,.picmin img{height:30px;width:30px;border:0px;}
+.picmax span,.picmax img,.picmax{height:90px;width:90px;}
+.pubpic:hover,.picmin:hover,.picmax:hover{background:#FBD007}
+#container{width:90%;margin:0px auto;}
+</style>
+<!-- 该页为模板页, 引用页面需要将脚本全部进入. -->
+<div class="issue">
+	<label class="issueTips" for="say_area" id="issueTips">哇啦一下关于#$moderate#</label>
+	<div class="say_title"></div>
+	<div class="say_areaBg"></div>
+	<div class="dialogs">
+		<img src="${staticPath}css/images/blank.gif" class="left" style="background:url(${picPath}css/home/look.png) no-repeat;" width="48" height="15"/>
+		#parse('wala/uidialog.vm')
+	</div>
+	<textarea name="mobody" class="say_area" id="say_area"></textarea>
+	<span class="font_more" id="font">你还可以输入<b>140</b>字</span>
+	<input type="button" value="" id="diswara" onclick="submitMicro()" class="say_submit"/>
+</div>
+<div id="container"></div>
+	<script>
+window.addEvent('domready', function(){
+	new issue('say_area',{'font':'font','tips':'issueTips'});
+	new selectpic('say_area','uidialog');
+	new dialogs({'flag':true});
+	showError = new ShowErrorTextArea();
+	#if($VmUtils.isNotBlank($!moderate))
+	new DynWaraTemplate({'preURL':'${basePath}', 'container':'container', 'moderator':'$!moderate', 'count':'8'});
+	#end
+});
+
+submitMicro = function(){
+	checkLogin(true,function(){
+		sendMicro();
+	});
+}
+//发表哇啦
+sendMicro = function(){
+	var say_area = $('say_area').value;
+	if(!$chk(say_area)){
+		showError.show('say_area');
+		return false;
+	}
+	if(say_area.length>140){
+		showError.show('say_area');
+		return false;
+	}
+	GewaraUtil.mask('diswara');
+	var url = '${basePath}dnySendMicroModer.xhtml';
+	var values = {'micrbody':$('say_area').value, 'moderate':'$moderate', 'link':''};
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			var moderate = result.retval;
+			new DynWaraTemplate({'preURL':'${basePath}', 'container':'container', 'moderator':'$!moderate', 'count':'8'});
+			$('say_area').value = '';
+			$('issueTips').show();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	})
+}
+</script>

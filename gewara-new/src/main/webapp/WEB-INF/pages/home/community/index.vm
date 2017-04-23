@@ -1,0 +1,248 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>$!{commu.name}_格瓦拉生活网</title>
+	<meta name="keywords" content="$!{commu.name},圈子,本地圈,电影圈"/>
+	<meta name="description" content="$!VmUtils.escabbr($!commu.info, 200)"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,commnu&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+	#parse('home/community/commnu_style.vm')
+</head>
+<body>
+#set($tag="home")#set($isFlase=true) #set($communityIndex=true)
+#set($albumImageLen=$VmUtils.size($albumImageList))
+#set($commuTopicLen=$VmUtils.size($commuTopicList))
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+#parse('include/home/communityHeadMenu.vm')
+<h1>$!{commu.name}</h1>
+<div class="commnu_layout">
+	<div class="commnu_left">
+		#if($!commu.info && $!notice.body)
+		<div class="showList commnu_bg_02">
+			<div class="gui-title"><h2>$!commu.name的公告</h2></div>
+				<p class="mt5"><img src="${picPath}css/global/ml.png"/>$!notice.body<img src="${picPath}css/global/mr.png"/></p>
+		</div>
+		#end
+		#if($purview eq 'public')
+		#if($activityCount ne 0)
+		#if(!$VmUtils.isEmptyList($activityList))
+		<div class="showList">
+			<div class="gui-title">
+				<h2>$!commu.name的圈内活动</h2>
+				#if($isCommuMember)
+					<a href="javascript:void(0);" onclick="sendActivity();" class="gui-more  button minBt redBt" >
+						<span>+发起活动</span>
+					</a>
+				#end
+			</div>
+			<table cellpadding="0" cellspacing="0" border="0" class="titleTable">
+				<thead>
+					<tr>
+						<th width="45%">主题</th>
+						<th width="50">开始时间</th>
+						<th width="25">人数</th>
+						<th width="30">状态</th>
+						<th width="25">回复</th>
+						<th width="70">发起人&nbsp;</th>
+					</tr>
+				</thead>
+				<tbody>
+					#foreach($activity in $activityList)
+					<tr>
+						<td><a href="${basePath}activity/$!activity.id" class="brown" target="_blank" title="$!activity.title">$!VmUtils.escabbr($activity.title,36)</a></td>
+						<td title="$DateUtil.format($activity.addtime,'yyyy-MM-dd hh:mm')">
+						$DateUtil.format($activity.startdate,'MM-dd') $!activity.starttime 
+						</td>
+						<td>${activity.membercount}</td>
+						<td>
+							#if($activity.isPlaying())
+							#if($activity.status eq 'Y_PROCESS')报名#else已停止 #end
+							#else 已截止#end
+						</td>
+						<td>${activity.replycount}</td>
+						<td><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!activity.memberid" class="brown" target="_blank">$activity.membername</a></td>
+					</tr>
+					#end
+				</tbody>
+			</table>
+		</div>
+		#end
+		#end
+		#if($albumCount ne 0)
+		<div class="showList">
+			<div class="gui-title"><h2>$!commu.name的圈内图片</h2>#if($isCommuMember)<a href="javascript:void(0);" onclick="uploadCommuPicture()" class="gui-more button whiteBt minBt" ><span>+上传图片</span></a>#end</div>
+			#if(!$VmUtils.isEmptyList($albumImageList))
+			#foreach($album in $albumImageList)
+			#if($foreach.count%4 eq 1)
+			<ul class="ul-pt25" style="margin-top:10px;">
+			#end
+				<li style="height:auto;text-align:center;line-height:30px;">
+					<a href="${basePath}quan/commu/imageDetailList.xhtml?albumid=${album.relatedid}&curAlbumPicId=$album.id"><img src="$VmUtils.randomPic('cw100h100',$album.limg)" alt=""/></a>
+					<br/><span>$!VmUtils.htmlabbr($album.description,24)</span>
+				</li>
+			#if($foreach.count%4 eq 0 || $foreach.count eq $albumImageLen)
+			</ul>
+			<div class="height0"></div>
+			#end
+			#end
+			<div class="tar"><a href="${basePath}quan/albumList.xhtml?commuid=$commu.id" class="brown">更多»</a></div>
+			#else
+			<div>还没有上传圈内图片！#if($isCommuMember)<a href="javascript:void(0);" onclick="uploadCommuPicture()" class="yellow">上传图片</a>#end</div>
+			#end
+		</div>
+		#end
+		#if($voteCount ne 0)
+		#if(!$VmUtils.isEmptyList($voteList))
+		<div class="showList">
+			<div class="gui-title"><h2>$!commu.name的圈内投票</h2>#if($isCommuMember)<a href="javascript:void(0);" class="gui-more bt" onclick="sendVote()"><span>+发表投票</span></a>#end</div>
+			<table cellpadding="0" cellspacing="0" border="0" class="titleTable">
+				<thead>
+					<tr>
+						<th width="35%">主题</th>
+						<th>作者</th>
+						<th width="100">发表时间</th>
+						<th width="70">浏览/回复</th>
+						<th>回复人</th>
+						<th width="90">回复时间  &nbsp;&nbsp;<a href="${basePath}quan/getCommuDiaryList.xhtml?commuid=$commu.id" class="brown">更多»</a></th>
+					</tr>
+				</thead>
+				<tbody>
+					#foreach($diary in $voteList)
+					<tr class="#if($foreach.index%2 eq 0) odd #else even #end">
+						<td><a href="${basePath}blog/t$!diary.id" class="ptt brown" target="_blank" title="$diary.subject" title=$diary.subject>$!VmUtils.escabbr($diary.subject,40)</a></td>
+						<td><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!diary.memberid" class="brown" target="_blank">$diary.membername</a></td>
+						<td title="$!DateUtil.format($!diary.addtime,'yyyy-MM-dd hh:mm')">$!DateUtil.format($!diary.addtime,'MM-dd hh:mm')</td>
+						<td>$diary.clickedtimes/$diary.replycount</td>
+						<td><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!mrid" class="brown" target="_blank">$!VmUtils.escabbr($diary.replyname,10)</a></td>
+						<td>
+						#if($diary.replyid) #set($mrid=$diary.replyid) #else #set($mrid=$diary.memberid) #end
+						$!DateUtil.format($!diary.replytime,'MM-dd hh:mm')
+						</td>
+					</tr>
+					#end
+				</tbody>
+			</table>
+		</div>
+		#end
+		#end
+		#if($layout eq 2 && $VmUtils.size($commuTopicList) gt 0)
+		#foreach($commuTopic in $commuTopicList)
+		#if($commuTopic.displaynum ne 0)
+		#set($diaryLists = $commuTopicMap.get($commuTopic.id))
+		<div class="showList">
+			<div class="gui-title"><h2>$commuTopic.topicname的圈内话题</h2>#if($isCommuMember)<a href="javascript:void(0);" onclick="sendDiary($commuTopic.id)" class="gui-more button minBt redBt"><span>+发表话题</span></a>#end</div>
+			<table cellpadding="0" cellspacing="0" border="0" class="titleTable">
+				<thead>
+					<tr>
+						<th width="30%">主题</th>
+						<th>作者</th>
+						<th width="100">发表时间</th>
+						<th width="70">浏览/回复</th>
+						<th>回复人</th>
+						<th width="90">回复时间 &nbsp;<a href="${basePath}quan/getCommuDiaryList.xhtml?commuid=$!commu.id&commutopicid=$!commuTopic.id" class="brown">更多»</a></th>
+					</tr>
+				</thead>
+				<tbody>
+					#if(!$VmUtils.isEmptyList($diaryLists))
+					#foreach($diary in $diaryLists)
+					<tr class="#if($foreach.index%2 eq 0) odd #else even #end">
+						<td><a href="${basePath}blog/t$!diary.id" class="ptt brown" target="_blank" title="$diary.subject">$!VmUtils.escabbr($diary.subject,30)</a></td>
+						<td><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!diary.memberid" class="brown" target="_blank">$diary.membername</a></td>
+						<td title="$!DateUtil.format($!diary.addtime,'yyyy-MM-dd hh:mm')">$!DateUtil.format($!diary.addtime,'MM-dd hh:mm')</td>
+						<td>$diary.clickedtimes/$diary.replycount</td>
+						<td><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!mrid" class="brown" target="_blank">$!VmUtils.escabbr($diary.replyname,10)</a></td>
+						<td>
+						#if($diary.replyid) #set($mrid=$diary.replyid) #else #set($mrid=$diary.memberid) #end
+						$!DateUtil.format($!diary.replytime,'MM-dd hh:mm')
+						</td>
+					</tr>
+					#end
+					#else
+						<tr>
+							<td style="border:0px;" colspan="6">还没有发布圈内讨论话题！#if($isCommuMember)<a href="javascript:void(0);" class="yellow" onclick="sendDiary($!commuTopic.id)">发表话题</a>#end</td>
+						</tr>
+					#end
+				</tbody>
+			</table>
+		</div>
+		#end
+		#end
+		#else
+		#if($diaryCount ne 0)
+		<div class="showList">
+			<div class="gui-title"><h2>$!commu.name的圈内话题</h2>#if($isCommuMember)<a href="javascript:void(0);" onclick="sendDiary('')" class="gui-more whiteBt minBt button" ><span>+发表话题</span></a>#end</div>
+			#if($commuTopicList && $VmUtils.size($commuTopicList) gt 0)
+			<ul class="ul-80">
+				<li>
+					<div class="ul-80Inner">话题分类：</div>
+					#foreach($commuTopic in $commuTopicList)
+						<a href="${basePath}quan/getCommuDiaryList.xhtml?commuid=$!commu.id&commutopicid=$!commuTopic.id" #if($params.commutopicid eq $!commuTopic.id)class="select" #else class="brown" #end style="margin-left:5px;">$!commuTopic.topicname</a>
+						#if($foreach.count ne $commuTopicLen)|#end
+					#end
+				</li>
+			</ul>
+			#end
+			<table cellpadding="0" cellspacing="0" border="0" class="titleTable" style="text-align: center;">
+				<thead>
+					<tr>
+						<th width="35%">主题</th>
+						<th>作者</th>
+						<th width="100">发表时间</th>
+						<th width="70">浏览/回复</th>
+						<th>回复人</th>
+						<th width="90px">回复时间 &nbsp;<a href="${basePath}quan/getCommuDiaryList.xhtml?commuid=$!commu.id" class="brown">更多»</a></th>
+					</tr>
+				</thead>
+				<tbody>
+					#if(!$VmUtils.isEmptyList($diaryList))
+					#foreach($diary in $diaryList)
+					<tr class="#if($foreach.index%2 eq 0) odd #else even #end">
+						<td><a href="${basePath}blog/t$!diary.id" class="ptt brown" target="_blank" title="$diary.subject">$!VmUtils.escabbr($diary.subject,40)</a></td>
+						<td><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!diary.memberid" class="brown" target="_blank">$diary.membername</a></td>
+						<td title="$!DateUtil.format($!diary.addtime,'yyyy-MM-dd hh:mm')">$!DateUtil.format($!diary.addtime,'MM-dd hh:mm')</td>
+						<td>$diary.clickedtimes/$diary.replycount</td>
+						<td><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!mrid" class="brown" target="_blank">$!VmUtils.escabbr($diary.replyname,10)</a></td>
+						<td>
+						#if($diary.replyid) #set($mrid=$diary.replyid) #else #set($mrid=$diary.memberid) #end
+						$!DateUtil.format($!diary.replytime,'MM-dd hh:mm')
+						</td>
+					</tr>
+					#end
+					#else
+					<tr>
+						<td  style="border:0px;" colspan="6">#if($params.commutopicid)此分类暂无话题信息#else圈内暂无帖子信息！#end #if($isCommuMember)<a href="javascript:void(0);" onclick="sendDiary($!commuTopic.id)" class="yellow">发表话题</a>#end</td>
+					</tr>
+					#end
+				</tbody>
+			</table>
+		</div>
+		#end
+		#end
+		#elseif($purview eq 'member')
+		<div class="showList commnu_bg_02">
+			圈子成员才能访问，你还没有加入这个圈子!
+		</div>
+		#elseif($purview eq 'admin')
+		<div class="showList commnu_bg_02">
+			圈子管理员才能访问!
+		</div>
+		#end
+	</div>
+	<div class="commnu_right">
+		#parse('include/home/commuRightMenu.vm')
+		#parse('include/home/commuRightList.vm')
+	</div>
+	<div class="height0"></div>
+</div>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody").getElements("tr").each(function(item){
+		item.addEvents({'mouseenter':function(){this.addClass("tdHover");},'mouseleave':function(){this.removeClass("tdHover");}});
+	});
+});
+</script>
+</body>
+</html>

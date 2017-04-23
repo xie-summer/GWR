@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>充值记录列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+		<div>
+			<form action="${basePath}admin/account/qryCharge.xhtml">
+				用户ID:<input type="text" name="memberid" value="$!params.memberid" style="width: 80px;"/>
+				用户昵称:<input type="text" name="membername" value="$!params.membername" style="width: 80px;"/>
+				充值金额:<input type="text" name="totalfee" value="$!params.totalfee" style="width: 80px;"/>
+				充值状态:<select name="status">
+					<option value="" #if($VmUtils.isBlank($!params.status))selected#end>全部</option>
+					<option value="paid_success" #if($!params.status eq 'paid_success')selected#end>成功</option>
+				</select>
+				开始日期:<input type="text" name="startdate" value="$!params.startdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" readonly="readonly" style="width: 100px;"/>
+				结束日期:<input type="text" name="enddate" value="$!params.enddate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" readonly="readonly" style="width: 100px;"/>
+				用户Email:<input type="text" name="email" value="$!params.email" style="width: 120px;"/>
+				<input type="submit" value="查询"/>
+			</form>
+		</div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>用户ID</th>
+					<th>用户昵称</th>
+					<th>充值金额</th>
+					<th>充值方式</th>
+					<th>充值状态</th>
+					<th>充值时间</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				#foreach($charge in $chargeList)
+				<tr class="grayBg">
+					<td>$charge.memberid</td>
+					<td>$charge.membername</td>
+					<td>$charge.totalfee</td>
+					<td>$charge.paytext</td>
+					<td>$charge.statusText</td>
+					<td>$DateUtil.format($charge.addtime, 'yyyy-MM-dd HH:mm:ss')</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+		<div id="page">#parse('include/pageUtil.vm')</div>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<script type="text/javascript">
+</script>
+</body>
+</html>

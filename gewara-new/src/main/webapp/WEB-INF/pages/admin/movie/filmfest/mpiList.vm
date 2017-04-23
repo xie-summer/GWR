@@ -1,0 +1,683 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次排片管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_movie&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.none{display:none;}
+		#showGather{height: 500px;overflow: auto;}
+		.roomManageTable thead th a{margin-top: 20px;}
+	</style>
+	<style type="text/css">
+		.tableLayer .m_c h2{margin:0;}
+		html,body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,
+		fieldset,input,p,blockquote,th,td,ins,img{margin: 0px;padding: 0px;word-wrap:break-word;}
+		ul li{list-style: none;padding:0; margin:0;}
+		.clear:after,.button:after,.ui_layout:after,.abeam:after,.list li:after,.tales60:after,.tales100:after,.selectOptions:after,.inner:after,.nav_tabs:after{content:'content';clear:both;display:block;visibility: hidden;height:0px; width:0px;font-size:0px;}
+		.clear,.button,.ui_layout,.abeam,.list li,.tales60,.tales100,.selectOptions,.inner{zoom:1}
+		.ui_hide,.none{display:none!important;}
+		
+		/*切换城市*/
+		.ui_changeCity{display:block; position:absolute; left:auto;right:350px; top:20px; cursor:pointer; font-family:"微软雅黑","宋体"; }
+			.ui_cityChoose{display:block; *display:inline-block; color:#000; font-size:14px; font-weight:normal; height:36px; line-height:36px; *line-height:38px; overflow:hidden; padding:0 15px 0 10px; background:url(/css/global/ico_arrow.gif) no-repeat right 17px;}
+		.ui_cityChoice{background-position:right -15px;}
+		
+		.ui_city_plugs{-webkit-box-shadow:2px 2px 0px rgba(0, 0, 0, 0.1); -moz-box-shadow:2px 2px 0px rgba(0, 0, 0, 0.1); box-shadow:2px 2px 0px rgba(0, 0, 0, 0.1);}
+		.ui_city_plugs a.select{color:#c30;}
+		.ui_city_plugs a:hover{background-color:#ec6120; color:#fff;}
+
+		.ui_t_search{height:30px;width:230px; float:left; margin-top:10px;}
+		.ui_t_search .overTxtLabel{width:188px!important;}
+		.search_text{font-size:12px; height:18px; line-height:18px; color:#666; padding:5px 3px ;border:0; border-top-left-radius:3px; border-bottom-left-radius:3px; outline:none; float:left; width:194px;}
+		.search_button{width:27px;height:28px;float:left;display:inline-block;overflow:hidden; border-top-right-radius:3px;border-bottom-right-radius:3px;}
+		.search_button input{background-position:5px 6px; background-color:#fff; border:0px;outline:none;height:28px;width:27px;float:left;cursor:pointer;}
+		.ui_t_searchClicked .search_button input,.search_button input:hover{background-position:5px -30px; background-color:#e8e8e8;}
+		/************************************
+					search
+		*************************************/
+		.autocompleter-choices,.classW{position:absolute;margin:0px 0 0 0px;border-spacing:inherit;border-collapse:separate;padding:0;list-style:none;
+			border:1px solid #9F9F9F; background-color:#fff;text-align:left;font-family:Verdana, Geneva, Arial, Helvetica, sans-serif;
+			z-index:100;background: #FFF;
+		}
+		.autocompleter-choices li,.classW li{position:relative;margin:0;padding:0;text-indent:7px;display:block;float:none !important;cursor:pointer;
+			font-weight:normal;white-space:nowrap;font-size:12px;line-height:25px;overflow: hidden;height:25px;width:100%;clear: both;
+		}
+		.autocompleter-choices li.autocompleter-selected,.classW li.autocompleter-selected{background-color:#FF7B03;color:#fff;}
+		.autocompleter-choices li.autocompleter-selected a,.classW li.autocompleter-selected a{color:#fff;}
+		.autocompleter-choices span.autocompleter-queried,.classW span.autocompleter-queried{display:inline;float:none;font-weight:bold;margin:0;padding:0;}
+		.autocompleter-choices li.autocompleter-selected span.autocompleter-queried,.classW li.autocompleter-selected span.autocompleter-queried{color:#9FCFFF;}
+		
+		/*城市选择（新）*/
+		.ui_city_plugs{border:1px solid #ddd; z-index:50; top:0; position:absolute; border-top:0; width:450px; background:#fff; visibility:hidden;
+			-webkit-box-shadow:2px 2px 0px rgba(0, 0, 0, 0.1); -moz-box-shadow:2px 2px 0px rgba(0, 0, 0, 0.1); box-shadow:2px 2px 0px rgba(0, 0, 0, 0.1);
+		}
+		.ui_city_plugs .inner{padding:2px;}
+		.ui_city_plugs a{text-decoration:none!important;}
+		.ui_city_search{background:#fed; height:30px; line-height:30px; padding:15px 30px; margin:1px;}
+		.ui_city_search span,.ui_city_search input{float:left;}
+		.ui_city_search .search_text{border-radius:3px;}
+		.ui_city_cType{display:block; margin-bottom:-1px; *position:relative; *top:0px;}
+		.ui_city_cType a{display:inline-block; float:left; color:#333; width:80px; height:32px; line-height:32px; line-height:34px\9; overflow:hidden; text-align:center; margin:0 2px 0 0; cursor:pointer;}
+		.ui_city_cType a:hover{color:#f60; background:#eee;}
+		.ui_city_cType a.select{border:1px solid #cecece; color:#333!important; background:#fff; border-bottom:0; font-weight:bold;}
+		.ui_city_hotList,.ui_city_allList{border-top:1px solid #cecece;}
+		.ui_city_hotList ul li{float:left;}
+		.ui_city_hotList ul li a{display:inline-block; float:left; white-space:nowrap; padding:0 8px; margin:0 5px 2px 5px; height:28px; line-height:28px; line-height:30px\9; overflow:hidden; color:#999; text-align:left;}
+		.ui_city_hotList ul li a:hover,.ui_city_hotList ul li a.select,.citySearch ul li a:hover,.citySearch ul li a:hover em{color:#fff!important; background:#ec6120;}
+	</style>
+	</style>
+</head>
+<body>
+#set($targetUrl=$VmUtils.escapeHtml("admin/filmfest/mpiList.xhtml?date=$!params.date"))
+#parse('include/constant/cityParam.vm')
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore">$cinema.name</li>
+			<li class="currs"><a><span>场次管理</span></a></li>
+			<li><a href="${basePath}admin/ticket/orderList.xhtml?cid=$cinema.id" class="admin"><span>订单管理</span></a></li>
+			<li><a href="${basePath}admin/ticket/baseData.xhtml?cid=$cinema.id" class="admin"><span>基础数据</span></a></li>
+			<li><a href="${basePath}admin/ticket/auto/setterList.xhtml?cinemaid=$cinema.id"><span>自动设置器</span></a></li>
+			<li><a href="${basePath}admin/ticket/auto/mpiList.xhtml?cid=$cinema.id"><span>自动设置器审核列表</span></a></li>
+			<li><a href="${basePath}admin/ticket/opiStats.xhtml?cid=$cinema.id" class="admin"><span>座位统计</span></a></li>
+			<li><a href="${basePath}admin/ticket/settleList.xhtml?cid=$!cinema.id" class="admin"><span>结算说明</span></a></li>
+			<li><a href="${basePath}admin/ticket/settleConfirm.xhtml?cid=$!cinema.id" class="admin"><span>结算确认</span></a></li>
+			<li><a href="${basePath}admin/ticket/disabledOpi.xhtml" class="admin"><span>废弃场次</span></a></li>
+			<li style="float: right;">
+				#set($citycode=$cookieTool.admin_citycode.value)
+				#set($cityname=$CITY_MAP.get($citycode))
+				<div id="cityChoose" class="ui_changeCity"><b class="ui_cityChoose ">切换城市 $cityname $citycode</b></div>
+			</li>
+		</ul>
+	</div>
+</div>
+<div style="color:red" id="notifyWin"></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<div class="checkMenu">
+			<ul>#foreach($day in $dateList)
+				<li #if($day eq $curDate)class="chooseItem"#end>
+					<div><a href="${basePath}admin/filmfest/mpiList.xhtml?cid=$cinema.id&date=$day">$dateMap.get($day)</a>
+					<h2>${countMap.get($day)}场</h2>
+				</li>
+				#end
+			</ul>		</div>
+		<div class="selectMovie">#set($sumC=0)
+			#foreach($ckey in $cinemaCountyMap.keySet())
+			<span class="i">$!{countyMap.get($ckey)}：</span>
+			<span class="r">
+				#foreach($cinemaMap in $cinemaCountyMap.get($ckey))
+				<a href="${basePath}admin/filmfest/mpiList.xhtml?cid=$cinemaMap.get('cid')&date=$curDate" 
+					class="#if($cinema.id eq $cinemaMap.get('cid')) match #end mr10">
+					${cinemaMap.get('cname')}[$cinemaMap.get('opicount')场]#if($!hashAutoSetterCinema.contains($cinemaMap.get('cid')))[自动]#end#if($unopenedCinema.containsKey($cinemaMap.get('cid')))<span style="color:red;font-weight: bolder">[$unopenedCinema.get($cinemaMap.get('cid'))]</span>#end
+					#if($unopenItemCinema.containsKey($cinemaMap.get('cid')))<span style="color:#00BE00;font-weight: bolder;" title="未开放">[$unopenItemCinema.get($cinemaMap.get('cid'))]</span>#end
+					#if($recorverItemCinema.containsKey($cinemaMap.get('cid')))<span style="color:#333366;font-weight: bolder;" title="待恢复">[$recorverItemCinema.get($cinemaMap.get('cid'))]</span>#end
+				</a>
+				#end
+			</span>
+			#if($foreach.count%2 eq 0)
+			<div class="mt5"></div>
+			#end
+			#end
+		</div>
+		<div class="selectMovie">
+			<span class="i">上映影厅：</span>
+			<span class="r"><a href="#" onclick="selectMpi('',this)">全部</a>&nbsp;&nbsp;&nbsp;#foreach($room in $roomList)<a href="#" onclick="selectMpi('mpiR$room.id',this)">$room.roomname</a>&nbsp;&nbsp;&nbsp;#end</span>
+		</div>
+		<div class="selectMovie">
+			<span class="i">上映电影：</span>
+			<span class="r"><a href="#" onclick="selectMpi('',this)">全部</a>&nbsp;&nbsp;&nbsp;#foreach($movie in $movieList)<a href="#" onclick="selectMpi('mpiM$movie.id',this)">$movie.moviename</a>&nbsp;&nbsp;&nbsp;#end</span>
+		</div>
+		<div class="selectMovie">
+			<span class="i">设置器：</span>
+			<span class="r"><a href="#" onclick="selectMpi('',this)">全部</a>&nbsp;&nbsp;&nbsp;#foreach($setter in $setterList)
+				<a href="#" onclick="selectMpi('mpiS$setter.id',this)" title="$setter.gainFullDesc()">$setter.name</a>&nbsp;&nbsp;&nbsp;#end</span>
+		</div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>影片</th>
+					<th>影厅</th>
+					<th>放映时间</th>
+					<th>标识为不开放</th>
+					<th>语言版本</th>
+					<th>原价</th>
+					<th>标记</th>
+					<th>统一卖价</th>
+					<th>备注</th>
+					<th>操作<input type="button" onclick="autoOpenAll(this)" value="批量自动设置" /></th>
+					<th>最低限价</th>
+				</tr>
+			</thead>
+			<tbody class="tbody" id="mpiListBody">
+				#foreach($mpi in $playitemList)
+				<tr class="grayBg disp mpiM$mpi.movieid mpiR$mpi.roomid#if($setterMap.get($mpi.id)) mpiS$setterMap.get($mpi.id).id#end" #if($mpi.hasOpenStatus('disabled'))style="background: red;" #end>
+					<td>$movieMap.get($mpi.movieid).moviename #if($!partnerMap.get($opi.opentype)) [$!partnerMap.get($opi.opentype)]#end</td>
+					<td>$!roomMap.get($mpi.roomid).roomname</td>
+					<td>$mpi.playtime</td>
+					<td>#if($mpi.openStatus eq 'init')<input type="button" value="不开放" onclick="change2Unopen($mpi.id,this)"/>#else $mpi.openStatus #end</td>
+					<td>$!{mpi.language}/$!mpi.edition</td>
+					<td>$!mpi.price</td>
+					<td>#if($mpi.seqNo)$!parnterMap.get($mpi.opentype)#end</td>
+					<td><input type="text" class="gewaprice pubinput" style="width:30px;" name="${mpi.id}" value="$!mpi.gewaprice"/></td>
+					<td>$!mpi.remark</td>
+					<td>
+						<select id="temp_$mpi.id" style="width:50px;display:inline-block;">
+						#foreach($tempSeat in $tempSeatMap.get($mpi.roomid))
+							<option value="$!{tempSeat.id}">$!{tempSeat.tmpname}</option>
+						#end
+						</select>
+						#if($mpi.seqNo)
+						<input type="button" onclick="openParnterMpi('$!mpi.id', '$!mpi.opentype', this)" value="开放预订($!{parnterMap.get($mpi.opentype)})"/>
+						#if($setterMap.get($mpi.id))
+						<input type="hidden" class="autoId" value="$mpi.id,$setterMap.get($mpi.id).id"/>
+						<input type="button" id="autoBt$mpi.id" onclick="autoOpenHfhMpi($mpi.id, '$setterMap.get($mpi.id).id', this)" value="$setterMap.get($mpi.id).name" title="$setterMap.get($mpi.id).description" />
+						#end
+						#if($params.showGewa eq "Gewa${userid}")
+						<input type="button" onclick="openMpi($mpi.id, this)" value="开放Gewa预订($!{parnterMap.get($mpi.opentype)})" />
+						#end
+						#else
+						<input type="button" onclick="openMpi($mpi.id, this)" value="开放预订($!{parnterMap.get($mpi.opentype)})" />
+						#end
+					</td>
+					<td>$!mpi.lowest</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>是否可退
+					#if($!hashAutoSetterCinema.contains($cinema.id))
+					<br/><a href="javascript:autoSetter(true)">[自动]</a><a href="javascript:autoSetter(false)">[手动]</a>
+					#end
+					</th>
+					<th width="120">
+						<select onchange="showThisMove(this)" id="movieSelect">
+							<option value="">影片...</option>
+							#foreach($movieid in $movieidList)
+							<option value="c$movieid">$movienameMap.get($movieid)</option>
+							#end
+						</select>
+						<select onchange="showThisMove(this)" id="opentypeSelect">
+							<option value="">开放类型...</option>
+							#foreach($key in $parnterMap.keySet())
+							<option value="$key">$parnterMap.get($key)</option>
+							#end
+						</select>
+					</th>
+					<th>
+						<select onchange="showThisMove(this)" id="roomSelect">
+							<option value="">影厅</option>
+							#foreach($room in $roomList)
+							<option value="r$room.id">$room.roomname</option>
+							#end
+						</select>
+					</th>
+					#if($profile.fee gt 0)<th>手续费</th>#end
+					<th>时间</th>
+					<th>
+						<select onchange="showThisMove(this)" id="edtionSelect">
+							<option value="">版本</option>
+						 	#foreach($edtion in $editionList)
+						 	<option value="$!eMap.get($edtion)" >$edtion</option>
+						 	#end
+						</select>
+						<br/>
+						<select onchange="showThisMove(this)" id="languageSelect">
+							<option value="">语言</option>
+							#foreach($language in $languages)
+						 		<option value="$!languageMap.get($language)" >$language</option>
+						 	#end
+						</select>
+					</th>
+					<th>影院价</th>
+					<th>成本价</th>
+					<th width="7%">
+						<input type="text" name="minprice" id="minprice" style="margin-top: 10px;width: 30px;" />至<input type="text" name="maxprice" id="maxprice" style="margin-top: 10px;width: 30px;"/><br />
+						<input type="button" onclick="showPrice('minprice','maxprice')" value="卖价" />
+					</th>
+					<th title="提起几小时关闭预订">
+						<input type="text" id="alltime" style="width:140px;" value="" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly"/><br />
+						<input type="button" onclick="openAll()" value="统一时间" /></th>
+					<th>优惠券<br/><input type="button" onclick="removeALLElecard()" value="清空" /></th>
+					<th>场次管理</th>
+					<th colspan="2">
+						<input type="button" value="全部接受预订" onclick="enableAll('Y')"/><input type="button" value="全部不接受" onclick="enableAll('N')"/><input type="button" value="全部恢复" onclick="enableAll('R')"/>
+						<br/><a style="marker-offset: 20px;" href="${basePath}admin/filmfest/copyOpiRemark.xhtml" target="_blank">刷新场次说明或短信</a>
+					</th>
+				</tr>
+			</thead>
+			<tbody class="tbody opi" id="opiListBody">
+				#foreach($opi in $opiList)
+				#set($otherMap=$VmUtils.readJsonToMap($opi.otherinfo))
+				<tr class="grayBg disp c$opi.movieid r$opi.roomid $opi.opentype $!eMap.get($!opi.edition) $!languageMap.get($opi.language)" ref="$!opi.edition"  #if($opi.status eq 'D')style="background: red;"#elseif($goodMap.get($opi.id))style="background: yellow;"#end>
+					<td>${foreach.count}.#if($otherMap.get('isRefund') eq 'Y')是#else否#end#if($otherMap.get('autoOpen'))<br />[#if($otherMap.get('autoOpenStatus') eq 'open_a')<span title="$otherMap.get('autoOpen')" style="color: blue;cursor: pointer;" name="autoSetter">自动#else<span title="$otherMap.get('autoOpen')" style="color: blue;cursor: pointer;" name="shouSetter">手动#end</span>]#end</td>
+					<td>$!{opi.moviename} #if($!parnterMap.get($opi.opentype)) [$!parnterMap.get($opi.opentype)]#end<br />
+						<a href="${basePath}admin/common/getChangeHis.xhtml?tag=OpenPlayItem&relatedid=$opi.mpid" target="_blank">历史</a>
+						<a href="${basePath}admin/common/getChangeHis.xhtml?tag=MoviePlayItem&relatedid=$opi.mpid" target="_blank">系统</a>
+					</td>
+					<td>$opi.roomname</td>
+					#if($profile.fee gt 0)<td><input type="text" class="fee pubinput" name="${opi.mpid}" style="width:30px;" #if($opi.expired || $opi.closed)disabled="disabled"#end value="$!opi.fee"/></td>#end
+					<td>
+						$DateUtil.format($opi.playtime,'MM-dd HH:mm')<br/>
+						<a href="${basePath}admin/ticket/modifyMpi.xhtml?opid=$opi.id" target="_blank">修改</a>
+					</td>
+					<td>$!opi.language|$!opi.edition<br /><a href="${basePath}admin/ticket/modifyMsg.xhtml?opid=$opi.id" target="_blank">短信</a></td>
+					<td>$!opi.price<br/><a href="${basePath}admin/ticket/opiOther.xhtml?opid=$opi.id" target="_blank">其他</a></td>
+					<td style="vertical-align:top;"><input type="text" class="costprice pubinput" style="width:30px; margin-top:5px;" name="${opi.mpid}" #if($opi.expired || $opi.closed)disabled="disabled"#end value="$!opi.costprice"/></td>
+					<td><input type="text" class="gewaprice pubinput" style="width:30px;" name="${opi.mpid}" #if($opi.expired || $opi.closed)disabled="disabled"#end value="$!opi.gewaprice"/><br />
+						<a href="${basePath}admin/ticket/extensions.xhtml?mpid=$opi.mpid" target="_blank">扩展</a>
+					</td>
+					<td>
+						<label>开放：<input type="text" #if($opi.expired)disabled="disabled"#else class="optime" name="$opi.mpid"#end style="width:140px;" value="$!DateUtil.format($opi.opentime,'yyyy-MM-dd HH:mm:ss')" onchange="setOpentime($opi.mpid, this)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly"/></label>
+						<label>关闭：<input type="text" #if($opi.expired)disabled="disabled"#end style="width:140px;" value="$!DateUtil.format($opi.closetime,'yyyy-MM-dd HH:mm:ss')" onchange="setClosetime($opi.mpid, this)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly"/></label>
+					</td>
+					<td><input type="text" class="elecard pubinput" style="width:40px;" name="${opi.mpid}" value="$!opi.elecard"/></td>
+					<td>
+						<a href="${basePath}admin/ticket/booking.xhtml?mpid=$opi.mpid" target="_blank">场次管理</a><br />
+						<a href="$!{absPath}${basePath}$VmUtils.getStep1Url($opi.mpid,'')" target="_blank">购票链接</a>
+					</td>
+					<td class="clearB" #if($opi.closed)title="超时"#end>
+						<select id="$opi.mpid" rel="$!opi.costprice" onchange="changeStatus($opi.mpid,this);" #if($opi.expired || $opi.closed)disabled="disabled"#else class="opselect" #end>
+							<option value="N" #if($opi.status eq 'N')selected="selected"#end>不接受</option>
+							<option value="Y" #if($opi.status eq 'Y')selected="selected"#end>接受</option>
+							<option value="R" #if($opi.status eq 'R')selected="selected"#end>待恢复</option>
+							<option value="D" #if($opi.status eq 'D')selected="selected"#end>废弃</option>
+						</select>
+					</td>
+					<td class="clearB" #if($opi.closed)title="超时"#end>
+						<select onchange="changePartnerStatus($opi.mpid, this);" #if($opi.expired || $opi.closed)disabled="disabled"#end>
+							<option value="Y" #if($opi.partner eq 'Y')selected="selected"#end>对外</option>
+							<option value="N" #if($opi.partner eq 'N')selected="selected"#end>不对外</option>
+						</select>
+						<input type="button" onclick="discardOpi($opi.mpid, this)" value="废弃" />
+						#if(!$mpidList.contains($opi.mpid) && $params.sj eq 'sj')<input type="button" onclick="setGather($opi.mpid, this)" value="收集"/>#end
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+		<div class="selectMovie">
+			<span class="i yellow"><b>影院：</b></span><br/>
+			#foreach($cinema in $cinemaMap)
+			<span class="r">
+				<a href="${basePath}admin/filmfest/mpiList.xhtml?cid=$cinema.id&date=$curDate" 
+					class="#if($params.cid eq $cinema.id) match #end ml10"><span style="width: 120px;">${cinema.name}</span>
+				</a>
+			</span>
+			#end
+		</div>
+		<div id="showGather" class="selectMovie" style="display: none;">
+		</div>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<div class="ui_city_plugs clear" id="ui_city_plugs"></div>
+<script type="text/javascript">
+	window.addEvent("domready", function(){
+		$$(".tbody tr").addEvents({
+			'mouseenter':function(){
+				this.addClass("mouseBg");
+			},
+			'mouseleave':function(){
+				this.removeClass("mouseBg");
+			}
+		});
+		$$(".gewaprice").addEvent("change", function(){
+			this.setStyle("background","red");
+			var el=this;
+			var url = "${basePath}admin/ticket/mpi/updateMpiGewaPrice.xhtml";
+			GewaraUtil.sendRequest(url, {"mpid":this.name, "gewaprice":this.value}, function(result){
+				if(result.success){
+					el.setStyle("background","");
+				}
+				else alert("修改价格失败！"+result.msg);
+			});
+		});
+		$$(".costprice").addEvent("change", function(){
+			this.setStyle("background","red");
+			var el=this;
+			var url = "${basePath}admin/ticket/mpi/updateMpiCostPrice.xhtml";
+			GewaraUtil.sendRequest(url, {"mpid":this.name, "costprice":this.value}, function(result){
+				if(result.success){
+					$(el.name).set('rel',el.value);
+					el.setStyle("background","");
+				}
+				else alert(result.msg);
+			});
+		});
+		$$(".elecard").addEvent("change", function(){
+			changeEleccard(this);
+		});
+		#if($profile.fee gt 0)
+		$$(".fee").addEvent("change", function(){
+			this.setStyle("background","red");	var el=this;
+			var url = "${basePath}admin/ticket/mpi/updateMpiFee.xhtml";
+			GewaraUtil.sendRequest(url, {"mpid":this.name, "fee":this.value}, function(result){
+				if(result.success){
+					el.setStyle("background","");
+				}
+				else alert("修改服务费失败：" + result.msg);
+			});
+		});
+		#end
+		GewaraUtil.sendLoad("ui_city_plugs", "${basePath}admin/ajax/common/adminCityList.xhtml",{'targetUrl':'$VmUtils.escapeHtml("admin/filmfest/mpiList.xhtml?date=$!params.date")'}, function(result){
+		});
+		var cityBox = $('ui_city_plugs');
+		$('cityChoose').hover(cityBox,null,function(){
+			$('autoCity').setStyle('display','none');
+			$('cityKey').value="";
+			cityBox.show();
+			cityBox.toPos('cityChoose','bottomLeft',0,0);
+			cityBox.setStyle('height','320px');
+		})
+	});
+	function removeALLElecard(){
+		if(confirm("确定删除全部优惠券吗？")){
+			$$(".disp .elecard").each(function(item){
+				item.value = "";
+				changeEleccard(item)
+			});
+		}
+	}
+	function changeEleccard(el){
+		el.setStyle("background","red");
+		var url = "${basePath}admin/ticket/mpi/updateMpiElecard.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":el.name, "cardtype":el.value}, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}
+			else alert("修改优惠券失败！");
+		});
+	}
+	
+	function setClosetime(mpid, el){
+		el.setStyle("background","red");
+		var url = "${basePath}admin/ticket/mpi/setMpiClosetime.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":mpid, "closetime":el.value}, function(result){
+			if(result.success) el.setStyle("background","");
+			else alert(result.msg);
+		});
+	}
+	function setOpentime(mpid, el){
+		el.setStyle("background","red");
+		var url = "${basePath}admin/ticket/mpi/setMpiOpentime.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":mpid, "opentime":el.value}, function(result){
+			if(result.success) el.setStyle("background","");
+			else alert(result.msg);
+		});
+	}
+	
+	function changeStatus(mpid, el){
+		el.setStyle("background","red");
+		var url = "${basePath}admin/ticket/mpi/changeMpiStatus.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":mpid, "status":el.value, "costprice":el.get('rel')}, function(result){
+			if(result.success) el.setStyle("background","");
+			else alert(result.msg);
+		});
+	}
+	function changePartnerStatus(mpid, el){
+		el.setStyle("background","red");
+		var url = "${basePath}admin/ticket/mpi/changePartnerStatus.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":mpid, "status":el.value}, function(result){
+			if(result.success) el.setStyle("background","");
+			else alert(result.msg);
+		});
+	}
+	function openMpi(mpid, bt){
+		bt.dispose();
+		var url = "${basePath}admin/ticket/mpi/openMpi.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":mpid,"opentype":"GEWA","tempid":$('temp_'+mpid).value}, function(result){
+			if(result.success){
+				if(result.retval) $('notifyWin').set('html', result.retval);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function openParnterMpi(mpid, opentype, bt){
+		bt.dispose();
+		var url = "${basePath}admin/ticket/mpi/openHfhMpi.xhtml"; 
+		GewaraUtil.sendRequest(url, {"mpid":mpid,"opentype": opentype,"tempid":$('temp_'+mpid).value}, function(result){
+			if(result.success){
+				if(result.retval) $('notifyWin').set('html', result.retval);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function autoOpenHfhMpi(mpid, setter, bt){
+		bt.dispose();
+		var url = "${basePath}admin/ticket/mpi/autoOpenHfhMpi.xhtml"; 
+		GewaraUtil.sendRequest(url, {"mpid":mpid, "setterId":setter}, function(result){
+			if(result.success){
+				if(result.retval) $('notifyWin').set('html', result.retval);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function autoOpenAll(bt){
+		bt.dispose();
+		var url = "${basePath}admin/ticket/mpi/autoOpenHfhMpi.xhtml";
+		$("mpiListBody").getElements(".disp .autoId").each(function(item){
+			var pair = item.value.split(',');
+			$("autoBt" + pair[0]).dispose();
+			GewaraUtil.sendRequest(url, {"mpid":pair[0], "setterId":pair[1]}, function(result){
+				if(result.success){
+					if(result.retval) $('notifyWin').set('html', result.retval);
+				}else{
+					alert(result.msg);
+				}
+			});
+		});
+	}
+	function discardOpi(mpid, bt){
+		bt.dispose();
+		var url = "${basePath}admin/ticket/mpi/discardOpi.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":mpid}, function(result){
+			if(!result.success) alert(result.msg);
+		});
+	}
+	
+	function setGather(mpid, bt){
+		bt.dispose();
+		var url = "${basePath}admin/ticket/mpi/setMpidGather.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":mpid}, function(result){
+			if(!result.success) alert(result.msg);
+		});
+	}
+	
+	function change2Unopen(mpid, bt){
+		bt.dispose();
+		var url = "${basePath}admin/ticket/mpi/change2Unopen.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":mpid}, function(result){
+			if(!result.success) alert(result.msg);
+		});
+	}
+	function enableAll(status){
+		$$(".disp .opselect").each(function(item){
+			if(status == 'N' && item.value=='Y'){
+				item.value="N";
+				changeStatus(item.id, item);
+			}else if(status == 'R' && item.value=='R'){
+				item.value="Y";
+				changeStatus(item.id, item);
+			}else if(status == 'Y' && item.value=="N"){
+				item.value="Y";
+				changeStatus(item.id, item);
+			}
+		});
+	}
+	function openAll(){
+		var time = $("alltime").value;
+		if(time=='') {
+			alert("先设置时间！");
+			return;
+		}
+		$$(".disp .optime").each(function(item){
+			if(item.value!=time){
+				item.value=time;
+				setOpentime(item.name, item);
+			}
+		});
+		
+	}
+	function showThisMove(el){
+		var edtionValue = $('edtionSelect').value
+		var roomValue = $('roomSelect').value
+		var movieValue = $('movieSelect').value
+		var languageValue = $('languageSelect').value
+		var opentypeValue = $('opentypeSelect').value
+		$("opiListBody").getElements('tr').each(function(item){
+			item.addClass('none');
+			item.removeClass("disp");
+			var movie = false;
+			var room = false;
+			var edtion = false;
+			var language = false;
+			var opentype = false;
+			if(movieValue == '' || item.hasClass(movieValue)){
+				movie = true;
+			}
+			if(roomValue == '' || item.hasClass(roomValue)){
+				room = true;
+			}
+			if(edtionValue == '' || item.hasClass(edtionValue)){
+				edtion = true;
+			}
+			if(languageValue == '' || item.hasClass(languageValue)){
+				language = true;
+			}
+			if(opentypeValue == '' || item.hasClass(opentypeValue)){
+				opentype = true;
+			}
+			if(movie && room && edtion && language && opentype){
+				item.removeClass('none');
+				item.addClass('disp');
+			}
+		});
+	}
+	function showThisEdtion(el){
+		if(el.value != ''){
+			$("opiListBody").getElements('tr').each(function(item){
+				item.addClass('none');
+				item.removeClass('disp');
+			})
+			var ed = '.' + el.value;
+			$$(ed).removeClass('none');
+			$$(ed).addClass('disp');
+		}else{
+			$("opiListBody").getElements('tr').each(function(item){
+				item.removeClass('none');
+			})
+		}
+	}
+	var lastSelect = $(document.body);
+	function selectMpi(selid, el){
+		lastSelect.removeClass("match");
+		if(selid != ''){
+			$('mpiListBody').getElements('tr').each(function(item){
+				item.addClass('none');
+				item.removeClass("disp");
+			});
+			var cls = '.'+selid;
+			$$(cls).removeClass('none');
+			$$(cls).addClass('disp');
+		}else{
+			$('mpiListBody').getElements('tr').each(function(item){
+				item.removeClass('none');
+			});
+		}
+		lastSelect = $(el);
+		lastSelect.addClass("match");
+	}
+	function mpidGather(){
+		var url = '${basePath}admin/ticket/mpi/getMpidGather.xhtml';
+		GewaraUtil.sendLoad('showGather',url,{},function(result){
+			if(result.success){
+				gewa.util.maskContent('','showGather','收集场次数据',1000,'showGather');
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+	
+	function showPrice(min, max){
+		if($$('.opi .gewaprice') && $(min) && $(max)){
+			var gewaprice = $$('.opi .gewaprice');
+			if($(min).value != '' && $(max).value != ''){
+				if($(min).value >$(max).value){alert('价格范围有误！'); return;}
+				gewaprice.each(function(item){
+					if(item.value != ''){
+						if($(min).value<= item.value && item.value <=$(max).value){
+							item.getParent('tr').removeClass('none');
+						}else{
+							item.getParent('tr').addClass('none');
+						}
+					}else{
+						item.getParent('tr').addClass('none');
+					}
+				});
+			}else if($(min).value != ''){
+				gewaprice.each(function(item){
+					if(item.value != ''){
+						if($(min).value<= item.value){
+							item.getParent('tr').removeClass('none');
+						}else{
+							item.getParent('tr').addClass('none');
+						}
+					}else{
+						item.getParent('tr').addClass('none');
+					}
+				});
+			}else if($(max).value != ''){
+				gewaprice.each(function(item){
+					if(item.value != ''){
+						if(item.value <=$(max).value){
+							item.getParent('tr').removeClass('none');
+						}else{
+							item.getParent('tr').addClass('none');
+						}
+					}else{
+						item.getParent('tr').addClass('none');
+					}
+				});
+			}else{
+				gewaprice.each(function(item){
+					item.getParent('tr').removeClass('none');
+				});
+			}
+		}
+	}
+	
+	function autoSetter(isAuto){
+		if(isAuto){
+			$('opiListBody').getElements("tr").each(function(item){
+				item.hide();
+			});
+			$('opiListBody').getElements("span[name=autoSetter]").each(function(item){
+				item.parentNode.parentNode.show();
+			});
+		}else{
+			$('opiListBody').getElements("tr").each(function(item){
+				item.hide();
+			});
+			$('opiListBody').getElements("span[name=shouSetter]").each(function(item){
+				item.parentNode.parentNode.show();
+			});
+		}
+	}
+</script>
+</body>
+</html>

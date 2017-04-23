@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>$!grabEvent.title -抢票场次管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<div class="aboutMovie">
+		
+			<div >
+				<a href="javascript:;" id="add-mpi-btn">新增</a>
+				<!--新增表单-->
+				<div id="mpi-form-wraper" style="display:none">
+					<input type="hidden" id="gtid" value="$params.id"/>
+					场次id：<input type="text" id="mpid"  />
+					<button id="mpi-save-btn">保存</button>
+				</div>
+				<!--新增表单-->
+			</div>
+			
+			<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th>
+							#if($openPlayItemList.size()>0)$!grabEvent.title -抢票场次管理 #else $!grabEvent.title -没有安排场次 #end
+						</th>
+					</tr>
+				</thead>
+			</table>
+			
+			#if($openPlayItemList.size()>0)
+			<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th>场次id</th>
+						<th>影片</th>
+						<th>影院</th>
+						<th>上映时间</th>
+						<th>影院价</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody id="tbody">
+					#foreach($opi in $openPlayItemList)
+						<tr>
+							<td>$opi.mpid</td>
+							<td>$opi.moviename</td>
+							<td>$opi.cinemaname</td>
+							<td>$DateUtil.formatTimestamp($opi.playtime)</td>
+							<td>$opi.price</td>
+							<td>
+							<a href="javascript:;" name="remove-mpi-btn" data-id="$!mpiIdMap.get($!opi.mpid)">删除</a> 
+							</td>
+						</tr>
+					#end
+				</tbody>
+			</table>
+			#end
+			
+		</div>
+		</div>
+		<b class="b2f"></b><b class="b1f"></b>
+	</div>
+</div>
+
+
+<script>
+	window.addEvent('domready', function(){
+		
+		//添加面板控制
+		$("add-mpi-btn").addEvent('click',function(){
+			var html=this.get("html");
+			if(html=="新增"){
+				this.set("html","取消");
+				$("mpi-form-wraper").show();
+			}else{
+				$("mpid").value="";
+				this.set("html","新增");
+				$("mpi-form-wraper").hide();
+			}
+		});
+		
+		//保存
+		$("mpi-save-btn").addEvent('click',function(){
+			var mpid=$("mpid").value.trim();
+			var gtid=$("gtid").value;
+			if(mpid==""){
+				alert("请输入场次id！");
+				return;
+			}
+			
+			if(isNaN(mpid)){
+				alert("场次id必须为数字！");
+				return;
+			}
+			
+			var params="mpid="+mpid+"&gtid="+gtid;
+		    var postRQ = new Request({
+				    url: '${basePath}admin/mobile/saveGrabTicketMpi.xhtml',
+				    method: 'post',
+				    onRequest: function(){
+				        GewaraUtil.mask();
+				    },
+				    onSuccess: function(responseHTML){
+				    	eval(responseHTML);
+				    	GewaraUtil.unmask();
+				    	alert(data.retval);
+				    	if(data.retval=="保存成功！"){
+				    		location.reload();
+				    	}
+				    }
+			});
+			postRQ.send(params);
+			
+		});
+		
+		//删除
+		$$("a[name='remove-mpi-btn']").addEvent('click',function(){
+			var me=this;
+			var id=me.get("data-id");
+			var params="gmpid="+id;
+		    var postRQ = new Request({
+				    url: '${basePath}admin/mobile/removeGrabTicketMpi.xhtml',
+				    method: 'post',
+				    onRequest: function(){
+				        GewaraUtil.mask();
+				    },
+				    onSuccess: function(responseHTML){
+				    	GewaraUtil.unmask();
+				    	me.getParent("tr").dispose();
+				    }
+			});
+			postRQ.send(params);
+		});
+		
+	
+	});
+</script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>第十五届上海国际电影节活动 - 格瓦拉生活网</title>
+<meta name="keywords" content="第15届上海国际电影节_电影专题_电影节排片表下载_在线购票_格瓦拉生活网"/>
+<meta name="description" content="第15届上海国际电影节_电影专题_电影节排片表下载_在线购票_格瓦拉生活网"/>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout&v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,gewara-util,noobSlide,pagesNavigation,slimbox,base_home,index_even&v=$VmUtils.jsVersion"></script>
+#parse('subject/filmfest/2012/style.vm')
+	<style type="text/css">
+	.ui_layout .inner{padding:10px;}
+	.ui_left{width:680px;overflow:hidden;}
+	.ui_right{width:280px;overflow:hidden;}
+	.activity_title h2{font-family:'微软雅黑','宋体';font-size:18px;font-weight:bold; color:#582725;}
+	.activity_main .s2 h3{background:url(${staticPath}styles/filmfest/ico_global.png) no-repeat;}
+	.activity_se{overflow:hidden;width:100%}
+	.activity_se li{float:left;margin-right:5px;*margin-right:0;}
+	.activity_main {padding:10px;border:1px solid #ccc;width:638px;overflow:hidden;}
+	.activity_main dd{float:left;}
+	.activity_main .s2{width:279px;padding-right:10px;}
+	.activity_main .s2 h3 {font-size:14px;padding-left:40px;background-position:0 -280px;}
+	.activity_main .s2 em{color:#777;}
+	.activity_hot {padding:0 15px 15px;width:228px;overflow:hidden;border-radius:0 0 5px 5px;}
+	.activity_hot li{overflow:hidden;}
+	.activity_hot h2 {font-size:12px;font-weight:bold;}
+	.activity_hot .uipic{width:96px; overflow:hidden;}
+	.activity_hot .left{width:120px;line-height:18px;}
+	.activity_hot em{color:#777;}
+	</style>
+</head>
+<body>
+#set($hasLogo = false)
+#set($tag = 'activityselect')
+#parse('subject/filmfest/2012/header.vm')
+<div style="width:960px;margin:0 auto;background:#fff;overflow:hidden;">
+<div id="ui_layout" class="ui_layout">
+	<div class="ui_left">
+		<div class="inner">
+			<div class="title mt15 activity_title">
+				<h2>电影节@格瓦拉　热点活动</h2>
+			</div>
+			#foreach($activity in $activityList)
+			#set($relate=$relatedHelper.getR1("activityList",$activity.id))
+			<dl class="activity_main mt20">
+				<dd class="s2" style="width:328px;">				
+					<h3><a target="_blank" title="$!relate.title" href="${basePath}activity/$relate.id">$!relate.title</a></h3>
+					<p class="mt10"><em>开始时间：</em>$!DateUtil.format($relate.startdate,"MM月dd日") $!relate.starttime</p>
+					<p><em>结束时间：</em>$!DateUtil.format($relate.enddate,"MM月dd日") $relate.endtime</p>
+					<p class="mt15"><a class="button minBt redBt" target="_blank" href="${basePath}activity/$!relate.id"><span>立即参加</span></a></p>
+					<p class="mt10"><span class="cMovie mr5">$!relate.clickedtimes</span>人关注<span class="cMovie ml20 mr5">$!relate.membercount</span>人参加</p>
+				</dd>
+				<dd class="tar" style="width:300px;">
+					<a href="${basePath}activity/$relate.id" title="$!relate.title" target="_blank"><img src="$VmUtils.randomPic('',$!relate.logo)" height="170" alt="$!relate.title" /></a>
+				</dd>
+			</dl>
+			#end
+			<div class="page">
+				#parse('include/pageUtil.vm')
+			</div>
+		</div>
+	</div>
+	
+	<div class="ui_right">
+		<div class="inner">
+			<div class="mod_title mt20">
+				<div class="mod_hd">
+					<h2>热门影片推荐</h2>
+				</div>
+				<div class="activity_hot">
+					<ul>
+						#foreach($movieHot in $movieHotList)
+						<li class="mt15">
+							<div class="uipic">
+								<a target="_blank" title="$!movieHot.moviename" href="${basePath}filmfest/fifteenMovieList.xhtml?moviename=$!movieHot.moviename"><img width="96" height="128" alt="$!movieHot.moviename" src="$VmUtils.randomPic('cw96h128',$!movieHot.logo)"/></a>
+							</div>
+							<div class="left">
+								<div class="title"><h2><a href="${basePath}filmfest/fifteenMovieList.xhtml?moviename=$!movieHot.moviename" title="$!movieHot.moviename" target="_blank">$!movieHot.moviename</a></h2></div>
+								<p><em>看点：</em>$!VmUtils.escabbr($!movieHot.highlight,30)...</p>
+								<p><em>语言：</em>$!movieHot.language</p>
+								#if($movieHot.videolen)<p><em>片长：</em>$!movieHot.videolen分钟</p>#end
+								<p class="mt5">
+								#if($VmUtils.eq('立即购票',$movieStatusMap.get($!movieHot.id)))
+								<a href="${basePath}filmfest/fifteenMovieList.xhtml?movieid=$!movieHot.id" class="button minBt redBt" target="_blank"><span>立即抢票</span></a>
+								#elseif($VmUtils.eq('购票提醒',$movieStatusMap.get($!movieHot.id)))
+								<a href="${basePath}filmfest/fifteenMovieList.xhtml?movieid=$!movieHot.id" class="button minBt whiteBt" target="_blank"><span>购票提醒</span></a>
+								#elseif($VmUtils.eq('暂无排片',$movieStatusMap.get($!movieHot.id)))
+								<a href="${basePath}filmfest/fifteenMovieList.xhtml?movieid=$!movieHot.id" class="button minBt whiteBt" target="_blank"><span>暂无排片</span></a>
+								#else
+								<a href="${basePath}filmfest/fifteenMovieList.xhtml?movieid=$!movieHot.id" class="button minBt whiteBt" target="_blank"><span>卖光了…</span></a>
+								#end
+								</p>
+							</div>
+						</li>
+						#end
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+#parse('include/bottom.vm')
+</body>
+</html>

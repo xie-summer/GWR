@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>套头列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;maradn-top:3px}
+		input,textarea { width:450px; display:inline}
+		a{text-decoration: none;}
+		.ua{text-decoration: none;color: red }
+		.bk{background:rgb(255, 246, 200)}
+	</style>
+</head>
+<body style="width:100%; maradn:auto" class="yui-skin-sam">
+<div>
+<input type="button" class="button" style="width:100px" value="增加套头信息" onclick="addHdRelated();"/>
+<a href="${basePath}admin/common/queryHeadRelated.xhtml">【全部】</a>&nbsp;&nbsp;
+<a href="${basePath}admin/common/queryHeadRelated.xhtml?tag=cinema">【影院】</a>&nbsp;&nbsp;
+<a href="${basePath}admin/common/queryHeadRelated.xhtml?tag=movie">【电影】</a>&nbsp;&nbsp;
+<a href="${basePath}admin/common/queryHeadRelated.xhtml?tag=drama">【演出】</a>&nbsp;&nbsp;
+<a href="${basePath}admin/common/queryHeadRelated.xhtml?tag=everyPoint">【每日积分】</a>&nbsp;&nbsp;
+</div>
+#set($tagMap={"movie":"电影","cinema":"影院","drama":"话剧"})
+<table width="100%" class="table">
+	<thead>
+	<tr>
+		<th>HID</th>
+		<th>关联ID</th>
+		<th>所属版块</th>
+		<th>增加时间</th>
+		<th>有效时间</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="gymTable">
+	#foreach($re in $reList)
+	<tr>
+		<td>$!{re.relatedid1}</td>
+		<td>$!{re.relatedid2}</td>
+		<td>$!tagMap.get($!re.tag)</td>
+		<td>$!DateUtil.format($re.addtime,'yyyy-MM-dd HH:mm')</td>
+		<td>$!DateUtil.format($re.validtime,'yyyy-MM-dd HH:mm')</td>
+		<td>
+			<a href="javascript:void(0)" onclick="updateHeadRelated('$!re.id')">修改</a>
+			<a href="javascript:void(0)" onclick="removeHeadRelated('$!re.id',this);">删除</a>
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<div class="right">#parse('include/pageUtil.vm')</div>
+<div id="hdDialog" class="yui-panel" style="width:600px; visibility:hidden; z-index:20;">
+	<div class="hd">
+		<span>编辑套头数据</span>
+	</div>
+	<div class="bd">
+	<form name="hdForm" id="hdForm">
+		<div>
+			<input type="hidden" id="id" name="id" />
+			<label for="tag">所属版块：</label>
+			<select name="tag" id="tag" mustTxt="所属版块不能为空！">
+				<option value="">请选择</option>
+				<option value="movie">电影</option>
+				<option value="cinema">影院</option>
+				<option value="drama">演出</option>
+				<option value="everyPoint">每日积分</option>
+			</select><span class="req">*</span>
+		</div>
+		<div>
+			<label for="relatedid1">套头HID：</label>
+			<input  name="relatedid1" id="relatedid1" type="text" style="width: 100px" mustTxt="标识HID不能为空！"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="relatedid2">关联ID：</label>
+			<input  name="relatedid2" id="relatedid2" type="text" style="width: 300px" mustTxt="关联ID不能为空！"/>
+			<span class="req">* 新增多条数据以,隔开 </span>
+		</div>
+		<div>
+			<label for="validtime">结束时间：</label>
+			<input  name="validtime" id="validtime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" type="text" style="width: 150px" mustTxt="结束时间不能为空！"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="save();" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+	function addHdRelated(){
+		GewaraUtil.showDialog("hdDialog");
+	}
+	function cancle(){
+		GewaraUtil.hideDialog('hdDialog');
+	}
+	function save(){
+		if(!GewaraUtil.baseValidForm('hdForm')) return false;
+		var url = "${basePath}admin/site/header/saveHeadRelated.xhtml";
+		var values = GewaraUtil.getValues('hdForm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}	
+	function updateHeadRelated(rid){
+		var url ="${basePath}admin/site/header/getHeadRelated.xhtml";
+		var values = {"rid":rid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				GewaraUtil.setValues(result);
+				GewaraUtil.showDialog("hdDialog");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function removeHeadRelated(rid,obj){
+		var url ="${basePath}admin/site/header/removeHeadRelated.xhtml";
+		var values = {"rid":rid};
+		if(window.confirm("确认要删除该数据？")){
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert('删除成功！');
+					gewaUtil.dispose($(obj).getParent('tr'));
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+	}
+</script>
+</body>
+</html>

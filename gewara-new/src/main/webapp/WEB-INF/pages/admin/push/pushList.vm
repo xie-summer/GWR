@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>#if($params.isAuto eq 'N') 手动#else自动#end推送记录</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js?v=00"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js"></script>
+</head>
+<body>
+	<div style="text-align:center">
+		<label style="font-size:30px;padding:20px,20px;">#if($params.isAuto eq 'N') 手动#else自动#end推送记录</label>
+	</div>
+<div class="taskPanel">
+	<div style="margin-left: 50px;padding-top: 30px">
+		<label><input type="button" value="本周发送" onclick="getCntByRegion('week')"/></label>
+		<label><input type="button"  value="本月发送" onclick="getCntByRegion('mouth')"/></label>
+		<label><input type="button"  value="全部发送" onclick="getCntByRegion('all')"/></label>
+		#if($params.isAuto eq 'N')#set($anto='Y')#else#set($anto='N')#end
+		<a style="cursor: pointer;margin-right:20px;margin-top:5px;" href="${basePath}admin/push/push.xhtml">新 增</a>
+		<!-- <a href="${basePath}admin/push/getPushList.xhtml?isAuto=$anto">#if($params.isAuto eq 'Y')手动#else自动#end推送记录</a> -->
+	</div>
+	<div style="text-align:left;margin-left:20px;padding-top: 20px;padding-bottom: 20px">
+		<label>#if($tag eq 'week' )本周发送：#elseif($tag eq 'mouth' )本月发送：#else 全部发送：#end<input name="count" style="color: red;width: 20px;border: 0px;font-size:20px;" value="$!count"/>次数</label>
+	</div>
+	<table cellpadding="0" cellspacing="0" width="100%" class="taskTable" id="$mytableTable">
+		<colgroup>
+			<col width="1%"/>
+			<col width="4%"/>
+			<col width="3%"/>
+			<col width="4%" />
+			<col width="8%"/>
+			<col width="20%"/>
+			<col width="6%"/>
+			<col width="6%"/>
+			<col width="6%"/>
+			<col width="6%"/>
+			<col width="4%"/>
+			<col width="8%"/>
+		</colgroup>
+		<thead> 
+			<tr class="thead">
+				<td axis="number"><div class="thead asc_desc" align="center"></div></td>
+				<td axis="string"><div class="thead asc_desc" align="center">产品</div></td>
+				<td axis="string"><div class="thead asc_desc" align="center">版本</div></td>
+				<td axis="string"><div class="thead asc_desc" align="center">平台</div></td>
+				<td axis="string"><div class="thead asc_desc" align="center">消息类型</div></td>
+				<td axis="string"><div class="thead asc_desc" align="center">内容链接</div></td>
+				<td axis="string"><div class="thead asc_desc" align="center">创建任务时间</div></td>
+				<td axis="string"><div class="thead asc_desc" align="center">有效期</div></td>
+				<td axis="string"><div class="thead asc_desc" align="center">开始发送时间</div></td>
+				<td axis="string"><div class="thead asc_desc" align="center">结束发送时间</div></td>
+				<td axis="string"><div class="thead asc_desc" align="center">状态</div></td>
+				<td axis="string"><div class="thead asc_desc" align="center">进度(T/F)</div></td>
+			</tr>
+		</thead>
+		<tbody>
+			#foreach($push in $pushList)
+			<tr #if($foreach.count%2 eq 0)class="tr_bg"#end>
+				<td align="center">$!velocityCount</td>
+				<td align="center">$!push.productStr</td>
+				<td align="center">$!push.version</td>
+				<td align="center">$!push.os</td>
+				<td align="center">$!push.msgTypeStr</td>
+				<td align="center">$!push.content</td>
+				<td align="center">$!DateUtil.format($!push.addTime,'MM/dd HH:mm')</td>
+				<td align="center">$!DateUtil.format($!push.validTime,'MM/dd HH:mm')</td>
+				<td align="center">$!DateUtil.format($!push.sentTime,'MM/dd HH:mm')</td>
+				<td align="center">$!DateUtil.format($!push.endTime,'MM/dd HH:mm')</td>
+				<td align="center" style="color: red;">$!push.StatusStr</td>
+				#if($VmUtils.eq($!push.status,"S0") || $VmUtils.eq($!push.status,"S3")) 
+					<td align="center"><label>$!push.progress</label></td>
+				#elseif($VmUtils.eq($!push.status,"S1")) 
+					<td align="center" style="width:20px;"><label><input type="button" value="发 送" onclick="pushToGpss($!push.id)"/></label>
+					#if($VmUtils.eq($!push.isAuto,"N"))<label><input type="button" value="编 辑" onclick="editPush($!push.id)"/></label>#end</td>
+				#elseif($VmUtils.eq($!push.status,'S2'))
+					<td align="center"><label><input type="button" value="取 消" onclick="calcelPush($!push.id)"/></label></td>
+				#else
+				#end
+				</tr>
+			#end
+		</tbody>
+	</table>
+</div>
+<div class="center clear mt30">
+	#parse('include/pageUtil.vm')
+</div>
+<script>
+function getCntByRegion(el){
+	if("week" == el){
+		document.location.href="${basePath}admin/push/getPushList.xhtml?tag=week&isAuto=$!params.isAuto";
+	}else if("mouth" == el){
+		document.location.href="${basePath}admin/push/getPushList.xhtml?tag=mouth&isAuto=$!params.isAuto";
+	}else if("all" == el){
+		document.location.href="${basePath}admin/push/getPushList.xhtml?tag=all&isAuto=$!params.isAuto";
+	}
+}
+
+function pushToGpss(id){
+	var url = "${basePath}admin/pushT4ThroughGpss.xhtml";
+	var values = {'recordId':id};
+	GewaraUtil.sendRequest(url,values,function(result){
+		if(result.success){
+			document.location.href="${basePath}admin/push/getPushList.xhtml";
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function editPush(id){
+	var url = "${basePath}admin/push/editPush.xhtml";
+	var values = {'recordId':id};
+	GewaraUtil.sendRequest(url,values,function(result){
+		if(result.success){
+			document.location.href="${basePath}admin/push/push.xhtml?recordId="+id;
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function calcelPush(id){
+	var url = "${basePath}admin/push/cancelPush.xhtml";
+	var values = {'recordId':id};
+	GewaraUtil.sendRequest(url,values,function(result){
+		if(result.success){
+			alert("推送取消成功！");
+			document.location.href="${basePath}admin/push/getPushList.xhtml?pageNo=$!pageUtil.currentPage&isAuto=$!params.isAuto";
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

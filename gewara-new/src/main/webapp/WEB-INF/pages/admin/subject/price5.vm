@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>#if($VmUtils.eq($subject.tag,'price5'))抢票列表#else促销活动列表#end</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		label {float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px;}
+		input,textarea { width:450px; display:inline;}
+		.button{width:80px;}
+	</style>
+</head>
+<body style="width:85%; margin: auto;" class="yui-skin-sam">
+<div>#if($params.tag eq 'price5')5元抢票#elseif($!params.tag eq 'promotion')促销活动#elseif($!params.tag eq 'xprice')X元抢票#end
+<a href="${basePath}admin/subject/price5Detail.xhtml?tag=$tag" target="_blank">增加</a>
+#if($VmUtils.eq($params.tag,'promotion'))
+<a href="${basePath}admin/site/header/headInfoList.xhtml?board=promotion" target="_blank">设置头部背景</a>
+#end
+</div>
+<table width="100%" class="table">
+	<thead>
+	<tr>
+		<th>标题</th>
+		<th>链接</th>
+		<th>开始时间</th>
+		<th>#if($VmUtils.eq($tag,'promotion')) 备注 #else 描述 #end</th>
+		<th>场次</th>
+		#if($VmUtils.eq($tag,'price5'))
+		<th>城市编号</th>
+		<th>专题开放</th>
+		<th>5元开放</th>
+		#elseif($VmUtils.eq($tag,'xprice'))
+		<th>专题开放</th>
+		#end
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="gymTable">
+	#foreach($subject in $subjectList)
+	<tr>
+		<td>$!subject.title</td>
+		<td>
+			#if($VmUtils.eq($subject.tag,'price5'))
+				#if($VmUtils.isNull($subject.movieid))
+					<a href="${absPath}${basePath}subject/price5.xhtml?sid=$subject.id" target="_blank">链接</a>
+				#else
+					<a href="${absPath}${basePath}subject/qiangpiao.xhtml?sid=$subject.id" target="_blank">链接</a>
+				#end
+			#else
+				<a href="${absPath}${basePath}subject/price5.xhtml?sid=$subject.id" target="_blank">链接</a>
+			#end
+		</td>
+		<td>$!subject.starttime</td>
+		<td>$!subject.description</td>
+		<td><a href="${basePath}admin/subject/mpi.xhtml?sid=$subject.id" target="_blank">场次</a></td>
+		#if($VmUtils.eq($subject.tag,'price5'))
+		<td>$!subject.citycode</td>
+		<td align="center">
+		<select onchange="updateTime($subject.id, this.value)">
+			<option value="" #if(!$!subject.updatetime)selected#end>停止</option>
+			<option value="open" #if($!subject.updatetime)selected#end>开放</option>
+		</select>
+		</td>
+		<td align="center">
+		<select onchange="updateStatus($subject.id, this.value)">
+			<option value="stop" #if($VmUtils.eq($!subject.status,'stop'))selected#end>5元停止</option>
+			<option value="open" #if($VmUtils.eq($!subject.status,'open'))selected#end>5元开放</option>
+		</select>
+		</td>
+		#elseif($VmUtils.eq($subject.tag,'xprice'))
+		<td align="center">
+		<select onchange="updateStatus($subject.id, this.value)">
+			<option value="stop" #if($VmUtils.eq($!subject.status,'stop'))selected#end>停止</option>
+			<option value="open" #if($VmUtils.eq($!subject.status,'open'))selected#end>开放</option>
+		</select>
+		</td>
+		#end
+		<td align="center">
+		<a href="${basePath}admin/subject/price5Detail.xhtml?gid=$subject.id" target="_blank">修改</a>
+		<a href="javascript:void(0)" onclick="remove($subject.id)">删除</a>
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+	<script type="text/javascript">
+	function remove(id){
+		if(confirm("确认要删除吗?")==false) return;
+		var url = "${basePath}admin/common/ajax/removeGrabTicketSubject.xhtml";
+		GewaraUtil.sendRequest(url, {"id":id}, function(result){
+			if(result.success) {
+				alert('删除成功');
+				refreshPage();
+			}else{
+				alert('删除失败');
+			}
+		});
+	}
+	function updateStatus(id, status){
+		var url = "${basePath}admin/common/ajax/updateGrabTicketSubjectStatus.xhtml";
+		GewaraUtil.sendRequest(url, {"id":id, "status":status}, function(result){
+			if(result.success) {
+				alert('更改成功');
+				refreshPage();
+			}else{
+				alert('更改失败');
+			}
+		});
+	}
+	function updateTime(id, v){
+		var url = "${basePath}admin/common/ajax/updateGrabTicketSubjectUpdatetime.xhtml";
+		GewaraUtil.sendRequest(url, {"id":id, "value":v}, function(result){
+			if(result.success) {
+				alert('更改成功');
+				refreshPage();
+			}else{
+				alert('更改失败');
+			}
+		});
+	}
+</script>
+</body>
+</html>

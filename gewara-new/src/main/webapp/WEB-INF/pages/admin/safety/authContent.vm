@@ -1,0 +1,210 @@
+<table class="table">
+<thead>
+<tr>
+	<th style="width:200px;">认证类型</th>
+	<th style="width:666px;">认证内容</th>
+</tr>
+</thead>
+#if($account)
+<tr>
+	<td>姓名</td>
+	<td>$!account.realname</td>
+</tr>
+<tr>
+	<td>证件类型</td>
+	<td>#if($!account.certtype eq 0)
+		身份证
+		#elseif($!account.certtype eq 1)
+		护照
+		#elseif($!account.certtype eq 2)
+		军官证
+		#end
+	</td>
+</tr>
+<tr>
+	<td>证件号</td>
+	<td>$!account.encryidcard</td>
+</tr>
+<tr>
+	<td>紧急联系人姓名</td>
+	<td>$!account.emcontact</td>
+</tr>
+<tr>
+	<td>紧急联系人手机</td>
+	<td>$!account.emmobile</td>
+</tr>
+<tr>
+	<td>账户金额</td>
+	<td>$!account.bankcharge</td>
+</tr>
+<tr>
+	<td>瓦币</td>
+	<td>$!account.othercharge</td>
+</tr>
+#end
+#if($cardList)
+<tr>
+	<td>绑定的票券</td>
+	<td>
+		<table cellpadding="0" class="table" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>类别</th>
+					<th>券号</th>
+					<th>有效期范围</th>
+					<th>说明信息</th>
+					<th>状态</th>
+				</tr>
+			</thead>
+			<tbody>
+			#foreach($card in $cardList)
+				<tr #if($foreach.count%2 eq 0) class="tdHover" #end>
+					<td>
+					#if($VmUtils.eq($card.ebatch.cardtype, "A"))
+						#if($VmUtils.eq($card.ebatch.exchangetype, "A"))
+							橙券
+						#elseif($VmUtils.eq($card.ebatch.exchangetype, "B"))
+							蓝券
+						#elseif($VmUtils.eq($card.ebatch.exchangetype, "D"))
+							兑换券
+						#elseif($VmUtils.eq($card.ebatch.exchangetype, "E"))
+							IMAX券
+						#end
+					#elseif($VmUtils.eq($card.ebatch.cardtype, "B"))
+						补差券
+					#else
+						抵值券
+					#end
+					</td>
+					<td><a href="javascript:void(0)" onclick="getCard('$card.id', '$card.cardno', this)">$card.cardno</a></td>
+					<td>$!{DateUtil.format($card.timefrom, "yyyy.MM.dd HH:mm")} -- $!{DateUtil.format($card.timeto, "yyyy.MM.dd  HH:mm")}</td>
+					<td>#if($VmUtils.eq($card.ebatch.cardtype, 'A'))
+						#if($VmUtils.eq($card.ebatch.tag,'sport'))兑换一个场地 #else兑换一张票#end
+						#elseif($VmUtils.eq($card.ebatch.cardtype, 'C') || $VmUtils.eq($card.ebatch.cardtype, 'D'))
+						优惠$!card.ebatch.amount 元
+						#end</td>
+					<td>#set($isPassNum = $DateUtil.getDiffSecond(${DateUtil.millTimestamp},${card.timeto}))
+					 #if($card.status eq 'Y') 
+						 #if($isPassNum gt 0)
+						 <font color="gray">已过期</font>
+						 #else<font color="green">未使用</font>
+						 #end
+					 #elseif($card.status eq 'U')
+					 	<font color="red">已使用</font>
+					 #elseif($card.status eq 'Y')废弃
+					 #elseif($card.status eq 'N')待售
+					 #end
+					 </td>
+				</tr>
+			#end
+			</tbody>
+		</table>
+	</td>
+</tr>
+#end
+#if($orderlist)
+<tr>
+	<td>最近消费记录</td>
+	<td>
+		#foreach($order in $orderlist)
+		<div style="border-bottom:1px red dashed;border-top:1px red dashed;">
+		订单号：$order.tradeNo<br>
+		订单标题：$order.ordertitle<br>
+		订单描述：$order.description2<br><br>
+		
+		支付方法：$order.paymethod<br>
+		#if($order.paybank)
+		支付银行：$order.paybank<br>
+		#end
+		#if($order.payseqno)
+		外部订单号：$order.payseqno<br>
+		#end
+		联系手机：$order.mobile<br>
+		取票密码：$order.checkpass<br><br>
+		
+		订单状态：$order.status<br>
+		下单时间：$DateUtil.format($order.createtime, 'yyyy-MM-dd HH:mm')<br>
+		#if($order.paidtime)
+		付款时间：$DateUtil.format($order.paidtime, 'yyyy-MM-dd HH:mm')
+		#end
+		</div>
+		#end
+	</td>
+</tr>
+#end
+#if($chargeList)
+<tr>
+	<td>最近充值记录</td>
+	<td>
+		<table cellspacing="0" cellpadding="0" border="0" width="100%" class="table">
+			<thead>
+				<tr>
+					<th width="140">交易号</th>
+					<th width="80">充值时间</th>
+					<th width="80">充值金额</th>
+					<th width="180">资金渠道</th>
+					<th width="70">状态</th>
+					<th>外部订单号</th>
+				</tr>
+			</thead>
+			<tbody>
+				#foreach($charge in $chargeList)
+				<tr>
+					<td>$charge.tradeNo</td>
+					<td>$DateUtil.format($charge.updatetime, 'yyyy-MM-dd')</td>
+					<td>$charge.totalfee#if($VmUtils.eq($charge.chargeto,'wabi'))瓦币#else元#end</td>
+					<td><b class="fc_b mr5">$charge.paytext</td>
+					<td class="gray">$charge.statusText</td>
+					<td>
+						$!charge.payseqno
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</td>
+</tr>
+#end
+#if($bbslist)
+<tr>
+	<td>最近发表帖子</td>
+	<td>
+		#foreach($diary in $bbslist)
+		<div>
+		$diary.subject<br>
+		$diary.summary<br>
+		$DateUtil.format($diary.addtime, 'yyyy-MM-dd HH:mm')
+		</div>
+		#end
+	</td>
+</tr>
+#end
+#if($commentlist)
+<tr>
+	<td>最近发表哇啦</td>
+	<td>
+		#foreach($comment in $commentlist)
+		<div>
+		$comment.body<br>
+		$DateUtil.format($comment.addtime, 'yyyy-MM-dd HH:mm')
+		</div>
+		#end
+	</td>
+</tr>
+#end
+#if($mdiarylist)
+<tr>
+	<td>最近发表的影评或点评</td>
+	<td>
+		#foreach($mdiary in $mdiarylist)
+		<div>
+		$mdiary.subject<br>
+		$mdiary.summary<br>
+		$DateUtil.format($mdiary.addtime, 'yyyy-MM-dd HH:mm')
+		</div>
+		#end
+	</td>
+</tr>
+#end
+</table>
+<input id="memberId" type="hidden" value="$!memberId"/>

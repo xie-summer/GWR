@@ -1,0 +1,137 @@
+<!-- SUCCESS_HEAD -->
+#set($isOpenOrder=$VmUtils.eq($cinema.booking,'open'))
+#set($cinemaOtherinfoMap = $VmUtils.readJsonToMap($!cinema.otherinfo))
+<div class="chooseOpi #if($opiList.size() le 6)chooseOpi_body_plugs #end #if($isOpenOrder)opend#end" >
+	<div class="chooseOpi_caption">
+		<h2><a href="${basePath}cinema/$cinema.id" class="brown" target="_blank" id="href$cinema.id">$!{cinema.realBriefname}</a></h2>$!{cinema.countyname}$!{cinema.address}
+		<span class="ffst">[<a target="_blank" href="${basePath}common/baiduMap.xhtml?id=$cinema.id&tag=cinema">地图</a>]</span>
+		<span class="viewDesc" lang="serve$cinema.id" config="serve">
+			#if($cinema.otherinfo)
+			<label class="left">影院服务</label>
+			#end
+		</span>
+	</div>
+	<div id="serve$cinema.id" class="plugpanel">
+		<img style="position: absolute;top:-5px;right:10px;" src="http://img.gewara.cn/css/home/min_pt.gif">
+		#if($cinema.otherinfo.contains("free"))
+			<em class="ser_p" title="$!cinemaOtherinfoMap.get('park')"></em>
+		#end
+		#if($cinema.otherinfo.contains("imax"))
+			<em class="ser_imax" title="$!cinemaOtherinfoMap.get('imax')"></em>
+		#end
+		#if($cinema.otherinfo.contains("3D"))
+			<em class="ser_3d" title="$!cinemaOtherinfoMap.get('3D')"></em>
+		#end
+		#if($cinema.otherinfo.contains("pairseat"))
+			<em class="ser_lover" title="$!cinemaOtherinfoMap.get('pairseat')"></em>
+		#end
+		#if($cinema.otherinfo.contains("child"))
+			<em class="ser_child" title="$!cinemaOtherinfoMap.get('child')"></em>
+		#end
+		#if($VmUtils.eq($cp.popcorn,'Y'))
+			<em class="ser_foods" title="$!cinemaOtherinfoMap.get('sale')"></em>
+		#end
+	</div>
+	<div class="chooseOpi_head" lang="chooseOpi_head">
+		<span class="opitime"><em>放映时间</em></span>
+		<span class="opiEdition"><em>语言版本</em></span>
+		<span class="opiRoom"><em>放映厅</em></span>
+		<span class="opiPrice">现价(元)</span>
+		<span class="opiInfo">说明</span>
+		<span class="opiurl">选座购票</span>
+	</div>
+	#set($morningLi = 0)
+	#set($afternoonLi = 0)
+	#set($eveningLi = 0)
+	#set($height=60*$VmUtils.size($opiList))
+	<div class="chooseOpi_body #if($opiList.size() le 6) chooseOpi_body_plugs #end" data-cinema="$cinema.id" id="wrapper$cinema.id" data-type="scroll">
+		<ul id="wrapped$cinema.id" class="clear" style="height:${height}px;">
+		#set($morning = 0)
+		#set($afternoon = 0)
+		#set($evening = 0)
+		#foreach($pItem in $opiList)
+		#if(!$pItem.unShowToGewa)
+			<li #if($foreach.index % 2 ne 0)class="ove"#end data-language='$!pItem.language' data-edition='$!pItem.edition' #if($!DateUtil.getHour($pItem.playtime) ge 12 && $!DateUtil.getHour($pItem.playtime) lt 18) #if($afternoon eq 0)config="afternoon" #set($afternoon = 1) #end #elseif($!DateUtil.getHour($pItem.playtime) ge 6 && $!DateUtil.getHour($pItem.playtime) lt 12) #if($morning eq 0) config="morning" #set($morning = 1) #end #elseif($evening eq 0) config="evening" #set($evening = 1) #end>
+				<span class="opitime">
+					<b>$DateUtil.format($!{pItem.playtime},'HH:mm')</b>
+					#set($closeTime = $DateUtil.addMinute($!pItem.playtime,$curmovie.videolen))
+					<em>预计$!DateUtil.format($closeTime,'HH:mm')散场</em> 
+					#if($!VmUtils.getJsonValueByKey($pItem.otherinfo, 'sptitle') eq '明星见面会')
+					<label class="ui_meeting" title="明星见面会">见面会</label>
+					#elseif($curmovie.playdate && $DateUtil.after($DateUtil.currentTime(),$DateUtil.parseDate($curmovie.playdate,'yyyy-MM-dd')) lt 0)
+					<label class="ui_reSale" title="预售场">预售</label>
+					#elseif(!($DateUtil.formatDate($pItem.playtime) eq $fyrq) && $!DateUtil.getHour($pItem.playtime) ge 0 && $!DateUtil.getHour($pItem.playtime) le 6)
+					<label class="ui_nextDay" title="次日场">次日</label>
+					#end
+				</span>
+				<span class="opiEdition">
+					$!pItem.language
+					#if($!VmUtils.eq($pItem.edition,'3D'))
+					<b class="d3">3D</b>
+					#elseif($!VmUtils.eq($pItem.edition,'IMAX3D'))
+					<b class="d4">IMAX</b>
+					<b class="d3">3D</b>
+					#elseif($!VmUtils.eq($pItem.edition,'IMAX'))
+					<b class="d4">IMAX</b>
+					<b class="d3">2D</b>
+					#elseif($!VmUtils.eq($pItem.edition,'双机3D'))
+					<em>双机</em>
+					<b class="d3">3D</b>
+					#elseif($!VmUtils.eq($pItem.edition,'双机4K'))
+					<em>双机</em>
+					<b class="d4">4K</b>
+					#else
+					<em class="ml5">$!{pItem.edition}</em>
+					#end
+				</span>
+				#set($seanum = $!pItem.seatnum)
+				<span class="opiRoom">
+					$!{pItem.roomname}#if($seanum && $seanum ge 120)(#if($seanum ge 200)大厅#else中厅#end)#end
+					<img mpid="$pItem.mpid" config="tirger" class="seatPic #if($seanum ge 200) seatPicL #elseif($seanum ge 120) seatPicM #else seatPicS #end" src="${staticPath}css/images/blank.gif" title="座位图"></span>
+				<span class="opiPrice">
+					<b>$!{pItem.gewaprice}&nbsp;</b>
+					<em>$!{pItem.price}</em>
+				</span>
+					<span class="opiInfo">
+						#if($VmUtils.isBlank($pItem.elecard))
+						<em class="t" title="特殊场次不支持任何优惠">特</em>
+						#end
+						#if($!pItem.openPointPay)
+						<em class="j" title="支持积分抵值">积</em>
+						#end
+						#if($!pItem.openCardPay)
+						<em class="q" title="支持票券抵值">券</em>
+						#end
+						#if($!pItem.disCountPay)
+						<em class="y" data-type="$!pItem.mpid">惠</em>
+						#end
+						#if($!VmUtils.eq($!VmUtils.getJsonValueByKey($pItem.otherinfo, 'isRefund'), 'Y') && $VmUtils.gt($!DateUtil.getDiffHour($pItem.playtime,$DateUtil.currentTime()), 4))
+						<em class="k" title="放映前4小时可退票">退</em>
+						#end
+					</span>
+					<span class="opiurl">
+						<a href="${basePath}$!VmUtils.getStep1Url($pItem.mpid,$spkey)" class="button minBt #if($pItem.remainnum && $pItem.remainnum le 0) whiteBt #else redBt #end" target="_blank"><span><em>$pItem.seatStatus</em></span></a>
+					</span>
+				</li>
+			#end
+			#end
+		</ul>
+	</div>
+	<div class="chooseOpi_footer">
+	#if($VmUtils.isNotBlank($cp.prompting))
+		$cp.prompting)
+	#else
+		现价已包含服务费
+	#end
+	#if($cp.hasDirect() && $!cp.cminute)，该影院场次放映前$!cp.cminute分钟关闭售票 #end。
+	 </div>
+	#set($tlineHeight=$!{height}+80)
+	<div class="chooseOpi_tLine" style="#if($!{height} gt 360) height:440px; #else height:$!{tlineHeight}px; #end">
+		<div class="chooseOpi_tLine_inner">
+			<span lang="morning" title="上午" data-type="timeLine$cinema.id" #if($!morning gt 0)style="display:block;"#end class="m"></span>
+			<span lang="afternoon" title="下午" data-type="timeLine$cinema.id" #if($!afternoon gt 0)style="display:block;"#end ></span>
+			<span lang="evening" title="晚上" data-type="timeLine$cinema.id" #if($!evening gt 0)style="display:block;"#end class="n"></span>
+		</div>
+	</div>
+</div>
+<!-- SUCCESS_BOTTOM -->

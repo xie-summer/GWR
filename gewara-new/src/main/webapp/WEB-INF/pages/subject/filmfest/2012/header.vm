@@ -1,0 +1,107 @@
+<div class="ui_header_warp">
+	<div class="ui_header_in">
+		#if($!hasLogo)<a href="${basePath}" class="_logo"></a>#end
+		#if($logonMember)
+		<span class="isLogin">
+			<a href="${basePath}home/sns/personIndex.xhtml" class="mr5 ml5" target="_blank"><strong id="realname">$!logonMember.nickname</strong></a>你好，欢迎来到格瓦拉生活网！<a class="ml5" href='javascript:logout()'>退出</a>
+		</span>
+		<script type="text/javascript">
+		gewara.util.member.login = true;
+		gewara.util.member.memberid=$logonMember.id;
+		gewara.util.member.nickname='$logonMember.nickname';
+		gewara.util.member.notReadCount='$!notReadCount';
+		gewara.util.member.headUrl='$headUrl';
+		#if($VmUtils.isNotBlank($logonMember.mobile))
+		gewara.util.member.isMobile = true;
+		#end
+		</script>
+		#else
+		<span class="isLogin">
+			你好，欢迎来格瓦拉生活网！请<a href="javascript:showLogin(refreshPage)">登录</a><a href="${basePath}register.xhtml" target="_blank">立即注册</a>
+		</span>
+		#parse('include/innerLogin.vm')
+		#end
+		<div class="isWebNavigation">
+			<a href="javascript:void(0);" class="isNb" type="hover" rel="isGewa"><span>我的格瓦拉</span></a>
+			<a href="javascript:void(0);" class="isNb" type="hover" rel="mainLink"><span>网站导航</span></a>
+			<a href="${basePath}mobile/index.xhtml" class="isMobile" target="_blank">手机版</a>
+		</div>
+	</div>
+</div>
+<div id="mainLink" class="ui_plugs_pointer">
+	<div class="istLine"><a href="${basePath}">网站首页</a></div>
+	<ul class="clear">
+		<li><a href="${basePath}movie/" class="as" target="_blank">电影<span>(购票)</span></a></li>
+		<li><a href="${basePath}drama/" class="as" target="_blank">演出<span>(购票)</span></a></li>
+		<li><a href="${basePath}sport/" class="as" target="_blank">场馆<span>(预订)</span></a></li>
+		<li><a href="${basePath}gym/" class="as" target="_blank">健身<span>(预约)</span></a></li>
+	</ul>
+	<div class="istLine" style="height:5px;overflow:hidden;"></div>
+	<div class="mt5 clear center">
+		<a href="${basePath}activity/" class="mr10" target="_blank">活动</a>
+		<a href="${basePath}blog/" class="mr10" target="_blank">论坛</a>
+		<a href="${basePath}quan/" class="mr10" target="_blank">圈子</a>
+		<a href="${basePath}qa/" class="mr10" target="_blank">知道</a>
+	</div>
+</div>
+<div id="isGewa" class="ui_plugs_pointer">
+	<div class="istLine">我的格瓦拉</div>
+	<ul class="clear">
+		<li><a href="${basePath}home/myOrderManage.xhtml" target="_blank">我的订单</a></li>
+		<li><a href="${basePath}home/charge.xhtml" target="_blank">账户余额</a></li>
+		<li><a href="${basePath}home/acct/pointList.xhtml" target="_blank">我的积分</a></li>
+		<li><a href="${basePath}home/acct/cardList.xhtml" target="_blank">我的票券</a></li>
+		<li><a href="${basePath}home/sns/myLifePlans.xhtml" target="_blank">我的安排</a></li>
+		<li><a href="${basePath}home/acct/upPass.xhtml" target="_blank">修改密码</a></li>
+	</ul>
+</div>
+<div class="f_header">
+	<a href="${basePath}" target="_blank">格瓦拉生活网</a>
+</div>
+<div class="f_menuOut">
+	<div class="f_menu">
+		<ul class="clear">
+			<li style="background:none;"><a href="${basePath}filmfest/fifteen.xhtml" #if($tag eq 'indexselect') class="opiNLink select" #else class="opiNLink" #end><span>首页</span><em></em></a></li>
+			<li><a href="${basePath}filmfest/fifteenMovieList.xhtml" #if($tag eq 'ticketselect') class="select" #end><span>快速购票</span><em></em></a></li>
+			<li><a href="${basePath}filmfest/fifteenNewsList.xhtml" #if($tag eq 'newsselect') class="select" #end><span>焦点星闻</span><em></em></a></li>
+			<li><a href="${basePath}filmfest/fifteenActivityList.xhtml" #if($tag eq 'activityselect') class="select" #end><span>热点活动</span><em></em></a></li>
+			<li><a href="${basePath}filmfest/fifteenVoteList.xhtml" #if($tag eq 'voteselect') class="select" #end><span>瓦友评选</span><em></em></a></li>
+			<li><a href="${basePath}filmfest/fifteenTalkInfo.xhtml" #if($tag eq 'infoselect') class="opiLink select" #else class="opiLink" #end><span>我的观影日程</span><em></em></a></li>
+			<li><a href="${basePath}filmfest/fifteenNotice.xhtml" #if($tag eq 'noticeselect') class="select" #end><span>购票须知</span><em></em></a></li>
+		</ul>
+		<span class="tips">
+			#if($DateUtil.isAfter($DateUtil.parseDate('2012-06-16')))
+			离开幕还有<b>$!DateUtil.getDiffDay($DateUtil.parseDate('2012-06-16'),$DateUtil.getCurDate())</b>天
+			#elseif($DateUtil.isAfter($DateUtil.parseDate('2012-06-25')))
+			#set($day = $!DateUtil.getDiffDay($DateUtil.getCurDate(),$DateUtil.parseDate('2012-06-16')) + 1)
+			电影节第<b>$day</b>天
+			#else
+			已结束
+			#end
+		</span>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	document.getElements('a[type=hover]').each(function(a){
+		var target = $(a.get('rel'));
+		var size = a.getDimensions().x;
+		new Element('span',{'styles':{
+			'top':'-1px',
+			'right':'0px',
+			'position':'absolute',
+			'width':size-2,
+			'height':3,
+			'background':'#fff',
+			'display':'inline-block'
+		}}).inject(target);
+		target.setStyle('width',size+100);
+		var left = -(target.getDimensions().x-size-1);
+		target.toPos(a,'bottomLeft',left,-1);
+		a.hover(target,function(){
+			if(a.hasClass('select'))a.removeClass('select');
+			else a.addClass('select');
+		});
+	});
+})
+</script>

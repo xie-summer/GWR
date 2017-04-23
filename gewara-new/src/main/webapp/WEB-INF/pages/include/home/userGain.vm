@@ -1,0 +1,77 @@
+<div id="gainresulet">
+#if($!isGetPoint)
+	<div class="gainResult">
+		<div class="inner">
+		#if($errorMsg)
+			<b class="ml20">$!errorMsg</b>
+		#else
+			#if($todayPoint.point gt 0)
+			<p><b style="color:#333;">领取成功！</b><b class="red">+$!todayPoint.point</b>积分！#if($continunum eq 7)<b class="red">+10</b>积分大礼包！#end </p>
+			#elseif($todayPoint.point eq 0)
+			<p>成功抽取了${todayPoint.reason}，已为你添加至账户!</p>
+			#else
+			<p>很遗憾！你冒险失败被扣除了<b class="red">$todayPoint.point</b>个积分，愿赌服输不要灰心哦(⊙_⊙)</p>
+			#end
+			<p>距离下一个节日<b><font color="red">（$!nextFestival.festname）</font></b>还有
+			<b><font color="red">$!DateUtil.getDiffDay($!nextFestival.festdate,$!DateUtil.getCurDate())</font></b>天。</p>
+			<p>当前积分总数为：<b class="red">$!memberInfo.pointvalue</b>积分</p>
+		#end
+		</div>
+	</div>
+#else
+	<div class="inner">
+		#if($festival)
+		<b class="pl10">
+			今天是$!DateUtil.format($festival.festdate,'yyyy年MM月dd日')<font class="brown">（$!festival.festname）</font>
+			#if($festival.summary)
+				$!festival.summary
+			#end
+		</b><br/>
+		<span>
+			<input type="hidden" name="festid" id="festid" value="$!festival.id" />
+			<a class="button redBt bigBt" style="margin-top:10px;" onclick="clickGetPoint('festival','')" href="javascript:void(0);"><span>领取节日红包</span></a>
+		</span>
+		<br/>
+		#else
+		#if($VmUtils.gt($!continunum, 0)) <h2>你已经坚持<b>$!continunum</b>天连续领取红包了，#else 现在，连续<b class="m5 brown fs14">6</b>天领取红包后， #end<b>7</b>天后可以获得<b>10</b>积分大礼包！</h2>
+		<dl class="ui_abeam">
+			<dt class="uipic"><img width="70" src="http://img5.gewara.cn/css/home/wenzhuan.jpg"></dt>
+			<dd class="uiText">
+				<h3>每日稳赚型红包</h3>
+				<p>稳定领取<b>2</b>积分</p>
+				<a href="javascript:void(0)" class="button redBt minBt" onclick="clickGetPoint('point','');"><span>领取</span></a>
+			</dd>
+		</dl>
+		<dl class="ui_abeam">
+			<dt class="uipic"><img width="70" src="http://img5.gewara.cn/css/home/maoxian.jpg"></dt>
+			<dd class="uiText">
+				<h3>每日冒险型红包</h3>
+				<p>随机领取<b>-5</b>-<b>5</b>积分，最高<b>100</b>积分</p>
+				#if($pointIsEngouth)
+				<a href="javascript:void(0)" class="button redBt minBt" onclick="clickGetPoint('point','bit');"><span>领取</span></a>
+				#else
+				<span class="button whiteBt minBt mt5" title="积分过低不能冒险抽奖"><span>领取</span></span>
+				#end
+			</dd>
+		</dl>
+		<dl class="ui_abeam">
+			<dt class="uipic"><img width="70" src="http://img5.gewara.cn/css/home/tequan.jpg"></dt>
+			<dd class="uiText">
+				<h3>微博控特权红包</h3>
+				<p>随机领取<b>5</b>-<b>10</b>积分，最高<b>200</b>积分</p>
+				<a href="javascript:void(0)" class="button redBt minBt" onclick="clickGetPoint('point','brt');"><span>领取</span></a>
+			</dd>
+		</dl>
+		#end
+	</div>
+#end
+</div>
+#if(!$VmUtils.isEmptyList($luckPointList))
+#foreach($point in $luckPointList)
+<div class="luckUser">
+	幸运瓦友：<a target="_blank" href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$point.memberid">$!VmUtils.escabbr($point.nickname, 8)</a><b class="red">#if($!point.point eq 0)$!point.reason #else $!point.point#end</b>积分<span class="c999 ml10">$!DateUtil.getTimeDesc($point.addtime)</span>#*<a href="#" class="more" target="_blank">查看排行榜</a>*#
+</div>
+#end
+#end
+
+

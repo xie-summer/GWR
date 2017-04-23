@@ -1,0 +1,96 @@
+<!-- SUCCESS_HEAD -->
+#if(!$VmUtils.isEmptyList($dateList))
+<div class="ticket_choose_box clear">
+	<div id="opiFilterHead">
+		<div class="ticket_choose">
+			<dl class="ui_media">
+				<dt class="ui_pic">选择时间：</dt>
+				<dd class="ui_text" id="timeOutside">
+					#foreach($pdate in $dateList)#set($pdateStr=$DateUtil.formatDate($pdate))
+					#if($foreach.count lt 14)
+					<a #if($VmUtils.eq($pdateStr, $fyrq)) class="select" #end href="javascript:void(0);" id="$pdateStr">
+						${DateUtil.format($pdate, 'M月d日')}
+						#if($DateUtil.getDiffDay($pdate,$DateUtil.curDate) eq 0)
+						今天
+						#else
+						$DateUtil.getCnWeek($pdate)#end
+					</a>
+					#end
+					#end
+				</dd>
+			</dl>
+			#if($VmUtils.size($countyList) gt 0)
+			<dl class="ui_media mt10">
+				<dt class="ui_pic">选择区域：</dt>
+				<dd class="ui_text" id="choice">
+					#set($orderCount=$VmUtils.size($orderList))
+					<div class="clear">
+						#if($VmUtils.gt($orderCount,0))
+						<a href="javascript:void(0);" class="select" data-config="condition" data-function="myBuyTicket" data-mc="myCinemas" rel="myCinema" id="">我常去</a>
+						#end
+						<a href="javascript:void(0);" data-config="condition" #if(!$VmUtils.gt($orderCount,0))class="select"#end data-function="hotCinema" data-mc="myCinemas" >热门影院</a>
+						<a id="areaCondition" data-area="countyArea" data-config="condition" data-function="area" href="javascript:void(0);" title="行政区">行政区</a>
+						#if(!$VmUtils.isEmptyList($characteristicList))
+						<a id="myBuyTicketCinema" data-area="speRoomArea" style="position:relative; padding-right:25px;" data-function="characteristic" data-config="condition" href="javascript:void(0);" title="特效厅">特效厅<em class="ui_tags_newTxt2"></em></a>
+						#end
+						#if(!$VmUtils.isEmptyList($lineList))
+						<a id="subwayCondition" data-area="subwayArea" data-function="subway" data-config="condition" href="javascript:void(0);" title="地铁沿线">地铁沿线</a>
+						#end
+					</div>
+					<div class="ui_border_panel mt5 none clear" id="speRoomArea" data-config="areaBox">
+						#if($VmUtils.contains($characteristicList, 'IMAX'))
+						<a data-config="speRoom"  data-id="IMAX" href="javascript:void(0);">IMAX厅</a>
+						#end
+						#if($VmUtils.contains($characteristicList, 'CHINAMAX'))
+						<a data-config="speRoom"  data-id="CHINAMAX" href="javascript:void(0);">巨幕厅</a>
+						#end
+						#if($VmUtils.contains($characteristicList, 'REALD'))
+						<a data-config="speRoom"  data-id="REALD" href="javascript:void(0);">REALD厅</a>
+						#end
+						#if($VmUtils.contains($characteristicList, 'DOUBLE3D'))
+						<a data-config="speRoom"  data-id="DOUBLE3D" href="javascript:void(0);">双机3D厅</a>
+						#end
+						#if($VmUtils.contains($characteristicList, '4D'))
+						<a data-config="speRoom"  data-id="4D" href="javascript:void(0);">4D厅</a>
+						#end
+						#if($VmUtils.contains($characteristicList, '4K'))
+						<a data-config="speRoom"  data-id="4K" href="javascript:void(0);">4K厅</a>
+						#end
+						#if($VmUtils.contains($characteristicList, 'DOLBYATMOS'))
+						<a data-config="speRoom"  data-id="DOLBYATMOS" href="javascript:void(0);">杜比全景声厅</a>
+						#end
+					</div>
+					<div class="ui_border_panel mt5 none clear" id="countyArea" data-config="areaBox">
+						#foreach($county in $countyList)
+						<a href="javascript:void(0);" id="$county.countycode" data-config="area">$county.briefname</a>
+						#end
+					</div>
+					<div class="ui_border_panel mt5 none clear" id="subwayArea" data-config="areaBox">
+						#foreach($pair in $lineList)
+						<a href="javascript:void(0);" id="$!pair.id" data-config="subway">$!pair.linename</a>
+						#end
+					</div>
+				</dd>
+			</dl>
+			#end
+			<dl class="ui_media mt10">
+				<dt class="ui_pic">选择影院：</dt>
+				<dd class="ui_text" id="cinemaPanel">
+					#foreach($orderCinema in $orderList)
+					#set($cString = $VmUtils.join($cinemaCMap.get($orderCinema.id), ','))
+					<a href="javascript:void(0);" class="$orderCinema.countycode #if($foreach.index eq 0) select #end" id="$orderCinema.id" data-c="$cString" data-line="$!orderCinema.lineidlist" rel="$orderCinema.countycode" config="cinema" title="我常去的影院">$!{orderCinema.realBriefname}<img src="$VmUtils.randomPic('','css/movie/bount_new.png')"/></a>
+					#end
+					#foreach($cinema in $cinemaList)
+					#if(!$orderList.contains($cinema))
+					#set($cString = $VmUtils.join($cinemaCMap.get($cinema.id), ','))
+					<a href="javascript:void(0);" class="$cinema.countycode #if($foreach.index eq 0) select #end" #if($foreach.index gt 3 || $VmUtils.gt($orderCount,0)) style="display:none;" #end id="$cinema.id" data-c="$!cString" data-line="$!cinema.lineidlist" rel="$cinema.countycode" config="cinema">$!{cinema.realBriefname}</a>
+					#end
+					#end
+				</dd>
+			</dl>
+		</div>
+	</div>
+	<div id="cinemaCollection"></div>
+</div>
+#end
+<!-- SUCCESS_BOTTOM -->

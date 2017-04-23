@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>格瓦拉社区</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/default.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,noobSlide,Autocompleter&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div id="snsHeader"></div>
+<div class="ui_layout">
+	#set($menuTag = 'index')
+	#parse('sns/common/left.vm')
+	<div class="body_right">
+		#parse('sns/common/index_comment.vm')
+	</div>
+</div>
+<div class="ui_view_menu"></div>
+<div class="footer_warp">
+	<div class="isFooter"></div>
+</div>
+#parse('include/innerLogin.vm')
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=snsUtil,index_even&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript">
+function delInterest(el){
+	gewaUtil.confirm('确认删除吗?', function(){
+		if(el == '')
+			el =$('treasureid').value;
+		var url = '${basePath}home/delInterestInfo.xhtml';
+		var values = {'interestid':el};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				if($('interest'+el)){
+					gewaUtil.dispose($('interest'+el));
+				}
+				hideTreasure();
+			}else {
+				gewaUtil.alert(result.msg);
+			}	
+		});
+	})
+}
+</script>
+#parse('sns/common/ga.vm')
+</body>
+</html>

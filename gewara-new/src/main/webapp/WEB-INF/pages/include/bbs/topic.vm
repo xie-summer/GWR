@@ -1,0 +1,104 @@
+#if($VmUtils.size($topActivityList) gt 0)
+<table class="blogtable">
+	<thead>
+		<tr>
+			<th width="57%" style="text-indent: 10px; ">活动召集中</th>
+			<th width="25%">地点</th>
+			<th width="8%" align="center">报名人数</th>
+			<th width="10%" align="center">开始时间</th>
+			#*<th width="12%" align="center">发起者</th>*#
+		</tr>
+	</thead>
+	<tbody class="top">
+		#foreach($ua in $topActivityList)
+		#set($relate=$relatedHelper.getR1("topActivityList",$ua.id))
+		<tr>
+			<td><a class="zd" href="${basePath}activity/$ua.id" title="$VmUtils.getText($ua.title)" target="_blank">$!VmUtils.htmlabbr($!ua.title,60)</a></td>
+			<td>#if($relate)<a href="${basePath}${relate.url}">$!relate.name</a>#else<span title="$!ua.address">$!VmUtils.escabbr($!ua.address,30)</span>#end</td>
+			<td>$!ua.membercount</td>
+			<td>$DateUtil.format($!ua.startdate,'MM-dd')&nbsp;$!ua.starttime</td>
+		</tr>
+		#end
+	</tbody>
+</table>
+#end
+#if($VmUtils.size($topTopicList) eq 0 && $VmUtils.size($topicList) eq 0)
+<div style="color:red; font-size:14px;">当前还没有讨论的话题</div>
+#else 
+<table class="blogtable">
+	<thead>
+		<tr>
+			<th width="50%" style="text-indent: 10px; ">主题</th>
+			<th width="10%">作者</th>
+			<th width="10%">发表时间</th>
+			<th width="10%" style="text-align: center">浏览/回复</th>
+			<th width="10%">回复人</th>
+			<th width="10%">回复时间</th>
+		</tr>
+	</thead>
+	<tbody class="top">
+		#foreach($topic in $topTopicList)
+		<tr>	
+			#if($topic.type.startsWith('topic_vote'))#set($hotClass='tpt')#else#set($hotClass='zd')#end
+			#set($topictype='')
+			#if($topic.type eq 'comment')
+				#if($topic.tag eq 'gym')#set($topictype='[健身心得]')#elseif($topic.tag eq 'cinema')#set($topictype='[影评]')#elseif($topic.tag eq 'theatre')#set($topictype='[剧评]')#elseif($topic.tag eq 'sport')#set($topictype='[运动心得]')#end
+			#end
+			#set($pages=$topic.replycount/30)
+			#if($topic.replycount%30 eq 0) #set($lastPage=$topic.replycount/30)#else #set($lastPage=$topic.replycount/30+1)#end
+			<td>
+				<a href="${basePath}blog/t$topic.id" target="_blank" class="$!hotClass" title="$VmUtils.getText($topic.subject)">$!{topictype}$!VmUtils.htmlabbr($!topic.subject,40)</a>
+				#if($pages gt 0)(#foreach($pg in [0..$pages])#set($pn=$pg+1)#if($pn le 10)
+					<a class="pn" href="${basePath}blog/t$topic.id?pageNo=$pg">$pn</a>#end#end#if($pages gt 10)#set($lastNo=$lastPage - 1) ....<a class="$pages" href="${basePath}blog/t$topic.id?pageNo=$!lastNo">$!lastPage</a>#{end})#end
+				#if($topic.pic)<img src="$VmUtils.randomPic('','img/pic.jpg')" />#end
+			</td>
+			<td>
+				<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$topic.memberid" target="_blank" title="$!topic.membername">$!VmUtils.escabbr($!cacheMemberMap.get($topic.memberid).nickname,10)</a>
+			</td>
+			<td>$DateUtil.format($topic.addtime,'MM-dd HH:mm')</td>
+			<td style="text-align: center">${topic.clickedtimes}/${topic.replycount}</td>
+			<td>	#if($topic.replyid) #set($mrid=$topic.replyid) #else #set($mrid=$topic.memberid) #end
+				<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$mrid" target="_blank" title="$!topic.replyname">$!VmUtils.escabbr($!topic.replyname,10)</a>
+			</td>
+			<td>#if($topic.replytime)$DateUtil.format($topic.replytime,'MM-dd HH:mm')#end</td>
+		</tr>
+		#end
+	</tbody>
+	<tfoot>
+		#foreach($topic in $topicList)#if($foreach.index%2 eq 0)#set($class='even')#else#set($class='odd')#end
+		<tr class="$class">
+			#if($topic.type.startsWith('topic_vote'))#set($hotClass='tpt')
+			#elseif($!topic.flag && $topic.flag.indexOf('hot') ge 0)#set($hotClass='jt')
+			#elseif($topic.clickedtimes gt 100)#set($hotClass='rt')
+			#else#set($hotClass='ptt')#end<!-- 锁帖：st -->
+			#set($topictype='')
+			#if($topic.type eq 'comment')
+				#if($topic.tag eq 'gym')#set($topictype='[健身心得]')#elseif($topic.tag eq 'cinema')#set($topictype='[影评]')#elseif($topic.tag eq 'theatre')#set($topictype='[剧评]')#elseif($topic.tag eq 'sport')#set($topictype='[运动心得]')#end
+			#end
+			#set($pages=$topic.replycount/30)
+			#if($topic.replycount%30 eq 0) #set($lastPage=$topic.replycount/30)#else #set($lastPage=$topic.replycount/30+1)#end
+			<td>
+				<a href="${basePath}blog/t$topic.id" target="_blank" class="$!hotClass" title="$VmUtils.getText($topic.subject)">$!{topictype}$!VmUtils.htmlabbr($!topic.subject,40)</a>
+				#if($pages gt 0)(#foreach($pg in [0..$pages])#set($pn=$pg+1)#if($pn le 10)<a class="pn" href="${basePath}blog/t$topic.id?pageNo=$pg">$pn</a>#end#end#if($pages gt 10)#set($lastNo=$lastPage - 1) ....<a class="$pages" href="${basePath}blog/t$topic.id?pageNo=$!lastNo">$!lastPage</a>#{end})#end
+				#if($topic.pic)<img class="mt2" src="${basePath}img/pic.jpg" />#end				
+			</td>
+			<td>
+				<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$topic.memberid" target="_blank" title="$!topic.membername">$!VmUtils.escabbr($!cacheMemberMap.get($topic.memberid).nickname,10)</a>
+			</td>
+			<td>$DateUtil.format($topic.addtime,'MM-dd HH:mm')</td>
+			<td style="text-align: center">${topic.clickedtimes}/${topic.replycount}</td>
+			<td>#if($topic.replyid) #set($mrid=$topic.replyid) #else #set($mrid=$topic.memberid) #end
+				<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$mrid" target="_blank" title="$!topic.replyname">$!VmUtils.escabbr($!topic.replyname,10)</a>
+			</td>
+			<td>#if($topic.replytime)$DateUtil.format($topic.replytime,'MM-dd HH:mm')
+				#else $DateUtil.format($topic.addtime,'MM-dd HH:mm')#end
+			</td>
+		</tr>
+		#end
+	</tfoot>
+</table>
+#parse('include/pageUtil.vm')
+#end
+
+
+		

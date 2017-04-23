@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>影院连映信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		label {display:inline;float:left;width:80px;text-align:right;padding:1px 0 1px 0;margin-top:3px;}
+		input,textarea { width:400px; display:inline;}
+		.table tr{cursor: pointer;}
+	</style>
+</head>
+<body class="yui-skin-sam">
+<div style="width:700px; margin:auto;">
+	<div>连映基本信息<input type="button" class="button" style="width:80px" value="增加" onclick="addMultiPlay();"/></div>
+	<table style="width:700px;" class="table">
+		<thead>
+		<tr>
+			<th style="width:100px;">放映日期</th>
+			<th style="width:120px;">放映时间</th>
+			<th style="width:120px;">放映厅</th>
+			<th style="width:120px;">价格</th>
+			<th style="width:240px;">操作</th>
+		</tr>
+		</thead>
+		<tbody id="multiTable">
+		#foreach($multiPlay in $multiPlayList)
+			<tr id="row_${multiPlay.id}" style="background-color: gray;">
+				<td id="date_${multiPlay.id}">$!{multiPlay.playdate}</td>
+				<td id="time_${multiPlay.id}">$!{multiPlay.playtime}</td>
+				<td id="room_${multiPlay.id}">$!{multiPlay.playroom}</td>
+				<td id="price_${multiPlay.id}">$!{multiPlay.price}</td>
+				<td>
+					<input type="button" class="button" style="width:60px" value="修改" onclick="modifyMultiPlay(${multiPlay.id});"/>
+					<input type="button" class="button" style="width:60px" value="删除" onclick="deleteMultiPlay(${multiPlay.id});"/>
+					<input type="button" class="button" style="width:60px" value="增加电影" onclick="addMultiPlayItem(${multiPlay.id});"/>
+				</td>
+			</tr>
+			<tr id="detail_${multiPlay.id}"><td style="text-align: right;">连映电影</td>
+				<td colspan="5">
+				<table class="table" style="border: none;">
+					<tbody id="mpiTable_$multiPlay.id">
+					#foreach($mpi in $multiPlay.playItemList)
+					<tr id="mpi_$mpi.id">
+						<td style="width:180px;">$!mpi.movie.moviename</td>
+						<td style="width:80px;">$!mpi.language</td>
+						<td style="width:80px;">$!mpi.edition</td>
+						<td style="width:80px;">$!mpi.playorder</td>
+						<td style="width:80px;"><input type="button" class="button" style="width:70px;" value="删除" onclick="deleteMultiPlayItem($mpi.id)" /></td>
+					</tr>#end
+					</tbody>
+				</table>
+			</td></tr>
+		#end
+		</tbody>
+	</table>
+</div>
+<div id="multiPlayDialog" class="yui-panel" style="width:550px;  position: absolute;z-index: 200; left:0px; top:0px; visibility: hidden;">
+	<div class="hd" id="title">编辑数据</div>
+	<div class="bd">
+	<form name="multiPlayForm" id="multiPlayForm" action="javascript:save()">
+		<input type="hidden" name="id" id="id"/>
+		<input type="hidden" name="cinemaId" id="cinemaId" value="${cinema.id}"/>
+		<div>
+			<label for="playdate">放映日期：</label>
+			<input name="playdate" id="playdate" type="text" readonly="readonly" onclick="WdatePicker()"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="playtime">放映时间：</label>
+			<input name="playtime" id="playtime" type="text" onclick="WdatePicker({dateFmt:'HH:mm'})" readonly="readonly"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="playroom">放映厅：</label>
+			<select name="playroom" id="playroom">
+			<option value="">请选择...</option>
+			#foreach($room in $roomList)<option value="$room.roomname">$room.roomname</option>#end
+			</select>
+		</div>
+		<div>
+			<label for="price">价格：</label>
+			<input name="price" id="price" type="text"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="pricemark">优惠说明：</label>
+			<input name="pricemark" id="pricemark" type="text"/>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="submit" class="button" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+<div id="mpiDialog" class="yui-panel" style="width:550px; z-index: 210; visibility: hidden;">
+	<div class="hd" id="title">编辑数据</div>
+	<div class="bd">
+	<form name="mpiForm" id="mpiForm">
+		<input type="hidden" name="multiPlayId" id="multiPlayId" value=""/>
+		<div>
+			<label for="playorder">播放次序：</label>
+			<input name="playorder" id="playorder" type="text"/>
+		</div>
+		<div>
+			<label for="movieId">放映电影：</label>
+			<select name="movieId" id="movieId">
+			#foreach($movie in $movieList)<option value="$movie.id">$VmUtils.substring($movie.pinyin,0,2)-$movie.name</option>#end
+			</select>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="language">语言：</label>
+			<select name="language" id="language">
+				<option value="中文">中文</option>
+				<option value="原版">原版</option>
+				<option value="粤语">粤语</option>
+				<option value="不详">不详</option>
+			</select>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="edition">版本：</label>
+			<select id="edition">
+				<option value="2D">2D</option>
+				<option value="3D">3D</option>
+				<option value="双机3D">双机3D</option>
+				<option value="IMAX2D">IMAX2D</option>
+				<option value="IMAX3D">IMAX3D</option>
+				<option value="巨幕2D">巨幕2D</option>
+				<option value="巨幕3D">巨幕3D</option>
+				<option value="4D">4D</option>
+			</select>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" style="width:100px" value="保存" onclick="savePlayItem();"/>
+			<input type="button" class="button" style="width:100px" value="取消" onclick="GewaraUtil.hideDialog('mpiDialog');"/>
+		</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	function cancle(){
+		GewaraUtil.hideDialog("multiPlayDialog");
+	}
+	function showDialog(){
+		GewaraUtil.showDialog("multiPlayDialog");
+	}
+	function save(){
+		var values = GewaraUtil.getValues($("multiPlayForm"));
+		var url = "${basePath}buss/cinema/ajax/saveOrUpdateMultiPlay.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				var multiPlay = result;
+				cancle();
+				if(isModify){
+					$("date_" + multiPlay.id).innerHTML = multiPlay.playdate;
+					$("time_" + multiPlay.id).innerHTML = multiPlay.playtime;
+					$("room_" + multiPlay.id).innerHTML = multiPlay.playroom;
+					$("price_" + multiPlay.id).innerHTML = multiPlay.price;
+				} else{
+					gewa.util.mask({'title':"正在更新数据..."});
+					refreshPage();
+				};
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	var isModify = false;
+	var curRow = "row";
+	function addMultiPlay(){
+		$("id").value="";
+		isModify = false;
+		showDialog();
+	}
+	function modifyMultiPlay(multiPlayId){
+		var url = "${basePath}buss/cinema/ajax/getMultiPlayById.xhtml";
+		var values = {'multiPlayId':multiPlayId};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				GewaraUtil.setValues(result);
+				isModify = true;
+				showDialog();
+			}else alert(result.msg);
+		});
+	}
+	var options = new Object();
+	options.escapeHtml = false;
+	options.rowCreator = function(opt){
+		var rowData = opt.rowData;
+		var tmpRow = document.createElement("tr");
+		tmpRow.id="row_" + rowData.id;
+		return tmpRow;
+	}
+	
+	function deleteMultiPlay(multiPlayId){
+		var url = "${basePath}buss/cinema/ajax/removeMultiPlayById.xhtml";
+		var values = {'multiPlayId':multiPlayId};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$("row_"+multiPlayId).dispose();
+				$("detail_"+multiPlayId).dispose();
+			}else alert(result.msg);
+		});
+	}
+	//2. mpi
+	function addMultiPlayItem(multiPlayId){
+		$('multiPlayId').value = multiPlayId;
+		GewaraUtil.showDialog("mpiDialog");
+	}
+	function savePlayItem(){
+		var values = GewaraUtil.getValues($("mpiForm"));
+		var url = "${basePath}buss/cinema/ajax/saveMultiPlayItem.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				addMpiRow(result);
+				cancle();
+			}
+		});
+	}
+	var options2 = new Object();
+	options2.escapeHtml = false;
+	options2.rowCreator = function(opt){
+		var rowData = opt.rowData;
+		var tmpRow = document.createElement("tr");
+		tmpRow.id="mpi_" + rowData.id;
+		return tmpRow;
+	}
+	
+	var cellFunc2 = [
+		function(mpi){
+			return mpi.movie.name;
+		},function(mpi){
+			return mpi.language;
+		},function(mpi){
+			return mpi.edition;
+		},function(mpi){
+			return mpi.playorder;
+		},function(mpi){
+			var tmpLink = '<input type="button" class="button" style="width:60px" value="删除" onclick="deleteMultiPlayItem(' + mpi.id + ');"/>';
+			return tmpLink;
+		}
+	]
+	
+	function addMpiRow(mpi){
+		var mpiList=[mpi];
+		GewaraUtil.addRows("mpiTable_"+$('multiPlayId').value, mpiList, cellFunc2, options2);
+	}
+	function deleteMultiPlayItem(mpiId){
+		var url = "${basePath}buss/cinema/ajax/removeMultiPlayItemById.xhtml";
+		var values = {'multiPlayItemId':mpiId};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$("mpi_"+mpiId).dispose();
+			}else alert(result.msg);
+		});
+	}
+</script>
+</body>
+</html>

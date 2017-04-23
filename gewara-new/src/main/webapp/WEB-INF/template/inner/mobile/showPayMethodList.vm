@@ -1,0 +1,28 @@
+<data>
+	<payMethodList>#set($spid=$VmUtils.getJsonValueByKey($extra.otherinfo,'spid'))#set($x=1)#set($flag=0)#if($relatedId && $VmUtils.eq($spid,$relatedId))#set($flag=1)#end
+		<tradeno>$!tradeno</tradeno>
+		<discountAmount>$!discountAmount</discountAmount>
+		<totalAmount>$!totalAmount</totalAmount>
+		<due>$!due</due>
+		<alimember>$!alimember</alimember>
+		#foreach($paymethod in $payMethodMap.keySet())
+			#if($valHelp.supportPaymethod($paymethod))
+				#set($paytext=$payMethodMap.get($paymethod))
+				#set($texts=$VmUtils.split($paytext, ":"))
+				<paymethod>
+					<payname><![CDATA[$!texts[0]]]></payname>
+					<payalias><![CDATA[$paymethod]]></payalias>
+					#if($texts.size()==2)
+					<paydesc><![CDATA[$!texts[1]]]></paydesc>
+					#end
+					#if($flag eq 1)
+					#if($x le 3)
+					<iconflag>q</iconflag>
+					#end
+					#end
+				</paymethod>
+				#set($x=$x+1)
+			#end
+		#end
+	</payMethodList>
+</data>

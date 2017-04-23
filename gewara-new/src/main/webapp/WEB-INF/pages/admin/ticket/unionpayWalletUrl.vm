@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>银联钱包券id场次映射</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.none{display:none;}
+		.tar{text-align:right;margin-top:10px;margin-right:10px;font-weight:bold;}
+		.tar a{color:red;}
+		#settleTable td{text-align:left;}
+	</style>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<form id="openForm">
+<table class="roomManageTable" id="settleTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+	<tbody class="tbody">
+		<tr class="grayBg tdor">
+			<td >电影活动url</td>
+			<td ><input type="text" name="movieUrl" value="$!{urlMap.get('movieUrl')}" /></td>
+		</tr>
+		<tr class="grayBg tdor">
+			<td >运动活动url</td>
+			<td ><input type="text" name="sportUrl" value="$!{urlMap.get('sportUrl')}" /></td>
+		</tr>
+		<tr class="grayBg tdor">
+			<td >话剧活动url</td>
+			<td ><input type="text" name="dramaUrl" value="$!{urlMap.get('dramaUrl')}" /></td>
+		</tr>
+		<tr class="grayBg">
+			<td colspan="2">
+				 <input type="button" value="增加" onclick="saveMapping()" id="openDialog"/>
+			</td>
+		</tr>
+	</tbody>
+</table>
+</form>
+<script type="text/javascript">
+	
+	function saveMapping(){
+		GewaraUtil.mask('openDialog');
+		var mask = gewa.util.mask({'element': 'openDialog','title':'正在提交，请稍等...'});
+		var values = GewaraUtil.getValues('openForm');
+		var url = "${basePath}admin/ticket/addUnionpayWalletUrl.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) {
+				refreshPage();
+			}else {
+				alert(result.msg);
+				GewaraUtil.unmask();
+			}
+		});
+	}
+	
+</script>
+</body>
+</html>

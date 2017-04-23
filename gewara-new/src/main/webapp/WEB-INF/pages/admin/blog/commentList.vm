@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>点评管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+</head>
+<body>
+#set($isComment=true)
+<div id="content">
+<div class="bc1"></div>
+<div id="content_left" style="width:98%;margin:auto;">
+	<div class="panelTop"><em></em></div>
+	<div class="panelMid">
+	#parse('admin/blog/diaryMenu.vm')
+	<div style="width:800px; margin: auto;">
+		<form action="${basePath}admin/blog/commentList.xhtml">
+			<input type="hidden" name="tag" value="$!{tag}"/>
+			<input type="hidden" name="relatedid" value="$!{relatedid}"/>
+			<label>请输入关键词：</label><input type="text" value="$!params.keyname" name="keyname" size="40"/>
+			<input type="submit" value="确定" />
+		</form>
+	</div>
+		<table id="blogtable" style="width:800px;" class="blogtable">
+		<caption>#parse('include/pageUtil.vm')</caption>
+		<thead><tr><th>评论内容</th><th style="width:100px">时间</th><th style="width:100px">关联</th><th style="width:70px">作者</th><th style="width:60px;">删除</th></tr></thead>
+		<tbody>
+		#foreach($comment in $commentList)
+		#set($relate=$relatedHelper.getR1("commentList",$comment.id))
+		<tr id="c$comment.id">
+			<td>$!VmUtils.escapeHtml($comment.body)</td>
+			<td><a href="$!{absPath}${basePath}$relate.url" target="_blank">$!relate.name</a></td>
+			<td>$DateUtil.format($comment.addtime,'M月d日 HH:mm')</td>
+			<td><a href="$!{absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid">$!comment.nickname</a></td>
+			<td><input type="button" value="删除" onclick="removeComment($comment.id)" /></td>
+		</tr>
+		#end
+		</tbody>
+		</table>
+		<div>#parse('include/pageUtil.vm')</div>
+	</div><!-- end panelMid-->
+	<div class="panelBot"><em></em></div>
+</div><!-- end content_left -->
+<div id="height0"></div>
+</div><!--end content-->
+<div id="panel_bottom"></div>
+	<script type="text/javascript">
+	function removeComment(id){
+		$('editid').value=id;
+		var widthvalue=document.body.clientWidth;
+		var heightvalue=document.body.clientHeight;
+		$('deleteReason').set('styles',{'display':'block',
+										'position':' absolute',
+										'left':(widthvalue-500)/2,
+										'top':(heightvalue-30)/2,
+										'opacity':1,
+								});
+		var divbig=new Element('div',{
+								"id":"divbig",
+								"styles":{
+									"position": "absolute",
+									"left": "0px",
+									"top": "0px",
+									"background-color":"#000"
+									}
+								});
+		divbig.setStyles({
+			"width": widthvalue+"px",
+			"height": heightvalue+"px",
+			"visibility":"visible",
+			"z-index": 8
+		});
+		divbig.setOpacity(0.5);
+		gewara.util.toCenter($('deleteReason'));
+		document.body.appendChild(divbig)
+		return;
+	}   
+	
+	window.addEvent('domready',function(){
+			var myDrag = new Drag.Move('deleteReason', {
+				container:$('content'),
+				onDrop: function(element, droppable){
+						myDrag.detach();
+				},
+		});
+		$('deleteReason').addEvent('click', function(){
+			myDrag.attach();//元素将重新获得拖动功能
+		});
+	});
+
+	function hiddenDiv(){
+		$('handReason').value='';
+		$('deleteReason').set('styles',{'display':'none'});
+		$('divbig').dispose();
+	}
+	
+	function deleteInfo(){
+		$('reason_ok').disabled = true;
+		var rea=$('reason').value;
+		var handReason=$('handReason').value;
+		if(rea==5&&handReason.length==0){
+			alert("请输入删除此贴的原因");
+			return false;
+		}
+		var id=$('editid').value;
+		var url = "${basePath}admin/common/ajax/removeComment.xhtml";
+		var values = {'commentId':id, 'reason':rea, 'reasonDetail':handReason};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$("c"+id).dispose();
+				alert("删除成功！");
+			}else{
+				alert("删除失败！");
+			}
+				$('reason_ok').disabled = false;
+				hiddenDiv();
+		});
+	}
+</script>
+#parse("admin/blog/reason.vm")
+</body>
+</html>

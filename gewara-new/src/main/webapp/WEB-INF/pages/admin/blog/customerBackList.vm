@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>反馈建议常用语</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		.inputradio{vertical-align: middle;}
+		.OkMsg {
+			background: url(${staticPath}styles/images/standard_msg_ok.gif) #e6ffe6 no-repeat 5px 0px; color: #000;
+			border: #00be00 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.WarningMsg {
+			background: url(${staticPath}styles/images/standard_msg_warning.gif) #e2f5ff no-repeat 5px 0px; color: #000;
+			border: #00a8ff 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.ErrorMsg {
+			background: url(${staticPath}styles/images/standard_msg_error.gif) #fff2e9 no-repeat 5px 0px; color: #000;
+				border: #f60 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+	</style>
+</head>
+<body>
+#set($cururl='customerBack')
+<div class="logoPanel"></div>
+<div class="menu">
+	<div class="menuInner">
+		#parse("admin/blog/customerMenu.vm")
+	</div>
+</div>
+<div class="manageItemList">
+	<em class="b1f"></em><em class="b2f"></em>
+	<div class="contentInfoList">
+		<div id="loadapplyTableDIV">
+			<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+				<thead>
+					<tr>
+						<th width="10%" style="text-indent: 10px; ">ID</th>
+						<th width="65%">内容</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody>
+					#foreach($back in $backList)
+						<tr class="$class">
+							<td>$back.id</td>
+							<td>$back.body</td>
+							<td><a href="javascript:void(0);" onclick="delback('$back.id', this)">删除</a></td>
+						</tr>
+					#end
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<em class="b2f"></em><em class="b1f"></em>
+	<div class="contentInfoList" style="margin-top: 20px;">
+		<div id="customerBackFrm">
+			添加内容模板: <textarea cols="40" rows="3" name="body" mustTxt="内容为必填!"></textarea>
+			<input type="button" value="添  加" onclick="addCustomerBack();" />
+		</div>
+	</div>
+</div>
+
+<script>
+	function addCustomerBack(){
+		if(!GewaraUtil.baseValidForm('customerBackFrm'))return false;
+		var url = '${basePath}admin/blog/saveCustomerBack.xhtml';
+		var values = GewaraUtil.getValues('customerBackFrm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+	
+	function delback(id, obj){
+		if(!window.confirm('确认删除?')) return false;
+		var url = '${basePath}admin/blog/delCustomerBack.xhtml';
+		var values = {'id': id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.dispose($(obj).getParent('tr'));
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+</script>
+</body>
+</html>

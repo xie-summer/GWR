@@ -1,0 +1,239 @@
+#if($VmUtils.isEmptyList($orderList))
+<div class="ainner">
+	<em class="sline"></em>
+	<div class="nav_loading">亲！最近您还没有购票订单哦。<a href="$!{basePath}cinema/searchOpi.xhtml" target="_blank">快速购票</a></div>
+</div>
+#else
+<div class="ainner" >
+	<em class="sline"></em>
+	<div class="nav_orderList clear">
+		<ul class="clear">
+			#foreach($order in $orderList)
+			#set($dMap=$dataMap.get($order.id))
+			#set($descMap=$VmUtils.readJsonToMap($order.description2))
+			#set($orderExtra=$orderExtraMap.get($order.id))
+			<li class="clear  #if($foreach.count % 2 eq 0)odd#end">
+				#set($tagList=['movie','drama','sport'])
+				<div class="ui_left">
+					<dl class="ui_media">
+						<dt class="ui_pic">
+						#set($hreftag="#")
+						#if($dMap.get('type') eq 'ticket')
+							#set($hreftag='movie')
+						#elseif($dMap.get('type') eq 'drama')
+							#set($hreftag='drama')
+						#elseif($dMap.get('type') eq 'sport')
+							#set($hreftag='sport')
+						#elseif($dMap.get('type') eq 'pubsale')
+							#set($hreftag='pubsale')
+						#elseif($dMap.get('type') eq 'goods')
+							#set($hreftag='activity')
+						#end
+						#if($dMap.get('type') ne 'goods')
+							<a href="${basePath}$hreftag/$dMap.get('id')" title="标题" target="_blank">
+						#end
+							#if($dMap.get('type') eq 'ticket' || $dMap.get('type') eq 'drama')
+								<img width="60" height="80" alt="$dMap.get('name')" title="$dMap.get('name')" style="background:url($VmUtils.randomPic('cw60h80',$dMap.get('img'))) left top no-repeat;" src="${staticPath}css/images/blank.gif"/>
+							#else
+								<img width="60" height="80" alt="$dMap.get('name')" title="$dMap.get('name')" style="background:url($VmUtils.randomPic('sw60h80',$dMap.get('img'))) left top no-repeat;" src="${staticPath}css/images/blank.gif"/>
+							#end
+						#if($dMap.get('type') ne 'goods')
+						</a>
+						#end
+						</dt>
+						<dd class="ui_text">
+							<p>
+								#if($VmUtils.gt($dMap.get('name').length(), 9)) $!VmUtils.escabbr($dMap.get('name'),16)... #else $!VmUtils.escabbr($dMap.get('name'),16) #end
+							</p>
+							<p><a class="cMovie" href="${basePath}gewapay/showOrder.xhtml?orderId=$order.id" target="_blank" style="vertical-align: middle;">$order.tradeNo</a></p>
+							<p>¥$order.totalAmount</p>
+							<p>$order.ordertitle</p>
+						</dd>
+					</dl>
+				</div>
+				<div class="ui_right">
+					<p>$order.statusText2</p>
+					#if($order.paidSuccess)
+						#if($order.getDue() gt 0)
+							#if($openedIdList.contains($order.id))
+							已开发票
+							#elseif($order.paymethod ne 'umPay') 
+								#if($order.paymethod eq 'gewaPay')
+								#set($bankfee=${order.gewapaid} - ${order.wabi})
+								#if($VmUtils.eq($orderExtra.invoice,'N') && $bankfee gt 0)<p><a href="${basePath}home/invoice/receiveInvoice.xhtml" target="_blank" >申请发票</a></p>#end
+								#else
+								<p><a href="${basePath}home/invoice/receiveInvoice.xhtml" target="_blank" >申请发票</a></p>
+								#end
+							#end
+						#end
+						#if($VmUtils.eq($order.ordertype,'drama'))
+							#set($expressNo=$!VmUtils.readJsonToMap($!order.otherinfo).get('expressNo'))
+							#if($VmUtils.isNotBlank($expressNo))
+							<p><a href=" http://api.kuaidi100.com/chaxun?com=yd&nu=$!expressNo" target="_blank" >查看物流</a></p>
+							#end
+						#end
+					#if($VmUtils.isNotBlank($order.checkpass))
+						#if($!VmUtils.isNotBlank($member.smobile) && $orderIdList.contains($order.id))
+							<p><a href="javascript:void(0)" onclick="javascript:sendOrderSMS('$order.id', '$order.mobile')" >取票密码</a></p>
+						#elseif( $!VmUtils.isBlank($member.smobile) && $orderIdList.contains($order.id))
+							#set($mpdate = $DateUtil.format($order.updatetime, 'yyyy-')+$!VmUtils.getJsonValueByKey($!order.description2, '场次').replace("月","-").replace("日",""))
+						#if($DateUtil.getDiffHour($DateUtil.currentTime(),$DateUtil.parseDate($mpdate,'yyyy-MM-dd HH:mm')) gt 3)
+						
+						#else
+							<p><a href="javascript:void(0)" onclick="javascript:sendOrderSMS('$order.id', '$order.mobile')" >取票密码</a></p>
+						#end
+						#end
+					#end
+				#elseif($order.status eq 'paid_unconfirm')
+					<p><a href="javascript:confirmDbOrder($order.id)">确认担保支付</a></p>
+				#elseif($order.new)
+					<p><a #if($VmUtils.eq($order.ordertype,'ticket')) href="${basePath}gewapay/confirmOrder.xhtml?orderId=$order.id" #else href="${basePath}gewapay/confirmOrder.xhtml?orderId=$order.id" #end >立即付款</a></p>
+					<p><a href="javascript:cancelOrder('$order.tradeNo');" >取消订单</a></p>
+				#end
+				#if($order.status eq 'paid_success' && ($delStatusMap.get($order.id) eq 'Y' || $orderDelList.contains($order.id)))
+					<p><a href="javascript:void(0)" onclick="javascript:removeOrder($order.id)" >删除记录</a></p>
+				#end
+				#if($tagList.contains($hreftag) && !$order.cancel && !$order.new)
+					<p>
+						<a target="_blank"  href="${basePath}$hreftag/$dMap.get('id')?topos=issueTips">
+							去评论
+						</a>
+					</p>
+				#end	
+				</div>
+			</li>
+			#end
+		</ul>
+		<div class="nav_allOrder"><a href="$!{basePath}home/myOrderManage.xhtml?tagNo=$VmUtils.getRandom()" target="_blank">全部订单&gt;&gt;</a></div>
+	</div>
+</div>
+<script>
+removeOrder =function(orderId){
+	gewa.util.issure('','<div style="background:url(${picPath}css/images/sigh0.gif) no-repeat; padding-left:30px;line-height:25px; margin:5px 0;">你确定要删除该订单信息吗？</div>','系统提示',300,'keys',function(){	
+		gewa.util.container['keys'].dispose('keys');
+		var url = "${basePath}home/removeMyOrder.xhtml";
+		var values = {'orderid':orderId};
+		GewaraUtil.sendRequest(url, values , function(result){
+			if(result.success){
+			}else{
+				alert(result.msg);
+			}
+			refreshPage();
+		});
+	})	
+}
+cancelOrder = function(tradeNo){
+	gewaUtil.confirm('确认取消该订单？', function(){
+		document.location = '${basePath}gewapay/cancelOrder.xhtml?tradeNo=' + tradeNo;
+	})
+}
+confirmDbOrder = function(orderId, el){
+	el.dispose();
+	GewaraUtil.sendRequest("${basePath}gewapay/confirmDanbaoOrder.xhtml", {"orderId":orderId}, function(result){
+		if(result.success){
+		}else{
+			alert(result.msg);
+			document.location.href="https://unionpaysecure.com/user/UnpaidOrder.action";
+		}
+	});
+}
+</script>
+
+<div id="qryWindow"  style="display:none">
+	<form name="qryForm" id="qryForm" action="javascript:qryPass()">
+	<dl class="dl-80 clear">
+		<dt>支付密码：</dt>
+		<dd class="left"><input type="password" name="paypass" class="text" id="paypass" /><font class="ml10 fc_b">*</font></dd>		
+	</dl>
+	</form>
+</div>  
+<span id="qryResult" class="brown"></span>
+<script type="text/javascript">
+var myOrderId='';
+showQry = function(orderid){
+	myOrderId = orderid;
+	$('paypass').value = '';
+	$('qryResult').set('html','');
+	gewa.util.issure('','qryWindow','查看取票密码',380,'qryWindow',function(){
+		$('qryForm').submit();
+	})
+}
+qryPass = function(){
+	if(!$chk($('paypass').value)){
+		gewaUtil.alert("请输入支付密码!");
+		return;
+	}
+	GewaraUtil.mask("qryWindow");
+	var values = {"orderid":myOrderId,'paypass':$('paypass').value};
+	GewaraUtil.sendRequest('${basePath}home/qryOrderCheckpass.xhtml', values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			gewa.util.container['qryWindow'].dispose('qryWindow');
+			gewa.util.maskContent('',result.retval,'取票密码',180);
+		}else{
+			if(result.msg) gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>
+<div id="repeatSendOrderSMSWindow" style="display: none;"></div>  
+<span id="qryResult" class="brown"></span>
+<script type="text/javascript">
+sendOrderSMS = function(orderid, mobile,checkpass){
+	var values = {"orderid":orderid};
+	if($('mbnum')){
+		$('mbnum').innerHTML = mobile;
+			gewa.util.core({
+				'content':'repeatSendOrderSMSWindow',//内容数据
+				'title':'发送取票短信',
+				'width':360,
+				'callback':function(){
+					$('sendSMSForm').submit();
+				},
+				'def': 'repeatSendOrderSMSWindow',
+				'sureBt':'发送取票短信',
+				'issure':true
+			});
+	}else{
+		GewaraUtil.sendLoad("repeatSendOrderSMSWindow", "${basePath}home/qryOrderCheckpass.xhtml", values,function(result){
+			if(result.success){
+				gewa.util.maskContent('','repeatSendOrderSMSWindow','查看取票短信',500,'repeatSendOrderSMSWindow');
+			}else{
+				if(result.msg) gewaUtil.alert(result.msg);
+			}
+		})
+	}
+}
+sendOrderPWD = function(orderid){
+	GewaraUtil.mask("repeatSendOrderSMSWindow");
+	var values = {"orderid":orderid};
+	GewaraUtil.sendRequest('${basePath}home/repeatSendOrderSMS.xhtml', values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			if(gewa.util.container['repeatSendOrderSMSWindow']){
+				gewa.util.container['repeatSendOrderSMSWindow'].dispose('repeatSendOrderSMSWindow');
+			}
+			gewa.util.maskContent('',result.retval,'取票短信',180);
+		}else{
+			if(result.msg) gewaUtil.alert(result.msg);
+		}
+	});
+}
+
+sendOrderNote = function(orderid){
+	GewaraUtil.mask("repeatSendOrderSMSWindow");
+	var values = {"noteid":orderid};
+	GewaraUtil.sendRequest('${basePath}home/order/repeatSendOrderSMS.xhtml', values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			if(gewa.util.container['repeatSendOrderSMSWindow']){
+				gewa.util.container['repeatSendOrderSMSWindow'].dispose('repeatSendOrderSMSWindow');
+			}
+			gewa.util.maskContent('',result.retval,'取票短信',180);
+		}else{
+			if(result.msg) gewaUtil.alert(result.msg);	
+		}
+	});
+}
+</script>
+#end

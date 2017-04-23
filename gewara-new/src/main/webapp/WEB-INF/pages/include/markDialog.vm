@@ -1,0 +1,490 @@
+<div id="mark"  style="display:none">
+	<div class="centerLine clear" style="background-position:374px 0;margin-top:12px;">
+		<div style="width:390px; float:left;">
+			<div class="title clear" style="height:auto;line-height:32px;text-align:left;margin-bottom:5px;">
+				<b class="left ml10" style="color:#333">我要评分：</b>
+				<ul id="generalmark" class="ui_big_ratings" style="margin-top:2px;">
+					#foreach($x in [1..10])
+					<li style="cursor:pointer;" id="$x" lang="" #if($foreach.index %2 ne 0)class="no"#end></li>
+					#end
+				</ul>
+				<sub id="generalmarkPoint" class="ml10 mr10 left"></sub>
+				<span class="brown left" id="generalmarkDesc"></span>
+			</div>
+			<textarea class="text ml10" onkeyup="microChange(this)" id="yingping" name="commentText"  style="width:326px;height:100px;"></textarea>
+			<div class="title ml10 mt5">
+				<div class="moved">
+					<span class="face left" style="padding-left:20px; line-height:18px;" id="myIcon">表情<span class="dmore"></span></span>
+					<span class="tSina left ml10">
+						<input type="checkbox" lang="${basePath}home/bind/sina/userApp.xhtml?source=close" style="margin-top:2px;*margin:-2px;" title="新浪微博" id="isWb" class="left"/>
+						<label for="isWb">新浪微博</label>
+					</span>
+				</div>
+				<span class="more num" id="microText" style="top:-3px;right:52px;">最多输入<b>140</b>字符</span>
+			</div>
+		</div>
+		<div style="width:230px; float:left;">
+			<div class="title"><strong style="color:#333">分项评分：</strong></div>
+			#if($movie)
+			#set($moviemark=$movie.getMarkStar())
+			#set($getTitle="电影")
+			<dl class="dl-60">
+				<dt>剧情：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="storymark" class="left">
+					<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$moviemark.get('storymark')/10) #set($mk2=$moviemark.get('storymark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${movie.storymarkedtimes}次</span><span id="storymarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">画面：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="screenmark" class="left">
+					<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$moviemark.get('screenmark')/10) #set($mk2=$moviemark.get('screenmark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${movie.screenmarkedtimes}次</span><span id="screenmarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">表演：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="performmark" class="left">
+				<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$moviemark.get('performmark')/10) #set($mk2=$moviemark.get('performmark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${movie.performmarkedtimes}次</span><span id="performmarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">音效：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="audiomark" class="left">
+					<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$moviemark.get('audiomark')/10) #set($mk2=$moviemark.get('audiomark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${movie.audiomarkedtimes}次</span><span id="audiomarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			#elseif($cinema)
+			#set($cinemamark=$cinema.getMarkStar())
+			#set($getTitle="影院")
+			<dl class="dl-60">
+				<dt class="dl-60Inner">服务：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="servicemark" class="left">
+					<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$cinemamark.get('servicemark')/10) #set($mk2=$cinemamark.get('servicemark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${cinema.servicemarkedtimes}次</span><span id="servicemarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">环境：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="environmentmark" class="left">
+					<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$cinemamark.get('environmentmark')/10) #set($mk2=$cinemamark.get('environmentmark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${cinema.environmentmarkedtimes}次</span><span id="environmentmarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">价格：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="pricemark" class="left">
+					<li id="1" title="不值"></li><li id="2" title="不值" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="值得"></li><li id="8" title="值得" class="no"></li><li id="9" title="超值"></li><li id="10" title="超值" class="no"></li>
+				</ul>#set($mk1=$cinemamark.get('pricemark')/10) #set($mk2=$cinemamark.get('pricemark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${cinema.pricemarkedtimes}次</span><span id="pricemarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">音效：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="audiomark" class="left">
+					<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$cinemamark.get('servicemark')/10) #set($mk2=$cinemamark.get('servicemark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${cinema.servicemarkedtimes}次</span><span id="audiomarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			#elseif($sport)
+			#set($sportmark=$sport.getMarkStar())
+			#set($getTitle="运动场馆")
+			<dl class="dl-60">
+				<dt class="dl-60Inner">服务：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="servicemark" class="left">
+					<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$sportmark.get('servicemark')/10) #set($mk2=$sportmark.get('servicemark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${sport.servicemarkedtimes}次</span><span id="servicemarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">环境：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="environmentmark" class="left">
+					<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$sportmark.get('environmentmark')/10) #set($mk2=$sportmark.get('environmentmark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${sport.environmentmarkedtimes}次</span><span id="environmentmarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">价格：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="pricemark" class="left">
+					<li id="1" title="不值"></li><li id="2" title="不值" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="值得"></li><li id="8" title="值得" class="no"></li><li id="9" title="超值"></li><li id="10" title="超值" class="no"></li>
+				</ul>#set($mk1=$sportmark.get('pricemark')/10) #set($mk2=$sportmark.get('pricemark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${sport.pricemarkedtimes}次</span><span id="pricemarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">场地：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="fieldmark" class="left">
+					<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$sportmark.get('fieldmark')/10) #set($mk2=$sportmark.get('fieldmark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${sport.fieldmarkedtimes}次</span><span id="fieldmarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>	
+			#elseif($coach)
+			#set($coachmark=$coach.getMarkStar())
+			#set($getTitle="教练")
+			<dl class="dl-60">
+				<dt class="dl-60Inner">工作态度：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="attitudemark" class="left">
+					<li id="1" title="不值"></li><li id="2" title="不值" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="值得"></li><li id="8" title="值得" class="no"></li><li id="9" title="超值"></li><li id="10" title="超值" class="no"></li>
+				</ul>#set($mk1=$coachmark.get('attitudemark')/10) #set($mk2=$coachmark.get('attitudemark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">$!{coach.attitudemarkedtimes}次</span><span id="attitudemarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">专业水平：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="promark" class="left">
+					<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$coachmark.get('promark')/10) #set($mk2=$coachmark.get('promark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${coach.promarkedtimes}次</span><span id="promarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">形象气质：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="feelingmark" class="left">
+					<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$coachmark.get('feelingmark')/10) #set($mk2=$coachmark.get('feelingmark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${coach.feelingmarkedtimes}次</span><span id="feelingmarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">课程互动：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="interactivemark" class="left">
+					<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$coachmark.get('interactivemark')/10) #set($mk2=$coachmark.get('interactivemark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${coach.interactivemarkedtimes}次</span><span id="interactivemarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			#elseif($drama)
+			#set($dramamark=$!drama.getMarkStar())
+			#set($getTitle="话剧")
+			<dl class="dl-60">
+				<dt class="dl-60Inner">剧情：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="storymark" class="left">
+					<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$dramamark.get('storymark')/10) #set($mk2=$dramamark.get('storymark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${drama.storymarkedtimes}次</span><span id="storymarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">画面：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="screenmark" class="left">
+					<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$dramamark.get('screenmark')/10) #set($mk2=$dramamark.get('screenmark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${drama.screenmarkedtimes}次</span><span id="screenmarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">表演：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="performmark" class="left">
+				<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$dramamark.get('performmark')/10) #set($mk2=$dramamark.get('performmark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${drama.performmarkedtimes}次</span><span id="performmarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">音效：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="audiomark" class="left">
+					<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+					<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+				</ul>#set($mk1=$dramamark.get('audiomark')/10) #set($mk2=$dramamark.get('audiomark')%10)
+				<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${drama.audiomarkedtimes}次</span><span id="audiomarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			#elseif($theatre)
+			#set($theatremark=$!theatre.getMarkStar())
+			#set($getTitle="剧院")
+			<dl class="dl-60">
+				<dt class="dl-60Inner">服务：</dt>
+				<dd class="ratings"  style="width:160px;">
+					<ul id="servicemark" class="left">
+						<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+						<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+					</ul>#set($mk1=$theatremark.get('servicemark')/10) #set($mk2=$theatremark.get('servicemark')%10)
+					<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${theatre.servicemarkedtimes}次</span><span id="servicemarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">环境：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="environmentmark" class="left">
+						<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+						<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+					</ul>#set($mk1=$theatremark.get('environmentmark')/10) #set($mk2=$theatremark.get('environmentmark')%10)
+					<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${theatre.environmentmarkedtimes}次</span><span id="environmentmarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">价格：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="pricemark" class="left">
+						<li id="1" title="不值"></li><li id="2" title="不值" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+						<li id="6" title="还行" class="no"></li><li id="7" title="值得"></li><li id="8" title="值得" class="no"></li><li id="9" title="超值"></li><li id="10" title="超值" class="no"></li>
+					</ul>#set($mk1=$theatremark.get('pricemark')/10) #set($mk2=$theatremark.get('pricemark')%10)
+					<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${theatre.pricemarkedtimes}次</span><span id="pricemarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60 mt5">
+				<dt class="dl-60Inner">音效：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="audiomark" class="left">
+						<li id="1" title="很差"></li><li id="2" title="很差" class="no"></li><li id="3" title="一般"></li><li id="4" title="一般" class="no"></li><li id="5" title="还行"></li>
+						<li id="6" title="还行" class="no"></li><li id="7" title="不错"></li><li id="8" title="不错" class="no"></li><li id="9" title="很棒"></li><li id="10" title="很棒" class="no"></li>
+						</ul>#set($mk1=$theatremark.get('audiomark')/10) #set($mk2=$theatremark.get('audiomark')%10)
+					<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${theatre.audiomarkedtimes}次</span><span id="audiomarkDesc" class="ml10 brown"></span>
+				</dd>
+			</dl>
+			#elseif($gym)
+			#set($gymmark=$gym.getMarkStar())
+			#set($getTitle="健身场馆")
+			<dl class="dl-60">
+				<dt class="dl-60Inner">服务：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="servicemark">
+						<li id="1" title="很差"></li><li id="2" title="很差"></li><li id="3" title="一般"></li><li id="4" title="一般"></li><li id="5" title="还行"></li>
+						<li id="6" title="还行"></li><li id="7" title="不错"></li><li id="8" title="不错"></li><li id="9" title="很棒"></li><li id="10" title="很棒"></li>
+					</ul>#set($mk1=$gymmark.get('servicemark')/10) #set($mk2=$gymmark.get('servicemark')%10)
+					<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${gym.servicemarkedtimes}次</span><span id="servicemarkDesc" class="ml10"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60">
+				<dt class="dl-60Inner">环境：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="environmentmark">
+						<li id="1" title="很差"></li><li id="2" title="很差"></li><li id="3" title="一般"></li><li id="4" title="一般"></li><li id="5" title="还行"></li>
+						<li id="6" title="还行"></li><li id="7" title="不错"></li><li id="8" title="不错"></li><li id="9" title="很棒"></li><li id="10" title="很棒"></li>
+					</ul>#set($mk1=$gymmark.get('environmentmark')/10) #set($mk2=$gymmark.get('environmentmark')%10)
+					<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${gym.environmentmarkedtimes}次</span><span id="environmentmarkDesc" class="ml10"></span>
+				</dd>
+			</dl>
+			<dl class="dl-60">
+				<dt class="dl-60Inner">空间：</dt>
+				<dd class="ratings" style="width:160px;">
+					<ul id="spacemark">
+						<li id="1" title="拥挤"></li><li id="2" title="拥挤"></li><li id="3" title="一般"></li><li id="4" title="一般"></li><li id="5" title="还行"></li>
+						<li id="6" title="还行"></li><li id="7" title="宽敞"></li><li id="8" title="宽敞"></li><li id="9" title="很棒"></li><li id="10" title="很棒"></li>
+					</ul>#set($mk1=$gymmark.get('spacemark')/10) #set($mk2=$gymmark.get('spacemark')%10)
+					<sub class="min">${mk1}</sub><sup class="min">.${mk2}</sup><span class="ml10">${gym.spacemarkedtimes}次</span><span id="spacemarkDesc" class="ml10"></span>
+				</dd>
+			</dl>
+			#end
+		</div>
+	</div>
+	<div class="title mt10" style="padding:7px 0;border-top:1px dashed #ccc;text-align:right">
+		<span onclick="submitComment()" class="redBt minBt button" id="dispan"><span><em style="padding-left:20px;background:url(${staticPath}css/home/right.png) 0 center no-repeat;">提交</em></span></span>
+		<span class="button whiteBt minBt ml20" onclick="hideMovieMark()"><span>取 消</span></span>
+	</div>
+</div>
+<script type="text/javascript">
+var isWbOpen=true;
+var marks = {};
+function showMovieMark(){
+	checkLogin(true,function(){
+		gewa.util.maskContent('','mark','$getTitle评分',662,'mark');
+	});
+}
+function submitComment(){
+	if($('yingping').value.length > 140){
+		gewaUtil.alert("评论字数太长!");
+		return false;
+	}
+#if($movie)
+	if($('yingping').value=="分享你对这部影片的观影感受！"){
+		$('yingping').value ='';
+	}
+	#set($marktag='movie') #set($markrelatedid=$movie.id);
+#elseif($cinema)
+	if($('yingping').value=="分享你到此影院的体验！"){
+		$('yingping').value ='';
+	}
+	#set($marktag='cinema') #set($markrelatedid=$cinema.id);
+#elseif($sport)
+	if($('yingping').value=="分享你到此场馆的运动体验！"){
+		$('yingping').value ='';
+	}
+	#set($marktag='sport') #set($markrelatedid=$sport.id);
+#elseif($theatre)
+	if($('yingping').value=="分享你在该剧院的观剧体验！"){
+		$('yingping').value ='';
+	}
+	#set($marktag='theatre') #set($markrelatedid=$theatre.id);
+#elseif($coach)
+	if($('yingping').value=="分享你对此教练的印象！"){
+		$('yingping').value ='';
+	}
+	#set($marktag='coach') #set($markrelatedid=$coach.id);
+#elseif($drama)
+	if($('yingping').value=="分享你的观剧的感受！"){
+		$('yingping').value ='';
+	}
+	#set($marktag='drama') #set($markrelatedid=$drama.id);
+#elseif($gym)
+	if($('yingping').value=="分享你的健身场馆的感受！"){
+		$('yingping').value ='';
+	}
+	#set($marktag='gym') #set($markrelatedid=$gym.id);
+#end
+	var url="${basePath}ajax/common/addComment.xhtml";
+	var values = {'commentText':$('yingping').value,'relatedid': '$!markrelatedid','tag':'$!marktag','marks':Hash.toQueryString(marks)};
+	GewaraUtil.mask('dispan');
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			gewaUtil.alert("发表成功！", hideMovieMark);
+			$('yingping').value = '';
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+};
+function myTreasure(tag, relatedid, el){
+	var url="${basePath}ajax/common/getMemberTreasure.xhtml?t="+GewaraUtil.rtime(),values={'tag':tag,'relatedid':relatedid},result=0;
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){//评分值
+			if(result.xqTreasure){//想去
+				if($('nTResult') && $('hTResult')){
+					$('nTResult').addClass('none');
+					$('hTResult').removeClass('none');
+				}
+			}
+			if(result.cTreasure){//关注
+				if($('nCollect') && $('hCollect')){
+					$('nCollect').addClass('none');
+					$('hCollect').removeClass('none');
+				}
+			}
+			if($('mark_mark_integer') && $('mark_decimal')){
+				$('mark_mark_integer').set('text',result.total.toInt()/10);
+				$('mark_decimal').set('text',result.total.toInt()%10)
+			}
+			showMark(result, tag, relatedid);
+			if(el && $(el)){
+				if(gewara.util.member.login){
+					$(el).href='${basePath}home/sns/othersPersonIndex.xhtml?memberid='+gewara.util.member.memberid;
+					$(el + 'Pic').setStyle('background','url(${picPath}cw50h50/'+gewara.util.member.headUrl+') 0 center no-repeat'); 
+				}else{
+					$(el).href='${basePath}home/sns/othersPersonIndex.xhtml?memberid=microblogGroun.xhtml';
+					$(el + 'Pic').setStyle('background','url(${picPath}cw50h50/img/default_head.png) center center no-repeat'); 
+				}
+			}
+		}
+	}, 'get');
+}
+function showMark(markResult, tag, relatedid){
+	#if($movie)
+	new RatingGroup('storymark', markResult.storymark, 'movie', $movie.id,marks);
+	new RatingGroup('screenmark', markResult.screenmark, 'movie', $movie.id,marks);
+	new RatingGroup('performmark', markResult.performmark, 'movie', $movie.id,marks);
+	new RatingGroup('audiomark', markResult.audiomark, 'movie',$movie.id,marks);
+	new DefaultValue("yingping","分享你对这部影片的观影感受！");
+	#elseif($cinema)
+	new RatingGroup('servicemark', markResult.servicemark, 'cinema', $cinema.id,marks);
+	new RatingGroup('environmentmark',markResult.environmentmark, 'cinema', $cinema.id,marks);
+	new RatingGroup('pricemark', markResult.pricemark, 'cinema', $cinema.id,marks);
+	new RatingGroup('audiomark', markResult.audiomark, 'cinema', $cinema.id,marks);
+	new DefaultValue("yingping","分享你到此影院的体验！");
+	#elseif($sport)
+	new RatingGroup('servicemark',markResult.servicemark, 'sport', $sport.id,marks);
+	new RatingGroup('environmentmark',markResult.environmentmark, 'sport', $sport.id,marks);
+	new RatingGroup('pricemark',markResult.pricemark, 'sport', $sport.id,marks);
+	new RatingGroup('fieldmark',markResult.fieldmark, 'sport', $sport.id,marks);
+	new DefaultValue("yingping","分享你到此场馆的运动体验！");
+	#elseif($theatre)
+	new RatingGroup('servicemark',markResult.servicemark, 'theatre', $!theatre.id,marks);
+	new RatingGroup('environmentmark',markResult.environmentmark, 'theatre', $!theatre.id,marks);
+	new RatingGroup('pricemark',markResult.pricemark, 'theatre', $!theatre.id,marks);
+	new RatingGroup('audiomark',markResult.audiomark, 'theatre', $!theatre.id,marks);
+	new DefaultValue("yingping","分享你在该剧院的观剧体验！");
+	#elseif($drama)
+	new RatingGroup('storymark',markResult.storymark, 'drama', $!drama.id,marks);
+	new RatingGroup('screenmark',markResult.screenmark, 'drama', $!drama.id,marks);
+	new RatingGroup('performmark',markResult.performmark, 'drama', $!drama.id,marks);
+	new RatingGroup('audiomark',markResult.audiomark, 'drama', $!drama.id,marks);
+	new DefaultValue("yingping","分享你的观剧的感受！");
+	#elseif($gym)
+	new RatingGroup('servicemark',markResult.servicemark, 'gym', $gym.id,marks);
+	new RatingGroup('environmentmark',markResult.environmentmark, 'gym', $gym.id,marks);
+	new RatingGroup('spacemark',markResult.spacemark, 'gym', $gym.id,marks);
+	#end
+	if($('generalmark'))new RatingGroup('generalmark', markResult.generalmark, tag, relatedid, marks);
+	gewa.util.mymarks = markResult.generalmark;
+	//if($('walageneralmark'))new RatingGroup('walageneralmark', markResult.generalmark, tag, relatedid, marks);
+	
+	//分享与表情
+	var myIcon = new Icon();
+	$('myIcon').addEvent('click',function(){
+		myIcon.innerHTML(this,'yingping');
+	});
+	$('isWb').addEvent('click',function(){
+		if(isWbOpen){
+			this.checked = '';
+			syscData(this.get('lang'),this.get('title'),'sina',this);
+		}
+	});
+}
+
+var hideMovieMark = function(){
+	gewa.util.container['mark'].dispose('mark');
+}
+function microChange(obj){
+	var num=140;
+	if($chk($(obj).value)){
+		var num = 140-$(obj).value.length;
+	}
+	if(num<0){ 
+		var value = Math.abs(num);
+		$('microText').set('html','已超出<b>'+value+"</b>个字");
+	}else{
+		$('microText').set('html','还能输入<b>'+num+'</b>个字');
+	}
+}
+</script>

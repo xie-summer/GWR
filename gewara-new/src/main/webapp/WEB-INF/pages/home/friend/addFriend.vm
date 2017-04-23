@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>#if($!logonMember.id eq $member.id)#else$!member.nickname#end个人中心首页_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,pagesNavigation,slimbox,scrollSpy,base_home,tipsAjax&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.walaTips{background-color: #fdffea;border:1px solid #ddd;position: absolute;right: 250px;top: 60px;z-index: 1000;padding:4px 10px 0 10px; height: 25px;}
+	</style>
+</head>
+<body>
+#set($is2011Beta=true)
+#set($friend=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			<div class="inner">
+				<div class="fs14">你将添加以下好友！</div>
+				<ul class="ui_abeam mt20">
+					<li>
+						<div class="uipic">
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!micromember.id" target="_blank"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw90h90',$cacheMemberMap.get($!micromember.id).headpicUrl)) center center no-repeat;" width="50" height="50"/></a>
+						</div>
+						<div class="uiText">
+							<b><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!micromember.id" target="_blank">$!micromember.nickname</a></b>
+						</div>
+					</li>
+				</ul>
+				<form action="${basePath}home/friend/saveFriendInvite.xhtml" method="post" id="friendForm">
+					<input type="hidden" name="memberid" value="$member.id"/>
+					#*<div class="mt10">请输入验证消息：</div><textarea name="body" id="body" class="text" style="height: 60px;width: 278px;"></textarea><br/>*#
+					<input type="checkbox" name="isTreasure" id="isTreasure" checked="checked" value="1" style="vertical-align: middle;"/> 同时关注此好友<br/><br/>
+					<label class="minBt redBt button"><input type="button" id="disBtn" value="发送验证" onclick="saveFriend();"/></label>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$("friendForm").set("send", {
+	onSuccess: function(resText){
+		eval(resText);
+		if(data.success){
+			gewa.util.clearMask();
+			gewaUtil.alert("你申请添加$!micromember.nickname为好友已发送，等待对方验证!");
+		}else{
+			gewaUtil.alert(data.msg);
+			gewa.util.clearMask();
+		}
+	},
+	onFailure: function(){
+		gewaUtil.alert("保存数据发生错误！");
+		gewa.util.clearMask();
+	}
+});
+});
+var masker = null;
+function saveFriend(){
+	checkLogin(true,function(){
+		masker = gewa.util.mask({'element': "disBtn",'title':'正在提交，请稍等...'});
+		$("friendForm").send();
+	});
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

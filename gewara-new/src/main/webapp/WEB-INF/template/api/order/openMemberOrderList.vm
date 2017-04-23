@@ -1,0 +1,35 @@
+<data>
+	<orderList>
+	#foreach($order in $orderList)
+		<order>
+			#set($descMap=$VmUtils.readJsonToMap($order.description2))
+			#set($orderStatus=$orderStatusMap.get($order.tradeNo))
+			#set($opi=$opiMap.get($order.mpid))
+			<mpid>$order.mpid</mpid>
+			<tradeno>$order.tradeNo</tradeno>
+			<mobile>$order.mobile</mobile>
+			<unitprice>$order.unitprice</unitprice>
+			<quantity>$order.quantity</quantity>
+			<discount>$order.discount</discount>
+			#if($order.discount gt 0)<disreason>$order.disreason</disreason>#end
+			<amount>$order.due</amount>
+			<addtime>$DateUtil.format($order.createtime,'yyyy-MM-dd HH:mm:ss')</addtime>
+			<validtime>$DateUtil.format($order.validtime,'yyyy-MM-dd HH:mm:ss')</validtime>
+			<moviename>$opi.moviename</moviename>
+			<cinemaname>$opi.cinemaname</cinemaname>
+			<playtime>$DateUtil.format($opi.playtime,'yyyy-MM-dd HH:mm:ss')</playtime>
+			<roomname>$!opi.roomname</roomname>
+			<seat>$descMap.get('影票')</seat>
+			<status>$orderStatus</status>
+			#if($order.allPaid)
+			<paidtime>$!DateUtil.format($order.paidtime,'yyyy-MM-dd HH:mm:ss')</paidtime>
+			<paidAmount>$order.alipaid</paidAmount>
+			<payseqno>$!order.payseqno</payseqno>
+			#end
+			#if($order.status eq 'paid_return')
+				<refundtime>$!DateUtil.formatTimestamp($order.updatetime)</refundtime>
+			#end
+		</order>
+	#end
+	</orderList>
+</data>

@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>开设设置</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}formcheck/formcheck.css?v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}formcheck/formcheck.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		.roomManageTable2{margin:0px;line-height:25px;font-size: 12px;}
+		.roomManageTable2 textarea{font-size: 12px;}
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		.manageItemList{margin-top: 4px;}
+		label{display: block;}
+		.contentInfoList li{margin-top:5px;}
+		.grayBg td input{width: 80px;}
+		tr{text-align: left;}
+		td{text-align: left;}
+	</style>
+</head>
+<body>
+#parse('admin/gewapay/pubsale/menu.vm')
+<div style="color:red" id="notifyWin"></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+	<form action="${basePath}admin/pubsale/saleList.xhtml" method="post">
+		<label>
+			名称：<input type="text" name="name" id="name" value="$!params.name"/>
+			<input type="radio" name="status" value="" #if(!$VmUtils.eq($!params.status,'N_DELETE')||$VmUtils.isBlank($!params.status))checked #end/>默认
+			<input type="radio" name="status" value="N_DELETE" #if($VmUtils.eq($!params.status,'N_DELETE'))checked #end/>被删除
+			<input type="submit" value="确定" />
+		</label>
+	</form>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>名称</th>
+					<th>排序</th>
+					<th>竞拍价</th>
+					<th>当前价</th>
+					<th>提升金额</th>
+					<th>需要积分</th>
+					<th>倒计时</th>
+					<th>时间</th>
+					<th>参与者</th>
+					<th>前台</th>
+					<th>修改</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody class="tbody">
+				#foreach($sale in $saleList)
+				<tr class="grayBg disp c$opi.movieid">
+					<td>$sale.name</td>
+					<td><input type="text" value="$!sale.ordernum" id="num$sale.id" onchange="ordernum($sale.id, this.value)" style="width: 50px;"/></td>
+					<td>$!sale.gainRprice($sale.lowerprice)</td>
+					<td>$!sale.gainRprice($!sale.curprice)</td>
+					<td>$!VmUtils.join($!sale.gainDupprice(),',')</td>
+					<td>$!sale.needpoint</td>
+					<td>$!sale.countdown</td>
+					<td>$!DateUtil.format($sale.begintime,'MM-dd HH:mm')~$!DateUtil.format($sale.endtime,'MM-dd HH:mm')</td>
+					<td><a href="${basePath}admin/pubsale/pmList.xhtml?sid=$sale.id">参与者</a></td>
+					<td><a href="$!{absPath}${basePath}pubsale/$sale.id" target="_blank">前台</a></td>
+					<td><a href="javascript:getSale($sale.id)">修改</a></td>
+					<td>
+						#if(!$VmUtils.eq($!sale.status,'N_DELETE'))
+							<a href="javascript:void(0)" onclick="delSale('$!sale.id','N_DELETE',this);">删除</a>
+						#else
+							<a href="javascript:void(0)" onclick="delSale('$!sale.id','Y',this);" title="恢复">恢复</a>
+						#end
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+		#parse('include/pageUtil.vm')
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<div id="openDialog" style="width:520px; visibility:hidden; z-index:15;background: #000;top: 2px;position: absolute;top:25px !important;"></div>
+	<script type="text/javascript">
+	function getSale(id){
+		$('openDialog').set('html','');
+		var el = $('openDialog');
+		el.set('load', {evalScripts: true});
+		if(id){
+			el.load('${basePath}admin/pubsale/getSale.xhtml?id='+id+"&t="+GewaraUtil.rtime());
+		}else {
+			el.load('${basePath}admin/pubsale/getSale.xhtml?t='+GewaraUtil.rtime());
+		}
+		showDialog();
+	}
+	function hiDialog(){
+		GewaraUtil.hideDialog("openDialog");
+	}
+	function showDialog(){
+		GewaraUtil.showDialog('openDialog');
+	}
+	function saveSale(){
+		gewa.util.mask({'title':"正在保存数据..."});
+		var remark = $('remark').value;
+		if(!$chk(remark)){
+			alert("描述不能为空！");
+			gewa.util.clearMask();
+			return;
+		}
+		var values = GewaraUtil.getValues("saleForm");
+		GewaraUtil.sendRequest('${basePath}admin/pubsale/addSale.xhtml', values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				refreshPage();
+			}else{
+				if(result.msg) alert(result.msg);
+			}
+		});
+	}
+	function ordernum(id, num){
+		var el = $('num'+id);
+		el.setStyle("background","red");
+		var values = {'id':id,'ordernum':num};
+		GewaraUtil.sendRequest('${basePath}admin/pubsale/setOrdernum.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}
+		});
+	}
+	
+	function delSale(id, value, obj){
+		if(!window.confirm('确定删除？')) return false;
+		var url ='${basePath}admin/pubsale/setSaleStatus.xhtml';
+		var values = {'pid':id, 'status': value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.dispose($(obj).getParent('tr'));
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>场馆图片查询列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div style="text-align:center;">
+<h1>#if($check) 已审核 #else 未审核 #end</h1>
+#if($check)<span style="float:right;">审核人：$userCheck.userName 审核时间：$DateUtil.format($userCheck.addtime,"yyyy-MM-dd HH:mm:ss")</span>#end
+</div>
+<div style="width: 800px;margin:0 auto;">
+	#foreach($pic in $upList)
+	<div style="width:130px;position: relative;float: left;padding:3px;margin:4px;margin-top:  20px;border: 2px solid gray; ">
+		上传者：$!cacheMemberMap.get($pic.memberid).nickname<br/>
+		<img src="${picPath}$pic.picname" width="120px" height="100px"/><br/>
+		#if(!$VmUtils.eq($pic.status,'del'))
+		<input type="button" class="button" value="删除" onclick="deletePicture('$pic.picname', this)"/>
+		#else
+			已删除
+		#end
+	</div>
+	#end
+	<div style="width:100%;clear:both;">#parse('include/pageUtil.vm')</div>
+</div>
+<div style="padding:1px;width:850px;padding-bottom:40px;">
+	<form action="${basePath}admin/audit/otherPictureList.xhtml" method="post" style="margin:3px; width:800px;">
+		#*用户ID：<input type="text" name="memberid" id="id" value="$!params.memberid" style="width:80px"/> 
+		<input type="submit" class="button" value="查询"/>*#
+		#if(!$check)
+		#if(!$VmUtils.isEmptyList($upList))
+			<input type="button" value="本页审核完成请点击" class="mr20 button" onclick="operatorTime('$!time')"/>
+		#end
+		#end
+		<span>已审核 $checkCount 个用户，共 $checkPage 页；</span><span>还有 $uncheckCount 个用户未审核，共 $uncheckPage 页。</span>
+		<span style="float:right;">#if($manageCheck)<a href="${basePath}admin/audit/otherPictureList.xhtml?check=true">查看已审核用户</a>#end <a href="${basePath}admin/audit/otherPictureList.xhtml">查看未审核用户</a></span>
+	</form>
+</div>
+	<script type="text/javascript">
+	function deletePicture(picname,obj){
+		var url="${basePath}admin/audit/otherDeletePicture.xhtml";
+		var values = {"picname":picname};
+		if(confirm("确定删除吗?")){
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					$(obj).dispose();
+				}else{
+					alert("操作失败！");
+				}
+			});
+		}
+	}
+	
+	function operatorTime(time){
+		if(!window.confirm('确定已操作完成？')) return false;
+		var url = "${basePath}admin/sns/operationUserHeadAndSign.xhtml";
+		var values = {"modifytime":time,"tag":"$!tag"};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('操作成功！');
+				document.location.href='${basePath}admin/audit/otherPictureList.xhtml';
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<div class="userResponse" style="display:none" id="userResponse">
+	<p class="clear"><span class="logo left"></span><b class="left">欢迎向Gewara反馈你遇到的问题和建议</b></p>
+	<p class="mt10">请描述你遇到的问题或建议：</p>
+	<p class="mt5"><textarea id="mark"></textarea></p>
+	<p class="mt5">
+		验证码：<input type="hidden" name="captchaId" id="surveyCaptcha"/>
+		<input type="text" class="text captcha" id="surveyCaptchaInput" name="captcha" alt="点击获取" autocomplete="off" onfocus="GewaraUtil.refreshCaptcha('surveyCaptcha')" style="width:90px"/>
+		<img id="surveyCaptchaImg" width="80" height="30" class="ml10 mt5" src="${staticPath}css/images/blank.gif" style="cursor: pointer;" onclick="GewaraUtil.refreshCaptcha('surveyCaptcha')" title="看不清楚，请点击换一张图片"/>
+	</p>
+	<p class="mt10"><a class="button bigBt redBt" href="javascript:sendSurvey();"><span>提交</span></a></p>
+</div>
+<script type="text/javascript">
+	function userResponse(){
+		checkLogin(true,function(){
+			gewa.util.maskContent('','userResponse','瓦友反馈',525,'notTitle');//第一个参数可传绑定在某一个元素上显示的id,为了避免混淆最后一个参数最好传上(为动态标识)
+		});
+	}
+	function sendSurvey(){
+		if($('mark').value=='' || $('mark').value.length <= 5){
+			gewaUtil.alert("请详细描述你的反馈或建议(不少于5个字)",'','',400);
+			return;
+		}
+		//59615177
+		var values = {"surveyId":'$!{surveyId}',"tag":"Y","mark":$('mark').value,"captchaId":$("surveyCaptcha").value,"captcha":$("surveyCaptchaInput").value,"url":document.URL+'; 浏览器：'+Browser.name +'; 浏览器版本：'+Browser.version};
+		GewaraUtil.sendRequest('${basePath}ajax/trade/updateSurvey.xhtml', values, function(result){
+			if(result.success){
+				gewa.util.container['notTitle'].dispose('notTitle');
+				gewaUtil.alert("反馈成功！感谢对格瓦拉的支持！");
+			}else{
+				gewaUtil.alert(result.msg);
+				GewaraUtil.refreshCaptcha('surveyCaptcha');
+			}
+		});
+	}
+</script>

@@ -1,0 +1,207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>编辑剧院数据</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<script type="text/javascript">
+		var defaultOption=new Array(1);
+		defaultOption[0] = new Object();
+		defaultOption[0].value="";
+		defaultOption[0].text="请选择...";
+		function queryIndexarea(){
+			var countyCode = $('county').value;
+			GewaraUtil.removeAllOptions("indexarea");
+			GewaraUtil.addOptions("indexarea",defaultOption,"value","text");
+			var url = "${basePath}admin/common/ajax/getIndexareaByCountyCode.xhtml";
+			GewaraUtil.sendRequest(url, {"countycode":countyCode}, function(result){
+				GewaraUtil.addOptions("indexarea",result.indexareaList,'indexareacode','indexareaname');
+			});
+		}
+	</script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:550px; display:inline}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:720px;margin:auto">
+<div style="color: red;margin-top: 20px">$!errorMsgs</div>
+<div id="theatreDialog" class="yui-panel" style="width:710px;margin:auto">
+	<div class="hd">编辑剧院数据&nbsp;&nbsp;[<a href="${basePath}admin/common/mappoint.xhtml?id=$!theatre.id&tag=theatre" target="_blank">地图标注</a>]</div>
+	<div class="bd">
+	<form name="theatreForm" id="theatreForm" action="javascript:saveTheatre()" method="post">
+		<input type="hidden" name="theatreId" id="theatreId" value="$!{params.theatreId}"/>
+		<input type="hidden" name='citycode' value='$!citycode'/>
+		<input type="hidden" name='stationid' id="stationid" value='$!theatre.stationid'/>
+		<input type="hidden" name='lineidlist' id="lineidlist" value='$!theatre.lineidlist'/>
+		<input type="hidden" name='booking' id="booking" value='$!theatre.booking'/>
+		<div>
+			<label for="name">剧院名称：</label>
+			<input name="name" id="name" type="text" value="$!{theatre.name}"/><span class="req">*</span>
+		</div>
+		<div>
+			<label for="englishname">英文名称：</label>
+			<input name="englishname" type="text" value="$!{theatre.englishname}" />
+		</div>
+		<div>
+			<label for="briefname">剧院简称：</label>
+			<input name="briefname" type="text" value="$!{theatre.briefname}" />
+		</div>
+		<div>
+		<label for="briefaddress">地址简称：</label>
+			<input name="briefaddress" id="briefaddress" type="text" value="$!{theatre.briefaddress}" />
+		</div>
+		<div>
+			<label for="brandname">院线名称：</label>
+			<input name="brandname" type="text" value="$!{theatre.brandname}"/>
+		</div>
+		<div>
+			<label for="website">官方主页：</label>
+			<input name="website" type="text" value="$!{theatre.website}" />
+		</div>
+		<div>
+			<label for="opentime">营业时间：</label>
+			<input name="opentime" type="text" value="$!{theatre.opentime}"/>
+		</div>
+		<div>
+			<label for="email">E-Mail：</label>
+			<input name="email" type="text" value="$!{theatre.email}" />
+		</div>
+		<div>
+			<label for="fax">传真：</label>
+			<input name="fax" type="text" value="$!{theatre.fax}" />
+		</div>
+		<div>
+			<label for="contactphone">联系电话：</label>
+			<input name="contactphone" type="text" value="$!{theatre.contactphone}" />
+		</div>
+		<div>
+			<label for="postalcode">邮政编码：</label>
+			<input name="postalcode" type="text"  value="$!{theatre.postalcode}" />
+		</div>
+		<div>
+			<label for="subwaylineid">地铁线路：</label>
+			<a href="${basePath}admin/common/subwayList.xhtml?stationid=$!theatre.stationid&lineidlist=$!theatre.lineidlist" target="_blank">[修改地铁线路]</a>
+			<label for="exitnumber" style="float:none; width:70px;text-align:right;">地铁出口：</label>
+			<input name="exitnumber" style="width:125px" type="text" value="$!{theatre.exitnumber}" />
+		</div>
+		<div>
+			<label for="transport">乘车路线：</label>
+			<input name="transport" type="text" value="$!{theatre.transport}" />
+		</div>
+		<div>
+			<label for="countyCode">区县：</label>
+			<select name = "countyCode" id="county" onchange="queryIndexarea()" style="width:185px">
+				<option value="">请选择....</option>
+				#foreach($county in $countyList)
+				<option value="$!{county.countycode}" #if($VmUtils.eq($!theatre.countycode, $county.countycode))selected#end>$!{county.countyname}</option>
+				#end
+			</select>
+			<label for="indexareaCode" style="float:none; width:70px;text-align:right;">商圈：</label>
+			<select name="indexareaCode" id="indexarea" style="width:185px">
+				<option value="">请选择....</option>
+				#foreach($indexarea in $indexareaList)
+				<option value="$!{indexarea.indexareacode}" #if($VmUtils.eq($!theatre.indexareacode, $indexarea.indexareacode))selected#end>$!{indexarea.indexareaname}</option>
+				#end
+			</select>
+		</div>
+		<div>
+			<label for="address">地址：</label>
+			<input type="text" name="address" value="$!{theatre.address}" />
+		</div>
+		<div>
+			#set($theatreOtherinfo=$VmUtils.readJsonToMap($!theatre.otherinfo))
+			<label for="park">停车位：</label>
+			#if($VmUtils.isBlank($!theatreOtherinfo.get('park')))
+			#set($park=$!theatre.park)
+			#else
+			#set($park=$!theatreOtherinfo.get('park'))
+			#end
+			<input type="text" name="park" value="$!park" />
+		</div>
+		<div>
+			<label for="visacard">刷卡：</label>
+			#if($VmUtils.isBlank($!theatreOtherinfo.get('visacard')))
+			#set($visacard=$!theatre.visacard)
+			#else
+			#set($visacard=$!theatreOtherinfo.get('visacard'))
+			#end
+			<input type="text" name="visacard" value="$!visacard" />
+		</div>
+		<div>
+			<label for="playground">游乐场：</label>
+			#if($VmUtils.isBlank($!theatreOtherinfo.get('playground')))
+			#set($playground=$!theatre.playground)
+			#else
+			#set($playground=$!theatreOtherinfo.get('playground'))
+			#end
+			<input type="text" name="playground" value="$!playground" />
+		</div>
+		<div>
+			<label for="feature">剧院特色：</label>
+			<textarea name="feature" cols="80" rows="2">$!{theatre.feature}</textarea>
+		</div>
+		<div>
+			<label for="content">剧院简介：</label>
+			<textarea name="content" id="content">$!{theatre.content}</textarea>
+		</div>
+		<div>
+			<label for="firstpic">第一张图片：</label>
+			<input type="text" name="firstpic" id="firstpic" value="$!{theatre.firstpic}" style="width:485px"/>
+		</div>
+		<div id="uploadDiv">
+			<label>LOGO：</label>
+			<input type="text" name="logo" id="logo" value="$!{theatre.logo}" style="width:485px"/>
+			#if($VmUtils.isNotBlank($!{theatre.logo}))<img style="width:162px; height:57px;" id='logoimg' src='${basePath}$!theatre.logo' />#end
+		</div>
+		<div>
+			<label>上传：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/theatre&callback=updateLogo"></iframe>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="submit" class="button" id="btn" style="width:100px" value="保存"/>
+		</div>
+		<div id="msg" style="color:red;"></div>
+		<div style="color:blue;">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+		</form>
+	</div><!-- end of bd -->
+</div>
+	<script type="text/javascript">
+	var ckeditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("content");
+	});
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg').src='${basePath}' + picpath;
+	}
+	function saveTheatre(){
+		$("content").value=ckeditor.getData();
+		var values = GewaraUtil.getValues("theatreForm");
+		var url = '${basePath}admin/theatre/saveTheatre.xhtml'
+		GewaraUtil.mask('btn');
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert('保存成功！');
+				$("msg").set("html",'');
+				$('theatreId').value = result.retval;
+			}else{
+				alert('保存失败！');
+				$("msg").set("html", result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

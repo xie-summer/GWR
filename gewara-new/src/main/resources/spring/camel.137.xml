@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:beans xmlns="http://camel.apache.org/schema/spring"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:b="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+	<camelContext id="camel">
+		<route>
+			<from uri="activemq:queue:addOrderQueue"/>
+			<choice>
+				<when>
+					<javaScript>request.headers.get('msgtag') == 'order'</javaScript>
+					<to uri="bean:jmsMsgConsumer?method=addOrder"/>
+				</when>
+				<otherwise>
+					<to uri="activemq:queue:otherMsgQueue"/>
+				</otherwise>
+			</choice>
+		</route>
+		<route>
+			<from uri="activemq:queue:paidOrderQueue"/>
+			<choice>
+				<when>
+					<javaScript>request.headers.get('msgtag') == 'order'</javaScript>
+					<to uri="bean:jmsMsgConsumer?method=processOrder"/>
+				</when>
+				<otherwise>
+					<to uri="activemq:queue:otherMsgQueue"/>
+				</otherwise>
+			</choice>
+		</route>
+		<route>
+			<from uri="activemq:queue:gpticketRemoteOrderQueue"/>
+			<choice>
+				<when>
+					<javaScript>request.headers.get('msgtag') == 'remoteOrder'</javaScript>
+					<to uri="bean:jmsMsgConsumer?method=backGpticketRemoteOrder"/>
+				</when>
+				<otherwise>
+					<to uri="activemq:queue:otherMsgQueue"/>
+				</otherwise>
+			</choice>
+		</route>
+		<route>
+			<from uri="activemq:queue:testQueue"/>
+			<to uri="bean:jmsMsgConsumer?method=testQueue"/>
+		</route>
+		<route>
+			<from uri="activemq:queue:smsMOQueue"/>
+			<to uri="bean:jmsMsgConsumer?method=handleSmsMO"/>
+		</route>
+	</camelContext>
+	<b:bean id="activemq" class="org.apache.camel.component.jms.JmsComponent">
+		<b:property name="connectionFactory" ref="jmsFactory" />
+	</b:bean>
+	<b:bean id="jmsMsgConsumer" class="com.gewara.jms.JmsMsgConsumer"/>
+</b:beans>

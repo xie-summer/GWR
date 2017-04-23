@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>商家系统公告</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body class="yui-skin-sam" style="margin:auto">
+<div style="padding:1px;">
+	<form action="${basePath}admin/cinema/cinemaProNotifyList.xhtml" style="margin:3px; width:50px; float: left;">
+		<input type="hidden" name="status" value="new"/> 
+		<input type="submit"  value="未处理" #if($status eq 'new') disabled="disabled" #else class="button" #end /> 
+	</form>
+	<form action="${basePath}admin/cinema/cinemaProNotifyList.xhtml" style="margin:3px; width:300px; float: left;">
+		<input type="hidden" name="status" value="process"/> 
+		<input type="submit" #if($status eq 'process') disabled="disabled" #else class="button" #end value="已处理"/> 
+	</form>
+</div>
+<br/>
+#if($status eq 'new')
+<table class="table clear">
+	<thead>
+	<tr>
+		<th>编号</th>
+		<th>发布时间</th>
+		<th>影院名称</th>
+		<th>发布用户</th>
+		<th>标题</th>
+		<th>处理</th>
+	</tr>
+	</thead>
+	<tbody id="cinemaTable">
+	#foreach($notify in $cList)
+	<tr>
+		<td>$!{notify.num}</td>
+		<td>$!{notify.addTime}</td>
+		<td>$!{notify.cinemaName}</td>
+		<td>$!{notify.publishUser}</td>
+		<td title="$!{notify.content}">$!{notify.title}</td>
+		<td>
+			<a href="javascript:processNotify('$!{notify.get_id()}','process_y')" >处理成功</a>
+			<a href="javascript:processNotify('$!{notify.get_id()}','process_n')" >处理失败</a>
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+#else
+<div style="padding:1px;float:left;width:100%">
+	<span style="float:left"><b>查询条件：</b></span>
+	<form action="${basePath}admin/cinema/cinemaProNotifyList.xhtml" style="margin:3px; width:1000px; float: left;">
+		<input type="hidden" name="status" value="process" />
+		<span style="float:left">
+		开始时间:<input name="startTime" readonly="readonly" onclick="WdatePicker()" type="text" style="width:80px" value="$!params.startTime"/>
+		</span>
+		<span style="float:left">
+		结束时间:<input name="endTime" readonly="readonly" onclick="WdatePicker()" type="text" style="width:80px" value="$!params.endTime"/>
+		</span>
+		<span style="float:left">
+		编号：<input type="text" name="num" value="$!params.num"/>
+		</span>
+		<span style="float:left">
+		影院：<input type="text" name="cinemaName" value="$!params.cinemaName"/>
+		<input type="submit" class="button" value="查询"/> 
+		</span>
+	</form>
+</div>
+<table class="table clear">
+	<thead>
+	<tr>
+		<th>编号</th>
+		<th>发布时间</th>
+		<th>处理时间</th>
+		<th>影院名称</th>
+		<th>发布用户</th>
+		<th>标题</th>
+		<th>处理结果</th>
+		<th>处理人</th>
+	</tr>
+	</thead>
+	<tbody id="cinemaTable">
+	#foreach($notify in $cList)
+	<tr>
+		<td>$!{notify.num}</td>
+		<td>$!{notify.addTime}</td>
+		<td>$!{notify.checkTime}</td>
+		<td>$!{notify.cinemaName}</td>
+		<td>$!{notify.publishUser}</td>
+		<td title="$!{notify.content}">$!{notify.title}</td>
+		<td title="$!{notify.remark}">
+			#if($notify.status eq 'process_y')
+			处理成功
+			#else
+			处理失败
+			#end
+		</td>
+		<td>$!{notify.checkUserName}</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+#end
+<div style="padding:0 15px;">#parse('include/pageUtil.vm')</div>
+
+<div id="processNotify" class="yui-panel" style="width:550px; height:550px; visibility:hidden;">
+	<div class="hd" id="title">处理影院商家公告</div>
+	<div class="bd">
+	<form name="processNotifyForm" id="processNotifyForm">
+		<input type='hidden' name='id' id="notifyId" value=""/>
+		<input type='hidden' name='status' id="notifyStatus" value=""/>
+		<div>
+			<label for="keyword">备注：</label>
+			<textarea rows="5" cols="40" name="msg" id="notifyMsg"></textarea>
+		</div>
+		<input type="button" onclick="processForm()" style="width:70px" class="button" value="确定"/>
+		<input type="button" onclick="cancleProcessNotity();" style="width:70px" class="button" value="取消"/>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+function processNotify(id,status){
+	$("notifyId").value = id;
+	$("notifyStatus").value = status;
+	GewaraUtil.showDialog("processNotify");
+}
+function processForm(){
+	var	url =  "${basePath}admin/cinema/ajaxProcessCinemaNotifyList.xhtml";
+	GewaraUtil.sendRequest(url, {'id':$("notifyId").value,'status':$("notifyStatus").value,'msg':$("notifyMsg").value},function(result){
+		if(result.success){
+			gewaUtil.alert("设置成功！");
+			refreshPage();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+
+function cancleProcessNotity(){
+	$("notifyId").value = "";
+	$("notifyStatus").value = "";
+	GewaraUtil.hideDialog("processNotify");
+}
+</script>
+</body>
+</html>

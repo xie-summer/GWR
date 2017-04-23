@@ -1,0 +1,53 @@
+<ul class="ui_abeam btLine">
+	#set($DataMap={'xiangqu':'想去', 'quguo':'去过', 'together':'想练','played':'练过','collect':'收藏'})
+	#set($MovieDramaMap={'xiangqu':'想看', 'quguo':'看过','collect':'收藏'})
+	#foreach($treasure in $treasureList)
+	#set($treasureObj=$treasureMap.get($!treasure.id))
+	<li class="abeam" id="interest$!{treasure.id}">
+		#if($VmUtils.eq($!treasure.tag, 'gymcourse'))
+			#set($ttag='gym/course')
+		#elseif($VmUtils.eq($!treasure.tag, 'sportservice'))
+			#set($ttag='sport/item')
+		#elseif($VmUtils.eq($!treasure.tag, 'member'))
+			#set($ttag='wala')
+		#elseif($VmUtils.eq($!treasure.tag, 'barsinger'))
+			#set($ttag='bar/singer')
+		#elseif($VmUtils.eq($!treasure.tag,'dramastar')) 
+			#set($ttag='drama/star')
+		#elseif($VmUtils.eq($!treasure.tag,'gymcoach'))
+			#set($ttag='gym/coach')
+		#else 
+			#set($ttag=$!treasure.tag)
+		#end
+		<div class="uipic">
+			<a href="${basePath}$!ttag/$!{treasureObj.id}" target="_blank"><img src="$VmUtils.randomPic('cw96h128',$!treasureObj.logo)" alt=""/></a>
+		</div>
+		<div class="uiText">
+			<div class="title">
+				<span class="fs14 gray"> #if($VmUtils.eq($treasure.tag, 'movie') || $VmUtils.eq($treasure.tag, 'drama')) 感兴趣 #else $!DataMap.get($!treasure.action) #end</span><span class="ml5 mr5">|</span>
+				
+				<h2><a href="${basePath}$!ttag/$!{treasureObj.id}" target="_blank">
+				#if($!treasure.tag eq 'member')
+				$!treasureObj.nickname
+				#else
+				$!treasureObj.name 
+				#end
+				</a></h2>
+			</div>
+			#if($VmUtils.eq($!treasure.tag, 'movie') || $VmUtils.eq($!treasure.tag, 'drama'))
+			<p class="mt10">导演：$!treasureObj.director</p>
+			<p>主演：$!treasureObj.actors</p>
+			#end
+			<div class="mt10 gray">
+				<p>$!DateUtil.format($!treasure.addtime ,'yyyy-MM-dd HH:mm') 
+					#if(($VmUtils.eq($treasure.action, 'xiangqu')|| $VmUtils.eq($treasure.action, 'xiangxue') ||$VmUtils.eq($treasure.action, 'together')) && $VmUtils.isNotBlank($!treasure.actionlabel))<span class="ml30">标签：<span class="ml10" id="actionlabel$!{treasure.id}">$!treasure.actionlabel</span></span>#end
+				</p>
+				<p>#if(($VmUtils.eq($treasure.action, 'xiangqu')|| $VmUtils.eq($treasure.action, 'xiangxue') ||$VmUtils.eq($treasure.action, 'together')) && $VmUtils.isNotBlank($!treasure.actionlabel))<a class="gray" href="javascript:void(0)" onclick="modifyLabel($!treasure.id)">修改</a> <span class="mr5 ml5">|</span>#end
+				#if($VmUtils.eq($!logonMember.id, $!member.id)) <a class="gray" href="javascript:void(0)" onclick="delInterest('$!treasure.id')">删除</a>#end</p>
+			</div>
+		</div>
+	</li>
+	#end
+</ul>
+#set($pageFun="ajaxPage")
+#parse('include/scriptPageUtil.vm')

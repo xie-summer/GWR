@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>增加过滤关键字</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,remote-util"></script>
+</head>
+<body>   
+#set($tmp='addFilter')
+#set($keywordsLen=$VmUtils.size($keywordsList))
+<div id="content">
+<div class="bc1"></div>
+<div id="content_left" style="width:98%;margin:auto;">
+	<div class="panelTop"><em></em></div>
+	<div class="panelMid">
+	#parse('admin/audit/common.vm')
+	<table id="checktable" style="width:100%;" class="blogtable">
+		<thead>
+			<tr>
+			<th>&nbsp;</th>
+			<th>
+			关键字:
+				<textarea name="filter" id="filter"></textarea>
+				<input type="button" value="添加" onclick="addFilter()"/>
+			(注意添加关键字：不要包含一些字符如：+ - * ，" 等等,关键字中间以，号分开)
+			</th>
+			</tr>
+		</thead>
+	</table>
+	<form action="${basePath}admin/audit/addFilter.xhtml">
+	<table id="checktable" style="width:100%;" class="blogtable">
+		<thead>
+			<tr>
+			<th>&nbsp;<input type="hidden" name="keytype" value="$!keytype"/></th>
+			<th>关键字:<input type="text" name="keyword" id="keyword" value="$!params.keyword"/>
+			<input type="submit" value="查询"/>
+			<span style="color: red; font-size: 22px;">(添加或者删除关键字后，必须点击强制刷新按钮-><a style="color: #ff6200" href="${basePath}admin/sysmgr/rebuildFilterKeys.xhtml" target="_blank">强制刷新</a></span>
+			</tr>
+		</thead>
+	</table>
+	</form>
+	<table id="checktable" style="width:100%;" class="blogtable">
+		<caption>#parse('include/pageUtil.vm')</caption>
+		<thead>
+			<tr>
+			<th colspan="5">关键字</th>
+			<th>删除</th>
+			</tr>
+		</thead>
+		<tbody>
+		#foreach($key in $keywordsList)
+		#if($foreach.count%3 eq 1) 
+		<tr>
+		#end
+			<td style="cursor: pointer;">&nbsp;&nbsp;$key</td>
+			<td><input type="button" value="删除" onclick="removeFilter('$key')" /></td>
+		#if($foreach.count%3 eq 0 || $foreach.count eq $keywordsLen)
+		</tr>
+		#end
+		#end
+		</tbody>
+	</table>
+	</div><!-- end panelMid-->
+	<div class="panelBot"><em></em></div>
+</div><!-- end content_left -->
+<div id="height0"></div>
+</div><!--end content-->
+<div id="panel_bottom"></div>
+	<script type="text/javascript">
+	function addFilter(){
+		if($('filter').value=='') {
+			alert('请输入关键字');
+			return;
+		}
+		var url = "${basePath}admin/audit/ajax/addFilter.xhtml";
+		var values = {'keyword':$('filter').value, 'keytype':'$!{keytype}'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('添加成功！');
+				refreshPage();
+			}else{alert(result.msg);}
+		});
+	}
+	function removeFilter(keyword){
+		var url = "${basePath}admin/audit/ajax/removeFilter.xhtml";
+		var values = {'keyword':keyword, 'keytype':'$!{keytype}'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('删除成功！');
+				refreshPage();
+			}else{alert(result.msg);}
+		});
+	}
+</script>
+<div id="height0"></div>
+</body>
+</html>

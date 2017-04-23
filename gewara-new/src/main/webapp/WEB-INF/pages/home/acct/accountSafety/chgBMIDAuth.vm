@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>更换绑定手机_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	#parse('home/acct/accountSafety/style.vm')
+</head>
+<body>
+#set($ishome=true)#set($safetyCenter = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			<div class="mod_tLine">
+				<div class="mod_hd"><h2>更换绑定手机</h2></div>
+				<div class="mod_bd">
+					<div class="payStep01">
+						<ul class="payOrderSteps clear">
+							<li class="step1">1、验证身份</li>
+							<li class="step2">2、填写新手机号码</li>
+							<li class="step3">3、完成</li>
+						</ul>
+					</div>
+					<div class="clew mt15" style="padding:5px 10px;">为了您的账户安全，在更换绑定手机号之前；将对您的身份验证后才能找回！确认是本人找回...</div>
+					<form id="authForm" action="javascript:chgAuth();" method="post">
+					<div class="modifyBox" >
+						<ul>
+							<li>
+								<div class="ui_media">
+									<div class="ui_pic">请选择身份验证方式：</div>
+									<div class="ui_text">
+										<select id="selector" name="choice" onchange="gotoOtherCheck(this);">
+											<option value="${basePath}home/acct/changeBindMobile.xhtml?authType=oldmobile&tagNo=$VmUtils.getRandom()">默认手机动态码验证</option>
+											<option value="${basePath}home/acct/changeBindMobile.xhtml?authType=id&tagNo=$VmUtils.getRandom()" selected>身份信息验证</option>
+											<option value="${basePath}home/acct/changeBindMobile.xhtml?authType=paypass&tagNo=$VmUtils.getRandom()">支付密码验证</option>
+										</select>
+									</div>
+								</div>
+								<div class="ui_media mt15">
+									<div class="ui_pic"><span class="red ffst mr5">*</span>姓名：</div>
+									<div class="ui_text">
+										<input type="text" class="text validate['required','length[2,15]']" name="realname"/><span class="ml10" style="color:#ccc">输入设置支付密码时，填写的姓名</span>
+									</div>
+								</div>
+								<div class="ui_media mt15">
+									<div class="ui_pic"><span class="red ffst mr5">*</span>原手机号码：</div>
+									<div class="ui_text">
+										<input type="text" class="text validate['required','%checkMobile']" name="mobile"/>
+									</div>
+								</div>
+								<div class="ui_media mt15">
+									<div class="ui_pic"><span class="red ffst mr5">*</span>证件类型：</div>
+									<div class="ui_text">
+										<select name="certtype">
+											<option value="0" selected>身份证</option>
+											<option value="1">护照</option>
+											<option value="2">军官证</option>
+										</select>
+									</div>
+								</div>
+								<div class="ui_media mt15">
+									<div class="ui_pic"><span class="red ffst mr5">*</span>证件号码：</div>
+									<div class="ui_text">
+										<input type="text" class="text validate['required','%checkCardLength']" name="idcard"/><span class="ml10" style="color:#ccc">输入设置支付密码时，填写的证件号码</span>
+									</div>
+								</div>
+								<div class="ui_media mt15" id="captchaDiv" style="display:none;">
+									<div class="ui_pic"><span class="red ffst mr5">*</span>验证码：</div>
+									<div class="ui_text">
+										<input type="hidden" name="captchaId"  id="userCaptcha"/>
+										<input type="text" class="text" id="userCaptchaInput" name="captcha" alt="点击获取" autocomplete="off" onfocus="GewaraUtil.refreshCaptcha('userCaptcha')" style="width:90px"/>
+										<img id="userCaptchaImg" width="80" height="30" class="ml10" src="${staticPath}css/images/blank.gif" style="cursor: pointer;" onclick="GewaraUtil.refreshCaptcha('userCaptcha')" title="看不清楚，请点击换一张图片"/>
+									</div>
+								</div>
+								<div class="ui_media mt15">
+									<div class="ui_text" style="margin-left:200px;">
+									<p class="mt20"><input id="chgAuthBtn" type="submit" class="btn redBtn" value="确认提交"></p>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+					</form>
+					<div class="clew mt15">
+						<ul class="ui_abeam maxw94">
+							<li class="abeam" style="padding:10px;margin:0;">
+								<div class="uipic"><img src="${picPath}css/home/ico_g.gif" class="mt5" /></div>
+								<div class="uiText">
+									<b>为什么切换手机还跟身份信息有关系?</b>
+									<p>手机号码会涉及整个账户的操作权限，一旦被修改后您的支付密码、个人信息将有可能被篡改；所以当您选择身份信息验证时，为了您的账户安全需要对身份信息进行严格验证。</p>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+function gotoOtherCheck(that){
+	if($(that).value != ''){
+		document.location.href = $(that).value;
+	}
+}
+var needCaptcha = false;
+function checkCardLength(el){
+	if(!el.value.test(/^[A-Za-z0-9_]*$/g)){
+		GewaraUtil.showValidateErr(el,'证件号码格式不正确！');
+		return false;
+	}
+	if(el.value.length<6){
+		GewaraUtil.showValidateErr(el,'证件号码格式不正确！');
+		return false;
+	}
+}
+function checkMobile(el){
+	if(!gewara.util.isMobile(el.value) || !el.value){
+		GewaraUtil.showValidateErr(el,'手机号格式不正确！');
+      return false;
+	}
+}
+function chgAuth(){
+	var url = '${basePath}home/acct/chgBMIDAuth.xhtml';
+	GewaraUtil.mask('chgAuthBtn');
+	var values = GewaraUtil.getValues("authForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.refreshCaptcha){
+			$('captchaDiv').show();
+			GewaraUtil.refreshCaptcha('userCaptcha');
+			needCaptcha = true;
+		}
+		if(result.success){
+			window.location.href='${basePath}home/acct/newBindMobile.xhtml?encode='+result.retval;
+		}else{
+			if(result.msg) {
+				gewaUtil.alert(result.msg,function(){GewaraUtil.refreshCaptcha('userCaptcha');});
+			}else{
+				GewaraUtil.showErrorMsg('authForm',result.errorMap);
+				GewaraUtil.refreshCaptcha('userCaptcha');
+			}
+		}
+	});
+}
+window.addEvent('domready',function(){
+	#if($!needCaptcha)
+		$('captchaDiv').show();
+		GewaraUtil.refreshCaptcha('userCaptcha');
+		needCaptcha = true;
+	#end
+})
+</script>
+</body>
+</html>

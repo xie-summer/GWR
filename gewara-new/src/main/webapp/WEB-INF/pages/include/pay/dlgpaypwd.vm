@@ -1,0 +1,43 @@
+<div id="updatePaypwdDV" style="display:none">
+#if($notPassCheck)
+<div class="mt20 fs14 ml30">
+	为了你的账户安全请设置支付密码并牢记！
+</div>
+<ul class="ul-80">
+	<li><span class="ul-80Inner" style="width:150px;">支付密码：</span><input  mustTxt="支付密码不能为空！" type="password" class="text left validate['required','length[6,12]']" maxlength="12" name="password" /><b class="brown ml10">*</b></li>
+	<li><span class="ul-80Inner" style="width:150px;">确认支付密码：</span><input mustTxt="确认支付密码不能为空！" type="password" class="text left validate['confirm[password]']" maxlength="12" name="confirmPassword" /><b class="brown ml10">*</b></li>
+</ul>
+#end
+</div>
+<script>
+	// 忘记密码
+	chargePayPass = function(){
+		var url = '${basePath}home/acct/changePayPass.xhtml';
+		GewaraUtil.sendRequest(url, {}, function(result){
+			if(result.success){
+				gewaUtil.alert("邮件已发送到您绑定的邮箱中，请接收邮件完成修改支付密码!");
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	}
+	bindPaypwd = function(){
+		gewa.util.issure('','updatePaypwdDV','支付密码设置',470,'updatePaypwdDV',function(){
+			submitFrm();
+		})
+	}	
+	function submitFrm(){
+		if(!GewaraUtil.baseValidForm('updatePaypwdDV'))return false;
+		var url = '${basePath}home/saveAccountPwd.xhtml';
+		var values = GewaraUtil.getValues('updatePaypwdDV');
+		GewaraUtil.mask();
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				gewaUtil.alert('设置成功!', refreshPage);
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	}
+</script>

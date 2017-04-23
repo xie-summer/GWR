@@ -1,0 +1,247 @@
+<!Doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=7" />
+<title>${opi.cinemaname}-${opi.moviename}-$DateUtil.format($opi.playtime,"M月d日")在线购票_格瓦拉生活网</title>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=new_play,ui_layout&v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,tips,scrollerbar&v=$VmUtils.jsVersion"></script>
+<style type="text/css">
+.text{padding:4px; color: #333; font-size: 18px;}
+.payStep02 .step4{background-image:none;}
+.plugP{position:absolute; bottom:0px; left:10px; background:#fff;height:39px; width:376px; z-index:9;border-top:1px solid #eee;}
+.plugS{width:96px;height:24px;text-align:center; line-height:24px;position:absolute;left:40%;top:-1px; background:url(${picPath}css/global/bar.png?v=000) 0 -276px; cursor:pointer; color:#666;}
+.spNoticeBox a.more{background:url(${staticPath}css/movie_wide/ico_seat.gif) no-repeat;}
+
+
+/*新版订座问卷调查*/
+.asqBtn{position:fixed; z-index:11; height:24px; bottom:0; right:0; border:1px solid #aaa; border-bottom:0; border-radius:3px 3px 0 0; box-shadow:0 0 6px #808080; background:#fff; _position:absolute;_margin-top:expression(this.style.pixelHeight+document.documentElement.scrollTop);}
+.asqBtnInner{width:70px; position:relative; height:24px; line-height:24px; line-height:26px\9; overflow:hidden; padding:0 10px;}
+.more_c{right:6px; top:6px; position:absolute;}
+
+.spNoticeBox{background:#ffd; border:1px solid #ffcb99; padding:10px; margin-bottom:10px; position:relative;}
+.spNoticeBox a.more{display:block; width:21px; height:21px; top:5px; right:5px; background-position:3px -471px; cursor:pointer;}
+.spNoticeBox a.more:hover{background-position:-42px -471px; background-color:#ffddc6;}
+
+.banner{width:960px;height:auto;overflow:hidden;margin:0 auto;background:#fff;}
+.banner .publicize,.banner .publicize img{width:960px;height:auto;}
+.glass,.children{background:url(${staticPath}css/buss/steps.gif) no-repeat; display:inline-block; width:16px; height:16px; vertical-align:middle; margin-right:5px;}
+.glass{background-position:right -241px;}
+.children{background-position:right -272px;}
+
+.preViewBox{border:1px solid #efeeed;}
+.selectSeatBtm{border-top:1px solid #efeeed;}
+.pewseat{border-left:1px solid #efeeed;}
+.mod_kong{color:#333; padding:20px 30px; width:520px; margin:0 auto;}
+.mod_kong .mod_hd{padding-bottom:20px; height:24px;}
+.mod_kong .mod_hd h2{font:normal 30px/40px '微软雅黑','宋体';}
+.mod_kong .mod_bd p{font:normal 18px/30px '微软雅黑','宋体'; color:#999;}
+.mobileText{font:bold 16px/40px '微软雅黑','宋体'; float:left;}
+.inputText{border:1px solid #ccc; box-shadow:1px 1px 1px 0 #EAEAEA inset; font-family:verdana; height:30px; line-height:30px; border-radius:2px; padding:2px 5px; margin-right:10px; width:220px;}
+</style>
+</head>
+<body>
+#set($isPay = true)#set($isChooseSeat = true)#set($movieFlag="buyticket")
+#set($googleSpeedPageTag='/cinema/step1.xhtml')#set($iskefu=false)
+#set($cfgHeader='header')#parse('include/wide_header.vm')
+#if($adspdiscount.banner)
+<div class="banner"><img src="$VmUtils.randomPic('',$adspdiscount.banner)"/></div>
+#else
+<div class="banner none" id="ticketBanner">#parse('include/ad/ad_ticketorder.vm')</div>
+#end
+
+<div class="ui_layout">
+	<div class="inner">
+		<div class="payStep02">
+			<ul class="payOrderSteps clear">
+				<li class="step1">1.选择影片场次</li>
+				<li class="step2">2.在线选座，填写手机号码</li>
+				<li class="step3">3.确认订单并支付</li>
+				<li class="step4">4.终端机取票</li>
+			</ul>
+		</div>
+		<div class="mt10 preViewBox clear">
+			<div class="movieInfoBox">
+				<ul class="clear">
+					<li class="spec">
+						<dl class="ui_media">
+							<dt class="ui_pic"><a target="_blank" title="$movie.moviename" href="/movie/$movie.id"><img alt="$movie.moviename" src="$VmUtils.randomPic('sw60h80',${movie.limg})" /></a></dt>
+							<dd class="ui_text pUiText">
+								<p>影片：<b><a target="_blank" href="/movie/$movie.id">$movie.moviename</a></b>#if($movie.videolen)<span class="gray ffst ml5">[$!movie.videolen分钟]</span>#end</p>
+								<p>影院：<b class="mr5 c333">$!{cinema.realBriefname}</b><span class="ffst">[<a class="c07f" target="_blank" href="/common/baiduMap.xhtml?id=${cinema.id}&tag=cinema">地址</a>]</span></p>
+								<p class="changeScreen">场次：<b class="fs14 cred mr10">$DateUtil.format($opi.playtime,"yyyy-MM-dd")($DateUtil.getCnWeek($opi.playtime)) $DateUtil.format($opi.playtime,"HH:mm")</b></p>
+							</dd>
+						</dl>
+					</li>
+					<li>
+						<p>语言版本：<b class="c333">$!{opi.language}#if($!opi.edition)&nbsp;&nbsp;$!{opi.edition}#end</b></p>
+						<p>放映影厅：<span class="c333">$room.roomname</span> (#if($room.seatnum ge 200)大厅#elseif($room.seatnum le 120)小厅#else中厅#end $room.seatnum座)</p>
+						<p>格瓦拉价：<span class="fs14 lineth">$!opi.price元</span><b class="fs14 yellow">$!opi.gewaprice元</b> #set($fufee=$opi.gewaprice - $opi.costprice)(含服务费#if($fufee gt 0)${fufee}#{else}0#{end}元)</p>
+					</li>
+					#set($movieOtherinfoMap = $VmUtils.readJsonToMap($movie.otherinfo))
+					#set($cinemaOtherinfoMap = $VmUtils.readJsonToMap($cinema.otherinfo))
+					#if(($VmUtils.containsIgnoreCase(${opi.edition},'3D') && $VmUtils.isNotBlank($cinemaOtherinfoMap.get('3D'))) || $VmUtils.isNotBlank($cinemaOtherinfoMap.get('child')))
+					<li>
+						<p class="clear"><span class="left">场次说明：</span><span class="playsInfo">#if($opi.openPointPay)<em class="j" title="支持积分抵值">积</em>#end#if($opi.openCardPay)<em class="q" title="支持票券抵值">券</em>#end#if($opi.disCountPay)<em class="y" title="支持支付优惠">惠</em>#end #if($!VmUtils.getJsonValueByKey($opi.otherinfo, 'sptitle') eq '明星见面会')<em class="x" title="明星见面会">星</em> #end #if($!VmUtils.eq($!VmUtils.getJsonValueByKey($opi.otherinfo, 'isRefund'), 'Y') && $VmUtils.gt($!DateUtil.getDiffHour($opi.playtime,$DateUtil.currentTime()), 4))<em class="k" title="放映前4小时可退票">退</em> #end #if($!goodsGift)<em class="t" title="绑定套餐场次">餐</em>#end</span></p>
+						#if($VmUtils.containsIgnoreCase(${opi.edition},'3D')&&$VmUtils.isNotBlank($cinemaOtherinfoMap.get('3D')))
+						<p class="c333 point_dot"><span class="glass"></span>$cinemaOtherinfoMap.get('3D')</p>#end 
+						#if($VmUtils.isNotBlank($cinemaOtherinfoMap.get('child')))
+						<p class="c333 point_dot"><span class="children"></span>$cinemaOtherinfoMap.get('child')</p>#end
+					</li>
+					#end
+				</ul>
+			</div>
+		</div>
+		<div class="mt10 clear">
+			#if($VmUtils.isNotBlank($opi.remark))
+				<div class="spNoticeBox">
+					<a class="more" title="关闭" id="clsoeSpecNotice" href="javascript:void(0);"></a>
+					<h2>温馨提示：</h2>
+					<p>$!opi.remark</p>
+				</div>
+			#elseif($VmUtils.isBlank($opi.elecard))
+				<div class="spNoticeBox">
+					<a class="more" title="关闭" id="clsoeSpecNotice" href="javascript:void(0);"></a>
+					<h2>温馨提示：</h2>
+					<p>该场次为特殊场次，不支持使用任何优惠。</p>
+				</div>
+			#elseif($ElecCardHelper.supportAllCard($opi))
+				#if($VmUtils.contains($opi.edition,"IMAX"))
+				<div class="spNoticeBox">
+					<a class="more" title="关闭" id="clsoeSpecNotice" href="javascript:void(0);"></a>
+					<h2>温馨提示：</h2>
+					<p>该场次为特殊场次，券类优惠只支持使用格瓦拉绿券、IMAX券、抵扣券 。</p>
+				</div>
+				#end
+			#else #set($supportCard=$ElecCardHelper.getSupportCard($opi))
+				<div class="spNoticeBox">
+					<a class="more" title="关闭" id="clsoeSpecNotice" href="javascript:void(0);"></a>
+					<h2>温馨提示：</h2>
+					<p>
+						#if($VmUtils.isNotBlank($supportCard))该场次为特殊场次，券类优惠只支持使用格瓦拉${supportCard} 。
+						#else该场次为特殊场次，不支持券类优惠。#end
+					</p>
+				</div>
+			#end
+			#if(!$VmUtils.isEmptyList($movieMpiRemark))
+				<div class="spNoticeBox">
+					<a class="more" title="关闭" id="clsoeSpecNotice" href="javascript:void(0);"></a>
+					<h2>温馨提示：</h2>
+					#foreach($mpiRemark in $movieMpiRemark)
+					<p>$!mpiRemark.remark</p>
+					#end
+				</div>
+			#end
+		</div>
+		<div class="mt10 preViewBox clear">
+			<div id="seatView">
+				<div id="userMobileBox" class="userMobileBox" style="height:300px; margin:10px; padding:50px;">
+					<div class="mod_kong">
+						<div class="mod_hd">
+							<h2>万达电影取票流程已修改</h2>
+						</div>
+						<div class="mod_bd">
+							<p class="mt20">你需要：</p>
+							<p>1. 在购票前先输入手机号码；</p>
+							<p>2. 购票成功后凭取票密码至影院休息区附近的万达取票机取票；</p>
+							<div class="mt30">
+								<span class="mobileText">请输入取票手机号：</span>
+								<input type="text" size="11" style="font-size:16px; font-weight:bold;" class="inputText left" value="$!{mobile}" id="userMobile" />
+								<a class="button redBt maxBt left" id="sureBt" href="javascript:saveMobile();"><span>确&nbsp;&nbsp;认</span></a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="clear selectSeatBtm">
+				<div class="seatGroup">
+					<div class="seatView">
+						<div class="inner mt10">
+							<h3 class="fs14 bold">使用说明：</h3>
+							<p>
+								1、选择你要预订的座位单击选中，重复点击取消所选座位；<br/>
+								2、每笔订单最多可选购$!{opi.gainLockSeat()}张电影票；情侣座不单卖；<br/>
+								3、选座时，请尽量选择相邻座位，请不要留下单个座位；<br/>
+								4、部分影院3D眼镜需要押金，请观影前准备好现金；<br/>
+								5、点击“立即购买”进入付款页面后，请在$!opi.gainLockMinute()分钟内完成支付，超时系统将释放你选定的座位。
+							</p>
+						</div>
+					</div>
+					<div class="pewseat" style="background:none;">
+						<div class="inner mt10">
+							<h3 class="fs14 bold mt10">格瓦拉在线选座购票系统让你：</h3>
+							<p>
+								1、无须在影院排队买票；<br/>
+								2、直观选择最佳座位；<br/>
+								3、专享优惠的影票价格；<br/>
+								4、专业设备影院快捷自助取票；<br/>
+								5、享受优质的服务体验。
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</div>
+
+<!-- 问卷调查 -->
+<div class="asqBtn" id="asqBtn">
+	<div class="asqBtnInner">
+		<a title="反馈你遇到的问题" href="javascript:userResponse();">遇到问题</a>
+		<img style="cursor:pointer;" onclick="cutClose()" title="关闭" alt="关闭" class="more_c" src="http://static.gewara.cn/css/home/close.gif"/>
+	</div>
+</div>
+#set($surveyId='54925153')
+#parse('include/home/userResponse.vm')
+
+<script type="text/javascript">
+window.addEvent('domready', function(){
+	#if(!$adspdiscount.banner)
+	adIndexOther();
+	#end
+	if($('clsoeSpecNotice')){
+		$('clsoeSpecNotice').addEvent('click',function(){
+			this.getParent('div.spNoticeBox').addClass('none');
+		});
+	};
+});
+
+function saveMobile(){
+	gewa.util.mask({'element':'sureBt','title':'正在查询排片...', "opacity":"0.4"});
+	GewaraUtil.sendRequest("${basePath}gewapay/gotoWd.xhtml", {"seqNo":"$opi.seqNo", "mpid":"$opi.mpid", "mobile":$("userMobile").value, "r":$random(1, 99999)}, function(result){
+		gewara.util.unmask();
+		if(result.success){
+			$('userMobileBox').dispose();
+			new Element('iframe',{'src':result.retval,'width':'1178px','height':'800px;','frameborder':'0'}).inject($('seatView'))
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	})
+}
+
+function cutClose(){
+	$('asqBtn').dissolve();
+}
+
+function adIndexOther(){
+	var url = '${basePath}ajax/common/getIndexOtherRandomAd.xhtml';
+	var values = {'pid':$('adpid').value, 'tag':'movie', 'relatedid':'$!movie.id'};
+	GewaraUtil.sendLoad('ajaxLoadAD', url, values, function(result){
+		if(result.success){
+			if(result.html.length != 0){
+				$('ajaxLoadAD').removeClass('none');
+				new adSoild('publicize','navControl',{'position':{x:960,y:100}});
+				$('ajaxLoadAD').getElements('a').addEvent('click',function(e){e.preventDefault();});
+				$('ticketBanner').removeClass('none');
+			}
+		}
+	});
+}
+</script>
+
+#parse('include/wide_footer.vm')
+</body>
+</html>

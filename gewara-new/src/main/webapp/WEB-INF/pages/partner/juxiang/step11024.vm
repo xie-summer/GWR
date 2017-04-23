@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>格瓦拉影院自助终端系统 - 格瓦拉生活网</title>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/partner/juxiang/new_layout.css"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/new_base.js"></script>
+</head>
+
+<body>
+<div class="ui_layout">
+	<div class="ui_header"><h1>格瓦拉影院自助终端系统</h1></div>
+    <div class="ui_content">
+    	<div class="ui_step ui_step1"></div>
+        <div class="ui_left">
+        	<div class="mod_kong movieList clear">
+            	<div class="mod_hd">
+                	<h2>选择影片</h2>
+                    <ul class="event_tags">
+                    #foreach($date in $dateList)
+                    	<li>
+                    		<a #if($DateUtil.format($date,'yyyy-MM-dd') eq $DateUtil.format($fyrq,'yyyy-MM-dd'))class="select"#end href="${basePath}partner/juxiang/opiList.xhtml?movieid=$!{movie.id}&pageNo=$!{currentPage}&fyrq=$!{DateUtil.format($date,'yyyy-MM-dd')}&width=$!{width}">
+                    			#if($DateUtil.getAgendaDate($date,'yyyy-MM-dd') eq '今天' || $DateUtil.getAgendaDate($date,'yyyy-MM-dd') eq '明天')$DateUtil.getAgendaDate($date,'yyyy-MM-dd')#end $!{DateUtil.format($date,'M月d日')}
+                    		</a>
+                    	</li>
+                     #end
+                    </ul>
+                </div>
+                <div class="mod_bd">
+                	<ul>
+                	 	#foreach($movie in $movieList)
+                    	<li>                        	
+                        	<a title="$!{movie.name}" href="${basePath}partner/juxiang/opiList.xhtml?fyrq=$!{DateUtil.format($fyrq,'yyyy-MM-dd')}&pageNo=$!{currentPage}&movieid=$!{movie.id}&width=$!{width}"></a>
+                            <img width="97" height="135" alt="$!{movie.name}" src="${staticPath}$!{movie.limg}"/>
+                            <p>$!{movie.name}</p>
+                        </li>
+                        #end
+                    </ul>
+                </div>
+            </div>
+            <div class="pageTag">
+            	#if($upPage)<a class="pre" href="${basePath}partner/juxiang/opiList.xhtml?fyrq=$!{DateUtil.format($fyrq,'yyyy-MM-dd')}&pageNo=$!{prePageNo}&width=$!{width}">上一页</a>#end
+                #if($nextPage)<a class="next" href="${basePath}partner/juxiang/opiList.xhtml?fyrq=$!{DateUtil.format($fyrq,'yyyy-MM-dd')}&pageNo=$!{nextPageNo}&width=$!{width}">下一页</a>#end
+            </div>
+        </div>
+        <div class="ui_right">
+        	<div class="mod_kong">
+            	<div class="mod_hd">
+                	<h2>影片信息</h2>                    
+                </div>
+                <div class="mod_bd movieInfo">
+                	<div class="movieBox">
+                    	<a title="$!{movie.name}" ></a>
+                        <img width="97" height="135" alt="$!{movie.name}" src="${staticPath}$!{movie.limg}"/>                        
+                    </div>
+                    <h3>$!{movie.name}</h3>
+                    <p>首映：$!{DateUtil.format($movie.releasedate,'yyyy年MM月dd')}</p>
+                    <p>主演/导演：$!{movie.director}/$!{movie.actors}</p>
+                    <p class="movieText">$!VmUtils.htmlabbr($!movie.content,200) ...</p>
+                </div>
+            </div>
+            <a class="bigBt buyNow" href="${basePath}partner/juxiang/chooseArea.xhtml?movieid=$!{movie.id}&fyrq=$!{DateUtil.format($fyrq,'yyyy-MM-dd')}&width=$!{width}">立即购票</a>
+        </div>
+    </div>
+    <div class="ui_footer">    	
+        <a class="goBack" href="${basePath}partner/juxiang/opiList.xhtml?pageNo=0&width=$!{width}">返回</a>
+        <a class="logOut" href="javascript:window.external.FromExit()">退出</a>
+    </div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	selectTags();
+});
+</script>
+</body>
+</html>

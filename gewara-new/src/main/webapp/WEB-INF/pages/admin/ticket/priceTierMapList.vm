@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影最低价格基础数据设置</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+	</style>
+</head>
+<body style="text-align: center;width: 90%; margin:auto;">
+
+<form action="${basePath}admin/ticket/priceTier.xhtml">
+	<div>
+		电影ID:<input type="text" name="movieid" id="movieid" value="$!params.movieid"/>
+		<input type="submit" value="查询"/>
+		<input type="button" value="添加类别" onclick="showPriceTier()"/>
+		<a href="${basePath}admin/ticket/movieBasePrice.xhtml" target="_blank">查看城市类别</a>
+	</div>
+	<div id="batch">
+		<input type="checkbox" name="tag" id="tag" value="coerce" />强制覆盖
+		<input type="checkbox" name="edition3D" value="edition3D" />3D
+		<input type="checkbox" name="editionJUMU" value="editionJUMU" />巨幕
+		<input type="checkbox" name="editionIMAX" value="editionIMAX" />IMAX
+		<input type="button" value="批量设置价格" onclick="batchPrice(this)"/>
+		<a href="${basePath}admin/ticket/diffMoviePrice.xhtml" target="_blank">查看不同电影价格</a>
+	</div>
+</form>
+<div id="priceTier" style="display: none;">
+	<span style="display: block;">类别如:A、B、C、D 等...</span>
+	<span style="display: block;">类别：<input type="text" name="id" value=""/></span>
+	<span style="display: block;margin-top: 5px;text-align: right;"><input type="button" value="确定" onclick="savePriceTier(this)" style="margin-right: 10px;"/><input type="button" value="取消" onclick="hideTier('priceTier')"></input></span>
+</div>
+<table class="roomManageTable" id="all_content" cellpadding="0" cellspacing="0" border="0" style="margin:auto;">
+	
+</table>
+<table class="roomManageTable" id="all_content" cellpadding="0" cellspacing="0" border="0" style="margin:auto;">
+	<thead>
+		<tr>#set($ck=$cookieTool.admin_citycode.value)
+			<th style="width:20px;">&nbsp;</th>
+			<th style="width:150px;">电影名称</th>
+			<th style="width:320px;">有效日期</th>
+			#foreach($priceTier in $priceTierMapList)
+			<th style="width:145px;">$!priceTier.id</th>
+			#end
+			<th style="width:60px;">其它日期</th>
+			#foreach($priceTier in $priceTierMapList)
+			<th style="width:145px;">$!priceTier.id</th>
+			#end
+		</tr>
+	</thead>
+	<tbody class="tbody" id="tbody">
+		#foreach($movie in $movieList)
+		#set($tierMap=$movieTierMap.get($movie.id))
+		<tr class="grayBg h" >
+			<td>$foreach.count</td>
+			<td><a href="${basePath}movie/$movie.id">$movie.realBriefname</a></td>
+			#foreach($priceTier in $priceTierMapList)
+			#set($tierPriceList=$tierMap.get($!priceTier.id))
+			#if(!$VmUtils.isEmptyList($tierPriceList))
+			#set($movieTierPrice=$tierPriceList.get(0))
+			#end
+			#if($foreach.count eq 1)
+			<td>
+				开始日期：<input type="text" name="startTime" value="$!DateUtil.formatTimestamp($movieTierPrice.startTime)" style="width: 140px" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" id="startTime$!movie.id" onchange="saveMoviePriceTime('$!movie.id',this)"/><br/>
+				结束日期：<input type="text" name="endTime" value="$!DateUtil.formatTimestamp($movieTierPrice.endTime)" style="width: 140px" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" id="endTime$!movie.id"  onchange="saveMoviePriceTime('$!movie.id',this)"/>
+			</td>
+			#end
+			<td>
+			&nbsp;&nbsp;2D：<input type="text" value="$!movieTierPrice.rangePrice" style="width: 28px" maxlength="3" onchange="saveMoviePrice('$!movie.id', '$!priceTier.id', this, 'rangePrice')"/><br/>
+			&nbsp;&nbsp;3D：<input type="text" value="$!movieTierPrice.rangeEdition3D" style="width: 28px" maxlength="3" onchange="saveMoviePrice('$!movie.id', '$!priceTier.id', this , 'rangeEdition3D')"/><br/>
+			巨幕：<input type="text" value="$!movieTierPrice.rangeEditionJumu" style="width: 28px" maxlength="3" onchange="saveMoviePrice('$!movie.id', '$!priceTier.id', this , 'rangeEditionJumu')"/><br/>
+			IMAX：<input type="text" value="$!movieTierPrice.rangeEditionIMAX" style="width: 28px" maxlength="3" onchange="saveMoviePrice('$!movie.id', '$!priceTier.id', this , 'rangeEditionIMAX')"/>
+			</td>
+			#set($movieTierPrice='')
+			#end
+			<td>其它日期</td>
+			#foreach($priceTier in $priceTierMapList)
+			#set($tierPriceList=$tierMap.get($!priceTier.id))
+			#if(!$VmUtils.isEmptyList($tierPriceList))
+			#set($movieTierPrice=$tierPriceList.get(0))
+			#end
+			<td>
+			&nbsp;&nbsp;2D：<input type="text" value="$!movieTierPrice.price" style="width: 28px" maxlength="3" onchange="saveMoviePrice('$!movie.id', '$!priceTier.id', this, '')"/><br/>
+			&nbsp;&nbsp;3D：<input type="text" value="$!movieTierPrice.edition3D" style="width: 28px" maxlength="3" onchange="saveMoviePrice('$!movie.id', '$!priceTier.id', this , 'edition')"/><br/>
+			巨幕：<input type="text" value="$!movieTierPrice.editionJumu" style="width: 28px" maxlength="3" onchange="saveMoviePrice('$!movie.id', '$!priceTier.id', this , 'editionJumu')"/><br/>
+			IMAX：<input type="text" value="$!movieTierPrice.editionIMAX" style="width: 28px" maxlength="3" onchange="saveMoviePrice('$!movie.id', '$!priceTier.id', this , 'editionIMAX')"/>
+			</td>
+			#set($movieTierPrice='')
+			#end
+		</tr>
+		#end
+	</tbody>
+</table>
+<script type="text/javascript">
+window.addEvent("domready", function(){
+	$$(".tbody tr").addEvents({
+		'mouseenter':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseleave':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+});
+function setLowestPrice(movieid, citycode, el){
+	el.setStyle("background","red");
+	var url = "${basePath}admin/ticket/mpi/setMovieLowestPrice.xhtml";
+	var values = {'movieid':movieid, 'citycode':citycode, 'price':el.value};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			el.setStyle("background","");
+		}else alert(result.msg);
+	});
+}
+function hideTier(el){
+	if(gewa.util.container[el])gewa.util.container[el].dispose(el);
+}
+function showPriceTier(){
+	gewa.util.maskContent('','priceTier','添加价格类别',400,'priceTier');
+}
+function saveMoviePriceTime(movieid,obj){
+	obj.setStyle("background","red");
+	var url = '${basePath}admin/ticket/saveMoviePriceTierTime.xhtml';
+	var values = {'movieid':movieid};
+	values.startTime = $("startTime" + movieid).value;
+	values.endTime = $("endTime" + movieid).value;
+	GewaraUtil.mask(obj);
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			obj.setStyle("background","");
+		}else{
+			alert(result.msg);
+			$(obj).value = '';
+		}
+	});
+}
+function saveMoviePrice(movieid, id, obj, type){
+	obj.setStyle("background","red");
+	var url = '${basePath}admin/ticket/saveMoviePriceTier.xhtml';
+	var values;
+	if(type == '') {
+		values = {'movieid':movieid, 'id':id, 'price':$(obj).value};
+	}else {
+		values = {'movieid':movieid, 'id':id};
+		values[type] = $(obj).value;
+	}
+	values.startTime = $("startTime" + movieid).value;
+	values.endTime = $("endTime" + movieid).value;
+	GewaraUtil.mask(obj);
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			obj.setStyle("background","");
+		}else{
+			alert(result.msg);
+			$(obj).value = '';
+		}
+	});
+}
+
+function savePriceTier(obj){
+	var url = "${basePath}admin/ticket/savePriceTier.xhtml";
+	var values = GewaraUtil.getValues('priceTier');
+	GewaraUtil.mask(obj);
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			alert("保存成功！");
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function batchPrice(obj){
+	var url = '${basePath}admin/ticket/batchMoviePrice.xhtml';
+	var values = GewaraUtil.getValues('batch');
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('设置成功！');
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

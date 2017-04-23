@@ -1,0 +1,192 @@
+<script type="text/javascript" src="${basePath}getConstTheatreKey.xhtml?v=$VmUtils.jsVersion&citycode=$!cookieTool.admin_citycode.value"></script>
+<style type="text/css">
+/*选择*/
+.clear:after,.button:after,.ui_layout:after,.abeam:after,.list li:after,.tales60:after,.tales100:after,.selectOptions:after,.inner:after{content:'content';clear:both;display:block;visibility: hidden;height:0px; width:0px;font-size:0px;}
+.goplay{background-position:-15px -1920px;background-color:#fff;}
+.speedBuy{height:54px;padding:20px 0 0 96px;border-bottom:2px solid #bbb}
+.speedBt{height:26px;width:58px;background-position:right -768px;float:left;cursor: pointer;}
+.speedBar{height:28px;width:100%;overflow:hidden;}
+.speedBar div{width:135px;padding-right:17px;float:left;height:25px;line-height:25px;background-position:0 -807px;text-indent:8px;color:#999;overflow:hidden;margin-right:10px;cursor: pointer;}
+.optionsPanel{width:770px;position: absolute;z-index:200;border:1px solid #828282;background:#fff;padding:10px;box-shadow:#BBBBBB 5px 5px 5px;}
+.optionOver{width:150px;height:4px;background:#fff;overflow:hidden;position:absolute;top:-4px;left:-1px;border-width:0 1px;border-style:solid;border-color:#828282}
+.optionsPanel .inner{padding:0px;margin:4px 10px 0;}
+.optionsPanel .inner dt{float:left;width:65px;padding-right:10px;text-align:right;color:#666;font-weight:bold;}
+.optionsPanel .inner dd{float:left;width:90%;overflow:hidden;}
+.optionsPanel .inner dd span{width:168px;float:left;overflow:hidden;display:inline-block; min-height:30px;}
+.selectOptions{padding:0 0 3px 16px;}
+.selectOptions a,.optionsPanel .inner dd a,.hasOption li a{display:inline-block;padding:0 6px;text-decoration: none !important;line-height:20px;color:#C03B0C} 
+.selectOptions a.select,.selectOptions a:hover,
+	.optionsPanel .inner dd a.select,.optionsPanel .inner dd a:hover,
+	.hasOption li a:hover,.hasOption li a.select{background:#C03B0C;color:#fff;}
+.optionsPanel .inner dd a{color:#333;line-height:22px;}
+.optionsPanel .selectOptions,.optionsPanel .inner{border-bottom:1px solid #efefef;line-height:22px;}
+.hasOption{width:250px;padding:0 20px 10px;}
+.hasOption li{height:28px;line-height:28px;overflow:hidden;position:relative;border-bottom:1px solid #ddd;}
+.hasOption li a{display:block;padding-right:20px;line-height:28px;color:#333;}
+.hasOption li a:hover .min,.hasOption li a.select .min{color:#fff}
+.penleft{border-left:1px solid #bbb;}
+.penweb{width:290px;float:left;margin-top:15px;overflow:hidden;}
+</style>
+#if(!$$targetUrl)
+#set($targetUrl=$VmUtils.escapeHtml("admin/dramaTicket/odiList.xhtml?tid="))
+#end
+<div class="optionsPanel" id="optionsPanel" style="display:none;">
+	<img src="${picPath}css/home/del.gif" alt="关闭" style="cursor: pointer;position: absolute;top:6px;right:5px;" onclick="trigerHide('optionsPanel')"/>
+	<div class="selectOptions" id="selectOptions">
+		<a href="${basePath}theatre/theatreList.xhtml" class="select" rel="open">购票场馆</a>
+	</div>
+	#*
+	<div class="clear">
+		<input type="text" style="padding:4px 4px 5px;width:280px;border:1px solid #a6a6a6;height:14px;margin-left:7px;" class="text left" alt="请输入搜索关键词">
+		<input type="button" value="搜 索" style="height:25px;background-position:-25px -104px;width:82px" class="inIco left" onclick="searchname('cinemanameValue',$('cinemaname2').value)">
+	</div>
+	*#
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	initCinema.delay(1000,'');
+	gewa.util.textOver('text');
+});
+gewa.util.trigerOptions = function(el,panel){
+	gewa.util.selectOptionsPosition(panel,el);
+	gewa.util.show(panel,function(){
+		document.addEvent('click', gewa.util.popoFlag.bind([
+			el,$(panel),'click',function(){
+				$(panel).hide();
+			},gewa.util.trigerOptions
+		]));
+	})
+}
+
+function trigerHide(panel){
+	document.removeEvents('click');
+	$(panel).hide();
+}
+gewa.util.selectOptionsPosition = function(){
+	var left = $(arguments[0]).getDimensions().x;
+	$(arguments[0]).position({
+		relativeTo:arguments[1],//触发源id
+		position:'bottomRight',
+		offset:{x:-left+(Browser.Engine.gecko?1:0),y:1}
+	});
+}
+gewa.util.selectOptions = {};
+gewa.util.optionsPanel = function(){
+	var args = $(arguments[0]),//追加场馆选项id
+		 conutrypanel = $(arguments[2]),//追加区域选项id
+		 tuch = arguments[1];//触发源id
+	//gewa.util.selectOptionsPosition(args,tuch);
+	gewa.util.selectOptions.countyCodeList = []
+	var countryMap =  _getcountyMap(),mFlag = countryMap.some(function(item){
+		return new Hash(_gettheatreMap()).get(item.relatedid).some(function(el){
+			return el.booking == 'open';
+		});
+	});
+	gewa.util.steupCounty(args,conutrypanel);
+	if(!mFlag)conutrypanel.getElement('a').set('text','所有场馆');
+	countryMap.each(function(item){
+		if(item.ordernum == 0){
+			gewa.util.selectOptions.countyCodeList.push(item.relatedid);
+			gewa.util.setupOptions('近郊',item.relatedid,this,conutrypanel,true,mFlag);
+		}else{
+			gewa.util.setupOptions(item.title,item.relatedid,this,conutrypanel,true,mFlag);
+		}
+	}.bind(args));
+	gewa.util.selectOptions.a.set('rel',gewa.util.selectOptions.countyCodeList);
+	gewa.util.excuteOptions(arguments[0],arguments[1],arguments[2]);
+}
+gewa.util.steupCounty = function(){
+	gewa.util.selectOptions.a = new Element('a',{'href':'${basePath}theatre/theatreList.xhtml','rel':0,'text':'近郊'});
+	gewa.util.selectOptions.dl = new Element('dl').addClass('inner'); 
+	gewa.util.selectOptions.dd = new Element('dd').inject(new Element('dt',{'text':'近郊'}).inject(gewa.util.selectOptions.dl),'after');
+}
+gewa.util.setupOptions = function(text,countryCode,cinemaPanel,countryPanel,setupFlag,isOpen){
+	var theatreArray = _gettheatreMap(),theatreArray = new Hash(theatreArray),arryLength = false;
+	if(gewa.util.selectOptions.countyCodeList.indexOf(countryCode) < 0){
+		var dl = new Element('dl').addClass('inner'), 
+			 dd = new Element('dd').inject(new Element('dt',{'text':text}).inject(dl),'after');
+	}
+	if(typeof(countryCode) == 'object'){
+		arryLength = gewa.util.selectOptions.countyCodeList.filter(function(item){
+			theatreArray.get(item).each(function(data){
+				filter(data);
+			});
+			return theatreArray.get(item).length > 0;
+		})
+	}else{
+		arryLength = theatreArray.get(countryCode).length > 0;
+	}
+	if(gewa.util.selectOptions.countyCodeList.indexOf(countryCode)>=0 && arryLength){
+		gewa.util.selectOptions.a.inject(countryPanel);
+	}else{
+		if(setupFlag && $defined(setupFlag) && typeof(countryCode) != 'object' && arryLength)
+		new Element('a',{'href':'${basePath}theatre/theatreList.xhtml?countycode='+countryCode,'rel':countryCode,'text':text}).inject(countryPanel);
+	}
+	if(typeof(countryCode) == 'number' && arryLength){
+		theatreArray.get(countryCode).each(function(item){
+			filter(item);
+		});
+	}
+	
+	function filter(item){
+		if(isOpen && $defined(isOpen)){
+			if(item.booking == 'open'){//订票场馆
+				new Element('a',{'href':'${basePath}$!{targetUrl}'+item.id,'rel':item.id,'text':item.realBriefname,'title':'可购票场馆'}).inject(new Element('span').inject(gewa.util.selectOptions.countyCodeList.indexOf(countryCode)>=0?gewa.util.selectOptions.dd:dd));
+				if(gewa.util.selectOptions.countyCodeList.indexOf(countryCode)>=0){
+					gewa.util.selectOptions.dl.inject(cinemaPanel);
+				}else{dl.inject(cinemaPanel);}
+			}
+		}else{
+			var el = new Element('a',{'href':'${basePath}$!{targetUrl}'+item.id,'rel':item.id,'text':item.realBriefname}).inject(new Element('span').inject(gewa.util.selectOptions.countyCodeList.indexOf(countryCode)>=0?gewa.util.selectOptions.dd:dd));
+			if(item.booking == 'open')new Element('img',{'src':'${picPath}css/movie/buy.png'}).inject(el.set('title','可购票场馆'));
+			if(gewa.util.selectOptions.countyCodeList.indexOf(countryCode)>=0){gewa.util.selectOptions.dl.inject(cinemaPanel)}else{dl.inject(cinemaPanel);}
+		}
+	}
+}
+gewa.util.excuteOptions = function(){
+	var args = $(arguments[0]),tuch = arguments[1],conutrypanel = $(arguments[2]),fullOptions = args.getElements('a'),globalOptions = conutrypanel.getElements('a');
+	fullOptions.addEvent('click',function(e){
+		if(globalOptions.contains(e.target)){
+			e.preventDefault();
+			gewa.util.selectOptions.cinemaid = '';
+			globalOptions.removeClass('select');
+			args.getElements('dl').each(function(item){
+				if(!$chk(item.get('id')))item.dispose();
+			});
+			if(this.get('rel') == 'open'){
+				if($('interest'))$('interest').setStyle('display', 'block');
+				globalOptions.each(function(item){
+					if(item.get('rel') != 'open')item.dispose();
+				});
+				gewa.util.optionsPanel(args,tuch,conutrypanel,true);
+			}else{
+				if($('interest'))$('interest').setStyle('display', 'none');
+				if(this.get('rel') == gewa.util.selectOptions.countyCodeList){
+					gewa.util.setupOptions(this.get('text'),gewa.util.selectOptions.countyCodeList,args,conutrypanel,true,false);
+				}else{gewa.util.setupOptions(this.get('text'),this.get('rel').toInt(),args,conutrypanel,false,false);}
+			}
+			fullOptions.removeEvents('click');
+			gewa.util.excuteOptions(args,tuch,conutrypanel);
+		}else{
+			fullOptions.each(function(item){
+				if(!globalOptions.contains(item))item.removeClass('select');
+			})
+			if(this.get('title') != null && this.get('title') == '可购票场馆')gewa.util.selectOptions.isOpen = true;
+			else gewa.util.selectOptions.isOpen = false;
+			trigerHide(args);
+			gewa.util.selectOptions.cinemaid = this.get('rel');
+			$(tuch).set('text',this.get('text'));
+			if($chk(gewa.util.selectOptions.cinemaid)){
+				document.location = '${basePath}$!{targetUrl}'+gewa.util.selectOptions.cinemaid;
+			}
+		}
+		this.addClass('select');
+	})
+}
+var initCinema = function (){
+	gewa.util.optionsPanel("optionsPanel","fast_tirger","selectOptions",true);
+	$('fast_tirger').addEvent('click',function(){
+		gewa.util.trigerOptions(this,'optionsPanel');
+	});
+}
+</script>

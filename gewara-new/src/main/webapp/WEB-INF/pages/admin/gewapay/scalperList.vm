@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>特殊折扣列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore">特殊折扣设置&nbsp;</li>
+			<li><a href="${basePath}admin/gewapay/spdiscount/spdiscountList.xhtml"><span>商户价格</span></a></li>
+			<li><a href="${basePath}admin/gewapay/spdiscount/spcounterList.xhtml"><span>计数器设置</span></a></li>
+			<li class="currs"><a><span>黄牛黑名单设置</span></a></li>
+			<li><a href="${basePath}admin/gewapay/suspectList.xhtml"><span>涉嫌黑名单</span></a></li>
+		</ul>
+	</div>
+</div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+	<a href="${basePath}admin/gewapay/toEditScalper.xhtml">新增</a>
+		<table class="roomManageTable" cellpadding="0" style="width:100%;" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>名称</th>
+					<th>描述</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				#foreach($scalper in $scalperList)
+				<tr class="grayBg">
+					<td>$!scalper.id</td>
+					<td>$!scalper.name</td>
+					<td>$!scalper.description</td>
+					<td>
+						<a href="${basePath}admin/gewapay/toEditScalper.xhtml?scalperId=$!scalper.id" target="_blank">编辑</a>
+						<a href="javascript:delScalper($!scalper.id)">删除</a>
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<script type="text/javascript">
+	function delScalper(scalperId){
+		var url = "${basePath}admin/gewapay/delScalper.xhtml";
+		GewaraUtil.sendRequest(url, {"scalperId":scalperId}, function(result){
+			if(result.success) {
+				alert("删除成功");
+				refreshPage();
+			}
+			else alert(result.msg);
+		});
+	}
+</script>
+</body>
+</html>

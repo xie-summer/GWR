@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset>
+	#foreach($cinema in $cinemaList)
+	#set($otherInfo = $otherInfoMap.get($cinema.id))
+	#if($otherInfo)
+	<url>
+		<loc>${absPath}${basePath}cinema/$cinema.id</loc>
+		<lastmod>$lastmod</lastmod>
+		<changefreq>always</changefreq>
+		<priority>1.0</priority>
+		<data>
+			<display>
+				<poi_name><![CDATA[$!cinema.name]]></poi_name>
+				#if($!VmUtils.isNotEmpty($!cinema.briefname))<alias><![CDATA[$!cinema.briefname]]></alias>#end
+				#if($!VmUtils.isNotEmpty($!otherInfo.province))<province><![CDATA[$!otherInfo.province]]></province>#end
+				#if($!VmUtils.isNotEmpty($!cinema.getCityname()))<city><![CDATA[$!cinema.getCityname()]]></city>#end
+				#if($!VmUtils.isNotEmpty($!cinema.countyname))<county><![CDATA[$!cinema.countyname]]></county>#end
+				#if($!VmUtils.isNotEmpty($!cinema.indexareaname))<aoi><![CDATA[$!cinema.indexareaname]]></aoi>#end
+				<longitude>$!otherInfo.pointy</longitude>
+				<latitude>$!otherInfo.pointx</latitude>
+				<category1><![CDATA[休闲娱乐]]></category1>
+				<category2><![CDATA[电影院]]></category2>
+				#*#foreach($phone in $phoneMap.get($cinema.id))
+					#if($!VmUtils.isNotEmpty($phone))<phone><![CDATA[$phone]]></phone>#end
+				#end*#
+				#if($!VmUtils.isNotEmpty($!cinema.address))<poi_address><![CDATA[$!cinema.address]]></poi_address>#end
+				<tag><![CDATA[影院]]></tag>
+				#*<shop_hours>00:00-24:00</shop_hours>*#
+				#if($!VmUtils.isNotEmpty($!cinema.feature))<featured_service><![CDATA[$!cinema.feature]]></featured_service>#end
+				#*<price>$!otherInfo.price</price>*#
+				#if($!VmUtils.isNotEmpty($!VmUtils.getText($cinema.content)))<description><![CDATA[$!VmUtils.getText($cinema.content)]]></description>#end
+				#*<atmosphere>情侣、家庭、小资</atmosphere>*#
+				<source_url>${absPath}${basePath}cinema/$cinema.id</source_url>
+				<source_url_mobilephone><![CDATA[${absWap}cinemaDetail.xhtml?cid=$cinema.id&type=ordercinema]]></source_url_mobilephone>
+				#foreach($pic in $pictureListMap.get($cinema.id))
+					#set($index=$foreach.count)
+					<photo_url_$index>$VmUtils.randomPic('cw128h96',$pic.picturename)</photo_url_$index>
+				#end
+				<photo_url>${absPath}${basePath}cinema/$cinema.id/picturelist</photo_url>
+				#if($!VmUtils.isNotEmpty($otherInfo.picCount))<photo_num>$otherInfo.picCount</photo_num>#end
+				#if($!VmUtils.isNotEmpty($otherInfo.commnetCount))<comment_num>$otherInfo.commnetCount</comment_num>#end
+				#foreach($comment in $commentListMap.get($cinema.id))
+					#set($index=$foreach.count)
+					#if($!VmUtils.isNotEmpty($!VmUtils.getWebBody($!VmUtils.subLastText("#",$!comment.body),$picPath)))<comment_content_$index><![CDATA[$!VmUtils.getWebBody($!VmUtils.subLastText("#",$!comment.body),$picPath)]]></comment_content_$index>
+					#else<comment_content_$index>还不错</comment_content_$index>#end
+					<comment_content_time_$index><![CDATA[$DateUtil.getTimeDesc($comment.addtime)]]></comment_content_time_$index>
+					<comment_url_$index>${absPath}${basePath}cinema/$cinema.id/commentlist</comment_url_$index>
+				#end
+				<comment_url>${absPath}${basePath}cinema/$cinema.id/commentlist</comment_url>
+				<write_comment>${absPath}${basePath}cinema/$cinema.id/commentlist</write_comment>
+				<comment_url_mobilephone><![CDATA[${absWap}cinemaDetail.xhtml?cid=$cinema.id&type=ordercinema]]></comment_url_mobilephone>
+				<write_comment_mobilephone><![CDATA[${absWap}cinemaDetail.xhtml?cid=$cinema.id&type=ordercinema]]></write_comment_mobilephone>
+				<business_state><![CDATA[#if($cinema.booking eq 'open')正常营业#else暂停营业#end]]></business_state>
+				<id>gewara_$cinema.id</id>
+				#*<checkin_times>471</checkin_times>*#
+				#*<checkin_persons>472</checkin_persons>*#
+				#if($!VmUtils.isNotEmpty($!cinema.brandname))<brand_name><![CDATA[$!cinema.brandname]]></brand_name>#end
+				<photo_exterior>$VmUtils.randomPic('cw260h180',$cinema.firstpic)</photo_exterior>
+				<overall_rating>$otherInfo.overallRating</overall_rating>
+			</display>
+		</data>
+	</url>
+	#end
+	#end
+</urlset>

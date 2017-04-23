@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>订单退款结算</title>
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		table{border-collapse: collapse;}
+		th, thread{cursor: pointer;}
+		td, th{
+			text-align: left;
+			height: 23px;
+		}
+		.maxwid, td{
+			width:210px !important;
+		}
+		.minwid, td{
+			width:100px !important;
+		}
+		label {display:inline-block; width:70px;text-align:right;padding:1px 0 1px 0; }
+		textarea {width:420px;}
+		
+		.showOrder{
+			border:1px solid #639BF9;padding:2px 4px;
+		}
+		.roomManageTable tbody td table{border:0px;border-bottom:1px solid #eee;}
+		.roomManageTable tbody td td{text-align: left;text-indent:10px;border-color:#eee;width:auto !important;}
+	</style>
+</head>
+<body style="width:800px; margin: auto;">
+#parse("admin/refund/order/refundInfo.vm")
+#set($refundtypeMap={"full":"全额退款","part":"部分退款","supplement":"调价退款"})
+#set($reasonMap={"user":"用户要求","gewa":"Gewa原因","merchant":"影院原因", "price":"价格调整", "unknown":"未知"})
+#set($retbackMap={"Y":"需要","N":"不需要","O":"参见描述","S": "已提交财务", "R":"财务成功","F":"财务失败"})
+<div style="background-color: #D7E9F5;">
+<form id="orderForm" style="margin-left: 10px;">
+	<input type="hidden" name="rid" value="$refund.id" />
+	退款前订单状态：$refund.orderstatus#if($VmUtils.startsWith($refund.orderstatus, 'paid_failure'))（<span style="color:red">待处理订单，无需处理结算！</span>）#end<br /><br />
+	当前状态：$refund.status<br /><br />
+	Gewa金额：$refund.gewaRetAmount<br /><br/>
+	商家金额：$refund.merRetAmount（如：影院已经给用户退款30元，我们只退款5元服务费）<br /><br/>
+	手机号码：$refund.mobile<br /><br/>
+	退款方式：$refundtypeMap.get($refund.refundtype)(<span style="color:blue">参见下面的退款设置说明</span>)<br /><br />
+	退款原因：$!resonMap.get($refund.reason)<br /><br />
+	原路返还：$retbackMap.get($refund.retback)<br /><br />
+	申请说明：$refund.applyinfo<br /><br />
+	#if($refund.refundtype eq 'supplement' || $refund.refundtype eq 'part' || $refund.orderstatus eq 'paid_success')
+	影院结算金额： <input type="text" name="newSettle" id="newSettle" value="$!refund.newSettle" style="width: 100px;" />（原始结算金额：$refund.oldSettle）<br /><br/>
+	<input type="button" id="btns" value="保存" onclick="saveSettle('N')" />
+	<input type="button" id="btns" value="保存并终结" onclick="saveSettle('Y')" />
+	#end
+</form>
+</div>
+<script type="text/javascript">
+	function saveSettle(finish){
+		var values = GewaraUtil.getValues($("orderForm"));
+		values.finish=finish;
+		var url = "${basePath}admin/refund/order/saveSettle.xhtml";
+		if(finish=='Y'){
+			gewa.util.issure('','终结后无法再次修改结算金额，确认终结？','退款终结',600,'keys',function(){//keys为动态标识可以自定义,执行函数放在回调函数内
+				//gewa.util.mask({'element': "btns",'title':'正在保存...', "opacity":"0.4"});
+				GewaraUtil.sendRequest(url, values, function(result){
+					gewa.util.clearMask();
+					if(result.success){
+						if(gewa.util.container['keys']){
+							gewa.util.container['keys'].dispose('keys');
+						}
+						alert("保存成功！");
+					}else {
+						var msg = result.msg;
+						alert(msg);			
+					}
+				});
+			});
+		}else{
+			gewa.util.mask({'element': "btns",'title':'正在保存...', "opacity":"0.4"});
+			GewaraUtil.sendRequest(url, values, function(result){
+				gewa.util.clearMask();
+				if(result.success){
+					if(gewa.util.container['keys']){
+						gewa.util.container['keys'].dispose('keys');
+					}
+					alert("保存成功！");
+				}else {
+					var msg = result.msg;
+					alert(msg);			
+				}
+			});
+		}
+	}
+</script>
+</body>
+</html>

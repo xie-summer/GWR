@@ -1,0 +1,73 @@
+#*哇啦模板右结构*#
+<div class="title mt20"><h2>$!left.title</h2><span class="linet"></span></div>
+<dl class="ui_abeam mt10" id="walaDialog">
+	#if($logonMember)
+	<dt class="uipic">
+		<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!logonMember.id" class="pubpic" target="_blank"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($logonMember.id).headpicUrl)) center center no-repeat;"/></a>
+	</dt>
+	#end
+	<dd class="uiText wl_outer_text isussBox" #if(!$logonMember)style="width:100%;"#end>
+		<div class="isuss">
+			<label for="say_area" id="issueTips">#$!moderate#分享你的哇啦点评，文字越多越精彩哦！</label>
+			<textarea name="body" id="say_area"></textarea>
+		</div>
+		<div class="title">
+			<div class="dialogs" id="dialogs">
+				<img src="${staticPath}css/images/blank.gif" style="background:url(${picPath}css/home/look.png) no-repeat;" width="48" height="15"/>
+				#parse('wala/uidialog.vm')
+			</div>
+			<span id="font">你还可以输入<b class="brown">140</b>字</span>
+			<input type="button" value="" id="diswara" onclick="submitMicro()" class="walBt"/>
+		</div>
+	</dd>
+</dl>
+<div id="container" class="clear">
+	
+</div>
+#parse('include/home/useOtherMicroBlog.vm')
+<script type="text/javascript">
+var selector=$empty,delFun = $empty;
+window.addEvent('domready', function(){
+	selector = new selectpic('say_area','uidialog');
+	new issue('say_area',{'font':'font','tips':'issueTips'});
+	new dialogs('dialogs',{'width':'360px','flag':true});
+	showError = new ShowErrorTextArea();
+	#if($VmUtils.isNotBlank($!moderate))
+	new DynWaraTemplate({'preURL':'${basePath}', 'container':'container', 'moderator':'$!moderate', 'count':'5', 'isReply':'true'});
+	#end
+});
+
+submitMicro = function(){
+	checkLogin(true,function(){
+		sendMicro();
+	});
+}
+function getWalaList(){
+	new DynWaraTemplate({'preURL':'${basePath}', 'container':'container', 'moderator':'$!moderate', 'count':'5', 'isReply':'true'});
+}
+//发表哇啦
+sendMicro = function(){
+	var say_area = $('say_area').value;
+	if(!$chk(say_area)){
+		showError.show('say_area');
+		return false;
+	}
+	if(say_area.length>140){
+		showError.show('say_area');
+		return false;
+	}
+	GewaraUtil.mask('diswara');
+	var url = '${basePath}dnySendMicroModer.xhtml';
+	var values = {'micrbody':$('say_area').value, 'moderate':'$!moderate'};
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			var moderate = result.retval;
+			new DynWaraTemplate({'preURL':'${basePath}', 'container':'container', 'moderator':'$!moderate', 'count':'5', 'isReply':'true'});
+			$('say_area').value = '';
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	})
+}
+</script>

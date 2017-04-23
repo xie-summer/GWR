@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>圈子相册管理_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($community = true)
+#set($tag="home")#set($isPhotoManage=true)#set($isShow=false)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('home/community/manage/commuM.vm')
+			<div class="ui_rightInner_left">
+				<div class="inner">
+					<div class="horn">
+						<div class="titleB mt20">
+							<h2>圈子相册列表</h2>
+							<label class="minBt redBt button more"><input type="button" value="+创建相册" onclick="showCreateAlbum('adoptAlbum')"/></label>
+						</div>
+						<ul class="percent_25 mt20">
+							#foreach($album in $albumList)
+							<li>
+								<a href="${basePath}home/commu/manageAlbumImageList.xhtml?commuid=${album.commuid}&albumid=${album.id}" class="photoBox"><img src="$VmUtils.randomPic('cw100h100',$album.albumLogoUrl)" alt=""/></a><br/>
+								$album.subject<br/>
+								共$imageNum.get($album.id)张<br/>
+								<span class="none"><a href="javascript:void(0)" onclick="javascript:getAlbum($album.id)"  style="color: #C03B0C;">编辑</a><a href="javascript:void(0)" onclick="javascript:delAlbum($album.id)" class="yellow ml10" style="color: #C03B0C;">删除</a></span>
+							</li>
+							#end
+						</ul>
+						#parse('include/pageUtil.vm')
+					</div>
+				</div>
+			</div>
+			#parse('home/community/manage/commuManageRight.vm')
+		</div>
+	</div>
+</div>
+#parse('include/home/adoptAlbum.vm')
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$(".percent_25").getElements("li").each(function(item){
+		item.addEvents({'mouseenter':function(){this.getElement("span").removeClass("none");},'mouseleave':function(){this.getElement("span").addClass("none");}});
+	});
+});
+function delAlbum(aid){
+	gewaUtil.confirm("确认要删除吗?删除后相册内照片将全部删除。", function(){
+		checkLogin(true, function(){
+			var url = '${basePath}home/album/delAlbum.xhtml';
+			var values = {'albumid':aid, 'commuid':$!commu.id};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewaUtil.alert('删除成功！');
+					refreshPage();
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		});
+	})
+}
+function getAlbum(aid){
+	checkLogin(true, function(){
+		var url = '${basePath}home/album/modAlbum.xhtml';
+		var values = {'albumid':aid, 'commuid':$!commu.id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				GewaraUtil.setValues(result);
+				if(result.albumupdate){
+					if($('albumtype'))$('albumtype').set('text','修改');
+					if($('disBtn'))$('disBtn').value='修改';
+				}
+				showMark('adoptAlbum');
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	});
+}
+</script>
+</body>
+</html>

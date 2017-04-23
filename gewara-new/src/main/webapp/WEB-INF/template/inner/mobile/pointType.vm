@@ -1,0 +1,46 @@
+<data>
+  <pointstatus>$!isSuccess</pointstatus><!-- 今天是否领取积分  -->
+  <tips><![CDATA[
+  已连续<font color="#f26530">$!{continunum}</font>天领取红包， 坚持<font color="#f26530">7</font>天可获得 10 个积分大礼包哦！ 
+  ]]></tips>
+	<pointinfo><![CDATA[
+	#if($isSuccess eq 'success')
+		#if($todayPoint.reason)
+			今天成功抽取${todayPoint.reason}节日红包，已为你添加至账户! 
+		#elseif($!todayPoint.point)
+			#if($todayPoint.point gt 0)
+			今天成功领取<font color="#f26530">$!{todayPoint.point}</font>个积分的大礼包！<br/>当前积分<font color="#f26530">$!{memberinfo.pointvalue}</font>，积分可兑换电影票，继续加油哦^_^ 
+			#else
+			很遗憾！冒险失败被扣除<font color="#f26530">$!{todayPoint.point}</font>个积分，<br/>愿赌服输不要灰心哦(⊙_⊙)<br/>当前积分<font color="#f26530">$!{memberinfo.pointvalue}</font>，积分可兑换电影票，继续加油哦^_^
+			#end
+		#end
+	#else
+		#if($festival)
+			今天是$!{curDate}<font color="#f26530">（$!{festival.festname}）</font> $!festival.summary 
+		#end
+	#end
+  ]]></pointinfo><!-- 领取兑换券  -->
+  <pointTypeList>
+    #if($festival)
+    <pointType>
+        <name>节日红包</name>
+        <value>festival</value>
+    </pointType>
+    #else
+    	 <pointType>
+	        <name>稳赚型</name>
+	        <value>stable</value>
+		</pointType>
+		#if($pointIsEngouth)
+	    <pointType>
+	        <name>冒险型</name>
+	        <value>risk</value>
+	    </pointType>
+	    #end
+	     <pointType>
+	        <name>微博型</name>
+	        <value>weibo</value>
+		</pointType>
+    #end
+  </pointTypeList>
+</data>

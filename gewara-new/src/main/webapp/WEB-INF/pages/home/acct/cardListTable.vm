@@ -1,0 +1,168 @@
+#set($pageFun='_ajaxAutoPage')
+<table cellpadding="0" class="table" cellspacing="0" border="0">
+	<thead>
+		<tr>
+			<th>类别</th>
+			#if($VmUtils.eq($cardtag, 'preferential'))
+			<th>活动名称</th>
+			<th>密码</th>
+			#else
+			<th>券号</th>
+			#end
+			<th>有效期范围</th>
+			<th>说明信息</th>
+			<th>状态</th>
+		</tr>
+	</thead>
+	#if($VmUtils.eq($cardtag, 'preferential'))
+	<tbody>
+		#foreach($spCode in $spCodeList)
+		#set($spdiscount = $spdiscountMap.get($spCode.sdid))
+		<tr #if($foreach.count%2 eq 0) class="tdHover" #end>
+			<td>$!spdiscount.enableRemark</td>
+			<td><a href="javascript:getCode($spCode.id)">$!spdiscount.bankname</a></td>
+			<td>$!spCode.gainTemppass()</td>
+			<td>$!{DateUtil.format($spdiscount.timefrom, "yyyy.MM.dd HH:mm")} -- $!{DateUtil.format($spdiscount.timeto, "yyyy.MM.dd  HH:mm")}</td>
+			<td>$!spdiscount.description</td>
+			<td>#if($VmUtils.gt($spCode.usedcount, 0))<font color="gray">已过期</font>#else<font color="green">未使用</font>#end</td>
+		</tr>
+		#end
+	</tbody>
+	#else
+	<tbody>
+	#foreach($card in $cardList)
+		<tr #if($foreach.count%2 eq 0) class="tdHover" #end>
+			<td>
+			#if($VmUtils.eq($card.ebatch.cardtype, "A"))
+				#if($VmUtils.eq($card.ebatch.exchangetype, "A"))
+					橙券
+				#elseif($VmUtils.eq($card.ebatch.exchangetype, "B"))
+					蓝券
+				#elseif($VmUtils.eq($card.ebatch.exchangetype, "D"))
+					兑换券
+				#elseif($VmUtils.eq($card.ebatch.exchangetype, "E"))
+					IMAX券
+				#end
+			#elseif($VmUtils.eq($card.ebatch.cardtype, "B"))
+				补差券
+			#else
+				抵值券
+			#end
+			#if($VmUtils.eq($card.ebatch.soldType, "P"))
+			(赠券)
+			#end
+			</td>
+			<td><a href="javascript:void(0)" onclick="getCard('$card.id', '$card.cardno', this)">$card.cardno</a></td>
+			<td>$!{DateUtil.format($card.timefrom, "yyyy.MM.dd HH:mm")} -- $!{DateUtil.format($card.timeto, "yyyy.MM.dd  HH:mm")}</td>
+			<td>#if($VmUtils.eq($card.ebatch.cardtype, 'A'))
+				#if($VmUtils.eq($card.ebatch.tag,'sport'))兑换一个场地 #else兑换一张票#end
+				#elseif($VmUtils.eq($card.ebatch.cardtype, 'C') || $VmUtils.eq($card.ebatch.cardtype, 'D'))
+				优惠$!card.ebatch.amount 元
+				#end</td>
+			<td>#set($isPassNum = $DateUtil.getDiffSecond(${DateUtil.millTimestamp},${card.timeto}))
+			 #if($card.status eq 'Y') 
+			 	 #set($cardIsDelay = false)
+			 	 #if($delayElecCardNo.get($card.ebatch.id.toString()) && $delayElecCardNo.get($card.ebatch.id.toString()).contains($card.cardno))
+			 	 	#set($cardIsDelay = true)
+			 	 #end
+				 #if($isPassNum gt 0)
+				 	#if(!$cardIsDelay && $card.canDelay())
+				 		 <a href="javascript:void(0)" onclick="useToDelay('$!card.cardno','$!card.ebatch.getDelayDays()','$!card.ebatch.getDelayUseDays()','$!card.ebatch.getDelayFee()')"><font color="red"><b>有偿延期</b></font></a>
+				 	#else
+				 		 <font color="gray">已过期</font>
+				 	#end
+				 #else<font color="green">未使用#if($cardIsDelay)(已延期)#end</font>
+				 #end
+			 #elseif($card.status eq 'U')
+			 	<font color="red">已使用</font>
+			 #elseif($card.status eq 'Y')废弃
+			 #elseif($card.status eq 'N')待售
+			 #end
+			 </td>
+		</tr>
+	#end
+	</tbody>
+	#end
+</table>
+<div class="clear">#parse('include/scriptPageUtil.vm')</div>
+<div class="mt10">
+#if($cardtag eq 'movie')
+<span>
+   说明：<p>1)兑换类票券可抵值一张电影票，优惠类票券可优惠部分金额。</p>
+   <p>      2)特别声明场次如IMAX等不支持票券优惠。</p>
+#*   <p>      3)如需将票券赠送给您的好友，请点详细，然后点解绑</p>
+   <p>      4)成功解绑后会在 "站内信--系统消息" 中查看票券密码</p> *#
+ </span>
+#elseif($cardtag eq 'drama')
+<span>
+    说明：<p>1)兑换类票券可抵值一张演出票，优惠类票券可优惠部分金额。</p>
+          <p>2)特别声明场次不支持票券优惠。 </p>
+     #*     <p>3)如需将票券赠送给您的好友，请点详细，然后点解绑</p>
+          <p>4)成功解绑后会在 "站内信--系统消息" 中查看票券密码</p> *#
+</span>
+#elseif($cardtag eq 'sport')
+<span>
+    说明：<p>1)兑换类票券可抵值一张运动票，优惠类票券可优惠部分金额。</p>
+          <p>2)特别声明场次不支持票券优惠。</p>
+     #*     <p>3)如需将票券赠送给您的好友，请点详细，然后点解绑</p>
+          <p>4)成功解绑后会在 "站内信--系统消息" 中查看票券密码</p> *#
+</span>
+#elseif($VmUtils.eq($cardtag, 'preferential'))
+<span>
+    说明：<p>1)选择场次座位后在电影票券抵值中输入密码完成抵值。</p>
+          <p>2)抵值后如需支付，请选择其他支付方式支付。</p>
+</span>
+#end
+<br />
+</div>
+<div id="carPayConfirm" style="width:500px; display: none; height: auto; visibility: visible; opacity: 1; position: fixed; top: 168px; z-index: 601; left: 494px;">
+	<table class="tableLayer" width="100%" cellspacing="0" cellpadding="0" border="0">
+		<tbody>
+		<tr>
+			<td class="t_l"></td>
+			<td class="t_c"></td>
+			<td class="t_r"></td>
+		</tr>
+		<tr>
+		<td class="m_l"></td>
+		<td class="m_c" style="padding: 1px; background: none repeat scroll 0% 0% rgb(170, 170, 170);">
+			<h2 style="height: 42px; line-height: 42px; text-indent: 10px; font-size: 16px; font-weight: bold; background: none repeat scroll 0% 0% rgb(240, 240, 240); width: 100%; display: block; color: rgb(51, 51, 51);">格瓦拉生活网提示</h2>
+			<form action="$!{basePath}gewapay/addCardDelayOrder.xhtml" method="post" target="_blank">
+			<div id="carPayConfirmHtml" style="padding: 20px 20px 20px 60px; width: auto; line-height: 22px; color: rgb(102, 102, 102); font-size: 16px; font-weight: normal; background-color: rgb(255, 255, 255); height: auto; overflow: hidden; background-image: url('$!{staticPath}css/global/pub_icon.png'); background-repeat: no-repeat; background-position: 6px -447px;">
+				
+			</div>
+			<div style="height: 32px; padding: 0px 0px 15px; width: 100%; background: none repeat scroll 0% 0% rgb(255, 255, 255); overflow: hidden;">
+				<div style="width: 94%; height: 100%; overflow: hidden;">
+					<label class="bigWhiteBt bigBt button" style="float: right; margin: 0px 0px 0px 15px;">
+						<input type="button" value="不需要延期" onclick="javascript:GewaraUtil.hideDialog('carPayConfirm');">
+					</label>
+					<label class="button redBt bigBt" style="float: right;">
+						<input type="submit" value="同意并支付" onclick="javascript:GewaraUtil.hideDialog('carPayConfirm');">
+					</label>
+				</div>
+			</div>
+			</form>
+		</td>
+			<td class="m_r"></td>
+		</tr>
+		<tr>
+			<td class="b_l"></td>
+			<td class="b_c"></td>
+			<td class="b_r"></td>
+		</tr>
+		</tbody>
+	</table>
+</div>
+<script>
+_ajaxAutoPage = function(pageNo, params, url){
+	gewaUtil.loadData('ajaxLoadCardListTable', url, {});
+}
+useToDelay = function(cardno,delayDay,delayUseDays,delayFee){
+	var confromhtml = '<input type="hidden" name="cardNo" value="' + cardno + '"/><div >1、有效期结束后' + delayDay + '天内可申请延期；<br/>2、延期成功后，自延期当日起延长' + delayUseDays +'天的使用期限；<br/>';
+	confromhtml += '3、申请延期需每张支付' + delayFee + '元的延期服务费。</div>';
+	$('carPayConfirmHtml').set('html',confromhtml);
+	GewaraUtil.showDialog("carPayConfirm");
+	//gewa.util.isPartnerDialog(confromhtml)
+	
+}
+</script>

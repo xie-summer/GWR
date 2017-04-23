@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>电子券使用情况</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width:85%; margin:auto">
+<div style="clear:both;"></div>
+<form action="${basePath}admin/eticket/useStat.xhtml">
+<table  border="1" style="width: 90%" cellspacing="0" class="table">
+	<tr>
+	<td height="30">
+		开始日期:<input type="text" name="from" id="from" value="$from" style="width: 140px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd 06:00:00'})"/>&nbsp;
+		结束日期:<input type="text" name="to" id="to" value="$to" style="width: 140px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd 06:00:00'})"/>&nbsp;
+		<input type="submit" value="查询" />
+	</td>
+	</tr>
+</table>
+<br/>
+</form>
+<table width="90%" class="table">
+	<thead>
+	<tr class="td">
+	<th align="center">日期</th>
+	<th align="center">A卡数量</th>
+	<th align="center">A卡金额</th>
+	<th align="center">B卡数量</th>
+	<th align="center">B卡金额</th>
+	<th align="center">C卡数量</th>
+	<th align="center">C卡金额</th>
+	<th align="center">D卡数量</th>
+	<th align="center">D卡金额</th>
+	<th align="center">优惠券数量</th>
+	<th align="center">优惠券金额</th>
+	<th align="center">积分数量</th>
+	<th align="center">积分金额</th>
+	<th align="center">合计金额</th>
+	</tr>
+	</thead>
+	#set($Acount=0)#set($Aamount=0) #set($Bcount=0)#set($Bamount=0) 
+	#set($Ccount=0)#set($Camount=0) #set($Dcount=0)#set($Damount=0)
+	#set($CPcount=0)#set($CPamount=0) #set($PTcount=0)#set($PTamount=0) #set($Total=0)
+	#foreach($dateStr in $dateList) 
+	#set($rowSum=0)
+	<tr class="td itable">
+	<td>$dateStr</td>
+	#if($amountMap.get($dateStr).get('A'))#set($Aamount=$Aamount+$amountMap.get($dateStr).get('A'))#set($rowSum=$rowSum+$amountMap.get($dateStr).get('A'))#end
+	<td>$!countMap.get($dateStr).get('A')#if($countMap.get($dateStr).get('A'))#set($Acount=$Acount+$countMap.get($dateStr).get('A'))#end</td>
+	<td>$!amountMap.get($dateStr).get('A')</td>
+	#if($amountMap.get($dateStr).get('B'))#set($Bamount=$Bamount+$amountMap.get($dateStr).get('B'))#set($rowSum=$rowSum+$amountMap.get($dateStr).get('B'))#end
+	<td>$!countMap.get($dateStr).get('B')#if($countMap.get($dateStr).get('B'))#set($Bcount=$Bcount+$countMap.get($dateStr).get('B'))#end</td>
+	<td>$!amountMap.get($dateStr).get('B')</td>
+	#if($amountMap.get($dateStr).get('C'))#set($Camount=$Camount+$amountMap.get($dateStr).get('C'))#set($rowSum=$rowSum+$amountMap.get($dateStr).get('C'))#end
+	<td>$!countMap.get($dateStr).get('C')#if($countMap.get($dateStr).get('C'))#set($Ccount=$Ccount+$countMap.get($dateStr).get('C'))#end</td>
+	<td>$!amountMap.get($dateStr).get('C')</td>
+	#if($amountMap.get($dateStr).get('D'))#set($Damount=$Damount+$amountMap.get($dateStr).get('D'))#set($rowSum=$rowSum+$amountMap.get($dateStr).get('D'))#end
+	<td>$!countMap.get($dateStr).get('D')#if($countMap.get($dateStr).get('D'))#set($Dcount=$Ccount+$countMap.get($dateStr).get('D'))#end</td>
+	<td>$!amountMap.get($dateStr).get('D')</td>
+	#if($amountMap.get($dateStr).get('CP'))#set($CPamount=$CPamount+$amountMap.get($dateStr).get('CP'))#set($rowSum=$rowSum+$amountMap.get($dateStr).get('CP'))#end
+	<td>$!countMap.get($dateStr).get('CP')#if($countMap.get($dateStr).get('CP'))#set($CPcount=$CPcount+$countMap.get($dateStr).get('CP'))#end</td>
+	<td>$!amountMap.get($dateStr).get('CP')</td>
+	#if($amountMap.get($dateStr).get('P'))#set($PTamount=$PTamount+$amountMap.get($dateStr).get('P'))#set($rowSum=$rowSum+$amountMap.get($dateStr).get('P'))#end
+	<td>$!countMap.get($dateStr).get('P')#if($countMap.get($dateStr).get('P'))#set($PTcount=$PTcount+$countMap.get($dateStr).get('P'))#end</td>
+	<td>$!amountMap.get($dateStr).get('P')</td>
+	<td>$rowSum</td>#set($Total=$Total + $rowSum)
+	</tr>
+	#end
+	<tr class="td itable">
+	<td>合计</td>
+	<td>$Acount</td>
+	<td>$Aamount</td>
+	<td>$Bcount</td>
+	<td>$Bamount</td>
+	<td>$Ccount</td>
+	<td>$Camount</td>
+	<td>$Dcount</td>
+	<td>$Damount</td>
+	<td>$CPcount</td>
+	<td>$CPamount</td>
+	<td>$PTcount</td>
+	<td>$PTamount</td>
+	<td>$Total</td>
+	</tr>
+	<tr class="td">
+	<th align="center">&nbsp;</th>
+	<th align="center">A卡数量</th>
+	<th align="center">A卡金额</th>
+	<th align="center">B卡数量</th>
+	<th align="center">B卡金额</th>
+	<th align="center">C卡数量</th>
+	<th align="center">C卡金额</th>
+	<th align="center">D卡数量</th>
+	<th align="center">D卡金额</th>
+	<th align="center">优惠券数量</th>
+	<th align="center">优惠券金额</th>
+	<th align="center">积分数量</th>
+	<th align="center">积分金额</th>
+	<th align="center">合计金额</th>
+	</tr>
+	
+</table>
+</body>
+</html>

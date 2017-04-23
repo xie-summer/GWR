@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>API用户管理</title>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<style type="text/css">
+		.highlight{background-color: #eee;}
+	</style>
+</head>
+<body style="margin:auto">
+<table class="table">
+	<thead>
+	<tr>
+		<th>ID</th>
+		<th>公司名称</th>
+		<th>标识Key</th>
+		<th>修改</th>
+		<th>扩展</th>
+		<th>附加</th>
+		<th>更新时间</th>
+		<th>状态<br/>
+			<select name="status" onchange="qryStatus(this.value)">
+				<option value="open" #if($status eq 'open')selected="selected"#end>开放</option>	
+				<option value="stop" #if($status eq 'stop')selected="selected"#end>停止</option>	
+				<option value="pause" #if($status eq 'pause')selected="selected"#end>暂停</option>	
+			</select>
+		</th>
+		<th>角色</th>
+	</tr>
+	</thead>
+	<tbody id="sportTable">
+	#foreach($user in $apiUserList)
+	<tr>
+		<td>#if($user.pid)&nbsp;&nbsp;&nbsp;#end$!user.id</td>
+		<td>$!user.partnername</td>
+		<td>$!user.partnerkey</td>
+		<td><a href="${basePath}admin/api/modifyApiUser.xhtml?uid=$user.id">修改</a></td>
+		<td><a href="${basePath}admin/api/apiUserExtra.xhtml?uid=$user.id">扩展</a></td>
+		<td><a href="${basePath}admin/api/modifyUserBusiness.xhtml?uid=$user.id">附加</a></td>
+		<td>$!user.updatetime</td>
+		<td>$!user.status</td>
+		<td>$!user.roles</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<script type="text/javascript">
+	window.addEvent("domready", function(){
+		$$(".table tr").addEvents({
+			'mouseenter':function(){
+				this.addClass('highlight');
+			},
+			'mouseleave':function(){
+				this.removeClass('highlight');
+			}
+		});
+	});
+	function qryStatus(status){
+		document.location.href="${basePath}admin/api/apiUserList.xhtml?status="+status;
+	}
+</script>
+</body>
+</html>

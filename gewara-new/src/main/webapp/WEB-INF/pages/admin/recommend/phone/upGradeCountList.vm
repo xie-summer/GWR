@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>手机客户端升级推广统计</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.mt5{margin-top:5px;}
+		.ml15{margin-left: 15px;}
+		.mb5{margin-bottom: 5px;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+#parse('include/mobile/appsource.vm')
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td colspan="5" align="left" class="td">当前位置>>手机客户端微博推广统计</td>
+		<td align="right" class="td" colspan="5">
+		</td>
+	</tr>
+	<tr class="td">
+		<td align="left" class="wd200"><b>手机类型</b></td>
+		<td align="left" class="wd120"><b>应用类型</b></td>
+		<td align="left" class="wd120"><b>应用来源</b></td>
+		<td align="left" class="wd200"><b>版本Name</b></td>
+		<td align="left" class="wd200"><b>升级路径</b></td>
+		<td align="left" class="wd120"><b>点击数</b></td>
+		<td align="left" class="wd120"><b>下载数</b></td>
+		<td align="left" class="wd120"><b>操作</b></td>
+	</tr>
+	#foreach($upgrade in $upGrades)
+	<tr class="td">
+		<td align="left" class="wd200">
+			$!upgrade.tag
+		</td>
+		<td align="left" class="wd200">
+			$!appMap.get($!upgrade.apptype)
+		</td>
+		<td align="left" class="wd200">
+		#if($appSourcesMap.get($!upgrade.appsource))
+			$appSourcesMap.get($!upgrade.appsource)
+		#else
+			$!upgrade.appsource
+		#end
+		</td>
+		<td align="left" class="wd60">
+			$!upgrade.name
+		</td>
+		<td>
+			$!upgrade.downloadUrl
+		</td>
+		<td>
+			$!upgrade.clickedtimes
+		</td>
+		<td>
+			$!upgrade.downtimes
+		</td>
+		<td>
+			<a href="javascript:delGradeCount('$!{upgrade.id}')">删除</a>
+		</td>
+		</tr>
+		#end
+</table>
+<script type="text/javascript">
+	function delGradeCount(id){
+		gewaUtil.confirm("确认删除吗？",function(){
+			var url = "${basePath}admin/mobile/deleteUpGradeCount.xhtml";
+			GewaraUtil.sendRequest(url,{'id':id},function(result){
+				if(result.success){
+					gewaUtil.alert('删除成功！',refreshPage);
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		});
+	}
+</script>
+</body>
+</html>

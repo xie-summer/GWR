@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>手机客户端loading页列表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.mt5{margin-top:5px;}
+		.ml15{margin-left: 15px;}
+		.mb5{margin-bottom: 5px;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+#set($apptypeMap = {'cinema':'影院','bar':'酒吧','sport':'运动','gym':'健身','cinema_cmcc':'移动android客户端'})
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td colspan="3" align="left" class="td">当前位置>>手机客户端loading页列表</td>
+		<td align="right" class="td">
+			<a href="javascript:void(0);" onclick="showImageLoad()" >增加</a>|
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td">
+		<td align="left" class="wd200"><b>Loading图</b></td>
+		<td align="left" class="wd200"><b>路径</b></td>
+		<td align="left" class="wd200"><b>应用类型</b></td>
+		<td align="left" class="wd60"><b>状态</b></td>
+		<td align="left" class="wd120"><b>操作</b></td>
+	</tr>
+	#foreach($imageLoad in $imageLoadList)
+	<tr class="td">
+		<td align="center" class="wd200">
+			<img src="${picPath}$!imageLoad.imagesrc" onerror="this.src='${basePath}img/default_head.png'"  width="100" height="100" />
+		</td>
+		<td class="wd200">
+			${picPath}$!imageLoad.imagesrc
+		</td>
+		<td class="wd200">
+			$!apptypeMap.get($!imageLoad.apptype) $!imageLoad.starttime
+		</td>
+		<td class="wd200">
+			#if($!imageLoad.status eq 1)显示#else不显示#end
+		</td>
+		<td align="left" class="wd120">
+			<a href="javascript:void(0);" 
+onclick='showImageLoad("$!imageLoad.id","$!imageLoad.imagesrc",$!imageLoad.status,"$!imageLoad.apptype","$!DateUtil.formatTimestamp($!imageLoad.starttime)","$!DateUtil.formatTimestamp($!imageLoad.endtime)")' >[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0);" onclick="delImageLoad('$!imageLoad.id')">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+<div id="ImageLoadDiv" style="visibility: hidden;z-index: 100;width: 600px;height: auto;background: #ffffff;border: 1px solid black;">
+<div class="ml15 mt5">
+<div style="text-align: center;"><span id="addtype">保存</span>手机客户端loading图片信息</div>
+<hr/>
+<input type="hidden" name="id" id="id"/>
+<div class="mt5">
+	LOGO：
+	<iframe class="center" height="25px" width="500px" frameborder="0" scrolling="no" style="vertical-align: middle" id="uploadIFrame" 
+	src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updateLogo"></iframe>
+	<div style="margin-left: 40px;"><input type="text" name="logo" id="logo" style="width: 300px;"/></div>
+	<img style="height:100px; margin-left:80px;" id='srclogo' onerror="this.src='${basePath}img/default_head.png'"/>
+</div>
+<div class="mt5">
+是否显示：<select name="status" id="status"><option value="1">显示</option><option value="0">不显示</option></select>
+	<label>开始时间：</label>
+	<input name="starttime" type="text" id="starttime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value=""/>
+	<label >结束时间：</label>
+	<input name="endtime" id="endtime" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value=""/>
+</div>
+<div class="mt5">
+应用类型：<select name="apptype" id="apptype">
+			<option value="cinema">影院</option>
+			<option value="bar">酒吧</option>
+			<option value="sport">运动</option>
+			<option value="gym">健身</option>
+			<option value="cinema_cmcc">移动android客户端</option>
+			</select>
+</div>
+<div class="mt5 ml30">
+<input type="button" onclick="addImageLoad()" value="保存"/> <input type="button" value="取消" onclick="hideImageLoad()"/>
+</div>
+</div>		
+</div>
+<script type="text/javascript">
+	updateLogo = function(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('srclogo').src='${picPath}' + picpath;
+	}
+
+	function showImageLoad(id,url,status,apptype,starttime,endtime){
+		$('id').value = $chk(id)?id:'';
+		$('srclogo').src = $chk(url)? ('${picPath}'+url):'';
+		$('logo').value = $chk(url)?url:'';
+		$('apptype').value = $chk(apptype)?apptype:'';
+		if(starttime)$('starttime').value=starttime;
+		if(endtime)$('endtime').value=endtime;
+		GewaraUtil.showDialog('ImageLoadDiv');
+	}
+	
+	function hideImageLoad(){
+		$('id').value = '';
+		$('logo').value = '';
+		$('srclogo').src = '';
+		GewaraUtil.hideDialog('ImageLoadDiv');
+	}
+	
+	function addImageLoad(){
+		var id = $('id').value;
+		var imagesrc = $('logo').value;
+		var status = $('status').value;
+		var apptype = $('apptype').value;
+		var starttime = $('starttime').value;
+		var endtime = $('endtime').value;
+		if(!$chk(imagesrc)){
+			gewaUtil.alert('请上传loading图！');
+			return;
+		}
+		var url = "${basePath}admin/mobile/saveImageLoad.xhtml";
+		var values = {'id':id,'imageSrc':imagesrc,'status':status,"apptype":apptype, 'starttime':starttime,'endtime':endtime};
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){
+				gewaUtil.alert('保存成功！');
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	function delImageLoad(id){
+		gewaUtil.confirm('确认删除吗？',function(){
+			var url = "${basePath}admin/mobile/delImageLoad.xhtml";
+			var values = {'id':id};
+			GewaraUtil.sendRequest(url,values,function(result){
+				if(result.success) refreshPage();
+				else gewaUtil.alert('删除失败！');
+			});		
+		});
+	}
+</script>
+</body>
+</html>

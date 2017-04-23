@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>北京银联_格瓦拉生活网</title>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,play&v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+<style type="text/css">
+	.bxjg_layout{width:960px;margin:0 auto;background:#fff;}
+	.bxjg_ccbButt a{width:106px;height:26px;display:inline-block;background:url(${staticPath}styles/images/bxjg_ccbButt.png) no-repeat;margin-left:547px;margin-top:75px;}
+	.bxjg_ccb_videoBox{width:462px;margin:auto;padding:20px 0;}
+	.bxjg_ccb_video{width:452px;height:373px;display:block;margin:auto;}
+	.l_hr{border-top:1px solid #e8e7e7;margin:10px 0;}
+	.buttbox2{padding:30px 15px 20px;}
+	.pb20{padding-bottom:20px;}
+	#errShow{position: absolute;padding:10px;width:270px;height:22px;border:1px solid #ccc;background:#fff;color:red;display: none;}
+	#errShow img{position: absolute;top:-8px;left:20px;}
+	.helpful{width:600px;margin-left:15px;}
+</style>
+</head>
+<body>
+#set($ismovie=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="bxjg_layout pb20">
+	<div class="pay_info_box">
+		<div class="title yellow"><h2>验证你的银行卡信息</h2></div>
+		<div class="timeNotice">
+			<p> 你选中的座位已经成功锁定，<b class="yellow">请在15分钟内完成支付</b>，否则系统将释放已选座位。</p>
+			<p class="mt10 center">剩余支付时间：<span style="font-size:2em;color:#C03B0C"><b id="CountMsg"><b id="RemainM">15</b><b>分</b><b id="RemainS">00</b><b>秒</b></b></span></p>
+		</div>
+		<div class="clear" id="cardForm">
+			<div class="mt20">
+				<div class="mt5 ml15">请输入银行卡号</div>
+				<input type="hidden" name="orderId" value="$!order.id"/>
+				<input type="hidden" name="spid" value="$!VmUtils.escapeHtml($params.spid)"/>
+				<input type="hidden" name="phoneNumber" value="" id="phoneNumber"/>
+				<input type="text" name="cardNumber" id="cardNumber" value="" class="text ml15" style="width:200px;font-size:18px;font-weight:bold;color:#333" alt="请输入银行卡号"/>
+				<a  href='javascript:bindCard()' id="linkTips" style="text-decoration:underline; color:#f60;margin-left:10px;" >首次使用请开通</a>
+			</div>
+		</div>
+		<dl class="helpful mt10">
+			<dt><label style="cursor: pointer;" for="xiyi" class="yellow"><input type="checkbox" class="mr5" id="xiyi"/>*<b style="font-size:14px;color:#ff6200" class="xzbx">活动规则</b></label><span id="tishi" class="">（我已清楚本次活动规则，若不符合活动规则，则视为自动放弃该优惠支付。）</span></dt>
+		</dl>
+		<p id="errShow">卡号只能为数字,请输入正确的卡号<img src="${picPath}css/home/pt_f.png"/></p>
+		<div class="buttbox2">
+			<label for="subBt" class="bigBt button "><input type="button" id="subBt" value="确认无误，验证"/></label>
+			<a style="margin-left:20px;font-size:12px;font-size:14px;text-decoration:underline;" class="brown" href="${basePath}gewapay/order.xhtml?orderId=$order.id">返回上一步，重新选择</a>
+		</div>	
+	</div>
+</div>
+<form name="bindcardForm" action="${basePath}gewapay/toBindUnionpayFastCard.xhtml" id="bindCardForm" target="_blank" >
+<input type="hidden" name="cardNumber" value="" id="bindCardnumber"></input>
+<input type="hidden" name="paymethod" value="unionPayFast_activity_bj"></input>
+</form>
+<script type="text/javascript">
+window.addEvent('domready', function(){
+	data();
+	$('subBt').addEvent('click',function(){validateCard(this);});
+});
+
+var validateCardStatus = "";
+function validateCard(el){
+	el = $('cardNumber');
+	if(el.value == ''){
+		GewaraUtil.showValidateErr('cardNumber','银行卡号不能为空！')
+		return;
+	}
+	var f = $('cardForm').getElements('input[type=text]').filter(function(item){return item.value.test(/[^\d]/)})
+	if(f.length > 0){GewaraUtil.showValidateErr('cardNumber','卡号只能为数字,请输入正确的卡号！');return false;}
+	if(el.value.length > 19 || el.value.length < 13){
+		GewaraUtil.showValidateErr('cardNumber','请输入正确位数的银行卡号！')
+		return;
+	}
+	if(!$('xiyi').checked){
+		$('xiyi').focus();
+		$('tishi').toggleClass('yellow bold');
+		return false;
+	}
+	gewa.util.mask({'element': "subBt",'title':'正在验证卡号...'});
+	GewaraUtil.sendRequest("${basePath}ajax/cooperate/unionPayFastDiscount/abj.xhtml", GewaraUtil.getValues("cardForm"), function(result){
+		if(result.success){
+			gewa.util.clearMask();
+			validateCardStatus = result.retval;
+			if(!(validateCardStatus == '0'  || validateCardStatus == '1')){
+				gewaUtil.alert("不支持支付的卡片，请进行开通后 再进行支付!");
+				return;
+			}
+			$('phoneNumber').value = result.phoneNumber;
+			document.location.href="${basePath}gewapay/confirmOrder.xhtml?orderId=$order.id";
+		}else{
+			validateCardStatus = "";
+			gewaUtil.alert(result.msg);
+			gewa.util.clearMask();
+		}
+	});
+}
+
+function bindCard(){
+	if($('cardNumber').value == ''){
+		GewaraUtil.showValidateErr('cardNumber','银行卡号不能为空！')
+		return;
+	}
+	if($('cardNumber').value.length > 19 || $('cardNumber').value.length < 13){
+		GewaraUtil.showValidateErr('cardNumber','请输入正确位数的银行卡号！')
+		return;
+	}
+	bindNotice();
+	$('bindCardnumber').value = $('cardNumber').value
+	$('bindCardForm').submit();	
+}
+
+function bindNotice(){
+	var showTip = '<div class="cnotice"><b>请确保当前浏览器不会阻止打开新页面，并在新页面上开通银联在线支付！</b><br/><p>您将进入新页面进行开通验证，在后继支付时仅需输入卡号、手机验证完成支付。<br/>完成开通后请根据您的情况点击下面按钮。</p></div>';
+	showTip += '<div class="center"><a href="http://online.unionpay.com/static/help/detail_140.html" target="_blank" onclick="cancelBt();" class="button whiteBt minBt"><span>开通遇到问题</span></a><a href="javascript:cancelBt();" class="button redBt minBt ml20"><span>完成开通，继续支付</span></a></div>';
+	gewa.util.maskContent('','<div class="black">'+ showTip +'</div>','',360,'ispay');
+}
+
+function cancelBt(){
+	gewa.util.container['ispay'].dispose('ispay');
+	refreshPage();
+}
+
+function getRTime(){
+	var nM = Math.floor(remain/(1000*60)) % 60;
+	var nS = Math.floor(remain/1000) % 60;
+	$("RemainM").innerHTML = (nM < 10 ? "0" : "") + nM;
+	$("RemainS").innerHTML = (nS < 10 ? "0" : "") + nS;
+	remain -= 1000;
+	if(((remain/1000).toInt()*1000)%60000==0){
+		$clear(pfun);
+		data();
+	}
+	if(remain<=0){
+		if(pfun) $clear(pfun);
+		data();
+		return;
+	}
+};
+function data(){
+	var random = GewaraUtil.rtime();
+	new Request({
+		url: '${basePath}cinema/order/time.xhtml?tid=$order.id&v='+random,
+		method:'get',
+		onSuccess: function(responseText) {
+			remain = responseText * 1;
+			if(remain <= 0){
+				$("CountMsg").empty();
+				$("CountMsg").innerHTML = "订单已超时";
+			}else{
+				pfun = getRTime.periodical(1000);
+			}
+		}
+	}).send();
+}
+function replaceStr(el){
+	if($(el).value.test(/[^\d]/)){
+		$('errShow').show();
+		$('errShow').position({
+			relativeTo:el,
+			position:"leftBottom",
+			offset:{x:0,y:5}
+		});
+		(function(){$('errShow').hide();}).delay(1000);
+		$(el).value = $(el).value.replace(/[^\d]/g,'');
+	}
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

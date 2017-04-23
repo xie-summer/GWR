@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>编辑场次</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<style>
+		label {display:inline-block;width:100px; text-align:right; padding:1px 0 1px 0; margin-top:3px;}
+		input,textarea { width:500px; display:inline-block;}
+	</style>
+</head>
+<body style="width:750px;margin:auto" class="yui-skin-sam">
+<div id="mpiDialog" class="yui-panel" style="width:650px; margin: auto;">
+	<div class="hd" id="title">编辑场次数据<span style="color:blue">$odi.theatrename>>$odi.dramaname $DateUtil.format($odi.playtime,'MM月dd日 HH:mm')&nbsp;$DateUtil.getCnWeek($odi.playtime)</span></div>
+	<div class="bd">
+	<form name="tableDialog" id="tableForm" action="${basePath}admin/dramaTicket/saveOdiOther.xhtml" method="post">
+		<input type="hidden" name="itemid" value="$!odi.dpid" />
+		#parse('include/pay/otherConfig.vm')
+		<fieldset>
+			<legend class="yellow">单次最多购票数量</legend>
+			<div>
+				<label>购票数量：</label>
+				<input name="maxbuy" value="$!odi.maxbuy" style="width: 100px;"/>
+			</div>
+		</fieldset>
+		<fieldset>
+			<legend class="yellow">积分设定</legend>
+			<div>
+				<label>最少使用：</label>
+				<input name="minpoint" value="$!odi.minpoint" style="width: 100px;"/>
+			</div>
+			<div>
+				<label>最多使用：</label>
+				<input name="maxpoint" value="$!odi.maxpoint" style="width: 100px;"/>
+			</div>
+		</fieldset>
+		<fieldset style="margin-top: 30px;height: 45px;">
+			<legend class="yellow">特价活动</legend>
+			<div>活动标识：<input type="text" name="spflag" id="spflag" value="$!odi.spflag" style="width: 100px;"/>
+			</div>
+		</fieldset>
+		#parse('include/pay/otherPayConfig.vm')
+		<fieldset style="margin-top: 30px;">
+			<legend class="yellow">券适用</legend>
+			<div>
+				<label>券选择：</label>
+				<input type="radio" name="cardoption" value="del" #if($VmUtils.isBlank($payoption))checked#end style="width:20px;"/>不设置
+				<input type="radio" name="cardoption" value="canuse" #if($VmUtils.eq($cardoption, 'canuse'))checked#end style="width:20px;"/>可用
+				<input type="radio" name="cardoption" value="notuse" #if($VmUtils.eq($cardoption, 'notuse'))checked#end style="width:20px;"/>不可用
+			</div>
+			<div>
+				<label>批次ID：</label>
+				<input type="text" name="batchidlist" value="$!batchidlist" style="width: 380px;"/>&nbsp;用英文","分开
+			</div>
+		</fieldset>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" onclick="saveOdi(this)" class="button" style="width:100px" value="确定"/>
+		</div>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+	function saveOdi(el){
+		gewa.util.mask({'element': el,'title':'正在提交，请稍等...'});
+		var values = GewaraUtil.getValues('tableForm', ",");
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/saveOdiOther.xhtml', values, function(result){
+			if(result.success){
+				refreshPage();
+			}else {
+				gewa.util.clearMask();
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title>#if($VmUtils.isBlank($!sportItem.seotitle))$!{sportItem.name}#else${$!sportItem.seotitle}#{end}#if($!sportItem.name)_#{end}$!sportItem.name运动心得_格瓦拉生活网</title>
+	<meta name="keywords" content="运动心得,运动体验,运动教练,羽毛球心得,乒乓球心得,游泳心得,场馆预定,场馆信息查询,场馆信息"/>
+	<meta name="description" content="格瓦拉生活网提供最全最新热门运动心得，运动体验及各种项目运动心得，网友在线交互和手机终端发表心得。"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script> 
+</head>
+<body>
+#set($tag="sport") #set($isVideo=true)
+#set($isItemDiary = true)
+#set($issportDiary = true)#set($issport=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout">
+	<div class="ui_left">
+		<div class="inner">
+			<form name="myform" id="myform" action="${basePath}sport/itemDiaryList.xhtml">
+				<input type="hidden" id="myOrder" name="myOrder" value=""/>
+				<input type="hidden" id="itemid" name="itemid" value="$!{sportItem.id}"/>
+			</form>
+			<div class="sp-title">
+				<h1>#if($sportItem)$!{sportItem.itemname}#else运动#end心得</h1>
+				<a href="${basePath}blog/modifyTopic.xhtml?tag=sportservice&relatedid=$!sportItem.id&type=1" class="button redBt minBt more" target="_blank"><span>我要写心得</span></a>
+			</div>
+			<div class="title bline mt20">
+				<span>共有<em class="blue">$!rowsCount</em>条运动心得</span>
+				<select class="more mt5" style="font-size:12px;" id="order" name="order" onchange="goItemDiary(this)">
+					<option value="addtime" #if($VmUtils.eq($myOrder,'addtime')) selected #end>默认(时间由近到远)</option>
+					<option value="flowernum" #if($VmUtils.eq($myOrder,'flowernum')) selected #end>按推荐(由高到低)</option>
+					<option value="clickedtimes" #if($VmUtils.eq($myOrder,'clickedtimes')) selected #end>按关注(由高到低)</option>
+				</select>
+			</div>
+			<!-- 最新、热门、好友点评start -->
+			#if(!$VmUtils.isEmptyList($diaryList))
+			#foreach($diary in $diaryList)
+			<dl class="sp-100 clear mt20">
+				<dt style="text-align:center;">
+					<a class="pubpic" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!diary.memberid" title="$!diary.membername" target="_blank"><img src="${staticPath}css/images/blank.gif" style="background: url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($diary.memberid).headpicUrl)) center center no-repeat;"/></a><br/>
+					<a class="gray" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!diary.memberid" target="_blank">$!VmUtils.escabbr($!diary.membername, 12)</a>
+				</dt>
+				<dd class="partBG">
+					<h3><a class="blue" href="${basePath}blog/t$!diary.id" title="$!diary.subject" target="_blank">$!VmUtils.escabbr($!diary.subject, 60)</a></h3>
+					#if($!VmUtils.getByteLength($!diary.summary) gt 240)
+					<div class="more mr10">
+						<a id="af_$diary.id" href="javascript:void(0)" onclick="getBody('$diary.id');" style="text-decoration:none;"><span class="down">展开</span></a>
+						<a id="uf_$diary.id" href="javascript:void(0)" onclick="fullBody('$diary.id');" style="display:none;text-decoration:none"><span class="up">缩进</span></a>
+					</div>
+					#end
+				</dd>
+				<dd>
+					<div id="review_${diary.id}_short">$!VmUtils.escabbr($!diary.summary,240)<a class="brown" href="${basePath}blog/t$!diary.id">(全文)</a></div>
+					<div id="review_${diary.id}_full" style="display: none;"></div>
+				</dd>
+				<dd class="sp-title">
+					<span class="gray">$!DateUtil.format($!diary.addtime,"yyyy-MM-dd HH:mm")&nbsp;&nbsp;</span>
+					<div class="more">
+						<span class="ml20 left gray"><b>$!{diary.clickedtimes}</b>人关注<em class="ml5 mr5">丨</em><b id="flowers${diary.id}">$!{diary.flowernum}</b>人推荐</span><span class="button whiteBt minBt ml10 mt5 left"><span id="disFlower$diary.id" onclick="javascript:addDiaryFlower('$diary.id', 'flowers$diary.id', 'disFlower$diary.id')"><img src="${staticPath}css/home/hand2.gif"class="tuijian"/>推荐</span></span>
+					</div>
+				</dd>
+			</dl>
+			#end
+			#end
+			#parse('include/pageUtil.vm')
+			<!-- 最新、热门、好友点评end -->
+		</div>
+	</div>
+	<div class="ui_right"><!-- 右侧内容start -->
+		<div class="inner">
+			<div class="Line sp-title">
+				<span class="fs14">运动资讯</span>
+				<a href="${basePath}news/sport" target="_blank" class="more blue">更多»</a>
+			</div>
+			<ul class="ul_26 ul_dot mt10">
+				#if(!$VmUtils.isEmptyList($newsList2))
+				<li class="first clear">
+					<a href="${basePath}news/$newsList2.get(0).id" target="_blank"><img src="${staticPath}css/images/blank.gif"style="background:url($VmUtils.randomPic('sw96h72',$newsList2.get(0).limg)) center center no-repeat;border:1px solid #eee;" width="96" height="72" class="left mr10"/></a>
+					<a href="${basePath}news/$newsList2.get(0).id" class="blue fs14" target="_blank" title="$newsList2.get(0).title">$!VmUtils.escabbr($newsList2.get(0).title, 18)</a>
+					<span>$!VmUtils.htmlabbr($newsList2.get(0).content,60)...</span>
+					<div class="tar"><a href="${basePath}news/$newsList2.get(0).id" class="blue" target="_blank">详细»</a></div>
+				</li>
+				#end
+				#foreach($news in $newsList2)
+				#if($foreach.count gt 1)
+				<li><a href="${basePath}news/$news.id" class="brown" target="_blank" title="$news.title">$!VmUtils.escabbr($news.title,36)</a></li>
+				#end
+				#end
+			</ul>
+			<div class="Line mt10 sp-title">
+				<span class="fs14">一句话心得</span>
+			</div>
+			#if(!$VmUtils.isEmptyList($microcommentList))
+			#foreach($microcomment in $microcommentList)
+			#set($microCount=$!VmUtils.getByteLength($!VmUtils.getWebBody($!microcomment.body,$picPath)))
+			<ul class="ui_abeam mt10">
+				<li class="clear">
+				<div class="uipic"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!microcomment.memberid" class="pubpic"><img src="${staticPath}css/images/blank.gif" style="background: url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($!microcomment.memberid).headpicUrl)) center center no-repeat;" width="50"height="50"/></a></div>
+				<div class="uiText text_right_wala">
+						<div class="switch_ui_inside">
+							<div class="switch_plugs"><span class="pl"></span>
+								<div class="switch_uis_t"><div class="switch_uis_t"></div></div>
+								<div class="switch_uis_c">
+									<div class="switch_uis_c">
+										<div class="inner">
+											<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!microcomment.memberid" class="blue">$!microcomment.nickname</a>：<span class="bluer">$!VmUtils.getWebBody($!microcomment.body,$picPath)</span>
+											<div class="t">
+												<span>$DateUtil.getTimeDesc($!microcomment.addtime)</span><span class="more"><span class="cite">($!microcomment.transfercount)</span><span class="reply">($!microcomment.replycount)</span></span>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="switch_uis_b"><div class="switch_uis_b"></div></div>
+							</div>
+						</div>
+					</div>
+				</li>
+			</ul>
+			#end
+			#end
+			<div class="Line mt10 sp-title">
+				<span class="fs14">热门的圈子</span>
+				<a href="${basePath}quan/index.xhtml?tag=sport" target="_blank" class="more blue">更多»</a>
+			</div>
+			<ul class="percent_33">
+				#foreach($community in $communityList)
+				#set($commuMap=$commuMemberMap.get($community.id))
+				<li>
+					<a href="${basePath}quan/$community.id" class="pubpic" target="_blank"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$community.headpicUrl)) center center" width="50"height="50"/></a><br/>
+					<a href="${basePath}quan/$community.id" class="blue" title="$community.name" target="_blank">$!VmUtils.escabbr($community.name,10)</a>
+					<p class="gray">$!community.commumembercount人</p>	
+				</li>
+				#end
+			</ul>
+			<div class="Line mt10 sp-title">
+				<span class="fs14">待解决的运动问题</span>
+				<a href="${basePath}qa/questionList.xhtml?tag=sport&status=N" target="_blank" class="more blue">更多»</a>
+			</div>
+			<ul class="ul_dot">
+				#foreach($question in $qnList)
+				<li class="mt5"><a href="${basePath}qa/q${question.id}" target="_blank" title="$question.title" class="blue">$!VmUtils.escabbr($question.title,36)</a></li>
+				#end
+			</ul>
+		</div>
+	</div><!-- 右侧内容end -->
+	<div class="height0"></div>
+</div>
+#parse('include/accusation.vm')
+
+<script type="text/javascript">
+function tofriend(){
+	checkLogin(true,function(){
+		document.location="${basePath}sport/itemDiaryList.xhtml?itemid=$!sportItem.id&friend=friend";
+	});
+}
+
+function sportPlay(el){
+	showMovieMark(el);
+}
+function goItemDiary(el){
+	$("myOrder").value=$(el).value;
+	$("myform").submit();
+}
+</script>
+#parse('common/compandingjs.vm')
+#parse('include/bottom.vm')
+</body>
+</html>

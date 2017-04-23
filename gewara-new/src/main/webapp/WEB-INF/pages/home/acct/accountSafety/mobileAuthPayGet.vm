@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>找回支付密码_格瓦拉生活网</title>
+        <meta name="keywords" content=""/>
+        <meta name="description" content=""/>
+        <link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+        <script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+        <script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+        #parse('home/acct/accountSafety/style.vm')
+    </head>
+    <body>
+        #set($ishome=true)#set($safetyCenter = true)
+        #set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+        <div class="ui_layout">
+            #parse('home/acct/home_menu_left.vm')
+            <div class="ui_right">
+                <div class="inner">
+                    <div class="mod_tLine">
+                        <div class="mod_hd">
+                            <h2>找回支付密码</h2>
+                        </div>
+                        <div class="mod_bd">
+                            <div class="payStep01">
+                                <ul class="payOrderSteps clear">
+                                    <li class="step1">1、验证身份</li>
+                                    <li class="step2">2、找回支付密码</li>
+                                    <li class="step3">3、完成</li>
+                                </ul>
+                            </div>
+                            <div class="clew mt15" style="padding:5px 10px;">为了您的账户安全，在找回支付密码之前；将对您的身份验证后才能找回！确认是本人找回...</div>
+                            <div class="modifyBox">
+                                <ul>
+                                    <li class="line">
+                                        <div class="ui_media">
+                                            <div class="ui_pic">已绑定的手机：</div>
+                                            <div class="ui_text">
+                                                <b class="photoNum">$VmUtils.overlay($mobile,"*****",3,8)</b>
+                                                <p class="mt10">若该手机无法接收验证短信，请修改手机号或拔打客服电话 4000-406-506。</p>
+                                                <p class="mt10"><form name="saveForm" id="saveForm">
+                                                      
+		                                                <div style="display:none;height:42px;" id="showPassCaptcha">
+		                                                <span class="red ffst mr5">*</span>验证码：
+															<input type="hidden" name="captchaId" id="captchaMobile" />
+															<label class="label" for="captchaMobileInput" style="width:90px;"><input type="text" class="text captcha" id="captchaMobileInput" name="captcha" alt="点击获取" autocomplete="off"  style="width:90px" onfocus="GewaraUtil.refreshCaptcha('captchaMobile');"/></label>
+															<img id="captchaMobileImg" width="80" height="30" class="ml10 mt10" src="${staticPath}css/images/blank.gif" style="cursor: pointer; margin-bottom:-10px;" onclick="GewaraUtil.refreshCaptcha('captchaMobile');" title="看不清楚，请点击换一张图片"/>
+														</div>
+                                                </form></p>
+                                                <p class="mt10">
+                                                	<input type="button"  value="获取短信动态码" id="sendCkPs" class="btn whiteBtn"/> <span class="ml10" style="color:#ccc">点击获取后，默认手机上将收到一条验证短信！</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="ui_media">
+                                            <div class="ui_pic">
+								                                                <span class="red ffst mr5">*</span>
+								                                                短信动态码：</div>
+                                                <div class="ui_text">
+                                                    <input id="ckps" type="text" class="text"/>
+                                                    <br/><span class="gray" style="color:#ccc">请输入由格瓦拉系统发送短信中的数字部分；每天只有5次错误机会哦...</span>
+                                                    <input id="operation" type="hidden" value="getpaypass"/>
+			                                        <p class="mt20"><a id="VDCkPsBtn" class="btn redBtn">确认提交</a></p>
+                                                </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        #parse('include/bottom.vm')
+<script type="text/javascript">
+var isPhnoeCode2 = false;
+window.addEvent('domready',function(){
+	if($('sendCkPs')){
+		$('sendCkPs').addEvent('click',function(){
+			resend();
+		});
+	}
+	if($('VDCkPsBtn')){
+		$('VDCkPsBtn').addEvent('click',function(){
+			VDCkPs();
+		});
+	}
+	#if($!needCaptcha)
+		GewaraUtil.refreshCaptcha('captchaMobile');
+		$('showPassCaptcha').show();
+		isPhnoeCode2 = true;
+	#end
+});
+var second = 60,clearTime='';
+GetRTime = function (){  
+	if(second>=0){
+		var txt = '';
+		if($('sendCkPs')){
+			if(second == 0){
+				txt = '重新获取动态码';
+				$("sendCkPs").removeClass('botton_count_off');
+				$("sendCkPs").addEvent('click',function(){resend();});
+				if(isPhnoeCode2 && $('showPassCaptcha').getStyle('display') == 'none'){
+					GewaraUtil.refreshCaptcha('captchaMobile');
+					$('showPassCaptcha').show();
+				}
+			}else{
+				txt = second + '秒后重新获取';
+				$("sendCkPs").addClass('botton_count_off');
+			}
+			$('sendCkPs').value = txt;
+		}
+		second = second-1;
+	}else {  
+		if(clearTime)$clear(clearTime);
+		if($('sendCkPs')){
+			$("sendCkPs").addEvent('click',function(){resend();});
+			$("sendCkPs").setStyle("cursor","pointer"); 
+		}
+	}  
+} 
+resend = function(){
+	if(isPhnoeCode2 && $('showPassCaptcha').getStyle('display') == 'none'){
+		GewaraUtil.refreshCaptcha('captchaMobile');
+		$('showPassCaptcha').show();
+		return false;
+	}
+	if(isPhnoeCode2 && $('captchaMobileInput').value == ''){
+		GewaraUtil.showValidateErr('captchaMobileInput','请输入验证码！');
+		return false;
+	}
+	gewa.util.mask({'element': "sendCkPs",'title':'正在提交，请稍等...'});
+	var values = {'captchaId':$('captchaMobile').value,'captcha':$('captchaMobileInput').value,"operation":$('operation').value};
+	GewaraUtil.sendRequest('${basePath}home/acct/loadPayCheckPass.xhtml', values, function(result){
+		gewa.util.clearMask();
+		if(result.refreshCaptcha){
+			isPhnoeCode2 = true;
+			$('showPassCaptcha').show();
+			GewaraUtil.refreshCaptcha('captchaMobile');
+		}
+		if(result.success){
+			gewaUtil.alert(result.retval);
+			retime();
+			$('showPassCaptcha').hide();
+		}else{
+			if(result.msg) {
+				gewaUtil.alert(result.msg);
+			}else{
+				$('showPassCaptcha').show();
+				GewaraUtil.showErrorMsg('saveForm',result.errorMap);
+				GewaraUtil.refreshCaptcha('captchaMobile');
+			}
+		}
+	}, 'get');
+}
+
+retime = function(){
+	$("sendCkPs").removeEvents('click');
+	$("sendCkPs").setStyle("cursor","text");
+	second = 60;
+	if(clearTime)$clear(clearTime);
+	clearTime = GetRTime.periodical(1000);
+}
+VDCkPs = function(){
+	if($('ckps').value == ''){
+		GewaraUtil.showValidateErr('ckps','请输入动态码！');
+		$('ckps').focus();
+		return false;
+	}
+	var values = {'checkpass':$('ckps').value,"operation":$('operation').value};
+	GewaraUtil.sendRequest('${basePath}home/acct/VDPayCkPs.xhtml', values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			window.location.href="${basePath}home/acct/mbrIdtAuthPayCkPs.xhtml?checkpass="+$('ckps').value+"&operation="+$('operation').value;
+		}else{
+			if(result.msg) {
+				gewaUtil.alert(result.msg);
+			}
+		}
+	}, 'get');
+}
+</script>
+</body>
+</html>

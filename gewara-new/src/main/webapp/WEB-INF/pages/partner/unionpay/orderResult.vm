@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>格瓦拉电影、电影订单确认-$partner.partnername</title>
+<meta name="keywords" content="电影排片表查询,电影放映时间查询" />
+<meta name="description" content="近期各大影院上映电影的排片表、放映时间查询。" />
+<link rel="stylesheet" type="text/css" href="${basePath}css/gewara.css?n=new_partner&v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${basePath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${basePath}scripts/gewara.js?n=gewara-util,page,scrollerbar&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div class="ui_layout" style="width:680px;">
+	<div class="payOrderSteps">
+		<ul class="payStep04">
+			<li class="step1">1.选择场次</li>
+			<li class="step2">2.在线选座</li>
+			<li class="step3">3.确认订单并支付</li>
+			<li class="step4">4.完成购票</li>
+		</ul>
+	</div>
+	#if($success)
+	<div class="mt10 sucss">
+		<div class="inner">
+			<dl>
+				<dt class="left"><img src="${basePath}css/partner/ico_success.gif" width="32"  height="32"/></dt>
+				<dd class="left ml15">
+					<h2>订单支付成功，您将在15分钟内收到取票短信。</h2>
+					<p>请凭短信中的取票密码在自助取票机上取票</p>
+					<p>$!{order.ordertitle}<span class="ml15">订单号<b class="color:#4E79AE">$order.tradeNo</b></span></p>
+					#set($descMap = $VmUtils.readJsonToMap($order.description2))
+					<p><em>影片：</em>$descMap.get('影片')</p>
+					<p><em>场次：</em>$descMap.get('场次')</p>
+					<p><em>座位：</em>$descMap.get('影票')</p>
+					<p><em>付款：</em><strong class="yellow">$!fee</strong>元（此价格中包含网络服务费）</p>
+					<p>持卡人如果需要发票，可以拨打格瓦拉客服电话：4000-406-506获取。</p>
+				</dd>
+			</dl>
+		</div>
+	</div>
+	#*
+	<div class="mt10 sucss none">
+		<div class="inner">
+			<dl>
+				<dt class="left"><img src="${basePath}css/partner/ico_error.gif" width="32"  height="32"/></dt>
+				<dd class="left ml15">
+					<h2>该订单有错误，可能是如下原因:</h2>
+					<p class="mt10">1、影院售票系统暂时不能正常访问</p>
+					<p>2、由于您未能在15分钟内完成支付，座位已被释放且被其他人占用</p>
+					<p>3、付款通知网络延迟，您可在2-5分钟后尝试刷新页面</p>
+					<p class="mt10">我们将尽快联系您，您也可拨打客服热线：<strong class="blue">4000-406-506</strong></p>
+					<p>您的订单号为：$order.tradeNo</p>
+				</dd>
+			</dl>
+		</div>
+	</div>
+	*#
+	#if($topic.id)
+	<div class="explain mt20">
+		<h2>${opi.cinemaname}取票地点说明</h2>
+		#if($VmUtils.eq($!takemethod, 'U'))<div class="payBox_imag red mt10 ml10"><strong> &nbsp;温馨提示：</strong>你所购买的影院使用的是联合院线取票机，请注意辨识</div>#end
+		<div class="inner">$!{topicBody.replaceAll('http', 'https')}</div>
+		<ul class="mt10">
+			<li class="s1">
+			</li>
+			<li class="s2">
+				<p>
+					<b>重要提示：</b><br/>
+					取票过程中有任何问题请联系影院值班经理或拨打客服电话：<b class="yellow">4000-406-506</b>
+				</p>
+			</li>
+		</ul>
+	</div>
+	#end
+	#else
+	<div class="mt10 sucss">
+		<div class="inner">
+			<dl>
+				<dt class="left"><img src="${basePath}css/partner/ico_warning.gif" width="32"  height="32"/></dt>
+				<dd class="left ml15">
+					<h2>该订单有错误，可能是如下原因:</h2>
+					<p class="mt10">1、影院售票系统暂时不能正常访问</p>
+					<p>2、由于您未能在15分钟内完成支付，座位已被释放且被其他人占用</p>
+					<p>3、付款通知网络延迟，您可在2-5分钟后尝试刷新页面</p>
+					<p class="mt10">我们将尽快联系您，您也可拨打客服热线：<strong class="blue">4000-406-506</strong></p>
+					<p>您的订单号为：$order.tradeNo</p>
+				</dd>
+			</dl>
+		</div>
+	</div>
+	#end
+</div>
+<script src="${basePath}scripts/loaderProxy.js?v=$VmUtils.jsVersion" data-frameid="gewala_movie"  data-timer="600" data-proxy="https://online.unionpay.com/movie/page/movie/proxy.html"></script>
+</body>
+</html>

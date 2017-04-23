@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>添加积分信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		label {display:inline-block;width:70px;text-align:right;padding:1px 0 1px 0; }
+		a{text-decoration: none; white-space: nowrap;}
+	</style>
+</head>
+<body style="margin-bottom: 20px;" class="yui-skin-sam">
+	<div style="border: 1px solid gray;color: red;width:800px;font-size: 13px;padding-top: 3px">积分添加注意事项：<br/><br/>
+		&nbsp;&nbsp;&nbsp;&lt;1&gt;有关场馆和项目信息的更新，完善，添加，纠错，给予的积分值只能在0-50之间.<br/><br/>
+		&nbsp;&nbsp;&nbsp;&lt;2&gt;用户id，积分都只能是整数类型.<br/><br/>
+		&nbsp;&nbsp;&nbsp;&lt;3&gt;兑换物品，手动加积分只能在-10000-0积分之间.<br/><br/>
+		&nbsp;&nbsp;&nbsp;&lt;4&gt;手动输入原因，手动加积分只能在-10000-10000积分之间.<br/><br/>
+		&nbsp;&nbsp;&nbsp;&lt;5&gt;除【&lt;1&gt;,&lt;3&gt;,&lt;4&gt;】点外其他类型手动加积分只能在0-1000积分之间.
+	</div>
+	<div style="width:800px;">
+		<div style="width:800px;margin-left: 20px;">
+			<label style="width: 50px;margin-right: 100px;" > 用 户ID</label>
+			<label style="width: 50px;margin-right: 100px;"> 积 分 </label>
+			<label style="width: 50px;margin-right: 100px;"> 原 因 </label>
+			<label style="width: 50px;margin-right: 100px;"> 备注原因 </label>
+		</div>
+		<form action="" name="myform" id="myform" method="post">
+		#set($a=1)
+		#foreach($a in [1..10])
+		<div id="point$a" style="width:800px;margin-top: 10px;">
+			<input name="memberid$a"   onkeyup="return kd1(this)"  id="memberid$a" style="width: 150px;text-align: right;" type="text"/>
+			<input name="point1$a" id="point1$a"  style="width: 150px;text-align: right;" maxlength="6" type="text"/>
+			<select name="tag$a" id="tag$a">
+					<option value="invite">成功邀请</option>
+					<option value="confirm">高级确认</option>
+					<option value="exchange" selected="selected">兑换物品</option>
+					#*<option value="corr">页面纠错</option>*#
+					<option value="trade">订单成交</option>
+					<option value="pay">充值</option>
+					<option value="diarymovie">发表影评</option>
+					<option value="commentcinema">点评场所</option>
+					<option value="newtask">新手任务</option>
+					<option value="update_place">场馆信息更新</option>
+					<option value="perfect_place">场馆信息完善</option>
+					#*<option value="add_place">场馆信息添加</option>*#
+					#*<option value="corr_place">场馆信息纠错</option>*#
+					<option value="update_item">项目信息更新</option>
+					<option value="perfect_item">项目信息完善</option>
+					#*<option value="add_item">项目信息添加</option>*#
+					#*<option value="corr_item">项目信息纠错</option>*#
+					#*<option value="add_movie">添加电影信息</option>*#
+					<option value="addinfo">添加信息(影片、场馆等）</option>
+					<option value="correct">纠错(影片、场馆、项目等）</option>
+					<option value="content">手动输入原因</option>
+			</select>
+			<input name="reason$a" id="reason$a" type="text" style="width:200px;" />
+			<label>$a</label>
+		</div>
+		#end
+		<div style="text-align: center;width:800px; margin-top: 10px;">
+		<input type="button" value="保存数据" onclick="applySave('save');"/>
+		</div>
+		</form>
+		
+		<div class="mt20" id="expointFrm">
+			<fieldset>
+				<legend>excel复制ID, 添加积分</legend>
+				<div style="width:800px;margin-left: 20px;">
+					<label style="width: 30px;margin-right: 100px;" > 批 次</label>
+					<label style="width: 50px;margin-right: 100px;" > 用 户ID</label>
+					<label style="width: 40px;margin-right: 60px;"> 积 分 </label>
+					<label style="width: 40px;margin-right: 100px;"> 原 因 </label>
+					<label style="width: 50px;margin-right: 100px;"> 备注原因 </label>
+				</div>
+				<input mustTxt="批次必填! 只作为标识" name="uniquetag" id="uniquetag" style="width: 80px;text-align: right;" type="text" value="$!{params.uniquetag}"/>
+				<input mustTxt="用户ID必填!" name="exmemberid" id="exmemberid" style="width: 150px;text-align: right;" type="text" value="$!{params.exmemberid}"/>
+				<input mustTxt="积分必填!" name="expoint" id="expoint" style="width: 150px;text-align: right;" maxlength="6" type="text" value="$!{params.expoint}"/>
+				<select name="extag" id="extag">
+						<option value="invite">成功邀请</option>
+						<option value="confirm">高级确认</option>
+						<option value="exchange" >兑换物品</option>
+						#*<option value="corr">页面纠错</option>*#
+						<option value="trade">订单成交</option>
+						<option value="pay">充值</option>
+						<option value="diarymovie">发表影评</option>
+						<option value="commentcinema">点评场所</option>
+						<option value="newtask">新手任务</option>
+						<option value="update_place">场馆信息更新</option>
+						<option value="perfect_place">场馆信息完善</option>
+						#*<option value="add_place">场馆信息添加</option>*#
+						#*<option value="corr_place">场馆信息纠错</option>*#
+						<option value="update_item">项目信息更新</option>
+						<option value="perfect_item">项目信息完善</option>
+						#*<option value="add_item">项目信息添加</option>*#
+						#*<option value="corr_item">项目信息纠错</option>*#
+						#*<option value="add_movie">添加电影信息</option>*#
+						#*<option value="add_coach">添加教练信息</option>*#
+						<option value="addinfo">添加信息(影片、场馆等）</option>
+						<option value="correct">纠错(影片、场馆、项目等）</option>
+						<option value="content" selected="selected">手动输入原因</option>
+				</select>
+				<input name="exreason" id="exreason" type="text" style="width:200px;" value="$!{params.exreason}"/>
+				<input type="button" value="设 置" onclick="applySave('expoint');" />
+			</fieldset>
+		</div>
+	</div>
+	<div class="yui-panel" id="applyDiv" style="width:400px;visibility: hidden;">
+		<div class="hd"></div>
+		<div class="bd" style="padding: 10px 30px;">
+			<label>申请区域：</label>
+			<select name="applycity" id="applycity">
+				#foreach($citycode in $cityMap.keySet())
+				<option value="$citycode">$cityMap.get($citycode)</option>
+				#end
+			</select><br />
+			<label>申请部门：</label>
+			<select name="applydept" id="applydept">
+				#foreach($dept in $deptMap.keySet())
+				<option value="$dept">$deptMap.get($dept)</option>
+				#end
+			</select><br />
+			<label>申请类型：</label>
+			<select name="applytype" id="applytype">
+				#foreach($type in $applyMap.keySet())
+				<option value="$type">$applyMap.get($type)</option>
+				#end
+			</select><br />
+			<input type="hidden" id="addtype" />
+			<input type="button" value="确定" onclick="saveApply()"/>
+			<input type="button" value="取消" onclick="cancelSave()"/>
+		</div>
+	</div>
+	<script type="text/javascript">
+		function applySave(type){
+			$('addtype').value=type;
+			GewaraUtil.showDialog('applyDiv');
+		}
+		function cancelSave(){
+			GewaraUtil.hideDialog('applyDiv');
+		}
+		function saveApply(){
+			if($('addtype').value == 'save') save();
+			else if($('addtype').value == 'expoint') setexpoint('expointFrm');
+		}
+		function save(){
+			var statflag = $('applydept').value + ':' + $('applytype').value + ":" + $('applycity').value;
+			GewaraUtil.hideDialog('applyDiv');
+			if(confirm("确定添加吗？")){
+				var val=GewaraUtil.getValues('myform');
+				val.statflag = statflag;
+				var url = "${basePath}admin/point/ajax/addPointInfo.xhtml";
+				GewaraUtil.sendRequest(url, val, function(result){
+					if(result.success){
+						alert("添加成功！");
+						location.href="${basePath}admin/point/addPointInfo.xhtml";
+					}else{
+						alert(result.msg);
+					}
+				});
+			}
+		}
+		
+		function kd1(obj){
+			if(!parseInt(obj.value)){
+				alert("用户ID只能是数字！");
+				obj.value='';
+				return false;
+			}
+		}
+		
+		function setexpoint(obj){
+			var statflag = $('applydept').value + ':' + $('applytype').value + ":" + $('applycity').value;
+			GewaraUtil.hideDialog('applyDiv');
+			if(!GewaraUtil.baseValidForm('expointFrm')) return false;
+			var url = '${basePath}admin/point/ajax/addExPointInfo.xhtml';
+			var values = GewaraUtil.getValues('expointFrm');
+			values.statflag = statflag;
+			GewaraUtil.mask(obj);
+			GewaraUtil.sendRequest(url, values, function(result){
+				GewaraUtil.unmask();
+				if(result.success){
+					alert("设置成功! 成功数量【"+result.retval+"】");
+					$('uniquetag').value = '';
+					$('exmemberid').value = '';
+					$('expoint').value = '';
+					$('exreason').value = '';
+				}else{
+					alert(result.msg);
+				}
+			})
+		}
+	</script>
+</body>
+</html>

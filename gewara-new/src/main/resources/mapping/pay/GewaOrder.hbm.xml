@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.gewara.model.pay.GewaOrder" table="TICKET_ORDER" optimistic-lock="version" lazy="false">
+		<id name="id" type="long" column="RECORDID">
+			<generator class="sequence">
+				<param name="sequence">SEQ_ORDER</param>
+			</generator> 
+		</id>
+		<discriminator column="ORDER_TYPE" type="string"/>
+		<version name="version" column="ORDER_VERSION" type="integer"/>
+		<property name="tradeNo" type="string" column="TRADE_NO" />
+		<property name="mobile" type="string" column="MOBILE"/>
+		<property name="memberid" type="long" column="MEMBERID"/>
+		<property name="membername" type="string" column="MEMBERNAME"/>
+		<property name="status" type="string" column="STATUS"/>
+		<property name="createtime" type="timestamp" column="CREATETIME"/>
+		<property name="addtime" type="timestamp" column="ADDTIME"/>
+		<property name="updatetime" type="timestamp" column="UPDATETIME"/>
+		<property name="validtime" type="timestamp" column="VALIDTIME" />
+		<property name="paidtime" type="timestamp" column="PAIDTIME" />
+		<property name="modifytime" type="timestamp" column="MODIFYTIME"/>
+		<property name="playtime" type="timestamp" column="PLAYTIME"/>
+		<property name="ordertitle" type="string" column="ORDER_TITLE"/>
+		<property name="description2" type="string" column="DESCRIPTION2"/>
+		<property name="clerkid" type="long" column="CLERK_ID" />
+		<property name="paymethod" type="string" column="PAYMETHOD" />
+		<property name="paybank" type="string" column="PAYBANK" />
+		<property name="payseqno" type="string" column="PAYSEQNO" />
+		<property name="remark" type="string" column="REMARK" />
+		<property name="unitprice" type="integer" column="UNITPRICE"/>
+		<property name="quantity" type="integer" column="QUANTITY"/>
+		<property name="gewapaid" type="integer" column="GEWAPAID" />
+		<property name="alipaid" type="integer" column="ALIPAID" />
+		<property name="wabi" type="integer" column="WABI" />
+		<property name="ukey" type="string" column="UKEY"/>
+		<property name="partnerid" type="long" column="PARTNERID"/>
+		<property name="totalfee" type="integer" column="AMOUNT" />
+		<property name="totalcost" type="integer" column="TOTALCOST" />
+		<property name="discount" type="integer" column="DISCOUNT" />
+		<property name="disreason" type="string" column="DISCOUNT_REASON" />
+		<property name="changehis" type="string" column="CHANGEHIS"/>
+		<property name="checkpass" type="string" column="CHECKPASS" />
+		<property name="itemfee" type="integer" column="ITEMFEE" />
+		<property name="otherfee" type="integer" column="OTHERFEE" />
+		<property name="otherinfo" type="string" column="OTHERINFO" />
+		<property name="citycode" type="string" column="CITYCODE" />
+		<property name="settle" type="string" column="SETTLE" />
+		<property name="restatus" type="string" column="RESTATUS" />
+		<property name="pricategory" type="string" column="PRICATEGORY" />
+		<property name="category" type="string" column="CATEGORY" />
+		<property name="otherFeeRemark" type="string" column="OTHERFEE_REMARK" />
+		<property name="express" type="string" column="EXPRESS" />
+		<property name="gatewayCode" type="string" column="GATEWAY_CODE" />
+		<property name="merchantCode" type="string" column="MERCHANT_CODE" />
+		<subclass name="com.gewara.model.pay.TicketOrder" discriminator-value="ticket" dynamic-update="true">
+			<property name="mpid" type="long" column="RELATEDID"/>
+			<property name="cinemaid" type="long" column="CINEMAID"/>
+			<property name="movieid" type="long" column="MOVIEID"/>
+			<property name="hfhpass" type="string" column="HFHPASS" />
+			<property name="costprice" type="integer" column="COSTPRICE" />
+		</subclass>
+		<subclass name="com.gewara.model.pay.GoodsOrder" discriminator-value="goods" dynamic-update="true">
+			<property name="goodsid" type="long" column="RELATEDID"/>
+			<property name="placeid" type="long" column="CINEMAID"/>
+			<property name="itemid" type="long" column="MOVIEID"/>
+			<property name="costprice" type="integer" column="COSTPRICE" />
+		</subclass>
+		<subclass name="com.gewara.model.pay.SportOrder" discriminator-value="sport" dynamic-update="true">
+			<property name="ottid" type="long" column="RELATEDID"/>
+			<property name="sportid" type="long" column="CINEMAID"/>
+			<property name="itemid" type="long" column="MOVIEID"/>
+			<property name="cardid" type="long" column="AREAID" />
+			<property name="costprice" type="integer" column="COSTPRICE" />
+		</subclass>
+		
+		<subclass name="com.gewara.model.drama.DramaOrder" discriminator-value="drama" dynamic-update="true">
+			<property name="dpid" type="long" column="RELATEDID"/>
+			<property name="areaid" type="long" column="AREAID" />
+			<property name="theatreid" type="long" column="CINEMAID"/>
+			<property name="dramaid" type="long" column="MOVIEID"/>
+			<property name="costprice" type="integer" column="COSTPRICE" />
+		</subclass>
+		<subclass name="com.gewara.model.pay.PubSaleOrder" discriminator-value="pubsale" dynamic-update="true">
+			<property name="pubid" type="long" column="RELATEDID"/>
+			<property name="costprice" type="integer" column="COSTPRICE" />
+		</subclass>
+		<subclass name="com.gewara.model.pay.GymOrder" discriminator-value="gym" dynamic-update="true">
+			<property name="gci" type="long" column="RELATEDID"/>
+			<property name="gymid" type="long" column="CINEMAID" />
+			<property name="oci" type="long" column="MOVIEID" />
+			<property name="costprice" type="integer" column="COSTPRICE" />	
+		</subclass>
+		
+		<subclass name="com.gewara.model.pay.MemberCardOrder" discriminator-value="membercard" dynamic-update="true">
+			<property name="mctid" type="long" column="RELATEDID"/>
+			<property name="placeid" type="long" column="CINEMAID" />
+			<property name="costprice" type="integer" column="COSTPRICE" />	
+			<property name="cardid" type="long" column="AREAID" />
+		</subclass>
+		
+	</class>
+</hibernate-mapping>

@@ -1,0 +1,105 @@
+<!Doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>竞拍确认订单-格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_pay&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,tips,index_even,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.button,.button span,.button input{background-image:url(/css/sport_wide/btn_sport.gif);}		
+		.limitTimedetail{background:#f3fbfe;}
+		.cf60{color:#ff6600;}
+		.limitTime{background-position:-238px -360px; padding-left:75px;}
+		.limitTime p{color:#01648b; font-size:16px;}
+		
+		.payBox_hd ul li{float:left; margin-right:3px; color:#9b9b9b;}
+		.payBox_hd ul li a{background:#f8f8f8; display:inline-block; padding:6px 40px; border:1px solid #d1d1d1; border-bottom:none; font-size:14px; font-weight:bold; font-family:"微软雅黑"; color:#000;}
+		.payBox_hd ul li a.select{background:#1885ae; border-color:#3b98ba; color:#fff;}
+		.payBox_body{border-top:2px solid #1885ae;}
+		#isConfirmDiv{border-color:#76b7d5;}
+		
+		em.changeMobile{font-size:14px; width:86px; display:inline-block; text-align:right;}
+		.payBox_body_left li.changeMobile{height:30px;line-height:30px;padding:5px 20px;background:#f3f3f3;}
+		.unselect2{background-position: -91px -200px;}
+		.changci {border:1px solid #39c;color:#39c;padding:0 5px;height:26px;line-height:26px; width:170px; text-align:center; display:block;float:left; overflow:hidden; margin:0 10px 10px 0;}
+	</style>
+</head>
+<body class="ui_sport">
+#set($issport=true)#set($isOrder3=true)
+#set($orderStr1='场馆')#set($orderStr2='场次')#set($orderStr3='预订')
+#set($isIndexBigAd=true)#set($cfgHeader='header')
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="inner"  id="orderForm">
+		#parse('sport/menu.vm')
+		<div class="payBox mt20">
+			<div class="payBox_header">
+				<div class="pad">
+					<h2>确认订单信息</h2>
+				</div>
+			</div>
+			<div class="payBox_body clear">
+				<div class="payBox_body_left">
+					<dl class="ui_media">
+						#set($sportOtherinfo=$!VmUtils.readJsonToMap($!sport.otherinfo))
+						<ul>
+							<li><em>预定场馆：</em>$!sport.realBriefname</li>
+							<li><em>详细地址：</em>[<a href="${basePath}sport/sportList.xhtml?countycode=$!sport.countycode" target="_blank">$!sport.countyname</a>]$!sport.address </li>
+							#if($VmUtils.isNotBlank($sport.transport))<li><em>公交信息：</em>$sport.transport</li>#end
+							#if($VmUtils.isNotBlank($sport.stationname))<li><em>地铁信息：</em>$sport.stationname</li>#end
+							#if($VmUtils.isNotBlank($!sportOtherinfo.get('park')))<li><em>停车信息：</em>$!sportOtherinfo.get('park')</li>#end
+						</ul>
+					</dl>
+					<ol style="padding-bottom:65px;">
+						<li><em>订单号：</em>$!{charge.tradeNo}(<b class="sh">竞价场次</b>)</li>
+						<li><em>制定项目：</em>$!item.name<em class="ml30">预定日期：</em>$!DateUtil.formatDate($ots.playdate) $!DateUtil.getCnWeek($ots.playdate)</li>
+						<li class="ui_media">
+							<em class="ui_pic" style="margin:0;">预订场次：</em>
+							<p class="ui_text">
+								<span class="changci">$!{ots.starttime} - $!{ots.endtime}</span>
+							</p>
+						</li>
+						<li><em>场次底价：</em>$!{ots.lowerprice}元<em class="ml30">当前出价：</em>$!{ots.curprice}元</li>
+						<li style="font-size:14px;"><b>应付金额：</b><span class="ui_price"><b>$!charge.totalfee</b></span>元<em class="cF60 fs14">（保证金）</em></li>
+					</ol>
+				</div>
+				<div class="payBox_body_right">
+					<div class="limitTimedetail inner">
+						<p><span class="fs14 cf60">请在2小时内完成付款</span>，超时系统将自动取消订单，支付中如遇到问题请致电：<b>4000-406-506</b></p>
+						<div class="limitTime">
+							<p>订单将在两小时后失效！</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="payBox payBox_body mt20">
+			<div class="peyments">
+				<p class="fs14">
+					<label class="button maxBt redBt" style="vertical-align: middle;">
+						<input type="button" class="bt1" value="确认订单，立即支付" onclick="gotoPay()"/>
+					</label>
+				</p>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+	function gotoPay(){
+		var url = "${basePath}sport/open/confirmDeposit.xhtml";
+		var values = {'orderId':$!charge.id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				if(result.redirectUrl){
+					document.location.href = result.redirectUrl;
+				}
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}	
+</script>
+</body>
+</html>

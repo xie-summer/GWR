@@ -1,0 +1,60 @@
+<!-- 传评分数gmark -->
+#if($isMinStaticRating)
+<em class="initRating cursor_auto"><!-- 小评分 -->
+	#foreach($x in [1..10])
+	#set($vCount=$foreach.count*10)
+	#set($marks=$math.toInteger($math.div($gmark,10)))
+	#if($marks%2 eq 0)
+		#set($markdiv=$math.add($math.div($gmark,10),1))
+		#set($floorValue=$math.round($markdiv))
+		#set($floorValue=$math.sub($floorValue,1))
+	#else
+		#set($floorValue=$math.round($math.div($gmark,10)))
+	#end
+	#set($halfCount=$floorValue*10)
+	#if($VmUtils.gt($halfCount,$vCount) || $VmUtils.eq($halfCount,$vCount))
+		#if($foreach.index%2 eq 0)
+			#set($status='half')
+		#else
+			#set($status='on')
+		#end
+	#else
+		#if($foreach.index%2 ne 0)
+			#set($status='no')
+		#else
+			#set($status='')
+		#end
+	#end
+	<span class="$status"></span>
+	#end
+</em>
+#elseif($isBigStaticRating)
+<ul class="ui_big_ratings"><!-- 大的评分 -->
+	#foreach($x in [1..10])
+	#set($vCount=$foreach.count*10)
+	#set($marks=$math.toInteger($math.div($gmark,10)))
+	#if($marks%2 eq 0)
+		#set($markdiv=$math.add($math.div($gmark,10),1))
+		#set($floorValue=$math.round($markdiv))
+		#set($floorValue=$math.sub($floorValue,1))
+	#else
+		#set($floorValue=$math.round($math.div($gmark,10)))
+	#end
+	#set($halfCount=$floorValue*10)
+	#if($VmUtils.eq($halfCount, $vCount) || $VmUtils.gt($halfCount, $vCount))
+		#if($foreach.index%2 eq 0)
+			#set($status='half')
+		#else
+			#set($status='on')
+		#end
+	#else
+		#if($foreach.index%2 ne 0)
+			#set($status='no')
+		#else
+			#set($status='')
+		#end
+	#end
+	<li class="$status"></li>
+	#end
+</ul>
+#end

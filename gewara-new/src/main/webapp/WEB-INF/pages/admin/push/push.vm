@@ -1,0 +1,469 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	 <title>手机客户推送后台</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/admin.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js?v=00"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+</head> 
+<body>
+<form id ="push_form" action="${basePath}admin/push/addPush.xhtml" method="post">
+	<table width="945" align="center" >
+	<tr>
+		<td width="167">
+			<table width="167" align="center">
+				<tr align="center">
+					<td><label>今天发送 ：<input name="daycount" style="color: red;width: 60px;border: 0px;" value="暂无数据"/> 次数</label></td>
+				</tr>
+				<tr align="center">
+					 <td><label>本周发送 ：<input name="weekcount" style="color: red;width: 60px;border: 0px;" value="暂无数据"/> 次数</label></td>
+				</tr>
+				<tr align="center">
+					 <td><label>本月发送 ：<input name="mouthcount" style="color: red;width:60px;border: 0px;" value="暂无数据"/> 次数</label></td>
+				</tr>
+			</table>
+		</td>
+		<td width="547" align="center" style="font-size:30px;">手机客户端后台推送</td>
+		<td width="209" align="center" style="font-size:20px;color: blue;"><a style="color: blue;"	href="${basePath}admin/push/getPushList.xhtml?isAuto=N"><u>手动推送记录</u></a></td>
+		<!-- <td width="209" align="center" style="font-size:20px;color: blue;"><a style="color: blue;"	href="${basePath}admin/push/getPushList.xhtml?isAuto=Y"><u>自动推送记录</u></a></td> -->
+	</tr>
+	<tr>
+		<td align="center" style="padding-top: 20px">S1&gt;</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td align="center" style="padding-top: 10px">产品</td>
+		<td style="padding-top: 10px">
+				<input type="radio" name="product"	value="cinema" #if($!push.product=="cinema") checked="checked" #end onchange="showInfo(this)" onclick="changeVersion()"/>电影
+				<input type="radio" name="product"	value="sport" #if($!push.product=="sport") checked="checked" #end onchange="showInfo(this)" onclick="changeVersion()"/>运动
+				<input type="radio" name="product"	value="gym"	#if($!push.product=="gym") checked="checked" #end onchange="showInfo(this)" onclick="changeVersion()"/>健身
+				<input type="radio" name="product"	value="bar"	#if($!push.product=="bar") checked="checked" #end onchange="showInfo(this)" onclick="changeVersion()"/>酒吧
+				<input type="radio" name="product"	value="fest" #if($!push.product=="fest") checked="checked" #end onchange="showInfo(this)" onclick="changeVersion()"/>电影节
+			<input type="hidden" id="recordId" name="recordId" value="$!push.id"/>
+		</td>
+	</tr>
+	<tr>
+		<td align="center" style="padding-top: 10px">平台</td>
+			<td style="padding-top: 10px">
+			<input type="radio" name="os" value="ios" #if($!push.os=="ios") checked="checked" #end onchange="showInfo(this)" onclick="changeVersion()"/> ios
+		 		<input type="radio" name="os" value="android" #if($!push.os=="android") checked="checked" #end onchange="showInfo(this)" onclick="changeVersion()"/> android
+		</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td align="center" style="padding-top: 10px">版本号</td>
+		<td style="padding-top: 10px" id="pushVersion">
+			<input id="version" name="version" type="text" value="$!push.version" onblur="showInfo(this)"/>
+		</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td align="center" style="padding-top: 10px">消息类型</td>
+	 	 <td style="padding-top: 10px">
+	 		<input type="radio" name="msgType" value="t4" #if($!push.msgType=="t4") checked="checked" #end onclick="showInfo(this)"/>每周推荐
+	 	 	<input type="radio" name="msgType" value="t5" #if($!push.msgType=="t5") checked="checked" #end onclick="showInfo(this)"/>首映式，明显见面会
+	 	 	<input type="radio" name="msgType" value="t6" #if($!push.msgType=="t6") checked="checked" #end onclick="showInfo(this)"/>优惠购票
+	 	 	<input type="radio" name="msgType" value="t7" #if($!push.msgType=="t7") checked="checked" #end onclick="showInfo(this)"/>其它
+	 	 	<input type="radio" name="msgType" value="t8" #if($!push.msgType=="t8") checked="checked" #end onclick="showInfo(this)"/>电影节广播
+	 	</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td style="padding-top: 10px">标题(20字内)</td>
+	</tr>
+	<tr>
+		<td align="center">S2&gt;</td>
+		<td style="padding-top: 10px"><input id="title" name="title" type="text" value="$!push.title" /></td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td style="padding-top: 10px">推送内容(40字内)</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td style="padding-top: 10px">
+		<textarea	class="text" id="content" name="content" cols="30" rows="3" onblur="showInfo(this)">$!push.content</textarea></td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td style="padding-top: 10px">
+			<select id="links" name="links">
+				<option value="0" #if($!push.links eq '0') selected="selected"#end >首页</option>
+				<option value="1" #if($!push.links eq '1') selected="selected"#end>影片详情</option>
+				<option value="2" #if($!push.links eq '2') selected="selected"#end>个人中心</option>
+				<option value="3" #if($!push.links eq '3') selected="selected"#end>活动详情</option>
+				<option value="4" #if($!push.links eq '4') selected="selected"#end>活动列表</option>
+				<option value="5" #if($!push.links eq '5') selected="selected"#end>外链</option>
+				<!--	
+				//0 首页 index
+				//1 影片详情 movieDetail
+				//2 个人中心 memberCenter
+				//3 活动详情 activityDetail
+				//4 活动列表 activityList
+				//5 外链 outLink
+				-->
+		</select> 
+			<input type="text" id="relatedid" name="relatedid" value="$!push.relatedid" onblur="showInfo(this)" />
+		</td>
+		<td>&nbsp;</td>
+	</tr>
+	 <tr>
+		<td>&nbsp;</td>
+		<td style="padding-top: 10px">发送时间设置：<input type="text" class="text Wdate" id="sentTime" name="sentTime"	value="$!DateUtil.format($!push.sentTime,'yyyy-MM-dd HH:mm:ss')" onclick="WdatePicker({minDate:'%y-%M-%d %H:%m:%s',dateFmt:'yyyy-MM-dd HH:mm:ss'})" onchange="showInfo(this)"/></td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td style="padding-top: 10px">有效期：<input type="text" class="text Wdate" id=validTime name="validTime"	value="$!DateUtil.format($!push.validTime,'yyyy-MM-dd HH:mm:ss')" onclick="WdatePicker({minDate:'%y-%M-%d %H:%m:%s',dateFmt:'yyyy-MM-dd HH:mm:ss'})" onchange="showInfo(this)"/></td>
+		<td>&nbsp;</td>
+	</tr>
+	 <tr>
+		<td>&nbsp;</td>
+		<td style="padding-top: 20px;">确认信息</td>
+		<td>&nbsp;</td>
+	</tr>
+	 <tr>
+		<td align="center">S3&gt;</td>
+		<td style="padding-top: 10px">平台：
+		 <input type="text" id="c_os" name="c_os" style="border: 0px" readonly="readonly" value="$!push.os"/></td>
+		<td>&nbsp;</td>
+	</tr>
+	 <tr>
+		<td>&nbsp;</td>
+		<td style="padding-top: 10px">版本：<input type="text" style="border: 0px" id="c_version" readonly="readonly" value="$!push.version"/></td>
+		<td>&nbsp;</td>
+	</tr>
+	 <tr>
+		<td>&nbsp;</td>
+		<td style="padding-top: 10px">消息类型： <input type="text" style="border: 0px" id="c_msgType" readonly="readonly" value="$!push.msgTypeStr" /></td>
+		<td>&nbsp;</td>
+	</tr>
+	 <tr>
+		<td>&nbsp;</td>
+		<td style="padding-top: 10px">内容：<input type="text" style="border: 0px" id="c_content" readonly="readonly" value="$!push.content" /></td>
+		<td>&nbsp;</td>
+	</tr>
+	 <tr>
+		<td>&nbsp;</td>
+		<td style="padding-top: 10px">链接地址： <input type="text" style="border: 0px" id="c_links" readonly="readonly" value="$!push.links" /></td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td style="padding-top: 10px">发送时间：<input type="text" style="border: 0px" id="c_sentTime" readonly="readonly" value="$!DateUtil.format($!push.sentTime,'yyyy-MM-dd HH:mm:ss')"/></td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td style="padding-top: 10px">有效期：<input type="text" style="border: 0px" id="c_validTime" readonly="readonly" value="$!DateUtil.format($!push.validTime,'yyyy-MM-dd HH:mm:ss')"/></td>
+		<td>&nbsp;</td>
+	</tr>
+	</table>
+	<div style="text-align:center;padding-top: 20px;">
+		<label><input type="button" value="发 送" onclick="pushToGpss()"/></label>
+		<label><input type="button" value="保 存" onclick="savePush()"/></label>
+	</div>
+</form>
+<script>
+String.prototype.trim = function(){
+	return this.replace(/(^\s+)|(\s+$)/g, "");
+}
+
+	function showInfo(el){
+		if(el.name=="os"){
+			$('c_os').value = el.value;
+		}else if(el.name=="product"){
+			$('c_version').value = getProductName(el.value);
+		}else if(el.name=="version"){
+			var form = $('push_form');
+			var inputs = form.getElements("input[name=product]");
+			var product = [];
+			inputs.filter(function(ipt){
+				if(ipt.checked)product.push(ipt.value)
+				return ipt.checked;
+			});
+			$('c_version').value = getProductName(product[0]) + el.value;
+		}else if(el.name=="msgType"){
+			if(el.value=="t4"){
+				$('c_msgType').value = "每周推荐";
+			}else if(el.value=="t5"){
+				$('c_msgType').value = "首映式，明显见面会";
+			}else if(el.value=="t6"){
+				$('c_msgType').value = "优惠购票";
+			}else if(el.value=="t7"){
+				$('c_msgType').value = "其它";
+			}else if(el.value=="t8"){
+				$('c_msgType').value = "电影节广播";
+			}
+		}else if(el.name=="content"){
+			$('c_content').value = el.value;
+		}else if(el.name=="relatedid"){
+			$('c_links').value = $('links').value+el.value;
+		}else if(el.name=="sentTime"){
+			$('c_sentTime').value =el.value;
+		}else if(el.name=="validTime"){
+			$('c_validTime').value =el.value;
+		}
+	}
+	
+	function inputCheck(){
+		var products = $('push_form').product;
+		var product = '';
+		for(var index = 0 ; index < products.length;index++){
+			if(products[index].checked){
+				product = products[index].value;
+			}		
+		}
+		if(product==''){
+			alert("请选择产品！");
+			return false;
+		}
+		var arrOs = $('push_form').os;
+		var os = '';
+		for(var index = 0 ; index < arrOs.length;index++){
+			if(arrOs[index].checked){
+				os = arrOs[index].value;
+			}		
+		}
+		if(os==''){
+			alert("请选择平台！");
+			return false;
+		}
+		var version = $('version').value.trim();
+		if(version.trim()==''){
+			alert("请输入版本号！");
+			return false;
+		}
+		var arrTypes = $('push_form').msgType;
+		var msgType = '';
+		for(var index = 0 ; index < arrTypes.length;index++){
+			if(arrTypes[index].checked){
+				msgType = arrTypes[index].value;
+			}		
+		}
+		if(msgType==''){
+			alert("请选择消息类型！");
+			return false;
+		}
+		if(product=='fest'&&msgType!='t8'){
+			alert("请选择与【产品】:电影节对应的【消息类型】:电影节广播！");
+			return;
+		}else	if(msgType=='t8'&&product!='fest'){
+			alert("请选择与【消息类型】:电影节广播相对应【产品】:电影节！");
+			return false;
+		}
+		var title = $('title').value.trim();
+		if(title==''){
+			alert("请输入标题！");
+			return;
+		}else if(title.length > 20){
+			alert("标题在20字以内！");
+			return false;
+		}
+		var content = $('content').value.trim();
+		if(content==''){
+			alert("请输入推送内容！");
+			return false;
+		}else if(content.length > 40){
+			alert("推送内容在40字以内！");
+			return false;
+		}
+		var links = $('links').value;
+		var relatedid = $('relatedid').value.trim();
+		if((links == '1' || links == '3') && relatedid == ''){
+			alert("请输入关联Id！");
+			return false;
+		}
+		if(links == '5' && relatedid == ''){
+			alert("请输入外链地址！");
+			return false;
+		}
+		if((links == '1' || links == '3')){
+			var regNum =/^\d+$/;
+			if(!regNum.test(relatedid)){
+				alert("关联Id只能是数字！");
+				return false;
+			}
+		}
+		var sentTime = $('sentTime').value.trim();
+		if(sentTime==''){
+			alert("请选择发送时间！");
+			return false;
+		}
+		return true;
+	}
+	
+	function savePush(){
+		if(inputCheck()){
+			$('push_form').submit();
+		}
+	}
+	
+	function pushToGpss(){
+		var products = $('push_form').product;
+		var product = '';
+		for(var index = 0 ; index < products.length;index++){
+			if(products[index].checked){
+				product = products[index].value;
+			}		
+		}
+		if(product==''){
+			alert("请选择产品！");
+			return;
+		}
+		var arrOs = $('push_form').os;
+		var os = '';
+		for(var index = 0 ; index < arrOs.length;index++){
+			if(arrOs[index].checked){
+				os = arrOs[index].value;
+			}		
+		}
+		if(os==''){
+			alert("请选择平台！");
+			return;
+		}
+		var version = $('version').value.trim();
+		if(version.trim()==''){
+			alert("请输入版本号！");
+			return;
+		}
+		var arrTypes = $('push_form').msgType;
+		var msgType = '';
+		for(var index = 0 ; index < arrTypes.length;index++){
+			if(arrTypes[index].checked){
+				msgType = arrTypes[index].value;
+			}		
+		}
+		if(msgType==''){
+			alert("请选择消息类型！");
+			return;
+		}
+		if(product=='fest'&&msgType!='t8'){
+			alert("请选择与【产品】:电影节对应的【消息类型】:电影节广播！");
+			return;
+		}else	if(msgType=='t8'&&product!='fest'){
+			alert("请选择与【消息类型】:电影节广播相对应【产品】:电影节！");
+			return;
+		}
+		var title = $('title').value.trim();
+		if(title==''){
+			alert("请输入标题！");
+			return;
+		}else if(title.length > 20){
+			alert("标题在20字以内！");
+			return;
+		}
+		var content = $('content').value.trim();
+		if(content==''){
+			alert("请输入推送内容！");
+			return;
+		}else if(content.length > 40){
+			alert("推送内容在40字以内！");
+			return;
+		}
+		var links = $('links').value;
+		var relatedid = $('relatedid').value.trim();
+		if((links == '1' || links == '3') && relatedid == ''){
+			alert("请输入关联Id！");
+			return;
+		}
+		if(links == '5' && relatedid == ''){
+			alert("请输入外链地址！");
+			return false;
+		}
+		if((links == '1' || links == '3')){
+			var regNum =/^\d+$/;
+			if(!regNum.test(relatedid)){
+				alert("关联Id只能是数字！");
+				return;
+			}
+		}
+		var sentTime = $('sentTime').value.trim();
+		if(sentTime==''){
+			alert("请选择发送时间！");
+			return;
+		}
+		var validTime = $('validTime').value.trim();
+		if(validTime==''){
+			alert("请选择有效期！");
+		}
+		var url = "${basePath}admin/push/saveAndPush.xhtml";
+		var values = {'product':product,'version':version,'os':os,'msgType':msgType,'title':title,'content':content,'links':links,'relatedid':relatedid,'sentTime':sentTime,'validTime':validTime};
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){
+				document.location.href="${basePath}admin/push/getPushList.xhtml?isAuto=N";
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function getProductName(product){
+		if(product == 'cinema'){
+			return "电影";
+		}else if(product == 'sport'){
+			return "运动";
+		}else if(product == 'bar'){
+			return "酒吧";
+		}else if(product == 'gym'){
+			return "健身";
+		}else if(product == 'fest'){
+			return "电影节";
+		}
+	}
+	
+	function changeVersion(){
+		var form = $('push_form');
+		var inputs = form.getElements("input[name=product]");
+		var product = [];
+		inputs.filter(function(ipt){
+			if(ipt.checked)product.push(ipt.value)
+			return ipt.checked;
+		});
+		var mobileOs = form.getElements("input[name=os]");
+		var oses = [];
+		mobileOs.filter(function(ipt){
+			if(ipt.checked)oses.push(ipt.value)
+			return ipt.checked;
+		});
+		if(product[0] && oses[0]){
+			var url = "${basePath}admin/push/changeVersion.xhtml";
+			var values = {'product':product[0],'os':oses[0]};
+			GewaraUtil.sendRequest(url,values,function(result){
+				if(result.success){
+					var versions = result.retval;
+					var options = versions.split(";");
+					var select = "<select id='version' name='version' onchange='showInfo(this)'>"
+					for(var index = 0;index < options.length;index++){
+						select = select + "<option value='" + options[index] + "'>" + options[index] + "</option>";
+					}
+					select += '</select>&nbsp;&nbsp;<input type="text" id="addAppVersion" value="" /><a href="javascript:addAppVersion(\'' + product[0] + '\',\'' + oses[0] + '\')">&nbsp;+增加</>';
+					$('pushVersion').innerHTML = select;
+					if(options[0]){
+						$('c_version').value = getProductName(product[0]) + options[0];
+					}
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+	}
+	function addAppVersion(product,os){
+		var url = "${basePath}admin/sysmgr/addAppVersion.xhtml";
+		var values = {'product':product,'os':os,'v':$('addAppVersion').value};
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){
+				changeVersion();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

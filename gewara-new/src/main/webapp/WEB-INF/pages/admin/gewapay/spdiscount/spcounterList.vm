@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>特殊折扣列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore">特殊折扣设置&nbsp;</li>
+			<li><a href="${basePath}admin/gewapay/spdiscount/spdiscountList.xhtml"><span>商户价格</span></a></li>
+			<li class="currs"><a><span>计数器列表</span></a></li>
+			<li><a href="${basePath}admin/gewapay/scalperList.xhtml"><span>黄牛黑名单设置</span></a></li>
+			<li><a href="${basePath}admin/gewapay/suspectList.xhtml"><span>涉嫌黑名单</span></a></li>
+		</ul>
+	</div>
+</div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+	<a href="${basePath}admin/gewapay/spdiscount/getSpcounter.xhtml">新增</a>
+		<table class="roomManageTable" cellpadding="0" style="width:100%;" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>控制类型</th>
+					<th>名额共用</th>
+					<th>最大名额数量</th>
+					<th>最大下单总数量</th>
+					<th>卖出总数量</th>
+					<th>卖出总订单笔数</th>
+					<th>本期卖出数</th>
+					<th>本期订单笔数</th>
+					<th>本期时间</th>
+					<th>关联优惠</th>
+					<th>城市、商家下单计数器</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				#foreach($spcounter in $spcounterList)
+				<tr class="grayBg">
+					<td>$!spcounter.id</td>
+					<td>$!spcounter.ctltype</td>
+					<td>$!spcounter.ctlmember</td>
+					<td>$!spcounter.limitmaxnum</td>
+					<td>$!spcounter.allowaddnum</td>
+					<td>$!spcounter.allquantity</td>
+					<td>$!spcounter.allordernum</td>
+					<td>$!spcounter.sellquantity</td>
+					<td>$!spcounter.sellordernum</td>
+					<td>$!spcounter.periodtime</td>
+					<td>$!sdMap.get($!spcounter.id)</td>
+					<td><a href="${basePath}admin/gewapay/spdiscount/cpcounterList.xhtml?spid=$!spcounter.id">计数器</a></td>
+					<td>
+						<a href="${basePath}admin/gewapay/spdiscount/getSpcounter.xhtml?spid=$!spcounter.id" target="_blank">修改</a>
+						<a href="javascript:void(0)" onclick="refreshCpcounter($!spcounter.id,this)">更新</a>
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<script type="text/javascript">
+	function refreshSellnum(sid, el){
+		var url = "${basePath}admin/gewapay/spdiscount/refreshSellnum.xhtml";
+		GewaraUtil.sendRequest(url, {"sid":sid,"uptype":"update"}, function(result){
+			if(result.success) {
+				$(el).dispose();
+				$("sell"+spid).set("text", result.retval);
+			}
+			else alert(result.msg);
+		});
+	}
+	
+	function refreshCpcounter(sid, el){
+		var url = '${basePath}admin/gewapay/spdiscount/resetSpcounter.xhtml';
+		var values = {'spid':sid};
+		GewaraUtil.mask(el);
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert('更新成功！');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

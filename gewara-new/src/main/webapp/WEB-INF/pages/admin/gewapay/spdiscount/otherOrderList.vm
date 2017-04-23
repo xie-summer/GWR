@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>订单列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+</head>
+<body style="width:850px; margin:auto">
+<div>
+	<form action="${basePath}admin/gewapay/spdiscount/spotherOrderList.xhtml">
+		<input type="hidden" name="sid" value="$sd.id"/>
+		<select name="removeOther">
+			<option value="">包含优惠订单</option>
+			<option value="true" #if($params.removeOther eq 'true') selected="selected"#end>排除其他优惠订单</option>
+		</select>
+		<select name="matchBank">
+			<option value="">不匹配网关</option>
+			<option value="true" #if($params.matchBank eq 'true') selected="selected"#end>匹配网关</option>
+		</select>
+		<input type="submit" value="查询"/>
+	</form>
+</div>
+<table width="950px" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th>&nbsp;</th>
+		<th>订单号</th>
+		<th width="120">下单付款时间</th>
+		<th>用户名</th>
+		<th>数量</th>
+		<th>总/支付金额</th>
+		<th>支付方式</th>
+		<th>折扣金额</th>
+		<th>折扣说明</th>
+		<th>屏蔽说明</th>
+		<th>处理</th>
+	</tr>
+	</thead>
+	<tbody id="sportTable">
+	#foreach($order in $orderList)
+	<tr title="$order.description2">
+		<td>$foreach.count</td>
+		<td>${order.tradeNo}</td>
+		<td>$DateUtil.format(${order.addtime}, "yyyy-MM-dd HH:mm:ss")<br />
+			$DateUtil.format(${order.paidtime}, "yyyy-MM-dd HH:mm:ss")</td>
+		<td><a href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$order.memberid" target="_blank">${order.membername}</a></td>
+		<td>$order.quantity</td>
+		<td>${order.totalAmount}/${order.due}</td>
+		<td>$order.paymethod:$!order.paybank</td>
+		<td>$order.discount</td>
+		<td>$!order.disreason</td>
+		<td style="color: red;">$!disableReasonMap.get($order.id)</td>
+		#if($sd.rebates gt 0 && $sd.rebatestype eq 'Y')
+			#if($rebatesList.contains($order.tradeNo))
+			<td><span style="color:red">已返利</span><input type="button" value="取消返利" onclick="toggleRebates('cancel','$order.tradeNo','$checkMap.get($order.tradeNo)', this)"/></td>
+			#elseif($checkMap.containsKey($order.tradeNo))
+			<td>未返利<input type="button" value="增加返利" onclick="toggleRebates('add','$order.tradeNo','$checkMap.get($order.tradeNo)', this)"/></td>
+			#else
+			<td>返利名额满</td>
+			#end
+		#end
+	</tr>
+	#end
+	</tbody>
+</table>
+<script type="text/javascript">
+	$$("tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+	#if($sd.rebates gt 0 && $sd.rebatestype eq 'Y')
+	function toggleRebates(optype,tradeNo, check, el){
+		var url="${basePath}admin/gewapay/spdiscount/toggleRebates.xhtml";
+		el.dispose();
+		GewaraUtil.sendRequest(url, {'sid': '$sd.id', 'optype':optype, 'tradeNo':tradeNo, 'check':check, "supplement":"true"}, function(result){
+			if(result.msg) alert(result.msg);
+		});
+	}
+	#end
+</script>
+</body>
+</html>

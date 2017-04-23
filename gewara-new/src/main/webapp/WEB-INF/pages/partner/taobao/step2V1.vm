@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>选座购票-$partner.partnername</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/layout.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.brown{color:#de4827}
+		#set($maxwidth=40+22*$room.ranknum)
+		#content{ width: ${maxwidth}px;}
+		.ui_layout{width:760px;height:475px;overflow:hidden;}
+		.ui_tao_left{width:582px;padding:8px;height:459px;overflow:hidden;background:#fff;float:left;}
+		.ui_tao_right{width:146px;padding:8px;height:459px;overflow:hidden;background:#fafafa;float:left;}
+		.topT{height:30px;width:580px;border: 1px solid #ddd;margin-bottom:8px;line-height:30px;
+			background-image:-moz-linear-gradient(center top,#fafafa,#eeeeee);
+			background-image:-webkit-gradient(linear,0 0,0 bottom,color-stop(0,#fafafa),color-stop(1,#eeeeee));
+			filter:progid:DXImageTransform.Microsoft.gradient(startColorStr = '#fafafa',EndColorStr = '#eeeeee');
+			-ms-filter:"progid:DXImageTransform.Microsoft.gradient(startColorStr='#fafafa',EndColorStr='#eeeeee')";
+		}
+		.topT span{margin-right:20px;}
+		.notice{height:32px;line-height:32px;border:1px solid #ffcc7f;width:564px;padding:0 8px;background:#ffffc7;color:#333;margin-bottom:8px;}
+		.notice b{color:#e94827;margin:0 5px;}
+		.screen{height:34px;width:578px;border:1px solid #eaeaea;background:#fafafa;line-height:34px;font-size:14px;font-weight: bold;color:#777;text-align:center;margin:0 auto;}
+		.str{height:30px;width:572px;overflow:hidden;color:#333;padding:0 5px;line-height:30px;margin:0 auto;}
+		.str span{float:left;display:inline-block;width:auto;}
+		.str span.powS{color:#DE4827;margin-right:10px;}
+		.pseat{height:20px;clear: both;overflow:hidden;padding-left:20px;line-height:20px;color:#333;}
+		.pseat dt{margin-left:-20px;_margin-left:-10px;float:left;height:20px;width:20px;text-align:center}
+		.pseat dd{width:100%;height:20px;float:left;overflow:hidden;}
+		.pseat span{width:20px;height:20px;display:inline-block;float:left;}
+		.hasSeat,.sellSeat,.checkSeat{background-image:url(${picPath}css/buss/taobao.png);background-repeat:no-repeat;cursor: pointer;}
+		.hasSeat{background-position:0 0;}
+		.sellSeat{background-position:-40px 0;}
+		.checkSeat{background-position:-20px 0;}
+		.pewGroup{height:383px;width:582px;overflow:hidden;}
+		.scrollPage{overflow: auto;width:582px;height:100%;}
+		.unless{width:136px;padding:4px;border:1px solid #eaeaea;background:#ffffc7;color:#999;margin-top:3px;}
+		.unless span{color:#ec5f35}
+		.bt{width:146px;height:28px;text-align:center;background:#ec5f35;border:0px;color:#fff;font-weight:bold;cursor: pointer;}
+		.text{height:18px;padding:4px 3px;width:140px;border-width:0 1px 1px 0;border-style:solid;border-color:#ededed;background:url(${picPath}css/buss/taobao_text.png) no-repeat;font-weight:bold;} 
+		.dialog_qq{width:100%;height:100%;position: absolute;z-index: 500;left:0px;top:0px;background:#fff;opacity:0.1;filter: alpha(opacity = 10);display:none;}
+		.dialog_alert_qq{width:210px;height:48px;padding:20px 10px 10px 76px;line-height:24px;border:1px solid #ccc;background:#fff url(${picPath}css/buss/dialog_qq.png) 10px center no-repeat;position: absolute;left:46%;top:46%;overflow:hidden;z-index: 600;display:none;color: #7C7C7C;}
+		/*button 按钮*/
+		.redBt{background-position:0 -4054px;}
+		.redBt span,.redBt input{background-position:right -4077px;color:#fff;}
+	</style>
+</head>
+<body>#set($price=$priceHelper.getPrice($opi))
+<div class="ui_layout" id="taobao">
+	<div class="ui_tao_left">
+		<div class="topT">
+			<span><img src="${staticPath}css/images/blank.gif" class="hasSeat" align="middle" width="20" height="20"/>可选位置</span>
+			<span><img src="${staticPath}css/images/blank.gif" class="sellSeat" align="middle" width="20" height="20"/>已售位置</span>
+			<span><img src="${staticPath}css/images/blank.gif" class="checkSeat" align="middle" width="20" height="20"/>您已选的位置</span>
+			<span><b style="color:green">1、2</b>：为情侣1、2座</span>
+			<!--  <span>本场共：<b class="brown">100</b>个座位</span> -->
+		</div>
+		<div class="notice">
+			单击座位选择您需要的座位，再次单击取消选择。当前每笔订单最多可购买<b>5</b>张电影票。
+		</div>
+		<div class="pewGroup">
+			<div class="scrollPage" id="seatTable">
+				#set($maxwidth=22+22*$room.ranknum)
+				#set($pewHeight=$room.linenum*25+66)
+				#set($rowList=$VmUtils.split($room.seatmap,"@@"))
+				<div style="margin:0 auto;#if(${maxwidth} gt 580)width:${maxwidth}px;#else width:580px#end;height:${pewHeight}px;overflow:hidden;">
+					<div class="screen">银幕</div>
+					<div class="str" id="selectedSeat">
+						<span>您选择的座位是：</span>
+						#set($seatidList=[])
+						#if($VmUtils.size($mySeatList) gt 0)
+						#foreach($oseat in $mySeatList)#set($tmp=$seatidList.add($oseat.id))
+						<span id="s$oseat.id" class="powS">${oseat.seatLabel}$price元</span>
+						#end #end
+					</div>
+					#set($classMap={'O':'noSeat','A':'hasSeat'})
+					#foreach($row in $rowList)
+					<dl class="pseat clear">
+						<dt>$row</dt>
+						#foreach($rank in $VmUtils.split($row, ","))
+						<dd><span class="$classMap.get($rank)"></span></dd>
+						#end
+					</dl>
+					#end
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="ui_tao_right">
+		#set($seatidList=[])
+		#if($VmUtils.size($mySeatList) gt 0)#foreach($oseat in $mySeatList)#set($tmp=$seatidList.add($oseat.id))#end#end
+		<form id="orderForm" action="${basePath}partner/${partner.partnerpath}/addOrder.xhtml" method="post" target="_blank">
+		#if($otherParams)
+		#foreach($key in $otherParams.keySet())
+		<input type="hidden" name="$key" value="$!otherParams.get($key)" />
+		#end
+		#end
+		<input type="hidden" name="scheduleId" id="scheduleId" value="${opi.mpid}"/>
+		<input type="hidden" name="userId" id="userId" value="$!{userId}"/>
+		<input type="hidden" name="encQryStr" id="encQryStr" value="$!{encQryStr}"/>
+		<input type="hidden" name="nickname" id="nickname" value="$!{nickname}"/>
+		<input type="hidden" name="seatid" id="seatList" value="$!VmUtils.join($seatidList,',')"/>
+		<p><b>接收影票的手机号码：</b></p>
+		<p><input type="text" class="text validate['required','digit']" name="mobile" id="mobile" autocomplete="off" size="11" maxlength="11" value="$!mobile" title="输入手机号码"/></p>
+		<p class="gray">手机电话号码填写后，此订单对应的手机号码不能更换，请正确填写。</p>
+		<div class="mt10"><b>校验码：</b></div>
+		<div class="clear">
+			<input type="text" class="text left" name="captcha" id="partnercaptchaInput"  maxlength="6" style="width:40px;"/>
+			#set($captchaId=$VmUtils.randomCaptchaId)
+			<input type="hidden" name="captchaId" id="partnercaptcha" value="$!captchaId"/>
+			<img id="partnercaptchaImg" src="${basePath}captcha.xhtml?captchaId=$!captchaId&r=$math.random" style="cursor: pointer;width:90px;height:25px;border:1px solid #eaeaea;float:left;margin-left:3px;" 
+			onclick="GewaraUtil.refreshCaptcha('partnercaptcha')" title="看不清楚，请双击换一张图片"/>
+			<span onclick="GewaraUtil.refreshCaptcha('partnercaptcha')" style="cursor: pointer;float:right;margin-right:10px;color:#999">看不清?换一张</span>
+		</div>
+		<p><input id="disBtn" class="bt" type="button" onclick="submitOrder();" value="确认并支付"/></p>
+		<div class="unless">
+			<span>特别提示：</span>为了避免恶意锁座，保证当前座位信息的准确性，用户需要支付完一个订单后才能创建下一个订单，否则前一个订单无法购票成功；影票一旦售出，将不退不换。
+		</div>
+		</form>
+	</div>
+</div>
+<div class="dialog_qq" id="dialog_qq"></div>
+<div class="dialog_alert_qq" id="dialog_alert_qq">最多只能选择5个座位哦！</div>
+<form id="submitForm" target="_top" method="post"></form>
+<script type="text/javascript">
+window.addEvent('domready', function(){
+	refreshSeat();
+	gewaUtil.textOver('.text',true);
+});
+function refreshSeat(){
+	gewa.util.mask({'element': "seatTable",'title':'正在查询数据...', "opacity":"0.4"});
+	#set($price=$priceHelper.getPrice($opi))
+	var values={'mpid':$opi.mpid, 'partnerid':$partner.id, 'price':'$price', 'userId':'$userId'};
+	var url="${basePath}partner/$partner.partnerpath/seatPage.xhtml"
+	GewaraUtil.sendLoad('seatTable', url, values, function(result){
+		gewa.util.clearMask();
+		if(!result.success){
+			var msg = result.json.msg;
+			gewa.util.maskContent("seatTable", '<span style="cursor:pointer">'+msg+'</span>');
+		}
+	})
+}
+function submitOrder(){
+	var err = "",val=$("mobile").value.trim();
+	if($$(".pseat span.hasSeat").length >0 || $$(".pseat span.checkSeat").length>0) {
+		if($("seatList").value.trim() == "") err = "请先选择座位！";
+	}else err="影厅已满坐，请选择其它影厅！";
+	if(val == ""){err += "请输入您的手机号码！"}
+	if((!isNumber(val) || val.length != 11) && val != "") err += "请输入正确的手机号码！";
+	if(err.length>0){alert(err);return false;}
+	gewa.util.mask({'element': "orderForm",'title':'正在提交，请稍等...'});
+	var values = GewaraUtil.getValues($("orderForm"));
+	var url = "${basePath}partner/taobao/addOrder.xhtml";
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			$("submitForm").action = result.url;
+			$("submitForm").submit();
+		}else {
+			alert(result.msg);
+			GewaraUtil.refreshCaptcha('partnercaptcha');
+		}
+	});
+}
+
+function isNumber(str){return /^\d+$/.test(str);}
+</script>
+<script type="text/javascript">
+var pageCode="step1.shtml"
+</script>
+#parse('partner/googleGa.vm')
+</body>
+</html>

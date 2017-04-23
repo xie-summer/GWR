@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>城市出票量监控</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+</head>
+<body>
+<!--top-->
+#set($city=true)
+#parse('admin/gewapay/report/monitorMenu.vm')
+<!--/top-->
+<div class="manageItemList">
+	<b class="b1f"></b>
+	<b class="b2f"></b>
+	<div class="contentInfoList">
+			<!--search form-->
+			<form action="${basePath}admin/gewapay/monitorByCity.xhtml" method="post" >
+			<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th>
+						<lable>时间区间:</lable>$DateUtil.formatTimestamp($startTime) 至   $DateUtil.formatTimestamp($endTime)
+						<input type="submit" value="刷新"/>
+						</th>
+					</tr>
+				</thead>
+			</table>
+			</form>
+			<!--/search form-->
+			
+			<!--城市出票量-->
+			<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th colspan="7">城市出票量</th>
+					</tr>
+					<tr>
+						<th>城市</th>
+						<th>总出票量</th>
+						<th>总订单数</th>
+						<th>总销售金额</th>
+						<th>总成本</th>
+						<th>总毛利润</th>
+						<th>总折扣</th>
+					</tr>
+				</thead>
+				<tbody id="tbody">
+					#foreach($map in $qryMapList)
+					<tr>
+						<td>$!cityData.get($!map.get('citycode'))</td>
+						<td>$!map.get('ordercount')</td>
+						<td>$!map.get('quantity')</td>
+						<td>$!map.get('totalamount')</td>
+						<td>$!map.get('totalcost')</td>
+						<td>$!map.get('gains')</td>
+						<td>$!map.get('discount')</td>
+					</tr>
+					#end
+				</tbody>
+			</table>
+			<!--/城市出票量-->
+			
+		</div>
+		<b class="b2f"></b><b class="b1f"></b>
+</div>
+</body>
+</html>

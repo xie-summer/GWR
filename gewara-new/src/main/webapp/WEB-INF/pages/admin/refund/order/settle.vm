@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>客服订单退款管理</title>
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		table{border-collapse: collapse;}
+		th, thread{cursor: pointer;}
+		td, th{
+			text-align: left;
+			height: 23px;
+		}
+		label {display:inline-block; width:70px;text-align:right;padding:1px 0 1px 0; }
+		textarea {width:420px;}
+		
+		.showOrder{
+			border:1px solid #639BF9;padding:2px 4px;
+		}
+		.roomManageTable tbody td table{border:0px;border-bottom:1px solid #eee;}
+		.roomManageTable tbody td td{text-align: left;text-indent:10px;border-color:#eee;width:auto !important;}
+	</style>
+</head>
+<body style="width:85%; margin:auto;background-color: #fff">
+<div class="checkOrder"><h2>客服订单退款</h2></div>
+<div style="margin-top: 10px;">
+	<div style="border:2px solid #ccc;padding:2px 4px;">
+		<form action="${basePath}admin/refund/cinemaSettle.xhtml" style="float: left;">
+		<select name="cinemaid">
+			<option value="">请选择影院</option>
+			#foreach($key in $cinemaMap.keySet())
+			<option value="$key" #if($VmUtils.eq($cinemaid, $key))selected="selected"#end>$cinemaMap.get($key).name</option>
+			#end
+		</select>
+		开始日期：<input type="text" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" name="starttime" value="$!DateUtil.formatTimestamp($!starttime)" />
+		结束日期：<input type="text" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" name="endtime" value="$!DateUtil.formatTimestamp($!endtime)" />
+			<input type="submit" value="查询"/>
+		</form>
+		<div style="clear: both;"></div>
+	</div>
+</div>
+<table id="roomManageTable" class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+	<thead id="thead">
+		<tr>
+			<th axis="number"><div class="thead asc_desc">&nbsp;</div></th>
+			#if($VmUtils.isBlank($params.cinemaid))<th axis="string"><div class="thead asc_desc">影院</div></th>#end
+			<th axis="number"><div class="thead asc_desc">场次ID</div></th>
+			<th axis="number"><div class="thead asc_desc">退款时间</div></th>
+			<th axis="number"><div class="thead asc_desc">电影名称</div></th>
+			<th axis="string"><div class="thead asc_desc">下单时间</div></th>
+			<th axis="string"><div class="thead asc_desc">场次时间</div></th>
+			<th axis="string"><div class="thead asc_desc">影厅</div></th>
+			<th axis="number"><div class="thead asc_desc">座位</div></th>
+			<th axis="string"><div class="thead asc_desc">价额</div></th>
+			<th axis="string"><div class="thead asc_desc">数量</div></th>
+			<th axis="string"><div class="thead asc_desc">总金额</div></th>
+			<th axis="string"><div class="thead asc_desc">退款原因</div></th>
+		</tr>
+	</thead>
+	<tbody id="tbody">#set($retbackMap={"Y":"需要","N":"不需要","O":"参见描述","S": "已提交财务", "R":"财务成功","F":"财务失败"})
+	#set($reasonMap={"user":"用户要求","gewa":"Gewa原因","merchant":"影院原因", "price":"价格调整", "unknown":"未知"})
+	#foreach($refund in $orderRefundList)
+	#set($order = $orderMap.get($refund.tradeno))
+	#set($otherMap = $VmUtils.readJsonToMap($order.description2))
+	<tr id="tr$refund.id">
+		<td style="width: 25px;">$foreach.count</td>
+		#if($VmUtils.isBlank($params.cinemaid))<td class="maxwid">$!cinemaMap.get($order.cinemaid).name</td>#end
+		<td class="minwid"><b>$!order.mpid</b></td>
+		<td class="maxwid">$!DateUtil.format(${refund.refundtime}, "M月d日 HH:mm")</td>
+		<td class="maxwid">$!otherMap.get('影片')</td>
+		<td class="minwid">$!DateUtil.format($!order.createtime, "M月d日 HH:mm")</td>
+		<td class="maxwid">$!otherMap.get('场次')</td>
+		<td class="maxwid">$!otherMap.get('影厅')</td>
+		<td class="maxwid">$!otherMap.get('影票')</td>
+		<td class="minwid">$!order.unitprice</td>
+		<td class="maxwid">$!order.quantity</td>
+		<td class="maxwid">$!refund.oldSettle</td>
+		<td class="minwid">$!reasonMap.get($refund.reason)</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+#parse('include/pageUtil.vm')
+</body>
+</html>

@@ -1,0 +1,79 @@
+<data>
+<orderList>
+	#set($statusMap={"new":"new","new_unlock":"new","new_confirm":"new","paid":"paid","paid_failure":"paid","paid_failure_unfix":"paid","paid_success":"success","paid_return":"refund"})
+	#if(!$VmUtils.isNull($lastUnpaidOrder))
+	#set($descMap = $VmUtils.readJsonToMap($lastUnpaidOrder.description2))
+	#set($bItem = $buyItemMap.get($lastUnpaidOrder.id))
+	#set($movie=$movieMap.get($lastUnpaidOrder.id))
+	#set($opi=$opiMap.get($lastUnpaidOrder.id))
+	<order>
+		<orderid>$!lastUnpaidOrder.id</orderid>
+		<tradeno>$!lastUnpaidOrder.tradeNo</tradeno>
+		<mpid>$!lastUnpaidOrder.mpid</mpid>
+		<addtime>$!DateUtil.format($lastUnpaidOrder.addtime,'yyyy-MM-dd HH:mm:ss')</addtime>
+		<validtime>$!DateUtil.format($lastUnpaidOrder.validtime,'yyyy-MM-dd HH:mm:ss')</validtime>
+		<mobile>$lastUnpaidOrder.mobile</mobile>
+		<cinemaname>$!VmUtils.replaceName($!lastUnpaidOrder.ordertitle,'电影票','')</cinemaname>
+		<moviename><![CDATA[$!descMap.get('影片')]]></moviename>
+		<opentime><![CDATA[$!descMap.get('场次')]]></opentime>
+		<opendate>$!DateUtil.formatTimestamp($opi.playtime)</opendate>
+		<seat><![CDATA[$!descMap.get('影票')]]></seat>
+		<amount>$!lastUnpaidOrder.totalAmount</amount>
+		<status>$!statusMap.get($lastUnpaidOrder.status)</status>
+		<payurl>$!partner.getRealPayurl($lastUnpaidOrder)</payurl>
+		<password></password>
+		<cinemaid>$!lastUnpaidOrder.cinemaid</cinemaid>
+		<movieid>$!lastUnpaidOrder.movieid</movieid>
+		<quantity>$!lastUnpaidOrder.quantity</quantity>
+		<due>$!lastUnpaidOrder.getDue()</due>
+		<checkpass></checkpass>
+		<movielogo>${mobilePath}$!movie.limg</movielogo>
+		#if($!bItem)
+		<goods>
+			<goodsname><![CDATA[$!bItem.goodsname]]></goodsname>
+			<summary><![CDATA[$!VmUtils.getHtmlText($!bItem.summary,100)]]></summary>
+			<unitprice>$!bItem.unitprice</unitprice>
+			<quantity>$!bItem.quantity</quantity>
+		</goods>
+		#end
+	</order>
+	#end
+	#foreach($order in $orderList)
+	#set($descMap = $VmUtils.readJsonToMap($order.description2))
+	#set($buyItem = $buyItemMap.get($order.id))
+	#set($movie=$movieMap.get($order.id))
+	#set($opi=$opiMap.get($order.id))
+	<order>
+		<orderid>$!order.id</orderid>
+		<tradeno>$!order.tradeNo</tradeno>
+		<mpid>$!order.mpid</mpid>
+		<addtime>$!DateUtil.format($order.addtime,'yyyy-MM-dd HH:mm:ss')</addtime>
+		<validtime>$!DateUtil.format($order.validtime,'yyyy-MM-dd HH:mm:ss')</validtime>
+		<mobile>$order.mobile</mobile>
+		<cinemaname>$!VmUtils.replaceName($!order.ordertitle,'电影票','')</cinemaname>
+		<moviename><![CDATA[$!descMap.get('影片')]]></moviename>
+		<opentime><![CDATA[$!descMap.get('场次')]]></opentime>
+		<opendate>$!DateUtil.formatTimestamp($opi.playtime)</opendate>
+		<seat><![CDATA[$!descMap.get('影票')]]></seat>
+		<amount>$!order.totalAmount</amount>
+		<status>$!statusMap.get($order.status)</status>
+		<payurl>$!partner.getRealPayurl($order)</payurl>
+		<cinemaid>$!order.cinemaid</cinemaid>
+		<movieid>$!order.movieid</movieid>
+		<quantity>$!order.quantity</quantity>
+		<due>$!order.getDue()</due>
+		<checkpass></checkpass>
+		<passmsg>$!passwordMap.get($order.id)</passmsg>
+		<movielogo>${mobilePath}$!movie.limg</movielogo>
+		#if($!buyItem)
+		<goods>
+			<goodsname><![CDATA[$!buyItem.goodsname]]></goodsname>
+			<summary><![CDATA[$!VmUtils.getHtmlText($!buyItem.summary,100)]]></summary>
+			<unitprice>$!buyItem.unitprice</unitprice>
+			<quantity>$!buyItem.quantity</quantity>
+		</goods>
+		#end
+	</order>
+	#end
+</orderList>
+</data>

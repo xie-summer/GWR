@@ -1,0 +1,27 @@
+#if($specialDiscount)
+	<div class="orderResult_tab_con clear mt20">
+		<div class="inner center">
+			<div>	
+				<h2 style="vertical-align:5px;">恭喜您参加本次活动，获得&nbsp;<em class="cF60">$!{specialDiscount.rebates}元</em>&nbsp;抵值券</h2>
+				<a class="button redBt minBt ml20" href="javascript:drawCard('$order.tradeNo','$specialDiscount.id');"><span>立即领取</span></a>
+			</div>
+			<div style="width:100%;padding-top: 10px;text-align: center;">
+				<b>抵值券功能：</b>每张可抵用该订单的部分金额，提交订单时只须支付剩余金额即可。抵值券在一笔订单中只能使用一次该类券。
+			</div>
+		</div>
+	</div>
+#end
+<script type="text/javascript">
+function drawCard(tradeNo,sid){
+	var values = {"tradeNo": tradeNo,"sid":sid};
+	GewaraUtil.sendRequest('${basePath}home/drawCard.xhtml', values, function(result){
+		if(result.success){
+			gewaUtil.issure(document.body,"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;恭喜您，已成功领取！","格瓦拉生活网提示",400,'',function(){
+				document.location.href = "${basePath}home/acct/cardList.xhtml?rel_tag=$rel_tag";
+			},"查看票券");
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>

@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>夜间圈子审核</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body>   
+#set($tmp='Commu')
+#set($tagMap={'movie':'电影','drama':'话剧','gymcourse':'健身项目','sportservice':'运动项目','cinema':'影院','bar':'酒吧','gym':'健身','ktv':'KTV','sport':'运动','theatre':'剧院','commu':'圈子'})
+<div id="content">
+<div class="bc1"></div>
+<div id="content_left" style="width:98%;margin:auto;">
+	<div class="panelTop"><em></em></div>
+	<div class="panelMid">
+	#parse('admin/audit/common.vm')
+	<div><span style="color: red;">夜间创建的圈子请及时恢复或删除</span></div>
+	#parse('include/pageUtil.vm')
+	<table id="checktable" style="width:100%;" class="blogtable">
+		<thead>
+			<tr>
+				<th>&nbsp;</th>
+				<th>圈子名称</th>
+				<th>发帖人</th>
+				<th>时间</th>
+				<th>审核</th>
+			</tr>
+		</thead>
+			#foreach($commu in $!commuList)
+			#set($nickname=$!memberMap.get($commu.adminid).nickname)
+			<tr>
+				<td>${foreach.count}&nbsp;<input type="checkbox" name="cbox" id="cb$commu.id" lang="$commu.adminid" value="$commu.id"/></td>
+				<td>
+					<a id="dt$commu.id" title="${commu.name}：$!VmUtils.escabbr($commu.info,30)" style="font-size: 14px;" href='${basePath}admin/audit/commuDetail.xhtml?id=$commu.id' target="_blank" title="${commu.info}">$!VmUtils.escabbr($!commu.info,40)</a>
+				</td>
+				<td>$!nickname</td>
+				<td>
+					$!DateUtil.formatTimestamp($!commu.addtime)
+				</td>
+				<td>
+					#if($VmUtils.eq($commu.status,'N_FILTER') || $VmUtils.eq($commu.status,'N_ACCUSE') ||  $VmUtils.eq($commu.status,'N_NIGHT'))
+					<input type="button" value="显示" onclick="audit($commu.id,'Y')"/>
+					<input type="button" value="删除" onclick="audit($commu.id,'N_DELETE')"/>
+					#elseif($VmUtils.eq($!commu.status,'N_DELETE'))
+					<input type="button" value="恢复" onclick="audit($commu.id,'Y')"/>
+					#end
+				</td>
+			</tr>	
+			#end
+	</table>
+	<div style="height: 30px;">
+	#if(!$VmUtils.eq($!params.status,'N_DELETE'))
+	<input type="checkbox" id="addblack"/>加入黑名单
+	<input type="checkbox" id="cbAll" onclick="selAll(this)"/>
+	<input type="button" id="delAll" value="批量删除" onclick="delMulti()"/>
+	#end
+	</div>
+	#parse('include/pageUtil.vm')
+	</div><!-- end panelMid-->
+	<div class="panelBot"><em></em></div>
+</div><!-- end content_left -->
+<div id="height0"></div>
+</div><!--end content-->
+<div id="panel_bottom"></div>
+<div id="height0"></div>
+</body>
+</html>

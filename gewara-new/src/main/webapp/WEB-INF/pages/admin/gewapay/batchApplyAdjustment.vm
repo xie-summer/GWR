@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>退款管理</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		html,body{background: none;}
+		form label{display:inline-block;width:90px;text-align:right;}
+		form div{margin-top:5px;}
+		.add,.add_order{background: red; color: white;}
+	</style>
+</head>
+<body style="width:900px; margin:auto" class="yui-skin-sam">
+<div id="adjustDialog" class="yui-panel" style="width:540px; margin: auto; margin-top:15px; z-index:30;">
+	<div class="hd" id="title">申请余额调整</div>
+	<div class="bd">
+	<form name="adjustForm" id="adjustForm" action="${basePath}admin/account/ajax/applyBatchAdjustment.xhtml" onsubmit="return save()" method="post">
+		<div>
+			<label for="type">调整类型：</label>
+			<select name="type" id="type" style="width:200px" onchange="showTradeno(this)">
+				<option value="" selected>请选择</option>
+				<option value="sub_refund">[-]余额退款到银行</option>
+				<option value="sub">[-]减少账户余额</option>
+				<option value="add_order">[+]订单退款到余额</option>
+				<option value="add">[+]增加账户余额</option>
+			</select>
+		</div>
+		
+		<fieldset style="width: 80%;text-align: center;margin-left: 10px;">
+			<legend>金额设置</legend>
+			<div>
+				<label for="amount">金额：</label>
+				<input type="text" name="amount" id="amount" style="width:80px" />
+			</div>
+			
+			<div>
+				<label for="bankcharge">可退金额：</label>
+				<input type="text" name="bankcharge" id="bankcharge" style="width:80px" />
+			</div>
+			<div>
+				<label for="othercharge">不可退金额：</label>
+				<input type="text" name="othercharge" id="othercharge" style="width:80px" />
+			</div>
+		</fieldset>
+		
+		<div>
+			<label for="memberids">用户id集：</label>
+			<textarea name="memberids" id="memberids" style="width:400px" rows="6"></textarea>
+		</div>
+		
+		<div>
+			<label for="content">详细说明：</label>
+			<textarea name="content" id="content" style="width:200px" rows="3"></textarea>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="submit" class="button" style="width:100px" value="保存"/>
+		</div>
+	</form>
+	</div>
+</div>
+
+<script type="text/javascript">
+	function save(){
+		gewa.util.mask({'title':"正在保存数据..."});
+		var type = $('type').value;
+		if(type==''){
+			alert("请选择类型");
+			gewa.util.clearMask();
+			return false;
+		}
+		var amount = $('amount').value;
+		var bankcharge = $('bankcharge').value;
+		var othercharge = $('othercharge').value;
+		if(amount=='' || bankcharge=='' || othercharge==''){
+			alert("金额输入有误！");
+			gewa.util.clearMask();
+			return false;
+		}
+		var memberids = $('memberids').value;
+		if(memberids==''){
+			alert("请输入用户id集合");
+			gewa.util.clearMask();
+			return false;
+		}
+		
+	}
+</script>
+</body>
+</html>

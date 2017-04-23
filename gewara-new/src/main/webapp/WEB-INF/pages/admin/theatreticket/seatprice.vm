@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次价格设定</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<style type="text/css">
+		#set($maxwidth=33+30*$!math.add($!math.sub($!{curSeatArea.ranknum},$!{curSeatArea.firstrank}),1)+30)
+		#content{ width: ${maxwidth}px; background:#fff;}
+		.stype dd, .stype dt{float: left; width: 90px; height: 30px; line-height: 30px; vertical-align: middle;}
+		.stype input, .stype span{float:left; line-height: normal; margin-top: 10px;}
+		.stype div{float:left;}
+		.stype input{width:50px;}
+		.seatpic dt, .head dt{width:30px;}
+		.match{background:#ff9200;border:0px;}
+		.rigt{border-left:1px solid #ccc;height:30px;line-height:30px;text-align:center;width:170px;}
+		.seatno dd{line-height:25px;}
+		.roomManageTable{margin:0 0 20px 0;}
+		.linshi{font-size:12px;font-weight:bold;height:30px;line-height:30px;padding:3px 10px;background:#fbe7db;}
+		a.xx{background:#2d2d2d;border-radius:3px;padding:0 5px;height:28px;line-height:28px;float:left;margin:0 10px 0 0;color:#ff6220;cursor:pointer;padding:0 10px;}
+		a.yy{background:#2d2d2d;border-radius:3px;padding:0 5px;height:28px;line-height:28px;float:left;margin:0 10px 0 0;cursor:pointer;padding:0 10px;}
+		.mb20{margin:10px 0;}
+		.Nseat, .Aseat, .Bseat, .Cseat, .Dseat, .Eseat, .Fseat, .Gseat, .Hseat, .Iseat, .Jseat, .Kseat, .Lseat, .Mseat, .lockSeat,.sellSeat,.Sseat,.boySeat,.girlSeat{
+			width:30px;
+			height:25px; 
+			margin-top:5px; 
+			cursor: pointer;
+			background:url(${staticPath}css/movie_wide/ico_seat.gif?v=$VmUtils.jsVersion815) no-repeat;
+			vertical-align: middle;
+			text-align: center;
+			color: blue;
+			font-size:12px;
+			line-height: 25px;
+		}
+	.Aseat{background-position:4px -495px;}
+	.Bseat{background-position:4px -551px;}
+	.Cseat{background-position:-34px -495px;}
+	.Dseat{background-position:-34px -551px;}
+	.Eseat{background-position:-34px -523px;}
+	.Fseat{background-position:4px -523px;}
+	.Gseat{background-position:4px -579px;}
+	.Hseat{background-position:-34px -579px;}
+	.Iseat{background-position:4px -607px;}
+	.Jseat{background-position:-34px -607px;}
+	.Kseat{background-position:4px -635px;}
+	.Lseat{background-position:-34px -635px;}
+	.priceList li{width:330px; height:42px; overflow:hidden; float:left; margin-right:5px; overflow:hidden;}
+	</style>
+</head>
+<body>#set($isDpi=true)
+#parse('admin/theatreticket/menu.vm')
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div id="height0"></div>
+	<div class="contentInfoList">
+		<b class="m2"></b>
+		<div class="m">${theatre.name}：$field.name<font class="bold" color="#ff6220">${field.name}</font>共安排$curSeatArea.linenum,$curSeatArea.ranknum<font class="bold" color="#ff6220"></font>个座位</div>
+		<b class="m2"></b>
+		<div id="content" style="width:100%;height:100%;overflow-y:hidden;overflow-x:auto;">
+			#set($mleft=40+18*${field.ranknum} - 360+18)
+			<div class="screen" style="margin-left:${mleft}px">银幕长$!{field.screenwidth}m 高$!{field.screenheight}m</div>
+			<div>
+				#foreach($area in $areaList)
+					<a href="${basePath}admin/dramaTicket/seatprice.xhtml?itemid=$area.dpid&areaid=$area.id" #if($area.id eq $!params.areaid)class="xx"#{else}class="yy"#end>$area.name</a>
+				#end
+				<div style="clear:both"></div>
+			</div>
+			#if($curSeatArea)
+			<div><span>座位价格描述：</span>
+			<span class="ml30 bold">卖价</span>
+			<span class="ml30 bold">成本价</span>
+			<span class="ml30 bold">剧院价</span>
+			#if($opi.isOpenArea())<span class="ml30 bold">票数</span>#end
+			<a href="${basePath}admin/dramaTicket/areaprice.xhtml?itemid=$item.id" target="_blank">【<strong>增加/修改价格</strong>】</a>
+			</div>
+			<dl class="stype" id="seatprice">
+				<dt><span>座位价格设定：</span></dt>
+				<dd style="width:700px;height:100%;">
+					#set($classMap={'A':'Aseat','B':'Bseat','C':'Cseat','D':'Dseat','E':'Eseat','F':'Fseat','G':'Gseat','H':'Hseat','I':'Iseat','J':'Jseat','K':'Kseat','L':'Lseat'})
+					<ul class="priceList">
+					#foreach($type in $classMap.keySet())
+						<li>
+							<div style="width:320px;height:40px;" id="${type}">
+							<div class="${type}seat"></div>
+							<input type="text" disabled="disabled" id="${type}price" value="$!seatPriceMap.get(${type}).price" />
+							<input type="text" disabled="disabled" id="${type}costprice" value="$!seatPriceMap.get(${type}).costprice" class="ml5"/>
+							<input type="text" disabled="disabled" id="${type}theatreprice" value="$!seatPriceMap.get(${type}).theatreprice" class="ml5"/>
+						</div>
+						</li>
+					#end
+					</ul>
+				</dd>
+			</dl>
+			<div id="height0"></div>
+			<ul class="seatop" style="width:${maxwidth}px">
+					<dl class="seatpic" id="setColumn">
+						<dt><label></label></dt>
+						#foreach($rank in [$!{curSeatArea.firstrank}..$curSeatArea.ranknum])
+						<dd><input type="checkbox" id="rank$rank" value="rank$rank" onclick="setColumn(this);" class="mt10"/></dd>
+						#end
+					</dl>
+				</ul>
+			<ul class="seatlist" style="width:${maxwidth}px">
+				#set($textMap={'B':'●','C':'●','D':'●','S':'成','W':'待'})
+				#foreach($row in [$!{curSeatArea.firstline}..$curSeatArea.linenum])
+				<li>
+					<dl class="seatpic" id="rows${row}">
+						<dt><label>$!rowMap.get($row)</label></dt>
+						#foreach($rank in [$!{curSeatArea.firstrank}..$curSeatArea.ranknum]) 
+						#set($sid='row'+${row}+'rank'+$rank)
+						#if($seatMap.get($sid)) #set($seat=$seatMap.get($sid))
+						<dd><div id="$seat.id" title="$seat.seatLabel【卖价/成本/剧院：${seat.price}/${seat.costprice}/${seat.theatreprice}】" class="$classMap.get($seat.seattype)" rel="R${rank}">$!textMap.get($seat.fullStatus)</div></dd>
+						#else<dd><div class="noSeat"></div></dd>#end
+						#end
+						<dd class="right">
+						<input type="checkbox" id="line$row" value="line$row" onclick="setRows(this);" class="mt10"/>
+						</dd>
+					</dl>
+				</li>
+				#end
+				<li class="head"><dl><dt>排编号</dt>#foreach($rank in [$!{curSeatArea.firstrank}..$curSeatArea.ranknum])<dd>${rank}</dd>#end</dl></li>
+			</ul>
+			<div id="height0"></div>
+			#end
+		</div>
+	</div>
+	<b class="b2f"></b> <b class="b1f"></b>
+</div>
+<div id="disDialog" style="width:450px; visibility:hidden; z-index:5;border: 1px solid #cdf;background-color: #cdf"></div>
+<input type="hidden" name="rankno" id="rankno" value=""/>
+<input type="hidden" name="lineno" id="lineno" value=""/>
+<input type="button" value="批量设置" onclick="setPriceSeat();"/>
+#if($seatMap.size() eq 0)
+<input type="button" value="刷新座位" onclick="refreshNewSeat()"/>
+#end
+<script type="text/javascript">
+var seattype = "A";
+window.addEvent("domready", function(){
+	#if($curSeatArea)
+	$$("#seatprice div").addEvent("click", function(){
+		seattype = this.id;
+	});
+	new ClassGroup($("seatprice").getElements("div"), $("seatprice").getElement("div"), "match");
+	$$(".seatlist dd div").addEvent('click', function(){
+		var el=this;
+		if(this.hasClass('noSeat')){//无座位, 不管
+		}else{//有座位
+			if(this.hasClass("Aseat")||this.hasClass('Bseat')||this.hasClass('Cseat')||
+				this.hasClass('Dseat')||this.hasClass('Eseat') || this.hasClass('Fseat') ||
+				this.hasClass('Gseat')||this.hasClass('Hseat') || this.hasClass('Iseat')){
+				addPriceSeat(el, seattype);
+			}else{
+				removePriceSeat(el, seattype);
+			}
+		}
+	});
+	#end
+	//setColumn($(document.body));
+});
+
+function hiDialog(){
+	GewaraUtil.hideDialog("disDialog");
+}
+
+function addPriceSeat(el, seattype,isAlert){
+	var values = {"itemid":$!item.id, "areaid":$!curSeatArea.id, "seattype":seattype,"seatid":el.id};
+	GewaraUtil.sendRequest('${basePath}admin/dramaTicket/addPriceSeat.xhtml', values, function(result){
+		if(result.success){
+			el.set("class", seattype + "seat");
+		}else{
+			if(!isAlert)alert("设置价格失败："+result.msg);
+		}
+	});
+}
+function removePriceSeat(el){
+	var values = {"itemid":$!item.id, "areaid":$!curSeatArea.id, "seatid":el.id};
+	GewaraUtil.sendRequest('${basePath}admin/dramaTicket/removePriceSeat.xhtml', values, function(result){
+		if(result.success){
+			el.set("class", "Aseat");
+		}else{
+			alert("清除价格失败："+result.msg);
+		}
+	});
+}
+
+function setRows(el){
+	if(el.checked){
+		$('lineno').value=$('lineno').value + ',' + el.value.substring(4);
+	}else{
+		$('lineno').value=$('lineno').value.replace(','+el.value.substring(4), '');
+	}
+}
+function setColumn(el){
+	if(el.checked){
+		$('rankno').value=$('rankno').value + ',' + el.value.substring(4);
+	}else{
+		$('rankno').value=$('rankno').value.replace(',' + el.value.substring(4), '');
+	}
+}
+function setPriceSeat(){
+	var values={'itemid':$!item.id, 'areaid':$!curSeatArea.id, 'seattype':seattype, 'rankno':$('rankno').value, 'lineno':$('lineno').value};
+	GewaraUtil.sendRequest('${basePath}admin/dramaTicket/batchAddPriceSeat.xhtml', values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			alert("设置价格失败："+result.msg);
+		}
+	});
+}
+
+function refreshNewSeat(el){
+	GewaraUtil.mask(el);
+	var mask = gewa.util.mask({'element': 'odiTable','title':'正在提交，请稍等...'});
+	var values = {"itemid":$!item.id, "areaid":$!curSeatArea.id};
+	GewaraUtil.sendRequest('${basePath}admin/dramaTicket/reAreaSeat.xhtml', values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			alert(result.retval)
+			refreshPage();
+		}else{
+			alert("清除价格失败："+result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

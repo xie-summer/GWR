@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>在线电影播放 - 格瓦拉生活网</title>
+	<meta name="keywords" content="在线电影播放 - 格瓦拉生活网"/>
+	<meta name="description" content="在线电影播放 - 格瓦拉生活网"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_movie&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		/*电影在线播放*/
+		.playHeader{width:100%;background:#333;margin-top:-20px;}
+		.playVideo{width:960px;height:540px;background:#000;margin:0 auto;}
+		.play20{width:260px;margin-left:20px;}
+		.bco{background:#f2f2f2;}
+		.ui_right a{color:#CC3300;}
+		.isOfficial{ display: inline-block;height: 19px;margin:0 5px 0 2px;vertical-align:-4px;width: 30px;background:url("/css/activity/ico_activity.png?v=564646") no-repeat scroll 0 -986px transparent;}
+		.btn_online{display:block;width:90px;height:23px;background:url(/css/movie/onlinePlay/btnPlay.gif) no-repeat 0 -40px;overflow:hidden;text-indent:-9999px;cursor:pointer;margin:10px auto 0;}
+		.acText {background: url("/css/activity/bg_acText.gif") repeat-x scroll 0 0 #FFFFFF;border: 1px solid #DFDFDF !important;border-radius: 3px 3px 3px 3px;color: #494949;font-size: 14px; height: 28px !important;line-height: 28px !important;outline: medium none;padding: 0 4px;width: 140px;}
+	</style>
+</head>
+<body>
+#set($ismovie='')#set($movieFlag="hotmovie") #set($menucontent='在线电影播放 ')
+#set($tag='movie')
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="playHeader">
+	<div class="playVideo">
+	<embed id="flash" width="960" height="540" align="middle" allowscriptaccess="always" flashvars="$!{vid}&$!{tvId}&coop=coop_gewara&autoPlay=1&bd=1&autoHideControl=1" bgcolor="#000000" src="http://player.video.qiyi.com/qiyi" type="application/x-shockwave-flash" menu="true" allowfullscreen="true" devicefont="false" scale="showall" quality="hight" play="true" loop="true" style="outline: none;" pluginspage="http://www.macromedia.com/go/getflashplayer" />
+	</div>
+</div>
+<div class="ui_layout bco">
+	<div class="ui_left">
+		<div class="mod_kong mt20">
+			<div class="mod_hd">
+				<h2>哇啦</h2>
+				<a class="more ffst brown" target="_blank" href="${basePath}movie/$!movie.id/commentlist">共$!commentCount条</a>
+			</div>
+			<div class="mod_bd">
+				<div class="ui_panel">
+					<div class="panel_inner">
+						<div id="walaDiary"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="mod_kong mt30">
+			<div class="mod_hd">
+				<h2>影评</h2>
+				<a class="more ffst brown" target="_blank" href="$!{basePath}movie/$!movie.id/diarylist">共$!{diaryCount}条</a>
+			</div>
+			<div class="mod_bd">
+				<div class="ui_panel">
+					<div class="panel_inner">
+					#parse('common/new_diaryList.vm')
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="ui_right play20 mt20">
+		#parse('include/movie/hotPlay.vm')
+		#parse('include/movie/hotActivity.vm')
+		#parse('include/movie/moreLike.vm')
+	</div>
+</div>
+<div class="mt30">#parse('include/bottom.vm')</div>
+#parse('include/markDialog.vm')
+<script type="text/javascript">
+var isScroll = true, masks='';
+window.addEvent('domready',function(){
+	(function(){
+		Asset.javascript("${staticPath}scripts/gewara.js?n=wala,slimbox&v=$VmUtils.jsVersion", {
+			'id':'walaDynaScript',
+			'outUrl':('${basePath}movie/$!movie.id/commentlist'),
+			'isScroll':false,//用于控制是否支持鼠标滚动事件
+			'maxNumber':5,//如果设置，滚轮或者点击加载的的次数
+    		'bindWala':'walaDiary',//把加载的哇啦放在什么位置
+			onLoad:function(){
+				Asset.css('${staticPath}css/new_wala.css?v=$VmUtils.jsVersion',{'id':'walasCss'});
+				gewa.util.pageNumber = 0;
+		    	var _body = $(document.body);
+		    	gewa.util.requestUrl = 'ajax/common/qryComment.xhtml';
+		    	gewa.util.values = {
+	    			pageNumber:gewa.util.pageNumber,//自动加载时的分页数
+	    			relatedid:'$!movie.id',//关联对象的ID
+	    			title:'',//话题的标题
+	    			issue:true,//是否有发表框
+	    			hasMarks:true,//是否支持评分
+	    			tag:'$!tag',//关联那个板块的内容
+	    			isPic:true,//是否支持传图片
+	    			isVideo:false,//是否支持传视频
+		    		maxCount:6,//如果设置，即是单页显示N条
+					userLogo:gewara.util.member.headUrl,//用户的头像
+					isCount:true
+		    	};
+		    	gewa.util.init();
+			}
+		})
+	}).delay(2000);
+});
+
+function getBody(id){
+	var full = 'review_'+id+'_full';
+	fullBody(id);
+	if($(full).getStyle("display")!="none"){
+		var url = "/blog/fullDiaryBody.xhtml";
+		var value = {'diaryid':id};
+		GewaraUtil.sendLoad(full, url, value, function(result){
+			if(!result.success){
+			gewaUtil.alert(result.json.msg);
+			}
+		}, full);
+	}
+} 
+function fullBody(id){
+	if($('af_'+id))
+		$('af_'+id).toggleDisplay();
+	if($('uf_'+id))
+		$('uf_'+id).toggleDisplay();
+	if($('review_'+id+'_short'))
+		$('review_'+id+'_short').toggleDisplay();
+	if($('review_'+id+'_full'))
+		$('review_'+id+'_full').toggleDisplay();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,725 @@
+<!Doctype html>
+<html>
+<head>
+	<!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>#if($VmUtils.isBlank($sport.seotitle))${sport.name}场地场馆预订_地址_电话_价格#else${sport.seotitle}#{end} - 格瓦拉生活网</title>
+	<meta name="keywords" content="${sport.name}场馆查询,${sport.name}资讯,${sport.name}公告,${sport.name}价格"/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,tips,noobSlide,page,raphael,picture,scrollerbar&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.detail_body_left{width:850px;padding:10px 10px 15px;float:left;}
+		.detail_body_right{width:310px;padding:10px 10px 15px;float:left; overflow:hidden;}
+		/*项目详情页*/
+		.detail_head {position:relative;padding:10px 10px 20px;width:1190px;}
+		.detail_head .detailPa{height:auto;line-height:22px;width:100%;}
+		.detail_head .detailPa span.mark {width:74px;height:59px;background-position:0 -42px;top:-10px;left:-10px;}
+		.detail_head .detailName{border-bottom:1px solid #eee;padding-bottom:10px;}
+		.movieCountList {top:0;}
+		.ui_movieBigType{width:300px;height:225px;border:1px solid #dddddd;margin-bottom:8px;overflow:hidden;}
+		.ui_movieBigType ul{position:absolute;top:0;left:0;}
+		.ui_movieBigType ul li{width:300px;height:225px;float:left;overflow:hidden;}
+		.picListControl{width:300px;}
+		.picListControl ul li{float:left;width:92px;height:68px;display:inline;margin-right:6px;border:2px solid #dddddd;position:relative;cursor:pointer;}
+		.picListControl ul li span{position:absolute;width:25px;font-size:21px;height:11px;color:#ff8822;overflow:hidden;top:-12px;left:50%;display:none;margin-left:-11px;}
+		.picListControl ul li.select span{display:block;}
+		.picListControl ul li.select {border:2px solid #ff8822;}
+		
+		.itemTopic {overflow:hidden;padding-top:20px;}
+		.itemTopic .ui_pic{margin-right:15px;}
+		.itemTopic .ui_text{padding-left:15px;}
+		.itemTopic .ui_summary_big {color:#333;font:12px/22px "宋体";padding-left:26px;margin-top:10px;position:relative;width:524px;}
+		.itemTopic .ui_summary_big span.first{position:absolute;left:0;top:0;}
+		.itemTopic .ui_text em {color:#999;}
+		.itemTopic dl{margin-bottom:8px;}
+		.itemTopic dt{float:left;color:#999;width:68px;}
+		.itemTopic dd{float:left;display:block;width:480px;overflow:hidden;zoom:1;}
+		.itemTopic .view{margin-top:25px;padding:3px 0;}
+		.itemTopic .view a{color:#333333;font:14px/22px "微软雅黑","宋体";display:inline-block;margin-right:15px;}
+		.itemTopic .view a:hover{text-decoration:none;color:#39c;}
+		.itemTopic .view em{display:inline-block;height:26px;vertical-align:-7px;*vertical-align:-4px;margin-right:5px;width:26px;}
+		.view em.ser{background-position:0 -353px;}
+		.view em.tran{background-position:0 -383px;}
+		.view em.pos{background-position:0 -409px;}
+		.detail_head .map{width:240px;float:right;}
+		.detail_head .map .mapInfo{border:1px solid #cecece;}
+		.mapInner {background:#959595;color: #FFFFFF;font-weight:bold;padding:3px 3px 3px 7px;}
+		.mapInner p,.mapInner label{float:left;display:inline;}
+		.mapInner .tex{width:60px;background:#fff;border:0 none;border-radius:3px;height:22px;line-height:22px;padding:0 4px;color:#333;margin:0 3px;}
+		.mapInner label input{cursor:pointer;border:0 none;background:#ee6600;height:22px;width:60px;line-height:22px;text-align:center;color:#fff;border-radius:3px;box-shadow:1px 1px 0px #ba5603;}
+		
+		.ul-dot li{padding-left:8px; background:url(${staticPath}css/home/dot.gif) 0 center no-repeat;overflow:hidden;}
+		/*特色*/
+		.feature {width:850px;overflow:hidden;margin-bottom:20px;}
+		.feature .mod_kong{float:left;width:410px;overflow:hidden;margin-bottom:0;}
+		.feature dl {height:30px;margin-top:10px;background-color:#F2FCFE;line-height:30px;color:#666;}
+		.feature .ui_pic {width:150px;font-weight:bold;font-size:14px;background-color:#DDF4FC; color:#333;}
+		.feature .ui_pic em {width:20px;height:20px;display:inline-block;overflow:hidden;margin:5px 25px 5px 15px;vertical-align:middle;}
+		.sp_tcc {background-position:0 0;} /*停车场*/
+		.sp_skjs {background-position:-23px 0;} /*刷卡结算*/
+		.sp_gzzp {background-position:-89px 0;} /*柜子租凭*/
+		.sp_cgmp {background-position:-111px 0;} /*场馆卖品*/
+		.sp_xxqy {background-position:-155px 0;} /*休息区域*/
+		.sp_qczj {background-position:-45px 0;} /*器材租借*/
+		.sp_xyss {background-position:-177px 0;} /*洗浴设施*/
+		.sp_qcwh {background-position:-134px 0;} /*器材维护*/
+		.sp_vip {background-position:-67px 0;} /*会员卡*/
+		.sp_gj {background-position:0 -20px;} /*公交*/
+		.sp_dt {background-position:-23px -20px;} /*地铁*/
+		
+		/*tab切换*/
+		.mod_tabs .mod_hd ul.nav_tabs{border-bottom:2px solid #1885ae; height:40px; background:none; overflow:hidden;}
+		.mod_tabs .mod_hd ul.nav_tabs li{height:40px; background:#eee; margin-right:1px;}
+		.mod_tabs .mod_hd ul.nav_tabs li a{border-top:0; color:#333; float:left;}
+		.mod_tabs .mod_hd ul.nav_tabs li a em{color:#999; font-size:12px; font-weight:normal; margin-left:5px;}
+		.mod_tabs .mod_hd ul.nav_tabs li.select a{background:#1885ae; color:#fff; border-top:none;}
+		.mod_tabs .mod_hd ul.nav_tabs li.select a em{color:#fff;}
+		
+		.detail_ticket_chooseBg .left {font-size:14px;width:526px;}
+		.detail_ticket_chooseBg .right{padding-left:10px; border-left:1px solid #B9E4F4;width:293px;}
+		.detail_ticket_chooseBg .left dl {padding:5px 0;}
+		.detail_ticket_chooseBg a {padding:0 5px;margin-right:5px;color:#333;display:inline-block;text-decoration:none;}
+		.detail_ticket_chooseBg a.select,.detail_ticket_chooseBg .left a:hover{background-color:#39c;color:#fff;}
+		.detail_ticket_chooseBg a.select{font-weight:bold;}
+		.detail_introBg {background-color:#fff;padding:20px 15px;overflow:hidden;}
+		.detail_introBg span {margin-right:20px;color:#666;}
+		
+		.detail_site .opitime {width:250px;}
+		.detail_site .opiPrice {width:240px}
+		.detail_site .opiPrice em {width:auto;}
+		.detail_site .chooseOpi_body .opitime b {font-size:14px;}
+		.detail_site .opitime b {overflow:hidden;width:250px;overflow:hidden;display:block;;line-height:40px;}
+		.detail_train .opiEdition {width:270px;}
+		/*会员卡*/
+		.detail_vip .chooseOpi_body ul li {height:105px;}
+		.detail_vip .opitime {width:215px;}
+		.detail_vip .opiPrice {width:165px;}
+		.detail_vip .opiInfo {width:270px;}
+		.detail_vip .chooseOpi_body {height:625px;}
+		.detail_vip .chooseOpi_body .opitime,.detail_vip .chooseOpi_body .opiPrice,.detail_vip .chooseOpi_body .opiInfo,.detail_vip .chooseOpi_body .opiurl {height:95px;padding:5px 10px;line-height:95px;}
+		.detail_vip .chooseOpi_body span.opiInfo p {line-height:22px;height:auto;}
+		.detail_vip .chooseOpi_body span.opiInfo p font {display:block;}
+		.detail_vip .chooseOpi_head .opiPrice {padding:5px 0 5px 20px}
+		.detail_vipBuy {padding:20px;overflow:hidden;height:290px;}
+		.detail_vipBuy p {color:#999;padding-bottom:5px;}
+		.detail_vipBuy p b {color:#333;}
+		.detail_vipBuy dt {width:60px;text-align:right;color:#999;}
+		
+		.lookSite:hover{text-decoration:none;}
+		.lookSiteBox{position:relative; display:inline;}
+		.tips_vipSiteBox{z-index:1000px; border:1px solid #ffa463; position:absolute; display:block; width:100px; right:0; top:24px; background:#ffffe1; border-radius:3px; padding:10px; }
+		.tips_vipSiteBox p{line-height:20px; padding-bottom:0;}
+		.detailIntro .mod_bd{color:#333;font-size:14px;padding:0 15px;}
+		
+		#if($sp.hasPretype('E'))
+		.detail_head h1 {text-indent:50px;}
+		#end
+	</style>
+</head>
+<body>
+#set($issport=true)
+#parse('include/wide_header.vm')
+#set($otherinfo=$VmUtils.readJsonToMap($sport.otherinfo))
+<div class="ui_layout">
+	<div class="detail_head">
+		<div class="mod_kong">
+			<div class="mod_hd detailPa">
+				#if($sp.hasPretype('E'))<span class="mark"></span>#end
+				<div class="detailName clear">
+					<h1 class="left">$!sport.name</h1>
+					<div class="left clear mt10 ml15">
+						#set($gmark=$VmUtils.getSingleMarkStar($sport, "general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+						#set($isBigStaticRating=true)
+						#parse('include/global/staticRating.vm')
+						<span class="bigSubp left"><sub id="mark_integer">$gmark1</sub><sup id="mark_decimal">.$gmark2</sup></span>
+					</div>
+					<div class="ratingsCount left">
+						<ul>
+							<li><a href="javascript:showMovieMark();" class="cou">我要评分</a></li>
+							<li>
+								<span><a href="javascript:addCollection();" class="ad" id="nCollect">感兴趣</a></span>
+								<span><a href="javascript:cancelTreasure();" class="ad se none" id="hCollect">取消感兴趣</a></span>
+							</li>
+						</ul>
+					</div>
+					<div class="movieCountList">
+						<ul class="ui_inline">
+							<li class="first">
+								<b id="collectedTimes">$!sport.collectedtimes</b>
+								<span>收藏</span>
+							</li>
+							<li>
+								<b>$!sport.clickedtimes</b>
+								<span>关注</span>
+							</li>
+							<li>
+								<b>$!commnetCount</b>
+								<span>哇啦</span>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="mod_bd itemTopic">
+				<div class="ui_left" style="width:885px;">
+					<div class="ui_media">
+						<div class="ui_pic">
+							<div class="ui_movieBigType">
+								<ul id="move_box" style="width: 900px; left: -300px;">
+									#foreach($pictureMap in $pictureMapList)
+									<li>
+										<img width="300" height="225" src="$VmUtils.randomPic('cw270h240',$pictureMap.limg)" />
+									</li>
+									#end
+								</ul>
+								<a id="morePicture" class="morePic" target="_blank" href="${basePath}sport/${sport.id}/picturelist">共$!picCount张<em class="ffst">&gt;&gt;</em></a>
+							</div>
+							<div class="picListControl">
+								<ul id="move_tag" class="clear">
+									#foreach($pictureMap in $pictureMapList)
+									<li #if($foreach.count eq 1)class="select"#end #if($foreach.count eq 3)style="margin-right:0;"#end>
+										<span>◆</span>
+										<img width="92" height="68" src="$VmUtils.randomPic('cw96h72',$pictureMap.limg)" />
+									</li>
+									#end
+								</ul>
+							</div>
+						</div>
+						<div class="ui_text">
+							<p class="ui_summary_big"><span class="first"></span>
+								#if($sport.content)
+									$!VmUtils.htmlabbr($sport.content, 1000) #if($cepingNews && $ceping)<a class="ffst cSport ml5" target="_blank" style="display:inline-block;" href="${basePath}news/$!cepingNews.id" >详情&gt;&gt;</a>#end
+								#else
+									暂无场馆介绍
+								#end
+								<span></span>
+							</p>
+							#if(!$VmUtils.isBlank($!sport.address))
+							<dl class="clear mt30">
+								<dt>详细地址：</dt>
+								<dd>#if(!$VmUtils.isBlank($!sport.countyname))<a class="cSport" href="${basePath}sport/sportList.xhtml?countycode=$sport.countycode#if($spkey)&spkey=$!spkey#end" title="$!sport.countyname" target="_blank">$!sport.countyname</a>#end$!{sport.address}<span class="ffst">[<a href="${basePath}common/baiduMap.xhtml?id=$sport.id&tag=sport" target="_blank">地图</a>]</span></dd>
+							</dl>
+							#end
+							#if(!$VmUtils.isBlank($!sport.contactphone))
+							<dl class="clear">
+								<dt>联系电话：</dt>
+								<dd>$!sport.contactphone</dd>
+							</dl>
+							#end
+							#if(!$VmUtils.isEmptyList($itemList))
+							<dl class="clear">
+								<dt>运动项目：</dt>
+								<dd>
+									#foreach($sportitem in $itemList)
+										$!sportitem.name&nbsp;
+									#end
+								</dd>
+							</dl>
+							#end
+							<div class="view clear">
+								<a href="javascript:showCorr();" class="right cSport mr0">信息纠错</a>
+								<a title="场馆服务" href="javascript:goAnchor('ser')" onclick=""><em class="ser"></em>场馆服务</a>
+								<a title="公交信息" href="javascript:goAnchor('tran')"><em class="tran"></em>公交信息</a>
+								#if($VmUtils.isNotBlank($otherinfo.get('membercard')))
+								<a title="会员卡购买" href="javascript:goAnchor('ivip');"><em class="pos"></em>会员卡购买</a>
+								#end
+							</div>
+							#if($sp.hasPretype('E'))
+							<div class="mt5 c666" style="background-color:#fff; line-height:120%; padding:10px; border:1px solid #ededed;">
+								<em class="cF60 mr5 ffst">*</em>本场馆为代售场馆，发票仅由场馆方提供，且不可享受格瓦拉提供的积分、优惠券、活动、瓦币支付等各类会员特权。
+							</div>
+							#end
+						</div>
+					</div>
+				</div>
+				<div class="ui_right" style="width:250px; overflow:hidden;margin-left:45px;">
+					<div class="map">
+						#parse('include/global/wide_map.vm')
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="detail_body_left">
+		#if(!$VmUtils.isEmptyList($itemList) || !$VmUtils.isEmptyList($mctList)|| !$VmUtils.isEmptyList($discountInfoList))
+		<div class="mod_tabs mod_tabs_drama">
+			<div class="mod_hd" style="position:relative;">
+				<ul class="nav_tabs" name="ivip" id="ivip">
+					#if(!$VmUtils.isEmptyList($itemList))<li class="select" id="yuding" onclick="vipkaBuy('yuding');"><a href="javascript:void(0);">场地预订</a></li>#end
+					#if(!$VmUtils.isEmptyList($mctList))<li #if($VmUtils.isEmptyList($itemList)) class="select" #end id="vipka" onclick="vipkaBuy('vipka');"><a href="javascript:void(0);">会员卡</a></li>#end
+					#if(!$VmUtils.isEmptyList($discountInfoList))<li #if($VmUtils.isEmptyList($itemList) && $VmUtils.isEmptyList($mctList)) class="select" #end id="bulletin" onclick="vipkaBuy('bulletin');"><a href="javascript:void(0);">简介&公告</a></li>#end
+				</ul>
+			</div>
+			<div class="mod_bd clear">
+				<div class="chooseOpi">
+					#if(!$VmUtils.isEmptyList($itemList))
+					<div class="detail_site" id="yuding_content">
+						<div class="detail_ticket_chooseBg clear">
+							<div class="left">
+								<dl class="ui_media">
+									<dt class="ui_pic">运动项目：</dt>
+									<dd class="ui_text">
+										#foreach($item in $itemList)
+										<a id="si$!item.id" class="sportitem" href="javascript:getOpenTypeList($!item.id);">$!item.name</a>
+										#end
+									</dd>
+								</dl>
+								<dl class="ui_media">
+									<dt class="ui_pic">预订模式：</dt>
+									<dd class="ui_text" id="opentypeDiv">
+										
+									</dd>
+								</dl>
+							</div>
+							#if(!$VmUtils.isEmptyList($mctList))
+							#set($mct=$mctList.get(0))
+							#set($fitItem=$fitItemMap.get($mct.id))
+							<div class="right">
+								<dl class="ui_media">
+									<dt class="ui_pic">
+										<img class="ui_radius" width="112" height="76" #if($mct.hasNumCard())src="${staticPath}css/sport_wide/card_num.jpg" alt="次卡"
+										#elseif($mct.hasAmountCard())src="${staticPath}css/sport_wide/card_amount.jpg" alt="金额卡" #end />
+									</dt>
+									<dd class="ui_text">
+										<b>${mct.title}</b>
+										<em>$fitItem</em>
+										<a href="javascript:vipkaBuy('vipka');" class="ffst cSport">我想买卡&gt;&gt;</a>
+									</dd>
+								</dl>
+							</div>
+							#end
+						</div>
+						<div id="ottDiv"></div>
+					</div>
+					#end
+					#if(!$VmUtils.isEmptyList($mctList))
+					<div class="detail_vip #if(!$VmUtils.isEmptyList($itemList))none#end" id="vipka_content">
+						<div lang="chooseOpi_head" class="chooseOpi_head">
+							<span class="opitime">类型</span>
+							<span class="opiPrice">价格(元)</span>
+							<span class="opiInfo">说明</span>
+							<span class="opiurl">操作</span>
+						</div>
+						#set($initH=125*$mctList.size())
+						<div class="chooseOpi_body" id="wrapperVip" #if($VmUtils.size($mctList) le 5)style="height:auto;"#end>
+							<ul class="clear" style="height:${initH}px;" id="wrappedVip">
+								#foreach($mct in $mctList)
+								#set($fitItem=$fitItemMap.get($mct.id))
+								<li config="morning" #if($foreach.count%2 eq 0)style="background-color:#fbfbfb;"#end>
+									<span class="opitime">
+										<img class="ui_radius" width="140" height="95" 
+										#if($mct.hasNumCard())src="${staticPath}css/sport_wide/card_num.jpg" alt="次卡"
+										#elseif($mct.hasAmountCard())src="${staticPath}css/sport_wide/card_amount.jpg" alt="金额卡" #end>
+									</span>
+									<span class="opiPrice"><em>($mct.price)</em><b>$mct.gewaprice</b></span>
+									<span class="opiInfo">
+										<p class="clear">
+											<!--  <em data-type="16620568" class="y">惠</em> -->
+										</p>
+										<p class="clear">
+											<font>${mct.title}</font>
+											<font>$fitItem</font>
+										</p>
+									</span>
+									<span class="opiurl">
+										<a class="button bigBt redBt" href="javascript:detailVipTab('detailvip_$mct.id', $mct.id)"><span><em>立即购买</em></span></a>
+									</span>
+								</li>
+								#end
+							</ul>
+						</div>
+					</div>
+					#end
+				</div>
+				<div class="#if(!$VmUtils.isEmptyList($itemList) || !$VmUtils.isEmptyList($mctList))none#end" id="bulletin_content">
+					#if(!$VmUtils.isEmptyList($discountInfoList))
+					#set($discount=$discountInfoList.get(0))
+					<div class="mod_kong detailIntro mt20" id="tab_menu">
+						<div class="mod_hd"><h2>$!VmUtils.escabbr($discount.title, 40)</h2></div>
+						<div class="mod_bd">
+							$!discount.content
+						</div>
+					</div>
+					#end
+				</div>
+			</div>
+		</div>
+		#end
+		#if(!$VmUtils.isEmptyList($payMemberList))
+		<div class="mod_kong payUser">
+			<div class="mod_hd">
+				<h2>最近预订瓦友</h2>
+			</div>
+			<div class="mod_bd">
+				<ul class="clear mt15">
+					#foreach($payMember in $payMemberList)
+					#set($memberMap=$cacheMemberMap.get($payMember.memberid))
+					<li>
+						<a target="_blank" class="pubpic" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!memberMap.id"><img width="50" height="50" alt="" src="$VmUtils.randomPic('cw50h50',$memberMap.headpicUrl)"/></a><br />
+						<a target="_blank" class="cSport" title="$!memberMap.nickname" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!memberMap.id">$!memberMap.nickname</a><br />
+						<span class="c999">$DateUtil.getDateDesc($payMember.paidtime)</span>
+					</li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+		<div class="clear feature">
+			<div class="mod_kong">
+				<div class="mod_hd">
+					<h2 id="ser" name="ser">场馆服务</h2>
+				</div>
+				<div class="mod_bd">
+					#if($VmUtils.isNotBlank($otherinfo.get('visacard')))
+					<dl class="ui_media">
+						<dt class="ui_pic"><em class="freeTag2 sp_skjs"></em>刷卡结算</dt>
+						<dd class="ui_text">$otherinfo.get('visacard')</dd>
+					</dl>
+					#end
+					#if($VmUtils.isNotBlank($otherinfo.get('restregion')))
+					<dl class="ui_media">
+						<dt class="ui_pic"><em class="freeTag2 sp_xxqy"></em>休息区域</dt>
+						<dd class="ui_text">$otherinfo.get('restregion')</dd>
+					</dl>
+					#end
+					#if($VmUtils.isNotBlank($otherinfo.get('bathe')))
+					<dl class="ui_media">
+						<dt class="ui_pic"><em class="freeTag2 sp_xyss"></em>洗浴设施</dt>
+						<dd class="ui_text">$otherinfo.get('bathe')</dd>
+					</dl>
+					#end
+					#if($VmUtils.isNotBlank($otherinfo.get('cupboard')))
+					<dl class="ui_media">
+						<dt class="ui_pic"><em class="freeTag2 sp_gzzp"></em>柜子租凭</dt>
+						<dd class="ui_text">$otherinfo.get('cupboard')</dd>
+					</dl>
+					#end
+					#if($VmUtils.isNotBlank($otherinfo.get('sale')))
+					<dl class="ui_media">
+						<dt class="ui_pic"><em class="freeTag2 sp_cgmp"></em>场馆卖品</dt>
+						<dd class="ui_text">$otherinfo.get('sale')</dd>
+					</dl>
+					#end
+					#if($VmUtils.isNotBlank($otherinfo.get('lease')))
+					<dl class="ui_media">
+						<dt class="ui_pic"><em class="freeTag2 sp_qczj"></em>器材租借</dt>
+						<dd class="ui_text">$otherinfo.get('lease')</dd>
+					</dl>
+					#end
+					#if($VmUtils.isNotBlank($otherinfo.get('maintain')))
+					<dl class="ui_media">
+						<dt class="ui_pic"><em class="freeTag2 sp_qcwh"></em>器材维护</dt>
+						<dd class="ui_text">$otherinfo.get('maintain')</dd>
+					</dl>
+					#end
+				</div>
+			</div>
+			<div class="mod_kong ml30">
+				<div class="mod_hd">
+					<h2 id="tran" name="tran">交通信息</h2>
+				</div>
+				<div class="mod_bd">
+					#if($VmUtils.isNotBlank($sport.transport))
+					<dl class="ui_media">
+						<dt class="ui_pic"><em class="freeTag2 sp_gj"></em>公交</dt>
+						<dd class="ui_text">$!sport.transport</dd>
+					</dl>
+					#end
+					#if($VmUtils.isNotBlank($sport.stationname))
+					<dl class="ui_media">
+						<dt class="ui_pic"><em class="freeTag2 sp_dt"></em>地铁</dt>
+						<dd class="ui_text">$!sport.getLineName($subwaylineMap)&nbsp;$!{sport.stationname}站&nbsp;$!{sport.exitnumber}</dd>
+					</dl>
+					#end
+					#if($VmUtils.isNotBlank($otherinfo.get('park')))
+					<dl class="ui_media">
+						<dt class="ui_pic"><em class="freeTag2 sp_tcc"></em>停车休息</dt>
+						<dd class="ui_text">$otherinfo.get('park')</dd>
+					</dl>
+					#end
+				</div>
+			</div>
+		</div>
+		<div class="mod_tabs mod_tabs_movie" id="walaContent">
+			<div class="mod_hd">
+				<ul class="nav_tabs">
+					<li class="walaCur select"><a href="javascript:void(0);" style="padding:0 40px;">哇啦</a></li>
+				</ul>
+			</div>
+			<div class="mod_bd">
+				<div id="WalaDetail" class="mt20"></div>
+			</div>
+		</div>	
+	</div>
+	<div class="detail_body_right">
+		#if(!$VmUtils.isEmptyList($spdiscountList))
+		<div class="mod_kong">
+			<div class="mod_hd">
+				<h2>运动优惠</h2>
+			</div>
+			<div class="mod_bd">
+				<ul class="ul-dot">
+					#foreach($spdiscount in $spdiscountList)
+					#if($spdiscount.distype eq 'percent')
+					 	#set($discount=$!spdiscount.gainDiscount('true'))
+					#else
+					  #set($discount=$!spdiscount.discount)	
+					#end
+					<li class="mt5">
+						$!spdiscount.getDiscountText("<span class='cSport'>$!spdiscount.bankname</span>",
+						"<b class='cSport'>$!discount</b>",
+						"<b>$!spdiscount.rebates</b>")
+					</li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+		#if(!$VmUtils.isEmptyList($trainingGoodsList))
+		<div class="mod_kong trainingCourse">
+			<div class="mod_hd">
+				<h2>培训课程</h2>
+			</div>
+			#foreach($training in $trainingGoodsList)
+			#set($agency=$agencyMap.get($training.id))
+			#set($tcDtsList = $tcDtsListMap.get($training.id))
+			<div class="mod_bd #if($foreach.count gt 1) mt10 #end">
+				<h2 class="fs14"><a href="${basePath}sport/curriculumDetail.xhtml?id=$!training.id" target="_blank">$!training.goodsname</a></h2>
+				<p class="c999 mt5">$!VmUtils.htmlabbr($!training.description, 70)...</p>
+				<p class="mt10"><em>机构：</em><a href="${basePath}sport/agencyDetail.xhtml?id=$!agency.id" target="_blank">$!agency.name</a></p>
+				<p><em>教练：</em>#foreach($tcDts in $tcDtsList)#set($tcStar=$starMap.get($tcDts.starid))$tcStar.name #end</p>
+				<p><em>价格：</em>售价<b class="cF60">$!training.minprice#if($!training.maxprice)-$!training.maxprice#end</b>元</p>
+				<p><em>$!training.clickedtimes关注</em><em class="freeTag1 ml15">$!training.sales</em></p>
+			</div>
+			#end
+		</div>
+		#end
+		#if($cepingNews && $ceping)
+		<div class="mod_kong">
+			<div class="mod_hd">
+				<h2>场馆评测</h2>
+			</div>
+			<div class="mod_bd">
+				<p class="mt10">
+					<a href="${basePath}news/$!cepingNews.id" title="$!cepingNews.title" target="_blank">
+						<img width="310" height="120" src="$VmUtils.randomPic('cw310h100', $ceping.logo)" />
+					</a>
+				</p>
+				<p class="mt10">$!VmUtils.escabbr($cepingNews.summary, 100)...<a class="ffst cSport ml5" target="_blank" style="display:inline-block;" href="${basePath}news/$!cepingNews.id" >详情&gt;&gt;</a></p>
+			</div>
+		</div>
+		#end
+		<div id="activityDiv"></div>
+		#if(!$VmUtils.isEmptyList($sportList))
+		<div class="mod_kong">
+			<div class="mod_hd">
+				<h2>周边场馆</h2>
+			</div>
+			<div class="mod_bd">
+				<ul class="ul-dot">
+					#foreach($sport in $sportList)
+					#set($gmark=$VmUtils.getSingleMarkStar($sport, "general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+					<li class="mt10"><span class="right c999">$sport.clickedtimes关注</span><a href="${basePath}sport/$!sport.id" target="_blank" class="fs14 c333">$!VmUtils.escabbr($sport.name, 26)</a><span><sub>$gmark1</sub><sup>.$gmark2</sup></span></li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+	</div>
+</div>
+<div id="showCardInfo"></div>
+#parse('include/mistake.vm')			#*纠错页面*#
+#parse('include/newMarkDialog.vm')	#*评分页面*#
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	getActivityList();
+	#if(!$VmUtils.isEmptyList($pictureMapList))
+	new noobSlide({
+		box: $('move_box'),
+		items:$$('#move_box li'),
+		size:300,
+		handles:$$('#move_tag li'),
+		handle_event:'click',
+		autoPlay:true,
+		onWalk: function(currentItem,currentHandle){
+			this.handles.removeClass('select');
+			currentHandle.addClass('select');
+		}
+	});
+	#end
+	myTreasure('sport',$sport.id);
+	GewaraUtil.sendRequest("${basePath}ajax/common/isCollection.xhtml",{"relatedid":"$!sport.id","tag":"sport"}, function(result){
+		if(result.success && result.retval == "true"){
+			$("nCollect").addClass('none');
+			$("hCollect").removeClass('none');
+		}
+	});
+	#if(!$VmUtils.isEmptyList($itemList))
+	getOpenTypeList($itemList.get(0).id);
+	#end
+	$('morePicture').addEvent('click',function(e){
+		e.preventDefault();
+		var options = {
+			type:"apic",
+			pictureType:"apic",
+			videoType:"avideo",
+			tag:"sport",
+			isAjax:true,
+			isPicture:'picture',
+			esc:true,
+			menu:{
+				pictureurl:'${basePath}sport/sportPictureDetail.xhtml',
+				videourl:'${basePath}movie/videoList.xhtml',
+				picturevalues:{sid:'$sport.id','pvtype':'apic'},
+				videovalues:{sid:'$sport.id'},
+				picturecount:'$!{picCount}',
+				videocount:'0'
+			}
+		};
+		screenPicture.createPanel(options);
+	});
+	#if($VmUtils.isNotBlank($params.vipka))
+	vipkaBuy('vipka');
+	#end
+})
+function getOpenTypeList(itemid){
+	var values={'sportId':$sport.id,'itemId':itemid#if($spkey),'spkey':'$!spkey'#end};
+	$('opentypeDiv').empty();
+	GewaraUtil.sendLoad('opentypeDiv','${basePath}sport/ajax/getSportOttOpenTypeList.xhtml', values, function(result){
+		if(result.success){
+			$$(".sportitem").each(function(item){
+				item.removeClass("select");
+			})
+			$("si"+itemid).addClass("select");
+			if(result.html == ""){
+				$('ottDiv').empty();				
+			}
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function getOttList(itemid,opentype){
+	$('ottDiv').empty();
+	var values={'sportId':$sport.id,'itemId':itemid,'openType':opentype#if($spkey),'spkey':'$!spkey'#end};
+	GewaraUtil.sendLoad('ottDiv','${basePath}sport/ajax/getSportOttList.xhtml', values, function(result){
+		if(result.success){
+			$$(".opentype").each(function(item){
+				item.removeClass("select");
+			})
+			$("ot"+opentype).addClass("select");
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function addCollection(){
+	checkLogin(true, function(){
+		GewaraUtil.sendRequest("${basePath}ajax/common/addCollection.xhtml",{"relatedid":"$sport.id","tag":"sport"}, function(result){
+			if(result.success){
+				$("nCollect").addClass('none');
+				$("hCollect").removeClass('none');
+				$("collectedTimes").innerHTML = result.retval;
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	});
+}
+function cancelTreasure(){
+	checkLogin(true, function(){
+		GewaraUtil.sendRequest("${basePath}ajax/common/cancelTreasure.xhtml",{"relatedid":"$sport.id","tag":"sport"}, function(result){
+			if(result.success){
+				$("hCollect").addClass('none');
+				$("nCollect").removeClass('none');
+				$("collectedTimes").innerHTML = result.retval;
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	});
+}
+function showCorr(){
+	showCorrDialog('sport','$!sport.id');
+	GewaraUtil.refreshCaptcha('corrCaptcha');
+}
+function detailVipTab(el, mctid){
+	checkLogin(true,function(){
+		var values={'mctid':mctid,'placeid':$sport.id};
+		GewaraUtil.sendLoad('showCardInfo','${basePath}sport/order/memberCard/showCardType.xhtml', values, function(result){
+			if(result.success){
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	});
+}
+function hideCard(){
+	gewa.util.container['vipCardDetail'].dispose('vipCardDetail');
+}
+function getActivityList(){
+	var url = '${basePath}sport/ajax/getActivityList.xhtml';
+	var values = {};
+	GewaraUtil.sendLoad('activityDiv',url, values, function(result){});
+}
+function goAnchor(anchorName){
+	var el = $(anchorName);
+	if(anchorName == "ivip"){
+		vipkaBuy('vipka');
+	}else if(!$('yuding').hasClass('select')){
+		vipkaBuy('yuding');
+	}
+	gewa.util.pagePos(el);
+}
+function vipkaBuy(el){
+	$$('#yuding,#vipka,#bulletin').removeClass('select');
+	$$('#yuding_content,#vipka_content,#bulletin_content').addClass('none');
+	$(el).addClass('select');
+	$(el+'_content').removeClass('none');
+	if(el == "vipka"){
+		#if($VmUtils.size($mctList) gt 5)
+		new ScrollerBar('wrapperVip',{mode:'vertical',wrapped:'wrappedVip',step:125,flag:true});
+		#end
+	}
+}
+</script>
+<script type="text/javascript">
+var isScroll = true;
+var marks = {};
+window.addEvent('domready',function(){
+	$('WalaDetail').innerHTML = '';
+	Asset.javascript("${basePath}scripts/gewara.js?n=wide_wala,slimbox&v=$!{VmUtils.jsVersion}", {
+		'id':'walaDynaScript',
+		'isScroll':false,//用于控制是否支持鼠标滚动事件
+		//'isTicket':true,
+		'bindWala':'WalaDetail',//把加载的哇啦放在什么位置
+		onLoad:function(){
+			Asset.css('${staticPath}css/wide_wala.css?v=$VmUtils.jsVersion',{'id':'walasCss'});
+			gewa.util.pageNumber = 0;
+	    	var _body = $(document.body);
+	    	gewa.util.requestUrl = 'ajax/common/qryComment.xhtml';
+	    	gewa.util.values = {
+    			pageNumber:gewa.util.pageNumber,//自动加载时的分页数
+    			relatedid:'$!sport.id',//关联对象的ID
+    			title:'',//话题的标题
+    			issue:true,//是否有发表框
+    			hasMarks:true,//是否支持评分
+    			tag:'sport',//关联那个板块的内容
+    			isPic:true,//是否支持传图片
+    			isVideo:false,//是否支持传视频
+	    		maxCount:6,//如果设置，即是单页显示N条
+				userLogo:gewara.util.member.headUrl,//用户的头像
+				//order:'flowernum',
+				isCount:true
+	    	};
+	    	gewa.util.init();
+		}
+	});
+});
+</script>
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

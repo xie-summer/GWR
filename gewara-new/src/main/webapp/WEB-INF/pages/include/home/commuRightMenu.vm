@@ -1,0 +1,57 @@
+<div class="coumnu_border2">
+	<em class="m1"></em><em class="m2"></em>
+	<div class="m">
+		<div class="commnu_pbox commnu_bg_02"></div>
+		<div class="gui-title">
+			<h2>$!member.nickname</h2>
+			#if($VmUtils.eq($adminMember.id,$member.id)||$VmUtils.eq($commu.subadminid,$member.id))<a href="${basePath}home/commu/inviteAddCommu.xhtml?commuid=$commu.id" class="gui-more" target="_blank">邀请好友</a>#end
+		</div>
+		#if($VmUtils.eq($adminMember.id,$member.id)||$VmUtils.eq($memeber.id,$commu.subadminid))
+			<div class="mt5">身份：管理员<a href="${basePath}home/commu/updateCommu.xhtml?commuid=$!commu.id" class="brown ml20" target="_blank">圈子管理</a>
+						<a href="${basePath}home/commu/commuMessage.xhtml?commuid=$commu.id" class="brown ml20" target="_blank">圈内通知</a></div>
+			<div class="mt5">
+			<a href="${basePath}blog/modifyVote.xhtml?cid=$!commu.id" class="whiteBt minBt button ml10" target="_blank"><span>发投票</span></a>
+			<a href="${basePath}blog/modifyTopic.xhtml?cid=$commu.id" class="whiteBt minBt button ml10" target="_blank"><span>发话题</span></a>
+			</div>
+			<div class="mt5">我的圈内：
+						<a href="${basePath}home/commu/allCommuDiaryList.xhtml" class="brown mr5 ml5" target="_blank">话题</a>|
+						<a href="${basePath}home/commu/allCommuAlbumList.xhtml" class="brown ml5" target="_blank">照片</a></div>
+		#elseif($VmUtils.eq($isCommuMember,'true'))
+			<div class="mt5">身份：成员<span class="ml20"><a class="brown"" href="${basePath}home/commu/messageLog.xhtml?commuid=$!commu.id">设置本圈名片</a></span></div>
+			<div class="mt5">
+			<a href="javascript:void(0);" class="whiteBt minBt button ml10" onclick="sendDiary()" ><span>发话题</span></a>
+			<a href="javascript:void(0);" class="whiteBt minBt button ml10" onclick="sendVote()"><span>发投票</span></a>
+			</div>
+			<div class="mt5">我在圈内的：
+						<a href="${basePath}home/commu/allCommuDiaryList.xhtml" class="brown mr5 ml5" target="_blank">话题</a>|
+						<a href="${basePath}home/commu/allCommuAlbumList.xhtml" class="brown ml5" target="_blank">照片</a></div>
+		
+		#else
+		<div class="gui-title"style="position:relative;z-index:1;">身份：游客<a href="javascript:applyAddCommu();" class="button redBt minBt gui-more"><span>加入本圈</span></a></div>
+		#end
+	</div>
+	<em class="m2"></em><em class="m1"></em>
+</div>
+	<script type="text/javascript">
+	function sendDiary(){
+		var loc="${basePath}blog/modifyTopic.xhtml?cid=$!commu.id&commutopicid=";
+		isCommuBlack($!commu.id,loc);
+	}	
+	function sendActivity(){
+		var loc = '${basePath}activity/toMyActivityList.xhtml?cid=$commu.id';
+		isCommuBlack($!commu.id, loc);
+	}
+	function sendVote(){
+		var loc = "${basePath}blog/modifyVote.xhtml?cid=$!commu.id";
+		isCommuBlack($!commu.id, loc);
+	}
+	function uploadCommuPicture(){
+		var loc="${basePath}quan/albumList.xhtml?commuid=$commu.id";
+		isCommuBlack($!commu.id, loc);
+	}
+	function applyAddCommu(){
+		checkLogin(true,function(){
+			document.location.href="${basePath}home/commu/applyAddCommu.xhtml?commuid=$commu.id";
+		});
+	}
+</script>

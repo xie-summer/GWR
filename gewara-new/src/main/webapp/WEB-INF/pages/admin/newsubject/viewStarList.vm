@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>观影团模板专题之明星列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline;float:left;width:80px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:400px; display:inline}
+		tr{height: 25px;}
+	</style>
+</head>
+<body style="width:850px;margin:auto;padding: 10px;" class="yui-skin-sam">
+<div style="width:750px; height: 20px;">
+	<span style="width: 60px; margin-left:60px;"></span>
+	<a href="${basePath}admin/newsubject/addViewingItem.xhtml?parentid=$!parentid&tag=star" target="_blank">添加明星</a>
+	<span style="width: 60px; margin-left:60px;"></span>
+	<a href="javascript:refreshPage()">刷新</a>
+	<span style="width: 60px; margin-left:60px;"></span>
+	<span id="callbackMsg"></span>
+</div>
+<table width="780px" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th style="width:15%;">姓名</th>
+		<th style="width:12%;">添加日期</th>
+		<th style="width:12%;">排序</th>
+		<th style="width:12%;">操作</th>
+	</tr>
+	</thead>
+	<tbody id="roomTable">
+		#foreach($data in $list)
+		<tr>
+			<td><a href="${basePath}subject/s/$data.id" target="_blank">$data.membername</a></td>
+			<td>$DateUtil.format($data.addtime, 'yyyy-MM-dd HH:mm')</td>
+			
+			<td><input onblur="changeOrdernum('$!data.id',this)" type="text" style="width:30px;" value="#if($!data.ordernum)$!data.ordernum#else 0 #end"/></td>
+			<td>
+				<a href="${basePath}admin/newsubject/addViewingItem.xhtml?id=$data.id&parentid=$!parentid&tag=star" target="_blank">[修改]</a>|
+				<a href="javascript:void(0);" onclick="opeDelete('$data.id', this)">[删除]</a>
+			</td>
+		</tr>
+		#end
+	</tbody>
+</table>
+<div id="pointText" style="visibility:hidden; z-index:601;"></div>
+#parse('admin/newsubject/commonjs.vm')
+</body>
+<script type="text/javascript">
+function save(){
+	var url = "${basePath}admin/newsubject/saveViewingGcDetail.xhtml";
+	var values = GewaraUtil.getValues("gcForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("信息添加成功！");
+			refreshPage();
+		}else {
+			alert(result.msg);
+		}
+	});
+}
+function changeOrdernum(id, obj){
+	var url = '${basePath}admin/newsubject/changeOrderNum_viewstar.xhtml';
+	var values = {'id':id, 'ordernum': $(obj).get('value')};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			$(obj).setStyle('background-color','red');
+			(function(){
+				$(obj).setStyle('background-color','');
+			}.bind(obj)).delay(800);
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+</script>
+</html>

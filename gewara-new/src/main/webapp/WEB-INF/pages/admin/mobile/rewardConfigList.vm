@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>注册邀请奖励配置管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<div class="aboutMovie">
+			<div style="float:right">
+			<a href="${basePath}admin/mobile/saveRewardConfig.xhtml" target="_blank">新增注册配置</a> 
+			|
+			<a href="${basePath}admin/mobile/saveRewardConfig.xhtml?type=inviter" target="_blank">新增邀请配置</a>
+			</div>
+			<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th>
+							注册邀请奖励配置管理
+						</th>
+					</tr>
+				</thead>
+			</table>
+			
+			<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th>活动描述</th>
+						<th>活动类型</th>
+						<th>赠送开始时间</th>
+						<th>赠送结束时间</th>
+						<th>覆盖产品</th>
+						<th>系统类型</th>
+						<th>创建时间</th>
+						<th>奖品</th>
+						<th>获奖人名单</th>
+						<th>状态</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody id="tbody">
+					#foreach($conifg in $resultMapList)
+					<tr class="grayBg">
+						<td><a href="${basePath}admin/draw/drawactivityList.xhtml#$conifg.activityid" target="_blank">$conifg.remark</a></td>
+						#if($conifg.type eq 'inviter')
+							<td>邀请</td>
+						#end
+						#if($conifg.type eq 'registrant')
+							<td>注册</td>
+						#end
+						<td>$DateUtil.formatTimestamp($conifg.starttime)</td>
+						<td>$DateUtil.formatTimestamp($conifg.endtime)</td>
+						<td>$conifg.coverappStr</td>
+						<td>$conifg.ostype</td>
+						<td>$DateUtil.formatTimestamp($conifg.createtime)</td>
+						<td><a href="${basePath}admin/draw/prizeList.xhtml?did=$conifg.activityid" target="_blank">管理</a></td>
+						<td><a href="${basePath}admin/draw/winnerList.xhtml?activityid=$conifg.activityid&tag=system" target="_blank">查看</a></td>
+						<td>$conifg.status</td> 
+						<td>
+						<a target="_blank" href="${basePath}admin/mobile/saveRewardConfig.xhtml?id=$conifg.activityid&type=$conifg.type">编辑</a> 
+						</td>
+					</tr>
+					#end
+					<tr><td colspan="9">#parse('include/pageUtil.vm')</td></tr>
+				</tbody>
+			</table>
+		</div>
+		</div>
+		<b class="b2f"></b><b class="b1f"></b>
+	</div>
+</div>
+</body>
+</html>

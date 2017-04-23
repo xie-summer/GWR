@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>问答列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width: 750px; margin:auto" class="yui-skin-sam">
+<div class="left">
+	<form action="${basePath}admin/blog/qaList.xhtml" method="post">
+		<input name="keyname" id="keyname" type="text"/><input type="submit" value="搜索"/>
+	</form>
+</div>
+#parse('admin/blog/qa/common.vm')
+<div id="height0"></div>
+<table class="table" width="100%">
+	<thead>
+	<tr>
+		<th>标题</th>
+		<th>发起者</th>
+		<th>版块</th>
+		<th>更新时间</th>
+		<th>发布时间</th>
+		<th>回答</th>
+		<th>状态</th>
+	</tr>
+	</thead>
+	#foreach($question in $qaList)
+		<tr>
+			<td><a href="$!{absPath}${basePath}qa/qaDetail.xhtml?qid=${question.id}" target="_blank">$!VmUtils.escabbr($question.title,30)</a></td>
+			<td><a href="${absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!question.memberid">$question.membername</a></td>
+			<td>$!question.tagname&nbsp;</td>
+			<td>$DateUtil.format($!{question.updatetime},'yyyy-MM-dd HH:mm')&nbsp;</td>
+			<td>$DateUtil.format(${question.addtime},'yyyy-MM-dd HH:mm')</td>
+			<td><a href="${basePath}admin/blog/qaDetail.xhtml?qid=$question.id">回答</a>(<label style="color: red">$question.replycount</label>)</td>
+			<td>&nbsp;&nbsp;</td>
+		</tr>
+	#end
+</table>
+<div id="height0"></div>
+#parse('include/pageUtil.vm')
+</body>
+</html>

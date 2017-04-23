@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>报表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js"></script>
+	<style type="text/css">
+		table{border-collapse: collapse;}
+		td, th{text-align: left;height: 23px;}
+		.thead span{display:inline-block;margin-left:4px;width:10px; height:10px; overflow:hidden; text-indent:-999px; vertical-align:top;}
+		.sortedASC span,.sortedDESC span{background:url(${staticPath}css/global/sorta_icon.png) no-repeat;}
+		.sortedASC span{background-position:-19px 0;}
+		.sortedDESC span{background-position:0 0;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+<div style="color:red; line-height:20px;overflow:hidden;padding:5px;">注：报表数据仅供参考，不能作为对账结算依据</div>
+<table class="table" id="refundTable">
+	<thead>
+		<tr>
+			<th><div class="thead asc_desc">影院</div></th>
+			<th><div class="thead asc_desc">影片</div></th>
+			<th axis="date" style="cursor:pointer;"><div class="thead asc_desc">下单时间<span></span></div></th>
+			<th axis="string" style="cursor:pointer;"><div class="thead asc_desc">场次时间<span></span></div></th>
+			<th><div class="thead asc_desc">影厅</div></th>
+			<th><div class="thead asc_desc">座位信息</div></th>
+			<th><div class="thead asc_desc">结算价</div></th>
+			<th><div class="thead asc_desc">数量</div></th>
+			<th axis="date" style="cursor:pointer;"><div class="thead asc_desc">退款时间<span></span></div></th>
+			<th axis="number" style="cursor:pointer;"><div class="thead asc_desc">订单金额<span></span></div></th>
+			<th axis="number" style="cursor:pointer;"><div class="thead asc_desc">补差金额<span></span></div></th>
+		</tr>
+	</thead>
+	<tbody class="tbody">#set($totalSum=0)
+		#foreach($refund in $refundList)
+		#set($order=$orderMap.get($refund.tradeno))
+		#set($descMap=$VmUtils.readJsonToMap($order.description2))
+		#set($orderCost=$order.costprice * $order.quantity)
+		#set($settle=$orderCost - $refund.oldSettle + $refund.newSettle)
+		#set($totalSum=$totalSum + $settle)
+		<tr>
+			<td align="center">$cinemaMap.get($order.cinemaid).name</td>
+			<td align="center">$!descMap.get('影片')</td>
+			<td align="center">$!DateUtil.formatTimestamp($order.addtime)</td>
+			<td align="center">$!descMap.get('场次')</td>
+			<td align="center">$!descMap.get('影厅')</td>
+			<td align="center">$!descMap.get('影票').replaceAll("[\d]+元", "")</td>
+			<td align="center">$!order.costprice</td>
+			<td align="center">$!order.quantity</td>
+			<td align="center">$!DateUtil.formatTimestamp($refund.refundtime)</td>
+			<td align="center">$orderCost</td>
+			<td align="center">$settle</td>
+		</tr>
+		#end
+	</tbody>
+	<tbody>
+		<tr class="td">#set($totalSub = $ReportUtil.getIntSum($refundList, "newSettle", 0))
+			<td colspan="11" align="right" class="td"><span>共计:订单数：$refundList.size()，票数:$ReportUtil.getIntSum($orderMap.values(),"quantity","0")个，补差金额:$totalSub(元)</span></td>
+		</tr>
+		<tr>
+			<td colspan="11" style="color:blue;">说明：补差金额为“0”表示订单成功退款，非“0”表示Gewara单方面退款或影院降价提价等。正值表示Gewara补给影院，负表示影院补给Gewara</td>
+		</tr>
+	</tbody>
+</table>
+<br /><br /><br />
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		$$(".tbody tr").addEvents({
+			'mouseenter':function(){
+				this.addClass("over");
+			},
+			'mouseleave':function(){
+				this.removeClass("over");
+			}
+		});
+		var myTable = {};
+		myTable = new sortableTable('refundTable', {overCls: 'over'});
+	})
+</script>
+
+</body>
+</html>

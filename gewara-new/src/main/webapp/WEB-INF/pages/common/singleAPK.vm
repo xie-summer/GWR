@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+</head>
+<body style="overflow: hidden;padding:0px; margin: 0px; height: 30px;">
+<form name="fileUpload" method="post" style="margin: 0px;padding: 0px" action="${basePath}common/uploadAPK.xhtml"
+	enctype="multipart/form-data" onsubmit="return this.file.value.length > 0" id="uploadForm">
+	<input type="hidden" name="callbackUrl" value="${basePath}common/uploadSingleAPK.xhtml"/>
+	<input type="hidden" name="tag" id="tag" value="$!VmUtils.escapeHtml($params.tag)"/>
+	<input type="hidden" name="relatedid" id="relatedid" value="$!VmUtils.escapeHtml($params.relatedid)"/>
+	<input type="hidden" name="uploadPath" id="uploadPath" value="$!VmUtils.escapeHtml($params.uploadPath)"/>
+	<input type="hidden" name="callback" id="callback" value="$!VmUtils.escapeHtml($params.callback)"/>
+	<input type="file" name="file" id="file" onkeyup="this.value='';" size="38" />
+	<input type="submit" name="upload" value="上传文件" />
+</form>
+	<script type="text/javascript">
+	window.addEvent('domready',
+		function(){
+			if('$!params.msg' == 'ok'){
+				if('$!params.callback'){
+					parent.${params.callback}({'picpath':'$!params.picpath','relatedid':'$!params.relatedid','picid':'$!params.picid','tag':'$!params.tag'});
+				}else{
+					gewaUtil.alert("成功上传文件$!{params.picpath}");
+				}
+			}else if('$!params.msg' != '' && '$!params.msg' != 'ok') {
+				gewaUtil.alert('$!msg');
+			}
+			if('$!msg' != ''){
+				gewaUtil.alert('$!msg');
+			}
+		}
+	);
+</script>
+</body>
+</html>

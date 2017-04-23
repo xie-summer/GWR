@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>圈子美化_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/slider.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page,slimbox&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}scripts/colorpicker/dynamicColorPicker.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.changePtohoBox{padding:10px 10px 10px 300px;height:100%;clear: both;}
+		.changePtohoBoxInner{float:left;width:280px;margin-left:-280px;_margin-left:-140px;height:320px;overflow:hidden;}
+		.changeImageBox{height:200px;width:260px;overflow:hidden;position: relative;z-index: 3;background:#ccc;}
+		.controlCursor{height:186px;width:120px;overflow:hidden;float:left;background:url(${staticPath}css/home/change.jpg) no-repeat;position: relative;}
+		.bigLink{height:20px;line-height:20px;margin-top:10px}
+		.bigLink a,.bigLink input{display:inline-block;height:20px;padding:0 10px;background:#7092da;font-size:14px;text-decoration: none !important;color:#fff;margin-right:10px;cursor: pointer;border:0}
+		.controlCursor input{border:0px;background:transparent;}
+		.controlCursor label,.sbbutton{display:inline-block;width:120px;height:33px;position:absolute;top:0px;cursor:pointer;}
+		.controlCursor label input{visibility: hidden;width:120px;height:33px;}
+		.controlCursor .sbbutton{bottom:0px;top:auto;}
+		#commulogo{filter:Alpha(opacity=0);opacity:0;cursor:pointer;font-size:28px;outline:none;hide-focus:expression(this.hideFocus=true);left:-295px;top:0px;position:absolute;cursor: pointer;}
+		.controlCursor a {color:#fff;font-size:14px;font-weight:bold;display:block;height:32px;line-height:32px;text-align:center;text-decoration:none;}
+		.commuimg{width:120px; height: 120px;}
+	</style>
+</head>
+<body>
+#set($community = true)
+#set($tag="home")#set($isCommuModelManage=true)
+#set($isShow=false)
+#if($!rights.get(3) eq 'commu_public')
+#set($isShow=true)
+#elseif($!rights.get(3) eq 'commu_friend' && $isMyFriend)
+#set($isShow=true)
+#end
+#if(!$!rights)
+	#set($isShow=true)
+#end
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('home/community/manage/commuM.vm')
+			<div class="ui_rightInner_left">
+				<div class="inner">
+					<div class="mt20 title ml10"><h2>美化圈子</h2></div>
+					<div class="tab_menu" id="pk-color">
+						<ul>
+							<li><a id="st_logo" class="select" style="cursor:pointer;" onclick="javascript:manageLoding('logo')"><span>圈子LOGO</span></a></li>
+							<li><a id="st_color" style="cursor:pointer;" onclick="javascript:manageLoding('color')"><span>颜色设置</span></a></li>
+							<li><a id="st_layout" style="cursor:pointer;" onclick="javascript:manageLoding('layout')"><span>圈子布局</span></a></li>
+							<li><a id="st_bgpic" style="cursor:pointer;" onclick="javascript:manageLoding('bgpic')"><span>圈子背景</span></a></li>
+						</ul>
+					</div>
+					<div id="manageLoading">
+						#parse('home/community/manage/logo.vm')
+					</div>
+				</div>
+			</div>
+			#parse('home/community/manage/commuManageRight.vm')
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+function manageLoding(mtag){
+	$('manageLoading').set('html', "<img src='${picPath}css/images/loading2.gif'>");
+	showClass(mtag);
+	$('manageLoading').set('load', {evalScripts: true});
+	$('manageLoading').load('${basePath}home/commu/manageLoading.xhtml?commuid=$!params.commuid&mtag='+mtag+"&maths="+Math.random()*100);
+}
+function showClass(mtag){
+	el='st_'+mtag;
+	$$('.tab_menu').getElements('a').each(function(item){item.removeClass('select');$(el).addClass('select');});
+}
+</script>
+	<script>
+function updateCommubg(params){
+	var picpath = params['picpath'];
+	// 保存成功后加入一条记录
+	saveUploadPic(picpath); 
+}
+function saveUploadPic(picpath){
+	var commuid = '$!commu.id';
+	var memberid = '$!logonMember.id';
+	
+	var url = '${basePath}home/commu/commuSavePic.xhtml';
+	var values = {'commuid':commuid, 'picpath':picpath, 'memberid':memberid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			manageLoding('bgpic');
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	})
+}
+</script>
+</body>
+</html>

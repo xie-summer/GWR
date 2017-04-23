@@ -1,0 +1,273 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>公告列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label {display:inline-block;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline}
+	</style>
+</head>
+<body style="width:750px;margin:auto" class="yui-skin-sam">
+#if($params.tag eq 'cinema')
+#set($status='cinemaNotify')
+#set($cinemaId=$params.relatedid)
+#parse('admin/cinema/cinemaFormHead.vm')
+#end
+<div>
+	#if($relate)
+	<span>${relate.name}的公告</span><input type="button" class="button" style="width:50px" value="增加" onclick="addBulletin($!params.relatedid, '$!relate.name');"/>
+	#else
+	<a href="${basePath}admin/common/bulletinListByHotvalue.xhtml?tag=cinema&hotvalue=1000">已推荐</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="${basePath}admin/common/bulletinListByHotvalue.xhtml?tag=cinema&hotvalue=0">未推荐</a>
+	#end
+	
+	<a href="${basePath}admin/common/oldBulletinList.xhtml?tag=$!params.tag&relatedid=$!params.relatedid">过期的</a>
+</div>
+<table width="756" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th>场所</th>
+		<th>标题</th>
+		<th>类型</th>
+		<th>推荐</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="bulletinTable">
+	#foreach($key in $bulletinList)
+		<tr id="bulletin_$key.id">
+			<td id="cs_$key.id">#if($relate)$relate.name#{else}${bulletinMap.get($key).name}#end</td>
+			<td id="title_$key.id">${key.bulletintitle}</td>
+			<td id="type_$key.id">#if($VmUtils.eq(${key.bulletintype},'common'))公告#elseif($VmUtils.eq(${key.bulletintype},'coupon'))优惠券#end</td>
+			<td id="tj_$key.id">
+				<select id="v$key.id" onchange="changeHotvalue($key.id)">
+					<option value="0" #if($key.hotvalue eq 0) selected="selected" #end>否</option>
+					<option value="1000" #if($key.hotvalue eq 1000) selected="selected" #end>是</option>
+				</select>
+			</td>
+			<td id="bt_${key.id}">
+				<input type="button" class="button" style="width:50px" value="修改" onclick="modifyBulletin(${key.id});"/>
+				<input type="button" class="button" style="width:50px" value="删除" onclick="deleteBulletin(${key.id});"/>
+				#if(!$relate)
+				<input type="button" class="button" style="width:50px" value="增加" onclick="addBulletin($key.relatedid, '$bulletinMap.get($key).name');"/>
+				#end
+			</td>
+		</tr>
+	#end
+	</tbody>
+</table>
+<div id="bulletinDialog" class="yui-panel" style="width:700px; visibility:hidden;">
+	<div class="hd" id="title">编辑公告</div>
+	<div class="bd">
+	<form name="bulletinForm" id="bulletinForm" action="javascript:save()">
+		<input type="hidden" name="id" id="id"/>
+		<input type='hidden' name='tag' id="tag" value="$!{params.tag}"/>
+		<input type="hidden" name="relatedid" id="relatedid" value="$!{params.relatedid}"/>
+		<div>
+			<label for="bulletintitle">标题：</label>
+			<input name="bulletintitle" type="text" id="bulletintitle"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="validtime">有效时间：</label>
+			<input name="validtime" id="validtime" readonly="readonly" onclick="WdatePicker()" type="text"/>
+		</div>
+		<div>
+			<label for="hotvalue">是否推荐：</label>
+			<select name="hotvalue" id="hotvalue">
+				<option value="0" selected>否</option>
+				<option value="1000">是</option>
+			</select>
+		</div>
+		
+		<div>
+			<label for="hotvalue">公告类型：</label>
+			<select name="bulletintype" id="bulletintype">
+				<option value="common" selected>场馆公告</option>
+				<option value="coupon">优惠券</option>
+				<option value="sysmsg">系统公告</option>
+			</select>
+		</div>
+		
+		<div style="diplay:none" id="yhq">
+			<label for="coupon" id="yhqt" style="display: none" id="yhq2">优惠券：</label>
+			<input type="text" name="logo" id="logo" value=""/>
+			<img style="width:250px; height:150px;" id='logoimg' src='${staticPath}css/images/blank.gif'/>
+		</div>
+		
+		<div>
+			<label for="coupon">优惠券：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/bulletin&callback=updateLogo"></iframe>
+		</div>
+		<div>
+			<label for="content">内容：</label><span class="req">*</span>
+			<textarea name="content" id="content"></textarea>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="submit" class="button" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+		<div id="msg" style="color:red;"></div>
+		<div style="color:blue;">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+	</form>
+	</div><!-- end of bd -->
+</div>
+<form name="htmlForm" id="htmlForm" action="${basePath}common/contentEditor.xhtml" method="post" target="_blank">
+	<input type="hidden" name="editorContent" id="editorContent"/>
+	<input type="hidden" name="returnId" value="content"/>
+</form>
+	<script type="text/javascript">
+	var ckeditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("content");
+	});
+	function save(){
+		$("content").value=ckeditor.getData();
+		var values = GewaraUtil.getValues($("bulletinForm"));
+		if (values.bulletintitle == "" || values.content == "") {
+			alert("请输入标题和内容！");
+			return;
+		}
+		var url = "${basePath}admin/common/ajax/saveOrUpdateBulletin.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				var bulletin = result;
+				$("msg").set("html", '');
+				cancle();
+				if(isModify){
+					$("title_" + bulletin.id).innerHTML = bulletin.bulletintitle;
+					$("v" + bulletin.id).value = bulletin.hotvalue;
+				} else{
+					addRow(bulletin);
+				}
+			} else {
+				alert("保存失败");
+				$("msg").set("html", result.msg);
+			}
+		});
+	}
+	function cancle(){
+		GewaraUtil.hideDialog("bulletinDialog");
+	}
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg').src='${basePath}' + picpath;
+		$('yhq').setStyle("display","");
+		$('yhqt').setStyle("display","");
+	}
+	var isModify = false;
+	var curName = "";
+	function addBulletin(relatedid, name){
+		$("id").value="";
+		isModify = false;
+		curName = name;
+		$("relatedid").value=relatedid;
+		$("bulletinDialog").setStyle("display","");
+		$('yhq').setStyle("display","none");
+		$('yhqt').setStyle("display","none");
+		GewaraUtil.showDialog("bulletinDialog");
+	}
+	function modifyBulletin(bulletinId){
+		var url = "${basePath}admin/common/ajax/getBulletinById.xhtml";
+		GewaraUtil.sendRequest(url, {"bulletinId":bulletinId}, function(result){
+			if(result){
+				var bulletin = result;
+				GewaraUtil.setValues(bulletin);
+				$("validtime").value=bulletin.vaildtimeStr;
+				isModify = true;
+				$("bulletinDialog").setStyle("display","");
+				ckeditor.setData(result.content);
+				if(bulletin.logo!=""){
+					$('yhq').setStyle("display","");
+					$('logoimg').src='${basePath}'+bulletin.logo;
+					$('yhqt').setStyle("display","");
+				}
+				GewaraUtil.showDialog("bulletinDialog");
+			}else alert(result.msg);
+		});
+	}
+	var options = new Object();
+	options.escapeHtml = false;
+	options.rowCreator = function(opt){
+		var rowData = opt.rowData;
+		var tmpRow = document.createElement("tr");
+		tmpRow.id="bulletin_" + rowData.id;
+		return tmpRow;
+	}
+	
+	var cellFunc = [
+		function(bulletin){
+			return curName;
+		},
+		function(bulletin){
+			return bulletin.bulletintitle;
+		},
+		function(bulletin){
+			var btype="";
+			if(bulletin.bulletintype=='common'){
+				btype='公告';
+			}else if(bulletin.bulletintype=='coupon'){
+				btype='优惠券';
+			}
+			return btype;
+		},
+		function(bulletin){
+			var tmp = '<select id="v' + bulletin.id +'" onchange="changeHotvalue(' + bulletin.id + ')">';
+			if(bulletin.hotvalue=='0'){
+				tmp +='<option value="0" selected>否</option>';
+				tmp +='<option value="1000">是</option>';
+			}else if(bulletin.hotvalue=='1000'){
+				tmp +='<option value="0" >否</option>';
+				tmp +='<option value="1000" selected>是</option>';
+			}
+			tmp +='</select>';
+			return tmp;
+		},
+		function(bulletin){
+			var tmpLink = '<input type="button" class="button" style="width:70px" value="修改" onclick="modifyBulletin(' + bulletin.id+');"/>';
+			tmpLink +='<input type="button" class="button" style="width:70px" value="删除" onclick="deleteBulletin(' + bulletin.id + ');"/>';
+			tmpLink +='<input type="button" class="button" style="width:70px" value="增加" onclick="addBulletin(' + bulletin.id + ',\''+ curName + '\');"/>';
+			return tmpLink;
+		}
+	]
+	function changeHotvalue(bid){
+		v=$('v'+bid).value;
+		var url = "${basePath}admin/common/ajax/updateBulletinHotValue.xhtml";
+		GewaraUtil.sendRequest(url,{"id":bid,"value":v},function(result){
+			if(result.success) alert('成功设置！');
+			else alert("设置失败！");
+		});
+	}
+	function addRow(bulletin){
+		var bulletinList=[bulletin];
+		GewaraUtil.addRows("bulletinTable", bulletinList, cellFunc, options);
+		var cells = $("bulletin_" + bulletin.id).cells;
+		cells[0].id="cs_"+bulletin.id;
+		cells[1].id="title_"+bulletin.id;
+		cells[2].id="bt_"+bulletin.id;
+		cells[3].id="tj_"+bulletin.id;
+	}
+	function deleteBulletin(bulletinid){
+		var url = "${basePath}admin/common/ajax/removeBulletinById.xhtml";
+		GewaraUtil.sendRequest(url,{"bulletinId":bulletinid},function(result){
+			if(result.success){
+				$("bulletin_"+bulletinid).dispose();
+				alert("删除成功！");
+			}else alert("删除失败！");
+		});
+	}
+	
+</script>
+</body>
+</html>

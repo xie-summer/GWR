@@ -1,0 +1,389 @@
+#if(!$movieIdList.contains($movie.id))
+	#set($addMId = $movieIdList.add($movie.id))
+#end 
+<div class="detail_head clear">
+	<div class="ui_left">
+		<div class="detail_head_name clear">
+			<div class="clear">
+				<h1 class="left">$!obj.name</h1>
+				<div class="ratingsCount left">
+					<ul>
+						<li>
+							#if($isFutureMovie)
+								#*<span><a id="xiangkan" class="ad" onclick="showXiangKanTemplate('$movie.name','$movie.id')" href="javascript:void(0);">想看</a></span>*#
+							#else
+							<span><a id="nCollect" class="ad" href="javascript:addCollection();">感兴趣</a></span>
+							<span><a id="hCollect" class="ad se none" href="javascript:cancelTreasure();">取消感兴趣</a></span>
+							#end
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="movieCountList">
+				<ul class="ui_inline">
+					<li class="first">
+						<b id="collectedTimes">#if($isFutureMovie)<span data-keynum="$!{movie.id}_xiangqu">$!movie.xiangqu</span>#else<span data-keynum="$!{movie.id}_collectedtimes">$!movie.collectedtimes</span>#end</b>
+						<span>#if($isFutureMovie)想看#else 感兴趣#end</span>
+					</li>
+					<li>
+						<b data-keynum="$!{movie.id}_clickedtimes">$!movie.rclickedtimes</b>
+						<span>关注</span>
+					</li>
+					<li>
+						<b data-keynum="$!{movie.id}_boughtcount">$!movie.boughtcount</b>
+						<span>购票</span>
+					</li>
+				</ul>
+			</div>
+			<h2 class="clear" style="width:100%">$!obj.englishname</h2>
+		</div>
+		<div class="detail_head_info">
+			<div class="ui_media">
+				<div class="ui_pic">
+					<img width="210" height="280" title="$!obj.name" alt="$!obj.name" src="$VmUtils.randomPic('cw210h280',$movie.limg)"/>
+					<div class="ui_movieType_line mt10">
+						#if($movie.edition)
+							#set($editionList = $VmUtils.split($movie.edition,','))
+							#set($mEdition = '')
+							#set($mEdition1 = '')
+							#if($editionList.size() gt 0)
+								#set($mEdition = $editionList.get(0))
+							#end
+							#if($editionList.size() gt 1)
+								#set($mEdition1 = $editionList.get(1))
+							#end
+							#if($mEdition)
+								#if($VmUtils.contains($mEdition, '4D'))
+									<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=4D" target="_blank"> 
+										<span class="ui_type4d"></span>
+									</a>
+								#elseif($VmUtils.contains($mEdition, 'IMAX3D'))
+									<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=IMAX" target="_blank"> 
+										<span class="ui_typeImax3d"></span>
+									</a>
+								#elseif($VmUtils.contains($mEdition, 'IMAX2D'))
+									<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=IMAX" target="_blank"> 
+										<span class="ui_typeImax"></span>
+									</a>
+								#elseif($VmUtils.contains($mEdition, '双机3D'))
+									<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=DOUBLE3D" target="_blank"> 
+										<span class="ui_type3d2"></span>
+									</a>
+								#elseif($VmUtils.contains($mEdition, '3D'))
+									<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=REALD" target="_blank"> 
+										<span class="ui_type3d"></span>
+									</a>
+								#end
+							#end
+							#if($mEdition1)
+								#if($VmUtils.contains($mEdition1, '4D'))
+								<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=4D" target="_blank"> 
+									<span class="ui_type4d"></span>
+								</a>
+								#elseif($VmUtils.contains($mEdition1, 'IMAX3D'))
+									<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=IMAX" target="_blank"> 
+										<span class="ui_typeImax3d"></span>
+									</a>
+								#elseif($VmUtils.contains($mEdition1, 'IMAX2D'))
+									<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=IMAX" target="_blank"> 
+										<span class="ui_typeImax"></span>
+									</a>
+								#elseif($VmUtils.contains($mEdition1, '双机3D'))
+									<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=DOUBLE3D" target="_blank"> 
+										<span class="ui_type3d2"></span>
+									</a>
+								#elseif($VmUtils.contains($mEdition1, '3D'))
+									<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=REALD" target="_blank"> 
+										<span class="ui_type3d"></span>
+									</a>
+								#end
+							#end
+						#end
+					</div>
+				</div>
+				<div class="ui_text">
+					#if($movie.highlight)
+					<p class="ui_summary_big"><span class="first"></span>$!movie.highlight<span></span></p>
+					#end
+					<div class="detail_head_text mt10">
+						#if($movie.playdate)<p><em>首映：</em>$!movie.playdate</p>#end
+						#if($movie.state)<p><em>地区：</em>$movie.state</p>#end
+						#if($movie.type)<p><em>类型：</em>$movie.type</p>#end
+						#if($movie.edition)<p><em>版本：</em>$movie.edition</p>#end
+						<p><em>语言：</em>$!movie.language</p>
+						<p><em>片长：</em>#if($movie.videolen)#set($videoHour = $movie.videolen/60)#set($videoM = $movie.videolen%60)#if($videoHour gt 0)$!{videoHour}小时#end$!{videoM}分钟#end</p>
+						#if($movie.director)<p><em>导演：</em>$movie.director</p>#end
+						#if($movie.actors)<p><em>主演：</em>$movie.actors</p>#end
+					</div>
+					<div class="detail_head_user" id="detail_head_user">
+						<ul class="ui_inline left">
+							#foreach($comment in $!commentList)
+							<li>
+								<a lang="$comment.memberid" class="picmin" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank">
+									<img width="30" height="30" alt="$!comment.nickname" src="$VmUtils.randomPic('cw30h30', $!cacheMemberMap.get($comment.memberid).headpicUrl)"/>
+								</a>
+							</li>
+							#end
+						</ul>
+						<em>$!{commentCount}人发表哇啦，</em>
+						<a href="javascript:replyWalaContent()" class="ui_addInfo">+发表哇啦</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="ui_right" style="width:320px; overflow:hidden;">
+		<div class="detail_head_rateBox">
+			<div class="ratingsSide clear" id="rating_$!{movie.id}">
+				#set($gmark=$VmUtils.getLastMarkStar($movie, "general", ${markCount},$!markData)) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+				#set($isBigStaticRating=true)
+				#parse('include/global/staticRating.vm')
+				<span class="bigSubp"><sub id="mark_integer" data-keynum="$!{movie.id}_mark1">$gmark1</sub><sup id="mark_decimal" data-keynum="$!{movie.id}_mark2">.$gmark2</sup></span>
+			</div>
+			<ul class="newGradeBox">
+				#foreach($grade in $gradeDetailList)
+				<li>
+					<span class="value">$!grade.get('name')</span>
+					<span class="pect">($!grade.get('percent')%)</span>
+					<span class="box">
+						#set($percenY = $grade.get('percenY'))
+						#set($percenN = $grade.get('percenN'))
+						#if($grade.get('percenY') ge $grade.get('percenN'))
+							#if($grade.get('percenY') ne 0)
+								#set($percenY = 100)
+							#end
+							#if($grade.get('percenN') ne 0)
+								#set($percenN = $percenN * 100.0/$grade.get('percenY'))
+							#else
+								#set($percenN = 1)
+							#end
+						#else
+							#if($grade.get('percenN') ne 0)
+								#set($percenN = 100)
+							#end
+							#if($grade.get('percenY') ne 0)
+								#set($percenY = $percenY * 100.0/$grade.get('percenN'))
+							#else
+								#set($percenY = 1)
+							#end
+						#end
+						<span style="width:$!grade.get('percent')%"><em class="buyUser" title="购票瓦友" style="width:$!{percenY}%"></em></span>
+						<span style="width:$!grade.get('percent')%; margin-top:1px;"><em class="unbuyUser" title="未购票瓦友" style="width:$!{percenN}%"></em></span>
+					</span>
+				</li>
+				#end
+			</ul>
+			<p class="explain"><span class="buyUser"><b></b>购票</span><span><b></b>未购票</span></p>
+			<p class="tar"><a class="ui_addInfo" href="javascript:showMovieMark()">+我要评分</a></p>
+		</div>
+		#if(!$VmUtils.isEmptyList($videoRList))
+		<div class="mod_kong detail_head_nextPlay">
+			<div class="mod_hd">
+				<h2>预告片</h2>
+				<a class="more" href="javascript:void(0)" id="tipsAlbumMore">更多</a>
+			</div>
+			<div class="mod_bd">
+				<ul class="ui_inline tips_album clear" id="tips_album">
+					#foreach($video in $videoRList)
+					<li #if($foreach.count eq 3)class="last"#end>
+						<a href="${basePath}movie/video/$video.id" title="$video.cname" videoId="$video.id">
+							<img width="96" height="72" alt="$!VmUtils.escabbr($video.cname,12)" src="$VmUtils.randomPic('cw96h72',$video.limg)">
+							<span class="ico_play"></span>
+						</a>
+					</li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+	</div>
+</div>
+#if($isFutureMovie)
+<div id="xingkanMovieInfo" style="display:none; padding:15px 20px;">
+<form method="post" action="javascript:saveXiangKanTemplate();" id="xiangkanMform" name="xiangkanMform">
+	<p class="fs14">影片名 ：<b class="cMovie" id='dvname'></b></p>
+	<p class="mt15 fs14">手机号：<input type="text" class="text" name="mobile" style="width:120px" id="mobile" value="" mustTxt="请填写短信通知的手机号码！"/></p>	
+	<p class="mt15 fs14 clear">
+		<span class="left">验证码：</span>
+		<input type="hidden" name="captchaId" id="captchaX" />
+		<input type="text" class="text captcha left" name="captcha" alt="点击获取" autocomplete="off"  id="captchaXInput" size="18" style="width:60px" mustTxt="请输入验证码!" onfocus="GewaraUtil.refreshCaptcha('captchaX');"/>
+		<img id="captchaXImg" src="${staticPath}css/images/blank.gif" class="ml10" style="cursor: pointer;vertical-align: middle;float:left;height:36px;" onclick="GewaraUtil.refreshCaptcha('captchaX')" title="看不清楚，请点击换一张图片"/>
+	</p>
+	<p class="c999 clear">说明：开放购票后你将收到短信提醒。</p>
+	<input type="hidden" name="mpcategoryid" id="xiangkanMpcategoryid"/>
+	<input type="hidden" name="type"  value="moveTag"/>
+	<input type="hidden" name="mptag" value="cinema"/>
+</form>
+</div>
+#end
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	#if($isFutureMovie)
+		GewaraUtil.sendRequest("${basePath}ajax/movie/isAddPlayItemMessage.xhtml",{"mpcategoryid":"$movie.id","mptag":"cinema","type":"moveTag"}, function(result){
+			if(result.success && result.retval == "true"){
+				$("xiangkan").addClass('se');
+			}
+		})
+	#else
+		GewaraUtil.sendRequest("${basePath}ajax/common/isCollection.xhtml",{"relatedid":"$movie.id","tag":"movie"}, function(result){
+			if(result.success && result.retval == "true"){
+				$("nCollect").addClass('none');
+				$("hCollect").removeClass('none');
+			}
+		})
+	#end
+	userWalaTips('detail_head_user');
+	#if(!$VmUtils.isEmptyList($videoRList))
+	if($('tipsAlbumMore')){
+		$$('#tips_album a').each(function(item){
+			item.addEvent('click',function(e){
+				if(e) e.preventDefault();
+				var options = {
+					type:"avideo",
+					pictureType:"apic",
+					videoType:"avideo",
+					tag:"movie",
+					isAjax:true,
+					isPicture:'video',
+					esc:true,
+					menu:{
+						pictureurl:'${basePath}movie/moviePictureDetail.xhtml',
+						videourl:'${basePath}movie/videoList.xhtml',
+						picturevalues:{mid:'$relatedid','pvtype':'apic'},
+						videovalues:{mid:'$relatedid','vid':this.get('videoId')},
+						picturecount:'$!{allPictureCount}',
+						videocount:'$!{allVideoCount}'
+					}
+				};
+				screenPicture.createPanel(options);
+			});
+		});
+		$('tipsAlbumMore').addEvent('click',function(e){
+			if(e) e.preventDefault();
+			var options = {
+				type:"avideo",
+				pictureType:"apic",
+				videoType:"avideo",
+				tag:"movie",
+				isAjax:true,
+				isPicture:'video',
+				esc:true,
+				menu:{
+					pictureurl:'${basePath}movie/moviePictureDetail.xhtml',
+					videourl:'${basePath}movie/videoList.xhtml',
+					picturevalues:{mid:'$relatedid','pvtype':'apic'},
+					videovalues:{mid:'$relatedid'},
+					picturecount:'$!{allPictureCount}',
+					videocount:'$!{allVideoCount}'
+				}
+			};
+			screenPicture.createPanel(options);
+		});
+		var videoList = gewaUtil.getRequestParams("videoList");
+		if(videoList == 'true'){
+			var vid =  gewaUtil.getRequestParams("vid");
+			if(vid){
+				var vids = $('tips_album').getElements("a[videoId=" + vid + "]");
+				if(vids[0]){
+					vids[0].fireEvent('click');
+				}else{
+					$('tipsAlbumMore').fireEvent('click');
+				}
+			}else{
+				$('tipsAlbumMore').fireEvent('click');
+			}
+		}
+	}
+	#end
+});
+function addCollection(){
+	checkLogin(true, function(){
+		GewaraUtil.sendRequest("${basePath}ajax/common/addCollection.xhtml",{"relatedid":"$movie.id","tag":"movie"}, function(result){
+			if(result.success){
+				$("nCollect").addClass('none');
+				$("hCollect").removeClass('none');
+				$("collectedTimes").innerHTML = result.retval;
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	});
+}
+function cancelTreasure(){
+	checkLogin(true, function(){
+		GewaraUtil.sendRequest("${basePath}ajax/common/cancelTreasure.xhtml",{"relatedid":"$movie.id","tag":"movie"}, function(result){
+			if(result.success){
+				$("hCollect").addClass('none');
+				$("nCollect").removeClass('none');
+				$("collectedTimes").innerHTML = result.retval;
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	});
+}
+
+function walaContentFoucus(){
+	if($('replycontent')){
+		gewa.util.pagePos($('walaContent'));
+		$('replycontent').focus();
+	}else{
+		setTimeout(walaContentFoucus,1000);
+	}
+}
+function replyWalaContent(){
+	if(!$('replycontent')){
+		loadUiLeft('movie/movieWala.xhtml',{'mid':'$movie.id'});
+	}
+	walaContentFoucus();
+}
+
+//最近发布哇啦
+function userWalaTips(docs){
+	docs = $(docs);
+	gewa.util.popo(docs.getElements('.picmin'),'','','left',function(){
+		if(arguments[0].get('lang') != null){
+			if(arguments[0].retrieve('key') == null){
+				GewaraUtil.sendRequest(GewaraUtil.basePath+"ajax/comment/qryMemberCommentList.xhtml?pageNo=0&maxnum=1&tag=movie&relatedid=$!{movie.id}&memberId="+arguments[0].get('lang'),'', function(result){
+					if(result.success){
+						var div = new Element('div').addClass('ui_memberWala');
+						div.innerHTML = result.viewPage;
+						this[0].store('key',div);
+						gewa.util.tips(this[0],div,400,this[1],this[2],this[3],'','',true);
+					}
+				}.bind(arguments),'key');
+			}else{
+				gewa.util.tips(arguments[0],arguments[0].retrieve('key'),400,arguments[1],arguments[2],arguments[3],'','',true);
+			}
+		}
+	},function(){
+		
+	});
+};
+function showXiangKanTemplate(name,id){
+	if($('xiangkan').hasClass('se')){
+		gewaUtil.alert("亲！您已经添加过哦！");
+		return;
+	}
+	$('dvname').innerHTML=name;
+	$('xiangkanMpcategoryid').value=id;
+	checkLogin(true,function(){
+		gewa.util.issure('','xingkanMovieInfo','购票提醒',350,'xingkanMovieInfo',function(){
+			$('xiangkanMform').submit();
+		});
+	});
+}
+saveXiangKanTemplate = function(){
+	var url = "${basePath}ajax/movie/savePlayItemMessage.xhtml";
+	var values = GewaraUtil.getValues('xiangkanMform');
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.alert('添加成功，开放购票后你将收到短信提醒！');
+			gewa.util.container['xingkanMovieInfo'].dispose('xingkanMovieInfo');
+		}else{
+			gewaUtil.alert(result.msg);
+			gewa.util.container['xingkanMovieInfo'].dispose('xingkanMovieInfo');
+		}
+	});
+}
+</script>

@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>上传图片</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+</head>
+<body>	
+<div style="width: 1000px;margin-left: auto;margin-right: auto;">
+#set($status='cinemaPic')
+#set($cinemaId=$params.relatedid)
+#parse('admin/cinema/cinemaFormHead.vm')
+	<div style="width:100%;background-color: #FFFF00;">影院LOGO </div>
+	<form name="cinemaForm" id="cinemaForm" method="post">
+		<input type="hidden" name="cinemaId" id="cinemaId" value="$!{params.relatedid}"/>
+		<div id="uploadDiv">
+			<img style="width:162px; height:57px;" id='logoimg' src='${picPath}$!cinema.logo' style="#if(!$VmUtils.isNotBlank($!{cinema.logo}))display:none;#end"/>
+			#if($VmUtils.isNotBlank($!{cinema.logo}))
+				<input type="button" value="删除" onclick="javascript:$('logo').value='';saveCinema();" />
+			#end
+			<br/>
+			<label>LOGO：</label>
+			<input type="text" name="logo" id="logo" value="$!{cinema.logo}" style="width:485px"/>
+		</div>
+		<div>
+			<label>上传：</label>
+			<iframe height="25px" width="100%" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/cinema&callback=updateLogo"></iframe>
+			<input type="button" onclick="saveCinema()"  style="width:80px" value="保存"/>
+		</div>
+		<div id="msg" style="color:red;margin-left: 4px;"></div>
+	</form>
+	<div style="margin:30px 0px 30px 0px"></div>
+	<div>影院风采 </div>
+	<ul style="width:1000px; list-style: none;" id="uploadedpic">
+	#foreach($picture in $pictureList)
+		<li id="p${picture.id}" style="float:left; height: 180px; border: 1px solid gray; margin: 5px; text-align: center;">
+			<div><a href="${picPath}$picture.picturename" target="_blank"><img style="height:100px;" src="${picPath}$picture.picturename" /></a></div>
+			#*
+			<div><input readonly="readonly" id="d$picture.id" value="$!picture.name" /></div>
+			*#
+			<div>
+			#*
+			<input type="button" id="b${picture.id}" value="修改名称" onclick="modifyDesc('$picture.id')" />
+			*#
+			<input type="button" value="删除" onclick="deletePicture($picture.id)" />
+			#if($placeList.contains($picture.tag))
+			#if($picture.picturename eq $!firstpic)
+			<input type="button" value="已设置" disabled="disabled" />
+			#else
+			#if(!($picture.tag eq "gymcoach"))<input type="button" value="设为封面" onclick="setFirstPicture('$picture.picturename')" />#end
+			#end
+			#end
+			$!picture.name
+			</div>
+		</li>
+	#end
+		<li style="clear:both;"></li>
+	</ul>
+	<div style="clear: both; margin-top:10px;">上传新图片</div>
+	<form name='pictureForm' id='pictureForm' method='post' onsubmit="return checkFiles();" enctype="multipart/form-data" style="padding-top:5px" action="${basePath}common/uploadPicture.xhtml">
+		<input type="hidden" name="callbackUrl" value="${basePath}common/uploadPictureList.xhtml"/>
+		<input type="hidden" name="tag" id="btag" value="${params.tag}"/>
+		<input type="hidden" name="uploadPath" value="${params.uploadPath}"/>
+		<input type="hidden" name="relatedid" id="brelatedid" value="${params.relatedid}"/>
+		<input type="hidden" name="ukey" value="${math.random}"/>
+		<input type="hidden" name="returnUrl" value="admin/cinema/pictureList.xhtml?tag=${params.tag}&relatedid=${params.relatedid}&uploadPath=${params.uploadPath}"/>
+		<table class="table">
+		<thead><tr><th style="width:50%">文件</th><th style="width:50%">图片名称</th></tr></thead>
+		<tr>
+			<td><input type="file" id="file1" name="file1" size="30"/></td>
+			<td>
+				<select name="name1">
+					<option value="">选择图片类型</option>
+					<option value="检票口">检票口</option>
+					<option value="影院门口">影院门口</option>
+					<option value="大堂">大堂</option>
+					<option value="取票机位置">取票机位置</option>
+					<option value="售票口">售票口</option>
+					<option value="其他">其他</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td><input type="file" id="file2" name="file2" size="30"/></td>
+			<td>
+				<select name="name2">
+					<option value="">选择图片类型</option>
+					<option value="检票口">检票口</option>
+					<option value="影院门口">影院门口</option>
+					<option value="大堂">大堂</option>
+					<option value="取票机位置">取票机位置</option>
+					<option value="售票口">售票口</option>
+					<option value="其他">其他</option>
+				</select>
+			</td>
+		</tr>
+		<tr><td><input type="file" id="file3" name="file3" size="30"/></td>
+			<td>
+				<select name="name3">
+					<option value="">选择图片类型</option>
+					<option value="检票口">检票口</option>
+					<option value="影院门口">影院门口</option>
+					<option value="大堂">大堂</option>
+					<option value="取票机位置">取票机位置</option>
+					<option value="售票口">售票口</option>
+					<option value="其他">其他</option>
+				</select>
+			</td>
+		</tr>
+		<tr><td><input type="file" id="file4" name="file4" size="30"/></td><td>
+			<select name="name4">
+					<option value="">选择图片类型</option>
+					<option value="检票口">检票口</option>
+					<option value="影院门口">影院门口</option>
+					<option value="大堂">大堂</option>
+					<option value="取票机位置">取票机位置</option>
+					<option value="售票口">售票口</option>
+					<option value="其他">其他</option>
+				</select>
+		</td></tr>
+		<tr><td><input type="file" id="file5" name="file5" size="30"/></td><td>
+			<select name="name5">
+					<option value="">选择图片类型</option>
+					<option value="检票口">检票口</option>
+					<option value="影院门口">影院门口</option>
+					<option value="大堂">大堂</option>
+					<option value="取票机位置">取票机位置</option>
+					<option value="售票口">售票口</option>
+					<option value="其他">其他</option>
+				</select>
+		</td></tr>
+		</table>
+		<input type="submit" value="保存" />
+	</form>
+</div>
+	<script type="text/javascript">
+	function modifyDesc(id){
+		if($('b'+id).value=='修改名称'){
+			$('d' +id).set('readonly', '');
+			$('b'+id).value='保存修改';
+		}else{
+			$('d' +id).set('readonly', 'readonly');
+			$('b' +id).set('readonly', 'readonly');
+			var url = "${basePath}admin/common/ajax/updatePictureDesc.xhtml";
+			var values = {'pictureId':id,"desc":$('d' +id).value};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert("成功修改图片名称！");
+					$('b'+id).value='修改名称';
+				}else alert(result.msg);
+				$('b' +id).set('readonly', '');
+			});
+		}
+	}
+	function deletePicture(pictureId){
+		var url = "${basePath}admin/common/ajax/removePictureById.xhtml";
+		GewaraUtil.sendRequest(url,{"pictureId":pictureId}, function(result){
+			if(result.success) $("p"+pictureId).dispose();
+			else alert(result.msg);
+		});
+	}
+	function checkFiles(){
+		if($('file1').value=='' && $('file2').value=='' && $('file3').value=='' && $('file4').value=='' && $('file5').value==''){
+			alert("请选择图片上传！");
+			return false;
+		}
+		if($('file1').value=='') $('file1').dispose();
+		if($('file2').value=='') $('file2').dispose();
+		if($('file3').value=='') $('file3').dispose();
+		if($('file4').value=='') $('file4').dispose();
+		if($('file5').value=='') $('file5').dispose();
+		return true;
+	}
+	function setFirstPicture(picPath){
+		var url = '${basePath}admin/common/ajax/setFirstPicture.xhtml';
+		var values = {'picPath': picPath, 'tag':$('btag').value, 'relatedid':$('brelatedid').value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('设置成功!');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+	function saveCinema(){
+		gewa.util.mask({'title':"正在保存数据..."});
+		var values = GewaraUtil.getValues("cinemaForm");
+		var url = "${basePath}admin/cinema/ajax/saveCinemaLogo.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('成功保存！');
+				$('cinemaId').value=result.retval;
+				$("msg").set("html", '');
+				refreshPage();
+			}else{
+				alert("保存失败！");
+				$("msg").set("html", result.msg);
+			}
+			gewa.util.clearMask();
+		});
+	}
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg').src='${basePath}' + picpath;
+		$('logoimg').show();
+	}
+</script>
+</body>
+</html>

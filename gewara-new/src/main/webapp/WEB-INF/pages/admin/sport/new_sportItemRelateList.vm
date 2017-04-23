@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Sport关联运动项目</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css"
+	href="${staticPath}component/css/default.css" />
+<link rel="stylesheet" type="text/css"
+	href="${staticPath}component/css/container.css"></link>
+<link rel="stylesheet" type="text/css"
+	href="${staticPath}component/css/button.css"></link>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript"
+	src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+<style>
+label {
+	display: inline;
+	float: left;
+	width: 70px;
+	text-align: right;
+	padding: 1px 0 1px 0;
+	margin-top: 3px
+}
+
+input,textarea {
+	width: 450px;
+	display: inline
+}
+a{margin:0 10px;}
+th,td{text-align:center !important;height:30px;line-height:30px;}
+</style>
+</head>
+<body style="width: 850px; margin: auto" class="yui-skin-sam">
+	<div style="width: 740px;">
+		${sport.name}的服务信息 #*<input type="button" class="button"
+			style="width: 80px" value="添加项目" onclick="addOrUpdateSport2Item();" />*#
+	</div>
+	<table style="width: 820px" class="table">
+		<thead>
+			<tr>
+				<th>服务项目</th>
+				<th>操作性</th>
+				<th>排序</th>
+				<th>是否显示</th>
+			</tr>
+		</thead>
+		<tbody id="itemTable">
+			#foreach($item in $itemList)
+			#set($sport2Item=$sport2ItemMap.get($item.id).get(0))
+			<tr id="item_${item.id}">
+				<td width="100px" id="itemname_$!{item.id}">${item.itemname}</td>
+				<td>
+					<a href="javascript:void(0);" onclick="addOrUpdateSport2Item($!item.id)">编辑</a>
+					<a href="javascript:void(0);" onclick="setSportItemPrice($!item.id)">价格表</a>
+					<a href="javascript:void(0);" onclick="addSport2ItemMSG($sport.id, $item.id)">评论邀请短信</a>
+				</td>
+				<td><input type="text" value="$!{sport2Item.sortnum}" id="si${$sport.id.id}" style="width: 50px" onchange="orderNum(${sport.id},$item.id, this.value)"/></td>
+				<td>
+					<select name="booking" id="booking$!item.id" onchange="changeBooking($!item.id)">
+						<option #if($VmUtils.eq($!sport2Item.booking,"open")) selected="selected" #end value="open">是</option>
+						<option #if(!$VmUtils.eq($!sport2Item.booking,"open")) selected="selected" #end value="close">否</option>
+                    </select>
+            	</td>
+			</tr>
+			#end
+		</tbody>
+	</table>
+<div id="addOrUpdateSport2Item" class="yui-panel" style="width:500px;visibility:hidden"></div>
+<div id="sportItemPrice" class="yui-panel" style="width:500px;visibility:hidden"></div>
+<div id="sport2ItemMSG" class="yui-panel" style="width:500px;visibility:hidden">
+	<div class="hd">评论邀请短信</div>
+	<div class="bd">
+		<input type="hidden" name="sportitemid" id="sportitemid"/>
+		<div>
+			<label>短信内容：</label>
+			<textarea id="overmsg" name="overmsg" style="width:400px;"></textarea>
+		</div>
+		<div class="mt10">
+			<label>发送时间：</label>
+			<input type="text" name="sendTime" id="sendTime" style="width:100px;"/>分钟
+		</div>
+		<div class="mt10">
+			<label>&nbsp;</label>
+			<input type="button" name="save" class="button" value="保存" style="width:60px" onclick="saveMSG()"/>
+			<input type="button" name="cancle" class="button" value="取消" style="width:60px" onclick="hideMSG()"/>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+function changeBooking(itemId){
+	GewaraUtil.sendRequest("${basePath}admin/sport/ajax/updateSport2ItemBooking.xhtml",  {'itemId':itemId,'sportId':${sport.id},'booking':$('booking'+itemId).value} ,function(result){
+		if(result.success){
+			alert("修改成功！");
+		}else alert(result.msg);
+	});
+}
+function addSport2ItemMSG(sportid, itemid){
+	var values = {'sportId':sportid,'itemId':itemid}
+	var url = "${basePath}admin/sport/ajax/getSport2ItemById.xhtml";
+	GewaraUtil.sendRequest(url, values , function(result){
+		GewaraUtil.setValues(result);
+		if(result.itemid!=null && result.itemid!='')$('sportitemid').value=result.itemid;
+		if(result.otherinfo.sendTime!=null && result.otherinfo.sendTime!='')$('sendTime').value=result.otherinfo.sendTime;
+		GewaraUtil.showDialog("sport2ItemMSG");
+	});
+}
+function hideMSG(){
+	GewaraUtil.hideDialog("sport2ItemMSG");
+}
+function saveMSG(){
+	var values = {'sportId':$sport.id,'itemId':$('sportitemid').value,'overmsg':$('overmsg').value,'sendTime':$('sendTime').value};
+	var url = "${basePath}admin/sport/ajax/updateSport2ItemMSG.xhtml";
+	GewaraUtil.sendRequest(url, values , function(result){
+		if(result.success){
+			alert("修改成功！");
+			GewaraUtil.hideDialog("sport2ItemMSG");
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function addOrUpdateSport2Item(itemid){
+	var values = {"sportId":$sport.id};
+	if(itemid != null) values.itemId=itemid;
+	var url = "${basePath}admin/sport/ajax/getSport2Item.xhtml";
+	GewaraUtil.sendLoad('addOrUpdateSport2Item', url, values, function(result){
+		if(result.success){
+			GewaraUtil.showDialog("addOrUpdateSport2Item");
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function saveSport2Item(){
+	var el = $('infos').getElements('li');
+	if(el.length>8){
+		alert("场地属性超过8项");
+		return false;
+	} 
+	var values = {"sportId":$sport.id,"itemId":$('itemid').value,"sporttype":$('sporttype').value};
+	if($('sport2ItemId').value != null) values.sport2ItemId = $('sport2ItemId').value;
+	var infos = "{";
+	$('infos').getElements('span').each(function(el){
+		infos += el.innerHTML+",";
+	});
+	infos = infos.substring(0, infos.length-1) + "}";
+	values.infos = infos;
+	var url = "${basePath}admin/sport/ajax/saveOrUpdateSport2Item.xhtml";
+	GewaraUtil.sendRequest(url, values , function(result){
+		if(result.success){
+			alert("添加成功！");
+			GewaraUtil.hideDialog("addOrUpdateSport2Item");
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function hideSport2Item(){
+	GewaraUtil.hideDialog("addOrUpdateSport2Item");
+}
+function addInfo(){
+	var el = new Element("li");
+	var elhtml = '<span style="width:300px;display:inline-block;">"' + $('infoName').value + '":"' + $('infoValue').value + '"</span>';
+	elhtml += '<input type="button" value="删除" onclick="delInfo(this)" style="width:50px;"/>';
+	el.innerHTML=elhtml;
+	el.inject("infos");
+}
+function delInfo(el){
+	el.getParent().dispose();
+}
+function setSportItemPrice(itemid){
+	var values = {"sportId":$!sport.id,"itemId":itemid};
+	var url = "${basePath}admin/sport/ajax/getSportItemPrice.xhtml"
+	GewaraUtil.sendLoad('sportItemPrice', url, values, function(result){
+		if(result.success){
+			GewaraUtil.showDialog("sportItemPrice");
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function saveSportItemPrice(){
+	var priceList = "";
+	var unweek = "";
+	$('priceTable').getElements('input[type="checkbox"]').each(function(el){
+		if(el.checked){
+			if($("min"+el.id).value == null || $("min"+el.id).value == '') alert('请填写最小值');
+			if($("max"+el.id).value == null || $("max"+el.id).value == '') alert('请填写最大值');
+			priceList += el.id + "," + $("min"+el.id).value + "," + $("max"+el.id).value + ";";
+		}else{
+			unweek += el.id + ",";
+		}
+	});
+	var values = {"sportId":$sport.id,"itemId":$('itemId').value,"priceList":priceList,"unweek":unweek};
+	var url = "${basePath}admin/sport/ajax/saveOrUpdateSportItemPrice.xhtml";
+	GewaraUtil.sendRequest(url, values , function(result){
+		if(result.success){
+			alert("添加成功！");
+			GewaraUtil.hideDialog("sportItemPrice");
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function hideSportItemPrice(){
+	GewaraUtil.hideDialog("sportItemPrice");
+}
+function orderNum(sportId,itemId, val){
+	var url = "${basePath}admin/sport/ajax/changeSortnum.xhtml";
+	GewaraUtil.sendRequest(url, {'sportId':sportId,'itemId':itemId, 'ordernum':val}, function(result){
+		if(result.success){
+			alert('成功设置！');
+		}else{
+			alert('设置失败');
+		}
+	});
+}
+</script>
+</body>
+</html>

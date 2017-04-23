@@ -1,0 +1,60 @@
+<div class="mod_tabs mod_tabs_movie">
+	<div class="mod_hd">
+		<ul class="nav_tabs">
+			<li><a href="${basePath}movie/$!movie.id?movieMpiList=true">排片购票</a></li>
+			<li><a href="javascript:void(0)" onclick="loadUiLeft('movie/movieInfoDetail.xhtml',{'mid':'$movie.id'})">剧情介绍</a></li>
+			<li><a href="javascript:void(0)" onclick="loadUiLeft('movie/movieWala.xhtml',{'mid':'$movie.id'})">哇啦<em>#if($commentCount gt 0)($!{commentCount})#end</em></a></li>
+			<li><a href="javascript:void(0)" onclick="loadUiLeft('movie/ajax/movieDiaryList.xhtml',{'mid':'$movie.id'})">影评<em>#if($diaryCount gt 0)($!{diaryCount})#end</em></a></li>
+			<li  class="select"><a href="javascript:void(0)" onclick="loadUiLeft('movie/movieNewsList.xhtml',{'mid':'$movie.id'})" >资讯<em>#if($newsCount gt 0)($!{newsCount})#end</em></a></li>
+		</ul>
+	</div>
+	<div class="mod_bd clear">
+	</div>
+</div>
+<div class="movieInformation">
+	<ul>
+		#foreach($news in $newsList)
+		<li>
+			<div class="mod_kong">
+				<div class="mod_hd">
+					<h2>
+						<a target="_blank" href="$!news.getLink($basePath)" >$!news.title </a>
+					</h2>
+					<span class="author">作者：#if($!news.author)$!news.author#else Gewara#end<span class="ml15">发表时间：$DateUtil.format($!news.addtime, 'yyyy-MM-dd')</span></span>
+					#set($otherinfo = $VmUtils.readJsonToMap($!news.otherinfo))
+					<p class="more voteU" style="right:0;">
+						<span class="votenum">#if($otherinfo.get('tips'))$!otherinfo.get('tips')#else 0 #end</span>
+						<span class="votezi">喜欢</span>
+					</p>
+				</div>
+				<div class="mod_bd mt10">
+					<div class="ui_media">
+						<div class="ui_pic">
+							<a href="$!news.getLink($basePath)" target="_blank">
+								<img src="$VmUtils.randomPic('cw160h120',$!news.limg)"  alt="" height="120" width="160"/>
+							</a>
+						</div>
+						<div class="ui_text">
+							<p>
+								$!VmUtils.htmlabbr($news.content,560)... <a target="_blank" class="ui_readMore" href="$!news.getLink($basePath)">阅读全文</a>
+								#*
+								#if($news.relatedid) <a href="${basePath}cinema/$news.relatedid" target="_blank" >关联影院</a> #end
+								*#
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</li>
+		#end
+	</ul>
+</div>
+<div class="synPage">
+#set($pageFun="ajaxPage")
+#parse('include/scriptPageUtil.vm')
+</div>
+<script type="text/javascript">
+ajaxPage = function(pageNo, params, url){
+	gewaUtil.loadData('uiLeft', url, {});
+}
+</script>

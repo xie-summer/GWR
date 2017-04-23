@@ -1,0 +1,170 @@
+#if(!$VmUtils.isEmptyList($commentList))
+#foreach($comment in $commentList)
+<ul class="ui_abeam btLine">
+	<li class="abeam">
+		#if(!$markFriend)
+		<div class="uipic">
+			<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" class="pubpic" target="_blank">
+				<img src="${staticPath}css/images/blank.gif" style="background: url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)) center center no-repeat;"/>
+			</a>
+		</div>
+		#end
+		<div class="uiText wl_outer_text">
+			#if(!$markFriend)<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" class="brown" target="_blank" >$comment.nickname</a>#if($moderList.contains($comment.memberid))【主持人】#end：#end<span id="comments$comment.id" class="seachTag">$!VmUtils.getWebBody($!comment.body,$picPath)</span>
+			#if(!$VmUtils.isEmptyList($picMap.get($comment.id)))
+			<div>
+				#foreach($pic in $picMap.get($comment.id))
+				#if($foreach.index lt 3)
+				<a href="$VmUtils.randomPic('',$!pic)" rel="lightbox[galerie]"><img src="$VmUtils.randomPic('',$!pic)" class="imgLazz mr5" style="vertical-align:middle;"/></a>
+				#end
+				#end
+			</div>
+			#end
+			#if(!$VmUtils.isEmptyList($videosMap.get($comment.id)))
+			<div>
+			#foreach($embed in $videosMap.get($comment.id))
+			#if($foreach.index lt 5)
+			<embed height="240" width="340" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" src="$!embed" wmode="transparent"></embed>
+			#end
+			#end
+			</div>
+			#end
+			#if($tranferCommentMap.get($comment.transferid))
+			<div class="loaddingWrite">
+				<img src="${staticPath}css/images/blank.gif" class="uiTag uiPt" style="left:3%"/>
+				<em class="m1"></em><em class="m2"></em>
+				<div class="m">
+					<div class="inner" id="use$comment.id">
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!tranferCommentMap.get($comment.transferid).memberid">@$!tranferCommentMap.get($comment.transferid).nickname</a>:
+						<span id="transfer$comment.id" class="seachTag">$!VmUtils.getWebBody($!tranferCommentMap.get($comment.transferid).body,$picPath)</span><br/>
+						#if(!$VmUtils.isEmptyList($picMap.get($!tranferCommentMap.get($comment.transferid).id)))
+						<div>
+							#foreach($pic in $picMap.get($!tranferCommentMap.get($comment.transferid).id))
+							#if($foreach.index lt 3)
+							<a href="$VmUtils.randomPic('',$!pic)" rel="lightbox[galerie]"><img src="$VmUtils.randomPic('',$!pic)" style="vertical-align: middle;" class="imgLazz mr5"/></a>
+							#end
+							#end
+						</div>
+						#end
+						#if(!$VmUtils.isEmptyList($videosMap.get($!tranferCommentMap.get($comment.transferid).id)))
+						<div>
+							#foreach($embed in $videosMap.get($!tranferCommentMap.get($comment.transferid)))
+							#if($foreach.index lt 5)
+							<embed height="240" width="340" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" src="$!embed" wmode="transparent"/>
+							#end
+							#end
+						</div>
+						#end
+						<div><span>原文转载#if($!tranferCommentMap.get($comment.transferid).transfercount gt 0)($!tranferCommentMap.get($comment.transferid).transfercount)#end</span><span style="margin-left: 10px;">原文搭话#if($!tranferCommentMap.get($comment.transferid).replycount gt 0)($!tranferCommentMap.get($comment.transferid).replycount)#end</span></div>
+					</div>
+				</div>
+				<em class="m2"></em><em class="m1"></em>
+			</div>
+			#end
+			<div style="position: relative;">
+				<div class="title clear">
+					<span class="gray left">$DateUtil.getTimeDesc($comment.addtime) 来自$!comment.fromFlag</span>
+					<span class="right uiR">
+						#if($comment.memberid eq $logonMember.id)<span class="mr10 DEL" lang="${basePath}wala/deleteMicroBlog.xhtml?mid=$comment.id">删除</span>#end
+						<span class="mr10 AC" lang="${basePath}home/sns/reCommentList.xhtml?cid=$comment.id" id="$comment.id">搭话#if($!comment.replycount gt 0)(<span>$!comment.replycount</span>)#else<span></span>#end</span>
+						<span onclick="showMicro('micro',#if($tranferCommentMap.get($comment.transferid))'转：'+$('transfer$comment.id').get('text')#else'转：'+$('comments$comment.id').get('text')#end,#if($tranferCommentMap.get($comment.transferid))'@$comment.nickname:'+$('comments$comment.id').get('text')#else''#end,#if($tranferCommentMap.get($comment.transferid))$tranferCommentMap.get($comment.transferid).id#else$comment.id#end)">转载<span id="trasferCount$comment.id">#if($!comment.transfercount gt 0)($!comment.transfercount)#end</span></span>
+					</span>
+				</div>
+			</div>
+			<div class="loaddingWrite fLoad" style="display:none">
+				<img src="${staticPath}css/images/blank.gif" class="uiTag uiPt"/>
+				<em class="m1"></em><em class="m2"></em>
+				<div class="m">
+					<div class="inner">
+						<ul class="ui_abeam">
+							<li class="abeam" style="border:0px;">
+								<div class="uipic"><img src="${staticPath}css/images/blank.gif" class="AC_IMG uiTag"/></div>
+								<div class="uiText wl_outer_text">
+									<form action="${basePath}home/sns/othersPersonIndex.xhtml?memberid=saveMicroBlogComment.xhtml">
+										<label class="uiTag AC_FONT" for="body$comment.id">回复</label>
+										<input type="hidden" name="commentid" value="$!comment.id"/>
+										<input type="hidden" name="tomemberid"/>
+										<input type="hidden" name="transferid"/>
+										<input type="hidden" name="replytag"/>
+										<textarea name="body" class="text" id="body$comment.id"></textarea>
+										<div class="AC_BT">
+											<label class="left"><input type="checkbox" name="isMicro" value="1" class="mr5"/>同时发表一条评论</label>
+											<label class="button minBt whiteBt right wlSubmite"><input type="button"  value="回复"/></label>
+										</div>
+									</form>
+								</div>
+							</li>
+						</ul>
+						<div class="_replayList"></div>
+						<div class="page-navigation mt5">
+							<div id="page-navigation-bottom$!comment.id"></div>
+						</div>
+						<div class="height0"></div>
+					</div>
+				</div>
+				<em class="m2"></em><em class="m1"></em>
+			</div>
+		</div>
+	</li>
+</ul>
+#end
+#else
+<div class="clew">当前没有点评！</div>
+#end
+<script type="text/javascript">
+var selector=$empty,delFun = $empty;
+window.addEvent('domready',function(){
+	delFun = new del('commentSet');
+	new AC('commentSet',{'script':selector,'del':delFun});
+	new request('commentSet',{'del':delFun});
+	showWalaDialog("walaEvent");
+});
+microChange = function(obj){
+	var num=140;
+	if($chk($(obj).value)){
+		var num = 140-$(obj).value.length;
+	}
+	if(num<0){ 
+		var value = Math.abs(num);
+		$('font').set('text','已超出'+value+"个字");
+		$('font').set('styles',{'color':'red'});
+	}else{
+		$('font').set('text','你还可以输入'+num+'个字');
+		$('font').set('styles',{'color':'black'});
+	}
+}
+submitMicro = function (){
+	if(!$chk($('say_area').value)){
+		gewaUtil.alert('内容不能为空！');
+		return false;
+	}
+	if($('say_area').value.trim().length >140){
+		gewaUtil.alert('最多输入140字符!');
+		return false;
+	}
+	var url = '${basePath}ajax/common/addTheatreCommentList.xhtml';
+	var values = {'tag':'$!tag','relatedid':'$!relatedid','commentText':$('say_area').value};
+	gewaUtil.loadData('commentSet', url, values, function(result){
+		if(result.success){
+			$('walaDialog').hide();
+			$('walaEvent').value = "哇啦一下";
+			$('say_area').value="";
+		}else {
+			gewaUtil.alert(result.json.msg);				
+		}
+	});
+}
+showWalaDialog = function (elelemt){
+	elelemt = $(elelemt);
+	if(elelemt.retrieve('widget') == null){
+		elelemt.store('widget', new Collapsable(elelemt,'walaDialog',null,function(){
+			var v1='哇啦一下',v2='收起哇啦发表',v3 = elelemt.get('value').indexOf(v2)<0?v2:v1,v4 = elelemt.get('value').indexOf(v2)==0?v2:v1;
+			elelemt.set('value',elelemt.get('value').replace(v4,v3));
+		}));
+		new issue('say_area',{'font':'font','tips':'issueTips'});
+		showError = new ShowErrorTextArea();
+		selector = new selectpic('say_area','uidialog');
+		new dialogs('dialogs',{'width':'360px','flag':true});
+	}
+}
+</script>

@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>推荐</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+	<td align="left" class="td">当前位置>><a href="${basePath}admin/recommend/indexCommend.xhtml">首页推荐</a>>>
+	<span>电影相关</span></td>
+		<td colspan="4">
+			<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signnameamoviechosen&title=true&logo=true&link=true&summary=true&citycode=true">[电影精选]</a>&nbsp;&nbsp;
+			<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signnameactivity&hand=true&tag=activity&relatedid=true&acitivityDate=true&summary=true">[推荐活动]</a>&nbsp;&nbsp;
+			<a class="aEvent" href="${basePath}noLink.xhtml?signtype=movie&signname=futuremovie&tag=movie&hand=true&simpleCommend=true&summary=true&relatedid=true&refer=movie">
+				[最期待影片]
+			</a>&nbsp;&nbsp;
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td">
+		<td align="left" class="wd120"><b>电影精选</b></td>
+		<td align="left" class="wd60"><b>链接</b></td>
+		<td align="left" class="wd60"><b>排序</b></td>
+		<td align="left" class="wd60"><b>logo</b></td>
+		<td align="left" class="wd120" colspan="2"><b>操作</b></td>
+	</tr>
+	#foreach($gcm in $gcMovieChosenInfo)
+	
+	<tr class="td">
+		<td align="left" class="wd120">$gcm.title</td>
+		<td align="left" class="wd120">$gcm.link</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$gcm.ordernum" id="gc$gcm.id" style="width: 50px" onblur="orderNum($gcm.id, this.value)"/>
+		</td>
+		<td align="left" class="wd120">#if($gcm.logo)<img src="${staticPath}$gcm.logo" width="100" height="50"/>#end</td>
+		<td align="left" class="wd120">
+			<a class="aEvent" href="${basePath}noLink.xhtml?id=$!gcm.id&signname=$!signnameamoviechosen&title=true&logo=true&link=true&summary=true&citycode=true">[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" onclick="javascript:del($gcm.id)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+
+<table border="0" width="95%"  cellspacing="0" class="itable">
+	<tr class="td">
+			<td align="left" class="wd120"><b>推荐活动</b></td>
+			<td align="left" class="wd60"><b>活动ID</b></td>
+		<td align="left" class="wd60"><b>排序</b></td>
+		<td align="left" class="wd120" colspan="2"><b>操作</b></td>
+	</tr>
+	#foreach($gca in $gcActivityList)
+	#set($relate=$relatedHelper.getR1("gcActivityList",$gca.id))
+	<tr class="td">
+		<td align="left" class="wd120">#if($gca.title)$gca.title#else$relate.title#end</td>
+		<td align="left" class="wd120">$gca.relatedid</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$!{gca.ordernum}" id="gc$gca.id" style="width: 50px" onblur="orderNum($gca.id, this.value)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="aEvent" href="${basePath}noLink.xhtml?id=$gca.id&signname=$!signnameactivity&hand=true&tag=activity&relatedid=true&acitivityDate=true&summary=true">[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" onclick="javascript:del($gca.id)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+<table border="0" width="95%"  cellspacing="0" class="itable">
+	<tr class="td">
+			<td align="left" class="wd120"><b>最期待影片</b></td>
+			<td align="left" class="wd60"><b>电影ID</b></td>
+		<td align="left" class="wd60"><b>排序</b></td>
+		<td align="left" class="wd120" colspan="2"><b>操作</b></td>
+	</tr>
+	#foreach($fca in $futuremovieList)
+	#set($relate=$relatedHelper.getR1("futuremovieList",$fca.id))
+	<tr class="td">
+		<td align="left" class="wd120">$relate.name</td>
+		<td align="left" class="wd120">$fca.relatedid</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$!{fca.ordernum}" id="gc$gca.id" style="width: 50px" onblur="orderNum($fca.id, this.value)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="aEvent" href="${basePath}noLink.xhtml?id=$fca.id&signtype=movie&signname=futuremovie&tag=movie&hand=true&simpleCommend=true&summary=true&relatedid=true&refer=movie">[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" onclick="javascript:del($fca.id)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+<br/>
+<br/>
+<br/>
+#parse('admin/recommend/commonjs.vm')
+</body>
+</html>

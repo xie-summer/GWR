@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:context="http://www.springframework.org/schema/context"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+			http://www.springframework.org/schema/context
+			http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+	<context:component-scan base-package="com.gewara.web.action" />
+	<context:component-scan base-package="com.gewara.web.component" />
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="webBindingInitializer">
+			<bean class="com.gewara.web.support.GBBindingInitializer"/>
+		</property>
+		<property name="messageConverters">  
+			<list>  
+				<bean class="com.gewara.web.support.GewaHttpMessageConverter">
+					<property name="supportedMediaTypes">  
+						<list>  
+							<value>text/html;charset=UTF-8</value>  
+						</list>  
+					</property>
+				</bean>
+			</list>  
+		</property> 
+	</bean>  
+	<bean id="handlerMapping" class="com.gewara.web.support.GewaAnnotationHandlerMapping"/>
+	<bean id="handlerExceptionResolver"
+		class="com.gewara.web.support.PageExceptionResolver">
+		<property name="warnLogCategory" value="pageError" />
+		<property name="defaultStatusCode" value="404" />
+		<property name="defaultErrorView" value="404.vm" />
+		<property name="sensitive" value="cardNumber" />
+	</bean>
+	<bean id="gewaMultipartResolver"
+		class="com.gewara.web.support.GewaMultipartResolver">
+		<property name="maxUploadSize" value="8388608" /><!-- 8M -->
+		<property name="defaultEncoding" value="GBK"/>
+		<property name="maxInMemorySize" value="40960"/>
+	</bean>
+	<bean id="jspViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="order" value="3"/>
+		<property name="requestContextAttribute" value="rc" />
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/WEB-INF/pages/" />
+		<property name="viewNames" value="*.jsp,*.xhtml,*.html,*.shtml"/>
+	</bean>
+	<bean id="jasperReportsViewResolver"
+		class="org.springframework.web.servlet.view.jasperreports.JasperReportsViewResolver">
+		<property name="order" value="5"/>
+		<property name="viewClass" value="com.gewara.web.support.GewaJasperReportsMultiFormatView" />
+		<property name="prefix" value="/WEB-INF/reports/" />
+		<property name="viewNames" value="*.jrxml,*.jasper"/>
+		<property name="reportDataKey" value="REPORT_DATA" />
+	</bean>
+	<bean id="velocityConfig" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
+		<property name="resourceLoaderPath" value="/WEB-INF/pages/"/>
+		<property name="configLocation" value="classpath:velocity.properties"/>
+	</bean>
+	<bean id="velocityViewResolver" class="org.springframework.web.servlet.view.velocity.VelocityViewResolver">
+		<property name="prefix" value=""/>
+		<property name="viewNames" value="*.vm"/>
+		<property name="contentType" value="text/html;charset=UTF-8"/>
+		<property name="viewClass" value="com.gewara.web.support.GewaVelocityView" />
+	</bean>
+	<bean class="com.gewara.web.support.ShWebAppPostProcessor"/>
+</beans>

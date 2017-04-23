@@ -1,0 +1,35 @@
+#set($movieLen=$VmUtils.size($movieList))
+#if($movieLen gt 0)
+#foreach($movie in $movieList)
+#set($vgmark=$VmUtils.getSingleMarkStar($movie, "general"))#set($gmark1=$vgmark/10) #set($gmark2=$vgmark % 10)
+#if($foreach.index%2 eq 0)
+<div class="list_body clear hover">
+#end
+	<dl class="ui_abeam list_body_panel">
+		<dt class="uipic"><a href="${basePath}partner/${partner.partnerpath}/movieDetail.xhtml?movieid=$movie.id&tokenId=$!tokenId"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw96h128',$movie.limg)) center 0 no-repeat;" width="96" height="128"/></a></dt>
+		<dd class="uiText">
+			<h2><a href="${basePath}partner/${partner.partnerpath}/movieDetail.xhtml?movieid=$movie.id&tokenId=$!tokenId">$movie.name</a></h2><br/>
+			<div class="star">
+				#set($rmark=10 - $gmark1)
+				#foreach($mark in [1..$gmark1])
+				<span class="on"></span>
+				#end
+				#if($gmark2 gt 0)#set($rmark=$rmark - 1)<span  class="half"></span>#end
+				#foreach($mark in [1..$rmark])
+				<span class="no"></span>
+				#end
+				<b>$gmark1.$gmark2</b>
+			</div>
+			<em>首映日期：</em>$!DateUtil.format(${movie.releasedate},"yyyy年M月d日")<br/>
+			<em>语言/片长：</em>$!{movie.language}#if($movie.videolen)/$!{movie.videolen}分钟#end<br/>
+			<em>导演/主演：</em>$!{movie.director}/$!{movie.actors}<br/>
+			#if($!movie.highlight)<em>精彩看点：</em>$!movie.highlight#end
+		</dd>
+	</dl>
+#if($foreach.count%2 eq 0 || $foreach.count eq $movieLen)
+</div>
+#end
+#end
+#else
+<div class="yellow">近期没有该电影，请核对名称后重新输入。</div>
+#end

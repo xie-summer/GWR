@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>VM测试</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/treeview.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/admin.css?v=$VmUtils.jsVersion"></link>
+	<script type="text/javascript" src="${staticPath}component/utilities.js"></script>
+	<script type="text/javascript" src="${staticPath}component/container-min.js"></script>
+	<script type="text/javascript" src="${staticPath}component/treeview-min.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<style type="text/css">
+		.tableLayer .m_c h2{margin:0;}
+	</style>
+</head>
+<body>
+	<div id="container">
+		<div id="header">
+			<span class="api-title">VM测试</span>
+		</div>
+		<div id="layout" style="height: 520px; width: 100%;">
+			<div class='l' id="mtd" style="height:100%; float:left; width:240px;">
+				<div id="leftMenu" style="width:100%;">
+					<div id="treediv"></div>
+				</div>
+			</div>
+			<div class='m' id="slide" style="height:100%; float: left;" onclick="slideLeftMenu();">&nbsp;</div>
+			<div class='r' style="height:100%; float: left; width: 760px;">
+				<iframe id="mainFrame" name="mainFrame" src="${basePath}blank.html" frameborder="0" scrolling="auto" width="100%" height="100%"></iframe>
+			</div>
+		</div>
+	</div>
+	<form action="" id="tmpForm" method="get" >
+	</form>
+	<script type="text/javascript">
+		function gotoLocation(vhref,target){
+			if(target=='') target = 'mainFrame';
+			$('tmpForm').action = vhref;
+			$('tmpForm').target = target
+			$('tmpForm').empty();
+			var idx = vhref.indexOf('?');
+			if(idx>0){
+				var paramList = vhref.substring(idx+1).split("&");
+				paramList.each(function(param){
+					var params=param.split("=");
+					new Element("input",{"name":params[0],"type":"hidden","value":params[1]}).inject('tmpForm');
+				});
+			}
+			$('tmpForm').submit();
+		}
+		function getTreeNode(treeData, parentNode, expandNode, path){
+			var treeNode = new YAHOO.widget.TextNode(treeData.fileName, parentNode, expandNode);
+			if(treeData.children && treeData.children.length>0){
+				treeNode.labelStyle = "icon-pkg";
+				treeNode.singleClickExpand=true;
+				for(var i=0;i<treeData.children.length;i++){
+					var exp = (treeData.children[i].children && treeData.children.length>0);
+					getTreeNode(treeData.children[i],treeNode, exp, treeData.path);
+				}
+			}else{
+				treeNode.labelStyle = "icon-cls";
+				treeNode.href="javascript:gotoLocation('${basePath}" + path + treeData.fileName + "','mainFrame')";
+			}
+		}
+		function slideLeftMenu(){
+			$('slide').toggleClass('slided');
+			if($('mtd').getStyle("display")=="none"){
+				$('mtd').setStyle('display','block');
+				$$('#layout .r').setStyle('width', window.getWidth() - 270);
+			} else {
+				$('mtd').setStyle('display','none');
+				$$('#layout .r').setStyle('width', window.getWidth() - 20);
+			}
+		}
+		window.addEvent('domready', function() {
+			$('layout').setStyle('height', window.getHeight()-$("header").getSize().y);
+			$$('#layout .r').setStyle('width', window.getWidth() - 270);
+			YAHOO.admin=new Object();
+			YAHOO.admin.menuData=$menuData;
+			var tree = new YAHOO.widget.TreeView("treediv");
+			YAHOO.admin.root = tree.getRoot();
+			
+			var mainMenu = getTreeNode(YAHOO.admin.menuData, YAHOO.admin.root, true);
+			tree.draw();
+			$('treediv').setStyle('height', $('mtd').getStyle('height'));
+		});
+		window.addEvent('resize', function(){
+			$('layout').setStyle('height', window.getHeight()-$("header").getSize().y);
+			$$('#layout .r').setStyle('width', window.getWidth() - 270);
+		});
+
+	</script>
+</body>
+</html>

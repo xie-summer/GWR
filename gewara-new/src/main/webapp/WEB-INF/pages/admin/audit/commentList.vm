@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>帖子审核</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,remote-util"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body>   
+
+<div id="content">
+<div class="bc1"></div>
+<div id="content_left" style="width:98%;margin:auto;">
+	<div class="panelTop"><em></em></div>
+	<div class="panelMid">
+	#parse('admin/audit/common.vm')
+	<div>
+		<form action="${basePath}admin/audit/${tmp}List.xhtml">
+			<label>用户ID：</label><input type="text" value="$!params.memberid" name="memberid" id="memberid" size="20"/>
+			<label>搜索时间：</label>
+			<input id="starttime" type="text" style="width: 150px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" name="starttime" value="$!starttime"/>
+			至<input id="endtime" type="text" style="width: 150px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" name="endtime" value="$!endtime"/>
+			#if($VmUtils.eq($tmp,'microcomment'))
+			<select name="transfer" id="transfer" style="width:100px;">
+				<option value="" #if($VmUtils.isBlank($!params.transfer)) selected #end >默认</option>
+				<option value="transfer" #if($VmUtils.eq($!params.transfer,'transfer')) selected #end>转载</option>
+			</select>
+			#end
+			<br />
+			<label>请输入关键词：</label><input type="text" value="$!params.keyname" name="keyname" size="40"/>
+			<input type="radio" name="status" value="" #if(!$!params.status||$VmUtils.isBlank($!params.status))checked #end/>默认
+			<input type="radio" name="status" value="N_FILTER" #if($VmUtils.eq($!params.status,'N_FILTER'))checked #end/>被过滤
+			<input type="radio" name="status" value="N_ACCUSE" #if($VmUtils.eq($!params.status,'N_ACCUSE'))checked #end/>举报属实
+			<input type="radio" name="status" value="N_DELETE" #if($VmUtils.eq($!params.status,'N_DELETE'))checked #end/>被删除
+			<input type="submit" value="确定" />
+		</form>
+	</div>
+	#parse('include/pageUtil.vm')
+	<table id="checktable" style="width:100%;" class="blogtable">
+		<thead>
+			<tr>
+				<th>&nbsp;</th>
+				<th>内容</th>
+				<th>发表者</th>
+				<th>时间</th>
+				<!--  <th>前台</th>-->
+				#if($VmUtils.eq($tmp,'microcomment'))
+				<th>类型</th>
+				#end
+				<th>回复</th>
+				<th>审核</th>
+				<th>历史记录</th>
+			</tr>
+		</thead>
+			#foreach($comment in $commentList)
+			<tr>
+				<td>${foreach.count}&nbsp;<input type="checkbox" name="cbox" id="cb$comment.id" value="$comment.id" lang="$comment.memberid"/></td>
+				<td><a href="${basePath}admin/audit/commentDetail.xhtml?cid=$!comment.id" title="$VmUtils.getText($!comment.body)">$!VmUtils.htmlabbr($!comment.body,80)</a></td>
+				<td>$comment.nickname</td>
+				<td>$!DateUtil.format($!comment.addtime,'yyyy-MM-dd HH:mm:ss')</td>
+				#if($VmUtils.eq($tmp,'microcomment'))
+				<td>#if($VmUtils.isBlank($!comment.transferid))发表哇啦#else转载#end</td>
+				#end
+				<td><a href="${basePath}admin/audit/microrecommentList.xhtml?cid=$!comment.id">回复内容($!comment.replycount)</a></td>
+				<td>
+					#if($comment.status.indexOf('Y') ge 0)
+					<input type="button" value="删除" onclick="audit($comment.id,'N_DELETE')"/>
+					#elseif($VmUtils.eq($comment.status,'N_FILTER') || $VmUtils.eq($comment.status,'N_ACCUSE'))
+					<input type="button" value="显示" onclick="audit($comment.id,'Y_NEW')"/>
+					<input type="button" value="删除" onclick="audit($comment.id,'N_DELETE')"/>
+					#elseif($VmUtils.eq($comment.status,'N_DELETE'))
+					<input type="button" value="恢复" onclick="audit($comment.id,'Y_NEW')"/>
+					#end
+				</td>
+				<td>
+				<a target="_blank" href="${basePath}admin/common/getChangeHis.xhtml?tag=Comment&relatedid=$!comment.id">历史</a>
+				</td>
+			</tr>	
+			#end
+	</table>
+	#if(!$VmUtils.eq($!params.status,'N_DELETE'))
+	<input type="checkbox" id="addblack"/>加入黑名单
+	<input type="checkbox" id="cbAll" onclick="selAll(this)"/>
+	<input type="button" id="delAll" value="批量删除" onclick="delMulti()"/>
+	#end
+	#parse('include/pageUtil.vm')
+	</div><!-- end panelMid-->
+	<div class="panelBot"><em></em></div>
+</div><!-- end content_left -->
+<div id="height0"></div>
+</div><!--end content-->
+<div id="panel_bottom"></div>
+	<script type="text/javascript">
+	
+</script>
+<div id="height0"></div>
+</body>
+</html>

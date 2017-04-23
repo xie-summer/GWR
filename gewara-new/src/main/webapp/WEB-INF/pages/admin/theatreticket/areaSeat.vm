@@ -1,0 +1,73 @@
+<div style="width:350px;margin:10px;background:#FFF;">
+	<div style="text-align:center;height:20px;line-height: 20px;">
+		<strong>修改价格数据</strong>
+	</div>
+	<div class="bd" style="text-align:center;">
+		<form name="priceForm" id="priceForm">
+			<input type="hidden" name="id" id="id" value="$!tsp.id"/>
+			<input type="hidden" name="dpid" id="dpid" value="$!seatArea.dpid"/>
+			<input type="hidden" name="areaid" id="areaid" value="$!seatArea.id"/>
+			<div style="padding:5px 40px;text-align:left;">
+				<label for="theatreprice" class="left">市场价：</label>
+				<input type="text" name="theatreprice" id="theatreprice" class="left" style="width: 100px" value="$!tsp.theatreprice" mustTxt="结算价不能为空！"/>
+				<span class="req left">*</span>
+				<div class="height0"></div>
+			</div>
+			<div style="padding:5px 40px;text-align:left">
+				<label for="price" class="left">销售价：</label>
+				<input type="text" name="price" id="price" class="left" style="width: 100px" value="$!tsp.price" mustTxt="价格不能为空！"/>
+				<span class="req left">*</span>
+				<div class="height0"></div>
+			</div>
+			<div style="padding:5px 40px;text-align:left;">
+				<label for="costprice" class="left">结算基价：</label>
+				<input type="text" name="costprice" id="costprice" class="left" style="width: 100px" value="$!tsp.costprice" mustTxt="结算价不能为空！"/>
+				<span class="req left">*</span>
+				<div class="height0"></div>
+			</div>
+			<div style="padding:5px 40px;text-align:left;">
+				<label for="settleid" class="left">结算率：</label>
+				<select name="settleid" id="settleid" style="width: 120px;" mustTxt="结算率不能为空！">
+					<option value="" >请选择结算率</option>
+					#foreach($key in $settleMap.keySet())
+					<option value="$key" #if($VmUtils.eq($!tsp.settleid, $key)) selected #end>$!settleMap.get($key).gainSettleRemark()</option>
+					#end
+				</select>
+				<span style="color: red;"></span>
+			</div>
+			<div style="padding:5px 40px;text-align:left;">
+				<label for="quantity" class="left">库存数：</label>
+				<input type="text" name="quantity" id="quantity" class="left" style="width: 50px;" value="#if($!tsp.allowaddnum)$!tsp.allowaddnum#{else}1#end" mustTxt="票数不能为空！"/>&nbsp;
+				<span class="req left">*</span>
+			</div>
+			<div style="padding:5px 40px;text-align:left;">
+				<label for="maxbuy" class="left">购票数：</label>
+				<input type="text" name="maxbuy" id="maxbuy" style="width: 50px;" value="#if($!tsp.maxbuy)$!tsp.maxbuy#{else}6#end" mustTxt="单次最大购票数"/>&nbsp;
+				<span style="color: red">单次最大购票数(默认6)</span>
+			</div>
+			<div style="padding:5px 40px;text-align:left;">
+				<label for="remark" class="left">描&nbsp;&nbsp;述：</label>
+				<textarea name="remark" id="remark" cols="20" rows="3">$!tsp.remark</textarea>
+			</div>
+			<div>
+				<label>&nbsp;</label>
+				<input type="button" class="cbt1"  value="保存" onclick="savePrice()"/>
+				<input type="button" class="cbt1" onclick="hiDialog();" value="取消"/>
+			</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+	savePrice = function(){
+		if(!GewaraUtil.baseValidForm('priceForm')) return;
+		var url = "${basePath}admin/dramaTicket/saveOdiPrice.xhtml";
+		var values = GewaraUtil.getValues('priceForm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>

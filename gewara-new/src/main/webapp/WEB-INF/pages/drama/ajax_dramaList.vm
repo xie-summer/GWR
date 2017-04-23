@@ -1,0 +1,26 @@
+<div id="wrapped">
+#if(!$VmUtils.isEmptyList($curDramaList))
+	<ul class="ui_abeam ui_d_dramaList">
+		#foreach($curDrama in $curDramaList)
+		<li>
+			<div class="uipic"><a href="${basePath}drama/$curDrama.id" target="_blank"><img width=72" height="96" src="$VmUtils.randomPic('cw96h128', $curDrama.limg)" /></a></div>
+			<div class="uiText">
+				<h3 style="white-space:nowrap;"><a href="${basePath}drama/$curDrama.id" target="_blank" title="$curDrama.dramaname">$!VmUtils.escabbr($curDrama.dramaname,16)</a></h3>
+				#if(!$VmUtils.isEmptyList($theatreMap.get($!curDrama.id)))
+				<p class="p_wd" title="#foreach($theatre in $theatreMap.get($!curDrama.id))#if($foreach.index gt 0)  #end$!theatre.name#end">场馆：$theatreMap.get($!curDrama.id).get(0).name#if($VmUtils.size($theatreMap.get($!curDrama.id)) gt 1)...#end</p>
+				#end
+				#if(!$VmUtils.isEmptyList($dramaPriceMap.get($!curDrama.id)))
+				#set($s=$dramaPriceMap.get($curDrama.id).size()+(-1))
+				<p>票价(元)：$!dramaPriceMap.get($curDrama.id).get(0) ~ $!dramaPriceMap.get($curDrama.id).get($s)</p>
+				#end
+				#if($bookingMap.get($curDrama.id))
+				<p class="mt5"><a target="_blank" style="width:43px;" class="button minBt redBt" href="${basePath}drama/$curDrama.id"><span>购票</span></a></p>
+				#end
+			</div>
+		</li>
+		#end
+	</ul>
+#else
+当日无上演演出
+#end
+</div>

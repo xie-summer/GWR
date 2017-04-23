@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>银行对账</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body>
+<form action="${basePath}admin/common/payReconciliation.xhtml" method="post" style="width:740px;margin:3px">
+	订单号：<input type="text" name="tradeNo" value="" />
+	或按选择查询时间：
+	<input name="startTime" readonly="readonly" onclick="WdatePicker()" type="text" style="width:80px" value="$!startTime"/>至
+	<input name="endTime" readonly="readonly" onclick="WdatePicker()" type="text"  style="width:80px" value="$!endTime"/>
+	<select name="paymethod">
+		<option value="jsbChina">江苏银行</option>
+	</select>
+	<input type="submit" class="button" value="查询"/>
+	<br />
+	<p><font color="red">$!errorMessage</font></p>
+	<table class="table">
+	<thead>
+	<tr>
+		<th colspan="4">格瓦拉订单</th>
+		<th></th>
+		<th colspan="5">银行订单</th>
+	</tr>
+	<tr>
+		<th>订单号</th>
+		<th>下单日期</th>
+		<th>支付金额</th>
+		<th>实付金额</th>
+		<th></th>
+		<th>订单号</th>
+		<th>下单时间</th>
+		<th>支付金额</th>
+		<th>银行订单号</th>
+		<th>清算日期</th>
+	</tr>
+	</thead>
+	<!-- object[0]:movie id,object[1]:moviename -->
+	<tbody id="movieTable">
+	#foreach($order in $ticketorders)
+	<tr>
+		<td>$!{order.tradeNo}</td>
+		<td>$!{DateUtil.format($order.addtime,'yyyyMMddHHmmss')}</td>
+		<td>$!{order.due}</td>
+		<td>$!{order.alipaid}</td>
+		<td></td>
+		<td>$!{settlesMap.get($!order.tradeNo).tradeNo} </td>
+		<td>$!{settlesMap.get($!order.tradeNo).addTime} </td>
+		<td>$!{settlesMap.get($!order.tradeNo).amount}</td>
+		<td>$!{settlesMap.get($!order.tradeNo).sysTraceNo}</td>
+		<td>$!{settlesMap.get($!order.tradeNo).settleDate}</td>
+	</tr>
+	#end
+	#foreach($tradeNo in $settleTradenos)
+	<tr>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td></td>
+		<td>$!{settlesMap.get($tradeNo).tradeNo} </td>
+		<td>$!{settlesMap.get($tradeNo).addTime} </td>
+		<td>$!{settlesMap.get($tradeNo).amount}</td>
+		<td>$!{settlesMap.get($tradeNo).sysTraceNo}</td>
+		<td>$!{settlesMap.get($tradeNo).settleDate}</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+</form>
+</body>
+</html>

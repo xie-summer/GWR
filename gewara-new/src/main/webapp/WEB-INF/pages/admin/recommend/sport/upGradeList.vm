@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>运动终端机应用版本升级配置</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.mt5{margin-top:5px;}
+		.ml15{margin-left: 15px;}
+		.mb5{margin-bottom: 5px;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+#parse('include/mobile/appsource.vm')
+<div style="clear:both;"></div>
+<table width="80%" border="0"  cellspacing="0" class="itable" align="center">
+	<tr class="td">
+		<td colspan="2" align="left" class="td">当前位置>>运动终端机应用版本升级配置</td>
+		<td align="right" class="td" colspan="3">
+			<a href="javascript:void(0);" onclick="showUpGrade()" >增加</a>|
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td">
+		<td align="left" class="wd200"><b>应用类型</b></td>
+		<td align="left" class="wd200"><b>版本Code</b></td>
+		<td align="left" class="wd200"><b>升级路径</b></td>
+		<td align="left" class="wd200"><b>添加人</b></td>
+		<td align="left" class="wd120"><b>操作</b></td>
+	</tr>
+	#foreach($upgrade in $upGradeList)
+	<tr class="td">
+		<td align="left" class="wd200">
+			#if($upgrade.apptype eq 'SPORT_ITS')
+				智能终端系统
+			#end
+			#if($upgrade.apptype eq 'SPORT_BOOKING')
+				羽毛球在线预订系统
+			#end
+			#if($upgrade.apptype eq 'CINEMA_SMARTGETTICKETS')
+				影院一体机
+			#end
+			#if($upgrade.apptype eq 'TICKET_II')
+				格瓦拉终端取票系统Ⅱ
+			#elseif($upgrade.apptype eq 'GEWARA_TICKET')
+				格瓦拉票务系统
+			#end
+		</td>
+		<td align="left" class="wd200">
+			$!upgrade.versionCode
+		</td>
+		<td>
+			$!upgrade.upgradeUrl
+		</td>
+		<td>
+			$!upgrade.nickName
+		</td>
+		<td align="left" class="wd200">
+			<a href="javascript:void(0);" onclick='showUpGrade("$!upgrade.id","$!upgrade.versionCode","$!upgrade.upgradeUrl","$!upgrade.remark","$!upgrade.apptype")' >[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0);" onclick="delUpGrade('$!upgrade.id')">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+<div id="upgradeDiv" style="visibility: hidden;z-index: 100;width: 480px;height: 240px;background: #ffffff;border: 1px solid black;">
+<div class="ml15 mt5">
+<div style="text-align: center;"><span id="addtype">保存</span>运动终端机应用版本升级配置</div>
+<hr/>
+<input type="hidden" name="uid" id="uid"/>
+<div class="mt5">
+应用类型：
+<select name="apptype" id="apptype">
+<option value="">-选择应用类型-</option>
+<option value="SPORT_ITS">智能终端系统</option>
+<option value="TICKET_II">格瓦拉终端取票系统Ⅱ</option>
+<option value="SPORT_BOOKING">羽毛球在线预订系统</option>
+<option value="CINEMA_SMARTGETTICKETS">影院一体机系统</option>
+<option value="GEWARA_TICKET">格瓦拉票务系统</option>
+</select>
+</div>
+<div class="mt5">
+版本code：<input name="versionCode" id="versionCode"/>
+</div>
+<div class="mt5">
+版本说明：<textarea rows="2" cols="40" name="remark" id="remark"></textarea>
+</div>
+<div>
+上传机器版本程序：
+<iframe height="25px" width="460px" frameborder="0" scrolling="no" id="uploadIFrame" src="${basePath}common/uploadSingleZIP.xhtml?uploadPath=common/&callback=uploadZIP"></iframe><br />
+下载路径：<input type="text" name="upgradeUrl" id="upgradeUrl" style="width:340px"/>
+</div>
+<div class="mt5 ml30">
+<input type="button" onclick="addUpGrade()" value="保存"/> <input type="button" value="取消" onclick="hideUpGrade()"/>
+</div>
+</div>		
+</div>
+<script type="text/javascript">
+function showUpGrade(uid,code,url,remark,apptype){
+	$('uid').value = $chk(uid)?uid:'';
+	$('versionCode').value = $chk(code)?code:'';
+	$('upgradeUrl').value = $chk(url)?url:'';
+	$('remark').value = $chk(remark)?remark:'';
+	$('apptype').value = $chk(apptype)?apptype:'';
+	GewaraUtil.showDialog('upgradeDiv');
+}
+
+function hideUpGrade(){
+	$('uid').value = '';
+	GewaraUtil.hideDialog('upgradeDiv');
+}
+
+function addUpGrade(){
+	var uid = $('uid').value;
+	var code = $('versionCode').value;
+	var upgradeurl = $('upgradeUrl').value;
+	var remark = $('remark').value;
+	var apptype=$('apptype').value;
+	if(!$chk(code)){
+		gewaUtil.alert('版本code不能为空！');
+		return;
+	}
+	if(!$chk(upgradeurl)){
+		gewaUtil.alert('下载路径不能为空！');
+		return;
+	}
+	if(apptype==""){
+		gewaUtil.alert('请选择应用类型！');
+		return;
+	}
+	var url = "${basePath}admin/sport/saveUpGrade.xhtml";
+	var values = {'uid':uid,'code':code,"upgradeUrl":upgradeurl,"remark":remark,"apptype":apptype};
+	GewaraUtil.sendRequest(url,values,function(result){
+		if(result.success){
+			gewaUtil.alert('保存成功！');
+			refreshPage();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function delUpGrade(uid){
+	gewaUtil.confirm('确认删除吗？',function(){
+		var url = "${basePath}admin/sport/delUpGrade.xhtml";
+		var values = {'uid':uid};
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success) refreshPage();
+			else gewaUtil.alert('删除失败！');
+		});	
+	});
+}
+function uploadZIP(params){
+	var picpath = params['picpath'];
+	if(picpath != ''){
+		$('upgradeUrl').value = '${picPath}'+picpath;
+	}
+}
+</script>
+</body>
+</html>

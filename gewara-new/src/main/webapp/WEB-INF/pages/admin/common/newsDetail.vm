@@ -1,0 +1,305 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>添加新闻</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label {display:inline;float:left;width:90px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea {width:450px; display:inline}
+		/*分页*/
+		#page {font-size: 12px; height: 22px; text-align:center; width:360px; margin:25px auto; }
+		#page a {display: block; width:20px;height: 20px; margin: 0 2px 0 2px; border:1px solid #B9B7B7; float:left; text-align: center;}
+		#page a.on {background: #FF6600; color: #FFFFFF;}
+		#page a.pre,#page a.next{width: 40px;}
+	</style>
+</head>
+<body style="width:80%;margin:auto" class="yui-skin-sam" >
+<div id="newsDialog" class="yui-panel" style="width:100%; z-index:20;">
+	<div class="hd">
+		<span>编辑新闻数据</span>
+		#if($news.id)<input type="button" value="验证" style="width:80px" onclick="validateNews($news.id)"/>#end
+	</div>
+	<div class="bd">
+	<form name="newsForm" id="newsForm">
+		#if($news)
+		<input name="tag" type="hidden" id="tag" value="$!news.tag"/>
+		#else
+		<input name="tag" type="hidden" id="tag" value="$!params.tag"/>
+		#end
+		<input type="hidden" name="id" id="id" value="$!news.id"/>
+		<div>
+			<label for="title">标题：</label>
+			<input name="title" type="text" id="title" value="$!news.title"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="secondtitle">副标题：</label>
+			<input name="secondtitle" type="text" id="secondtitle" value="$!news.secondtitle"/>
+		</div>
+		<div>
+			<label for="newstype">类型：</label>
+			<select name="newstype" id="newstype">
+			<option value="3" #if($VmUtils.eq($!news.newstype, '3') || $VmUtils.eq($!params.newstype, '3'))selected#end>专访</option>
+			<option value="2" #if($VmUtils.eq($!news.newstype, '2') || $VmUtils.eq($!params.newstype, '2'))selected#end>新闻</option>
+			<option value="1" #if($VmUtils.eq($!news.newstype, '1') || $VmUtils.eq($!params.newstype, '1'))selected#end>专题</option>
+			<option value="4" #if($VmUtils.eq($!news.newstype, '4') || $VmUtils.eq($!params.newstype, '4'))selected#end>图组</option>
+			<option value="5" #if($VmUtils.eq($!news.newstype, '5') || $VmUtils.eq($!params.newstype, '5'))selected#end>人物</option>
+			<option value="sportrookie" #if($VmUtils.eq($!news.newstype, 'sportrookie') || $VmUtils.eq($!params.newstype, 'sportrookie'))selected#end>运动新手必读</option>
+			<option value="sportmaster" #if($VmUtils.eq($!news.newstype, 'sportmaster') || $VmUtils.eq($!params.newstype, 'sportmaster'))selected#end>运动高手进阶</option>
+			<option value="sportequipment" #if($VmUtils.eq($!news.newstype, 'sportequipment') || $VmUtils.eq($!params.newstype, 'sportequipment'))selected#end>运动装备</option>
+			<option value="sporthealth" #if($VmUtils.eq($!news.newstype, 'sporthealth') || $VmUtils.eq($!params.newstype, 'sporthealth'))selected#end>运动保健</option>
+			<option value="sportmatch" #if($VmUtils.eq($!news.newstype, 'sportmatch') || $VmUtils.eq($!params.newstype, 'sportmatch'))selected#end>运动赛事</option>
+			</select>
+		</div>
+		<div>
+			<label for="newslabel">标签：</label>
+			<input name="newslabel" type="text" id="newslabel" value="$!news.newslabel" style="width: 320px"/>(多个标签用 "," 分割)
+		</div>
+		<div>
+			<label for="tag">关联：</label>
+			#set($tagMap={'cinema':'影院','gym':'健身','ktv':'KTV','bar':'酒吧','sport':'运动','theatre':'话剧院','drama':'话剧','dramastar':'话剧明星','startroupe':'话剧剧团'})
+			$!tagMap.get($!news.tag)$!tagMap.get($!params.tag)ID:
+			#if($news)
+			<input name="relatedid" type="text" id="relatedid" value="$!news.relatedid" style="width: 120px"/>
+			<!--  
+			<input type="button" style="width: 50px;" id="movieselected" value="选择" onclick="showDialog('cinema');"/>
+			-->
+			#else
+				<input name="relatedid" type="text" id="relatedid" value="$!params.relatedid" style="width: 120px"/>
+			#end
+			#if($VmUtils.eq($!params.tag,'cinema')||$VmUtils.eq($!news.tag,'cinema'))
+				电影ID：<input name="category" type="hidden" id="category" value="movie"/>
+			<input name="categoryid" type="text" id="categoryid" value="$!news.categoryid" style="width: 120px"/>
+			<!--  
+			<input type="button" style="width: 50px;" id="movieselected" value="选择" onclick="showDialog('movie');"/>
+			-->
+			#elseif($VmUtils.eq($!params.tag,'gym')||$VmUtils.eq($!news.tag,'gym'))
+				健身项目ID：<input name="category" type="hidden" id="category" value="gymcourse"/>
+			<input name="categoryid" type="text" id="categoryid" value="$!news.categoryid" style="width: 120px"/>
+			#elseif($VmUtils.eq($!params.tag,'sport')||$VmUtils.eq($!news.tag,'sport'))
+			运动项目ID：<input name="category" type="hidden" id="category" value="sportservice"/>
+			<input name="categoryid" type="text" id="categoryid" value="$!news.categoryid" style="width: 120px"/>
+			#elseif($VmUtils.eq($!params.tag,'bar')||$VmUtils.eq($!news.tag,'bar'))
+			歌手ID：<input name="category" type="hidden" id="category" value="barsinger"/>
+			<input name="categoryid" type="text" id="categoryid" value="$!news.categoryid" style="width: 120px"/>
+			#elseif($VmUtils.eq($!params.tag,'theatre')||$VmUtils.eq($!news.tag,'theatre'))
+				<select name="category" id="category">
+					<option value="drama" #if($VmUtils.eq($!news.tag,'drama'))selected#end>话剧ID</option>
+					<option value="dramastar" #if($VmUtils.eq($!news.tag,'dramastar'))selected#end>明星ID</option>
+				</select>
+				#*#if($VmUtils.eq($!params.category,'dramastar') || $VmUtils.eq($!news.category,'dramastar'))
+				明星ID：<input name="category" type="hidden" id="category" value="dramastar"/>
+				#else
+				话剧ID：<input name="category" type="hidden" id="category" value="drama"/>
+				#end*#
+			<input name="categoryid" type="text" id="categoryid" value="$!news.categoryid" style="width: 120px"/>
+			#end
+		</div>
+		
+		<div>
+			<label for="relatedlink">链接：</label>
+			<input name="relatedlink" type="text" id="relatedlink" value="$!news.relatedlink"/>
+		</div>
+		<div>
+			<label for="linksource">来源：</label>
+			<input name="linksource" type="text" id="linksource" value="$!news.linksource"/>
+		</div>
+		<div>
+			<label for="author">作者：</label>
+			<input name="author" type="text" id="author" value="$!news.author"/>
+		</div>
+		<div>
+			<label for="summary">摘要：</label>
+			<textarea name="summary" id="summary" rows="2">$!news.summary</textarea>
+		</div>
+		<div>
+			<label for="releasetime">发布时间：</label>
+			<input name="releasetime" id="releasetime" value="#if($news.releasetime)$!news.releasetime#else$!DateUtil.getCurFullTimestampStr()#end" readonly="readonly" 
+			onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" type="text"/>
+		</div>
+		<div id="uploadDiv">
+			<label>上传大图片：</label>
+			<iframe class="left" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/news/&callback=updateLogo"></iframe>
+			<div><img style="height:60px; margin-left:100px;" id='logoimg1' #if($!news.logo)src="${basePath}$news.logo" #end/></div>
+			<div style="padding-left: 90px;margin-bottom: 10px;"><input type="text"  name="logo" id="logo" value="$!news.logo"/></div>
+		</div>
+		<div id="uploadDiv" class="clear">
+			<label>上传小图片：</label>
+			<iframe class="left" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/news/&callback=updateSmallLogo"></iframe>
+			<div><img style="height:60px; margin-left:100px;" id='logoimg2' #if($!news.smallLogo)src="${basePath}$news.smallLogo" #end/></div>
+			<div style="padding-left: 90px;margin-bottom: 10px;"><input type="text" name="smallLogo" id="smallLogo" value="$!news.smallLogo"/></div>
+		</div>
+		<div id="uploadDiv" class="clear">
+			<label>专题模板图片：</label>
+			<iframe class="left" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/news/&callback=updateTplLogo"></iframe>
+			<div><img style="height:60px; margin-left:100px;" id='logoimg3' #if($!news.tplLogo)src="${basePath}$news.tplLogo" #end/></div>
+			<div style="padding-left: 90px;margin-bottom: 10px;	"><input type="text" name="tplLogo" id="tplLogo" value="$!news.tplLogo"/></div>
+		</div>
+		<div class="clear">
+			<label for="summary">特殊标记：</label>
+			<input name="flag" type="text" id="flag" value="$!news.flag"/>
+		</div>
+		<div id="psize">
+			<label for="pagesize">新闻页数：</label>
+			<input type="text" name="pagesize" id="pagesize" value="#if($!news.pagesize)$!news.pagesize#{else}1#{end}" maxlength="2" value="$!news.pagesize"/>
+			<span class="req">*</span>
+		</div>
+		<div id="page1">
+			<label for="content">第1页：#*<input type="button" value="HTML编辑" style="width:60px" onclick="openEditor('')"/>*#</label>
+			<textarea name="content" id="content" rows="5">$!news.content</textarea>
+			<span class="req">*</span>
+		</div>
+		#if($VmUtils.size($newsPageList) gt 0)
+		#set($len=$news.pagesize+1)
+		#foreach($np in $newsPageList)
+		<div id="page$np.pageno" style="display: none">
+			<label for="content">第$np.pageno页：#*<input type="button" value="HTML编辑" style="width:60px" onclick="openEditor('$np.pageno')"/>*#</label>
+			<textarea name="content$np.pageno" id="content$np.pageno" rows="5">$!np.content</textarea>
+			<span class="req">*</span>
+		</div>
+		#end
+		#foreach($num in [$len..10])
+		<div id="page$num" style="display: none">
+			<label for="content">第$num页：#*<input type="button" value="HTML编辑" style="width:60px" onclick="openEditor('$num')"/>*#</label>
+			<textarea name="content$num" id="content$num" rows="5"></textarea>
+			<span class="req">*</span>
+		</div>
+		#end
+		#else
+		#foreach($num in [2..10])
+		<div id="page$num" style="display: none">
+			<label for="content">第$num页：#*<input type="button" value="HTML编辑" style="width:60px" onclick="openEditor('$num')"/>*#</label>
+			<textarea name="content$num" id="content$num" rows="5"></textarea>
+			<span class="req">*</span>
+		</div>
+		#end
+		#end
+		<div id="page">
+		#foreach($i in [1..10])<a id="a$i" #if($i eq 1) class="on" #end href="javascript:page('$i')">$i</a>#end
+		</div>
+		<div><input style="width:15px;" type="checkbox" name="bindwb" id="bindwb"/><label for="bindwb">分享到微薄</label></div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="save(this);" id="saveBt" style="width:100px" value="保存"/>
+			<input type="button" class="button" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	<div id="msg" style="color:red"></div>
+	<div style="color:blue">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+	</div>
+</div>
+<form name="htmlForm" id="htmlForm" action="${basePath}common/contentEditor.xhtml" method="post" target="_blank">
+	<input type="hidden" name="editorContent" id="editorContent"/>
+	<input type="hidden" name="returnId" id="returnId" value="content"/>
+</form>
+<div id="showCityDialogDV" style="height: 0px;"></div>
+#parse('admin/common/movieSelectBox.vm')
+<script type="text/javascript">
+	var ckeditor,ckeditor2,ckeditor3,ckeditor4,ckeditor5,ckeditor6,ckeditor7,ckeditor8,ckeditor9,ckeditor10;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("content");
+		ckeditor2 = CKEDITOR.replace("content2");
+		ckeditor3 = CKEDITOR.replace("content3");
+		ckeditor4 = CKEDITOR.replace("content4");
+		ckeditor5 = CKEDITOR.replace("content5");
+		ckeditor6 = CKEDITOR.replace("content6");
+		ckeditor7 = CKEDITOR.replace("content7");
+		ckeditor8 = CKEDITOR.replace("content8");
+		ckeditor9 = CKEDITOR.replace("content9");
+		ckeditor10 = CKEDITOR.replace("content10");
+	})
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg1').src='${basePath}' + picpath;
+	}
+	function updateSmallLogo(params){
+		var picpath = params['picpath'];
+		$('smallLogo').value = picpath;
+		$('logoimg2').src='${basePath}' + picpath;
+	}
+	function updateTplLogo(params){
+		var picpath = params['picpath'];
+		$('tplLogo').value = picpath;
+		$('logoimg3').src='${basePath}' + picpath;
+	}
+	function openEditor(i){
+		$("editorContent").value = $("content"+i).value;
+		$("returnId").value = "content"+i;
+		$("htmlForm").submit();
+	}
+	function save(){
+		$("saveBt").hide();
+		$('content').value=ckeditor.getData();
+		$('content2').value=ckeditor2.getData();
+		$('content3').value=ckeditor3.getData();
+		$('content4').value=ckeditor4.getData();
+		$('content5').value=ckeditor5.getData();
+		$('content6').value=ckeditor6.getData();
+		$('content7').value=ckeditor7.getData();
+		$('content8').value=ckeditor8.getData();
+		$('content9').value=ckeditor9.getData();
+		$('content10').value=ckeditor10.getData();
+		var values = GewaraUtil.getValues("newsForm");
+		if(values.title == "") {
+			alert("请输入标题和内容！");
+			return;
+		}
+		$("msg").set("html","正在保存......")
+		var url = "${basePath}admin/common/ajax/saveOrUpdateNews.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$('id').value=result.retval;
+				$("msg").set("html", '保存成功！');
+			}else{
+				$("msg").set("html", result.msg);
+				alert("保存失败！" + "【"+result.msg+"】");
+			}
+			$("saveBt").show();
+		}, 'post');
+	}
+	function page(i){
+		for(var j=1;j<=10;j++){
+			$('page'+j).setStyle('display','none');
+			$('a'+j).removeClass('on');
+		}
+		$('page'+i).setStyle('display','');
+		$('a'+i).addClass('on');
+	}
+	function validateNews(newsid){
+		var url = "${basePath}admin/common/ajax/validateNews.xhtml";
+		GewaraUtil.sendRequest(url, {"newsid":newsid},function(result){
+			$("msg").set("html",result.retval)
+		});
+	}
+	function removeBr(){
+     	var tmpDiv = new Element('div');
+     	tmpDiv.set('html', ckeditor.getData());
+     	tmpDiv.getElements('br').each(function(item){
+     		item.dispose();
+     	});
+      $('content').value = tmpDiv.get('html');
+     }
+</script>
+<script>
+function showDialog(tag){
+	var url = '${basePath}admin/common/movieSelectBox.xhtml';
+	var values = {'tag':tag};
+	GewaraUtil.sendLoad('showCityDialogDV', url, values, function(result){
+		GewaraUtil.showDialog('showCityDialog');
+	})
+}
+</script>
+</body>
+</html>

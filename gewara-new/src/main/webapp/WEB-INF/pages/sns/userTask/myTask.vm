@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>格瓦拉社区</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/default.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,Autocompleter,page,noobSlide&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div id="snsHeader"></div>
+<div class="ui_layout">
+	#set($menuTag = 'newtask')
+	#parse('sns/common/left.vm')
+	<div class="body_right">
+		<div class="body_nav_tags">
+			<div class="navs">
+				<a href="javascript:void(0);" class="select">我的任务</a>
+			</div>
+			<div class="modules">
+				当前积分：<b>$!memberInfo.pointvalue</b>
+			</div>
+		</div>
+		<div class="bodys" id="_body">
+			<div class="userTask">
+				#set($taskList=$memberInfo.newTaskList)
+				#set($otherNewtask = $memberInfo.otherNewtaskList)
+				<ul>
+					<li #if($VmUtils.contains($!taskList, 'confirmreg')) class="completed" #end>
+						<div #if($VmUtils.contains($!taskList, 'confirmreg')) class="ui_plugs_outside receive" #else class="ui_plugs_outside" #end >#*receive 完成以后添加*#
+							<div class="ui_plugs_inside">
+								<div class="inner">
+									<dl class="ui_abeam">
+										<dt class="uipic"><img class="t_mail" width="65" height="80" src="${staticPath}css/images/blank.gif" /></dt>
+										<dd class="uiText">
+											<strong>邮箱验证#if($VmUtils.contains($!taskList, 'confirmreg'))<span class="ffst">[已完成]</span>#end</strong>
+											<p>邮箱是您在格瓦拉生活网的唯一标识，当您忘记登录密码可通过邮箱找回！ </p>
+											<em>目标：</em><em>完成邮箱验证</em><br/>
+											<em>奖励：</em><b>50</b>积分
+											#if(!$VmUtils.contains($!taskList, 'confirmreg'))
+												#if($VmUtils.isBlank($member.email) || !$memberInfo.bindSuccess)
+												<span class="taskBtn"><a href="#if($memberInfo.bindSuccess)${basePath}home/acct/goUpEmail.xhtml#{else}${basePath}home/acct/bindBaseInfo.xhtml#end;" class="button minBt redBt" target="_blank"><span>立即验证</span></a></span>
+												#else
+												<span class="taskBtn"><a href="javascript:repeatSendEmail();" class="button minBt redBt"><span>重新验证</span></a></span>
+												#end
+											#end
+										</dd>
+									</dl>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li #if($VmUtils.contains($!otherNewtask, 'sendwala')) class="completed" #end>
+						<div #if($VmUtils.contains($!taskList, 'sendwala')) class="ui_plugs_outside receive" #else class="ui_plugs_outside" #end >
+							<div class="ui_plugs_inside">
+								<div class="inner">
+									<dl class="ui_abeam">
+										<dt class="uipic"><img class="t_wala" width="65" height="80" src="${staticPath}css/images/blank.gif" /></dt>
+										<dd class="uiText">
+											<strong>发布一条哇啦#if($VmUtils.contains($!taskList, 'sendwala'))<span class="ffst">[已完成]</span>#end</strong>
+											<p> 轻松生活，感悟人生，分享点滴，随时随地哇啦一下。</p>
+											<em>目标：</em><em>发表第一条哇啦</em><br/>
+											<em>奖励：</em><b>2</b>积分
+											#if($VmUtils.contains($!taskList, 'sendwala'))
+												#if(!$VmUtils.contains($!otherNewtask, 'sendwala'))
+												<span class="taskBtn"><a href="javascript:tasksReward('sendwala');" class="button minBt redBt"><span>立即领取</span></a></span>
+												#end
+											#else
+											<span class="taskBtn"><a href="${basePath}home/sns/personIndex.xhtml" class="button minBt redBt" target="_blank"><span>立即参与</span></a></span>
+											#end
+										</dd>
+									</dl>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li #if($VmUtils.contains($!otherNewtask, 'joincommu')) class="completed" #end>
+						<div #if($VmUtils.contains($!taskList, 'joincommu')) class="ui_plugs_outside receive" #else class="ui_plugs_outside" #end >
+							<div class="ui_plugs_inside">
+								<div class="inner">
+									<dl class="ui_abeam">
+										<dt class="uipic"><img class="t_quan" width="65" height="80" src="${staticPath}css/images/blank.gif" /></dt>
+										<dd class="uiText">
+											<strong>加入一个圈子#if($VmUtils.contains($!taskList, 'joincommu'))<span class="ffst">[已完成]</span>#end</strong>
+											<p>一群和你有相同兴趣爱好的瓦友正召唤你的加入，分享生活、交流经验，一起玩转格瓦拉。</p>
+											<em>目标：</em><em>加入一个圈子</em><br/>
+											<em>奖励：</em><b>3</b>积分
+											#if($VmUtils.contains($!taskList, 'joincommu'))
+												#if(!$VmUtils.contains($!otherNewtask, 'joincommu'))
+												<span class="taskBtn"><a href="javascript:tasksReward('joincommu');" class="button minBt redBt"><span>立即领取</span></a></span>
+												#end
+											#else
+											<span class="taskBtn"><a href="${basePath}quan/" class="button minBt redBt" target="_blank"><span>立即参与</span></a></span>
+											#end
+										</dd>
+									</dl>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li #if($VmUtils.contains($!otherNewtask, 'fivefriend')) class="completed" #end>
+						<div #if($VmUtils.contains($!taskList, 'fivefriend')) class="ui_plugs_outside receive" #else class="ui_plugs_outside" #end >
+							<div class="ui_plugs_inside">
+								<div class="inner">
+									<dl class="ui_abeam">
+										<dt class="uipic"><img class="t_friend" width="65" height="80" src="${staticPath}css/images/blank.gif" /></dt>
+										<dd class="uiText">
+											<strong>关注好友#if($VmUtils.contains($!taskList, 'fivefriend'))<span class="ffst">[已完成]</span>#end</strong>
+											<p>Ta的多彩生活，因你而美丽，这一刻Ta的喜怒哀乐与你关，关注五位瓦友，体验多彩人生。</p>
+											<em>目标：</em><em>关注5位站内瓦友</em><br/>
+											<em>奖励：</em><b>5</b>积分
+											#if($VmUtils.contains($!taskList, 'fivefriend'))
+												#if(!$VmUtils.contains($!otherNewtask, 'fivefriend'))
+												<span class="taskBtn"><a href="javascript:tasksReward('fivefriend');" class="button minBt redBt"><span>立即领取</span></a></span>
+												#end
+											#else
+											<span class="taskBtn"><a href="${basePath}home/sns/personIndex.xhtml" class="button minBt redBt" target="_blank"><span>立即参与</span></a></span>
+											#end
+										</dd>
+									</dl>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li #if($VmUtils.contains($!otherNewtask, 'headpic')) class="completed" #end>
+						<div #if($VmUtils.contains($!taskList, 'headpic')) class="ui_plugs_outside receive" #else class="ui_plugs_outside" #end >
+							<div class="ui_plugs_inside">
+								<div class="inner">
+									<dl class="ui_abeam">
+										<dt class="uipic"><img class="t_pic" width="65" height="80" src="${staticPath}css/images/blank.gif" /></dt>
+										<dd class="uiText">
+											<strong>更新头像#if($VmUtils.contains($!taskList, 'headpic'))<span class="ffst">[已完成]</span>#end</strong>
+											<p>上传头像展现你独特一面，你将会得到更多瓦友的关注！</p>
+											<em>目标：</em><em>上传您的个性头像</em><br/>
+											<em>奖励：</em><b>10</b>积分
+											#if($VmUtils.contains($!taskList, 'headpic'))
+												#if(!$VmUtils.contains($!otherNewtask, 'headpic'))
+												<span class="taskBtn"><a href="javascript:tasksReward('headpic');" class="button minBt redBt"><span>立即领取</span></a></span>
+												#end
+											#else
+											<span class="taskBtn"><a href="${basePath}home/acct/chanageHead.xhtml" class="button minBt redBt" target="_blank"><span>立即参与</span></a></span>
+											#end
+										</dd>
+									</dl>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li #if($VmUtils.contains($!otherNewtask, 'bindmobile')) class="completed" #end>
+						<div #if($VmUtils.contains($!taskList, 'bindmobile')) class="ui_plugs_outside receive" #else class="ui_plugs_outside" #end >
+							<div class="ui_plugs_inside">
+								<div class="inner">
+									<dl class="ui_abeam">
+										<dt class="uipic"><img class="t_mobile" width="65" height="80" src="${staticPath}css/images/blank.gif" /></dt>
+										<dd class="uiText">
+											<strong>绑定手机#if($VmUtils.contains($!taskList, 'bindmobile'))<span class="ffst">[已完成]</span> #end</strong>
+											<p>为了你的账号安全，请绑定手机； 手机绑定验证完全免费。</p>
+											<em>目标：</em><em>绑定你的手机号码</em><br/>
+											<em>奖励：</em><b>20</b>积分
+											#if($VmUtils.contains($!taskList, 'bindmobile'))
+												#if(!$VmUtils.contains($!otherNewtask, 'bindmobile'))
+												<span class="taskBtn"><a href="javascript:tasksReward('bindmobile');" class="button minBt redBt"><span>立即领取</span></a></span>
+												#end
+											#else
+											<span class="taskBtn"><a href="${basePath}home/acct/bindMobile.xhtml" class="button minBt redBt" target="_blank"><span>绑定手机</span></a></span>
+											#end
+										</dd>
+									</dl>
+								</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+				<div class="title">
+					<h2>日常任务</h2>
+				</div>
+				<ul>
+					<li #if($VmUtils.contains($!otherNewtask, 'buyticket')) class="completed" #end>
+						<div #if($VmUtils.contains($!taskList, 'buyticket')) class="ui_plugs_outside receive" #else class="ui_plugs_outside" #end >
+							<div class="ui_plugs_inside">
+								<div class="inner">
+									<dl class="ui_abeam">
+										<dt class="uipic"><img class="t_buy" width="65" height="80" src="${staticPath}css/images/blank.gif" /></dt>
+										<dd class="uiText">
+											<strong>成功购票#if($VmUtils.contains($!taskList, 'buyticket'))<span class="ffst">[已完成]</span>#end</strong>
+											<p>5元抵扣券可用于在支付时享受优惠，有一定使用期限，请注意失效日期。</p>
+											<em>目标：</em><em>第一次成功购票</em><br/>
+											<em>奖励：</em><b>5元抵扣券</b>（有效期三个月）
+											#if($VmUtils.contains($!taskList, 'buyticket'))
+												#if(!$VmUtils.contains($!otherNewtask, 'buyticket'))
+												<span class="taskBtn"><a href="javascript:receivePoint(this);" class="button minBt redBt"><span>立即领取</span></a></span>
+												#end
+											#else
+											<span class="taskBtn"><a href="${basePath}cinema/searchOpi.xhtml" class="button minBt redBt" target="_blank"><span>立即参与</span></a></span>
+											#end
+										</dd>
+									</dl>
+								</div>
+							</div>
+						</div>
+					</li>
+					<li #if($VmUtils.contains($!otherNewtask, 'moviecomment')) class="completed" #end>
+						<div #if($VmUtils.contains($!taskList, 'moviecomment')) class="ui_plugs_outside receive" #else class="ui_plugs_outside" #end >
+							<div class="ui_plugs_inside">
+								<div class="inner">
+									<dl class="ui_abeam">
+										<dt class="uipic"><img class="t_com" width="65" height="80" src="${staticPath}css/images/blank.gif" /></dt>
+										<dd class="uiText">
+											<strong>发表影评#if($VmUtils.contains($!taskList, 'moviecomment'))<span class="ffst">[已完成]</span>#end</strong>
+											<p>心在那一瞬间的感动，我感悟愿意用文字定格这一刻，或许在年迈的的时候……..这是我最珍贵的记忆。</p>
+											<em>目标：</em><em>发表第一篇影评</em><br/>
+											<em>奖励：</em><b>5</b>积分
+											#if($VmUtils.contains($!taskList, 'moviecomment'))
+												#if(!$VmUtils.contains($!otherNewtask, 'moviecomment'))
+												<span class="taskBtn"><a href="javascript:tasksReward('moviecomment');" class="button minBt redBt"><span>立即领取</span></a></span>
+												#end
+											#else
+											<span class="taskBtn"><a href="${basePath}movie/searchMovie.xhtml" class="button minBt redBt" target="_blank"><span>立即参与</span></a></span>
+											#end
+										</dd>
+									</dl>
+								</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="ui_view_menu"></div>
+<div class="footer_warp">
+	<div class="isFooter"></div>
+</div>
+#parse('include/innerLogin.vm')
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=snsUtil,index_even&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript">
+function repeatSendEmail(){
+	checkLogin(true, function(){
+		GewaraUtil.mask('repeatsendmail');
+		var url = '${basePath}home/member/resendRecognition.xhtml';
+		GewaraUtil.sendRequest(url, {}, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				gewaUtil.alert('已成功发送验证邮件，请注意查收并完成邮箱验证！');
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	});
+}
+function tasksReward(tag){
+	checkLogin(true, function(){
+		var url = "${basePath}home/sns/myNewTasksReward.xhtml";
+		GewaraUtil.sendRequest(url, {'tag' : tag}, function(result){
+			if(result.success){
+				gewaUtil.alert('领取成功！', refreshPage);
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	})
+}
+function receivePoint(){
+	var url="${basePath}home/acct/receivePoint.xhtml";
+	GewaraUtil.sendRequest(url, {}, function(result){
+		if(result.success){
+			gewaUtil.alert(result.retval, function(){
+				document.location='${basePath}home/acct/cardList.xhtml';
+			});
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

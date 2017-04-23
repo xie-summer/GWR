@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>修改用户基本信息</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,selectbox"></script>
+	<style>
+		label {display:inline-block;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		.mouseBg{background-color: #FBE7DB;}
+	</style>
+</head>
+<body style="width:750px; margin:auto" class="yui-skin-sam">
+<form method="post" action="${basePath}admin/acl/saveUser.xhtml" id="userForm">
+<div id="userDialog" class="yui-panel" style="width:720px; margin:5px auto">
+	<div class="hd">#if($user.username)用户【${user.username}--$!{user.realname}】基本信息#else增加用户#end</div>
+	<div class="bd"><!-- body1 -->
+		<input type="hidden" name="userId" value="$!VmUtils.escapeHtml($params.userId)"/>
+		<div>
+			#if(!$params.userId)
+			<label for="username">登录账号：</label>
+			<input type="text" name="username" id="username" style="width:120px"/>
+			#end
+			<label for="nickname">真实姓名：</label>
+			<input type="text" name="nickname" style="width:120px" value="$!user.nickname" id="nickname"/>
+			<label>帐号设置：</label>
+			<select name="accountEnabled">
+				<option value="Y" #if($user.enabled)selected="selected"#end>启用</option>
+				<option value="N" #if(!$user.enabled)selected="selected"#end>禁用</option>
+			</select>
+			<label>外部IP是否禁止使用：</label>
+			<input type="checkbox" style="width:15px" name="abnormalIP" value="true" id="abnormalIP" #if($abnormalIP) checked="checked" #end/>
+			<label style="width:30px;text-align:left;" for="abnormalIP">禁用</label>
+		</div><div>
+			<label>修改密码：</label>
+			<input type="password" style="width:120px" name="newPassword"/>
+			<label>密码确认：</label><input type="password" style="width:120px" name="confirmPassword"/>
+		</div><div>
+			<label for="mobile">手机号：</label>
+			<input type="text" name="mobile" id="mobile" style="width:120px"/>
+		</div><div id="allcity"><br/>
+			<label style="width: 200px;text-align: left;">管理城市：<input type="checkbox" onclick="selAll(this)"/>全选</label><br/><br/>
+			#foreach($pro in $proMap.keySet())
+				#set($cityList=$proMap.get($pro))
+				#set($eid=$foreach.count)
+				<fieldset>
+					<legend class="yellow"><input type="checkbox" onclick="selectAll(this)" id="$eid"/>&nbsp;$pro.provincename</legend>
+					<div id="pro$eid">
+					#foreach($city in $cityList)
+						<input class="cls$eid" type="checkbox" name="userCitycode" value="$city.citycode" #if($user.citycode.contains($city.citycode))checked#end/>$city.cityname
+					#end
+					</div>
+				</fieldset>
+			#end
+		</div><div>
+			<table class="table">
+			#foreach($role in $userRoles)
+			<tr><td>${role.name}[$role.description]</td><td><input type="checkbox" value="$role.id" name="roleid" checked="checked" class="nocls"/></td></tr>
+			#end
+			#foreach($role in $availableRoles)
+			<tr><td>${role.name}[$role.description]</td><td><input type="checkbox" value="$role.id" name="roleid" /></td></tr>
+			#end
+			</table>
+		</div><div>
+			<input type="submit" value="保存" class="button" style="width:80px"/>
+			<input type="button" value="取消" class="button" style="width:80px" onclick="window.close()"/>
+		</div>
+	</div><!-- end of body2 -->
+</div><!-- end of userDialog -->
+</form>
+	<script type="text/javascript">
+	window.addEvent("domready", function(){
+		$$(".table tr").addEvents({
+			'mouseenter':function(){
+				this.addClass("mouseBg");
+			},
+			'mouseleave':function(){
+				this.removeClass("mouseBg");
+			}
+		});
+	});
+	function selectAll(e){
+		$('pro'+e.id).getElements("input[type=checkbox]").each(function(el){
+			if(e.checked){
+				el.checked = true;
+			}else {
+				el.checked = false;	
+			}
+		});
+	}
+	function selAll(e){
+		$('allcity').getElements("input[type=checkbox]").each(function(el){
+			if(e.checked){
+				el.checked = true;
+			}else {
+				el.checked = false;	
+			}
+		});
+	}
+</script>
+</body>
+</html>

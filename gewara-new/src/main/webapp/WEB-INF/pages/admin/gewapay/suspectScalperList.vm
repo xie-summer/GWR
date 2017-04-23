@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>涉嫌黄牛列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width:85%; margin:auto;background-color: #fff">
+<div id="barDialog" class="yui-panel" style="width:710px;margin:auto;">
+	<div class="hd">查询涉嫌黄牛</div>
+	<div class="bd">
+	<form name="reportForm" id="reportForm" action="/admin/gewapay/suspectList.xhtml" method="post">
+		<div>
+			<label for="name">查询时间：</label>
+			<select id="hours" name="hours">
+				<option value="-12">12小时内</option>
+				<option value="-24">24小时内</option>
+				<option value="-48">48小时内</option>
+			</select>
+			<label for="name">单IP注册用户数量大于：</label>
+			<select id="count" name="count">
+				<option value="5">5个</option>
+				<option value="10">10个</option>
+				<option value="25">25个</option>
+				<option value="50">50个</option>
+				<option value="100">100个</option>
+			</select>
+			<input type="submit" class="button" style="width:100px" value="查询"/>
+		</div>
+		</form>
+	</div><!--end of bd -->
+</div>
+<table class="table">
+	<thead id="thead">
+		<tr>
+			<th><div><input type="button" class="button" style="width:200px" onclick="addScalpers()" value="加入黄牛黑名单"/></div></th>
+		</tr>
+	</thead>
+</table>
+<table class="table" id="toggleData">
+	<thead id="thead">
+		<tr>
+			<th><div>IP</div></th>
+			<th><div>MemberId</div></th>
+			<th><div>昵称</div></th>
+			<th><div>绑定手机</div></th>
+			<th><div>注册时间</div></th>
+			<th><div>密码</div></th>
+			<th><div>来源</div></th>
+		</tr>
+	</thead>
+	<tbody id="tbody">
+	#foreach($ip in $suspectMap.keySet())
+	<tr id="tr$ip">
+		<td>$ip</td>
+		<td colspan="5"><input type="checkbox" id="$ip" data-type="toggleAll" >该IP全选</input></td>
+	</tr>
+	#foreach($map in $suspectMap.get($ip))
+	<tr id="tr$report.id">
+		<td>&nbsp;</td>
+		<td><input type="checkbox" name='$!map.get("id")' value='$!map.get("id")' data-type="$ip"/>$!map.get("id")</td>
+		<td>$!map.get("nickname")</td>
+		<td>$VmUtils.getSmobile($!map.get("mobile"))</td>
+		<td>$!map.get("addtime")</td>
+		<td>$VmUtils.md5($!map.get("password"))</td>
+		<td>$!map.get("source")</td>
+	</tr>
+	#end
+	#end
+	</tbody>
+</table>
+<table class="table">
+	<thead id="thead">
+		<tr>
+			<th><div><input type="button" class="button" style="width:200px" onclick="addScalpers()" value="加入黄牛黑名单"/></div></th>
+		</tr>
+	</thead>
+</table>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	document.getElements('input[data-type=toggleAll]').addEvent('click',function(){
+		document.getElements('input[data-type='+this.id+']').each(function(input){
+			input.checked = this.checked;
+		}.bind(this))
+	})
+	//new dwCheckboxes({elements:'input[data-typ != toggleAll]'});
+})
+function addScalpers(){
+	var values = GewaraUtil.getValues($('toggleData'),',');
+
+	var url = '${basePath}admin/gewapay/addScalper.xhtml';
+	GewaraUtil.sendRequest(url, {'memberids':Object.values(values).join(',')}, function(result){
+		if(result.success){
+			alert("保存成功");
+			document.location.href='${basePath}admin/gewapay/scalperList.xhtml';
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

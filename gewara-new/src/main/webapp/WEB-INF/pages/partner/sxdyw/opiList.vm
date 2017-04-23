@@ -1,0 +1,258 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" style="background:#fff;">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>格瓦拉电影、影院搜索-$partner.partnername</title>
+	<meta name="keywords" content="电影排片表查询,电影放映时间查询" />
+	<meta name="description" content="近期各大影院上映电影的排片表、放映时间查询。" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,scrollerbar&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		body{background:#fff;}
+		.gewaT{height:26px;padding:0 10px;line-height:26px;background-color:#f39801;position: relative;font-size:14px;color:#fff;font-weight:bold;font-family: '微软雅黑'}
+		.gewaT span{margin-left: 10px;}
+		.gewaT i{font-weight:normal;font-style:normal;}
+		.gewaT em{position: absolute;right: 10px;top:0px;font-size: 12px;font-weight: normal;}
+		.site_menu{margin-top:2px;}
+		.ptableList li span a {
+		    color: #FFFFFF;
+		    display: inline-block;
+		    height: 22px;
+		    line-height:22px;
+		    line-height: 18px;
+		    text-decoration: none !important;
+		    width: 50px;
+		}
+		.choices{border:0px;padding:0 0 0px 70px}
+		.choices dt{padding-top: 0px;}
+		.choices a{margin:2px 10px 0 0;padding:0 5px;line-height:20px;height:20px;}
+		.play-outside-box{margin-top:0px;width:650px;display:none;background:none repeat scroll 0 0 transparent;}
+		.ticket_choose_color span.button_off{padding-left:18px;cursor: pointer;line-height:20px;margin-top:2px;display:inline-block;background:url(${staticPath}css/buss/sxdyw_bg.jpg) 0 4px no-repeat;}
+		.ticket_choose_color span.button_on{background-position:0 -26px;}
+		.title{height:22px;line-height:22px;}
+		.ui_layout{width:650px;overflow:hidden;}
+		.cmwifi_minBt {
+		    background: url("${staticPath}css/buss/verycd_bt.jpg") no-repeat scroll 0 0 transparent;
+		    color: #FFFFFF !important;
+		    display: inline-block;
+		    height: 22px;
+		    line-height: 22px;
+		    overflow: hidden;
+		    text-decoration: none !important;
+		    width: 50px;
+		}
+		#opiListPanel{
+			background:none repeat scroll 0 0 transparent;
+		}
+	</style>
+</head>
+<body>
+#set($paramsstr="")
+#if($movieid)
+#set($paramsstr="&movieid="+$movieid)
+#end
+<div class="ui_layout">
+	<div class="gewaT" style="padding-right:0px;"><span style="float:left">快速购票</span><span style="float:left"><i>【</i>轻松三步 方便订票<i>】</i></span><em>在线选座购票服务由格瓦拉生活网提供</em><span style="float:right"><img src="${staticPath}css/partner/sxdyw.jpg"/></span></div>
+	<form id="searchForm" action="${basePath}partner/sxdyw/movieDetail.xhtml">
+		<input type="hidden" name="movieid" id="movieid" value="$!movieid"/>
+		<input type="hidden" name="fyrq" id="fyrq" value="$!fyrq"/>
+	</form>
+	<ul class="site_menu" style="position: relative">
+		#foreach($pdate in $dateList)#set($pdateStr=$DateUtil.formatDate($pdate))
+		<li><a #if($VmUtils.eq($pdateStr, $fyrq)) class="select" #end href="javascript:search('fyrq', '$pdateStr')"><span>${DateUtil.format($pdate, 'M月d日')}[$DateUtil.getCnWeek($pdate)]</span></a></li>
+		#end
+	</ul>
+	<div style="background:url(${staticPath}css/buss/sxdyw_body_bg.jpg) scroll 0 -53px repeat;">
+	<dl class="choices clear" style="background:none repeat scroll 0 0 transparent">
+		<dt>选择影片：</dt>
+		<dd>
+			<div class="ticket_choose_color clear" id="movieSiteHeight" style="background:none repeat scroll 0 0 transparent">
+				#foreach($movie in $movieList)
+				<a #if($VmUtils.eq($movie.id,$movieid)) class="select"#set($curMovie=$movie.name) #else href="javascript:searchMovie('movieid',$movie.id)" #end>$movie.name</a>
+				#end
+				<span class="button_off" onclick="objectSiteHeight('movieSiteHeight');">展开（$movieList.size()部）</span>
+			</div>
+		</dd>
+	</dl>
+	<dl class="choices clear" style="border:0px;background:none repeat scroll 0 0 transparent" >
+		<dt>选择影院：</dt>
+		<dd style="background:none repeat scroll 0 0 transparent">
+			#if($VmUtils.size($cinemaList) gt 0)
+			#foreach($cinema in $cinemaList)
+			<a class="cinemaLabel" id="$cinema.id" rel="$!cinema.countycode" href="">$cinema.name</a>
+			#end
+			#else
+			当前条件<b>$fyrq</b>日，<b>《$!curMovie》</b>影院还没有排片，请选择其他时间！
+			#end
+		</dd>
+	</dl>
+	<div id="opiListPanel">
+		#foreach($county in $countyList)
+		#if($VmUtils.isNotBlank($countycode))
+		#if($VmUtils.eq($county.countycode, $countycode))#set($tmpcountycode=$countycode)#end
+		#else #set($tmpcountycode=$county.countycode)
+		#end
+		#foreach($cinema in $cinemaMap.get($tmpcountycode))
+		<div class="play-outside-box countyContent" cinema="$cinema.id">
+			<div class="title">
+				<h2><span class="brown">$!cinema.name</span></h2>
+				<span class="gray">地址：$!{cinema.countyname}$!{cinema.address}</span>
+			</div>
+			<div class="wrapper" id="href$cinema.id" style="overflow-x:auto;overflow-y:hidden;">
+				<div class="wrapperTitle">
+					<b>放映时间</b>
+					<b>语言/版本</b>
+					<b>放映厅</b>
+					<b>票价(元)</b>
+					<b class="yellow">现价(元)</b>
+					<b class="yellow">购票</b>
+				</div>
+				#set($width=71 * $VmUtils.size($opiMap.get($cinema.id)))
+				<ul class="ptableList" id="wrapped$cinema.id" style="width:${width}px;">
+					#foreach($pItem in $opiMap.get($cinema.id))
+					<li #if($foreach.index%2 eq 1) class="playBg" #end>
+						<b class="getvlue" id="$pItem.id">$DateUtil.format($!{pItem.playtime},'HH:mm')</b>
+						<span class="gray getvlue" id="$pItem.id">$!pItem.language#if($!pItem.edition)/$!pItem.edition#end</span>
+						<span class="gray getvlue" id="$pItem.id">$!{pItem.roomname}</span>
+						<span class="gray getvlue" id="$pItem.id">$!pItem.price</span>
+						<b id="$pItem.id" class="getvlue">$!priceHelper.getPrice($pItem)</b>
+						<span>
+							<a href="${basePath}cinema/order/step1.shtml?mpid=$pItem.mpid" target="_blank" class="cmwifi_minBt">购票</a>
+						</span>
+					</li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+		#end
+		#if($VmUtils.size($countyList) eq 0)
+			#foreach($cinema in $cinemaList)
+			<div class="play-outside-box countyContent" cinema="$cinema.id">
+				<div class="title">
+					<h2><span class="brown ml10">$!cinema.name</span></h2>
+					<span class="gray">地址：$!{cinema.countyname}$!{cinema.address}</span>
+				</div>
+				<div class="wrapper" id="href$cinema.id" style="overflow-x:auto;overflow-y:hidden">
+					<div class="wrapperTitle">
+						<b>放映时间</b>
+						<b>语言/版本</b>
+						<b>放映厅</b>
+						<b>票价(元)</b>
+						<b class="yellow">现价(元)</b>
+						<b class="yellow">购票</b>
+					</div>
+					#set($width=71 * $VmUtils.size($opiMap.get($cinema.id)))
+					<ul class="ptableList" id="wrapped$cinema.id" style="width:${width}px;">
+						#foreach($pItem in $opiMap.get($cinema.id))
+						<li #if($foreach.index%2 eq 1) class="playBg" #end>
+							<b class="getvlue" id="$pItem.id">$DateUtil.format($!{pItem.playtime},'HH:mm')</b>
+							<span class="gray getvlue" id="$pItem.id">$!pItem.language#if($!pItem.edition)/$!pItem.edition#end</span>
+							<span class="gray getvlue" id="$pItem.id">$!{pItem.roomname}</span>
+							<span class="gray getvlue" id="$pItem.id">$!pItem.price</span>
+							<b id="$pItem.id" class="getvlue">$!priceHelper.getPrice($pItem)</b>
+							<span>
+								<a href="${basePath}cinema/order/step1.shtml?mpid=$pItem.mpid" class="cmwifi_minBt" target="_blank">购票</a>
+							</span>
+						</li>
+						#end
+					</ul>
+				</div>
+			</div>
+			#end
+		#end
+	</div>
+	</div>
+</div>
+<script src="${staticPath}scripts/loaderProxy.js?v=$VmUtils.jsVersion" data-frameid="gwl"  data-timer="600" data-proxy="http://www.sxdyw.com/proxy.html"></script>
+<script type="text/javascript" src="${staticPath}scripts/scrollerbar.js"></script>
+<script type="text/javascript"> 
+function search(field,value){
+	$(field).value = value;
+	$('searchForm').submit();
+}
+function searchMovie(field,value){
+	$('searchForm').getElements('input').each(function(item){
+		if(item.name=='movieid' || item.name=='fyrq'){ 
+			item.value="";
+		}
+	});
+	search(field,value);
+}
+window.addEvent('domready',function(){
+	#foreach($county in $countyList)
+	#foreach($cinema in $cinemaMap.get($county.countycode))
+	#if($VmUtils.size($opiMap.get($cinema.id)) gt 8)
+	//new ScrollerBar('href$cinema.id',{mode:'horizontal',wrapped:'wrapped$cinema.id'});
+	#end
+	#end
+	#end
+	objectSiteHeight();
+	if($$('.cinemaLabel').length > 0){
+		$$('.cinemaLabel').addEvent('click',function(e){
+			if($defined(e))e.preventDefault();
+			$$('.cinemaLabel').removeClass('select');
+			this.addClass('select');
+			$$('.countyContent').hide();
+			document.getElement('div[cinema='+this.id+']').show();
+		})
+		$$('.cinemaLabel')[0].fireEvent('click');
+	}
+});
+function objectSiteHeight(toggleId){//收起影片和影院
+	if(toggleId){
+		if($(toggleId) && $(toggleId).retrieve('config') != null){
+			toggleId = $(toggleId);
+			var config = toggleId.retrieve('config');
+			if(toggleId.getDimensions().y < config.maxh){
+				toggleId.getElements('a').show();
+				config.fx.toggleHeightValue(config.maxh);
+			}else config.fx.toggleHeightValue(config.minh);
+		}
+	}else{
+		toggleId = $('movieSiteHeight');
+		var config = {};
+		config.maxh = toggleId.getDimensions().y;
+		if(toggleId.getElements('a').length > 12){
+			toggleId.getElements('a').each(function(item,index){
+				if(toggleId.id == 'cinemaPanelOutside'){
+					if(index < cacheList.getLength)item.show();
+					else item.hide();
+				}else{if(index < 6)
+					item.show();
+					else item.hide();
+				}
+				if(toggleId.getElements('a').length - 1 == index){
+					config.minh = toggleId.getDimensions().y;
+					config.fx = new Fx.Toggle(toggleId,{duration:400, link: 'cancel',onComplete:function(){
+						var triger = this.element.getElement('.button_off');
+						if(this.element.getDimensions().y < config.maxh){
+							this.element.getElements('a').each(function(a,i){
+								if(this.element.id == 'cinemaPanelOutside'){
+									if(document.getElements('a[config=area]')[0].hasClass('select'))if(i>cacheList.getLength-1)a.hide();
+								}else{
+									if(i>5)a.hide();
+							}}.bind(this))
+							triger.set('text',triger.get('text').replace('收起','展开'));
+							triger.removeClass('button_on');
+						}else{
+							triger.set('text',triger.get('text').replace('展开','收起'));
+							triger.addClass('button_on');
+						}
+					}});
+					toggleId.store('config',config);
+				}
+			});
+		}else{
+			toggleId.getElement('.button_off').hide();
+		}
+	}
+}
+</script>
+<script type="text/javascript">
+var pageCode="Showtimelist"
+</script>
+#parse('partner/googleGa.vm')
+</body>
+</html>

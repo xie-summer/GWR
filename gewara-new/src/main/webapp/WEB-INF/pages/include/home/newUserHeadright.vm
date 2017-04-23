@@ -1,0 +1,95 @@
+#parse('include/constant/city.vm')
+#if($syscitycodeKey)
+	#set($cookieCitycode=$syscitycodeKey)
+#else
+	#set($cookieCitycode=$cookieTool.citycode.value)
+#end
+#if($VmUtils.isBlank($cookieCitycode))#set($cookieCitycode='310000')#end
+<div class="link_panel">
+	<a href="${basePath}" class="mouse_enter">格瓦拉首页<img src="${staticPath}css/images/blank.gif" class="selectPt"/></a>
+	<div class="specList" id="specList1" style="display:none">
+		<ul class="clear">
+			<li><a href="${basePath}movie/" class="left">电影</a><a href="${basePath}cinema/searchOpi.xhtml" class="right"><img src='${picPath}css/pub/open_flag.png' class="mt5" alt="选座购票"/></a></li>
+			#if($cookieCitycode eq '310000')
+			<li><a href="${basePath}drama/" class="left">演出</a><a href="${basePath}drama/dramaList.xhtml" class="right"><img src='${picPath}css/pub/open_flag.png' class="mt5" alt="选座购票"/></a></li>
+			<li><a href="${basePath}ktv/">KTV</a></li>
+			<li><a href="${basePath}bar/">酒吧</a></li>
+			<li><a href="${basePath}gym/">健身</a></li>
+			<li><a href="${basePath}sport/">运动</a></li>
+			#end
+			<li><a href="${basePath}activity/" class="left">活动</a><a href="${basePath}activity/toMyActivityList.xhtml" class="right ico" style="background-position:-585px -223px">发起活动</a></li>
+			<li><a href="${basePath}blog/" class="left">论坛</a><a href="${basePath}blog/modifyTopic.xhtml?tag=&relatedid=" class="right ico" style="background-position:-585px -157px">发表帖子</a></li>
+			<li><a href="${basePath}quan/" class="left">圈子</a><a href="${basePath}home/commu/addCommu.xhtml" class="right ico" style="background-position:-585px -223px">创建圈子</a></li>
+			<li style="border:0px;"><a href="${basePath}qa/" class="left">知道</a><a href="${basePath}qa/modQuestion.xhtml" class="right ico" style="background-position:-585px -332px">发布问题</a></li>
+		</ul>
+	</div>
+	<span>|</span>
+	#if($logonMember)
+	<a href="${basePath}home/sns/personIndex.xhtml" class="mouse_enter">我的主页<img src="${staticPath}css/images/blank.gif" class="selectPt"/></a>
+	<div class="specList" id="specList2" style="display:none">
+		<ul class="clear">
+			<li><a href="${basePath}home/sns/personIndex.xhtml" target="_blank">我的哇啦</a></li>
+			#*<li><a href="${basePath}home/friend/friendList.xhtml?memberid=$!logonMember.id">我的好友</a></li>*#
+			<li><a href="${basePath}home/commu/commuList.xhtml">我的圈子</a></li>
+			<li><a href="${basePath}home/new/album/albumList.xhtml" class="left">我的相册</a><a href="${basePath}home/new/uploadPicture.xhtml?tag=member&relatedid=$!logonMember.id" class="right ico" style="background-position:-585px -124px">上传</a></li>
+			<li><a href="${basePath}home/comment/newTopicList.xhtml">我的帖子</a></li>
+			#*<li><a href="${basePath}home/activity/activityList.xhtml?memberid=$!logonMember.id&activityTag=adviseActivity">我的活动</a></li>*#
+			<li><a href="${basePath}home/qa/newQuestionList.xhtml">我的知道</a></li>
+			<li><a href="${basePath}home/sns/myLifePlans.xhtml" class="left">生活安排</a></li>
+			<li><a href="${basePath}home/acct/memberinfo.xhtml">个人资料</a></li>
+			<li style="border:0px;"><a href="${basePath}home/charge.xhtml">我的账户</a></li>
+		</ul>
+	</div>
+	<a href="${basePath}home/message/new/sysMsgList.xhtml">站内信
+	#if($notReadCount && $notReadCount gt 0)
+	<span class="brown">($!notReadCount)</span>
+	#end
+	</a>
+	<a href="${basePath}home/charge.xhtml">账户充值</a>
+	<a href="${basePath}home/myOrderManage.xhtml">交易管理</a>
+	<a href="${basePath}home/acct/cardList.xhtml">绑定票券</a>
+	<a href="javascript:logout();">退出</a>
+	<script type="text/javascript">
+		gewara.util.member.login = true;
+		gewara.util.member.memberid=$logonMember.id;
+		gewara.util.member.nickname='$logonMember.nickname';
+		gewara.util.member.notReadCount='$!notReadCount';
+		gewara.util.member.headUrl='$headUrl';
+		#if($VmUtils.isNotBlank($logonMember.mobile))
+		gewara.util.member.isMobile = true;
+		#end
+		if(_gaq) _gaq.push(['_setCustomVar', 1,'userlogin','$!logonMember.id',2]);
+	</script>
+	#else
+		<span>你好！请<a href="javascript:showLogin(refreshPage)" style="color:#ff6200">登录</a><span>或</span><a href="${basePath}register.xhtml"  style="color:#ff6200" target="_blank">注册</a></span>
+	#parse('include/innerLogin.vm')
+	#end
+</div>
+#if(!$!isAlipay)
+<script type="text/javascript">
+var spec = {};
+window.addEvent('domready',function(){
+	spec[0] = new tableSpec(new Element('div',{'styles':{'position':'absolute','display':'none','width':'132px','z-index':600,'overflow':'hidden','padding':'3px 0 0 3px'}}).inject(document.body),'specList1');
+	#if($logonMember)spec[1] = new tableSpec(new Element('div',{'styles':{'position':'absolute','display':'none','width':'132px','z-index':600,'overflow':'hidden','padding':'3px 0 0 3px'}}).inject(document.body),'specList2');#end
+	$$('.mouse_enter').addEvent('mouseenter',function(e){
+		var el = spec[$$('.mouse_enter').indexOf(this)].options.parent;
+		el.position({
+			relativeTo:this,
+			position:"upperLeft",
+			offset:{x:-9,y:20}
+		});
+		el.setStyle('height','auto');
+		gewa.util.show(el,function(){
+			document.addEvent('mousemove', moveClear.bind(this));
+		}.bind([this,el]))
+	});
+	$$('.specList li').addEvents({'mouseenter':function(){this.addClass('select');},'mouseleave':function(){this.removeClass('select')}})
+})
+var moveClear = function(e){
+	if(this[0] != e.target && !this[1].hasChild(e.target) && this[1] != e.target){
+		this[1].hide();
+		document.removeEvents('mousemove',arguments[0]);
+	}
+}
+</script>
+#end

@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>选座购票-$partner.partnername</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/layout.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		html{background:#fff; color:#333;}
+		#set($maxwidth=40+22*$room.ranknum)
+		#content{width:${maxwidth}px;}
+		.fs12{font-size:12px;}
+		.fs14{font-size:14px;}
+		.mt20{margin-top:20px;}
+		.ui_layout{width:984px; overflow:hidden; border:1px solid #dadada; overflow:hidden;}
+		.ui_baidu_left{width:653px; border-right:1px solid #dadada; overflow:hidden; float:left; padding-bottom:30000px; margin-bottom:-30000px;}
+		.ui_baidu_right{width:290px; padding:0 20px; overflow:hidden; float:left;}
+		.screenInfo{height:50px; background:#e6f4fb; border-bottom:1px solid #dadada; line-height:25px; text-align:center; padding:5px 0; font-size:14px;}
+		.screenInfo h2{font:16px/20px "微软雅黑","宋体";}
+		.seatInfo{height:35px; border-bottom:1px solid #dadada; text-align:center; margin-top:15px;}
+		.seatInfo span{line-height:21px; margin:0 10px;}
+		.seatInfo span img{vertical-align:-6px; _vertical-align:-2px; margin-left:5px;}
+		.hasSeat,.sellSeat,.checkSeat,.loveSeat{background-image:url(${staticPath}css/partner/ico_baidumap.gif);background-repeat:no-repeat;cursor: pointer;}
+		.hasSeat{background-position:0 0;}
+		.sellSeat{background-position:-22px 0;}
+		.checkSeat{background-position:-44px 0;}
+		.loveSeat{background-position:-66px 0;}
+		.pewGroup{border-bottom:1px solid #dadada; padding:15px;}
+		.pseat{height:23px;clear:both; overflow:hidden; padding-left:30px; line-height:23px; color:#333;}
+		.pseat dd{height:21px; float:left; overflow:hidden; width:100%;}
+		.pseat span{width:21px; height:21px; margin-right:2px; display:inline-block; float:left;}
+		.pseat dt{margin-left:-30px; _margin-left:-15px; float:left; height:23px; width:21px; text-align:center; line-height:23px;}
+		.seatView{padding:15px;}
+		.seatView h3{font:normal 12px/24px "宋体";}
+		.seatView p{color:#666;}
+		.movieInfo{font:14px/24px "宋体"; border-bottom:1px dashed #dadada; padding:20px 0 19px;}
+		.ffyh{font-family:verdana,"微软雅黑"}
+		.movieInfo p em{color:#999;}
+		.ui_warning{display:none; height:20px; line-height:20px;}
+		p strong, .ui_warning strong{color:#ee2929;}
+		.ui_warning strong{margin:0 5px;}
+		.text{height:20px; line-height:18px; width:190px; font-size:16px; font-weight:bold; font-family:verdana;}
+		.mobileInfo{padding:20px 0;}
+		.mobileInfo ul li{margin-top:15px;}
+		.mobileInfo ul li span{width:70px; text-align:right; display:inline-block;}
+		.payNow_off,.payNow_on{background:url(${staticPath}css/partner/ico_btn_baidumap.gif) no-repeat; border:0; cursor:pointer; height:42px; width:275px; margin:30px auto; text-indent:-9999px; overflow:hidden; display:block;}
+		.payNow_off{background-position:0 -43px;}
+		.priceCount{color:#ee2929; font-size:12px; line-height:30px;}
+		.priceCount strong{font-size:21px; margin-right:5px;}
+		.refreshCap{color:#3d6dcc; text-decoration:underline; cursor:pointer; font-family:"宋体";}
+		.movieChoosed{display:block; width:130px; height:34px; line-height:34px; margin:3px 10px 0 0; float:left; text-align:center; background:url(${staticPath}css/partner/ico_choosed_baidumap.gif) right bottom no-repeat #fff; border:2px solid #ff721d;}
+		.scrollPage{overflow:auto;width:624px;height:100%;}
+	</style>
+</head>
+<body>#set($price=$priceHelper.getPrice($opi))
+<div class="ui_layout">
+	<div class="ui_baidu_left">
+		<div class="screenInfo">
+			<h2>银幕方向</h2>
+			<p>$!room.roomname$!opi.seatnum座位</p>
+		</div>
+		<div class="seatInfo">
+			<span>可选位置<img src="${staticPath}css/images/blank.gif" class="hasSeat" width="21" height="21"/></span>
+			<span>已售位置<img src="${staticPath}css/images/blank.gif" class="sellSeat" width="21" height="21"/></span>
+			<span>您已选的位置<img src="${staticPath}css/images/blank.gif" class="checkSeat" width="21" height="21"/></span>
+			<span>情侣座<img src="${staticPath}css/images/blank.gif" class="loveSeat" width="21" height="21"/></span>
+		</div>
+		<div class="pewGroup">
+			<div class="scrollPage" id="seatTable">
+				#set($maxwidth=40+22*$room.ranknum)
+				#set($pewHeight=$room.linenum*24+66)
+				#set($rowList=$VmUtils.split($room.seatmap,"@@"))
+				<div style="margin:0 auto;#if(${maxwidth} gt 624)width:${maxwidth}px;#else width:624px#end; height:${pewHeight}px; overflow:hidden;">
+					#set($classMap={'O':'noSeat','A':'hasSeat'})
+					<div style="width:${maxwidth}px;height:100%;margin:0 auto;">
+						#foreach($row in $rowList)
+						<dl class="pseat clear">
+							<dd>
+								#foreach($rank in $VmUtils.split($row, ","))
+								<span class="$classMap.get($rank)"></span>
+								#end
+							</dd>
+						</dl>
+						#end
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="seatView">
+			<h3>使用说明：</h3>
+			<p>1. 选择你要预订的座位单击选中，重复点击取消座位；</p>
+			<p>2. 每笔订单最多可选购$!{opi.gainLockSeat()}张电影票；情侣座不单卖；</p>
+			<p>3. 选座时，请尽量选择相邻座位，请不要留下单个座位；</p>
+			<p>4. 部分影院3D眼镜需要押金，请观影前准备好现金；</p>
+			<p>5. 点击“立即支付”进入付款页面后，请在15分钟内完成支付，超时系统将释放你选定的座位。</p>
+		</div>
+	</div>
+	<div class="ui_baidu_right">
+		#set($seatidList=[])
+		#if($VmUtils.size($mySeatList) gt 0)#foreach($oseat in $mySeatList)#set($tmp=$seatidList.add($oseat.id))#end#end
+		<form id="orderForm" action="${basePath}partner/${partner.partnerpath}/addOrder.xhtml" method="post" target="_blank">
+		<input type="hidden" name="sign" value="$!sign" />
+		#if($otherParams)
+		#foreach($key in $otherParams.keySet())
+		<input type="hidden" name="$key" value="$!otherParams.get($key)" />
+		#end
+		#end
+		<input type="hidden" name="mpid" id="mpid" value="${opi.mpid}"/>
+		<input type="hidden" name="key" id="key" value="$!{key}"/>
+		<input type="hidden" name="seatid" id="seatList" value="$!VmUtils.join($seatidList,',')"/>
+		#if($VmUtils.eq($movie.id,'124919584'))
+		#*蓝精灵2的影片ID 124919584 *#
+		<input type="hidden" name="event" id="event" value="baiduGewara10"/>
+		#end
+		<div class="movieInfo ffyh">
+			<p><em>影片：</em>$!movie.moviename</p>
+			<p><em>影院：</em>$!{cinema.name}</p>
+			<p><em>场次：</em><strong>$!DateUtil.format($opi.playtime,"MM月dd日")（$!DateUtil.getCnWeek($opi.playtime)）$!DateUtil.format($opi.playtime,"HH:mm")</strong></p>
+		</div>
+		<div class="movieInfo">
+			<p><strong>座位：</strong></p>
+			<p id="noChooseText">未选择座位</p>
+			<div class="clear" id="selectedSeat"></div>
+			<p class="fs12" id="noChooseNotice"><em>请先选择座位，每次最多可选5个座位。</em></p>
+			<div class="ui_warning fs12" id="seatNumP">已选<strong>0</strong>个座位，再次单击座位取消选择。</div>
+			<div  style="display:none;" id="priceCountBox">
+				<p class="mt20"><strong>总金额：</strong></p>
+				<p class="priceCount" style="font-size:18px; font-weight:bold;" id="priceCount"><strong>00</strong>元</p>
+			</div>
+		</div>
+		<div class="mobileInfo">
+			<p class="fs14"><b>请输入取票的手机号码：</b></p>
+			#set($captchaId=$VmUtils.randomCaptchaId)
+			<input type="hidden"  name="captchaId" id="partnercaptcha" value="$!captchaId"/>
+			<ul>
+				<li>
+					<span>手机号码：</span>
+					<input id="mobile" onkeyup="GewaraUtil.replaceStr(this);" name="mobile" value="$!mobile" size="11" maxlength="11" class="text" type="text"/>
+				</li>
+				<li>
+					<span>验证码：</span>
+					<input class="text" name="captcha" autocomplete="off" id="partnercaptchaInput" maxlength="6" style="width:60px;" type="text"/>
+					<img id="partnercaptchaImg" src="${basePath}captcha.xhtml?captchaId=$!captchaId&r=$math.random" style="cursor:pointer; width:80px; height:30px; _vertical-align:-11px" onclick="GewaraUtil.refreshCaptcha('partnercaptcha')" title="看不清楚，请双击换一张图片"/>
+					<em class="refreshCap" onclick="GewaraUtil.refreshCaptcha('partnercaptcha')">看不清?</em>
+				</li>
+			</ul>
+			<p>
+				<a class="payNow_off" id="payNow_off" href="javascript:unSubmitOrder();">立即支付</a>
+				<input class="payNow_on none" id="payNow_on" type="button" onclick="submitOrder();" value="确认并支付"/>
+			</p>
+		</div>
+		</form>
+	</div>
+</div>
+<form id="submitForm" target="_top" method="post">
+<input type="hidden" name='tradeNo' id="submitFormTradeNo" value=""/>
+</form>
+<script type="text/javascript">
+window.addEvent('domready', function(){
+	refreshSeat();
+	gewaUtil.textOver('.text',true);
+});
+#set($seatidList=[])
+#if($VmUtils.size($mySeatList) gt 0)#foreach($oseat in $mySeatList)#set($tmp=$seatidList.add($oseat.id))#end#end
+#if($VmUtils.size($seatidList) gt 0)#set($jsSeatList="'" +$!VmUtils.join($seatidList,"','") + "'")#end
+function refreshSeat(){
+	gewa.util.mask({'element': "seatTable",'title':'正在查询数据...', "opacity":"0.4"});
+	#set($price=$priceHelper.getPrice($opi))
+	var values={'mpid':$opi.mpid, 'partnerid':$partner.id, 'price':'$price', 'jsSeatList':"$!jsSeatList"};
+	var url="${basePath}partner/baidu/seatPage.xhtml"
+	GewaraUtil.sendLoad('seatTable', url, values, function(result){
+		gewa.util.clearMask();
+		if(!result.success){
+			var msg = result.json.msg;
+			gewa.util.maskContent("seatTable", '<span style="cursor:pointer">'+msg+'</span>');
+		}
+	})
+}
+function submitOrder(){
+	var err = "",val=$("mobile").value.trim();
+	if($$(".pseat span.hasSeat").length >0 || $$(".pseat span.checkSeat").length>0) {
+		if($("seatList").value.trim() == "") err = "请先选择座位！";
+	}else err="影厅已满坐，请选择其它影厅！";
+	if(val == ""){err += "请输入您的手机号码！"};
+	if((!isNumber(val) || val.length != 11) && val != "") err += "请输入正确的手机号码！";
+	if(err.length>0){alert(err);return false;};
+	gewa.util.mask({'element': "orderForm",'title':'正在提交，请稍等...'});
+	var values = GewaraUtil.getValues($("orderForm"));
+	var url = "${basePath}partner/baidu/addOrder.xhtml";
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			var r;
+			var t = "";
+			if (result.msg) {
+				t = "nextpage";
+				r=confirm(result.msg + "\r\n" + "是否提交订单？");
+			} else if (result.enableRemark) {
+				alert(result.enableRemark);
+			}
+			if(t=="" || r==true) {
+				$("submitFormTradeNo").value = result.tradeno;
+				$("submitForm").action = '$!callBack';
+				$("submitForm").submit();
+			} else {
+				GewaraUtil.refreshCaptcha('partnercaptcha');
+			}
+		}else {
+			alert(result.msg);
+			GewaraUtil.refreshCaptcha('partnercaptcha');
+		}
+	});
+};
+function unSubmitOrder(){
+	alert('请先选择座位！')
+}
+function isNumber(str){return /^\d+$/.test(str);}
+</script>
+<script src="${basePath}scripts/loaderProxy.js?v=$VmUtils.jsVersion" data-frameid="seatBox"  data-timer="600" data-proxy="$!{iframeUrl}"></script>
+<script type="text/javascript">
+var pageCode="step1.shtml"
+</script>
+#parse('partner/googleGa.vm')
+</body>
+</html>

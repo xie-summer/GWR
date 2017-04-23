@@ -1,0 +1,79 @@
+<table class="tablist mt10" style="width:100%;margin:0; border-color:green;">
+	<tbody>
+		#set($orderMap = $VmUtils.readJsonToMap($!order.otherinfo))
+		#if($orderAddress)
+			<tr class="trbg">
+				<td>收件人</td>
+				<td>联系电话</td>
+				<td colspan="5">地址</td>
+				<td>快递方式</td>
+				<td>快递单号</td>
+			</tr>
+			<tr>
+				<td>$!{orderAddress.realname}</td>
+				<td onclick="showMobile($!orderAddress.tradeno,$orderAddress.mobile)"><span name="demobile" id="order$!orderAddress.tradeno" title="$!orderAddress.mobile">#if($VmUtils.isBlank($xls))$!VmUtils.getSmobile($!{orderAddress.mobile})#{else} $!{orderAddress.mobile} #end</span></td>
+				<td colspan="5">$!{orderAddress.provincename}&nbsp;&nbsp;$!{orderAddress.cityname}&nbsp;&nbsp;$!{orderAddress.countyname}$!{orderAddress.address}</td>
+				<td>
+					#if($!xls)
+						$!orderMap.get('expressMode')
+					#else
+						<input type="text" id="expressMode$!order.id" name="expressMode" onchange="setExpressNo($!order.id)" style="width: 75px;" value="$!orderMap.get('expressMode')" />
+					#end	
+				</td>
+				<td>
+					#if($!xls)
+						$!orderMap.get('expressNo')
+					#else
+						<input type="text" id="expressNo$!order.id" name="expressNo" style="width: 75px;" onchange="setExpressNo($!order.id)" value="$!orderMap.get('expressNo')" />
+					#end
+				</td>
+			</tr>
+		#end
+		<tr class="trbg">
+			<td>场馆</td>
+			<td>项目</td>
+			<td>物品描述</td>
+			<td>单价</td>
+			<td>数量</td>
+			<td>套票优惠</td>
+			<td>总价</td>
+			<td>取票密码</td>
+			<td>操作</td>
+		</tr>
+		#set($descMap=$VmUtils.readJsonToMap($order.description2))
+		#set($playText=$descMap.get('时间'))
+		#set($seatText=$descMap.get('座位'))
+		#if(!$VmUtils.isEmptyList($itemList))
+		#foreach($item in $itemList)
+		#set($theatre=$orderTheatreMap.get($item.placeid))
+		#set($drama=$orderDramaMap.get($item.itemid))
+		#set($note=$noteMap.get($item.relatedid))
+		<tr>
+			<td>$!{theatre.realBriefname}</td>
+			<td>$!{drama.realBriefname}</td>
+			<td>$!{item.summary}</td>
+			<td>$!{item.unitprice}</td>
+			<td>$!{item.quantity}</td>
+			<td #if($VmUtils.gt($!item.disfee,0))style="color:red;" #end>$!item.disfee</td>
+			<td>$!item.totalfee</td>
+			<td style="vnd.ms-excel.numberformat:@">$!note.checkpass</td>
+			<td>#if(!$VmUtils.isBlank($!note.message) && $VmUtils.eq($order.status,'paid_success'))[<span style="color: red;">已发</span>]#{end}#if($VmUtils.eq($order.status,'paid_success'))<a href="javascript:void(0)" onclick="sendMessage('$!note.id')" title="#if(!$VmUtils.isBlank($!note.message))短信已加入#end">重发短信</a>#end</td>
+		</tr>
+		#end
+		#elseif(!$seatText)
+		#foreach($note in $tmpNoteMap.values())
+		<tr>
+			<td>$!{note.placename}</td>
+			<td>$!{note.itemname}</td>
+			<td>$!{playText} , $!{seatText}$!{order.remark}</td>
+			<td>$!{order.unitprice}</td>
+			<td>$!{order.quantity}</td>
+			<td>0</td>
+			<td>$!order.totalfee</td>
+			<td>$!note.checkpass</td>
+			<td>#if(!$VmUtils.isBlank($!note.message))[<span style="color: red;">已发</span>]#{end}#if($VmUtils.eq($order.status,'paid_success'))<a href="javascript:void(0)" onclick="sendMessage('$!note.id', $!VmUtils.isNotBlank($!note.message))" title="#if(!$VmUtils.isBlank($!note.message))短信已加入#end">重发短信</a>#end</td>
+		</tr>
+		#end
+		#end
+	</tbody>
+</table>

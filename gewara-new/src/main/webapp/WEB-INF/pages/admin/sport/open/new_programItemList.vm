@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>$cursport.name -- $sportItem.name 时间段基础数据</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/admin.css?v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		input{
+			margin-top: 5px;
+		}
+	</style>
+</head>
+<body>
+#set($isItemTime=true)
+#set($isProgram=true)
+#parse('admin/sport/open/new_menu.vm')
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<div><input type="button" onclick="getPrgramItem('')" value="添加时间段"/><input type="button" style="margin-left: 20px;" onclick="batchProgramItem('$!cursport.id','$!sportItem.id')" value="生成数据" /></div>
+		<div id="programData" style="display:none;"></div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th width="10%">ID</th>
+					<th width="10%">日期</th>
+					<th width="10%">时段段</th>
+					<th width="10%">网站售价</th>
+					<th width="10%">成体价</th>
+					<th width="10%">场馆价</th>
+					<th width="10%">计时单位</th>
+					<th width="10%">预约上线人数</th>
+					<th width="10%">场地</th>
+					<th width="10%">操作</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				#set($weekData={1:'星期一',2:'星期二',3:'星期三',4:'星期四',5:'星期五',6:'星期六',7:'星期日'})
+				#foreach($programItem in $programItemList)
+				<tr class="grayBg">
+					<td>$!{programItem.id}</td>
+					<td>$!weekData.get($programItem.week)</td>
+					<td>$!{programItem.starttime} -- $!{programItem.endtime}</td>
+					<td>$!{programItem.price}</td>
+					<td>$!{programItem.costprice}</td>
+					<td>$!{programItem.sportprice}</td>
+					<td>
+						#if($!VmUtils.eq($programItem.unitType,'whole'))
+						不限时
+						#elseif($!VmUtils.eq($programItem.unitType,'time'))
+						$!{programItem.unitMinute}分钟
+						#end
+					</td>
+					<td>#if($!VmUtils.eq($sport2Item.opentype,'field'))-#else$!programItem.quantity#end</td>
+					<td>
+						#foreach($field in $fieldList)
+						 #if($VmUtils.eq($programItem.fieldid,$field.id))
+						 $field.name
+						 #end
+						#end
+					</td>
+					<td>
+						<input type="button" onclick="getPrgramItem('$!programItem.id')"  value="修改"/>
+						<input type="button" onclick="myconfirm(this,'$!programItem.id')"  value="删除"/>
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+
+<script type="text/javascript">
+	function saveupdate(obj){
+		var url = '${basePath}admin/sport/open/saveNewProgramItemTime.xhtml';
+		if(!GewaraUtil.baseValidForm('programData','admin'))return;
+		var values = GewaraUtil.getValues("programData",',');
+		var fieldids = "";
+		$$('.fieldids').each(function(el){
+			if(el.checked){
+				fieldids += el.value + ",";
+			}
+		});
+		values.fieldids=fieldids;
+		if(values.week == undefined)return alert("请选择日期!");
+		GewaraUtil.mask(obj);
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert('保存成功！');
+				hideProgramItem('programData');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function changeCloseTime(obj){
+	    if(obj.value<=$('starttime').value){
+	    	alert("结束时间小于或等于开始时间！");
+		}
+	}
+	
+	function getPrgramItem(id){
+		var url = "${basePath}admin/sport/open/getNewProgramItemTime.xhtml";
+		var values = {'id': id,'sportid':'$!cursport.id','itemid':'$!sportItem.id'};
+		GewaraUtil.sendLoad('programData',url, values, function(result){
+			if(result.success){
+				gewa.util.maskContent('','programData','时间段数据管理',600,'programData');
+			}else alert(result.msg);
+		});
+	}
+	
+	function batchProgramItem(sportid,itemid){
+		var url = "${basePath}admin/sport/open/bathProgramItem.xhtml";
+		var values = {"sportid":sportid,"itemid":itemid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('生成数据成功！');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function myconfirm(obj, id){
+		gewa.util.confirm('时间段删除后无法恢复，并可能影响到已开放的场次，确定删除？',function(){	
+			var url = "${basePath}admin/sport/open/delProgramItemTime.xhtml";
+			var values = {'id':id};
+			GewaraUtil.mask(obj);
+			GewaraUtil.sendRequest(url, values , function(result){
+				if(result.success){
+					alert('删除成功！');
+					$(obj).getParent('tr').dispose();
+				}else{
+					alert(result.msg);
+				}
+				refreshPage();
+			});
+		})	
+	}
+	
+	function hideProgramItem(el){
+		if(gewa.util.container[el]){
+			gewa.util.container[el].dispose(el);
+		}
+	}
+	function getMinute(val){
+		if(val=='whole'){
+			$('minute').style.display='none';
+		}else{
+			$('minute').style.display='inline';
+		}
+	}
+</script>
+</body>
+</html>

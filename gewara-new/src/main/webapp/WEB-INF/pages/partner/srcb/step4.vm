@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>格瓦拉电影、影院搜索-$partner.partnername</title>
+	<meta name="keywords" content="电影排片表查询,电影放映时间查询" />
+	<meta name="description" content="近期各大影院上映电影的排片表、放映时间查询。" />
+	<link rel="stylesheet" type="text/css" href="${basePath}css/gewara.css?n=global,sns,layout,play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${basePath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${basePath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.partner_douban{height:50px;width:100%;overflow:hidden;background:url(${staticPath}css/buss/partner_srcb.jpg?a=00) 20px center no-repeat;}
+		.tbgss{background:#4c7db6;margin-top:16px;text-indent:10px;color:#fff;}
+		.horn .m1,.horn .m2,.horn .m{border-color:#b1d4ef}
+		.horn .m1{background:#b1d4ef}
+		.m{background:#fafbfd;}
+
+		h1,h2{font-size:14px;font-weight:bold;color:#ff6200}
+		.showMap{padding:20px;}
+		.ul-28 li{height:22px;line-height:22px;}
+		.stepBt{display:inline-block;height:36px;line-height:36px;}
+		.stepBt:hover{color:#fff;text-decoration:underline;}
+	</style>
+	<!-- 页面所有的路径都用：basePath 切记 -->
+</head>
+<body>
+<div class="ui_layout" id="g-top" style="width:100%">
+	<div class="inner">
+		<div class="partner_douban"><a href="http://www.srcb.com/html/" target="_blank" style="width:15%;display: block;height:100%;margin-left:20px;"></a></div>
+		<div class="title tbgss">
+			你的位置：<span class="mr5">上海农商银行电影</span>&gt;<b class="ml5 black">上海农商银行-格瓦拉合作在线购票专区</b>
+			<p class="more freeTag" style="background-position:0px -2670px;padding-left:20px;cursor: default;">预订过程中有任何问题请拨打客服电话：<b>4000-406-506</b>或联系<a class="minBt ml10" onclick="javascript:_ga._trackPageview('${basePath}movie/ask');javascript:window.open('${basePath}chat.html','gewara','height=473,width=703,top=200,left=200,status=yes,toolbar=no,menubar=no,resizable=no,scrollbars=no,location=no,titlebar=no');" href="javascript:void(0);"><span>在线客服</span></a></p>
+		</div>
+		#set($issrcb=true)
+		#if($success)
+		<div class="showList">
+			<div style="padding:10px 60px;">
+				<dl class="gui-120" style="padding-left:260px;">
+					<dt class="gui-120Inner"><img src="${basePath}css/buss/succ_i.png" class="mt20" alt="购买成功"/></dt>
+					<dd style="width:98%;float:left;">
+						<h1 style="font-size:14px;font-weight:bold">购买成功！您将在15分钟内收到取票短信。</h1>
+						#set($takeMap={"P":"","U":"","W":"在影院售票窗口","A":"在自助取票机上"})
+						<p class="mt5">请凭短信中的取票密码$!{takeMap.get($takemethod)}取票。</p>
+						<ul class="ul-28">#set($descMap=$VmUtils.readJsonToMap($order.description2))
+							<li>$order.ordertitle&nbsp;订单号：<span class="blue">$order.tradeNo</span></li>
+							<li>影片：$descMap.get('影片')</li>
+							<li>场次：$descMap.get('场次')</li>
+							<li>座位：$descMap.get('影票')</li>
+							<li>付款：<strong class="yellow" style="font-size:2em">$!fee</strong>元#set($fufee=$opi.gewaprice - $opi.costprice)(含格瓦拉服务费#if($fufee gt 0)${fufee}#{else}0#{end}元)</li>
+						</ul>
+						<div class="height0"></div>
+						#*<a href="${basePath}register.xhtml" id="ggAnalyCoupon" class="stepBt mt20 fs14">领取5元优惠券</a>*#
+					</dd>
+				</dl>
+				<div class="height0"></div>
+			</div>
+		</div>
+		#else
+		<table cellpadding="0" cellspacing="0" class="gui-table" border="0">
+			<tr><td class="gui-tplt" valign="bottom" align="right"></td><td class="gui-tpct" valign="bottom"></td><td class="gui-tprt" valign="bottom" align="left"></td></tr>
+			<tr>
+				<td class="gui-ctlt"></td>
+				<td style="padding:20px 60px;">
+					<dl class="gui-160" style="padding-left:260px;">
+						<dt class="gui-160Inner" style="margin-left:-200px;_margin-left:-100px;"><img src="${basePath}css/buss/errorq.png" alt="购买失败"/></dt>
+						<dd style="width:98%;float:left;">
+							<h1 style="font-size:1.3em;font-weight:bold">该订单有错误，可能是如下原因：$!msg</h1>
+							<p class="mt10">1、影院售票系统暂时不能正常访问</p>
+							<p>2、由于您未能在15分钟内完成支付，座位已被释放且被其他人占用</p>
+							<p>3、付款通知网络延迟，您可在2-5分钟后尝试刷新页面</p>
+							<ul class="ul-28">
+								<li>我们将尽快联系您，您也可拨打客服热线：<strong class="yellow">4000-406-506</strong></li>
+								<li>您的订单号为：$order.tradeNo</li>
+							</ul>
+						</dd>
+					</dl>
+				</td>
+				<td class="gui-ctrt"></td>
+			</tr>
+			<tr><td class="gui-btlt" valign="top" align="right"></td><td class="gui-btct" valign="top"></td><td class="gui-btrt" valign="top" align="left"></td></tr>
+		</table>
+		#end
+		#if($topic.id)
+		<div class="showList">
+			<div class="gui-title"><h2>${opi.cinemaname}取票地点说明：</h2></div>
+		</div>
+		<div class="showMap" style="padding:10px 40px;">
+			<img src="${basePath}css/global/step.jpg"/><br/>
+			$!diaryBody
+		</div>
+		#end
+	</div>
+</div>
+</body>
+</html>

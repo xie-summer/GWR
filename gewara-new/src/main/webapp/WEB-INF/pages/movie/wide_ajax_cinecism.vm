@@ -1,0 +1,229 @@
+#if((!$params.movieDetail eq 'true'))
+<div class="mod_tabs mod_tabs_movie">
+	<div class="mod_hd">
+		<ul class="nav_tabs">
+			<li><a href="${basePath}movie/$!movie.id?movieMpiList=true">排片购票</a></li>
+			<li><a href="javascript:void(0)" onclick="loadUiLeft('movie/movieInfoDetail.xhtml',{'mid':'$movie.id'})">剧情介绍</a></li>
+			<li><a href="javascript:void(0)" onclick="loadUiLeft('movie/movieWala.xhtml',{'mid':'$movie.id'})">哇啦<em>#if($commentCount gt 0)($!{commentCount})#end</em></a></li>
+			<li class="select"><a href="javascript:void(0)" onclick="loadUiLeft('movie/ajax/movieDiaryList.xhtml',{'mid':'$movie.id'})">影评<em>#if($diaryCount gt 0)($!{diaryCount})#end</em></a></li>
+			<li><a href="javascript:void(0)" onclick="loadUiLeft('movie/movieNewsList.xhtml',{'mid':'$movie.id'})" >资讯<em>#if($newsCount gt 0)($!{newsCount})#end</em></a></li>
+		</ul>
+	</div>
+	<div class="mod_bd clear">
+	</div>
+</div>
+<div class="mod_tabs cinecism">
+	<div class="mod_hd">
+		<ul class="tabs clear">
+			<li  #if(($VmUtils.isBlank($params.myOrder)||$VmUtils.eq($params.myOrder,'poohnum'))&&!$friend) class="select" #end onclick="loadUiLeft('movie/ajax/movieDiaryList.xhtml',{'mid':'$movie.id'})"><a href="javascript:void(0)" >热门影评</a></li>
+			<li  #if($VmUtils.eq('addtime',$params.myOrder)) class="select" #end><a href="javascript:void(0)" onclick="loadAddtime()">最新影评</a></li>
+		</ul>
+		<a class="button redBt bigBt more" href="javascript:void(0)" onclick="submitDiary()"><span>发表影评</span></a>
+	</div>
+	<div class="mod_bd clear">
+	#end
+	#if($VmUtils.size($diaryList) gt 0)
+		<div class="" id="hotCin_content">
+			<ul>
+			#foreach($diary in $diaryList)
+				<li class="movieText">
+					<div class="ui_media">
+						<div class="ui_pic">
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.memberid" target="_blank" title="$cacheMemberMap.get($diary.memberid).nickname">
+								<img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($diary.memberid).headpicUrl)) center center no-repeat;" height="50" width="50"/>
+							</a>
+							<a target="_blank" title="$cacheMemberMap.get($diary.memberid).nickname" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.memberid">$!VmUtils.escabbr($cacheMemberMap.get($diary.memberid).nickname, 8)</a>
+						</div>
+						<div class="ui_text">
+						#set($diaryPointMap=$VmUtils.readJsonToMap($diary.otherinfo))
+							<div class="ytitle">
+								#if($!VmUtils.getByteLength($diary.summary) gt 250)
+									<a onclick="showAll('showDown','$diary.id')" style="float:right" class="ui_readMore fs12" href="javascript:void(0)">展开</a>
+								#end
+								#if($diaryPointMap.get('point'))<span class="right">获推荐，奖励 $!{diaryPointMap.get('point')}积分</span>#end
+								<h2><a href="$!{basePath}blog/t$diary.id" target="_blank" title="$!{diary.subject}">$!VmUtils.htmlabbr($diary.subject, 60)</a></h2>
+							</div>
+							
+							<div class="ypText mt10">
+								<div id="showDown_content$diary.id" >
+									<p>
+										$!VmUtils.htmlabbr($diary.summary,250) #if($!VmUtils.getByteLength($diary.summary) gt 250)...#end
+								</div>
+								<div id="showUp_content$diary.id" style="display:none;">
+									<div id="review_$!{diary.id}_full"></div>
+									<p class="tar">
+										<a onclick="showAll('showUp','$diary.id')" class="ui_readMore" href="javascript:void(0)">&lt;&lt;收起</a>
+									</p>
+								</div>
+							</div>
+							<div class="Movie_func clear">
+								<div class="movieHand right">
+									<a onclick="showSupport($diary.id);" title="赞成"  href="javascript:void(0);" class="mr30 H_ico1" id="flowers$!{diary.id}">$!{diary.flowernum}</a>
+									<a onclick="showOppose($diary.id);" title="反对"  href="javascript:void(0);" class="H_ico2" id="pooh$!{diary.id}">$!{diary.poohnum}</a>
+								</div>
+								<div class="funcTime">
+									<p>#if($diaryPointMap.get('reason'))推荐理由：$!diaryPointMap.get('reason') #end</p>
+									<span>$DateUtil.format($diary.addtime, 'yyyy-MM-dd HH:mm')</span>
+								</div>
+							</div>
+							 <div id="support$diary.id" class="film_review none clear">
+			               <div class="film_review_text">
+									<img class="uiPt" src="${staticPath}css/images/blank.gif" />
+									<textarea id="say_support$diary.id"  name="body">说说支持理由</textarea>
+							  </div>
+							  <div class="tar mt5">
+							  		<dl class="left">
+										<dt class="left" style="margin-top:3px;">验证码：</dt>
+										<dd class="left">
+											<input type="hidden" name="captchaId" id="captcha$diary.id" />
+											<input type="text" class="text captcha" name="captcha" style="width:80px;" alt="点击获取" autocomplete="off"  id="captcha$!{diary.id}Input" size="18" onfocus="GewaraUtil.refreshCaptcha('captcha$!{diary.id}');$('captcha$!{diary.id}Img').setStyle('display','inline');if(this.value=='点击获取')this.value='';" value='点击获取' /><span class="yellow">*</span>
+											<img width="59" height="24" id="captcha$!{diary.id}Img" src="" style="cursor: pointer;vertical-align:middle;display:none;" onclick="GewaraUtil.refreshCaptcha('captcha$!{diary.id}');" title="看不清楚，请点击换一张图片"/>
+										</dd>
+									</dl>
+							     <a target="_blank" class="button minBt redBt" onclick="addComment(this,$diary.id,'support','say_support$diary.id','captcha$diary.id');">
+							     <span>发布</span></a>
+							  </div>
+						   </div>
+							<div id="oppose$diary.id" class="film_review none clear">
+		                  <div class="film_review_text">
+									<img class="uiPt" src="${staticPath}css/images/blank.gif" />
+									<textarea id="say_oppose$diary.id"  name="body" >说说反对理由</textarea>
+							  </div>
+							  <div class="tar mt5">
+							  		<dl class="left">
+										<dt class="left" style="margin-top:3px;">验证码：</dt>
+										<dd class="left">
+											<input type="hidden" name="captchaId" id="captchan$!{diary.id}" />
+											<input type="text" class="text captcha" name="captcha" style="width:80px;" alt="点击获取" autocomplete="off"  id="captchan$!{diary.id}Input" size="18" onfocus="GewaraUtil.refreshCaptcha('captchan$!{diary.id}');$('captchan$!{diary.id}Img').setStyle('display','inline');if(this.value=='点击获取')this.value='';" value='点击获取' /><span class="yellow">*</span>
+											<img width="59" height="24" id="captchan$!{diary.id}Img" src="" style="cursor: pointer;vertical-align:middle;display:none;" onclick="GewaraUtil.refreshCaptcha('captchan$!{diary.id}');" title="看不清楚，请点击换一张图片"/>
+										</dd>
+									</dl>
+							     <a target="_blank" class="button minBt redBt" onclick="addComment(this,$diary.id,'oppose','say_oppose$diary.id','captchan$diary.id');">
+							     <span>发布</span></a>
+							  </div>
+						   </div>
+						</div>
+					</div>
+				</li>
+			#end
+			</ul>
+			#set($pageFun="ajaxPage")
+			#parse('include/scriptPageUtil.vm')
+		</div>
+	#else
+		<div id="hotCin_content">
+			<div class="ui_warning">暂无影评！</div>
+		</div>
+	#end
+	#if((!$params.movieDetail eq 'true'))
+		<div class="" >
+		</div>
+	</div>
+</div>
+#end
+<script type="text/javascript">
+#if((!$params.movieDetail eq 'true'))
+loadAddtime = function(){
+	var myOrder = 'addtime';
+	GewaraUtil.sendLoad($('uiLeft'), '${basePath}movie/ajax/movieDiaryList.xhtml',{"mid":"$movie.id","myOrder":myOrder}, function(result){});
+}
+ajaxPage = function(pageNo, params, url){
+	gewaUtil.loadData('uiLeft', url, {});
+}
+#else
+ajaxPage = function(pageNo, params, url){
+	gewaUtil.loadData('movieDiary', url, {});
+}	
+#end
+
+submitDiary = function(){
+	checkLogin(true,function(){
+		GewaraUtil.openwin('${basePath}blog/modifyTopic.xhtml?tag=movie&relatedid=$movie.id&type=1','_blank');
+	});
+}
+
+function getBody(id){
+	var full = 'review_'+id+'_full';
+	if($(full).innerHTML == ""){
+		var url = "${basePath}blog/fullDiaryBody.xhtml";
+		var value = {'diaryid':id};
+		GewaraUtil.sendLoad($(full), url,value,function(result){
+			if(!result.success){
+				gewaUtil.alert(result.json.msg);
+			}
+		},$(full));
+	}
+}
+
+showAll = function(target,id){
+	if(target == 'showDown'){
+		getBody(id);
+		gewa.util.show('showUp_content' + id);
+		gewa.util.hide('showDown_content' + id);
+	}else{
+		gewa.util.hide('showUp_content' + id);
+		gewa.util.show('showDown_content' + id);
+	}
+}
+addComment = function(el,diaryid,tag,say_area,captchaName){
+	var replyconent = $(say_area).value;
+	if(replyconent == '' || replyconent == '说说支持理由' || replyconent == '说说反对理由'){
+		gewaUtil.alert("请输入回复内容！"); return;
+	}
+	var captchaId = $(captchaName).value;
+	var captcha = $(captchaName + 'Input').value;
+	checkLogin(true,function(){
+		gewa.util.mask({'element':el,'title':'正在提交，请稍等...'});
+		var url = '${basePath}blog/saveDiaryComment.xhtml';
+		var values = {'diaryId':diaryid, 'body':replyconent,'captchaId':captchaId,'captcha':captcha};
+		GewaraUtil.sendRequest(url, values, function(result){
+		gewara.util.unmask();
+			if(result.success){
+				$(tag+diaryid).addClass('none');
+			}else{
+				gewaUtil.alert(result.msg);
+				gewa.util.clearMask();
+				GewaraUtil.refreshCaptcha(captchaName);
+			}
+		});
+	});
+}
+showOppose = function(id){
+	$('support'+id).addClass('none');
+	checkLogin(true,function(){
+		var url = '${basePath}blog/addDiaryFlower.xhtml';
+		var values = {'diaryId':id, 'tag':'oppose'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$('pooh'+id).innerHTML = result.retval;
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	});
+	/* $('oppose'+id).toggleClass('none').addEvent('click',function(){
+	  	if(!this.hasClass('none')) {
+	  		if($('say_oppose'+id).value == '说说反对理由')$('say_oppose'+id).value='';
+	  	}
+  	}); */
+}
+showSupport = function (id){
+     $('oppose'+id).addClass('none');
+     checkLogin(true,function(){
+		var url = '${basePath}blog/addDiaryFlower.xhtml';
+		var values = {'diaryId':id, 'tag':'support'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				 $('flowers'+id).innerHTML = result.retval;
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	});
+    /*  $('support'+id).toggleClass('none').addEvent('click',function(){
+	  	if(!this.hasClass('none')) {
+	  		if($('say_support'+id).value == '说说支持理由') $('say_support'+id).value='';
+	  	}
+  	}); */
+}
+</script>

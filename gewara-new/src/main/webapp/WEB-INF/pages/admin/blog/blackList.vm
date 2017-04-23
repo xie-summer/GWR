@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>黑名单管理</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page"></script>
+</head>
+<body>   
+<div id="content">
+<div class="bc1"></div>
+<div id="content_left" style="width:98%;margin:auto;">
+	<div class="panelTop"><em></em></div>
+	<div class="panelMid">
+	<div>
+		<form id="search" action="${basePath}admin/blog/blackList.xhtml">
+			<input type="hidden" name="isexport" id="isexport"/>
+			<label>请输入关键词：<input id="nickname" type="text" value="$!params.nickname" name="nickname" size="40"/></label>
+			<select id="tag" name="tag">
+				<option value="blacklist" #if($VmUtils.eq($!params.tag,'blacklist')) selected="selected" #end >黑名单会员</option>
+				<option value="member" #if($VmUtils.eq($!params.tag,'member')) selected="selected" #end >非黑名单会员</option>
+			</select>
+			<input type="button" value="确定" onclick="dosearch();" />
+			&nbsp;
+			#if(!$VmUtils.eq($tag, 'member'))
+			<input type="button" id="exportBlackBtn" value="导出黑名单Excel" onclick="exportBlackList('true')" />
+			#end
+		</form>
+	</div>
+	#if($memberList && $VmUtils.size($memberList) gt 0)
+	<table id="blogtable" style="width:750px; margin: auto; border: 1px solid gray;" class="blogtable">
+	<caption style="color:red">搜索到的用户</caption>
+	<tfoot>
+	<tr><th>用户</th><th>说明</th><th>操作</th></tr>
+	#foreach($member in $memberList)
+	<tr id="m$member.id">
+		<td><a href="${absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$member.id" target="_blank">$member.nickname</a>
+		<td><input id="d$member.id" type="text" size="80"/></td>
+		<td>
+			<input type="button" class="button left" value="加入黑名单" onclick="addBlack($member.id)"/>
+		</td>
+	</tr>
+	#end
+	</tfoot>
+	</table>
+	#end
+	
+	#if($VmUtils.size($blackMemberList) gt 0)
+	<table id="blogtable" style="width:100%; margin: auto; border: 1px solid gray;" class="blogtable">
+	<caption style="color:red">已有的黑名单</caption>
+	<tfoot>
+	<tr><th style="width:10%;">用户</th><th style="width:15%;">添加时间</th><th style="width:10%;">添加者</th><th style="width:40%;">说明</th><th style="width:10%;">注册IP</th><th style="width:10%;">手机</th><th style="width:5%;">操作</th></tr>
+	#foreach($blackMember in $blackMemberList)
+	<tr id="b$blackMember.id">
+		<td><a href="${absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$blackMember.memberId" target="_blank">$!memberMap.get($blackMember.memberId).nickname</a>
+		<td>$blackMember.addtime</td>
+		<td><a href="${absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$blackMember.operatorId" target="_blank">$!memberMap.get($blackMember.operatorId).nickname</a>
+		<td>$!blackMember.description</td>
+		<td>$!infoMap.get($blackMember.memberId).ip</td>
+		<td>$!memberMap.get($blackMember.memberId).mobile</td>
+		<td>
+			<input type="button" class="button left" value="取消" onclick="removeBlack($blackMember.id)"/>
+		</td>
+	</tr>
+	#end
+	</tfoot>
+	</table>
+	#end
+	<div style="width:750px; margin: auto;">#parse('include/pageUtil.vm')</div>
+	</div>
+	<div class="panelBot"><em></em></div>
+</div><!-- end of content_left -->
+<div id="height0"></div>
+</div>
+<div id="panel_bottom"></div>
+	<script type="text/javascript">
+	function addBlack(memberId){
+		var desc = $("d"+memberId).value;
+		var url = '${basePath}admin/blog/addBlackMember.xhtml';
+		var values = {'memberId':memberId, 'description':desc};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+					alert("成功增加黑名单！");
+					$('m'+memberId).dispose();
+			} else {
+				if(RemoteErrorCode.notLogon == result.errcode) alert("您没有登录！");
+				else if(RemoteErrorCode.noRights == result.errcode) alert("你没有权限加黑名单！");
+				else if(RemoteErrorCode.repeated == result.errcode) alert("黑名单已经加入过!");
+				//else if(RemoteErrorCode.notFound == result.errcode) alert("这个版主已经不存在！");
+				else if(result.msg) alert(result.msg);
+				else alert("删除失败！");
+			}
+		});
+	}
+	function removeBlack(bmid){
+		var url = '${basePath}admin/blog/removeBlackMember.xhtml';
+		var values = {'blackMemberId':bmid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+					alert("成功删除黑名单！");
+					$('b'+bmid).dispose();
+			} else {
+				if(RemoteErrorCode.notLogon == result.errcode) alert("您没有登录！");
+				else if(RemoteErrorCode.noRights == result.errcode) alert("你没有权限删除黑名单！");
+				else if(RemoteErrorCode.notFound == result.errcode) alert("这个黑名单已经不存在！");
+				else if(result.msg) alert(result.msg);
+				else alert("删除失败！");
+			}
+		});
+	}
+	function dosearch(){
+		var curr = $("tag").value;
+		var nick = $("nickname").value;
+		if(curr.equals("member") && nick.equals("")){
+			alert("因数据量较大,搜索会员信息时必须填写昵称;");
+			return false;
+		}
+		$("search").submit();
+	}
+	
+	//表单搜索 / 导出Excel
+	function exportBlackList(flag){
+		$('isexport').set('value', flag);
+		$('search').submit();
+		if(GewaraUtil.isNotNull(flag)){
+			$('exportBlackBtn').disabled = true;
+			$('isexport').set('value', '');
+		}
+	}
+</script>
+</body>
+</html>

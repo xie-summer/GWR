@@ -1,0 +1,156 @@
+<!Doctype html>
+<html>
+<head>
+	<!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>$!{drama.dramaname}【门票】在线购票 - 格瓦拉生活网</title>
+	<meta name="description" content="$!{drama.dramaname}门票在线购买,$!{drama.dramaname}演出时间$!DateUtil.format($!drama.releasedate, 'yyyy-MM-dd')#if(!$VmUtils.isNull($drama.releasedate) && !$VmUtils.isNull($drama.enddate)) 至 #end$!DateUtil.format($!drama.enddate, 'yyyy-MM-dd')#if($curTheatre.name),地点:$!curTheatre.name.#end#if($drama.highlight)$!drama.highlight#end"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,inits_drama,scrollerbar,base_home,tips&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#if($headInfo)
+		html{background:$!headInfo.css url($VmUtils.randomPic('',$!headInfo.logosmall)) 0 50px repeat-x;}
+		body{background:transparent url($VmUtils.randomPic('',$!headInfo.logobig)) center 50px no-repeat;}
+		#end
+		.ui_layout{background:none;}
+		a:hover{text-decoration:none;}
+	</style>
+</head>
+<body>
+#set($dramaHeadFlag='isDramaIndex')#set($relatedtag='drama')
+#set($isIndexBigAd = true)
+#set($dramaLeftTag='index')
+#parse('include/wide_header.vm')
+<div class="ui_layout theDetail_body">
+	<div class="theatreDetail_head clear">
+		#parse('include/drama/mod_dramaDetail_head.vm')
+	</div>
+	<div class="theatreDetail_content clear" id="troupe">
+		<div class="mod_tabs mod_tabs_drama">
+			<div class="mod_hd" style="position:relative;">
+				<a href="${basePath}drama/dramaQuestion.xhtml?dramaid=${drama.id}" class="more button bigBt redBt" style="top:5px;"><span>我要提问</span></a>
+				<ul class="nav_tabs" id="nav_tabsDiv">
+					<li #if($VmUtils.isBlank($subs)||$VmUtils.eq($subs,'detail')) class="select" #end id="ygTab"><a href="${basePath}drama/${drama.id}">演出购票</a></li>
+					#if($VmUtils.isNotBlank($otherInfoMap.get('ticketdesc')))<li id="gpTab"><a href="javascript:void(0)">购票说明</a></li>#end
+					<li #if($VmUtils.eq($subs,'video')) class="select" #end id="vpTab"><a href="${basePath}drama/${drama.id}/videolist" >视频剧照</a></li>
+					<li #if($VmUtils.eq($subs,'wala')) class="select" #end id="walaTab"><a href="${basePath}drama/${drama.id}/commentlist" >哇  啦<em>(${commentCount})</em></a></li>
+					<li #if($VmUtils.eq($subs,'diary')) class="select" #end id="jpTab"><a href="${basePath}drama/${drama.id}/diarylist">评论<em>(${diaryCount})</em></a></li>
+					<li #if($VmUtils.eq($subs,'news')) class="select" #end id="zxTab"><a href="${basePath}drama/${drama.id}/newslist" >资讯<em>(${newsCount})</em></a></li>
+					<li #if($VmUtils.eq($subs,'question')) class="select" #end id="quTab"><a href="${basePath}drama/dramaQuestion.xhtml?dramaid=${drama.id}" >瓦友提问<em>($!questionCount)</em></a></li>
+				</ul>
+			</div>
+			<div class="mod_bd clear">
+				<div class="ui_left" id="container">
+				#if($VmUtils.isBlank($subs)||$VmUtils.eq($subs,'detail'))
+					#parse('include/drama/mod_dramaDe_ycgp.vm')
+				#elseif($VmUtils.eq($subs,'video'))
+					#parse('include/drama/mod_dramaDe_spjz.vm')
+				#elseif($VmUtils.eq($subs,'pictureDetail'))
+					#parse('include/drama/mod_dramaPictureDetail.vm')
+				#elseif($VmUtils.eq($subs,'videoDetail'))
+					#parse('include/drama/mod_dramaVideoDetail.vm')
+				#elseif($VmUtils.eq($subs,'wala'))
+					#parse('include/drama/mod_dramaDe_wala.vm')
+				#elseif($VmUtils.eq($subs,'diary'))
+					#parse('include/drama/mod_dramaDe_yp.vm')
+				#elseif($VmUtils.eq($subs,'news'))
+					#parse('include/drama/mod_dramaDe_zx.vm')
+				#elseif($VmUtils.eq($subs,'question'))
+					#parse('include/drama/mod_dramaDe_wytw.vm')
+				#end
+				</div>
+				<div class="ui_right">
+					<div id="innerTheatre"></div>
+					#parse('include/drama/mod_ychd.vm')
+					#parse('include/drama/mod_dramaRelevanceInfo.vm')
+					#parse('include/drama/mod_interestYc.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- 收藏场馆-->
+<div class="addTheatre" id="addDrama" style="display:none;">
+	<div class="closed" onclick="gewa.util.container['addDrama'].dispose('addDrama')">关闭</div>
+	<div class="addTheatre_con">
+		<h2>收藏场馆</h2>
+		<div class="tal">
+			<p><input type="checkbox" name="" />是否接收该场馆剧目开放购票提醒</p>
+			<p><input type="checkbox" name="" />是否接收场馆新增评论提醒</p>
+			<p class="but"><a class="button redBt bigBt" target="_blank" onclick="gewa.util.container['addTheatre'].dispose('addTheatre')"><span>选座购票</span></a></p>
+		</div>
+	</div>
+</div>
+
+#parse('include/global/new_scorelevel.vm')
+#parse('common/compandingjs.vm')
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+var requestMap = new Hash({"gpTab":"drama/ajax/ticketDescription.xhtml"});
+window.addEvent('domready',function(){
+	tabQh();
+	myTreasure('drama','$drama.id');
+});
+function tabQh (){
+	if(!$('nav_tabsDiv')) return ;
+	else{
+		var oList = $('nav_tabsDiv').getElements('li');
+		oList.each(function(el,i){
+			el.addEvent('click',function(){
+				oList.removeClass("select");
+				this.addClass("select");
+				var key = this.get('id');
+				dynamicData(key);
+				return ;
+			});
+		});
+	};
+};
+
+function dynamicData(key){
+	var tmpUrl = requestMap.get(key);
+	if(tmpUrl && tmpUrl != ""){
+		var url = "${basePath}" + requestMap.get(key);
+		var values = {'dramaid':$!drama.id};
+		var el = $(key);
+		if(el.retrieve(key) == null || 1==1){
+			$('container').empty();
+			GewaraUtil.sendLoad('container', url, values, function(result){
+				if(result.success){
+					el.store(key,$('container').get('html'));
+				}
+			}.bind(el));
+		}else{
+			$('container').innerHTML = el.retrieve(key);
+		}
+	}
+}
+
+function showaddDrama(){
+	gewa.util.maskContent('','addDrama','',480,'addDrama');
+}
+getInnerTheatre = function(theatreid){
+	var url = '${basePath}drama/ajax/innerTheatre.xhtml';
+	var values = {'theatreid':theatreid}
+	GewaraUtil.sendLoad('innerTheatre', url, values, function(result){});
+}
+function mDriving(){
+	var title="驾车";
+	$('pattern').getElements('a').each(function(el){
+		if(el.hasClass('select'))title = el.title;
+	});
+	if($('fromAddress').value == ''){
+		gewaUtil.alert("请选择起点！");
+		return false;
+	}
+	if($('endAddress').value == ''){
+		$('endAddress').value = '$!curTheatre.name';
+	}
+	location.href="${basePath}common/baiduMap.xhtml?id=$!curTheatre.id&tag=theatre&title=" + title + "&from=" + $('fromAddress').value + "&end=" + $('endAddress').value;
+}
+</script>
+#parse('include/newMarkDialog.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

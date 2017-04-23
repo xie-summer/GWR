@@ -1,0 +1,27 @@
+<div class="mod_kong movieActivity">
+	<div class="mod_hd">
+		<h2>热门活动</h2>
+		<a href="${basePath}activity/activityList.xhtml" class="more ffst brown" target="_blank">更多&gt;&gt;</a>
+	</div>
+	<div class="mod_bd">
+		<ul>
+			#foreach($activity in $activityList)
+			#set($relate=$relatedHelper.getR1("activityList",$activity.id))
+			<li #if($foreach.count gt 1)class="mt20"#end>
+				<div class="ui_abeam">
+					<div class="uipic">
+						<a href="${basePath}activity/$activity.id" target="_blank" title="$activity.title"><img alt="$activity.title" src="$VmUtils.randomPic('cw96h128',$!activity.limg)" height="128" width="96"></a>
+					</div>
+					<div class="uiText">
+						#if($VmUtils.eq($activity.atype,'gewa') || $VmUtils.contains($activity.flag, "renzheng"))<span class="isOfficial" title="格瓦拉官方认证活动"></span>#end
+						<a href="${basePath}activity/$activity.id" target="_blank" title="$activity.title">$!activity.title</a>
+						<p class="mt10 c999">时间：$!DateUtil.format($activity.startdate,'M月d日')#if($activity.enddate)--$DateUtil.format($activity.enddate,'M月d日')#end</p>
+						#if($relate || !$VmUtils.isNull($activity.address))<p class="c999">地点：#if($relate)<a href="${basePath}${relate.url}" class="brown mr5" target="_blank">$!relate.name</a>#end $!activity.address</p>#end
+						<p class="mt10">已有<span class="cMovie">$!activity.clickedtimes</span>关注</p>
+					</div>
+				</div>
+			</li>
+			#end
+		</ul>
+	</div>
+</div>

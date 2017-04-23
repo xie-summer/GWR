@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>2013第十六届上海国际电影节_电影节购票_电影节官方指定售票平台 – 格瓦拉生活网</title>
+<meta name="keywords" content="第16届上海国际电影节,电影节买票,上海国际电影节红地毯 - 格瓦拉生活网"/>
+<meta name="description" content="2013年第十五届上海国际电影节开幕式于2013.6.15举行,6.23闭幕.格瓦拉生活网提供电影节颁奖典礼,导演,演员等信息, 上海电影节排片表. 上海电影节红地毯花絮等."/>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout&v=$VmUtils.jsVersion"/>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/layout.css?v=$VmUtils.jsVersion"/>
+<link rel="stylesheet" type="text/css" href="${staticPath}styles/slider.css"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,Autocompleter&v=$VmUtils.jsVersion"></script>
+#parse('subject/filmfest/2013/style.vm')
+<style type="text/css">
+.mod_bd {padding:0 20px 20px;overflow:hidden;}
+.inner{padding:15px;}
+.opilist_list a{padding:0 5px;margin-right:5px;display:inline-block;}
+.opilist_list a.select{background-color:#C03B0C;color:#fff;text-decoration:none !important;}
+.opilist_list .ul-80 li{ clear:both;color:gray;height:100%;margin:0 0 8px;overflow:hidden;padding-left:70px;}
+
+.ui_error{font-family:'宋体';font-size:14px; margin:10px 0 20px;}
+.ui_error b {color:#f60;margin:0 3px;}
+.ui_error a {color:#c30;}
+
+.filmListAera ul li {width:565px;}
+.filmListAera .ui_text {width:336px;}
+.onShow ul li {width:109px;}
+.onShow,.onShow .even_center{width:333px;}
+.errmsg {background:url(${staticPath}css/home/errmsg.gif) no-repeat;float:right;width:14px;height:14px;display:none;padding:0;cursor:pointer;}
+</style>
+</head>
+<body>
+#set($tag = 'joinselect')
+#parse('subject/filmfest/2013/header.vm')
+#set($moderate='第十六届上海国际电影节')
+<h1 style="display:none">第16届上海国际电影节</h1>
+<div class="ui_layout" style="background:#fff;">
+	<div class="mod_title">
+		<div class="mod_hd">
+			<div class="clear right" id="ckepop" style="margin:30px 20px 0 0;">
+				<div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare" data="{'url':'http://www.gewara.com/filmfest/sixteen.xhtml'}">
+			        <span class="bds_more" style="padding-left:22px;padding-top:6px;line-height:15px;">分享到：</span>
+			        <a class="bds_tsina"></a>
+			        <a class="bds_tqq"></a>
+			        <a class="bds_qzone"></a>
+			        <a class="bds_renren"></a>
+			    </div>
+			</div>
+			<ul class="tabs">
+				<li><a href="javascript:void(0);" class="select">我的片单</a></li>
+				<li>/</li>
+				<li><a href="${basePath}filmfest/myViewSchedule.xhtml">我的观影日程</a></li>
+				<li>/</li>
+				<li><a href="${basePath}home/myOrderManage.xhtml" target="_blank">我的订单</a></li>
+			</ul>
+		</div>
+		#if(!$logonMember)
+		<div class="ui_error">
+			你还没有登录，请先<a href="javascript:showLogin(refreshPage);">登录</a>.
+		</div>
+		#elseif($VmUtils.isEmptyList($movieList))
+		<div class="ui_error">
+			你还没有片单，<a href="${basePath}filmfest/sixteenMovieList.xhtml">立即添加</a>.
+		</div>
+		#end
+		<div class="mod_bd">
+			<div class="inner">
+				<div class="filmListAera">
+					<ul class="ui_media">
+						#foreach($movie in $movieList)
+						#set($movieMpiList = $movieMpiMap.get($movie.id))
+						<li class="#if($foreach.count gt 2) mt20 #end">
+							<div class="ui_pic">
+								<a title="$!movie.moviename" target="_blank" href="${basePath}movie/$!movie.id"><img height="128" width="96" src="$!VmUtils.randomPic('cw96h128',$!movie.logo)" alt="$!movie.moviename" /></a>
+							</div>
+							<div class="ui_text">
+								<p class="colseErrmsg">
+									<a href="javascript:deleteViewFilmSchedule('$!movie.id');" class="errmsg"></a>
+									<a class="bold" title="$!movie.moviename" target="_blank" href="${basePath}movie/$!movie.id">$!VmUtils.escabbr($!movie.moviename, 24)#if($movie.playdate)($!VmUtils.substring($movie.playdate, 0, 4)年)#end</a>
+								</p>
+								<p class="half"><span><em>国家/地区：</em>$!movie.state</span><span><em>语言：</em>$!movie.language</span></p>
+								<p class="half"><span><em>片长：</em>#if($!movie.videolen)$movie.videolen分钟#end</span><span><em>类型：</em>$!movie.type</span></p>
+								<div class="onShow clear" id="finalist$movie.id">
+									#if($VmUtils.gt($VmUtils.size($movieMpiList),3))<div title="向左滚动" class="even_left eventses"></div>#end
+									<div class="even_center">
+										<ul>
+											#foreach($mpi in $movieMpiList)
+											#set($cinema = $cinemaMap.get($mpi.cinemaid))
+											#set($mpiPlayDate = $DateUtil.format($mpi.playdate,'MM月dd日'))
+											#set($mpitime = $mpiPlayDate + ' ['+ $DateUtil.getCnWeek($mpi.playdate)+'] '+$mpi.playtime)
+											#set($opiDate = $mpi.playdate + ' '+$mpi.playtime)
+											#set($opi=$opiMap.get($mpi.id))
+											<li>
+												<p class="c666" title="$!cinema.briefname">$!VmUtils.escabbr($!cinema.briefname,16)</p>
+												<p>$mpiPlayDate $mpi.playtime</p>
+												#if($VmUtils.contains($opi.otherinfo, 'unopengewa') || $VmUtils.contains($opi.otherinfo, 'unshowgewa'))
+													#if($VmUtils.contains($joinMpidList,$!mpi.id))
+												<a class="addList right mr5" href="${basePath}filmfest/myViewSchedule.xhtml" target="_blank">已加入日程</a>
+													#else
+												<a class="addList right mr5" href="javascript:void(0);" onclick="saveSchedule($!mpi.id,'schedule',this);">加入日程</a>
+													#end
+												#else
+													#if($opi.booking)
+												<a href="${basePath}cinema/order/step1.shtml?mpid=$mpi.id" target="_blank">$opi.seatStatus</a>
+													#elseif($opi.closed)
+												<span class="c999">已关闭</span>
+													#else
+														#if($VmUtils.contains($joinMpidList,$!mpi.id))
+												<a class="addList right mr5" href="${basePath}filmfest/myViewSchedule.xhtml" target="_blank">已加入日程</a>
+														#else
+												<a class="addList right mr5" href="javascript:void(0);" onclick="saveSchedule($!mpi.id,'schedule',this);">加入日程</a>
+														#end
+													#end
+												#end
+												#if($!mpi.gewaprice)<span class="left cF60 ml5">¥$!mpi.gewaprice</span>#end
+											</li>
+											#end
+											#if($VmUtils.gt(3,$VmUtils.size($movieMpiList)))
+											#set($y = 3-$VmUtils.size($movieMpiList))
+											#foreach($x in [1..$y])
+											<li class="nothing"></li>
+											#end
+											#end
+										</ul>
+									</div>
+									#if($VmUtils.gt($VmUtils.size($movieMpiList),3))<div title="向右滚动" class="even_right eventses"></div>#end
+								</div>
+							</div>
+						</li>
+						#end
+					</ul>
+				</div>
+				<div id="page">
+					#parse('include/pageUtil.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	#foreach($movie in $movieList)
+	new evengo({'parent':'finalist$movie.id','times':1,'width':110,'allwidth':330});
+	#end
+	$$('.colseErrmsg').addEvents({
+		'mouseenter':function(){
+			this.getElement('.errmsg').setStyle('display','block');
+		},
+		'mouseleave':function(){
+			this.getElement('.errmsg').setStyle('display','none');
+		}
+	})
+});
+function saveSchedule(relatedid,tag,el){
+	el = $(el);
+	checkLogin(true,function(){
+		var url = "${basePath}filmfest/ajax/saveViewFilmSchedule.xhtml";
+		var values = {'relatedid':relatedid,'tag':tag};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				if(tag == 'movie'){
+					el.innerHTML =	'已加入片单';
+					el.addClass('whiteBtn');
+					el.set({'href':'${basePath}filmfest/myViewFilm.xhtml','target':'_blank'});
+					el.erase('onclick');
+				}else{
+					el.innerHTML = '已加入日程';
+					el.set({'href':'${basePath}filmfest/myViewSchedule.xhtml','target':'_blank'});
+					el.erase('onclick');
+				}
+				gewaUtil.alert("添加成功！");
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});		
+	});
+}
+function deleteViewFilmSchedule(id){
+	checkLogin(true,function(){
+		gewaUtil.confirm("确定删除此片单吗？",function(){
+			var url = '${basePath}filmfest/ajax/deleteViewFilmSchedule.xhtml';
+			var values = {'relatedid':id,'type':'movie'};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewaUtil.alert("删除成功！", refreshPage);
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		});
+	});
+}
+</script>
+#parse('include/bottom.vm')
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=560708" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+	var bds_config = {'bdText':'谁说#第十六届上海国际电影节#一票难求？我在 @格瓦拉生活网 安排好了电影节观影日程；在线选座购票，轻松取票，还支持客户端可以购买哦~','snsKey':{'tsina':'2536251945','tqq':'801037658'}};
+	document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + new Date().getHours();
+</script>
+</body>
+</html>

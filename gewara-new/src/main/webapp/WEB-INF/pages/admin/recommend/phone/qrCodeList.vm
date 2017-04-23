@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>手机二维码列表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: center;
+			font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.mt5{margin-top:5px;}
+		.ml15{margin-left: 15px;}
+		.mb5{margin-bottom: 5px;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+<div style="clear:both;"></div>
+#set($flagMap = {'activity':'活动','app':'客户端下载','other':'其他'})
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td colspan="4" align="left" class="td">手机二维码列表</td>
+		<td align="right" class="td">
+			<a href="javascript:void(0);" onclick="showQrCode()" >增加</a>|
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td" style="text-align: center;">
+		<td align="left" class="wd200"><b>二维码</b></td>
+		<td align="left" class="wd200"><b>标题</b></td>
+		<td align="left" class="wd60"><b>链接</b></td>
+		<td align="left" class="wd60"><b>类型</b></td>
+		<td align="left" class="wd120"><b>操作</b></td>
+	</tr>
+	#foreach($QrCode in $qrCodeList)
+	<tr class="td">
+		<td align="center" class="wd200">
+			<img src="${picPath}$!QrCode.qrCodePath" onerror="this.src='${basePath}img/default_head.png'"  width="100" height="100" />
+		</td>
+		<td class="wd200">
+			$!QrCode.title
+		</td>
+		<td class="wd200">
+			$!QrCode.url
+		</td>
+		<td class="wd200">
+			$flagMap.get($!QrCode.flag)
+		</td>
+		<td align="left" class="wd120">
+			<a href="javascript:void(0);" onclick='showQrCode("$!QrCode.id","$!QrCode.title","$!QrCode.url","$!QrCode.qrCodePath","$!QrCode.waterPath","$!QrCode.width","$!QrCode.height")' >[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0);" onclick="delQrCode('$!QrCode.id')">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+<div id="QrCodeDiv" style="visibility: hidden;z-index: 100;width: 600px;height: 250px auto;background: #ffffff;border: 1px solid black;padding:10px 10px 10px 10px;">
+<div class="ml15 mt5">
+<div style="text-align: center;font-size: 15px;font-weight: bold;"><span id="addtype">生成</span>二维码信息</div>
+<hr/>
+<input type="hidden" name="id" id="id"/>
+<div class="mt5">
+	<label for="title">标题：</label>
+	<input name="title" id="title" />
+</div>
+<div class="mt5">
+	<label for="url">链接：</label>
+	<input name="url" id="url" />
+</div>
+<div class="mt5">
+	<label>尺寸：</label>
+	宽<input name="width" id="width" style="width: 30px;" value="200"  /> 高<input name="height" value="200" id="height" style="width: 30px;" />
+</div>
+<div class="mt5">
+	<label for="flag">类型：</label>
+	<select name="flag" id="flag">
+		<option value="activity">活动</option>
+		<option value="app">客户端下载</option>
+		<option value="other">其他</option>
+	</select>
+</div>
+<div class="mt5">
+	<label for="uploadIFrame">水印图：</label>
+	<iframe class="center" height="25px" width="500px" frameborder="0" scrolling="no" style="vertical-align: middle" id="uploadIFrame" 
+	src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/qrcode/&callback=updateLogo"></iframe>
+	<div style="margin-left: 50px;"><input type="text" name="waterPath" id="waterPath" style="width: 300px;"/></div>
+	<img style="height:100px; margin-left:80px;" id='waterLogo' onerror="this.src='${basePath}img/default_head.png'"/>
+</div>
+<div class="mt5">
+	<img id="qrcodePath"  src="${staticPath}css/images/blank.gif"/>
+</div>
+<div class="mt5 ml30">
+<input type="button" onclick="addQrCode()" value="生成"/><input type="button" value="关闭" onclick="hideQrCode()"/>
+</div>
+</div>		
+</div>
+<script type="text/javascript">
+
+	updateLogo = function(params){
+		var picpath = params['picpath'];
+		$('waterPath').value = picpath;
+		$('waterLogo').src='${picPath}' + picpath;
+	}
+
+	function showQrCode(id,title,url,qrcoePath,waterPath,width,height){
+		$('id').value = $chk(id)?id:'';
+		$('title').value = $chk(title)?title:'';
+		$('qrcodePath').src = $chk(qrcoePath)? ('${picPath}'+qrcoePath):'';
+		$('waterPath').src = waterPath||'';
+		$('width').value = width||'200';
+		$('height').value = height|'200';
+		$('url').value = url||'';
+		GewaraUtil.showDialog('QrCodeDiv');
+	}
+	
+	function hideQrCode(){
+		$('id').value = '';
+		$('title').value = '';
+		$('waterPath').src = '';
+		$('url').src = '';
+		GewaraUtil.hideDialog('QrCodeDiv');
+	}
+	
+	function addQrCode(){
+		var id = $('id').value;
+		var title = $('title').value;
+		var flag = $('flag').value;
+		var url = $('url').value;
+		var waterPath = $('waterPath').value;
+		var width = $('width').value;
+		var height = $('height').value;
+		if(!$chk(title.trim())){
+			gewaUtil.alert('请输入标题！');
+			return;
+		}
+		if(!$chk(url.trim())){
+			gewaUtil.alert('请输入链接地址!');
+			return;
+		}
+		var ajaxUrl = "${basePath}admin/mobile/saveQrCode.xhtml";
+		var values = {'id':id,'title':title,'url':url,'flag':flag,'waterPath':waterPath,'width':width,'height':height};
+		GewaraUtil.sendRequest(ajaxUrl,values,function(result){
+			if(result.success){
+				gewaUtil.alert('二维码生成成功！');
+				alert('$!{picPath}'+result.retval);
+				$('qrcodePath').src ='$!{picPath}'+result.retval;
+				//refreshPage(true);
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	function delQrCode(id){
+		gewaUtil.confirm('确认删除吗？',function(){
+			var url = "${basePath}admin/mobile/delQrCode.xhtml";
+			var values = {'id':id};
+			GewaraUtil.sendRequest(url,values,function(result){
+				if(result.success) refreshPage();
+				else gewaUtil.alert('删除失败！');
+			});		
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!-- SUCCESS_HEAD -->
+<div class="mod_hd">
+	<h2 id="hot_All" style="cursor:pointer">上海热门影院</h2>
+	<ul class="nav_tabs" id="hot_lis">
+		<li data-flag="park" >
+			<a  href="javascript:void(0);" #if($flag eq 'park') class="select" #end>免费停车</a>
+		</li>
+		<li data-flag="pairseat" >
+			<a  href="javascript:void(0);" #if($flag eq 'pairseat') class="select" #end>情侣座</a>
+		</li>
+		<li data-flag="popcorn" >
+			<a href="javascript:void(0);" #if($flag eq 'popcorn') class="select" #end>线上套餐</a>
+		</li>
+		<li data-flag="refund" >
+			<a  href="javascript:void(0);" #if($flag eq 'refund') class="select" #end>可退票</a>
+		</li>
+		<li data-flag="activity" >
+			<a href="javascript:void(0);" #if($flag eq 'activity') class="select" #end>有活动</a>
+		</li>
+	</ul>
+	<a href="${basePath}movie/searchCinema.xhtml" class="more" target="_blank">更多</a>
+</div>
+<div class="mod_bd">
+	<div class="movieList">
+		<ul>
+			#foreach($cinema in $cinemaList)
+				#set($gmark=$VmUtils.getSingleMarkStar($!cinema, "general")) 
+				#set($gmark1=$gmark/10) #set($gmark2=$gmark%10) 
+				#if($gmark2 gt 0)#set($gmark3=$gmark1+1)#else#set($gmark3=$gmark1)#end
+			<li class="effectLi clear">
+				<div class="left">
+					<div class="ui_media">
+						<div class="ui_pic cinema">
+							<a href="${basePath}cinema/$cinema.id" target="_blank" title="$!cinema.name">
+								<img src="${staticPath}css/images/blank.gif" alt="$!cinema.name" height="92" width="122" style="border:1px solid #f4f4f4;background:url($VmUtils.randomPic('sw120h60',$!cinema.limg)) center center no-repeat #fff;vertical-align:middle;"/>
+							</a>
+						</div>
+						<div class="ui_text">
+							<div class="title">
+								<h2>
+									<a href="${basePath}cinema/$cinema.id" title="$!cinema.name" target="_blank" class="c333" style="font-size:16px;">$!{cinema.name}</a>
+									#if($orderCinemas && $orderCinemas.contains($cinema.id))
+									<em title="我常去的影院" ></em>
+									#end
+								</h2>
+								<span class="grade">
+									<sub style="margin:0;">$gmark1</sub>
+									<sup>.$gmark2</sup>
+								</span>
+							</div>
+							<p class="c999">
+								#if($cinema.countyname)
+								<a class="c999" href="$!{basePath}movie/searchCinema.xhtml?countycode=$!cinema.countycode" target="_blank">[$!cinema.countyname]</a>
+								#end
+								$!cinema.address
+								<span class="ffst">[</span><a class="c333" target="_blank" href="${basePath}cinema/$cinema.id?cinemaMpiList=true&goPostion=traffic">交通</a><span class="ffst">]</span>
+							</p>
+							#if($playMovieCount.get($cinema.id) gt 0)
+								#if($VmUtils.isBlank($flag))
+								<p>
+									今日放映 <span class="cF60">$!playMovieCount.get($cinema.id)部 余 $!playItemCount.get($cinema.id)场</span><em>　$!playItemTimeArea.get($cinema.id)　</em>
+								</p>
+								#else
+								<p class="c999">
+									今日放映 <span>$!playMovieCount.get($cinema.id)部 余 $!playItemCount.get($cinema.id)场</span><em>　$!playItemTimeArea.get($cinema.id)　</em>
+								</p>
+								#end
+							#end
+							<div class="conditionIco">
+								#set($otherinfo = $VmUtils.readJsonToMap($!cinema.otherinfo))
+								#if($flag eq 'park')
+									<span class="O1"><em class="S3 Freepark"></em></span><a class="bold cF60" href="${basePath}cinema/$cinema.id?cinemaMpiList=true&goPostion=traffic" title="" target="_blank">$!otherinfo.get('park')</a>
+								#elseif($flag eq 'pairseat')
+									<span class="O1"><em class="S3 Lovers"></em></span><a class="bold cF60" href="${basePath}cinema/$cinema.id?cinemaMpiList=true&goPostion=cinemaSer" title="" target="_blank">$!otherinfo.get('pairseat')</a>
+								#elseif($flag eq 'popcorn')
+									<span class="O1"><em class="S3 Linecombo"></em></span>
+									#foreach($goods in $cinemaGoodsMap.get($cinema.id))
+										<a class="bold cF60" href="${basePath}goods/buyGoods.xhtml?gid=$!goods.id" title="" target="_blank">
+											$!goods.goodsname  ¥$!goods.unitprice&nbsp;
+										</a>
+									#end
+								#elseif($flag eq 'refund')
+									<span class="tp O1"><em>退</em></span><a class="bold cF60" href="${basePath}cinema/$cinema.id?cinemaMpiList=true&goPostion=cinemaSer" title="" target="_blank">放映前4小时可退票</a>
+								#elseif($flag eq 'activity')
+									<span class="tp O1"><em>活</em></span>
+									#foreach($activity in $cinemaActivityMap.get($cinema.id))
+										<a class="bold cF60" href="${basePath}activity/$!activity.id" title="" target="_blank">
+										$!activity.title &nbsp;
+										</a>
+									#end
+								#end
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="right tar">
+					<p class="c999"><span><a class="c333 mr5" target="_blank" href="${basePath}cinema/$cinema.id?walaInfoBoxTab=true">$!commentCountMap.get($cinema.id)</a></span>条哇啦</p>
+					<p>
+						<a class="button minBt redBt" target="_blank" href="$!{basePath}cinema/$cinema.id">
+							<span>选座购票</span>
+						</a>
+					</p>
+				</div>
+			</li>
+			#end
+		</ul>
+		#if(!$VmUtils.isEmptyList($cinemaList))
+			#set($overCount = $cinemaCount - $cinemaList.size())
+			#if($flag eq 'park')
+				<div class="all_movie"><a href="${basePath}cinemalist?park=park" title="更多免费停车影院" target="_blank">更多$overCount家免费停车影院<em class="ffst">&gt;&gt;</em></a></div>
+			#elseif($flag eq 'pairseat')
+				<div class="all_movie"><a href="${basePath}cinemalist?pairseat=pairseat" title="更多情侣座影院" target="_blank">更多$overCount家情侣座影院<em class="ffst">&gt;&gt;</em></a></div>
+			#elseif($flag eq 'popcorn')
+				<div class="all_movie"><a href="${basePath}cinemalist?popcorn=popcorn" title="更多线上套餐影院" target="_blank">更多$overCount家线上套餐影院<em class="ffst">&gt;&gt;</em></a></div>
+			#elseif($flag eq 'refund')
+				<div class="all_movie"><a href="${basePath}cinemalist?refund=Y" title="更多可退票影院" target="_blank">更多$overCount家可退票影院<em class="ffst">&gt;&gt;</em></a></div>
+			#elseif($flag eq 'activity')
+				<div class="all_movie"><a href="${basePath}cinemalist?acthas=Y" title="更多活动影院" target="_blank">更多$overCount家有活动影院<em class="ffst">&gt;&gt;</em></a></div>
+			#else
+				<div class="all_movie"><a href="${basePath}cinemalist?hotcinema=Y" title="全部热门影院" target="_blank">更多$overCount家热门影院<em class="ffst">&gt;&gt;</em></a></div>
+			#end
+		#end
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$('hot_All').addEvent('click',function(){
+		gewa.util.mask({'element':'loadHotCinema','title':'正在查询影院...'});
+		GewaraUtil.sendLoad('loadHotCinema', '${basePath}movie/ajax/loadHotCinemaList.xhtml', {}, function(result){
+			gewara.util.unmask();
+		});
+	});
+	$('hot_lis').getElements("li").addEvent('click',function(){
+		gewa.util.mask({'element':'loadHotCinema','title':'正在查询影院...'});
+		GewaraUtil.sendLoad('loadHotCinema', '${basePath}movie/ajax/loadHotCinemaList.xhtml', {"flag":this.get("data-flag")}, function(result){
+			gewara.util.unmask();
+		});
+	});
+})
+</script>
+<!-- SUCCESS_BOTTOM -->

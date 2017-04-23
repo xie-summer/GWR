@@ -1,0 +1,293 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>运动项目</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		input,textarea { width:450px; display:inline;}
+		.button{width:80px;}
+		a{text-decoration:underline;}
+		th,td{text-align:center !important;height:30px;line-height:30px;}
+		
+		.u329 {
+			    color: #000000;
+			    font-family: '宋体';
+			    font-size: 13px;
+			    font-style: normal;
+			    font-weight: normal;
+			    height: 80px;
+			    text-align: left;
+			    text-decoration: none;
+			    width: 420px;
+			}
+		.sp-120{height:100%;overflow:hidden;position:relative;clear:both;}
+		.sp-120 dt{float:left;width:120px;text-align:right;line-height:28px;}
+		.sp-120 dd{float:left;width:450px;padding-left:10px;margin-left:0}
+		.text{border-width:1px;border-style:solid;border-color:#777 #bbb #bbb;padding:4px;font-size:12px;width:414px;color:#666;}
+		.sp-120 .wh100{width:144px;}
+		.sp-120 .wh100 .text{width:140px;}
+	</style>
+</head>
+<body style="width:1050px; margin: auto;" class="yui-skin-sam">
+	<div style="padding:10px 0">
+		<input type="button" class="button" onclick="addSportItem(0)" value="增加项目"/>
+	</div>
+	<table class="table">
+		<thead valign="top"><tr>
+			<th width="10%" align="center">课程名称</th>
+			<th width="40%">操作</th>
+			<th width="20">排序</th>
+			<th width="15%">状态</th>
+			<th width="10%">前台页面</th>
+			<th width="10%">操作记录</th>		
+		</tr></thead>
+		<tbody id="sportItemTable">
+		#foreach($sportItem in $sportItemList)
+		<tr>
+		<td id="name$sportItem.id">$sportItem.itemname</td>
+		<td>
+		  <a href="javascript:modifySportItem($sportItem.id)">编辑</a>
+		  <a href="${basePath}admin/common/videoList.xhtml?tag=sportservice&relatedid=$sportItem.id" target="_blank">视频</a>
+		  <a href="javascript:void(0);" onclick="addSportItemMSG($sportItem.id)">评论邀请短信</a>
+		</td>
+		<td><input type="text" value="$!{sportItem.ordernum}" id="si${sportItem.id}" style="width: 50px" onchange="orderNum(${sportItem.id}, this.value)"/></td>
+		<td nowrap="nowrap" id="b$sportItem.id">
+			<select name='flag' onchange='setFlagValue("$sportItem.id", this)'>
+				<option value="" #if($VmUtils.isBlank($sportItem.flag)) selected="selected" #end>请选择</option>
+				<option value="recommend" #if($sportItem.flag eq "recommend") selected="selected" #end>推荐</option>
+				<option value="hot" #if($sportItem.flag eq "hot") selected="selected" #end>热门</option>
+				<option value="recommend,hot" #if($sportItem.flag eq "recommend,hot") selected="selected" #end>热门与推荐</option>
+			</select>
+		</td>
+		<td><a href="$!{absPath}${basePath}sport/item/$!{sportItem.id}" target="_blank">查看</a></td>
+		<td>
+			<a href="${basePath}admin/common/getChangeHis.xhtml?tag=SportItem&relatedid=${sportItem.id}" target="_blank">查看</a>
+		</td>
+		</tr>
+		#end
+		</tbody>
+	</table>
+	<div id="sportItemDialog" class="yui-panel" style="width:600px;visibility:hidden">
+		<div class="hd">项目详情</div>
+		<div class="bd">
+			<form name="sportItemForm" id="sportItemForm" action="javascript:saveSportItem()">
+				<input type="hidden" name="id" id="id"/>
+				<input type="hidden" name="parentid" id="parentid"/>
+				<dl class="sp-120">
+					<dt><label for="itemname">项目名称：</label></dt>
+					<dd><input type="text" class="text" name="itemname" id="itemname"/></dd>
+				</dl>
+				<dl class="sp-120">
+					<dt><label for="englishname">英文名称：</label></dt>
+					<dd><input type="text" class="text" name="englishname" id="englishname"/></dd>
+				</dl>
+				<dl class="sp-120">
+					<dt><label for="seodescription">项目简介：</label></dt>
+					<dd>
+						<textarea class="u329" name="seodescription" id="seodescription"></textarea>
+					</dd>
+				</dl>
+				<dl class="sp-120">
+					<dt><label>爆发力指数：</label></dt>
+					<dd><input type="text" class="text" name="explosive" id="explosive"/></dd>
+				</dl>
+				<dl class="sp-120">
+					<dt><label>卡路里指数：</label></dt>
+					<dd><input type="text" class="text" name="calorie" id="calorie"/></dd>
+				</dl>
+				<dl class="sp-120">
+					<dt><label>耐力指数：</label></dt>
+					<dd><input type="text" class="text" name="endurance" id="endurance"/></dd>
+				</dl>
+				<dl class="sp-120">
+					<dt><label>男女比例：</label></dt>
+					<dd><input type="text" class="text" name="ratio" id="ratio"/></dd>
+				</dl>
+				<dl class="sp-120">
+					<dt><label for="seotitle">seotitle：</label></dt>
+					<dd><input name="seotitle" class="text" id="seotitle" type="text"/></dd>
+				</dl>
+				<dl class="sp-120" style="display:none;">
+					<dt><label for="content">课程简介：</label></dt>
+					<dd><input name="content" id="content" type="text"/></dd>
+				</dl>
+				<dl class="sp-120">
+					<dt><label>封面图片：</label></dt>
+					<dd><iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame" src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/sport/sportitem&callback=updateLogo"></iframe></dd>
+				</dl>
+				<dl class="sp-120" id="uploadDiv">
+					<dt><label></label></dt>
+					<dd><input type="hidden" name="logo" id="logo" readonly="readonly"/>
+					<img style="height:60px;" id='logoimg' src="${staticPath}css/images/blank.gif"/></dd>
+				</dl>	
+				<dl class="sp-120">
+					<dt><a id="commu" href="${basePath}admin/recommend/baserecommend.xhtml?signname=sportitem_commu&parentid=&tag=commu&relatedid=true" target="_balnk">推荐圈子</a></dt>
+					<dd></dd>
+				</dl>
+				<dl class="sp-120">
+					<dt></dt>
+					<dd>
+						<input type="submit" name="save" class="button" value="保存" style="width:100px;height:30px;"/>
+						<input type="button" name="cancle" class="button" value="取消" style="width:100px;height:30px;" onclick="hideDialog()"/>
+					</dd>
+				</dl>
+				<div id="msg" style="color:red;"></div>
+			</form>
+		</div>
+	</div>
+	<div id="sportItemMSG" class="yui-panel" style="width:500px;visibility:hidden">
+		<div class="hd">评论邀请短信</div>
+		<div class="bd">
+			<input type="hidden" name="siid" id="siid"/>
+			<div>
+				<label>短信内容：</label>
+				<textarea id="defaultMsg" name="defaultMsg" style="width:400px;"></textarea>
+			</div>
+			<div class="mt10">
+				<label>发送时间：</label>
+				<input type="text" name="sendTime" id="sendTime" style="width:100px;" value=""/>分钟
+			</div>
+			<div class="mt10">
+				<label>&nbsp;</label>
+				<input type="button" name="save" class="button" value="保存" style="width:60px" onclick="saveMSG()"/>
+				<input type="button" name="cancle" class="button" value="取消" style="width:60px" onclick="hideMSG()"/>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+	var ckeditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("content");
+	});
+	function setFlagValue(vid, el){
+		var values = {'sportId':vid,'value':el.value};
+		var url = "${basePath}admin/sport/ajax/setSportItemFlagValue.xhtml";
+		GewaraUtil.sendRequest(url, values ,function(result){
+			if(result) alert('成功设置！');
+		});
+	}
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg').src='${basePath}' + picpath;
+	}
+	function viewLogo(){
+		var url = '$basePath' + $('logo').value;
+		window.open(url);
+	}
+	var options = new Object();
+	options.escapeHtml = false;
+	options.rowCreator = function(opt){
+		var rowData = opt.rowData;
+		var tmpRow = document.createElement("tr");
+		tmpRow.id="c" + rowData.id;
+		return tmpRow;
+	}
+	options.escapeHtml = false;
+	var isModify = false;
+	var cellFunc = [
+		function(sportItem) {
+			return sportItem.itemname;
+		}, function(sportItem) { 
+			return sportItem.englishname;
+		}, function(sportItem) {
+			return '<input id="b' + sportItem.id + '" type="button" class="button" value="修改" onclick="modifySportItem(' + sportItem.id + ')"/>';
+		}, function(sportItem) {
+			return '<a href="${basePath}sport/s' + sportItem.id + '" target="_blank">页面</a>';
+		}
+	];
+	function hideDialog(){
+		GewaraUtil.hideDialog("sportItemDialog");
+	}
+	function addSportItem(vparent){
+		$("id").value="";
+		isModify=false;
+		$("parentid").value = vparent;
+		GewaraUtil.showDialog("sportItemDialog");
+	}
+	function saveSportItem(){
+		$("content").value=ckeditor.getData();
+		var values = GewaraUtil.getValues($("sportItemForm"));
+		if (values.itemname == "") {
+			alert("请输入项目名称");
+			return;
+		}
+		var url = "${basePath}admin/sport/ajax/saveOrUpdateSportItem.xhtml";
+		GewaraUtil.sendRequest(url, values , saveCallBack);
+	}
+	function saveCallBack(result){
+		if(result.success){
+		alert('添加成功');
+		refreshPage();
+		}else{
+			alert('增加项目失败！');
+		}
+	}
+	function addSportItemRow(sportItem){
+		var sportItemList=[sportItem];
+		GewaraUtil.addRows("sportItemTable", sportItemList, cellFunc, options);
+		var cells = $("c" + sportItem.id).cells;
+		cells[0].id="name"+sportItem.id;
+		$("b" + sportItem.id).focus();
+	}
+	function modifySportItem(vsportItemId){
+		var values = {'itemId':vsportItemId}
+		var url = "${basePath}admin/sport/ajax/getSportItemById.xhtml";
+		GewaraUtil.sendRequest(url, values , function(result){
+			GewaraUtil.setValues(result);
+			$('commu').href="${basePath}admin/recommend/baserecommend.xhtml?signname=sportitem_commu&parentid="+result.id+"&tag=commu&relatedid=true"
+			$('explosive').value=result.otherinfo.explosive;
+			$('calorie').value=result.otherinfo.calorie;
+			$('endurance').value=result.otherinfo.endurance;
+			$('ratio').value=result.otherinfo.ratio;
+			isModify = true;
+			ckeditor.setData(result.content);
+			$('logoimg').src='${basePath}' + result.logo;
+			GewaraUtil.showDialog("sportItemDialog");
+		});
+	}
+	function orderNum(gcid, val){
+		var url = "${basePath}admin/common/ajax/changeSIOrderNum.xhtml";
+		GewaraUtil.sendRequest(url, {'id':gcid, 'ordernum':val}, function(result){
+			if(result.success){
+				alert('成功设置！');
+			}else{
+				alert('设置失败');
+			}
+		});
+	}
+	function addSportItemMSG(sportItemid){
+		var values = {'itemId':sportItemid}
+		var url = "${basePath}admin/sport/ajax/getSportItemById.xhtml";
+		GewaraUtil.sendRequest(url, values , function(result){
+			GewaraUtil.setValues(result);
+			$('siid').value=result.id
+			if(result.otherinfo.defaultMsg!=null && result.otherinfo.defaultMsg!='')$('defaultMsg').innerHTML=result.otherinfo.defaultMsg;
+			if(result.otherinfo.sendTime!=null && result.otherinfo.sendTime!='')$('sendTime').value=result.otherinfo.sendTime;
+			GewaraUtil.showDialog("sportItemMSG");
+		});
+	}
+	function hideMSG(){
+		GewaraUtil.hideDialog("sportItemMSG");
+	}
+	function saveMSG(){
+		var values = {'itemId':$('siid').value,'defaultMsg':$('defaultMsg').value,'sendTime':$('sendTime').value}
+		var url = "${basePath}admin/sport/ajax/updateSportItemMSG.xhtml";
+		GewaraUtil.sendRequest(url, values , function(result){
+			if(result.success){
+				GewaraUtil.hideDialog("sportItemMSG");
+				alert("修改成功！");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

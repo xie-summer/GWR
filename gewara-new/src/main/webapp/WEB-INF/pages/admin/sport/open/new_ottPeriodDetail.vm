@@ -1,0 +1,261 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>开放场次编辑-$sport.name</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		html,body{background: none;}
+		select{width:120px;_width:117px;}
+		.myinput{
+			width: 38px;margin-top: 4px;
+		}
+		.new{
+			width: 50px;
+		}
+		.wait{
+			width: 50px;
+			color: #FFA238;
+		}
+		.lock{
+			width: 50px;
+			color: blue;
+		}
+		.locklf{
+			width: 50px;
+			color: blue;
+		}
+		.sole{
+			width: 50px;
+			color: red;
+		}
+		.del{
+			width: 50px;
+			color: #FEC5A1;
+		}
+		label{
+			text-align: left;
+		}
+		.match{
+			border: 1px solid green;
+		}
+		.btn{
+			border: 1px solid #cdf;
+		}
+		.match2{
+			border: 1px solid red;
+		}
+		.zero{
+			background-color: #EAF6FD
+		}
+		.tc{background:#fff;padding:30px 60px;position:relative;}
+		.tc p{line-height:18px;}
+		.tc .ca{position:absolute; right:10px; top:10px;}
+	</style>
+</head>
+<body>
+#set($width=702)
+<div class="manageItemList">
+	<form action="${basePath}admin/sport/open/ottDetail.xhtml" id="form" method="post">
+	<input type="hidden" name="ordertype" id="ordertype" value="$!ordertype" />
+	<input type="hidden" name="ottid" id="ottid" value="$!ottid" />
+	<div>
+		<b class="m2"></b>#set($week=$DateUtil.getCnWeek($ott.playdate))
+		<div class="m">$sport.name>>$item.itemname $DateUtil.format($ott.playdate,'MM月dd日')&nbsp;$DateUtil.getCnWeek($ott.playdate)
+			<input type="button" value="添加结算比率" onclick="showMark();" class="right"/>
+			<input type="button" value="同步远程" onclick="copySingle();" class="right"/>
+			<input type="button" value="同步价格" onclick="copyPrice();" class="right"/>
+			<input type="text" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" value="" style="width: 140px;" id="playdate" class="right"/>
+		</div>
+	</div>
+	<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+		<thead>
+			<tr>
+				<th>序号</th>
+				<th>结算比率</th>
+				<th>说明</th>
+			</tr>
+		</thead>
+		<tbody>
+			#foreach($settle in $settleList)
+			<tr>
+				<td>$foreach.count</td>
+				<td>$settle.discount</td>
+				<td>$!settle.remark</td>
+			</tr>
+			#end
+		</tbody>
+	</table>
+	<div class="mt10">
+		卖价：<input type="text" name="price" id="price" style="width: 80px;"/>
+		成本：<input type="text" name="costprice" id="costprice"  style="width: 80px;"/>
+		保底价：<input type="text" name="upsetprice" id="upsetprice"  style="width: 80px;"/>
+		结算比率:<select style="width: 80px;" id="settleid">
+						<option></option>
+						#foreach($settle in $settleList)
+						<option value="$settle.settleid">$settle.discount</option>
+						#end
+					</select>
+		<input type="button" value="批量设置" onclick="saveBatchOtiPrice()"/>
+	</div>
+	<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+		<thead>
+			<tr>
+				<th width="10%">日期</th>
+				<th>#if($ott.hasPeriod())时间段#{else}场地#end</th>
+				<th width="13%">计时单位</th>
+				<th width="13%">卖价</th>
+				<th width="13%">成本价</th>
+				<th width="13%">场馆价</th>
+				<th width="13%">保底价</th>
+				<th width="13%">结算比率</th>
+			</tr>
+		</thead>
+		<tbody id="tbody">
+			#foreach($item in $itemList)
+			<tr class="grayBg" #if($VmUtils.eq($item.status, 'delete'))style="background-color:#aaaaaa"#end>
+				<td>$DateUtil.format($ott.playdate, 'yyyy-MM-dd')&nbsp;$DateUtil.getCnWeek($ott.playdate)&nbsp;</td>
+				#if($ott.hasPeriod())<td>#if(!$ott.isBooking()) 
+				<select name="hour$!item.id" id="hour$!item.id" style="width: 60px" onchange="saveOtiHour($item.id, this)">
+				#foreach($i in [0..23])
+				#if($i lt 10) #set($time = '0'+$i)
+				#else #set($time = $i) #end
+				#set($time1 = $time+':00')
+				#set($time2 = $time+':30')
+				#if($i ne 24)
+				<option value="$!time1" #if($VmUtils.eq($!item.hour,$!time1)) selected="selected" #end>$!time1</option>
+				<option value="$!time2" #if($VmUtils.eq($!item.hour,$!time2)) selected="selected" #end>$!time2</option>
+				#end
+				#end
+				</select>~
+				<select  name="endhour$!item.id" id="endhour$!item.id" style="width: 60px" onchange="saveOtiEndHour($item.id, this)">
+				#foreach($i in [1..23])
+				#if($i lt 10) #set($time = '0'+$i)
+				#else #set($time = $i) #end
+				#set($time1 = $time+':00')
+				#set($time2 = $time+':30')
+				#if($i ne 24)
+				<option value="$time1" #if($VmUtils.eq($!item.endhour,$!time1)) selected="selected" #end>$time1</option>
+				<option value="$time2" #if($VmUtils.eq($!item.endhour,$!time2)) selected="selected" #end>$time2</option>
+				#else
+				<option value="$time1" #if($VmUtils.eq($!item.endhour,$!time1)) selected="selected" #end>$time1</option>
+				#end
+				#end
+				</select>
+				#{else}$!item.hour~$!item.endhour #end</td>
+				#{else}<td>$!{item.fieldname}#end</td>
+				<td>#if($VmUtils.eq($item.unitType,'time'))$!math.div(${item.unitHour},60.0)小时 #{else}不限时#end</td>
+				<td><input type="text" value="$!item.price" id="price$item.id" onchange="saveOtiPrice($item.id, this)"/></td>
+				<td><input type="text" value="$!item.costprice" id="costprice$item.id" onchange="saveOtiPrice($item.id, this)"/></td>
+				<td><input type="text" value="$!item.norprice" id="norprice$item.id" onchange="saveOtiPrice($item.id, this)" readonly/></td>
+				<td><input type="text" value="$!item.upsetprice" id="upsetprice$item.id" onchange="saveOtiPrice($item.id, this)"/></td>
+				<td><select id="settleid$item.id" onchange="saveOtiPrice($item.id, this)">
+						<option></option>
+						#foreach($settle in $settleList)
+						<option #if($VmUtils.eq($item.settleid, $settle.settleid)) selected="selected" #end value="$settle.settleid">$settle.discount</option>	
+						#end
+					</select></td>
+			</tr>
+			#end
+		</tbody>
+	</table>
+	<br/>
+	</form>
+</div>
+<div id="tc5" class="tc" style="display:none;">
+	<span>结算比率：</span><input type="text" name="discount" id="discount"/>
+	<br/>
+	<span>说明：</span><textarea name="remark" id="remark" rows="3" cols="19"></textarea>
+	<br/>
+	<input type="button" value="保存" onclick="saveSettle();"/><input type="button" onclick="gewara.util.hideDialog('tc5');" value="取消" />
+</div>
+<script type="text/javascript">
+function showMark(){
+	GewaraUtil.showDialog("tc5",200);
+}
+function saveSettle(){
+	var discount = $('discount').value;
+	if(discount == ""){
+		alert("结算比率不能为空！");
+		return;
+	}
+	var values = {"sportid":$!sport.id, "itemid":$!item.id, "discount":discount, "remark":$('remark').value};
+	GewaraUtil.sendRequest('${basePath}admin/sport/open/saveSettle.xhtml', values, function(result){
+		if(result.success) gewaUtil.alert("添加成功！", refreshPage);
+		else alert(result.msg);
+	});
+}
+function saveOtiHour(id, el){
+	el.setStyle("background", "red");
+	var values = {"id":id, "hour":el.value};
+	GewaraUtil.sendRequest('${basePath}admin/sport/open/saveOtiHour.xhtml', values, function(result){
+		if(result.success) el.setStyle('background','');
+		else alert(result.msg);
+	});
+}
+function saveOtiEndHour(id, el){
+	el.setStyle("background", "red");
+	var values = {"id":id,"endhour":el.value};
+	GewaraUtil.sendRequest('${basePath}admin/sport/open/saveOtiEndHour.xhtml', values, function(result){
+		if(result.success) el.setStyle('background','');
+		else alert(result.msg);
+	});
+}
+function saveOtiPrice(id, el){
+	el.setStyle("background","red");
+	var price = $('price' + id).value;
+	var costprice = $('costprice' + id).value;
+	var norprice = $('norprice' + id).value;
+	var settleid = $('settleid' + id).value;
+	var upsetprice = $('upsetprice' + id).value;
+	if(price=='' || costprice=='' || norprice=='' || upsetprice=='') return;
+	if(price*costprice*upsetprice==0) return;
+	var values = {"id":id, "price":price, 'costprice':costprice, 'norprice':norprice, 'settleid':settleid, 'upsetprice':upsetprice};
+	GewaraUtil.sendRequest('${basePath}admin/sport/open/savePeriodOtiPrice.xhtml', values, function(result){
+		if(result.success) el.setStyle("background","");
+		else alert(result.msg);
+	});
+}
+function copySingle(){
+	var url = "${basePath}admin/sport/open/synchSingle.xhtml";
+	GewaraUtil.sendRequest(url, {"id":$ott.id},function(result){
+		if(result.success) {
+			alert(result.retval);
+			refreshPage();
+		}else alert(result.msg);
+	});
+}
+function copyPrice(){
+	var url = "${basePath}admin/sport/open/copyPrice.xhtml";
+	GewaraUtil.sendRequest(url, {"ottid":$ott.id,"playdate":$('playdate').value},function(result){
+		if(result.success) {
+			alert(result.retval);
+			refreshPage();
+		}else alert(result.msg);
+	});
+}
+function saveBatchOtiPrice(){
+	var price = $('price').value;
+	var costprice = $('costprice').value;
+	var settleid = $('settleid').value;
+	var upsetprice = $('upsetprice').value;
+	if(price=='' && costprice=='' && settleid=='' && upsetprice=='') return;
+	/* if(price*costprice*upsetprice==0) return; */
+	GewaraUtil.mask();
+	var values = {"id":$ott.id,"price":price, 'costprice':costprice, 'settleid':settleid, 'upsetprice':upsetprice};
+	GewaraUtil.sendRequest('${basePath}admin/sport/open/saveBatchOtiPrice.xhtml', values, function(result){
+		GewaraUtil.unmask();
+		if(result.success) {
+			alert(result.retval);
+			refreshPage();
+		}else alert(result.msg);
+	});
+}
+</script>
+</body>
+</html>

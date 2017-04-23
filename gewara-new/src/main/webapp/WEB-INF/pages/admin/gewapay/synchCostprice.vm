@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>订单退款管理</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		html,body{background: none;}
+		form label{display:inline-block;width:100px;text-align:right;}
+		form div{margin-top:5px;}
+		.add,.add_order{background: red; color: white;}
+	</style>
+</head>
+<body style="width:900px; margin:auto" class="yui-skin-sam">
+<div style="width:700px; padding:1px; margin-left: 10px;">
+	<form action="${basePath}admin/ticket/order/synchCostprice.xhtml">
+		校验成本价，订单号：<input type="text" name="tradeNo" value="$!{params.tradeNo}" />
+		<input type="submit" value="查看" />
+	</form>
+</div>
+#if($order)
+<div ></div>
+<div id="adjustDialog" class="yui-panel" style="width:700px; margin-left: 10px;margin-top:15px;">
+	<div class="hd" id="title">校验成本价#if($code)<span style="color:red">$code.msg</span>#end</div>
+	<div class="bd">
+	<form name="adjustForm" id="adjustForm" action="${basePath}admin/ticket/order/synchCostprice.xhtml" method="post">
+		<div>
+			<input type="hidden" name="tradeNo" value="$order.tradeNo"/>
+			<label>用户名/ID：</label>${order.membername}/${order.memberid}
+		</div>
+		<div>
+			<label>订单详细：</label>$order.description2
+		</div>
+		<div>
+			<label>订单成本价：</label>$order.costprice
+		</div>
+		<div>
+			<label>场次成本价：</label>$opi.costprice
+		</div>
+		<div>
+			<label>订单状态：</label>$order.statusText
+		</div>
+		#if($order.paidFailure || $order.paidUnfix)
+		<div style="color: red">
+			<label>&nbsp;</label>
+			<input type="button" value="使用当成场次成本价" onclick="$('adjustForm').submit();"/>
+		</div>
+		#end
+	</form>
+	</div>
+</div>
+#end
+</body>
+</html>

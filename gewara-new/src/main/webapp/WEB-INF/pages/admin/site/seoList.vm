@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>问答列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width: 750px; margin:auto" class="yui-skin-sam">
+<div class="left">
+	<form action="${basePath}admin/site/seoList.xhtml" method="post">
+		<input name="name" id="name" type="text" value="$!params.name"/>
+		<select name="tag">
+			<option value="movie" #if($VmUtils.eq($!params.tag,'movie'))selected#end>电影</option>
+			<option value="cinema" #if($VmUtils.eq($!params.tag,'cinema'))selected#end>影院</option>
+			<option value="sport" #if($VmUtils.eq($!params.tag,'sport'))selected#end>运动</option>
+			<option value="sportservice" #if($VmUtils.eq($!params.tag,'sportservice'))selected#end>运动项目</option>
+		</select>
+		<input type="submit" value="搜索"/>&nbsp;&nbsp;
+		<a href="${basePath}admin/site/seoList.xhtml?tag=movie">电影</a>|
+		<a href="${basePath}admin/site/seoList.xhtml?tag=cinema">影院</a>|
+		<a href="${basePath}admin/site/seoList.xhtml?tag=sport">运动</a>|
+		<a href="${basePath}admin/site/seoList.xhtml?tag=sportservice">运动项目</a>
+	</form>
+</div>
+<div id="height0"></div>
+<table class="table" width="100%">
+	<thead>
+	<tr>
+		<th width="20%">名称</th>
+		<th width="10%">前台</th>
+		<th width="25%">标题</th>
+		<th width="35%">描述</th>
+		<th width="10%">修改</th>
+	</tr>
+	</thead>
+	#foreach($o in $list)
+		<tr>
+			<td>${o.name}</td>
+			<td><a href='$!{absPath}${basePath}$!{o.url}' target="_blank">前台</td>
+			<td>$!{o.seotitle}</td>
+			<td>$!{o.seodescription}</td>
+			<td><input type="button" value="修改" onclick="seoDetail(${o.id},'$!params.tag')"/></td>
+		</tr>
+	#end
+</table>
+#parse('include/pageUtil.vm')
+<div id="seoDialog" class="yui-panel" style="width:600px; visibility:hidden; z-index:20;">
+	<div class="hd">
+		<span>修改SEO数据</span>
+	</div>
+	<div class="bd">
+	<form name="seoForm" id="seoForm">
+		<input type="hidden" name="id" id="id" />
+		<input type="hidden" name="tag" id="tag" value="$!{params.tag}"/>
+		<div>
+			<label for="seotitle">标题：</label>
+			<input  name="seotitle" id="seotitle" style="width: 85%"/>
+			<span class="req">&nbsp;</span>
+		</div>
+		<div>
+			<label for="seodescription">描述：</label>
+			<textarea  name="seodescription" id="seodescription" style="width: 85%" rows="4"></textarea>
+			<span class="req">&nbsp;</span>
+		</div>
+		<div>
+			<label for="seodescription">内容：</label>
+			<div id="tcontent"></div>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="save();" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	function seoDetail(id,tag){
+		var url = "${basePath}admin/site/getSeo.xhtml";
+		var values = {'id':id, "tag":tag};
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.setValues(result);
+			if(tag=='activity')$('tcontent').innerHTML = result.contentdetail;
+			else $('tcontent').innerHTML = result.content;
+		});	
+		GewaraUtil.showDialog("seoDialog");
+	}
+	function save(){
+		var values = GewaraUtil.getValues("seoForm");
+		var url = "${basePath}admin/site/saveSeo.xhtml";
+		GewaraUtil.sendRequest(url, values,function(result){
+			if(result.success){
+				alert('保存成功！');
+			}else{
+				alert(result.msg);
+			}
+			GewaraUtil.hideDialog('seoDialog');
+			refreshPage();
+		});
+	}
+	function cancle(){
+		GewaraUtil.hideDialog('seoDialog');
+	}
+</script>
+</body>
+</html>

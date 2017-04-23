@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>奖品信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script> 
+	<style>
+		.mb5{margin-bottom:5px;}
+		.bt{width:50px;}
+	</style>
+</head>
+<body style="width:750px;margin:auto" class="yui-skin-sam">
+<div style="width:750px; height: 20px;">
+	<span style="width: 60px; margin-left:60px;"></span>
+	<input type="button" style="width:150px;"  value="增加奖品信息" onclick="showPrizeMark('prizeDialog')"/>
+	<span style="width: 60px; margin-left:60px;"></span>
+</div>
+#set($prizetype = {'A':'兑换券','D':'优惠券','P':'积分赠送','empty':'无奖','drama':'话剧票','remark':'其他','waibi':'瓦币','sd':'特价活动'})
+#set($othertype = {'t1':'t1','t2':'t2','t3':'t3','t4':'t4','t5':'t5','t6':'t6','t7':'t7','t8':'t8','t9':'t9'})
+#set($zero = 0)
+<div style="color:blue;font-weight:bolder;margin:10px;">大奖[禁黄牛]：表示黄牛抽中后作废重抽，除非连续3次抽中。<span style="color:red">千万别把大奖和小奖搞反</span></div>
+
+<table width="780px" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th style="width:12%">奖品名称</th>
+		<th style="width:8%;">奖品类型</th>
+		<th style="width:8%;">是否大奖[禁黄牛]</th>
+		<th >奖品关联</th>
+		<th>赠送数量</th>
+		<th style="width:8%;">奖品数量</th>
+		<th >使用数量</th>
+		<th style="width:8%;">几率</th>
+		<th style="width:8%;">几率数</th>
+		<th>奖项提示</th>
+		<th style="width:12%;">操作</th>
+	</tr>
+	</thead>
+	<tbody id="roomTable">
+	#foreach($prize in $prizeList)
+		#set($per = $prize.chancenum/$countsum)
+		<tr width="40px;">
+			<td>$!prize.plevel</td>
+			<td>$!prizetype.get($!prize.ptype)</td>
+			<td>$!prize.topPrize</td>
+			<td>$!prize.tag</td>
+			<td>$!prize.pvalue</td>
+			<td>$!prize.pnumber</td>
+			<td>
+				$!prize.psendout
+			</td>
+			<td> <input  type="text" id="$prize.id" value="$VmUtils.formatPer($!per)" style="border: 0px;width: 30px;" readonly="readonly"/></td>
+			<td>$!prize.chancenum</td>
+			<td>$!prize.remark</td>				
+			<td>
+				<input type="button" class="bt" value="修改" onclick="updatePrizeMark('prizeDialog',$!prize.id,$prize.activityid)"/>
+			</td>
+		</tr>
+	#end
+	</tbody>
+</table>
+
+
+<div id="prizeDialog" class="yui-panel" style="width:450px;visibility: hidden;">
+	<div class="hd"><span id="drawtype">添加</span>奖品信息&nbsp;&nbsp;</div>
+	<div class="bd">
+	<form name="prizeForm" id="prizeForm"  method="post">
+		<input type="hidden" name="id" id="id"/>
+		<input type="hidden" name="activityid" id="activityid" value="$!params.did"/>
+		<div class="mb5" >
+		奖品名称：<input type="text" name="plevel" id="plevel"/>抽取时显示的奖品名称
+		</div>
+		<div class="mb5">
+			奖品级别：<select name="topPrize" id="topPrize">
+						<option value="N">普通</option>
+						<option value="Y">大奖[禁止黄牛中奖]</option>
+					</select>
+		</div>
+		<div class="mb5" >
+			奖品类型：<select name="ptype" id="ptype" onchange="changeType(this)">
+							#foreach($type in $prizetype.keySet())
+							<option value="$type">$!prizetype.get($type)</option>
+							#end
+						</select>*
+			奖品级别：<select name="otype" id="otype">
+							#foreach($other in $othertype.keySet())
+							<option value="$other">$!othertype.get($other)</option>
+							#end
+						</select>
+			<label title="拉霸奖品级别对应组合为：设图片1，图片2，图片3分别对应abc，六种组合分别为aaa，bbb，ccc，abb，abc，acc，对应奖品为：t1，t2，t3，t4，t5，t6">拉霸</label>
+			<label title="转盘奖品级别分别对应：奖品t1对应图片一，60度夹角；奖品t2对应图片2，120度夹角，依次类推；">转盘</label>
+			<label title="九宫格奖品级别分别对应：奖品t1对应图片1；奖品t2对应图片2，依次类推；">九宫格</label>
+		</div>
+		<div class="mb5">
+			奖品关联：<input type="text" name="tag" id="tag"/>对电子码关联的数据关联
+		</div>
+		<div class="mb5" id="divPValue" style="display:none;">
+			单次数量：<input type="text" name="pvalue" id="pvalue"  />每次抽取的数量
+		</div>
+		<div class="mb5" >
+			控制几率：<input type="text" name="chancenum" id="chancenum"/>几率=数字/总和
+		</div>
+		<div class="mb5">
+			样本数量：<input type="text" name="pnumber" id="pnumber"  />此类奖品的总数
+		</div>
+		<div class="mb5">
+			短信模板：<textarea rows="" style="width: 350px;height: 80px;vertical-align: top;" cols=""name="msgcontent" id="msgcontent"></textarea>
+		</div>
+		<div class="mb5">
+			短信模板说明：短信内容将按原样发出
+		</div>
+		<div class="mb5">
+			奖项提示：<textarea rows="" style="width: 350px;height: 80px;vertical-align: top;" cols=""name="remark" id="remark"></textarea>
+		</div>
+		<div class="mb5">
+			站 内 信：<textarea rows="" style="width: 350px;height: 80px;vertical-align: top;" cols=""name="sysmessage" id="sysmessage"></textarea>
+		</div>
+		<div class="mb5">说明：奖项提示显示在抽奖后的提示文字，建议别有太多文字。	</div>
+		<div class="mb5">
+			中奖哇啦：<textarea rows="" style="width: 350px;height: 80px;vertical-align: top;" cols=""name="walacontent" id="walacontent"></textarea>
+		</div>
+		<div class="mb5">
+			哇啦链接：<input type="text" value="" name="walalink" id="walalink" style="width: 350px;"/>
+		</div>
+		<div class="mb5">说明：哇啦显示在抽奖后，建议最多不超过140个文字,不能出现@英文"或'符号。	</div>
+		<input type="button" id="drawbt" value="保存" onclick="saveDrawForm()" class="bt"/> <input type="button" value="取消" class="bt" onclick="cancelMark('prizeDialog')"/>
+	</form>
+	</div><!-- end of bd -->
+</div>
+
+<script type="text/javascript">
+	function changeType(obj){
+		if(obj.value == 'P'||obj.value == 'waibi'){
+			$('divPValue').setStyle('display','block');
+		}else{
+			$('divPValue').setStyle('display','none');
+		}
+	}
+	function showPrizeMark(el){
+		$('id').value = '';
+		$('ptype').value='A';
+		$('plevel').value = '';
+		$('pvalue').value = '0';
+		$('tag').value = '';
+		$('chancenum').value = '0';
+		$('pnumber').value = '0';
+		$('remark').value = '';
+		$('msgcontent').value = '';
+		$('walacontent').value = '';
+		$('walalink').value = '';
+		$('sysmessage').value = '';
+		$('drawtype').set('text','添加');
+		GewaraUtil.showDialog(el);
+	}
+	function cancelMark(el){
+		GewaraUtil.hideDialog(el)
+	}
+	function saveDrawForm(){
+		var number = $('pnumber').value;
+		var plevel = $('plevel').value;
+		var tag = $('tag').value;
+		var otype = $('otype').value;
+		if(!$chk(plevel)){
+			gewaUtil.alert("奖品级别不能为空！");
+			return;
+		}
+		if(isNaN(number)){
+			gewaUtil.alert("奖品数量不能非数字！");
+			return;
+		}
+		if(number <0){
+			gewaUtil.alert('奖品数量不能小于0！');
+			return;
+		}
+		if(isNaN($('chancenum').value)){
+			gewaUtil.alert("奖品几率不能非数字！");
+			return;
+		}
+		if($('chancenum').value <0){
+			gewaUtil.alert('奖品几率不能小于0！');
+			return;
+		}
+		if(!$chk(otype)){
+			gewaUtil.alert('请设置奖品级别！');
+		}
+		if($('ptype').value == 'point'){
+			var value = $('pvalue').value;
+			if(!$chk(value)){
+				gewaUtil.alert('奖品数量不能为空！');
+				return;
+			}
+			if(isNaN(value)){
+				gewaUtil.alert("请输入数字！");
+				return;
+			}
+		}
+		if($('msgcontent').value == 'undefined'){
+			gewaUtil.alert("短信模板不能为undefined！");
+			return;
+		}
+		if($('remark').value == 'undefined'){
+			gewaUtil.alert("奖项提示不能为undefined！");
+			return;
+		}
+		if($('sysmessage').value == 'undefined'){
+			gewaUtil.alert("站内信不能为undefined！");
+			return;
+		}
+		if($('walacontent').value == 'undefined'){
+			gewaUtil.alert("中奖哇啦不能为undefined！");
+			return;
+		}
+		if($('walalink').value == 'undefined'){
+			gewaUtil.alert("哇啦链接不能为undefined！");
+			return;
+		}
+		var values = GewaraUtil.getValues('prizeForm'); 
+		//{'msgcontent':$('msgcontent').value,'chancenum':$('chancenum').value,'id':$('id').value,'activityid':$('activityid').value,'ptype':$('ptype').value,
+		//'pnumber':$('pnumber').value,'remark':$('remark').value,'pvalue':$('pvalue').value,'tag':tag,'plevel':plevel,'otype':$('otype').value,
+		//'sysmessage':$('sysmessage').value,'walacontent':$('walacontent').value,'walalink':$('walalink').value};
+		GewaraUtil.sendRequest("${basePath}admin/draw/addPrizeInfo.xhtml",values,function(result){
+			if(result.success){
+				gewaUtil.alert("保存成功！",refreshPage);
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	
+	function updatePrizeMark(el,pid){
+		$('walalink').value = '';
+		$('walacontent').value = '';
+		$('sysmessage').value = '';
+		GewaraUtil.sendRequest("${basePath}admin/draw/updatePrizeInfo.xhtml",{'pid':pid},function(result){
+			if(result.success){
+				$('id').value = result.id;
+				$('ptype').value=result.ptype;
+				if(result.ptype == 'P'||result.ptype== 'waibi'){
+					$('divPValue').setStyle('display','block');
+				}else{
+					$('divPValue').setStyle('display','none');
+				}
+				if($chk(result.pvalue)) $('pvalue').value = result.pvalue;
+				if($chk(result.pnumber)) $('pnumber').value = result.pnumber;
+				if($chk(result.remark)) $('remark').value = result.remark;
+				if($chk(result.tag)) $('tag').value = result.tag;
+				if($chk(result.chancenum)) $('chancenum').value = result.chancenum;
+				if($chk(result.plevel)) $('plevel').value = result.plevel;
+				if($chk(result.msgcontent)) $('msgcontent').value = result.msgcontent;
+				$("topPrize").value=result.topPrize;
+				$('drawtype').set('text','修改');
+				if($chk(result.otype)) $('otype').value=result.otype;
+				if(result.otherinfo != null){
+					if(typeof(result.otherinfo.sysmessage) != 'undefined'){
+						$('sysmessage').value=result.otherinfo.sysmessage;
+					}
+					if(typeof(result.otherinfo.walacontent) != 'undefined'){
+						$('walacontent').value=result.otherinfo.walacontent;
+					}
+					if(typeof(result.otherinfo.walalink) != 'undefined'){
+						$('walalink').value=result.otherinfo.walalink;
+					}
+				}
+				GewaraUtil.showDialog(el);
+			}else{
+				alert("你要修改的奖品信息不存在！");
+			}
+		});
+	}
+</script>
+</body>
+</html>

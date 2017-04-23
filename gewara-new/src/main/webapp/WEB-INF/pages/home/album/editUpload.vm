@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>上传图片</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($photo=true)
+#set($albumImageLen=$VmUtils.size($albumImageList))
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			<div class="title"><h2>修改图片信息</h2></div>
+			<form method="post" id="pictureForm" name="pictureForm" action="${basePath}home/updatePictureInfo.xhtml">
+			<input type="hidden" name="tag" value="$!relatedtag" />
+			<input type="hidden" name="redirectUrl" value="$!redirecturl"/>
+			#if(!$VmUtils.isEmptyList($albumImageList))
+			#foreach($albumimage in $albumImageList)
+			#if($foreach.count%2 eq 1)
+			<div class="clear">
+			#end
+				<div class="percent_50">
+					<ul class="ui_abeam mt10 btLine">
+						<li class="abeam">
+							<div class="uipic"><img src="$VmUtils.randomPic('sw96h72',$albumimage.limg)" width="96"/></div>
+							<div class="uiText" style="width:70%">
+								<ul class="ul-60">
+									<li><div class="ul-60Inner">名称：</div>
+										<input type="hidden" value="$albumimage.id" name="id"/>
+										<span class="left"><input type="text" class="text" id="name$albumimage.id" name="name" value="$!albumimage.name" maxlength="50" style="width:190px" onkeyup="keyUpName('nameValue${albumimage.id}',this,50,'nameText$albumimage.id')"/></span>
+										<span class="left ml5" id="nameText$albumimage.id" style="display: none;width:80px;">
+										<span id="nameValue$albumimage.id">0</span>/50</span></li>
+									<li><div class="ul-60Inner">描述：</div>
+										<span class="left"><textarea id="description$albumimage.id" name="description" class="text" style="width:190px;height:80px;overflow-x:hidden;overflow-y:auto;clear: both;" onkeyup="keyUpName('descriptionValue$albumimage.id',this,500,'descriptionText$albumimage.id')">$!albumimage.description</textarea></span>
+										<span class="left ml5" id="descriptionText$albumimage.id" style="display: none;width:80px;"><span  id="descriptionValue$albumimage.id">0</span>/500</span>
+									</li>
+									#if($albumsMap.get($albumimage.albumid).memberid eq $logonMember.id)
+									<li><input type="radio" name="isalbumcover" value="$albumimage.id" class="mr5"/>图片设置为相册封面图</li>
+									#end
+								</ul>
+							</div>
+						</li>
+					</ul>
+				</div>
+			#if($foreach.count%2 eq 0  || $foreach.count eq $albumImageLen)
+			</div>
+			#end
+			#end
+			#end
+			#if(!$VmUtils.isEmptyList($pictureList))
+			#foreach($picture in $pictureList)
+			#if($foreach.count%2 eq 1)
+			<div class="clear">
+			#end
+				<div class="percent_50">
+					<ul class="ui_abeam mt10 btLine">
+						<li class="abeam">
+							<div class="uipic"><img src="$VmUtils.randomPic('sw96h72',$!picture.picturename)" width="96"/></div>
+							<div class="uiText" style="width:70%">
+								<ul class="ul-60">
+									<li>
+										<div class="ul-60Inner">名称：</div>
+										<input type="hidden" name="id" value="$picture.id" />
+										<span class="left"><input type="text" class="text" id="name$picture.id" name="name" value="$!picture.name" style="width:190px" maxlength="50" onkeyup="keyUpName('nameValue$picture.id',this,50,'nameText$picture.id')"/></span>
+										<span class="left ml5" id="nameText$picture.id" style="display: none;width:80px;"><span  id="nameValue$picture.id">0</span>/50</span>
+									</li>
+									<li>
+										<div class="ul-60Inner">描述：</div>
+										<span class="left"><textarea id="description$picture.id" name="description"  class="text" style="width:190px;height:80px;overflow-x:hidden;overflow-y:auto" onkeyup="keyUpName('descriptionValue$picture.id',this,500,'descriptionText$picture.id')">$picture.description</textarea></span>
+										<span class="left ml5" id="descriptionText$picture.id" style="display: none;width:80px;"><span  id="descriptionValue$picture.id">0</span>/500</span>
+									</li>
+								</ul>
+							</div>
+						</li>
+					</ul>
+				</div>
+			#if($foreach.count%2 eq 0  || $foreach.count eq $albumImageLen)
+			</div>
+			#end
+			#end
+			#end
+			<div class="mt10">
+				<label class="button bigBt"><input class="bold" type="submit" value="保存图片"/></label>
+			</div>
+			</form>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+	function keyUpName(el,obj,len,txt){
+		$(txt).setStyle('display','block');
+		if(!isNaN(obj.value)){
+			$(el).set('text','0');
+		}else if(obj.value.length > len){
+			obj.style.borderColor='red';
+			obj.value = obj.value.substr(0,len);
+			$(el).set('text',obj.value.length)
+		}else{
+			obj.style.borderColor='#f9b967';
+			$(el).set('text',obj.value.length)
+		}
+	}
+	
+</script>
+</body>
+</html>

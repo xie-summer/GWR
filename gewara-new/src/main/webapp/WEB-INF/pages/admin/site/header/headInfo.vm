@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>#if($params.command eq 'update')修改#else添加#end头部信息</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline}
+		a{text-decoration: none;}
+		.ua{text-decoration: none;color: red }
+		.bk{background:rgb(255, 246, 200)}
+	</style>
+</head>
+<body style="width:85%; margin:auto" >
+<div class="table" id="gcForm">
+	<input type="hidden" name="id" id="id" value="$!headInfo.id"/>
+	<input type="hidden" name="board" value="#if($!headInfo.board)$!headInfo.board#else$!params.board#end"/>
+	#if($!headInfo.ordernum)<input type="hidden" name="ordernum" id="ordernum" value="$!headInfo.ordernum"/>#end
+	<label>标题：</label><input type="text" name="title" id="title" value="$!headInfo.title" style="width: 300px;" mustTxt="标题为必填项！"/><br/>
+	<label>链接：</label><input type="text" name="link" id="link" value="$!headInfo.link" style="width: 300px;"/><br/>
+	<label>修饰图：</label><iframe class="center" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame" 
+			src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/header/&callback=updateLogoSmall&notLimit=y"></iframe>*为背景缺失部分图<br/>
+			<img style="height:60px; margin-left:80px;" id='logoimgsmall' #if($!headInfo.logosmall)src='${picPath}$!headInfo.logosmall'#end/><br/>
+			<p><input type="text" style="width: 300px; margin-left: 70px;" name="logosmall" id="logosmall" value="$!headInfo.logosmall"/></p>
+	<label>背景图：</label><iframe class="center" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame" 
+			src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/header/&callback=updateLogoBig&notLimit=y"></iframe>*背景正文显示图<br/>
+			<img style="height:60px; margin-left:80px;" id='logoimgbig' #if($!headInfo.logobig)src='${picPath}$!headInfo.logobig'#end/><br/>
+			<p ><input type="text" style="width: 300px; margin-left: 70px;" name="logobig" id="logobig" value="$!headInfo.logobig"/></p>
+	<label>样式：</label><textarea name="css" id="css">$!headInfo.css</textarea>*添加一个缺失的背景颜色如（#ffffff）<br/>
+	<label>1像素跟踪图片地址：</label><input type="text" name="track" id="track" value="$!headInfo.track"/>
+	#*<label>头部滑动：</label>
+	<select name="isslide">
+		<option value="N">不滑动</option>
+		<option #if($VmUtils.eq($!headInfo.isslide,'Y'))selected="selected"#end value="Y">滑动</option>
+	</select>*#
+	<br/>
+	<label>&nbsp;&nbsp;</label><input type="button" value="保存" style="width: 50px;" onclick="save();"/><br/>
+</div>
+<script type="text/javascript">
+	function save(){
+		if(!GewaraUtil.baseValidForm("gcForm", 'admin'))return false;
+		var values = GewaraUtil.getValues('gcForm');
+		values.citycode = $admincitycode;
+		var url="${basePath}admin/site/header/saveHeadInfo.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			_debug(result)
+			#if($params.command eq 'update')
+				alert("更新成功！");
+				//window.close();
+				location.replace(document.referrer);
+			#else
+				if(result.success){
+					alert("添加成功！");
+					//window.close();
+					location.replace(document.referrer);
+				}else
+					alert(result.retval);
+			#end
+		});
+	}
+	function updateLogoSmall(params){
+		var picpath = params['picpath'];
+		$('logosmall').value = picpath;
+		$('logoimgsmall').src='${basePath}' + picpath;
+	}
+	
+	function updateLogoBig(params){
+		var picpath = params['picpath'];
+		$('logobig').value = picpath;
+		$('logoimgbig').src='${basePath}' + picpath;
+	}
+</script>
+</body>
+</html>

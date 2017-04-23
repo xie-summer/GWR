@@ -1,0 +1,100 @@
+#if(!$VmUtils.isEmptyList($memberinfomoreList))
+<table cellpadding="0" cellspacing="0" border="0" class="titleTable" style="margin:0px;margin-top: 5px;">
+	<thead>
+		<tr>
+			<th width="120">所在地</th>
+			<th width="30%">单位名称</th>
+			<th>部门职位</th>
+			<th width="25%">公司邮箱域名</th>
+			<th width="60">编辑</th>
+		</tr>
+	</thead>
+	<tbody>
+		#foreach($memberjob in $memberinfomoreList)
+		<tr class="#if($foreach.index%2 eq 0) odd #else even #end">
+			<tr class="#if($foreach.index%2 eq 0) odd #else even #end">
+			<td>$!VmUtils.escapeHtml($!memberjob.jobprovince) - $!VmUtils.escapeHtml($!memberjob.jobcity)</td>
+			<td>$!VmUtils.escapeHtml($!memberjob.name)</td>
+			<td>$!VmUtils.escapeHtml($!memberjob.jobdep)</td>
+			<td>$!VmUtils.escapeHtml($!memberjob.jobcompanyemail)</td>
+			<td><a href="javascript:void(0);" onclick="delthisjob($memberjob.id, this)" class="brown mr10">删除</a></td>
+		</tr>
+		#end
+	</tbody>
+</table>
+#end
+#if($VmUtils.size($memberinfomoreList) eq 0)<div class="clew mt20">填写职业信息，方便好友了解你。</div>#end
+<form name="memberJobForm" id="memberJobForm"  method="post">
+	<input type="hidden" name="tag" value="job">
+	<ul class="gui-basesite user-Lh40 ul-150">
+		<li class="list_h">
+			<span class="baseTitle left_150">所在地：</span>
+			<div id="ajaxLoadAddress"></div>
+		</li>
+		<li class="list_h">
+			<span class="baseTitle left_150">单位名称：</span>
+			<input name="name" type="text" class="text text-h25" mustTxt="单位名称必填!"/>
+			<em class="yellow ml5">*</em>
+		</li>
+		<li class="list_h">
+			<span class="baseTitle left_150">部门职位：</span>
+			<input name="jobdep" type="text" class="text text-h25" />
+		</li>
+		<li class="list_h">
+			<span class="baseTitle left_150">公司邮箱：</span>
+			<input name="jobcompanyemail" name="jobcompanyemail" id="jobcompanyemail"  type="text" class="text text-h25" mustTxt="公司邮箱必填!"/>
+			<em class="yellow ml5">*</em>
+		</li>
+		<li>
+	     <label class="button redBt minBt" for="disBtnJob"><input type="button" id="disBtnJob" onclick="updateMemberinfoJob()" value="保存设置" style="padding:0 15px 0 0;"/></label>
+	   </li>
+	</ul>
+</form>
+
+<script>
+	updateMemberinfoJob = function(){
+		if(!GewaraUtil.baseValidForm('memberJobForm')){
+			return false;
+		}
+		if(!GewaraUtil.isEmail($('jobcompanyemail').value)){
+			gewaUtil.alert('邮箱格式不正确!');
+			return false;
+		}
+		var url = '${basePath}home/acct/updateMemberinfomore.xhtml';
+		var values = GewaraUtil.getValues('memberJobForm');
+		values['jobprovince'] = $('liveprovince').value;
+		values['jobcity'] = $('livecity').value;
+		GewaraUtil.mask('disBtnJob');
+		GewaraUtil.sendLoad('ajaxMemberInfo', url, values, function(result){
+			GewaraUtil.unmask();
+		})
+	}
+	
+	delthisjob = function(id, obj){
+		gewaUtil.confirm("确认删除吗?", function(){
+			GewaraUtil.mask(obj);
+			var url = '${basePath}home/acct/delMemberinfomore.xhtml';
+			var values = {'id': id};
+			GewaraUtil.sendRequest(url, values, function(result){
+				GewaraUtil.unmask();
+				if(result.success){
+					$(obj).getParent().getParent().dispose();
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		});
+	}
+	
+	window.addEvent('domready', function(){
+		var url = '${basePath}ajaxLoadAddress.xhtml';
+		var values = {'agtag':'PC'};
+		GewaraUtil.sendLoad('ajaxLoadAddress', url, values, function(){
+			$('ajaxLoadAddress').style.display = '';
+		});
+	})
+	
+</script>
+<script>
+
+</script>

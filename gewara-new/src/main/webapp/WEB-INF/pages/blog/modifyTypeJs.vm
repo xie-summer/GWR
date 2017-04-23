@@ -1,0 +1,226 @@
+<style type="text/css">
+.fast_content{padding:0px;width:843px;}
+.fast_content .fast_content{padding:10px 6px;border:0px;width:832px;overflow-x:hidden;overflow-y:auto;max-height:110px;min-height:22px;}
+.fast_content .fast_content a{width:163px;height:22px;line-height:22px;color:#516A86;margin:0px;}
+.fast_content .fast_content a.select,.fast_content .fast_content a:hover{color:#fff;}
+.fast_content .country{height:auto;line-height:20px;background:#efefef;padding:3px 10px 3px 70px;width:763px;overflow:hidden;}
+.country .left{color:#516A86;line-height:18px;display:inline-block;}
+.country .sp_country{float:left;width:70px;margin-left:-70px;_margin-left:-35px;text-align:right}
+.fast_content .country a{margin:0 2px 0 0;display:inline-block;color:#516A86;width:auto;line-height:20px;height:20px;word-wrap:break-word;}
+.fast_content .country a span{padding-right:3px;display:inline-block;height:20px;line-height:20px;word-wrap:break-word;}
+.fast_content .country a:hover,.fast_content .country a:hover span,
+	.fast_content .country a.select,
+	.fast_content .country a.select span{background:url(${picPath}css/global/sp_country_select.png) no-repeat;}
+.fast_content .country a:hover span,.fast_content .country a.select span{background-position:right 0px;color:#ff9200;cursor: pointer;}
+.seleczz{height:20px;overflow:hidden;margin-top:5px;}
+.seleczz span,.seleczz em{display:inline-block;height:16px;line-height:16px;float:left;}
+.seleczz span{margin-left:8px;padding:0 12px 0 4px;color:#006699;border:#b1bdd6 solid 1px;font-family:Tahoma,Arial,"宋体";background:#F3F3F3 url(${picPath}css/home/del.gif) 98.8% center no-repeat;cursor: pointer;}
+.seleczz em.edits{background:#B1BDD6;padding:0 4px;cursor: pointer;color:#fff;height:18px;line-height:18px;}
+</style>
+
+<script type="text/javascript">
+var tag = #if($cookieCitycode ne '310000')'cinema'#else '$!activity.tag' || '$!topic.tag' || '$!question.tag' || '$!commu.tag' || '$!exam.tag'#end;
+var selectList = {'tag':tag,'categoryid':'$!activity.categoryid','countycode':'$!activity.countycode','type':'$!type'},afterTag = selectList['tag'];
+var selectCache = {};
+var innerMap={};
+window.addEvent('domready',function(){
+	if(tag)disableTag();
+	if(selectList['type']){
+		if($('radioTags')){
+			$('radioTags').getElements('input').each(function(item){
+				if(tag == ''){
+					item.disabled = false;
+					return false;
+				}
+				if(item.value != tag){item.disabled = true; item.removeEvents('click',arguments[0])}
+				else{item.disabled = false; item.checked = true;}
+			});
+		}
+	}
+	if($('starttime')){
+		try{
+			$('starttime').value='$!activity.starttime';
+			$('endtime').value='$!activity.endtime';
+		}catch(e){}
+	}
+	new Element('div', {id: 'selectTagzz', styles:{'height':0}}).inject('footer','before');
+	clearSelect(true);
+});
+function disableTag(){
+	if($('radioTags')){
+		$('radioTags').getElements('input').each(function(item){
+			#if($cookieCitycode ne '310000')
+				if(item.value != selectList['tag'] && item.value != ''){item.disabled = true;item.removeEvents('click',arguments[0])}
+			#else 
+				if(item.value != selectList['tag']){item.disabled = true;item.removeEvents('click',arguments[0])}
+			#end
+		});
+	}
+}
+function selectModelSearch(self,countycode,indexareacode,text){
+	if(self)$('fastModel').getElements('a').removeClass('select');
+	selectList['countycode'] = ($defined(countycode) && countycode)?countycode:'';
+	selectList['indexareacode'] = ($defined(indexareacode) && indexareacode)?indexareacode:'';
+	loadFunction(self,'modelContent',true, text);
+}
+function trigerSelect(self){
+	if(self){
+		selectList['tag'] = self.value
+	}else{
+		self = $('no_'+selectList['tag']);
+	}
+	selectList['countycode'] = '';
+	selectList['indexareacode'] = '';
+	loadFunction(self,'selectTagzz',false);
+}
+var loaddEve = function(e){
+	e = new Event(e);
+	if(this != e.target && !$(e.target).hasClass("edits") && !$('SelectModel').hasChild(e.target)){
+		hideLoadd();
+	}
+}
+function shows(){
+	$('SelectModel').fade('show');
+}
+function hideLoadd(){
+	$('SelectModel').fade('out');
+	document.removeEvents('click');
+	clearSelect(true);
+}
+function selectItems(el,rquestid){
+	if($(el)){
+		var els = $(el).getElements('a');
+		els.addEvent('click',function(e){
+			e.preventDefault();
+			els.removeClass('select');
+			this.addClass('select');
+			$(rquestid).getElement('input').value = this.get('id');
+			if($(rquestid).getNext('span')){
+				$(rquestid).getNext('span').show().set('text',this.get('title'));
+				$(rquestid).getParent().removeClass('none');
+				if(!$chk($('countycode').getNext().get('text')))$('countycode').getNext().hide();
+			}
+			if($('address') && rquestid == 'relatedid'){$('address').value= this.get('lang');}
+			if($('category') && rquestid == 'categoryid'){$('category').value = this.get('rel');}
+		})
+	}
+}
+function clearSelect(flag){
+	if(flag){
+		var cls = $$('.seleczz')[0];
+		cls.getElements('span').each(function(item){
+			item.addEvent('click',function(e){
+				var input = this.getPrevious().getElement('input');
+				input.value = '';
+				if(this.getNext().tagName == 'INPUT'){this.getNext().value = ''}
+				$(e.target).set('text','');
+				$(e.target).hide();
+				if(cls.getElements('input').every(function(its){
+					return its.value == '';
+				}))this.getParent().addClass('none');
+			});
+		})
+	}else{
+		try{
+			$('countycode').getElement('input').value="";
+			$('countycode').getNext('span').hide().set('text','');
+			$('relatedid').getElement('input').value = '';
+			$('relatedid').getNext('span').hide().set('text','');
+			$('categoryid').getElement('input').value = ''
+			$('categoryid').getNext('span').hide().set('text','');
+			$($('countycode').parentNode).addClass('none');
+			$('category').value = "";
+		}catch(e){}
+	}
+}
+function loadFunction(self,el,flag,text,category){
+	var ckey = selectList.countycode + selectList.tag + selectList.categoryid + selectList['indexareacode'];
+	var cResult = selectCache[ckey];
+	if(cResult){
+		if(innerMap[selectList.tag] && selectList.countycode=="" && self.tagName!="INPUT"){
+			var tmpEl = new Element("div",{"html":cResult, "styles":{"display":"none"}});
+			$(el).innerHTML = $(tmpEl).getElement(".innerContent").innerHTML;
+			tmpEl.dispose();
+		}else{
+			$(el).innerHTML = cResult;
+		}
+		activeResult(self, el, flag, text, category);
+	}else{
+		new Request({
+			url:'${basePath}common/selectModel.xhtml',
+			method: 'get',
+			onSuccess:function(resText){//请求成功
+				if(selectList.countycode=='') innerMap[selectList.tag]=true;
+				selectCache[ckey] = resText;
+				$(el).innerHTML = resText;
+				activeResult(self, el, flag, text, category)
+			}
+		}).send({'data':selectList});
+	}
+}
+
+function activeResult(self, el, flag, text, category){
+	if(flag){
+		if(self)$(self).addClass('select');
+		if(selectList['countycode']){
+			var ob = $('countycode');
+			$(ob.parentNode).removeClass('none');
+			ob.getElement('input').value = selectList['countycode'];
+			if(self)ob.getNext('span').set('text',text).appendText('区')
+			$('relatedid').getElement('input').value = '';
+			$('relatedid').getNext('span').hide();
+			$('categoryid').getElement('input').value = ''
+			$('categoryid').getNext('span').hide();
+		}
+	}else{
+		var position = $(self).getPosition(),box = $('SelectModel');
+		box.setStyles({'left':$('p').getPosition().x+30,'top':position.y+20});
+		box.getElement('img').position({
+			relativeTo:$(self),
+			position:'centerBottom'
+		});
+		box.getElement('img').setStyle('top','0px');
+		box.fade('show');
+		document.addEvent('click', loaddEve.bind(self));
+		$('fastModel').getElements('a').addEvent('click',function(e){
+			e.preventDefault();
+			selectModelSearch(this,this.get('id'),'',this.get('text'))
+		});
+		if(afterTag != $(self).value){
+			clearSelect();
+		}
+		afterTag = $(self).value;
+		$('countycode').getNext('span').show();
+	}
+	if(selectList['countycode']){
+		if($('country'))$("country").getElements("a").each(function(item){
+			item.addEvent("click",function(event){
+				event.stopPropagation();
+				var xxxxx = this.get("rel").split(":");
+				selectModelSearch('',xxxxx[0],xxxxx[1]);
+			});
+		});
+	}
+	selectItems('selectContent','relatedid');
+	selectItems('selectItems','categoryid');
+}
+
+
+// 新加入方法 - 查询子类是否需要Disable
+function switchDis(_tag){
+	if($('radioTags')){
+		var clshh = $('p').getElements('.seleczz');
+		if(clshh){
+			clshh.addClass('none');
+		}
+		$('radioTags').getElements('input').each(function(item){
+			if(_tag == ''){
+				item.disabled = false;
+				return false;
+			}
+			if(item.value != _tag){item.disabled = true; item.removeEvents('click',arguments[0])}
+			else{item.disabled = false; item.checked = true;}
+		});
+	}
+}
+</script>

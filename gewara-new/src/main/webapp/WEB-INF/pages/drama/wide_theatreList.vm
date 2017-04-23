@@ -1,0 +1,347 @@
+<!Doctype html>
+<html>
+<head>
+	<!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>$!{cookieCityname}$!{curCounty.countyname}话剧院购票_话剧院查询 - 格瓦拉生活网</title>
+	<meta name="keywords" content="话剧院购票,话剧院查询,话剧院买票,话剧院" />
+	<meta name="description" content="格瓦拉生活网提供$!{cookieCityname}话剧院在线购票及话剧院地址,票价及最近演出信息查询.是全国最专业的话剧演出查询网站."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,noobSlide&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ui_layout{background:none;}
+	</style>
+</head>
+<body>
+#set($dramaHeadFlag='isDramaIndex')#set($relatedtag='drama')
+#set($isIndexBigAd = true)
+#set($dramaLeftTag='theatreList')
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="index_wrap clear">
+	#parse('include/drama/wide_drama_menu.vm')
+		<div class="index_right">
+			<div class="ui_left">
+				<div class="mod_kong">
+					<div class="mod_hd">
+						<h2>演出场馆</h2>
+						<div class="myLocal myLocal1 more clear" id="myLocal">
+							<ul class="right">
+								<li class="on">
+									<a class="type_list" href="${basePath}theatre/theatreList.xhtml" >列表</a>
+								</li>
+								<li>
+									<a class="type_map" href="${basePath}theatre/theatreMap.xhtml" >地图</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div class="mod_bd">
+						<form id="searchForm" action="${basePath}theatre/theatreList.xhtml">
+							<input type="hidden" name="countycode" id="countycode" value="$!VmUtils.escapeHtml($params.countycode)"/>
+							<input type="hidden" name="indexareacode" id="indexareacode" value="$!VmUtils.escapeHtml($params.indexareacode)"/>
+							<input type="hidden" name="order" id="order" value="$!VmUtils.escapeHtml($params.order)"/>
+							<input type="hidden" name="lineid" id="lineid" value="$!VmUtils.escapeHtml($params.lineid)"/>
+							<input type="hidden" name="park" id="park" value="$!VmUtils.escapeHtml($params.park)"/>
+							<input type="hidden" name="chooseSeat" id="chooseSeat" value="$!VmUtils.escapeHtml($params.chooseSeat)"/>
+							<input type="hidden" name="takeMethod" id="takeMethod" value="$!VmUtils.escapeHtml($params.takeMethod)"/>
+							<input type="hidden" name="stationid" id="stationid" value="$!VmUtils.escapeHtml($!stationid)"/>
+							<input type="hidden" name="booking" id="booking" value="$!VmUtils.escapeHtml($params.booking)"/>
+							<input type="hidden" name="ofcome" id="ofcome" value="$!VmUtils.escapeHtml($ofcome)"/>
+							#*<input type="hidden" name="visacard" id="visacard" value="$!VmUtils.escapeHtml($params.visacard)"/>*#
+						</form>
+						<ul class="yccg_list">
+							<li>
+								<div class="condition">
+									<dl class="clear dlTy">
+										<dt>
+											<span class="typeTitle mr10">行政区域 </span>
+										</dt>
+										<dd>
+											#if($logon)
+											<a #if($ofcome) class="select" #set($searchTJ1="我常去的") #end href="javascript:searchOfCome();">我常去的</a>
+											#end
+											#foreach($pair in $countyGroup)
+											<a #if($VmUtils.eq($params.countycode, $pair.county.countycode)) class="selected" #set($searchTJ1=$pair.county.countyname) #else href="javascript:search('countycode', '$pair.county.countycode')" #end>$!{pair.county.countyname}</a>
+											#end
+										</dd>
+									</dl>
+								</div>
+							</li>
+							<li>
+								<div class="condition">
+									<dl class="clear dlTy">
+										<dt>
+											<span class="typeTitle mr10">地铁沿线</span>
+										</dt>
+										<dd>
+											#foreach($pair in $subwaylineGroup)
+											<a #if($VmUtils.eq($params.lineid,$pair.lineid))class="selected" #set($searchTJ3=$pair.linename) #else href="javascript:search('lineid','$pair.lineid')"  #end>$!{pair.linename}</a>
+											#end
+										</dd>
+									</dl>
+								</div>
+							</li>
+							<li>
+								<div class="condition mt10">
+									<dl class="clear dlTy">
+										<dt>
+											<span class="typeTitle left">场馆查询</span>
+										</dt>
+										<dd>
+											<form action="javascript:searchname('theatrename',$('theatrename').value)" >
+											<div class="search_kuang">
+												<input id="theatrename" class="search_text searchText yccgSerch" type="text"  alt="请输入搜索关键词"  name="theatrename" value="$!VmUtils.escapeHtml($params.theatrename)">
+												<label class="searchButton">
+													<input type="button" value="" onclick="searchname('theatrename',$('theatrename').value)" />
+												</label>
+											</div>	
+											</form>					
+										</dd>
+									</dl>
+								</div>
+							</li>
+						</ul>
+						
+						<div class="selectedMenus clear">
+							<div class="right">
+								<span>排序：</span>
+								<select onchange="javascript:search('order', this.value)">
+									<option value="clickedtimes" #if($VmUtils.eq('clickedtimes',$!params.order)|| !$params.order)selected#end>默认(按关注数)</option>
+									<option value="boughtcount" #if($VmUtils.eq('boughtcount',$!params.order))selected#end>按购票(由多到少)</option>
+									<option value="avggeneral" #if($VmUtils.eq('avggeneral',$!params.order))selected#end>按评分(由高到低)</option>
+								##	<option value="diarycount" #if($VmUtils.eq('diarycount',$!params.order))selected#end>按评论(由多到少)</option>
+								</select>
+							</div>
+							<div class="left">
+								#if(${searchTJ1} || ${searchTJ2} || ${searchTJ3} || $VmUtils.isNotBlank($params.theatrename)|| $VmUtils.isNotBlank($params.park)|| $VmUtils.isNotBlank($params.chooseSeat)|| $VmUtils.isNotBlank($params.takeMethod))
+								<span class="">已选条件：</span>
+								#if(${searchTJ1})
+								<span class="selections" onclick="searchRemoveKey('countycode','$searchTJ1')">$!searchTJ1<em class="ico_gym"></em><a class="ui_x bg6_hover">×</a></span>
+								#end
+								#if(${searchTJ2})
+								<span class="selections" onclick="searchRemoveKey('indexareacode','$searchTJ2')">$!searchTJ2<em class="ico_gym"></em><a class="ui_x bg6_hover">×</a></span>
+								#end
+								#if(${searchTJ3})
+								<span class="selections" onclick="searchRemoveKey('lineid','$searchTJ3')">$!searchTJ3<em class="ico_gym"></em><a class="ui_x bg6_hover">×</a></span>
+								#end
+								#if($VmUtils.isNotBlank(${params.park}))
+								<span class="selections" onclick="searchRemoveKey('park','$params.park')">停车位<em class="ico_gym"></em><a class="ui_x bg6_hover">×</a></span>
+								#end
+								#if($VmUtils.isNotBlank(${params.chooseSeat}))
+								<span class="selections" onclick="searchRemoveKey('chooseSeat','$params.chooseSeat')">在线选座<em class="ico_gym"></em><a class="ui_x bg6_hover">×</a></span>
+								#end
+								#if($VmUtils.isNotBlank(${params.takeMethod}))
+								<span class="selections" onclick="searchRemoveKey('takeMethod','$params.takeMethod')">自助取票<em class="ico_gym"></em><a class="ui_x bg6_hover">×</a></span>
+								#end
+								#if($VmUtils.isNotBlank($params.theatrename))
+								<span class="selections" onclick="searchRemoveKey('theatrename','$params.theatrename')">$VmUtils.escapeHtml($params.theatrename)<em class="ico_gym"></em><a class="ui_x bg6_hover">×</a></span>
+								#end
+								#end
+								<span class="mr10">
+									共<b class="c80 sNum">$!rowsCount</b>家剧院
+								</span>
+								<input type="checkbox" name="booking2" id="booking2" #if($params.booking eq 'open') checked='true' #end onclick="searchBook('booking','$params.booking')" /><em class="kxjy">只看可购票场馆 </em>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="threatreList">
+					<ul>
+					#foreach($theatre in $theatreList)
+					#set($key2=$theatre.id+"theatre")
+					#set($gmark=$VmUtils.getSingleMarkStar($theatre,"general"))
+					#set($gmark1=$gmark/10)
+					#set($gmark2=$gmark%10)
+						<li class="effectLi">
+							<div class="ui_media drBt">
+								<div class="ui_pic threaName">
+									<a href="${basePath}theatre/$theatre.id" title="$!theatre.name" target="_blank">
+										<img src="${staticPath}css/images/blank.gif" alt="$!theatre.name" height="92" width="122" style="border:1px solid #f4f4f4; background:url($VmUtils.randomPic('sw120h60',$!theatre.limg)) center center no-repeat #fff;vertical-align:middle;"/>
+									</a>
+									#if($theatreidList && $theatreidList.contains($theatre.id))
+									<p class="mt10">
+										<a class="button redBt bigBt" href="${basePath}theatre/$theatre.id" target="_blank"><span>#if($seatList.contains($theatre.id)) <em class="bt_seat">选座购票 </em>#else 立即购票 #end</span></a>
+									</p>
+									#end
+								</div>
+								<div class="ui_text">
+									<div class="title">
+										<h2>
+											<a href="${basePath}theatre/$theatre.id" title="$!theatre.name" target="_blank" class="c333">$!VmUtils.escabbr($theatre.name, 50)</a>
+										</h2>
+										<span class="ml5 c999">($!{theatre.clickedtimes}关注)</span>
+										<span class="grade">
+											<sub>$!gmark1</sub>
+											<sup>.$!gmark2</sup>
+										</span>
+									</div>
+									<dl>
+										<dt>详细地址：</dt>
+										<dd>
+											<a class="c333" #set($searchTJ1=$theatre.countycode) href="javascript:search('countycode', '$theatre.countycode')">$!theatre.countyname</a>$!theatre.address
+											<span class="ffst">[</span><a class="c333" target="_blank" href="${basePath}common/baiduMap.xhtml?id=${theatre.id}&tag=theatre">地图</a><span class="ffst">]</span>
+										</dd>
+									</dl>
+									#if($theatre.contactphone)
+									<dl>
+										<dt>联系电话：</dt>
+										<dd>$!theatre.contactphone</dd>
+									</dl>
+									#end
+									#if($theatre.feature)
+									<dl>
+										<dt>剧院特色：</dt>
+										<dd>
+											$!theatre.feature
+										</dd>
+									</dl>
+									#end
+									#if(!$VmUtils.isEmptyList($curPlayDramaMap.get($theatre.id)))
+									<dl>
+										<dt>正在上演：</dt>
+										<dd class="showing">
+											#foreach($curPlayDrama in $curPlayDramaMap.get($theatre.id))
+												<a href="${basePath}drama/$curPlayDrama.id" target="_blank" title="$!curPlayDrama.dramaname">$!curPlayDrama.dramaname</a>
+											#end
+											<em>共$!curPlayDramaCountMap.get($theatre.id)个剧目</em>
+										</dd>
+									</dl>
+									#end
+									<div class="mt5 conditionIco">
+										#if($theatre.otherinfo.contains("park"))
+											<span class="O1"><em class="tzw"></em>停车位</span>
+										#end
+										#if($seatList.contains($theatre.id))
+											<span class="O1"><em class="zxxz"></em>在线选座</span>
+										#end
+										#if($VmUtils.contains($takeMethodMap.get($theatre.id),'A'))
+										<span class="O1"><em class="zzgp"></em>自助取票</span>
+										#end
+									</div>
+								</div>
+							</div>
+						</li>
+						#end
+					</ul>
+					<div class="clear">
+						#parse('include/pageUtil.vm')
+					</div>
+				</div>
+			</div>
+			<div class="ui_right">
+			#parse('include/drama/mod_ryjm.vm')
+			#parse('include/drama/mod_ychd.vm')
+			#parse('include/drama/mod_walaR.vm')
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$('submenu').addEvents({
+		'mouseover':function(){this.addClass('jm_hover')},
+		'mouseout':function(){this.removeClass('jm_hover')}
+	});
+	(function(){
+		gewaUtil.affix($('ui_left'));
+	}).delay(500);
+	secrchIn();
+});
+function secrchIn(){
+	$('theatrename').addEvents({
+	 	'focus':function(){this.getParents('div[class*="search_kuang"]').addClass('search_kuangClicked');},
+	 	'blur':function(){this.getParents('div[class*="search_kuang"]').removeClass('search_kuangClicked');}
+	}); 
+}
+function sorder(order){
+	$('order').value=order;
+	$('searchForm').submit();
+}
+function search(field, value){
+//	noRemovieKey(field);
+	$(field).value = value;
+	$('ofcome').value = '';
+	if(field == "park"){
+		$('chooseSeat').value = '';
+		$('takeMethod').value = '';
+	}else if(field == "chooseSeat"){
+		$('park').value = '';
+		$('takeMethod').value = '';
+	}else if(field == "takeMethod"){
+		$('park').value = '';
+		$('chooseSeat').value = '';	
+	}
+	if(field=="lineid"){
+		$('countycode').value = '';
+	}
+	if(field=="countycode"){
+		$('lineid').value = '';
+	}
+	$('searchForm').submit();
+}
+function searchRemoveKey(key, value){
+	if(key == 'countycode'){
+		$(key).value = '';
+		$('indexareacode').value='';
+	}else if(value != ''){
+		$(key).value = '';
+	}
+	$('searchForm').submit();
+}
+function noRemovieKey(key){
+	if($(key))
+	if(key=='countycode'){
+		if($('theatrename'))$('theatrename').value='';
+		if($('indexareacode'))$('indexareacode').value='';
+		if($('lineid'))$('lineid').value='';
+		if($('stationid'))$('stationid').value='';
+	}else if(key=='indexareacode'){
+		if($('theatrename'))$('theatrename').value='';
+		if($('lineid'))$('lineid').value='';
+		if($('stationid'))$('stationid').value='';
+	}else if(key=='theatrename'){
+		if($('countycode'))$('countycode').value='';
+		if($('indexareacode'))$('indexareacode').value='';
+		if($('lineid'))$('lineid').value='';
+		if($('stationid'))$('stationid').value='';
+	}else if(key=='stationid'){
+		if($('theatrename'))$('theatrename').value='';
+	}else if(key=='lineid'){
+		if($('countycode'))$('countycode').value='';
+		if($('theatrename'))$('theatrename').value='';
+		if($('indexareacode'))$('indexareacode').value='';
+	}
+	if($('order'))$('order').value='';
+	if($('park'))$('park').value='';
+	if($('booking'))$('booking').value='';
+}
+function searchname(field, value){
+	if($('theatrename').value=='请输入搜索关键词' || $('theatrename').value == ''){
+		$('theatrename').focus();
+		$('theatrename').value = '';
+		return;
+	};
+
+	var queryParams = {'theatrename':value, "booking":$('booking').value};
+	$(field).value= value;
+	window.location.href= "${basePath}theatre/theatreList.xhtml?" + Object.toQueryString(queryParams)
+}
+function searchBook(){
+	if($('booking2').checked){
+		$('booking').value = 'open';
+	}else{
+		$('booking').value = '';
+	}
+	$('searchForm').submit();
+}
+function searchOfCome(){
+	$("ofcome").value= "ofencome";
+	$('searchForm').submit();
+}
+</script>
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

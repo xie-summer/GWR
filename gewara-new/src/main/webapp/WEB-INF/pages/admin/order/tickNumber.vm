@@ -1,0 +1,137 @@
+<style type="text/css">
+	.tcNumber{text-align:center;height:470px;overflow:auto;}
+	.tcNumber ul li{margin-bottom:10px;}
+	.tcNumber span.num{float:left;line-height:28px;height:30px;width:60px;}
+	.tcNumber .selt .text{width:250px;border-radius:4px;font-size:14px;}
+	.tcNumber .w_button{margin:0 auto;}
+	.tcNumber h2{font:30px/45px "微软雅黑","宋体";color:#000;display:inline-block;_display:inline;margin-bottom:20px;}
+	.tcNumber .selt{float:left;margin-right:50px;}
+	.tcNumber .selt label{display:block;width:80px;float:left;height:32px;line-height:32px;color:#666;}
+</style>
+<div class="forms tcNumber" id="tcNumberLay" style="display:none;">
+	<h2>输入订单/快递单号</h2>
+	<ul id ="oeul">
+		#foreach($x in[1..8])
+			<li class="clear" id="li${foreach.count}" >
+				<div class="selt">
+					<label>订单号：</label>
+					<input type="text" name="tradeNo" id="tradeNo${foreach.count}" seq="${foreach.count}" class="text" />
+				</div>
+				<div class="selt" style="margin-right:0;">
+					<label>快递单号：</label>
+					<input type="text" name="expressNo" id="expressNo${foreach.count}" seq="${foreach.count}" class="text" />
+				</div>
+			</li>
+		#end
+	</ul>
+	<p class="w_button"><a class="button maxBt redBt" href="javascript:saveOrderExpress();"><span>保&nbsp;&nbsp;存</span></a></p>
+</div>
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		oeKeyDown();
+	});
+	
+	function appendOrderExpreessEle(index) {
+		var newEle = "<li class=\"clear\" id=\"li"+index+"\" ><div class=\"selt\"><label>订单号：</label><input type=\"text\" name=\"tradeNo\" id=\"tradeNo"+index+"\" seq=\""+index+"\" class=\"text\"/></div><div class=\"selt\" style=\"margin-right:0;\"><label>快递单号：</label><input type=\"text\" name=\"expressNo\" id=\"expressNo"+index+"\" seq=\""+index+"\" class=\"text\"/></div></li>"
+		var div = document.createElement("div");
+		div.innerHTML = newEle;
+        var ele = div.childNodes;
+		document.getElementById("oeul").appendChild(ele[0]);
+		$("tradeNo"+index).addEvent('keyup',function(ev){
+			if(ev.key == 'enter'){
+				$("expressNo" + index).focus();
+			}
+		});
+		$("expressNo"+index).addEvent('keyup',function(ev){
+			if(ev.key == 'enter'){
+				if ($("tradeNo" + (index + 1))) {
+					$("tradeNo" + (index + 1)).focus();
+				} else {
+					appendOrderExpreessEle(index+1);
+					$("tradeNo" + (index + 1)).focus();
+				}
+			}
+		});
+	}
+	
+	function checkValue() {
+		var tradeNoEle = $$("input[name='tradeNo']");
+		var j = 0;
+		for (var i = 0; i < tradeNoEle.length; i++) {
+			if ((tradeNoEle[i].value.trim().length == 0 && $("expressNo"+(i+1)).value.trim().length > 0) || (tradeNoEle[i].value.trim().length > 0 && $("expressNo"+(i+1)).value.trim().length == 0)) {
+				alert("订单号或快递号不得缺少其中一个!");
+				return;
+			}
+			if (tradeNoEle[i].value.trim().length > 0 && tradeNoEle[i].value.trim().length != 16) {
+				alert("订单号" + tradeNoEle[i].value.trim() + "长度不正确!");
+				return;
+			}
+			var regu = /^[1-9]\d+$/;
+			if (tradeNoEle[i].value.trim().length > 0 && !regu.test(tradeNoEle[i].value.trim())) {
+				alert(tradeNoEle[i].value.trim() + "不是订单号，请修改!");
+				return;
+			}
+			if (tradeNoEle[i].value.trim().length > 0 && tradeNoEle[i].value.trim().length == 16 && $("expressNo"+(i+1)).value.trim().length > 0 && regu.test(tradeNoEle[i].value.trim())) {
+				j++;
+			}
+		}
+		/* var expressNoEle = $$("input[name='expressNo']");
+		for (var i = 0; i < expressNoEle.length; i++) {
+			if (expressNoEle[i].value.trim().length == 0) {
+				alert("快递号不得为空!");
+				return;
+			}
+		} */
+		if (j == 0) {
+			alert("订单号/快递号不得为空!");
+			return;
+		}
+		return true;
+	}
+	
+	function saveOrderExpress() {
+		if (checkValue()){
+			var tradeNoEle = $$("input[name='tradeNo']");
+			var jsonStr = new Hash();
+			for (var i = 1; i <= tradeNoEle.length; i++) {
+				if ($('tradeNo' + i).value.trim().length > 0 && $('expressNo' + i).value.trim().length > 0)
+				jsonStr.include($('tradeNo' + i).value,$('expressNo' + i).value);
+			}
+			jsonStr = JSON.encode(jsonStr);
+			var url = '${basePath}admin/drama/agent/saveExpressOrder.xhtml';
+			var values = {'orderExpressIdJson':jsonStr};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert(result.retval);
+					for (var i = 1; i <= tradeNoEle.length; i++) {
+						$('tradeNo' + i).value = "";
+						$('expressNo' + i).value = "";
+						$('tradeNo1').focus();
+					}
+				}else{
+					alert(result.msg);
+				}
+			})
+		}
+	}
+	
+	function oeKeyDown() {
+		$$("input[name='tradeNo']").addEvent('keyup',function(ev){
+			if(ev.key == 'enter'){
+				var oindex = this.get("seq");
+				$("expressNo" + oindex).focus();
+			}
+		});
+		$$("input[name='expressNo']").addEvent('keyup',function(ev){
+			if(ev.key == 'enter'){
+				var eindex = parseInt(this.get("seq"));
+				if ($("tradeNo" + (eindex + 1))) {
+					$("tradeNo" + (eindex + 1)).focus();
+				} else {
+					appendOrderExpreessEle(eindex+1);
+					$("tradeNo" + (eindex + 1)).focus();
+				}
+			}
+		});
+	}
+</script>

@@ -1,0 +1,132 @@
+<div id="openDialog" style="z-index:20;">
+<table class="roomManageTable"  cellpadding="0" cellspacing="0" border="0" style="margin: 0px;">
+<thead>
+	<tr>
+		<th>套票数量</th>
+		<th>市场价</th>
+		<th>销售价</th>
+		<th>结算基价</th>
+		<th>结算折扣</th>
+		<th>销售方式</th>
+		<th>库存数</th>
+		<th>单次最大购票数</th>
+		<th>总库存数</th>
+		<th>卖出数</th>
+		<th>优惠类型</th>
+		<th>操作||<a href="javascript:hiDialog()">隐藏</a></th>
+	</tr>
+</thead>
+<tbody class="tbody" id="tbodyDisQuantity">
+	#foreach($num in [2..5])
+	#set($dis=$disHelper.getDisByQuantity($num))
+	<tr id="tr$num" lang="$dis.id">
+		<td><input type="text" name="quantity" value="$num" style="width: 50px" mustTxt="数量不能为空！"></td>
+		<td><input type="text" name="theatreprice" id="p3$num" value="$!dis.theatreprice" style="width: 50px;" mustTxt="场馆价不能为空！"></td>
+		<td><input type="text" name="price" id="p1$num" value="$!dis.price" style="width: 50px;" mustTxt="价格不能为空！"></td>
+		<td><input type="text" name="costprice" id="p2$num" value="$!dis.costprice" style="width: 50px;" mustTxt="结算价不能为空！"></td>
+		<td>
+			<select name="settleid" id="p6$num" style="width: 120px;" mustTxt="结算方式不能为空！">
+					<option value="" >请选择结算方式</option>
+					#foreach($key in $settleMap.keySet())
+					<option value="$key" #if($VmUtils.eq($dis.settleid, $key)) selected #end>$!settleMap.get($key).gainSettleRemark()</option>
+					#end
+			</select>
+		</td>
+		<td>
+			<select name="retail" id="p7$num" style="width: 80px;" mustTxt="销售方式不能为空！" #if(!$tsp.hasRetail()) disabled="disabled" #end>
+					<option value="" >请选择销售方式</option>
+					<option value="Y" #if($VmUtils.eq($dis.retail, 'Y')) selected #end>混合模式</option>
+					<option value="N" #if($VmUtils.eq($dis.retail, 'N') || !$tsp.hasRetail()) selected #end>仅套票</option>
+			</select>
+		</td>
+		<td><input type="text" name="allownum" id="p4$num" value="$!dis.allownum" style="width: 50px;" mustTxt="数量不能为空！"></td>
+		<td><input type="text" name="maxbuy" id="p5$num" value="$!dis.maxbuy" style="width: 50px;" mustTxt="单次最大购票数不能为空！"></td>
+		<td>$!dis.tickettotal</td>
+		<td>$!dis.sellordernum</td>
+		<td>
+			<select name="distype">
+				<option value="" #if($VmUtils.isBlank($dis.distype))selected="selected"#end>请选择</option>
+				<option value="P" #if($dis.distype eq 'P')selected="selected"#end>主办方优惠</option>
+				<option value="G" #if($dis.distype eq 'G')selected="selected"#end>格瓦拉优惠</option>
+			</select>
+		</td>
+		<td style="width: 100px;">
+			<span onclick="javascript:saveDis('$!num', this)" style="cursor:pointer;">保存</span>|
+			<select style="width: 50px;" onchange="delDis(this)">
+					<option value="Y" #if($VmUtils.eq($dis.status, 'Y')) selected #end>可购票</option>
+					<option value="N" #if($VmUtils.eq($dis.status, 'N')) selected #end>不可预定</option>
+					<option value="D" #if($VmUtils.eq($dis.status, 'D')) selected #end>删除</option>
+			</select>
+		</td>
+	</tr>
+	#set($dis='')
+	#end
+</tbody>
+</table>
+</div>
+<script>
+window.addEvent('domready',function(){
+	
+});
+
+function selectRetail(retail){
+	var retailEl = $('tbodyDisQuantity').getElements('select[name=retail]');
+	if(retail == 'N'){
+		if(retailEl && retailEl.length>0){
+			retailEl.each(function(item){
+				var options = item.options;
+				if(options && options.length==3){
+					options[2].selected=true;
+				}
+				item.disabled = true;
+			});
+		}
+	}
+}
+
+saveDis = function(num, el){
+	el = $(el);
+	var p1 = $('p1'+num).value;
+	var p2 = $('p2'+num).value;
+	var p3 = $('p3'+num).value;
+	var p4 = $('p4'+num).value;
+	if(p1=='' || p2=='' || p3=='' || p4 == ''){
+		alert('数据有问题！')
+		return;
+	}
+	if(p1=='' || p2=='' || p3=='') return;
+	if(p1*p2*p3<=0) {
+		alert('数据没有填写完整！')
+		return;
+	}
+	var fromId = 'tr' + num;
+	if(!GewaraUtil.baseValidForm(fromId)) return;
+	var values = GewaraUtil.getValues(fromId);
+	values.tspid = "$!tsp.id"; 
+	GewaraUtil.sendRequest('${basePath}admin/dramaTicket/saveDiscount.xhtml', values, function(result){
+		if(result.success){
+			el.getParent('tr').set('lang', result.retval);
+			selectRetail(values.retail);
+			alert('保存成功！');
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+delDis =function(el){
+	el = $(el);
+	var discountid = el.getParent('tr').get('lang');
+	var values= {'discountid':discountid,'status':el.value};
+	GewaraUtil.sendRequest('${basePath}admin/dramaTicket/setDiscountStatus.xhtml', values, function(result){
+		if(result.success){
+			alert('修改成功！')
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function hiDialog(){
+		GewaraUtil.hideDialog("disDialog");
+}
+
+</script>

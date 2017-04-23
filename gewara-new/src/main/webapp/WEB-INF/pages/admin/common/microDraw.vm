@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>哇啦话题抽奖</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<style type="text/css">
+		.w50{
+			width:70px;
+		}
+	</style>
+</head>
+<body style=" margin:auto" class="yui-skin-sam">
+<form action="${basePath}admin/common/microModeratorDraw.xhtml" method="post" style="margin-top: 5px;">
+<div style="margin-bottom: 20px;">搜索：哇啦话题：<input type="text" style="width: 150px;" value="$!params.mtitle" name="mtitle" id="mtitle"/>
+				<input type="submit" value="搜 索" class="bt" />
+</div>
+</form>
+#parse('include/pageUtil.vm')
+<div>
+<div class="height0"></div>
+<form name="memberForm" id="memberForm">
+<input type="hidden" name="moderatorTitle" value="$!params.mtitle" />
+<table class="table" width="100%" style="text-align: center;">
+	<thead  style="text-align: center;">
+	<tr>
+		<th >编号</th>
+		<th >昵称</th>
+		<th>Email</th>
+		<th>手机号</th>
+		<th >转发哇啦数</th>
+		<th >操作</th>
+	</tr>
+	</thead>
+	<tbody id="gymTable"  style="text-align: center;">
+			#foreach($member in $memberList)
+				<tr>
+					<td>$!member.id</td>
+					<td>$!member.nickname</td>
+					<td>$!member.email</td>
+					<td>$!member.mobile</td>
+					<td>
+						$!commentCount.get($member.id)
+				</td>
+				<td>
+					<select name="point$member.id">
+						<option value="0">0分</option>
+						<option value="5">5分</option>
+						<option value="10">10分</option>
+						<option value="15">15分</option>
+						<option value="20">20分</option>
+						<option value="50" selected="selected">50分</option>
+						<option value="100">100分</option>
+					</select>
+				</td>
+				</tr>
+			#end
+	</tbody>
+	<tfoot>
+		<tr >
+			<td style="background-color: #ffffff;text-align: center;" colspan="6">
+				<input type="button" onclick="sendPointMember()" value="批量给分" />
+				<input type="button" onclick="showMark('drawDialog')" value="抽奖" />
+			</td>
+		</tr>
+	</tfoot>
+</table>
+</form>
+<div>
+<div id="page">
+	#parse('include/pageUtil.vm')
+</div>
+<div align="center">
+	<table id="drawMember" class="table"  style="text-align: center;display: none;width:500px;" >
+		<thead  style="text-align: center;font-weight: bold;">
+			<tr style="width:500px;">
+				<td colspan="4" style="font-weight: bold;">中奖用户信息</td>
+			</tr>
+			<tr>
+				<td style="width:100px;">用户编号</td>
+				<td style="width:100px;">昵称</td>
+				<td style="width:100px;">手机号</td>
+				<td style="width:200px;">Email</td>
+			</tr>
+		</thead>
+		<tbody id="tabbody">
+		
+		</tbody>
+	</table>
+</div>
+<div style="margin-top: 10px;">
+	&nbsp;
+</div>
+<div id="drawDialog" class="yui-panel" style="width:300px;margin:10px auto;display: none;">
+	<div class="hd">中奖用户数量&nbsp;&nbsp;</div>
+	<div class="bd" style="text-align: center;">
+		<input type="hidden" name="drawid" id="drawid"/>
+		<p>
+				数量：<input type="text" id="memberNum" name="memberNum" value="1"/>
+			</p>
+			<input type="button" value="确定" class="bt" onclick="doDraw('drawDialog')"/>
+	</div><!-- end of bd -->
+</div>
+	<script type="text/javascript">
+	function sendPointMember(){
+		if(confirm("确认保存吗？")){
+			var values=GewaraUtil.getValues("memberForm");
+			GewaraUtil.sendRequest('${basePath}admin/common/sendMicroPoint.xhtml',values,function(result){
+				if(result.success){
+					refreshPage();
+				}else{
+					alert("给分失败！");
+				}
+			});	
+		}
+	}
+	function doDraw(el){
+		var url = "${basePath}admin/common/microDraw.xhtml";
+		if($chk($('mtitle').value)){
+			var values = {'mtitle':$('mtitle').value,'memberNum':$("memberNum").value};
+			GewaraUtil.sendRequest(url,values,function(result){
+				if(result.success){
+					var drawMemberTab = $('drawMember');
+					var drawBody = $('tabbody');
+					drawBody.getElements('tr').dispose();
+					drawMemberTab.setStyle('display','block');
+					var memberlist = new Array(result.memberList);
+					for(var i = 0;i<memberlist[0].length;i++){
+						var tr = new Element('tr',{}).inject(drawBody);
+						new Element('td',{'styles':{'width':'100px'},'text':memberlist[0][i].id}).inject(tr);
+						new Element('td',{'styles':{'width':'100px'},'text':memberlist[0][i].nickname}).inject(tr);
+						new Element('td',{'styles':{'width':'100px'},'text':memberlist[0][i].mobile}).inject(tr);
+						new Element('td',{'styles':{'width':'200px'},'text':memberlist[0][i].email}).inject(tr);
+					};
+					cancelMark(el)
+				}
+			});
+		}else{
+			alert("请输入你要抽奖的话题信息！");
+			$('mtitle').focus();
+			cancelMark(el);
+		}
+	}
+	
+	function showMark(el){
+		$(el).setStyle('display','block');
+		GewaraUtil.showDialog(el,100,true);
+	}
+	
+	function cancelMark(el){
+		$(el).setStyle('display','none');
+		GewaraUtil.hideDialog(el)
+	}
+</script>
+</body>
+</html>

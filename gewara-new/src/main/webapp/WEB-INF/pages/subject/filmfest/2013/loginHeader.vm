@@ -1,0 +1,63 @@
+<div class="ui_header_warp">
+	<div class="ui_header_in">
+		#if($logonMember)
+		<span class="isLogin">
+			<a href="${basePath}home/sns/personIndex.xhtml" class="mr5 ml5" target="_blank"><strong id="realname">$!logonMember.nickname</strong></a>你好，欢迎来到格瓦拉生活网！<a class="ml5" href='javascript:logout()'>退出</a>
+		</span>
+		<script type="text/javascript">
+		gewara.util.member.login = true;
+		gewara.util.member.memberid=$logonMember.id;
+		gewara.util.member.nickname='$logonMember.nickname';
+		gewara.util.member.notReadCount='$!notReadCount';
+		gewara.util.member.headUrl='$headUrl';
+		#if($VmUtils.isNotBlank($logonMember.mobile))
+		gewara.util.member.isMobile = true;
+		#end
+		</script>
+		#else
+		<span class="isLogin">
+			你好，欢迎来格瓦拉生活网！请<a href="javascript:showLogin(refreshPage)">登录</a><a href="${basePath}register.xhtml" target="_blank">立即注册</a>
+		</span>
+		#parse('include/innerLogin.vm')
+		#end
+		<div class="isWebNavigation">
+			<a href="javascript:void(0);" class="isNb" type="hover" rel="isGewa"><span>我的格瓦拉</span></a>
+			<a href="${basePath}mobile/index.xhtml" class="isMobile" target="_blank">手机版</a>
+		</div>
+	</div>
+</div>
+<div id="isGewa" class="ui_plugs_pointer">
+	<div class="istLine">我的格瓦拉</div>
+	<ul class="clear">
+		<li><a href="${basePath}home/myOrderManage.xhtml" target="_blank">我的订单</a></li>
+		<li><a href="${basePath}home/charge.xhtml" target="_blank">账户余额</a></li>
+		<li><a href="${basePath}home/acct/pointList.xhtml" target="_blank">我的积分</a></li>
+		<li><a href="${basePath}home/acct/cardList.xhtml" target="_blank">我的票券</a></li>
+		<li><a href="${basePath}home/sns/myLifePlans.xhtml" target="_blank">我的安排</a></li>
+		<li><a href="${basePath}home/acct/upPass.xhtml" target="_blank">修改密码</a></li>
+	</ul>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	document.getElements('a[type=hover]').each(function(a){
+		var target = $(a.get('rel'));
+		var size = a.getDimensions().x;
+		new Element('span',{'styles':{
+			'top':'-1px',
+			'right':'0px',
+			'position':'absolute',
+			'width':size-2,
+			'height':3,
+			'background':'#fff',
+			'display':'inline-block'
+		}}).inject(target);
+		target.setStyle('width',size+100);
+		var left = -(target.getDimensions().x-size-1);
+		target.toPos(a,'bottomLeft',left,-1);
+		a.hover(target,function(){
+			if(a.hasClass('select'))a.removeClass('select');
+			else a.addClass('select');
+		});
+	});
+})
+</script>

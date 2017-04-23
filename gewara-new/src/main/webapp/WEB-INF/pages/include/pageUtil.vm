@@ -1,0 +1,41 @@
+		#if($pageUtil && $pageUtil.pageCount > 1)
+		<div id='page'>
+		#if($pageUtil.isPrePage())
+			#set($pagePreUrl=$pageUtil.preurl)
+			#if(!$pagePreUrl.startsWith("/"))
+				#set($pagePreUrl=${basePath}+$pageUtil.preurl)
+			#end
+			<a href="$pagePreUrl" class='pre'><span>上一页</span></a>
+		#end
+		#if($pageUtil.isFirstPage())
+			#set($pageFirstUrl=$pageUtil.firsturl)
+			#if(!$pageFirstUrl.startsWith("/"))
+				#set($pageFirstUrl=${basePath}+$pageUtil.firsturl)
+			#end
+			<a href="$pageFirstUrl"><span>1</span></a>
+			<strong>...</strong>
+		#end
+		#foreach($pageInfo in $pageUtil.pageInfoList)
+			#set($pageUrl=$pageInfo.url)
+			#if(!$pageUrl.startsWith("/"))
+			#set($pageUrl=${basePath} + $pageInfo.url)
+			#end
+			<a href="$pageUrl" #if($pageInfo.currentPage) class='on' #end><span>${pageInfo.pageNo}</span></a>
+		#end
+		#if($pageUtil.isLastPage())
+			<strong>...</strong>
+			#set($pageLastUrl=$pageUtil.lasturl)
+			#if(!$pageLastUrl.startsWith("/"))
+				#set($pageLastUrl=${basePath}+$pageUtil.lasturl)
+			#end
+			<a href="$pageLastUrl" #if(${pageUtil.isOnLast($!{params.pageNo})}) class='on' #end><span>${pageUtil.pageCount}</span></a>
+		#end
+		#if($pageUtil.isNextPage())
+			#set($pageNextUrl=$pageUtil.nexturl)
+			#if(!$pageNextUrl.startsWith("/"))
+				#set($pageNextUrl=${basePath}+$pageUtil.nexturl)
+			#end
+			<a href="$pageNextUrl" class='next'><span>下一页</span></a>
+		#end
+		</div>
+		#end

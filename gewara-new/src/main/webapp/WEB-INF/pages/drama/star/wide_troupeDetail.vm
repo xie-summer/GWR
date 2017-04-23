@@ -1,0 +1,186 @@
+\<!Doctype html>
+<html>
+<head>
+	<!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>$!dramaStar.name - 格瓦拉生活网</title>
+	<meta name="keywords" content="话剧,话剧查询,话剧演出,话剧购票,话剧院,话剧院查询,话剧院购票"/>
+	<meta name="description" content="$!dramaStar.name，$!VmUtils.htmlabbr($dramaStar.content,200)"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,noobSlide,tips,raphael,picture,inits_drama&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ui_layout{background:none;}
+	</style>
+</head>
+<body>
+#set($dramaHeadFlag='isDramaIndex')#set($relatedtag='dramastar')
+#set($obj=$dramaStar)
+#set($relatedid=$dramaStar.id)
+#set($isIndexBigAd = true)
+#set($markrelatedid=$dramaStar.id)
+#set($marktag='dramastar')
+#set($relatedtag='drama')
+#parse('include/wide_header.vm')
+<div class="ui_layout theDetail_body">
+	<div class="theatreDetail_head clear">
+		#parse('include/drama/wide_dramaClubDetail_head.vm')
+	</div>
+	<div class="theatreDetail_content clear" id="troupe">
+		<div class="ui_left">
+			<div class="mod_tabs mod_tabs_drama">
+				<div class="mod_hd">
+					<ul class="nav_tabs" id="nav_tabsDiv">
+						<li id="club_ticket"><a href="javascript:void(0)">演出购票</a></li>
+						<li id="club_member"><a href="javascript:void(0)" >成员<em>($!dramaStar.starnum)</em></a></li>
+						<li id="club_wala"><a href="javascript:void(0)" >哇  啦<em>(#if($VmUtils.gt($walaCount,0))${walaCount}#{else}0#end)</em></a></li>
+						<li id="club_videoPhoto"><a href="javascript:void(0)" >视频剧照<em>(#if($VmUtils.gt($pictureCount,0))${pictureCount}#{else}0#end)</em></a></li>
+					</ul>
+				</div>
+				<div class="mod_bd clear" id="container">
+					## #parse('include/drama/mod_troupeTicket.vm')
+					## #parse('include/drama/mod_troupeMember.vm')
+					## #parse('include/drama/mod_troupeWala.vm')
+					## #parse('include/drama/mod_troupe_videoPhoto.vm')
+				</div>
+			</div>
+		</div>
+		<div class="ui_right">
+			#parse('include/drama/mod_drama_Star_r.vm')
+			#parse('include/drama/mod_ychd.vm')
+			#parse('include/drama/mod_ryjm.vm')
+		</div>
+	</div>
+</div>
+
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+var requestMap = new Hash({"club_ticket":"drama/ajax/starDetail.xhtml","club_member":"drama/ajax/starTroupe.xhtml","club_wala":"drama/ajax/starWala.xhtml","club_videoPhoto":"drama/ajax/starPictureList.xhtml"});
+window.addEvent('domready',function(){
+	myTreasure('dramastar','$dramaStar.id');
+	try{
+		tabQh();
+		toggledContent('nowPlayWidth');
+	}catch(e){}
+});
+function toggledContent(el, isNode, chlidNode){
+	el = $(el);
+	if(el){
+		var node = isNode || 'li';
+		var chlid = chlidNode || ['div.tickArea_s','div.tickArea'];
+		var nodeList = el.getElements(node);
+		if(nodeList){
+			nodeList.addEvents({
+				'mouseover':function(){
+					var _this = this;
+					_this.addClass('select');
+					
+					if(instanceOf(chlid,Array)){
+						Array.each(chlid,function(item, index){
+							var _chlid = _this.getElement(item);
+							if(_chlid){
+								if(index == 0){
+									_chlid.show();
+								}else{
+									_chlid.hide();
+								}
+							}
+						});
+					}else if(instanceOf(chlid,String)){
+						if(_this.getElement(chlid)){
+							_this.getElement(chlid).show();
+						}
+					}
+				},
+				'mouseout':function(){
+					var _this = this;
+					_this.removeClass('select')
+					if(instanceOf(chlid,Array)){
+						Array.each(chlid,function(item, index){
+							var _chlid = _this.getElement(item);
+							if(_chlid){
+								if(index == chlid.length-1){
+									_chlid.show();
+								}else{
+									_chlid.hide();
+								}
+							}
+						});
+					}else if(instanceOf(chlid,String)){
+						if(_this.getElement(chlid)){
+							_this.getElement(chlid).hide();
+						}
+					}
+				}
+			});
+		}
+	}
+}
+function tabQh(){
+	if(!$('nav_tabsDiv')) return false;
+	else{
+		var oList = $('nav_tabsDiv').getElements('li');
+		if(oList && oList.length>0){
+			oList.addEvent('click',function(){
+				oList.removeClass("select");
+				this.addClass("select");
+				dynamicData(this.id);
+				return false;
+			});
+			oList[0].fireEvent('click');
+		}
+	};
+};
+
+function dynamicData(key){
+	var tmpUrl = requestMap.get(key);
+	if(tmpUrl && tmpUrl != ""){
+		var url = "${basePath}" + requestMap.get(key);
+		var values = {'starid':$!dramaStar.id};
+		var el = $(key);
+		if(el.retrieve(key) == null || 1==1){
+			$('container').empty();
+			GewaraUtil.sendLoad('container', url, values, function(result){
+				if(result.success){
+					el.store(key,$('container').get('html'));
+				}
+			}.bind(el));
+		}else{
+			$('container').innerHTML = el.retrieve(key);
+		}
+	}
+}
+
+getWala=function(el,order,listNum){
+	el = $(el);
+	el.innerHTML = '';
+	Asset.javascript("${staticPath}scripts/gewara.js?n=wide_wala,slimbox&v=$VmUtils.jsVersion", {
+		'id':'walaDynaScript',
+		'isScroll':false,//用于控制是否支持鼠标滚动事件
+		'bindWala':el.get('id'),//把加载的哇啦放在什么位置
+		onLoad:function(){
+			Asset.css('${staticPath}css/wide_wala.css?v=$VmUtils.jsVersion',{'id':'walasCss'});
+			gewa.util.pageNumber = 0;
+			var _body = $(document.body);
+			gewa.util.requestUrl = 'ajax/common/qryComment.xhtml';
+			gewa.util.values = {
+				pageNumber:gewa.util.pageNumber,//自动加载时的分页数
+				relatedid:'$!dramaStar.id',//关联对象的ID
+				title:'',//话题的标题
+				issue:true,//是否有发表框
+				hasMarks:true,//是否支持评分
+				tag:'dramastar',//关联那个板块的内容
+				isPic:true,//是否支持传图片
+				isVideo:false,//是否支持传视频
+				maxCount:listNum || 6,//如果设置，即是单页显示N条
+				userLogo:gewara.util.member.headUrl,//用户的头像
+			};
+			gewa.util.init();
+		}
+	});
+}
+</script>
+#parse('include/newMarkDialog.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

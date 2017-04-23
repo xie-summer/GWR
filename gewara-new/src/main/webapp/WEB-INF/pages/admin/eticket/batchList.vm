@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电子票列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script> 
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.bg{background-color: #ddd;}
+	</style>
+</head>
+<body style="width: 88%; margin:auto">
+<form action="${basePath}admin/eticket/batchList.xhtml">
+	<select name="status">
+		<option value="data_now">未过期</option>
+		<option value="data_his" #if($params.status eq 'data_his') selected="selected"#end>过期</option>
+		<option value="data" #if($params.status eq 'data') selected="selected"#end>全部</option>
+	</select>
+	<select name="applydept">
+		<option value="">申请部门...</option>
+		#foreach($depno in $deptMap.keySet())
+		<option value="$depno" #if($extra.applydept eq $depno)selected="selected"#end>$deptMap.get($depno)</option>
+		#end
+	</select>
+	<select name="applytype">
+		<option value="">申请类型...</option>
+		#foreach($applyno in $applyMap.keySet())
+		<option value="$applyno" #if($extra.applytype eq $applyno)selected="selected"#end>$applyMap.get($applyno)</option>
+		#end
+	</select>
+	<br/>
+	<select name="adduserid">
+		<option value="" name="adduserid">设置人...</option>
+		#foreach($user in $userList)
+		<option value="$user.id" #if($params.adduserid eq $user.id)selected="selected"#end>$!{user.username}</option>
+		#end
+	</select>
+	
+	添加时间从：<input name="addfrom" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd 00:00:00'})" value="$!addfrom" type="text" style="width: 160px"/>
+	添加时间到：<input name="addto" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd 23:59:59'})" value="$!addto" type="text" style="width: 160px"/>
+	
+	<input type="submit" value="查询"/>
+</form>
+<table class="table">
+	<thead>
+	<tr style="height: 30px">
+		<th colspan="2">卡号</th>
+		<th>卡类型</th>
+		<th>卡板块</th>
+		<th>有效时间</th>
+		<th>统计时间</th>
+		<th>设置人</th>
+		<th>设置时间</th>
+		<th>总数</th>
+		<th>废弃</th>
+		<th>待售</th>
+		<th title="卖出未使用">未使用</th>
+		<th title="卖出已使用">已使用</th>
+		<th>冻结</th>
+		<th>操作[<a href="${basePath}admin/eticket/modifyBatch.xhtml">增加批次</a>][<a href="${basePath}admin/eticket/updateStats.xhtml" target="_blank">更新统计</a>]</th>
+	</tr>
+	</thead>
+	<tbody>
+	#set($tagMap={'movie':'电影','drama':'话剧','sport':'运动','gym':'健身','goods':'物品'})
+	#foreach($extra in $topList) 
+	#set($batch=$batchMap.get($extra.batchid))
+	#set($user=$userMap.get($extra.adduserid))
+		<tr class="bg">
+			<td colspan="2">$extra.channel<br />$!extra.mincardno<br/>$!extra.maxcardno</td>
+			<td>$!{batch.cardtype}#if($batch.amount)-$batch.amount#end ($!cardtypeMap.get($batch.cardtype))</td>
+			<td>$!tagMap.get($batch.tag)</td>
+			<td>$!{DateUtil.format($batch.timefrom,'yyyy-MM-dd')}<br />$!{DateUtil.format($batch.timeto,'yyyy-MM-dd')}</td>
+			<td>&nbsp;</td>
+			<td>$!user.nickname</td>
+			<td>$!DateUtil.format($extra.addtime,'yyyy-MM-dd')</td>
+			<td>$!extra.cardcount</td>
+			<td>$!extra.delcount</td>
+			<td>$!extra.newcount</td>
+			<td>$!extra.soldcount</td>
+			<td>$!extra.usedcount</td>
+			<td>$!extra.lockcount</td>
+			<td>
+				<a href="${basePath}admin/eticket/modifyBatch.xhtml?bid=$batch.id" target="_blank">修改</a>
+				<a href="${basePath}admin/eticket/modifyExtra.xhtml?bid=$batch.id" target="_blank">附加信息</a>
+				<a href="${basePath}admin/eticket/updateStats.xhtml?bid=$batch.id" target="_blank">更新统计</a>
+				<a href="${basePath}admin/eticket/preSellBatch.xhtml?bid=$batch.id" target="_blank">预售</a><br />
+				<a href="${basePath}admin/eticket/genElecCard.xhtml?bid=$batch.id&num=20" target="_blank">生成20张卡</a>
+				<a href="${basePath}admin/eticket/genElecCard.xhtml?bid=$batch.id&num=1000" target="_blank">生成1000张卡</a>
+				<a href="${basePath}admin/eticket/exportBatch.xhtml?bid=$batch.id" target="_blank">导出密码</a>
+				#if($extra.status eq 'data_now')<a href="${basePath}admin/eticket/frozenBatch.xhtml?bid=$batch.id" target="_blank" title="冻结后，不能增加或改动卡号信息">冻结</a>#end
+			</td>
+		</tr>
+		#foreach($subextra in $subMap.get($batch.id)) #set($sub=$batchMap.get($subextra.batchid))
+		<tr>
+			<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+			<td>$subextra.channel<br />$!subextra.mincardno<br/>$!subextra.maxcardno</td>
+			<td>$!sub.cardtype#if($sub.amount)-$sub.amount#end ($!cardtypeMap.get($sub.cardtype))</td>
+			<td>$tagMap.get($sub.tag)</td>
+			<td>${DateUtil.format($sub.timefrom,'yyyy-MM-dd')}<br />${DateUtil.format($sub.timeto,'yyyy-MM-dd')}</td>
+			<td#if($subextra.status eq 'data_now' && $DateUtil.getDiffDay($subextra.statstime,$DateUtil.curTimestamp) gt 1) style="color: red" title="超过1天没更新！"#end>$!{DateUtil.format($subextra.statstime,'yy-MM-dd HH:mm:ss')}</td>
+			<td>$!user.nickname</td>
+			<td>$!DateUtil.format($subextra.addtime,'yyyy-MM-dd')</td>
+			<td>$!subextra.cardcount</td>
+			<td>$!subextra.delcount</td>
+			<td>$!subextra.newcount</td>
+			<td>$!subextra.soldcount</td>
+			<td>$!subextra.usedcount</td>
+			<td>$!subextra.lockcount</td>
+			<td>
+				<a href="${basePath}admin/eticket/modifyBatch.xhtml?bid=$sub.id" target="_blank">修改</a>
+				<a href="${basePath}admin/eticket/modifyExtra.xhtml?bid=$sub.id" target="_blank">附加信息</a>
+				<a href="${basePath}admin/eticket/updateStats.xhtml?bid=$sub.id" target="_blank">更新统计</a>
+				<a href="${basePath}admin/eticket/manageBatch.xhtml?bid=$sub.id" target="_blank">管理</a>
+				#if($subextra.status eq 'data_now')<a href="${basePath}admin/eticket/frozenBatch.xhtml?bid=$sub.id" target="_blank" title="冻结后，不能增加或改动卡号信息">冻结</a>#end
+			</td>
+		</tr>
+		#end
+	#end
+	</tbody>
+</table>
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		$$(".table tbody tr").addEvents({
+			'mouseover':function(){this.setStyle("background", "#eee");},
+			'mouseout':function(){this.setStyle("background","");}
+		})
+	});
+</script>
+</body>
+</html>

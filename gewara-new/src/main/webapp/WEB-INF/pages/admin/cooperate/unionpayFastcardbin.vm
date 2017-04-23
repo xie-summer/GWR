@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>银联2.0对应银行卡卡bin</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#fff;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		td, th{
+			text-align: center;
+			height: 23px;
+		}
+	</style>
+</head>
+<body>
+<fieldset style="width: 420px;margin-top: 10px;margin-left: 20px;">
+	<legend class="yellow">银联2.0对应银行卡卡bin</legend>
+	<div style="margin-top: 20px;margin-left: 10px;">
+	<div style="margin-bottom: 10px;font-size: 14px;">
+	<select name="payBank" id="payBank" onchange="searchBin()">
+		<option value="ICBC" $!ICBC >工商银行|ICBC</option>
+		<option value="ABC" $!ABC >农业银行|ABC</option>
+		<option value="BOCSH" $!BOCSH >中国银行|BOCSH</option>
+		<option value="CCB" $!CCB >建设银行|CCB</option>
+		<option value="BOCOM" $!BOCOM >交通银行|BOCOM</option>
+		<option value="PSBC" $!PSBC >邮政储蓄|PSBC</option>
+		<option value="CNCB" $!CNCB >中信银行|CNCB</option>
+		<option value="CMBC" $!CMBC >民生银行|CMBC</option>
+		<option value="BOS" $!BOS >上海银行|BOS</option>
+		<option value="CEB" $!CEB >光大银行|CEB</option>
+		<option value="CMB" $!CMB >招商银行|CMB</option>
+		<option value="SPDB" $!SPDB >浦发银行|SPDB</option>
+		<option value="HXB" $!HXB >华夏银行|HXB</option>
+		<option value="PAB" $!PAB >平安银行|PAB</option>
+		<option value="CIB" $!CIB >兴业银行|CIB</option>
+		<option value="GDB" $!GDB >广发银行|GDB</option>
+		<option value="SRCB" $!SRCB >上海农商|SRCB</option>
+		<option value="CQRCB" $!CQRCB >重庆农商|CQRCB</option>
+		<option value="BOC" $!BOC >中国银行(大额)|BOC</option>
+		<option value="PABASFB" $!PABASFB >平安银行和深发展银行|PABASFB</option>
+		<option value="WZCB" $!WZCB >温州银行|WZCB</option>
+		<option value="ZDCB" $!ZDCB >渣打银行|ZDCB</option>
+		<option value="UNIONPAYFAST" $!UNIONPAYFAST >银联2.0认证支付所有卡|UNIONPAYFAST</option>
+		<option value="unionPayFast_activity_js" $!unionPayFast_activity_js >江苏银联活动2.0认证支付|unionPayFast_activity_js</option>
+		<option value="unionPayFast_activity_bj" $!unionPayFast_activity_bj >银联活动2.0--北京|unionPayFast_activity_bj</option>
+		<option value="unionPayFast_activity_sz" $!unionPayFast_activity_sz >银联活动2.0--深圳|unionPayFast_activity_sz</option>
+		<option value="unionPayFast_activity_sz_PAB" $!unionPayFast_activity_sz_PAB >银联活动2.0--深圳(平安银行)|unionPayFast_activity_sz:PAB</option>
+		<option value="unionPayFast_activity_gz" $!unionPayFast_activity_gz >银联活动2.0--广州|unionPayFast_activity_gz</option>
+		<option value="unionPayFast_activity_gz_BOCSH" $!unionPayFast_activity_gz_BOCSH >银联活动2.0--广州(中国银行)|unionPayFast_activity_gz:BOCSH</option>
+		<option value="unionPayFast_activity_zj" $!unionPayFast_activity_zj >银联2.0--浙江|unionPayFast_activity_zj</option>
+	</select>
+	<input type="button" onclick="showDialog()" value="添加卡前X位" class="btn"/>
+	<input type="button" onclick="showNameDialog()" value="请输入支付方式名称" class="btn"/>
+	</div>
+	#set($keyList=["序号","卡前X位","操作"])
+	<table cellpadding="0" cellspacing="0" width="400" border="1" style="border-collapse: collapse">
+		<tr>
+			#foreach($key in $keyList)
+			<th>$key</th>
+			#end
+		</tr>
+		#foreach($cardMap in $qryMapList)
+		<tr>
+			<td>$foreach.count</td>
+			<td>$!cardMap.cardbin</td>
+			<td><a href="javascript:delateCardbind('$!cardMap.cardbin','$!{unionPayBank}')">删除</a></td>
+		</tr>
+		#end
+	</table>
+	<br/>
+	支付限制填写：#if($unionPayBank eq "UNIONPAYFAST")unionPayFast
+				#elseif($unionPayBank eq "unionPayFast_activity_sz_PAB")unionPayFast_activity_sz:PAB
+				#elseif($unionPayBank eq "unionPayFast_activity_gz_BOCSH")unionPayFast_activity_gz:BOCSH
+				#else unionPayFast:$!{unionPayBank}
+				#end
+	<br/><br/>
+	特价活动卡Bin验证标识：unionPayFastCardbin:$!unionPayBank
+	</div>
+	<div id="openDialog" style="width:370px; visibility:hidden; z-index:20;background: #000">
+		<div style="width:350px;margin:10px;background:#FFF;">
+			<div style="text-align:center;height:20px;line-height: 20px;margin-bottom: 5px;">
+				<strong id = "bankName">$!{unionPayBank}银行卡,卡前X位</strong>
+			</div>
+			<div class="bd ml20" style="text-align:left;">
+				<form name="openForm" id="openForm">
+					<div class="clear">
+						<input type="hidden" name="unionPayBank" id="unionPayBank" value="$!{unionPayBank}" />
+						<input type="button" class="cbt1"  value="保存" onclick="saveUser()"/>
+						<input type="button" class="cbt1" onclick="hiDialog();" value="取消"/>
+						<input name="cardbin" id="cardbin" />
+					</div>
+				</form>
+			</div><br/>
+		</div>
+	</div>
+	<div id="openNameDialog" style="width:370px; visibility:hidden; z-index:20;background: #000">
+		<div style="width:350px;margin:10px;background:#FFF;">
+			<div style="text-align:center;height:20px;line-height: 20px;margin-bottom: 5px;">
+				<strong id = "bankName">请输入支付方式名称:</strong>
+			</div>
+			<div class="bd ml20" style="text-align:left;">
+				<form name="openNameForm" id="openNameForm">
+					<div class="clear">
+						<input type="hidden" name="unionPayBank" id="unionPayBank" value="$!{unionPayBank}" />
+						<input type="button" class="cbt1"  value="保存" onclick="savePayName()"/>
+						<input type="button" class="cbt1" onclick="hiNameDialog();" value="取消"/>
+						<input name="payName" id="payName" value="$!{payName.get('payName')}"/>
+					</div>
+				</form>
+			</div><br/>
+		</div>
+	</div>
+</fieldset>
+<script type="text/javascript">
+	$$("tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+	
+	
+	function searchBin(){
+		document.location.href = "${basePath}admin/common/unionpayFastCardbinList.xhtml?unionPayBank=" + $('payBank').value;
+	}
+	
+	function hiDialog(){
+		GewaraUtil.hideDialog("openDialog");
+	}
+	function showDialog(){
+		GewaraUtil.showDialog('openDialog');
+	}
+	
+	function showNameDialog(){
+		GewaraUtil.showDialog('openNameDialog');
+	}
+	function hiNameDialog(){
+		GewaraUtil.hideDialog("openNameDialog");
+	}
+	function saveUser(){
+		GewaraUtil.mask('openDialog');
+		var mask = gewa.util.mask({'element': 'openDialog','title':'正在提交，请稍等...'});
+		var values = GewaraUtil.getValues('openForm');
+		var url = "${basePath}admin/common/saveunionpayFastCardbin.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) {
+				refreshPage();
+			}else {
+				alert(result.msg);
+				GewaraUtil.unmask();
+			}
+		});
+	}
+	
+	function delateCardbind(cardbin,unionPayBank){
+		var url = "${basePath}admin/common/removeunionpayFastCardbin.xhtml";
+		GewaraUtil.sendRequest(url, {"cardbin":cardbin,"unionPayBank":unionPayBank}, function(result){
+			if(result.success) {
+				refreshPage();
+			}else {
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function savePayName(){
+		GewaraUtil.mask('openNameDialog');
+		var mask = gewa.util.mask({'element': 'openNameDialog','title':'正在提交，请稍等...'});
+		var values = GewaraUtil.getValues('openNameForm');
+		var url = "${basePath}admin/common/saveunionpayFastPayName.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) {
+				refreshPage();
+			}else {
+				alert(result.msg);
+				GewaraUtil.unmask();
+			}
+		});
+	}
+</script>
+</body>
+</html>

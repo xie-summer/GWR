@@ -1,0 +1,130 @@
+<!-- SUCCESS_HEAD -->
+#if($cinema)
+#set($isOpenOrder=$VmUtils.eq($cinema.booking,'open'))
+<div class="chooseOpi" cinema="$cinema.id" area="$cinema.countycode">
+	<div class="chooseOpi_caption">
+		<b>$!{cinema.countyname}</b>
+		<h2><a href="${basePath}cinema/$cinema.id" target="_blank">$!{cinema.realBriefname}</a></h2>
+		#if($VmUtils.eq($!cpmap.popcorn,'Y'))
+			<span class="freeTag0" title="支持在线购买影院套餐" style="background-position: 2px -649px;">&nbsp;&nbsp;</span>
+		#end
+		$!{cinema.address}<span class="ffst">[<a class="blue" href="${basePath}common/baiduMap.xhtml?id=$cinema.id&tag=cinema" target="_blank">地图</a>]</span>
+		<span class="viewDesc" config="serve" lang="serve$cinema.id">影院服务</span>
+	</div>
+	<div class="chooseOpi_head">
+		<span class="opitime"><b>放映时间</b></span>
+		<span class="opiEdition"><b>语言版本</b></span>
+		<span class="opiRoom"><b>放映厅</b></span>
+		<span class="opiPrice"><b>现价(元)</b></span>
+		<span class="opiInfo"><b>说明</b></span>
+		<span class="opiurl"><b></b></span>
+	</div>
+	#set($height=60*$!VmUtils.size($mpiList))
+	<div class="chooseOpi_body">
+		<ul class="clear" style="height:$!{height}px;">
+			#foreach($pItem in $mpiList) #set($isHidden=false) #set($opi=$opiMap.get($pItem.id)) #if($opi.unShowToGewa)#set($isHidden=true) #end
+				#if(!$isHidden)
+				<li #if($foreach.index % 2 ne 0)class="ove"#end>
+					<span class="opitime"><b>$!{pItem.playtime}</b></span>
+					<span class="opiEdition">$!pItem.language
+					#if($!VmUtils.eq($pItem.edition,'3D'))
+					<b class="d3">3D</b>
+					#elseif($!VmUtils.eq($pItem.edition,'IMAX3D'))
+					<img src="${staticPath}css/images/blank.gif" class="imax" alt="IMAX"/><b class="d3">3D</b>
+					#elseif($!VmUtils.eq($pItem.edition,'双机3D'))
+					<em>双机</em><b class="d3">3D</b>
+					#elseif($!VmUtils.eq($pItem.edition,'双机4K'))
+					<em>双机4K</em>
+					#elseif($!VmUtils.eq($pItem.edition,'4D'))
+					<b class="blue">4D</b>
+					#else
+					<em class="ml5">$!{pItem.edition}</em>
+					#end</span>
+					#set($seanum = $opi.seatnum)
+					<span class="opiRoom">
+						#if($isOpenOrder)
+							#if($opi)
+								$!{opi.roomname} #if($seanum ge 120)(#if($seanum ge 200)大厅#else中厅#end)#end 
+								<img mpid="$!opi.mpid" config="tirger" class="seatPic #if($seanum ge 200) seatPicL #elseif($seanum ge 120) seatPicM #else seatPicS #end" src="${staticPath}css/images/blank.gif">
+							#else
+								$!pItem.playroom
+							#end
+						#end
+					</span>
+					<span class="opiPrice">#if($isOpenOrder)<b>$!{pItem.gewaprice}&nbsp;</b><em>($!pItem.price)</em>#end</span>
+					<span class="opiInfo">
+					#if($VmUtils.isBlank($opi.elecard))<em class="t" title="特殊场次不支持任何优惠">特</em>#end#if($!opi.openPointPay)<em class="j" title="支持积分抵值">积</em>#end #if($!opi.openCardPay)<em class="q" title="支持票券低值">券</em>#end#if($!opi.disCountPay)<em class="y" data-type="$!opi.mpid">惠</em>#end #if($!VmUtils.getJsonValueByKey($opi.otherinfo, 'sptitle').contains('seestar'))<em class="x" title='明星见面会'>星</em> #end #if($!VmUtils.eq($!VmUtils.getJsonValueByKey($opi.otherinfo, 'isRefund'), 'Y') && $VmUtils.gt($!DateUtil.getDiffHour($opi.playtime,$DateUtil.currentTime()), 4))<em class="k" title='放映前4小时可退票'>退</em> #end
+					</span>
+					#if($isOpenOrder)
+					#if($opi)
+						#if($opi.closed || $opi.unOpenToGewa)<span class="opiurl gray">已关闭</span>
+						#elseif($opi.isOrder())
+						<span class="opiurl"><a target="_blank" class="button minBt #if($opi.remainnum && $!opi.remainnum le 0) whiteBt #else redBt #end" href="${basePath}$!VmUtils.getStep1Url($opi.mpid,'')"><span><em>$opi.seatStatus</em></span></a></span>
+						#else<span class="opiurl">&nbsp;</span>
+						#end
+					#else<span class="opiurl">&nbsp;</span>
+					#end
+					#end
+				</li>
+				#end
+				#set($opi='')	
+			#end
+		</ul>
+	</div>
+	#if($cinema.citycode eq '310000')
+	<div class="chooseOpi_footer">
+		<span>* 
+		#if($VmUtils.isNotBlank($cp.prompting))
+			$cp.prompting
+		#else
+		现价已包含服务费
+		#end
+		#if($cp.hasDirect() && $!cp.cminute)，该影院场次放映前$!cp.cminute分钟关闭售票 #end。
+		</span>
+	</div>
+	#end
+</div>
+<div class="plugpanel clear" style="width:200px;" id="serve$cinema.id">
+	<div class="inner">
+		#set($cinemaOtherinfoMap = $VmUtils.readJsonToMap($cinema.otherinfo))
+		<img style="position: absolute;top:-5px;right:10px;" src="$VmUtils.randomPic('','css/home/min_pt.gif')" />
+		<div class="ui_serve">
+			#if($VmUtils.isNotBlank($cinemaOtherinfoMap.get('park')))
+			<span class="ui_serve_info" title="$!cinemaOtherinfoMap.get('park')"><span class="freeTag0" style="background-position: 0 -338px;">停车场</span></span>
+			#else
+			<span class="ui_serve_info gray"><span class="freeTag0" style="background-position:-155px -338px;">停车场</span></span>
+			#end
+			#if($VmUtils.isNotBlank($cinemaOtherinfoMap.get('visacard')))
+			<span class="ui_serve_info" title="$!cinemaOtherinfoMap.get('visacard')"><span class="freeTag0" style="background-position: 0 -311px;">刷卡</span></span>
+			#else
+			<span class="gray ui_serve_info"><span class="freeTag0" style="background-position:-155px -311px;">刷卡</span></span>
+			#end
+		</div>
+		<div class="ui_serve">
+			#if($VmUtils.isNotBlank($cinemaOtherinfoMap.get('3D')))
+			<span class="ui_serve_info" title="$!cinemaOtherinfoMap.get('3D')"><span class="freeTag0" style="background-position: 0 -466px;padding-left:30px;">3D</span></span>
+			#else
+			<span class="ui_serve_info" title=""><span class="freeTag0" style="background-position: 0 -489px;padding-left:30px;">3D</span></span>
+			#end
+			#if($VmUtils.isNotBlank($cinemaOtherinfoMap.get('sale')))
+			<span class="ui_serve_info" title="$!cinemaOtherinfoMap.get('sale')"><span class="freeTag0" style="background-position: 2px -649px;">卖品</span></span>
+			#else
+			<span class="gray ui_serve_info"><span class="freeTag0" style="background-position:-155px -653px;" title="">卖品</span></span>
+			#end
+		</div>
+		<div class="ui_serve">
+			#if($VmUtils.isNotBlank($cinemaOtherinfoMap.get('food')))
+			<span class="ui_serve_info" title="$!cinemaOtherinfoMap.get('food')"><span class="freeTag0" style="background-position: 0 -513px;">餐饮</span></span>
+			#else
+			<span class="ui_serve_info" title=""><span class="freeTag0" style="background-position: 0 -542px;">餐饮</span></span>
+			#end
+			#if($VmUtils.isNotBlank($cinemaOtherinfoMap.get('restregion')))
+			<span class="ui_serve_info" title="$!cinemaOtherinfoMap.get('restregion')"><span class="freeTag0" style="background-position:-155px -584px;">休息区</span></span>
+			#else
+			<span class="gray ui_serve_info"><span class="freeTag0" style="background-position:-155px -609px;" title="">休息区</span></span>
+			#end
+		</div>
+	</div>
+</div>
+#end
+<!-- SUCCESS_BOTTOM -->

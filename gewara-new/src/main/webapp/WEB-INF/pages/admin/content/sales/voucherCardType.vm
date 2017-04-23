@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>票券信息栏</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.tales60{overflow:hidden;width:100%;padding-left:60px;}
+		.tales60 dt{margin-left:-60px;_margin-left:-30px;width:60px;text-align:right;float:left;}
+		.tales60 dd{margin:0;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td align="left" class="td"><span>票券数据</span></td>
+		<td align="right" class="td"><a href="javascript:showCard()">增加</a>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td align="right" class="td"><a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+	</tr>
+	<tr class="td">
+		<td align="left" class="td"><b>名称</b></td>
+		<td align="left" class="td"><b>标识</b></td>
+		<td align="left" class="td"><b>操作</b></td>
+	</tr>
+	#foreach($card in $voucherCardList)
+	<tr class="td">
+		<td align="left" class="td"><b>$card.name</b></td>
+		<td align="left" class="td"><input type="text" value="$card.ordernum" onChange="changeOrdernum('$!card.get('_id')', this);" /></b></td>
+		<td align="left" class="td"><a href="javascript:void(0)" onclick="javascript:doDelete('$!card.get('_id')', this)">[删除]</a></td>
+	</tr>
+	#end
+</table>
+<div id="infos" style="display:none">
+        <dl class="tales60">
+			<dt>名称:</dt>
+			<dd><label for="i_2"><input type="text" class="text" name="name" id="name"   /></label></dd>
+		</dl>
+		<dl class="tales60">
+			<dt>标识:</dt>
+			<dd><label for="i_2"><input type="text" class="text" name="num" id="num" /></label></dd>
+		</dl>
+</div>
+<script>
+function showCard(){
+	gewa.util.issure('','infos','添加票券：',420,'keys',function(){
+		addCard();
+	});
+}
+	
+function addCard(){
+	var url = '${basePath}admin/content/sales/addVoucherCard.xhtml';
+	var values = GewaraUtil.getValues("infos");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('保存成功！');
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function changeOrdernum(id, obj){
+	var url = '${basePath}admin/content/sales/changeCardOrderNum.xhtml';
+	var values = {'id':id, 'num': $(obj).get('value')};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			$(obj).setStyle('background-color','red');
+			(function(){
+				$(obj).setStyle('background-color','');
+			}.bind(obj)).delay(800);
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+doDelete = function (bsid, obj){
+	if(!window.confirm('确定删除？')) return false;
+	var url = '${basePath}admin/content/sales/doDelCard.xhtml';
+	var values = {'id': bsid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.dispose($(obj).getParent('tr'));				
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+</script>

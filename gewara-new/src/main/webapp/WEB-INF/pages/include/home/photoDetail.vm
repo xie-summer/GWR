@@ -1,0 +1,112 @@
+#set($albumImageLen=$VmUtils.size($albumImageList))
+#if(!$VmUtils.isEmptyList($albumImageList))
+<div id='editPhoto'>
+	#foreach($albumImage in $albumImageList)
+	#if($foreach.count%4 eq 1)
+	<ul class="percent_25 clear">
+	#end
+		<li style="height:auto;text-align: center;padding-bottom:40px;">
+			#if($commu)
+			<a href="${basePath}quan/commu/imageDetailList.xhtml?albumid=$!album.id&curAlbumPicId=$albumImage.id"><img src="$VmUtils.randomPic('sw120h120',$albumImage.limg)" class="img2" alt="$!albumImage.imagedescription"/></a><br/>
+			#else
+			<a href="${basePath}home/album/imageDetailList.xhtml?albumid=$!album.id&curAlbumPicId=$albumImage.id"><img src="$VmUtils.randomPic('sw120h120',$albumImage.limg)" class="img2" alt="$!albumImage.imagedescription"/></a><br/>
+			#end
+			#if($isShowCommuAlbum)
+			<div style="position:relative;width:80%;margin-left:10px;">
+				<div class="vary" style="text-align:center;width:100%;">
+					<input type="text" value="$!albumImage.name" id="ds$albumImage.id" readonly="readonly" onblur="blurSave($albumImage.id)" class="untext" style="width:90%;text-align:center;color:gray"/><br/>
+					<span onclick="editd('ds$albumImage.id')" style="cursor: pointer;font-size:12px;">编辑</span><span class="ml20" onclick="delImage($albumImage.id, this)" style="cursor: pointer;font-size:12px;" ><img src="${staticPath}css/home/del.gif"/>删除</span>
+				</div>
+			</div>
+			#else
+			<div style="position:relative;width:80%;margin-left:10px;">
+				<div class="vary" style="text-align:center;width:100%;">
+					<input type="text" value="$!albumImage.name" readonly="readonly"  class="untext" style="width:90%;text-align:center;color:gray"/><br/>
+				</div>
+			</div>
+			#end
+		</li>
+	#if($foreach.count%4 eq 0 || $foreach.count eq $albumImageLen)
+	</ul>
+	#end
+	#end
+</div>
+#else
+<div class="showList center clew">
+	暂无图片
+	#if($isCommuMember),你可以点击
+	<a href="${basePath}home/new/uploadPicture.xhtml?tag=commu&relatedid=$commu.id&albumid=$!albumid" class="ml10 bt"><span>+添加图片</span></a>
+	#end	
+</div>
+#end
+
+#parse('include/pageUtil.vm')
+#if(!$VmUtils.isEmptyList($albumImageList))
+<script type="text/javascript" src="${staticPath}scripts/QuickBox.js"></script>
+<link rel="stylesheet" type="text/css" href="${staticPath}styles/quickbox.css"/>
+<script type="text/javascript">
+window.addEvent("domready", function() {
+	#if($isShowCommuAlbum)
+	var items = $("editPhoto").getElements("li");
+	var fx = new Fx.Elements($("editPhoto").getElements(".vary"), {wait: false, duration: 600, transition: Fx.Transitions.Back.easeOut});
+	items.each(function(item, i) {
+		item.addEvent("mouseenter", function() {
+			var o = {};
+			o[i] = {height: [18, 40]}
+			items.each(function(other, j) {
+				if(i != j) {
+					o[j] = {height: 18};
+				}
+			});
+			fx.start(o);
+		});
+	});
+	
+	$("editPhoto").addEvent("mouseleave", function() {
+		var o = {};
+		items.each(function(item, i) {
+			o[i] = {height: 18}
+		});
+		fx.start(o);
+	});
+	#end
+});
+#if($isShowCommuAlbum)
+function editd(tis){
+	var es = $(tis);
+	es.readOnly=false;
+	es.focus();
+	es.removeClass('untext');
+	es.addClass('text');
+}
+function blurSave(id){
+	if($('ds'+id).value){
+		var url = '${basePath}home/album/updateAlbumImage.xhtml';
+		var values = {'imageid':id, #if($!commu.id) 'commuid':$!commu.id,#end 'name':$('ds'+id).value}
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+		$('ds'+id).readOnly=true;
+		$('ds'+id).removeClass('text');
+		$('ds'+id).addClass('untext');
+	}
+}
+function delImage(id, obj){
+	gewaUtil.confirm('确认要删除吗?', function(){
+		var url = '${basePath}home/album/delAlbumImage.xhtml';
+		var values = {#if($!commu.id) 'commuid':$!commu.id,#end 'imageid':id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.dispose($(obj).getParent('li'));
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	});
+}
+#end
+</script>
+#end

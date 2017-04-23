@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>格瓦拉电影票券绑定查询_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($isMovieCard=true)#set($myAccount=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/myAccount.vm')
+			<form action="${basePath}" method="post">
+			<div class="clew mt20 clear" style="position:relative;z-index:0;"id="useCardDv">
+				<span class="left">票券密码：</span>
+				<input type="text" mustTxt="请输入票券密码！" name="cardpass" class="text left" id="cardpass" size="20" onkeyup="pwdUpper(this)" value="$!params.cardpass"/>
+				<span class="left ml20">验证码：</span>
+				<input type="hidden" name="captchaId"  id="hideCaptcha"/>
+				<input type="text" value="" name="captcha" class="text left captcha" style="width:90px" id="hideCaptchaInput" alt="点击获取"onfocus="GewaraUtil.refreshCaptcha('hideCaptcha')" />
+				<img src="${staticPath}css/images/blank.gif" height="30" width="65" class="left ml5" id="hideCaptchaImg"  onclick="GewaraUtil.refreshCaptcha('hideCaptcha')" title="看不清楚，请点击换一张图片"/>
+				<a class="button whiteBt minBt mr5 ml5 left" href="javascript:void(0);" onclick="javascript:useCard($('cardpass').value)" id="btn"><span>查询</span></a>
+				<a class="button whiteBt minBt mr5 ml5 left" href="javascript:void(0);" onclick="javascript:registerCard($('cardpass').value)" id="btn"><span>绑定票券</span></a>
+				#if($needPayPass)
+				<a href="${basePath}home/acct/mbrMobileAuthPay.xhtml?op=mobileAuthPaySet&tagNo=$VmUtils.getRandom()" class="ml10 left" style="display:inline-block;margin-top:3px;">设置支付密码</a>
+				#end
+			</div>
+			<div class="mt5 acolor">票券可用于在支付时享受优惠，有一定使用期限，请注意失效日期；<span style="color:red;">所有票券，一旦绑定不能解绑，只能使用！</span></div>
+			</form>
+			<div id="card" style="display:none"></div>
+			#if(!$!params.cardId)
+			<div class="mt20 minTab" id="minTab">
+				<div>
+					<a href="#" id="st_movie" rel="movie">电影票券</a><span>|</span>
+					<a href="#" id="st_drama" rel="drama">演出票券</a><span>|</span>
+					<a href="#" id="st_sport" rel="sport">运动票券</a><span>|</span>
+					<a href="#" id="st_gym" rel="gym">健身票券</a><span>|</span>
+					<a href="#" id="st_preferential" rel="preferential">优惠活动</a>
+				</div>
+				<em class="navs" id="selectNavs"><em></em></em>
+			</div>
+			#end
+			<div id="ajaxLoadCardListTable" class="mt5"></div>
+		</div>
+	</div>
+</div>
+<div id="showCard"style="display:none">
+</div>
+<div style="display:none">
+#parse('home/acct/setPayPassword.vm')
+</div>
+
+<div class="msgs" id="msgs" style="display:none;">
+	<b>你所使用的票券存在异常，请使用手机验证并激活！</b>
+	<a href="">立即激活</a>
+</div>
+<script type="text/javascript">
+#if(!$!params.cardId)
+var ajaxtag = ['movie', 'drama', 'sport'],as = $('minTab').getElements('a');
+window.addEvent('domready', function(result){
+	if($('st_movie').hasClass('seleced')){
+		$('st_movie').removeClass('seleced');
+	}
+	var type = ajaxtag.contains('$!params.tag') == true ? '$!params.tag' : 'movie';
+	as.addEvent('click',function(e){
+		e.preventDefault();
+		manageLoding(this.get('rel'));
+	});
+	manageLoding("$rel_tag");
+})
+function manageLoding(mtag){
+	as.removeClass('off');
+	var url = '${basePath}home/acct/ajaxCardListTable.xhtml?tagNo=$VmUtils.getRandom()';
+	var values = {'tag': mtag,'cardpass':$('cardpass').value};
+	var el = $('st_'+mtag);
+	gewaUtil.loadData('ajaxLoadCardListTable', url, values, function(result){
+		if(result.success){
+			el.addClass('off');
+			selectPosition(el,'selectNavs',0,'linear',function(){
+				as.removeClass('seleced');
+				el.addClass('seleced');
+			});
+		}else{
+			gewaUtil.alert(result.json.msg);
+		}
+	});
+}
+#else
+window.addEvent('domready',function(){
+	getCard('$!params.cardId');	
+})
+#end
+</script>
+<script type="text/javascript">
+	function useCard(cardpass){
+		if(!GewaraUtil.baseValidForm('useCardDv')) return ;
+		GewaraUtil.mask('btn');
+		GewaraUtil.sendLoad('ajaxLoadCardListTable',"${basePath}home/acct/ajaxCardTableByCardPass.xhtml",{"cardpass":cardpass,"captchaId":$('hideCaptcha').value,"captcha":$('hideCaptchaInput').value}, function(result){
+			GewaraUtil.unmask();
+			GewaraUtil.refreshCaptcha('hideCaptcha');
+			if(result.success){
+				$('cardpass').set('value', '');
+				$('hideCaptchaInput').set('value', '');
+			}else {
+				$('hideCaptchaInput').set('value', '');
+				if(result.json.activation){
+					var url = '${basePath}home/acct/activationCard.xhtml?cardpass='+cardpass;
+					$('msgs').getElement('a').set('href',url);
+					gewaUtil.maskContent('','msgs',"系统提示：",360,"bandCard");
+				}else gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+	function getCode(codeid){
+		var url = '${basePath}home/code.xhtml';
+		var values = {'codeid':codeid, 'v':Date.now()};
+		gewaUtil.loadData('ajaxLoadCardListTable', url, values, function(result){
+			if(!result.success){
+				gewaUtil.alert(result.json.msg);
+			}
+		})
+	}
+	function getCard(cardid){
+		var url = '${basePath}home/card.xhtml';
+		var values = {'cardid':cardid, 'v':Date.now()};
+		gewaUtil.loadData('ajaxLoadCardListTable', url, values, function(result){
+			if(!result.success){
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+	
+	// 密码变大写
+	function pwdUpper(obj){
+		$(obj).set('value', $(obj).value.toUpperCase());
+	}
+	
+	function hidenCard(cardno){
+		if(gewa.util.container[cardno])gewa.util.container[cardno].dispose(cardno);
+	}
+
+	function registerCard(cardpass){
+		gewaUtil.confirm("绑定之后不能解绑，确定绑定？", function(){
+			GewaraUtil.mask('btn');
+			GewaraUtil.sendRequest("${basePath}ajax/trade/registerCard.xhtml",{"cardpass":cardpass,"captchaId":$('hideCaptcha').value,"captcha":$('hideCaptchaInput').value}, function(result){
+				if(result.success){
+					gewaUtil.alert("绑定成功",function(){
+						document.location.href='${basePath}home/acct/cardList.xhtml';
+					});
+				}else {
+					GewaraUtil.unmask();
+					GewaraUtil.refreshCaptcha('hideCaptcha');
+					if(result.needPayPass){
+						gewaUtil.alert(result.msg);				
+					}else{
+						gewaUtil.alert(result.msg);
+					}
+				};
+			});
+		});
+	}
+	function cancelButton(){
+		if(gewa.util.container["bandCard"])gewa.util.container["bandCard"].dispose("bandCard");
+	}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

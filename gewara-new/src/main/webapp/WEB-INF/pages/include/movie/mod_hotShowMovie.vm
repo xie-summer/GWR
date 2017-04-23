@@ -1,0 +1,43 @@
+#if(!$!VmUtils.isEmptyList($hotMovieList))
+<div class="mod_kong">
+	<div class="mod_hd">
+		<h2>#if($movieDetail)更多热映#else正在热映#end</h2>
+		<a href="${basePath}movie/searchMovie.xhtml" class="more" target="_blank">更多</a>
+	</div>
+	<div class="mod_bd">
+		<ul>
+			#foreach($movie in $!hotMovieList)
+			#set($gmark=$VmUtils.getLastMarkStar($movie, "general",$curMarkCountMap.get($movie.id),$!markData))
+			#set($gmark1=$gmark/10)
+			#set($gmark2=$gmark % 10)
+			#if(!$movieIdList.contains($movie.id))
+				#set($addMId = $movieIdList.add($movie.id))
+			#end
+			<li #if($foreach.count gt 1)class="mt30"#end>
+				<dl class="ui_media">
+					<dt class="ui_pic">
+						<a href="$!{basePath}movie/$!movie.id" title="$!movie.moviename" target="_blank">
+							<img src="$!VmUtils.randomPic('cw96h128',$movie.limg)" alt="$!movie.moviename" width="96" height="128"/>
+						</a>
+					</dt>
+					<dd class="ui_text">
+						<p>
+							<a href="$!{basePath}movie/$!movie.id" title="$!movie.moviename" target="_blank" class="fs14">$!movie.moviename</a>
+							<span class="grade">
+								<sub style="margin:0;" data-keynum="$!{movie.id}_mark1">$!gmark1</sub>
+								<sup data-keynum="$!{movie.id}_mark2">.$!gmark2</sup>
+							</span>
+						</p>
+						#if($VmUtils.isNotBlank($movie.highlight))
+						<p class="mt5 ffst c666">“$!movie.highlight”</p>
+						#end
+						<p class="mt5 c999"><em>导演：</em>$!{movie.director}</p>
+						<p class="c999" style="line-height:22px; word-wrap:break-word; height:44px;" title="主演：#if($movie.actors)$!{movie.actors}#end"><em>主演：</em>#if($movie.actors)$!{movie.actors}#end</p>
+					</dd>
+				</dl>
+			</li>
+			#end
+		</ul>
+	</div>
+</div>
+#end

@@ -1,0 +1,74 @@
+<div class="hd">
+	<span>编辑广告数据</span>
+</div>
+<div class="bd">
+<form name="adForm" id="adForm">
+	<input type="hidden" name="id" id="id" value="$!ad.id"/>
+	<input type="hidden" name="adpid" id="adpid" value="#if($!ad.adpositionid)$!ad.adpositionid#else$!params.adpid#end"/>
+	<div>
+		<label for="title">标题：</label>
+		<input  name="title" id="title" type="text" value="$!ad.title"/>
+		<span class="req">&nbsp;</span>
+	</div>
+	<div>
+		<label for="link">链接：</label>
+		#set($a='http://')
+		<input  name="link" id="link" type="text" value="#if($!ad.link)$!ad.link#else$a#end"/>
+		<span class="req">&nbsp;</span>
+	</div>
+	<div>
+		<label for="logicaldir">逻辑目录：</label>
+		<input  name="logicaldir" id="logicaldir" type="text" value="$!ad.logicaldir"/>
+		<span class="req">*</span>
+	</div>
+	<div>
+		<label for="track">1像素跟踪图片地址：</label>
+		<input  name="track" id="track" type="text" value="$!ad.track"/>
+	</div>
+	<div>
+		<label for="adtype">类型：</label>
+		<select name="adtype" id="adtype">
+			<option value="picture" #if($!ad.adtype eq 'picture')selected#end>图片</option>
+			<option value="flash" #if($!ad.adtype eq 'flash')selected#end>Flash</option>
+		</select>
+	</div>
+	
+	<div>
+		<label for="tag">类型：</label>
+		<select name="tag">
+			<option value="">请选择</option>
+			<option value="movie" #if($!ad.tag eq 'movie' || !$ad)selected#end>电影</option>
+		</select>
+		电影ID：<input name="relatedid" id="relatedid" type="text" style="width: 100px;" value="$!ad.relatedid"/>
+		<span class="req">&nbsp;</span>
+	</div>
+	<div id="re" style="display: none">
+		<label for="reassign"></label>
+		<input name="reassign" id="reassign" type="checkbox" style="width:20px;" value="$!ad.reassign"/>(选中表示：把剩余次数赋初值)
+	</div>
+	<div>
+		<label for="viewtimes">开始时间:</label>
+		<input name="starttime" id="starttime" value="$!ad.starttime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" type="text" style="width: 150px"/><span class="req">*</span>
+		结束时间:<input name="endtime" id="endtime" value="$!ad.endtime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" type="text" style="width: 150px"/><span class="req">*</span>
+	</div>
+	<div>
+		<label for="description">描述：</label>
+		<textarea  name="description" id="description" cols="5">$!ad.description</textarea>
+		<span class="req">&nbsp;</span>
+	</div>
+	<div>
+		<label>上传：</label>
+		<input type="hidden" name="ad" id="ad" value="$!ad.ad"/>
+		<iframe class="left" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+			src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/ad/&callback=updateLogo&notLimit=true"></iframe>
+			<span class="req">*</span>
+		<div><img style="height:60px; margin-left:100px;" id='logoimg1' src="$VmUtils.randomPic('',$!ad.ad)" onerror="this.src='${basePath}img/default_head.png'"/></div>
+	</div>
+	
+	<div>
+		<label>&nbsp;</label>
+		<input type="button" class="button" onclick="save();" style="width:100px" value="保存"/>
+		<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+	</div>
+</form>
+</div>

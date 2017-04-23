@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>纠错列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline}
+	</style>
+</head>
+<body style="width:85%; margin:auto" class="yui-skin-sam">
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore"></li>
+			<li #if($!status eq "untreated") class="currs" id="unhandle" #else id="handled" #end ><a href="${basePath}admin/audit/correctionList.xhtml?status=untreated"><span>未处理</span></a></li>
+			<li #if($!status eq "treated") class="currs" id="unhandle" #else id="handled" #end ><a href="${basePath}admin/audit/correctionList.xhtml?status=treated" ><span>已处理</span></a></li>
+		</ul>
+	</div>
+</div>
+<form action="${basePath}admin/audit/correctionList.xhtml" id="ajaxDataFrm">
+<table style="width: 100%" cellspacing="0" class="roomManageTable" >
+	<tr>
+	<td height="30">
+		<input type="hidden" name="status" id="status" value="$!status"/>
+		开始日期:<input type="text" name="sdatefrom" id="datefrom" value="$!sdatefrom" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>&nbsp;
+		结束日期:<input type="text" name="sdateto" id="dateto" value="$!sdateto" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>&nbsp;
+		<input type="submit" class="bt1" value="查 询" />
+	</td>
+	</tr>
+</table>
+<br/>
+</form>
+#if(!$VmUtils.isEmptyList($!corrList))
+#if($!status eq "untreated")
+<div style="text-align:center;">
+		<select name="sendPointValue" id="sendPointValue">
+			#foreach($x in [1..5])
+			#set($point=$x*10)
+			<option value="$point">$!point</option>
+			#end
+		</select> 
+		<input type="button" class="bt2" value="设置初始积分" onclick="withPoint()"/>
+	</div>
+#end
+<from id="myform">
+<table width="85%" class="table">
+	<thead>
+	<tr>
+		<th width="10%">用户名</th>
+		<th width="10%">纠错时间</th>
+		<th width="40%">纠错内容</th>
+		<th width="5%">前台页面</th>
+		<th width="5%">赠送积分</th>
+		<th width="30%">赠送说明</th>
+	</tr>
+	</thead>
+	<tbody id="gymTable">
+	#foreach($corr in $corrList)
+	<tr>
+		#if($corr.memberid)
+		<td><a href="${absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$corr.memberid" target="_blank">$cacheMemberMap.get($corr.memberid).nickname</a></td>
+		#else
+		<td><a href="mailto:$corr.email">$corr.email</a></td>
+		#end
+		<td>$DateUtil.format($!corr.addtime,'yyyy-MM-dd hh:mm')</td>
+		<td>$corr.content</td>
+		<td><a href="$corr.referer" target="_blank">前台</td>
+		#if($!status eq "untreated")
+		<td align="center">
+			<select id="c$corr.id" name="$corr.id">
+			        <option value="-1">不处理</option>
+					<option value="0" selected="selected">不加分</option>
+					<option value="10">加10分</option>
+					<option value="20">加20分</option>
+					<option value="30">加30分</option>
+					<option value="40">加40分</option>
+					<option value="50">加50分</option>
+			</select>
+		</td>
+		<td align="center"><input type="text"  name="$corr.id" style="width: 99%"/></td>
+		#end
+		  #if($!status eq "treated")
+		  #set($corrInfoMap=$VmUtils.readJsonToMap($corr.otherinfo))
+		 <td align="center">
+				#if($corrInfoMap.get('point'))
+				  加$!corrInfoMap.get('point')分 
+				#end
+		 </td>
+		 <td align="center"> $!corrInfoMap.get('reason')</td>
+		 #end
+	</tr>
+	#end
+	#if($!status eq "untreated")
+	<tr>
+		<td colspan="7" style="text-align: center;" id="addpointFrm">
+				<input type="button" class="bt1" value="加积分" onclick="pass();" />
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+</from>
+<div id="page">
+	#parse('include/pageUtil.vm')
+</div>
+#end
+<div id="qaDialog" class="yui-panel" style="display: none">
+	<div class="hd" id="title">添加</div>
+	<div class="bd">
+	<form name="corrForm" id="corrForm" action="javascript:save()">
+		<input type="hidden" name="relatedid" value="547972"/>
+		<input type="hidden" name="tag" value="movie"/>
+		<div>
+			<label for="answer">内容：</label>
+			<textarea rows="10" cols="70" id="content" name="content"></textarea>
+		</div>
+		<div class="clear">
+			<label>&nbsp;</label>
+			<input type="submit" class="button" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	withPoint = function (){
+		var sendValue = $('sendPointValue');
+		var value = sendValue.value;
+		var ss = $('myform').getElements('select');
+		$each(ss, function(i, n){
+			$(i).set('value', value);
+		})		
+
+	}
+	
+function save(){
+	var values = GewaraUtil.getValues($("corrForm"));
+	if (values.content == "") {
+		alert("请输入回答内容！");
+		return;
+	}
+	GewaraUtil.sendRequest("${basePath}ajax/common/addCorrection.xhtml", values, function(result){
+		if(corr.success){
+			GewaraUtil.hideDialog("qaDialog");
+			alert("保存成功");
+		} else alert("保存失败");
+	});
+}
+function pass(){
+	    if(confirm("确定保存吗？")){
+			var values=GewaraUtil.getValues("myform",",");
+			 var url = "${basePath}admin/audit/ajax/checkCorrection.xhtml";
+			GewaraUtil.sendRequest(url, values,checkCallBack);
+		}
+	}
+ 
+function checkCallBack(result){
+	if(result.success){
+		alert("成功");
+		$('ajaxDataFrm').submit();
+	//	refreshPage();
+	}else{
+	   alert("审核失败");
+	   refreshPage();
+	   }
+}
+function removeCallBack(result){
+	if(result.success){
+		refreshPage();
+	}else alert("审核失败");
+}
+</script>
+</body>
+</html>

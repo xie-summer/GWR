@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>虚拟获奖用户信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+		
+		<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+		<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script> 
+		
+	<style>
+			.mb5{margin-bottom:5px;}
+			.bt{width:50px;}
+			
+			body{font-size:13px;}
+	</style>
+</head>
+<body style="width:750px;margin:auto" class="yui-skin-sam">
+#set($prizetype = {'A':'兑换券','D':'优惠券','P':'积分赠送','empty':'无奖'})
+<div style="width:750px; height: 20px;">
+	<span style="width: 60px; margin-left:60px;"></span>
+	<input type="button" style="width:150px;"  value="添加获奖用户信息" onclick="showDrawMark('winnerDialog')"/>
+	<span style="width: 60px; margin-left:60px;"></span>
+	<span id="callbackMsg"></span>
+</div>
+<table width="780px" border="1" cellspacing="0" class="table" style="margin-top:10px;">
+	<thead>
+	<tr>
+		<th style="width:8%">ID</th>
+		<th style="width:12%;">昵称</th>
+		<th style="width:12%;">手机号</th>
+		<th style="width:15%;">奖品</th>
+		<th>奖品状态</th>
+		<th >中奖时间</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="roomTable">
+	#foreach($winner in $winnerList)
+		<tr width="40px;">
+			<td>$!winner.memberid</td>
+			<td>$!winner.nickname</td>
+			<td>$!winner.mobile</td>
+			<td> $!prizetype.get($!prizeMap.get($!winner.id).ptype)</td>
+			<td>#if($!winner.status eq 'Y')已送出#else 未送出 #end</td>
+			<td>$!DateUtil.format($!winner.addtime,'yyyy-MM-dd HH:mm:dd')</td>
+			<td><input type="button" value="修改" onclick="updateDrawMark('winnerDialog',$!winner.id)" /></td>
+		</tr>
+	#end
+	</tbody>
+</table>
+
+
+<div id="winnerDialog" class="yui-panel" style="width:450px;margin:10px auto;display: none;">
+	<div class="hd"><span id="drawtype">添加</span>获奖用户信息&nbsp;&nbsp;[<a href="${basePath}admin/common/mappoint.xhtml?id=$cinema.id&tag=cinema" target="_blank">地图标注</a>]</div>
+	<div class="bd">
+	<form name="drawForm" id="drawForm"  method="post">
+		<input type="hidden" name="wid" id="wid"/>
+		<input type="hidden" name="activityid" id="activityid" value="$!params.activityid"/>
+		<div class="mb5">
+				用户ID：<input type="text" name="memberid" id="memberid"/>*
+			</div>
+		<div class="mb5">
+				用户昵称：<input type="text" name="nickname" id="nickname"/>*
+			</div>
+			<div class="mb5">
+				手机号码：<input type="text" name="mobile" id="mobile"/>
+			</div>
+			<div class="mb5">
+				奖品类型：<select name="prizeid" id="prizeid">
+								#foreach($prize in $prizeList)
+								#if($!prizetype.get($prize.ptype))<option value="$!prize.id">$!{prizetype.get($prize.ptype)} $!{prize.plevel}</option>#end
+								#end
+							</select>*
+			</div>
+			<div class="mb5">
+				获奖时间：<input type="text" name="addtime"   id="addtime" onfocus="new WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'2006-01-01 00:00:00',maxDate:'2100-03-10 00:00:00'})" />
+			</div>
+			<input type="button" id="drawbt" value="保存" onclick="saveDrawForm()" class="bt"/> <input type="button" value="取消" class="bt" onclick="cancelMark('winnerDialog')"/>
+	</form>
+	</div><!-- end of bd -->
+</div>
+
+
+
+#parse('include/pageUtil.vm')
+	<script type="text/javascript">
+function showDrawMark(el){
+		$('nickname').value = '';
+		$('mobile').value = '';
+		$('prizeid').value = '';
+		$('addtime').value = '';
+		$('drawtype').set('text','添加');
+		$(el).setStyle('display','block');
+		GewaraUtil.showDialog(el,100,true);
+	}
+	function cancelMark(el){
+		$(el).setStyle('display','none');
+		GewaraUtil.hideDialog(el)
+	}
+	function saveDrawForm(){
+		var memberid = $('memberid').value;
+		if(!$chk(memberid)){
+			alert("用户ID不能为空");
+			return;
+		}
+		if(isNaN(memberid)){
+			alert("用户ID只能输入数字!");
+			return;
+		}
+		var name = $('nickname').value;
+		if(!$chk(name)){
+			alert('用户昵称不能为空！');
+			return;
+		}
+		var prizeid = $("prizeid").value;
+		if(!$chk(prizeid)){
+			alert("请先添加抽奖活动奖品信息！");
+			return;
+		}
+		var mobile = $('mobile').value;
+		var values = {'wid':$('wid').value,'memberid':memberid,'activityid':$('activityid').value,'nickname':name,'prizeid':$('prizeid').value,'addtime':$('addtime').value,'mobile':$('mobile').value};
+		GewaraUtil.sendRequest("${basePath}admin/draw/addShamWinnerInfo.xhtml",values,function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert("操作失败");
+			}
+		});
+	}
+	
+	function updateDrawMark(el,wid){
+		GewaraUtil.sendRequest("${basePath}admin/draw/updateShamWinnerInfo.xhtml",{'wid':wid,'activityid':$!params.activityid},function(result){
+			if(result.success){
+				$('memberid').value = result.memberid
+				$('nickname').value = result.nickname;
+				$('addtime').value = result.addtime;
+				$('mobile').value = result.mobile;
+				$('prizeid').value = result.prizeid;
+				$('activityid').value = result.activityid;
+				$('wid').value = result.id;
+				$('drawtype').set('text','修改');
+				$(el).setStyle('display','block');
+				GewaraUtil.showDialog(el,100,true);
+			}else{
+				alert("你要修改的活动信息不存在！");
+			}
+		});
+	}
+</script>
+</body>
+</html>

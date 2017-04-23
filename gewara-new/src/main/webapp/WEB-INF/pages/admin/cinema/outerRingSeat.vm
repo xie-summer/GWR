@@ -1,0 +1,381 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影院放映厅座位表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#set($maxwidth=163+60+30*$room.ranknum)
+		#content{ width: ${maxwidth}px; background:#fff;}
+		.hAisle,.hAislet,.vAisle,.vAislet,.hWall,.hWallt,.vWall,.vWallt,.outDoor,.inAndOutDoor,.inDoor,.bostacle,.startPoint{color:#ddd; font-size:12px; font-weight:normal; cursor:default;background:url(${staticPath}css/movie_wide/admin_ico_seat.gif);width: 30px;height: 26px;}
+		.hWall{background-position:0 -332px;}
+		.hWallt{background-position:0 -357px;}
+		.vWall{background-position:-39px -346px;width:22px}
+		.vWallt{background-position:-39px -427px;}
+		.hAislet{background-position:0 -386px;}
+		.vAislet{background-position:-42px -385px;}
+		.vAisle{background-position:-22px 0;}
+		.hAisle{background-position:0 -405px;}
+		.bostacle{background-position:0 -285px;}
+		.startPoint{background-position:0 -315px;}
+		.hAisle,.hAislet{border-top:1px dashed #000; border-bottom:1px dashed #000; height:22px; line-height:22px; margin:1px 0;}
+		.vAisle,.vAislet{border-left:1px dashed #000; border-right:1px dashed #000; width:18px; line-height:22px; margin:0 3px;}
+		.isDialog_text dd{float: left;text-align: left;width: 90px;padding-top:20px;;padding-left:3px}
+		.inAndOutDoor{background-position: 0 -182px;}
+		.outDoor{background-position: 0 -182px;}
+		.inDoor{background-position: 0 -182px;}
+		#seatMarkStyle dd{width:90px;float:left}
+		.beachSetSeat{width:180px;float:left;height:30px}
+		.choosePic{cursor:pointer;}
+		
+		.seatlist .seatpic, .seatop .seatpic{overflow:visible;}
+		.seatlist dd, .seatop dd{height:25px;}
+		.LinDoor,.LoutDoor,.LinAndOutDoor,.RinDoor,.RoutDoor,.RinAndOutDoor,.DinDoor,.DoutDoor,.DinAndOutDoor{background:url(${staticPath}css/movie_wide/admin_bg_inout.gif) no-repeat;}
+		.LinDoor,.LoutDoor,.LinAndOutDoor,.RinDoor,.RoutDoor,.RinAndOutDoor,.DinDoor,.DoutDoor,.DinAndOutDoor{display:block; left:0; top:0; zoom:1; position:relative; z-index:10;}
+		.LinDoor,.LoutDoor,.LinAndOutDoor,.RinDoor,.RoutDoor,.RinAndOutDoor{width:26px; height:60px;}
+		.DinDoor,.DoutDoor,.DinAndOutDoor{width:60px; height:26px;}
+		.LinDoor{background-position:0 0;}
+		.LoutDoor{background-position:-27px 0;}
+		.LinAndOutDoor{background-position:-54px 0}
+		.RinDoor{background-position:0 -61px;}
+		.RoutDoor{background-position:-27px -61px;}
+		.RinAndOutDoor{background-position:-54px -61px}
+		.DinDoor{background-position:0 -122px}
+		.DoutDoor{background-position:0 -149px}
+		.DinAndOutDoor{background-position:0 -176px}
+	</style>
+</head>
+<body>
+#set($lMaxRankNum = $maxranknum + 1)
+#set($lMaxlineNum = $maxlinenum + 1)
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore">$cinema.name</li>
+			<li class="currs"><a><span>影厅管理</span></a></li>
+		</ul>
+	</div>
+</div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+		<div class="contentInfoList">
+			<b class="m2"></b>
+			<div class="m">${cinema.name}：$room.roomname<font class="bold" color="#ff6220">${room.roomname}</font>共安排
+				<font class="bold" color="#ff6220">$room.seatnum</font>个座位
+			</div>
+			<div id="seatMarkStyle" style="width:100%;height:60px">
+					<div class="beachSetSeat">
+						<dl class="choosePic">
+							<dd>
+								<input type="radio" name="roomSeat" value="hWall"/>横向墙面
+							</dd>
+							<dd>
+								<div class="hWall"></div>
+							</dd>
+						</dl>
+					</div>
+					<div class="beachSetSeat">
+						<dl class="choosePic">
+							<dd>
+								<input type="radio" name="roomSeat" value="hWallt"/>横向墙面文字
+							</dd>
+							<dd>
+								<div class="hWallt"></div>
+							</dd>
+						</dl>
+					</div>
+					<div class="beachSetSeat">
+						<dl class="choosePic">
+							<dd>
+								<input type="radio" name="roomSeat" value="vWall"/>纵向墙面
+							</dd>
+							<dd>
+								<div class="vWall"></div>
+							</dd>
+						</dl>
+					</div>
+					<div class="beachSetSeat">
+						<dl class="choosePic">
+							<dd>
+								<input type="radio" name="roomSeat" value="vWallt"/>纵向墙面文字
+							</dd>
+							<dd>
+								<div class="vWallt"></div>
+							</dd>
+						</dl>
+					</div>
+					<div class="beachSetSeat">
+						<dl class="choosePic">
+							<dd>
+								<input type="radio" name="roomSeat" value="hAislet"/>横向过道文字
+							</dd>
+							<dd><div class="hAislet"></div></dd>
+						</dl>
+					</div>
+					<div class="beachSetSeat">
+						<dl class="choosePic">
+							<dd>
+								<input type="radio" name="roomSeat" value="hAisle"/>横向过道
+							</dd>
+							<dd><div class="hAisle"></div></dd>
+						</dl>
+					</div>
+					<div class="beachSetSeat">
+						<dl class="choosePic">
+							<dd>
+								<input type="radio" name="roomSeat" value="vAisle"/>纵向过道
+							</dd>
+							<dd><div class="vAisle"></div></dd>
+						</dl>
+					</div>
+					<div class="beachSetSeat">
+						<dl class="choosePic">
+							<dd>
+								<input type="radio" name="roomSeat" value="vAislet"/>纵向过道文字
+							</dd>
+							<dd><div class="vAislet"></div></dd>
+						</dl>
+					</div>
+					<div class="beachSetSeat" style="width: 90px;">
+						<dl class="choosePic">
+							<dd>
+								<input type="radio" name="roomSeat" value="inDoor" id="inRoomDoor"/>&nbsp;&nbsp;入口
+							</dd>
+						</dl>
+					</div>
+					<div class="beachSetSeat" style="width: 90px;">
+						<dl class="choosePic">
+							<dd>
+								<input type="radio" name="roomSeat" value="inAndOutDoor" id="inOutRoomDoor"/>&nbsp;&nbsp;出入口
+							</dd>
+						</dl>
+					</div>
+					<div class="beachSetSeat" style="width: 90px;">
+						<dl class="choosePic">
+							<dd>
+								<input type="radio" name="roomSeat" value="outDoor" id="outRoomDoor"/>&nbsp;&nbsp;出口
+							</dd>
+						</dl>
+					</div>
+					<div class="beachSetSeat">
+						<dl class="choosePic">
+							<dd style="width: 40px;">
+								<input type="radio" name="roomSeat" value="bostacle"/>阻挡
+							</dd>
+							<dd><div class="bostacle"></div></dd>
+						</dl>
+					</div>
+					<div class="beachSetSeat">
+						<dl class="choosePic">
+							<dd style="width: 40px;">
+								<input type="radio" name="roomSeat" value="startPoint"/>起点
+							</dd>
+							<dd><div class="startPoint"></div></dd>
+						</dl>
+					</div>
+					<div class="beachSetSeat" style="width: 90px;">
+						<dl class="choosePic">
+							<dd>
+								<input type="radio" name="roomSeat" value=""/>空白
+							</dd>
+						</dl>
+					</div>
+					<div class="beachSetSeat">
+						<dl >
+							<dd style="width:110px">
+								行号(0~${lMaxlineNum}):<input type="text" name="lineNum" style="width:30px" id="lineNum" value=""/>
+							</dd>
+							<dd style="width:70px">
+								<input type="button" onclick="setBeatchLine($('lineNum').value)" value="批量设置"/>
+							</dd>
+						</dl>
+					</div>
+					<div class="beachSetSeat">
+						<dl >
+							<dd style="width:110px">
+								列号(0~${lMaxRankNum}):<input type="text" name="rowNum" style="width:30px" id="rowNum" value=""/>
+							</dd>
+							<dd style="width:70px">
+								<input type="button" onclick="setBeatchRow($('rowNum').value)" value="批量设置"/>
+							</dd>
+						</dl>
+					</div>
+				</div>
+			<b class="m2"></b>
+			<div id="content" style="margin-left:40px;">
+				#set($mleft=170+18*${room.ranknum} - 360)
+				<div class="screen" style="margin-left:${mleft}px">银幕长$!{room.screenwidth}m 高$!{room.screenheight}m</div>
+				<ul class="seatlist">
+					<li>
+						<dl class="seatpic">
+							<dt class="left">
+								<label>排号：0&nbsp;&nbsp;</label>
+							</dt>
+							#set($outerSeat = $outerRingseatMap.get('L0R0'))
+							#if($outerSeat && ($outerSeat eq 'inDoor' || $outerSeat eq 'inAndOutDoor' || $outerSeat eq 'outDoor'))
+								#set($outerSeat = 'L' + $outerSeat)
+							#end
+							<dd><div data-preDoor="L" data-row="R0" id="L0R0" #if($outerSeat) class="$outerSeat" #else class="Nseat"#end></div></dd>
+							#foreach($rank in [1..$maxranknum]) #set($sid='row'+${line}+'rank'+$rank)
+							#set($seatMark = 'L0' + 'R' + ${rank})
+							#set($outerSeat = $outerRingseatMap.get($seatMark))
+							#if($outerSeat && ($outerSeat eq 'inDoor' || $outerSeat eq 'inAndOutDoor' || $outerSeat eq 'outDoor'))
+								#set($outerSeat = 'D' + $outerSeat)
+							#end
+							<dd><div data-preDoor="D" data-row="R${rank}" id="L0R${rank}" #if($outerSeat) class="$outerSeat" #else class="Nseat"#end></div></dd>
+							#end
+							#set($seatMark = 'L0R' + ${lMaxRankNum})
+							#set($outerSeat = $outerRingseatMap.get($seatMark))
+							#if($outerSeat && ($outerSeat eq 'inDoor' || $outerSeat eq 'inAndOutDoor' || $outerSeat eq 'outDoor'))
+								#set($outerSeat = 'R' + $outerSeat)
+							#end
+							<dd><div data-preDoor="R" data-row="R$lMaxRankNum" id="L0R$lMaxRankNum" #if($outerSeat) class="$outerSeat" #else class="Nseat"#end></div></dd>
+						</dl>
+					</li>
+					#foreach($line in [1..$maxlinenum])
+					<li>
+						<dl class="seatpic">
+							<dt class="left">
+								<label>排号：$line&nbsp;&nbsp;</label>
+							</dt>
+							#set($seatMark = 'L' + $line + 'R0')
+							#set($outerSeat = $outerRingseatMap.get($seatMark))
+							#if($outerSeat && ($outerSeat eq 'inDoor' || $outerSeat eq 'inAndOutDoor' || $outerSeat eq 'outDoor'))
+								#set($outerSeat = 'L' + $outerSeat)
+							#end
+							<dd><div data-preDoor="L" data-row="R0" id="L${line}R0" #if($outerSeat) class="$outerSeat" #else class="Nseat"#end></div></dd>
+							#foreach($rank in [1..$maxranknum]) #set($sid='row'+${line}+'rank'+$rank)
+							#set($seatMark = 'L' + $line + 'R' + ${rank})
+							#set($outerSeat = $outerRingseatMap.get($seatMark))
+							#if($outerSeat && ($outerSeat eq 'inDoor' || $outerSeat eq 'inAndOutDoor' || $outerSeat eq 'outDoor'))
+								#set($outerSeat = 'D' + $outerSeat)
+							#end
+							<dd><div data-preDoor="D" id="L${line}R${rank}" data-row="R${rank}" #if($seatMap.get($sid))class="Aseat"#else#if($outerSeat) class="$outerSeat" #else class="Nseat" #end #end>#if($seatMap.get($sid).loveInd ne "0")$!seatMap.get($sid).loveInd#end</div></dd>
+							#end
+							#set($seatMark = 'L' + $line + 'R' + ${lMaxRankNum})
+							#set($outerSeat = $outerRingseatMap.get($seatMark))
+							#if($outerSeat && ($outerSeat eq 'inDoor' || $outerSeat eq 'inAndOutDoor' || $outerSeat eq 'outDoor'))
+								#set($outerSeat = 'R' + $outerSeat)
+							#end
+							<dd><div data-preDoor="R" data-row="R$lMaxRankNum" id="L${line}R$lMaxRankNum" #if($outerSeat) class="$outerSeat" #else class="Nseat" #end></div></dd>
+						</dl>
+					</li>
+					#end
+					<li>
+						<dl class="seatpic">
+							<dt class="left">
+								<label>排号：$lMaxlineNum&nbsp;&nbsp;</label>
+							</dt>
+							#set($seatMark = 'L' + $lMaxlineNum + 'R0')
+							#set($outerSeat = $outerRingseatMap.get($seatMark))
+							#if($outerSeat && ($outerSeat eq 'inDoor' || $outerSeat eq 'inAndOutDoor' || $outerSeat eq 'outDoor'))
+								#set($outerSeat = 'D' + $outerSeat)
+							#end
+							<dd><div data-preDoor="D" data-row="R0" id="L$!{lMaxlineNum}R0" #if($outerSeat) class="$outerSeat" #else class="Nseat" #end></div></dd>
+							#foreach($rank in [1..$maxranknum]) #set($sid='row'+${line}+'rank'+$rank)
+							#set($seatMark = 'L' + $lMaxlineNum + 'R' + ${rank})
+							#set($outerSeat = $outerRingseatMap.get($seatMark))
+							#if($outerSeat && ($outerSeat eq 'inDoor' || $outerSeat eq 'inAndOutDoor' || $outerSeat eq 'outDoor'))
+								#set($outerSeat = 'D' + $outerSeat)
+							#end
+							<dd><div data-preDoor="D" data-row="R${rank}" id="L$!{lMaxlineNum}R${rank}" #if($outerSeat) class="$outerSeat" #else class="Nseat" #end></div></dd>
+							#end
+							#set($seatMark = 'L' + $lMaxlineNum + 'R' + $lMaxRankNum)
+							#set($outerSeat = $outerRingseatMap.get($seatMark))
+							#if($outerSeat && ($outerSeat eq 'inDoor' || $outerSeat eq 'inAndOutDoor' || $outerSeat eq 'outDoor'))
+								#set($outerSeat = 'D' + $outerSeat)
+							#end
+							<dd><div data-preDoor="D" data-row="R$lMaxRankNum" id="L$!{lMaxlineNum}R$lMaxRankNum" #if($outerSeat) class="$outerSeat" #else class="Nseat" #end></div></dd>
+						</dl>
+					</li>
+					<li class="head">
+						<dl><dt>排编号</dt><dd>0</dd>#foreach($rank in [1..$maxranknum])<dd>${rank}</dd>#end
+						<dd>$lMaxRankNum</dd></dl>
+					</li>
+				</ul>
+				<div id="height0"></div>
+			</div>
+		</div>
+	<b class="b2f"></b> <b class="b1f"></b>
+</div>
+<script type="text/javascript">
+	function setBeatchRow(row){
+		if(!row){
+			alert("输入行号");
+			return;
+		}
+		var arr = [];
+		var ele = $('content').getElements("div[data-row=R" + row + "]").each(function(item){
+			if(item.get("id")){
+				arr.push(item.get("id"));
+			}
+		});
+		chooseSeat(arr);
+	}
+	
+	function setBeatchLine(line){
+		if(!line){
+			alert("输入行号");
+			return;
+		}
+		var ele = $('content').getElements("li")[line];
+		if(!ele){
+			alert("行号有误 ");
+			return;
+		}
+		var arr = [];
+		ele.getElements("div").each(function(item){
+			if(item.get("id")){
+				arr.push(item.get("id"));
+			}
+		})
+		chooseSeat(arr);
+		
+	}
+	
+	function chooseSeat(arr){
+		if(arr.length == 0){
+			return;
+		}
+		$("seatMarkStyle").getElements("input[name=roomSeat]").each(function(item){
+			if(item.checked){
+				var value = item.value;
+				var url = "${basePath}admin/cinema/addOuterRingSeat.xhtml";
+				GewaraUtil.mask(document.body);
+				GewaraUtil.sendRequest(url, {"seatStyle":value,"seatMark":arr.join(','),"roomId":"$!{room.id}"}, function(result){
+					GewaraUtil.unmask();
+					if(result.success){
+						if(value == ""){
+							value = 'Nseat';
+						}
+						for(var index = 0;index < arr.length;index++){
+							if($(arr[index])){
+								if(value == 'inDoor' || value == 'inAndOutDoor' || value == 'outDoor'){
+									$(arr[index]).set("class",$(arr[index]).get("data-preDoor") + value);
+								}else{
+									$(arr[index]).set("class", value);
+								}
+							}
+						}
+					}
+				});
+			}
+		});
+	}
+	window.addEvent("domready", function(){
+		$$(".seatlist dd div").addEvent('click', function(){
+			var arr = [];
+			arr.push(this.get("id"));
+			chooseSeat(arr);
+		});
+		$$(".choosePic").addEvent('click', function(){
+			var input = this.getElement('input');
+			input.set("checked","checked");
+		});
+	});
+</script>
+</body>
+</html>

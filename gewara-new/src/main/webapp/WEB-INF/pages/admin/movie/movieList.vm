@@ -1,0 +1,249 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width:750px; margin:auto" class="yui-skin-sam">
+<div style="width:740px;">
+<form action="${basePath}admin/movie/movieList.xhtml" id = "searchForm" style="width:740px;margin:3px">
+	按加入时间过滤[默认为15天前至今天]：
+	<input name="fromDate" readonly="readonly" onclick="WdatePicker()" type="text" style="width:80px" value="$!params.fromDate"/>至
+	<input name="toDate" readonly="readonly" onclick="WdatePicker()" type="text"  style="width:80px" value="$!params.toDate"/>
+	&nbsp;
+	<input onclick="searchIQiYi()" type="button" class="button" value="爱奇艺影片更新列表"/>
+	<br />
+	只查热门：<input type="checkbox" name="hot" value="true" #if($VmUtils.eq($params.hot,'true'))checked="checked"#end/>
+	名称（模糊）：<input name="moviename" type="text" style="width:80px" value="$!params.moviename"/>
+	<input type="submit" class="button" value="查询"/>
+	<a href='${basePath}admin/movie/modifyMovieDetail.xhtml' target="_blank" style="height:20px !important">增加新电影</a>&nbsp;&nbsp;
+	<a href="${basePath}admin/common/videoList.xhtml?tag=movie" target="_blank">预告片管理</a>&nbsp;&nbsp;
+	<a href="${basePath}admin/movie/cr_daq.xhtml" target="_blank">推荐[论坛活动知道]</a>&nbsp;&nbsp;
+	<a href="${basePath}admin/movie/cr_mda.xhtml" target="_blank">推荐[电影]</a>&nbsp;&nbsp;
+	<a href="${basePath}admin/common/newsList.xhtml?tag=cinema&newstype=2" target="_blank">新闻</a>&nbsp;&nbsp;
+</form>
+#if($iQiYi eq 'true')
+<table class="table">
+	<thead>
+	<tr>
+		<th>电影名称</th>
+		<th>时长</th>
+		<th>加入时间</th>
+		<th></th>
+	</tr>
+	</thead>
+	#foreach($video in $vedions)
+	#if($video.timeLength > 1500)
+	#set($url="http://dispatcher.video.qiyi.com/disp/shareplayer.swf?coop=coop_gewara&bd=1&autoPlay=1&tvid=$!video.tvId&vid=$!video.tvUniqId")
+	<tr>
+		<td><a target="_blank" href="$!url">$!video.tvName</a></td>
+		<td>$!math.idiv($!video.timeLength, 60)分$!math.mod($!video.timeLength, 60)秒</td>
+		<td>$!video.updateTime</td>
+		<td><input type="button" style="width: 60px;" value="关联视频" onclick="showSearchDialog('$url','${video.tvName}','${video.videoImage}')"/></td>
+	</tr>
+	#end
+	#end
+</table>
+#else
+<table class="table">
+	<thead>
+	<tr>
+		<th>电影名称</th>
+		<th>加入时间</th>
+		<th>编辑</th>
+		<th>图片</th>
+		<th>公告</th>
+		<th>预告片</th>
+		<th>新闻</th>
+		<th>前台页面</th>
+		<!--电影节暂时需要他来排序--> 
+		<th>热门等级</th>
+		 
+		<th>在线播放</th>
+		<th>历史记录</th>
+		<th>评分明细</th>
+	</tr>
+	</thead>
+	<!-- object[0]:movie id,object[1]:moviename -->
+	<tbody id="movieTable">
+	#foreach($movie in $movieList)
+	<tr>
+		<td>$movie.moviename</td>
+		<td>$movie.addtime</td>
+		<td><a href="${basePath}admin/movie/modifyMovieDetail.xhtml?mid=$movie.id" target="_blank">编辑详细</a></td>
+		<td><a href="${basePath}admin/common/pictureList.xhtml?tag=movie&relatedid=${movie.id}&uploadPath=images/movie" target="_blank">上传组图</a></td>
+		<td><a target="_blank" href="${basePath}admin/common/bulletinList.xhtml?tag=movie&relatedid=$movie.id">公告</a></td>
+		<td><a target="_blank" href="${basePath}admin/common/videoList.xhtml?tag=movie&relatedid=$movie.id">预告片</a></td>
+		<td><a target="_blank" href="${basePath}admin/common/newsList.xhtml?tag=movie&newstype=2&relatedid=$movie.id">新闻</a></td>
+		<td><a target="_blank" href="$!{absPath}${basePath}movie/$movie.id">前台页面</a></td>
+		
+		<!--电影节暂时需要他来排序--> 
+		<td nowrap="nowrap" id="b$movie.id">
+			<select name='hotvalue' id='$movie.id' onchange='setHotValue("$movie.id")'>
+				<option value="70000" #if($movie.hotvalue eq 70000) selected="selected" #end>搜索推荐</option>
+				<option value="50000" #if($movie.hotvalue eq 50000) selected="selected" #end>推荐</option>
+				<option value="30000" #if($movie.hotvalue eq 30000) selected="selected" #end>热门</option>
+				<option value="10000" #if($movie.hotvalue eq 10000) selected="selected" #end>经典</option>
+				<option value="0" #if($VmUtils.isBlank($movie.hotvalue) || $movie.hotvalue eq 0) selected="selected" #end>一般</option>
+				<option value="-30000" #if($movie.hotvalue eq -30000) selected="selected" #end>冷门</option>
+				<option value="-50000" #if($movie.hotvalue eq -50000) selected="selected" #end>非常冷门</option>
+			</select>
+		</td>
+		
+		<td nowrap="nowrap" id="b$movie.id">
+		 #if($!relationVideoS.contains($movie.id))
+			<input type="button" style="width: 60px;" value="取消关联" onclick="cancelVideoFilm('$!relationVideoMap.get($movie.id).id')"/>
+		#else
+			<input type="button" style="width: 60px;" value="关联视频" onclick="showVideoDialog('$!movie.id','$!movie.moviename')"/>
+		#end
+		</td>
+		<td>
+			<a href="${basePath}admin/common/getChangeHis.xhtml?tag=Movie&relatedid=$movie.id" target="_blank">历史</a>
+		</td>
+		<td>
+			<a href="${basePath}admin/movie/cinemaScoreDetail.xhtml?tag=movie&movieId=$movie.id&flag=Y" target="_blank">明细</a>
+		</td>
+		</tr>
+	#end
+	</tbody>
+</table>
+#end
+</div>
+
+<div id="iQiYiVideoDialog" class="yui-panel" style="width:550px; height:550px; visibility:hidden;">
+	<div class="hd" id="title">编辑视频数据</div>
+	<div class="bd">
+	<form name="iQiYiVideoForm" id="iQiYiVideoForm">
+		<input type='hidden' name='tag' id="tag" value="movieFilm"/>
+		<input type='hidden' name='relatedid' id="relatedid" value=""/>
+		<input type='hidden' name='categoryIds' id="categoryIds" value="1"/>
+		<div>
+			<label for="keyword">查找视频：</label>
+			<input name="threeCategory" value="电影" type="hidden" id="threeCategory"/>
+			<input name="keyword" type="text" id="keyword" style="width: 300px;"/>
+			<input type="button" onclick="iQiYiVideos()" style="width:70px" class="button" value="查找"/>
+			<input type="button" onclick="cancleIQIYi();" style="width:70px" class="button" value="取消"/>
+		</div>
+		<div id="iQiYiVideos"></div>
+	</form>
+	</div>
+</div>
+<div id="searchMovieDialog" class="yui-panel" style="width:550px; height:550px; visibility:hidden;">
+	<div class="hd" id="title">关联电影</div>
+	<div class="bd">
+	<form name="searchMovieForm" id="searchMovieForm">
+		<input type="hidden" name="videoPlayUrl" id="videoPlayUrl" />
+		<input type="hidden" name="videoName" id="videoName" />
+		<input type="hidden" name="videoImage" id="videoImage" />
+		<div>
+			<label for="movieName">查找电影：</label>
+			<input name="movieName" type="text" id="movieName" style="width: 300px;"/>
+			<input type="button" onclick="searchVideoMovieList()" style="width:70px" class="button" value="查找"/>
+			<input type="button" onclick="cancleSearchMovie();" style="width:70px" class="button" value="取消"/>
+		</div>
+		<div id="searchMovies"></div>
+	</form>
+</div>
+</div>
+	<script type="text/javascript">
+	function setHotValue(vid){
+		var url = "${basePath}admin/movie/setMovieHotValue.xhtml";
+		var values = {'movieId':vid, "value":$(vid).value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) alert('成功设置！');
+		});
+	}
+	function showVideoDialog(relatedid,movienam){
+		$("relatedid").value = relatedid;
+		$("keyword").value = movienam;
+		$('iQiYiVideos').set('html', '');
+		GewaraUtil.showDialog("iQiYiVideoDialog");
+	}
+	function cancleIQIYi(){
+		$("relatedid").value = "";
+		$("keyword").value = "";
+		GewaraUtil.hideDialog("iQiYiVideoDialog");
+	}
+	function iQiYiVideos(){
+		var	url =  "${basePath}admin/common/ajax/iqiyiVideoByKeyword.xhtml";
+		var values = GewaraUtil.getValues($("iQiYiVideoForm"));
+		gewaUtil.loadData('iQiYiVideos', url, values, function(result){
+			if(result.success){
+				$('iQiYiVideos').set('html', result.html);
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+	function saveCallBack(result){
+		if(result.success){
+			cancleIQIYi();
+			alert("保存成功");
+			$("b" + result.relatedid).innerHTML = '<input type="button" style="width: 60px;" value="取消关联" onclick="cancelVideoFilm(\'' + result.id + '\')"/>';
+		}
+		else alert("保存失败");
+	}
+	
+	function searchIQiYi(){
+		$("searchForm").action = "${basePath}admin/movie/iQiYiMovieList.xhtml";
+		$("searchForm").submit();
+	}
+	
+	function cancelVideoFilm(videoid){
+		var r=confirm("确定取消关联的影片吗？");
+		if(r == true){
+			var url = "/admin/common/ajax/removeVideoById.xhtml";
+			GewaraUtil.sendRequest(url, {'videoId':videoid},function(result){
+				if(result.success){
+					alert("取消成功！");
+					refreshPage();
+				}else {
+					alert("取消失败！");
+				}
+			}); 
+		}
+	}
+	
+	function showSearchDialog(url,movieName,image){
+		$("movieName").value = movieName;
+		$("videoPlayUrl").value = url;
+		$("videoName").value = movieName;
+		$("videoImage").value = image;
+		GewaraUtil.showDialog("searchMovieDialog");
+	}
+	function cancleSearchMovie(){
+		$("movieName").value = "";
+		$("videoPlayUrl").value = "";
+		$("videoName").value = "";
+		$("videoImage").value = "";
+		GewaraUtil.hideDialog("searchMovieDialog");
+	}
+	
+	function searchVideoMovieList(){
+		var	url =  "${basePath}admin/movie/searchVideoMovieList.xhtml";
+		var values = GewaraUtil.getValues($("searchMovieForm"));
+		gewaUtil.loadData('searchMovies', url, values, function(result){
+			if(result.success){
+				$('searchMovies').set('html', result.html);
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+	function saveRelationCallBack(result){
+		if(result.success){
+			cancleSearchMovie();
+			alert("保存成功");
+		}else{
+			alert("保存失败");
+		}
+	}
+</script>
+</body>
+</html>

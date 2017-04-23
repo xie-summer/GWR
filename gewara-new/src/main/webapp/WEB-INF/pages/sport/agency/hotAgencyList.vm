@@ -1,0 +1,26 @@
+<div class="outer_title">
+	<h2>热门培训机构</h2>
+</div>
+<ul class="ui_abeam right_Trainlist">
+	#foreach($hotAgency in $hotAgencyList)
+	#set($tcList=$tcListMap.get($hotAgency.id))
+	#set($gmark=$VmUtils.getSingleMarkStar($hotAgency, "general"))#set($gmark1=$gmark/10) #set($gmark2=$gmark % 10)
+	<li #if($foreach.count eq 1)style="border-top:0;"#end>
+		<div class="center">
+			<a href="${basePath}sport/agencyDetail.xhtml?id=$!hotAgency.id" target="_blank" title="$!hotAgency.name" class="pic">
+				<img width="120" height="60" style="background:url($!VmUtils.randomPic('cw120h60',$hotAgency.limg)) center center no-repeat #fff; border:1px solid #eee; padding:2px;" src="${staticPath}css/images/blank.gif" class="imgOutside" />
+			</a>
+		</div>
+		<div class="mt10">
+			<h2><a href="${basePath}sport/agencyDetail.xhtml?id=$!hotAgency.id" target="_blank" title="$!hotAgency.name" class="fs14 bold">$!VmUtils.escabbr($hotAgency.name, 24)</a></h2>
+			<span><sub>$gmark1</sub><sup>.$gmark2</sup><br/></span>
+		</div>
+		#if(!$VmUtils.isEmptyList($!tcList))
+		<p class="fs14 cSport mt5">正在开课课程($!tcCountMap.get($hotAgency.id))</p>
+		#foreach($tc in $tcList)
+		<p><a href="${basePath}sport/curriculumDetail.xhtml?id=$!tc.id" target="_blank">$!tc.goodsname</a></p>
+		#end
+		#end
+	</li>
+	#end
+</ul>

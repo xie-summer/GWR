@@ -1,0 +1,153 @@
+#set($maxwidth=42+35*$room.ranknum)
+#set($pewHeight=$room.linenum*30+80)
+#set($NoHeight=$room.linenum*30)
+#set($classMap={'N':'noSeat','A':'hasSeat','B':'sellSeat','C':'sellSeat','D':'sellSeat','S':'sellSeat','W':'sellSeat'})
+<div class="pewNo" style="height:${NoHeight}px">
+	#foreach($row in [1..$room.linenum])
+	<span #if($!rowMap.get($row))class="N"#end>$!rowMap.get($row)</span>
+	#end
+</div>
+<div class="wrapper" id="wrapper">
+	<div id="wrapped" style="width: #if(${maxwidth} gt 648)${maxwidth}px;#else 648px #end; margin:0 auto; overflow:visible;">
+		<div style="margin:0 auto;#if(${maxwidth} gt 648)width:${maxwidth}px;#else width:648px#end; height:${pewHeight}px; overflow:hidden;">
+			<div class="screen">${opi.cinemaname} $!{opi.roomname} 银幕 </div>
+			<div style="width:${maxwidth}px; margin:0 auto;">
+				#foreach($row in [1..$room.linenum])
+				<dl class="pseat clear">
+					<dd>
+					#foreach($rank in [1..$room.ranknum])
+					#set($sid='row'+${row}+'rank'+$rank)
+					#if($seatMap.get($sid))
+					#set($seat=$seatMap.get($sid))
+					<span lang="$price" id="$seat.id" #if($mySeatList.contains($seat))class="sellSeat"#elseif($hfhLockList.contains($seat.key))class="sellSeat" #elseif($seat.loveInd eq '1' || $seat.loveInd eq '2')class="sellSeat" #else class="$classMap.get($seatStatusUtil.getFullStatus($seat))"#end title="${seat.seatLabel}"></span>
+					#else
+					<span></span>
+					#end
+					#end
+					</dd>
+				</dl>
+				#end
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+#set($seatidList=[]);
+var selectedSeat=[$!jsSeatList];
+window.addEvent("domready", function(){
+	$$(".pseat span.hasSeat").addEvent('click',function(){
+		setSeat(this);
+	});
+	$$(".pseat span.checkSeat").addEvent('click',function(){
+		setSeat(this);
+	});
+	updateInfo();
+	setElement(selectedSeat);
+	seatModify();
+});
+
+function seatModify(){
+	var oObj = $('selectedSeat').getElements('span');
+	if(oObj){
+		oObj.addEvents({
+			'mouseenter':function(){this.addClass('select')},
+			'mouseleave':function(){this.removeClass('select')}
+		})
+	}
+}
+
+function setSeat(el){
+	var flags = false;
+	if(el.hasClass("hasSeat")){
+		//选择座位
+		if(selectedSeat.length>=5){
+			alert('最多只能选择5个座位哦！');
+			return;
+		}
+		selectedSeat.push(el.id);
+		updateInfo();
+		createPew(el)
+		el.set("class","checkSeat");
+	}else if(el.hasClass("checkSeat")){
+		//取消座位
+		selectedSeat.erase(el.id);
+		el.set("class","hasSeat");
+		flags = true;
+		updateInfo();
+		var ls = $(document.body).getElements('*[id=s'+el.id+']');
+		if(ls.length>0)ls.dispose();
+		$('seatSumPrice').innerHTML = Number($('seatSumPrice').innerHTML) - Number(el.get('lang'));
+		GewaOverText.update();
+	}
+}
+function createPew(el){
+	var pos = $(el).getPosition(),
+	element = Element("span",{
+		'class':'powS',"html":el.title, "id":"s"+el.id,"styles":{
+		"left":pos.x,
+		"top":pos.y
+	}}).inject(document.body);
+	new Element('em',{'class':'tags','title':'取消选择'}).inject(element);
+	element.getElement('em').addEvent('click',function(){
+		selectedSeat.erase(el.id);
+		el.set("class","hasSeat");
+		flags = true;
+		updateInfo();
+		var ls = $(document.body).getElements('*[id=s'+el.id+']');
+		if(ls.length>0)ls.dispose();
+		$('seatSumPrice').innerHTML = Number($('seatSumPrice').innerHTML) - Number(el.get('lang'));
+		GewaOverText.update();
+	});
+	element.store('key',el);
+	el.store('key',element);
+	var elbox = $('selectedSeat'),xx = Browser.Engine.trident?180:50;
+	if(elbox.getElements('span').length > 0){elbox = elbox.getLast();xx = 100}
+	element.move({
+		relativeTo:elbox,
+		position:"center",
+   	offset:{x:xx,y:0}
+   });
+	$('seatNumP').show();
+	$('noSeatTxt').hide();
+   element.get('move').addEvent('complete',function(){
+   	var ls = $(document.body).getElements('*[id=s'+el.id+']');
+		if(selectedSeat.indexOf(el.id) >= 0){
+			if(!$('selectedSeat').contains($('s'+el.id)))this.element.inject('selectedSeat');
+			else element.dispose();
+			this.element.setStyles({"position":"relative","left":"","top":""});
+		}else{
+			if(ls.length>0)ls.dispose();
+		}
+		GewaOverText.update();
+		seatModify();
+   });
+   $('seatSumPrice').innerHTML = Number($('seatSumPrice').innerHTML) + Number(el.get('lang'));
+   GewaOverText.update();
+   if($('seatCount')){
+	   $('seatCount').innerHTML = selectedSeat.length;
+   }
+}
+function updateInfo(){
+	$("seatList").value=selectedSeat.join(",");
+	if(selectedSeat.length == 0){
+		$('seatNumP').hide();
+		$('noSeatTxt').show();
+	}
+	if($('seatCount')){
+	   $('seatCount').innerHTML = selectedSeat.length;
+   }
+	
+}
+function setElement(selectedSeatList){
+	if(selectedSeatList.length > 0){
+		isChooseSet();
+		selectedSeatList.each(function(item){
+			if($(item)){
+				var el = $(item)
+				new Element("span",{'class':'powS',"html":el.title, "id":"s"+el.id}).inject('selectedSeat');
+			}
+		})
+	}
+	return ;
+}
+</script>

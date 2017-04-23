@@ -1,0 +1,53 @@
+<div id="accusationWindow"  style="display:none">
+	<form name="corrForm" id="accusationForm" action="javascript:saveAccusation()">
+		<input type="hidden" name="relatedid2" id="relatedid2"/>
+		<input type="hidden" name="tag2" id="tag2" />
+		<p><strong class="brown">举报通过后举报ID将获取5个积分奖励。</strong></p>
+		<ul class="ul-80">
+			<li>
+				<div class="ul-80Inner">举报说明：</div>
+				<textarea rows="4" name="body" id="accusationBody" cols="40" class="text" style="width:390px"></textarea></li>
+			<li>
+				<div class="ul-80Inner">验证码：</div>
+				<input type="hidden" name="captchaId" id="accusationCaptcha"/>
+				<input type="text"  class="text captcha" name="captcha" title="点击获取" autocomplete="off"  id="accusationCaptchaInput" size="18" style="width:60px;" onfocus="GewaraUtil.refreshCaptcha('accusationCaptcha');"/><span class="brown ml5">*</span><br/>
+				<img id="accusationCaptchaImg" src="${staticPath}css/images/blank.gif" style="cursor: pointer;vertical-align:middle;height:40px" onclick="GewaraUtil.refreshCaptcha('accusationCaptcha');" title="看不清楚，请点击换一张图片"/>
+			</li>
+		</ul>
+	</form>
+</div>  
+<script type="text/javascript">
+function validAccusation(){
+	if($('accusationBody').value.length<2) {
+		gewaUtil.alert("请尽量详细描述违规内容以便我们审核。");
+		return false;
+	}
+	return true;
+}
+function saveAccusation(){
+	if(validAccusation()){
+		var url = '${basePath}common/saveAccusation.xhtml'
+		GewaraUtil.mask('accusationWindow');
+		var values = GewaraUtil.getValues("accusationWindow");
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				gewaUtil.alert('您的举报信息以提交，我们将尽快做出处理。');
+				gewa.util.container['accusationWindow'].dispose('accusationWindow');
+			}else{
+				gewaUtil.alert(result.msg);
+				GewaraUtil.refreshCaptcha('accusationCaptcha');
+			}
+		});
+	}
+}
+function showAccusation(tag,relatedid){
+	checkLogin(true,function(){
+		$('tag2').value=tag;
+		$('relatedid2').value=relatedid;
+		gewa.util.issure('','accusationWindow','欢迎使用网站纠错',520,'accusationWindow',function(){
+			$('accusationForm').submit();
+		})
+	});
+}
+</script>

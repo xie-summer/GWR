@@ -1,0 +1,475 @@
+<!Doctype html>
+<html>
+<head>
+	<!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>演出后台电话售票下单平台 - 格瓦拉生活网</title>
+	<meta name="keywords" content="演唱会门票,展会门票,话剧票"/>
+	<meta name="description" content="格瓦拉生活网提供各类展会,展览,赛事,话剧,演唱会等演出在线门票预订.是国内领先的城市生活娱乐票务订购平台."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_drama,wide_pay,dramaTicket&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,scrollerbar,base_home,tips&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	.text {border-radius:0;}
+	.mod_deliver{width:767px; padding:10px 45px 25px;color:#999;overflow:hidden;}
+	.sTicket label{cursor:pointer;}
+	.ui_frame {padding-top:15px;position:relative;width:100%;}
+	.ui_frame .inner{padding:15px;border:1px solid #ffbe9d;}
+	.npl{display:inline-block; width:20px; height:12px; overflow:hidden; font-family:"SimSun"; left:35px; position:absolute; top:5px;}
+	.npl em{color:#ffbe9d; font-size:21px;}
+	.npl span{color:#fff; font-size:21px; position:absolute; top:1px; left:0;}
+	
+	.siteTicket ul li{line-height:30px;height:30px;}
+	/*快递*/
+	.ul-66{padding-left:66px;height:100%;height:32px;}
+	.ul-66 dt{float:left; width:90px; text-align:right; margin-left:-66px; _margin-left:-33px;}
+	.expTicket select,.expTicket textarea{border:1px solid;border-color:#777 #bbb #bbb;}
+	.expTicket {color:#333;}
+	.expTicket .list_deliver{width:735px;}
+	.expTicket .list_deliver li{padding:4px 10px;width:715px;overflow:hidden;position: relative;}
+	.expTicket .modeEdit{position: absolute;right:5px;top:3px;font-weight: normal;}
+	.expTicket .modeEdit span{cursor: pointer;color:#666}
+	.expTicket .list_deliver li.select .modeEdit span{color:#fe5301}
+	/*.expTicket .list_deliver li.select{background:#fdfaf3}*/
+	.expTicket .list_deliver li label input{margin-right:5px;vertical-align: -2px;}
+	.expTicket .modeEdit i{color: #333}
+	.expTicket h2{background:transparent;}
+	.expTicket h2,.list_deliver li.select label{font-size:12px;font-weight:bold;color:#333;padding-left:0px;}
+	.expTicket .edit_deliver{position: relative;overflow: hidden;}
+	
+	.black{padding:15px 30px; line-height:28px;color:#333;}
+	.conitce em{font-size:14px;color:red;}
+	.payBox_body_left li.ccP {position:relative;width:100%;}
+	.payBox_body_left li.ccP em{position:absolute;top:0;left:0;}
+	.payBox_body_left li.changeMobile {height:30px;line-height:30px;padding:5px 20px;background:none;}
+	.rCoop .noto {height:15px;overflow:hidden;width:100%;display:block;}
+	
+	.payBox_body .selt label{text-align:right;}
+	.payBox_body .selt{margin-right:30px;}
+	.payBox_body .last{margin-right:0;}
+	.payBox_body .selt .text{width:150px;}
+	
+	.spNoticeBox{display:inline-block;background:#ffd; border:1px solid #ffcb99; padding:5px 10px;margin-top:10px;}
+	.individuation_text{padding:0 45px 25px}
+	.individuation_text ul li{float:left;}
+	.individuation_text .text{border-radius:5px;}
+	.individuation_text span b{color:#f60;}
+	.individuation_text span.wlColor b{color:#686868;}
+	</style>
+</head>
+<body>
+#parse('include/admin_header.vm')
+#set($otherInfoMap=$VmUtils.readJsonToMap($order.otherinfo))
+#set($mobile=$otherInfoMap.get('telephone'))
+#set($bindmobile=$otherInfoMap.get('bindMobile'))
+<div class="ui_layout">
+	<div class="w_draD" id="orderForm">
+		<div class="forms clear">
+			<div class="selt">
+				<a href="${basePath}admin/drama/agent/dramaDetail.xhtml?dramaid=${drama.id}&mobile=${mobile}">返回查询页面</a>
+			</div>
+			<div class="phone" id="phone">
+				<span>#if($bindmobile)保存到帐号：<em>$!{bindmobile}</em>#else<em class="cMovie">不关联到帐号 </em>#end</span>
+			</div>
+		</div>
+		<div class="payBox mt20">
+			<div class="payBox_header">
+				<div class="pad">
+					<h2>请选择取票方式</h2>
+				</div>
+			</div>
+			<div class="payBox_body clear">
+				<div class="payBox_body_left">
+					<div class="mod_deliver">
+						#if($VmUtils.contains($orderOther.takemethod,'E') && $orderOther.express && $VmUtils.contains($orderOther.takemethod,'A'))<p>该场次同时支持取票密码<span class="cF60 ml5 mr5">现场取票</span>和<span class="cF60 ml5 mr5">快递送票</span>上门(可能额外收取快递费)，请选择取票方式</p>#end
+						<div class="clear sTicket" id="radioTab">
+							#if($VmUtils.contains($orderOther.takemethod,'A'))
+							<label>
+								<input type="radio" value="A" lang="siteTicket" name="selectTicket" class="mr10" />现场取票
+							</label>
+							#end
+							#if($VmUtils.contains($orderOther.takemethod,'E') && $orderOther.express)
+							<label style="margin-left:65px;">
+								<input id="expTicketInput" type="radio" value="E" lang="expTicket" name="selectTicket" class="mr10" />快递送票
+							</label>
+							#end
+						</div>
+						#if($VmUtils.contains($orderOther.takemethod,'A'))
+						<div class="ui_frame siteTicket radioTab" id="siteTicket">
+							<div class="inner">
+								<ul>
+									<li>取票手机：
+										<label for="mobile">
+											<b class="fs16 c333" id="mobileText">$!order.mobile</b>
+											<input type="text" value="$!order.mobile" style="width:100px;" name="mobile" id="mobile" class="text none">
+											<a href="javascript:getOrderMobile()" class="ml5 mr5" id="elGet">修改</a>
+											<a href="javascript:modOrderMobile()" class="ml5 mr5 none" id="elSave">保存</a>
+											(取票短信可能会被手机软件(如360卫士)拦截，请注意查收！)<br>
+										</label>
+									</li>
+									#if($VmUtils.isNotBlank($!item.takemsg))
+									<li class="ui_warning c666">$!item.takemsg</li>
+									#end
+								</ul>
+								<span class="spNoticeBox">取票说明：请提前半小时凭取票密码到场馆东门取票机处打印门票入场</span>
+							</div>
+							<span class="npl">
+								<em>◆</em>
+								<span>◆</span>
+							</span>
+						</div>
+						#end
+						#if($VmUtils.contains($orderOther.takemethod,'E') && $orderOther.express)
+						<div class="ui_frame expTicket radioTab" id="expTicket" style="display:none;">
+							<div class="inner">
+								#parse('admin/drama/ticket/include/w_express.vm')
+								#if($VmUtils.isNotBlank($!item.takemsg))
+								<p class="ui_warning c666">$!item.takemsg</p>
+								#end
+							</div>
+							<span class="npl" style="left:100px;">
+								<em>◆</em>
+								<span>◆</span>
+							</span>
+							#if($orderOther.ewarning)
+							<p class="cRed mt15">注意：你所购买的场次中有部分场次支持“凭密码现场取票”，此部分场次将发送手机取票密码至你的手机，演出开始前请凭取票密码至现场“终端”或“现场工作人员处”凭密码兑换演出票。若支付成功后15分钟没有收到取票密码，请致电：4000-406-506查询。</p>
+							#end
+						</div>
+						#end
+					</div>
+					#if($orderOther.greetings)
+					<div class="individuation_text">
+						<ul class="clear">
+							<li class="clear"><label class="left">个性化票面：</label>
+								<p class="left" id="o_input"><em id="nt"></em>
+								<input type="text" class="text #if($VmUtils.isNotBlank($otherInfoMap.get('greetings'))) none #end" name="greeting" id="greeting" value="$!otherInfoMap.get('greetings')"/>
+								<span class="ml5 #if($VmUtils.isNotBlank($otherInfoMap.get('greetings'))) none #end" id="fontN">你还可以输入<b>10</b>字</span></p>
+								<p class="left #if($VmUtils.isBlank($otherInfoMap.get('greetings'))) none #end" id="greetingText">
+									<span class="cF60 fs14 bold">$!otherInfoMap.get('greetings')</span>
+								</p>
+							</li>
+							<li class="ml10 clear">
+								<a class="button bigBt redBt left #if($VmUtils.isNotBlank($otherInfoMap.get('greetings'))) none #end" href="javascript:modOrderGreetings();" id="btn_Save">
+									<span>保&nbsp;&nbsp;存</span>
+								</a>
+								<a class="button bigBt redBt left #if($VmUtils.isBlank($otherInfoMap.get('greetings'))) none #end" href="javascript:getOrderGreetings()" id="btn_Get">
+									<span>修&nbsp;&nbsp;改</span>
+								</a>
+								<span class="left ml5">你可以在此处填写10个字内的文字显示在票面上</span>
+							</li>
+						</ul>
+					</div>
+					#end
+				</div>
+				<div class="payBox_body_right">
+					<div class="limitTimedetail inner">
+						<p><span class="fs14 cred">请在15分钟内完成付款</span>，超时系统将自动释放已选座位，支付中如遇到问题请致电：<b>4000-406-506</b></p>
+						<div class="limitTime">
+							<h3 class="fs14">剩余支付时间：</h3>
+							<p class="fs22" id="CountMsg"><b id="RemainM">15</b><b>分</b><b id="RemainS">00</b><b>秒</b></p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="payBox mt20">
+			<div class="payBox_header">
+				<div class="pad">
+					<h2>确认订单信息</h2>
+				</div>
+			</div>
+			<div class="payBox_body clear">
+				<div class="payBox_body_left" style="min-height:135px;_height:135px;">
+					<dl class="ui_media">
+						<dt class="ui_pic"><img width="72" height="96" alt="$!{drama.name}" src="$VmUtils.randomPic('cw72h96',$!drama.limg)" /></dt>
+						<dd class="ui_text">
+							<ul>
+								<li><em>剧目：</em>$!drama.name</li>
+								<li><em>场馆：</em>$!theatre.name</li>
+							</ul>
+						</dd>
+					</dl>
+					<ol>
+						<li><em>订单号：</em>$!order.tradeNo</li>
+						#if($item.openseat)<li><em>场次:</em>$DateUtil.format($item.playtime,'M月d日 HH:mm')</li>#end
+						<li class="ccP">
+							<em>#if($item.openseat)座位#{else}场次#{end}：</em>
+							<div style="padding-left:40px;">
+							#if($item.openseat)
+								#set($description=$VmUtils.readJsonToMap($order.description2))
+								#if(!$VmUtils.isNull($description.get('座位')))
+									<font class="fs14">
+										<span class="mr15">
+											<span class="cF60 mr10">$!description.get('座位')</span>
+										</span>
+									</font>
+								#end
+								#set($otherFeeMap=$VmUtils.readJsonToMap($!order.otherFeeRemark))
+							#else
+								#foreach($item in $buyList)
+								#set($odi=$odiMap.get($item.relatedid))
+								#set($price=$priceMap.get($item.smallitemid))
+								#if(!$VmUtils.isNull($item.disid))
+								#set($discount=$disMap.get($item.disid))
+								#end
+								“<span class="cF60">
+									#if($!VmUtils.eq($!odi.period, 'Y'))
+										$!odi.name $!DateUtil.formatDate($!odi.playtime) $!DateUtil.getCnWeek($!odi.playtime) $!DateUtil.format($!odi.playtime,'HH:mm')
+									#else
+										$!odi.name
+									#end
+								</span>” 
+								#if(!$VmUtils.isNull($item.disid))
+								“<span class="cF60">$!{discount.price}($!{price.price} x $!{discount.quantity})元</span>” 数量：<span class="cF60">$!math.div($!item.quantity,$!{discount.quantity})</span>张
+								#else
+								“<span class="cF60">${price.price}元</span>” 数量：<span class="cF60">$!{item.quantity}</span>张
+								#end
+								<br/>
+								#end
+							#end
+							</div>
+						</li>
+						#if(!$VmUtils.isNull($description.get('套票')))
+						<li><em>套票：</em><span class="cF60 ffst">$!description.get('套票')</span></li>
+						#end
+						<li class="mt20">
+							#set($otherFeeMap=$VmUtils.readJsonToMap($!order.otherFeeRemark))
+							#set($orderprice=${order.due})
+							#if($VmUtils.contains($orderOther.takemethod,'E') && $orderOther.express)
+							#set($eprice=0)
+								#if($otherFeeMap.get('E'))
+							#set($eprice=$math.toInteger($!otherFeeMap.get('E')))
+								#end
+							#set($orderprice=$math.sub(${order.due},$eprice))
+							#end
+							<em>订单金额：</em><span class="ui_price">¥<b>$orderprice</b></span>
+							#if($VmUtils.contains($orderOther.takemethod,'E') && $orderOther.express)
+							<em style="padding-left:50px;">运费：</em><span class="ui_price">¥<b id="expressid">#if($otherFeeMap.get('E'))$!otherFeeMap.get('E')#{else}0#end</b></span>
+							#end
+						</li>
+					</ol>
+				</div>
+				<div class="payBox_body_right"></div>
+			</div>
+		</div>
+		#if($VmUtils.eq($!order.partnerid,50000083))
+		<div class="payBox mt20">
+			<div class="payBox_header">
+				<div class="pad">
+					<h2>请输入金额</h2>
+				</div>
+			</div>
+			<div class="forms payBox_body clear">
+				<div class="selt">
+					<label>订单实付金额：</label>
+					<input type="text" name="amount" id="amount" class="text" value="$!order.due"/>
+				</div>
+				<div class="selt">
+					<label class="w120">格瓦拉优惠金额：</label>
+					<input type="text" name="gdiscount" id="gdiscount" class="text"/>
+				</div>
+				<div class="selt last">
+					<label class="w120">合作商优惠金额：</label>
+					<input type="text" name="pdiscount" id="pdiscount" class="text"/>
+				</div>
+			</div>
+		</div>
+		#end
+		<input type="hidden" value="$order.id" name="orderId"/> 
+		<div class="mt20">
+			<label class="button maxBt redBt" style="vertical-align: middle;">
+				<input type="button" class="bt1" value="确认订单，立即支付" onclick="gotoPay()"/>
+			</label>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+var storeList = "";
+storeList = storeList?storeList.split(','):[];
+var remain, pfun;
+window.addEvent('domready',function(){
+	data();
+	radioTab();
+});
+function data(){
+	var random = (Math.random()*1000000).toInt();
+	var pastTitle = '<div class="conitce"><em>对不起，订单已超时！</em><div class="mt10">座位或场次已被系统释放，请返回重新购买<br/>如果疑问请联系客服：4000-406-506</div></div>';
+	new Request({
+		url: '${basePath}cinema/order/time.xhtml?tid=$order.id&'+random,
+		method:'get',
+		onSuccess: function(responseText){
+			remain = responseText * 1;
+			if(remain <= 0){
+				GewaraUtil.sendRequest("${basePath}ajax/trade/validOrder.xhtml", {"orderId":"$!order.id"},function(result){
+					if(result.success){
+						document.location.href = "${basePath}partner/orderResult.xhtml?tradeNo=$!order.tradeNo";
+					}else{
+						$("CountMsg").empty();
+						$("CountMsg").innerHTML = "订单已超时";
+						if(gewa.util.container['pay'])gewa.util.container['pay'].dispose('pay');
+						gewa.util.issure('','<div class="black">'+ pastTitle +'</div>','格瓦拉支付提示：',400,'orderPast',function(){
+							gewa.util.container['orderPast'].dispose('orderPast');
+							document.location.href = '${basePath}admin/drama/agent/dramaDetail.xhtml?dramaid=$!item.dramaid';
+						});
+					}
+				});
+			}else{
+				pfun = getRTime.periodical(1000);
+			}
+		}
+	}).send();
+}
+
+function gotoPay(){
+	#if($VmUtils.isNotBlank($opiOtherinfo.address))
+		if($('mailName').value == ''){
+			gewaUtil.alert('收件人不能为空！');
+			return;
+		}
+		if($('mailAddress').value == ''){
+			gewaUtil.alert('收件地址不能为空！');
+			return;
+		}
+		if($('mailNo').value.length < 6 && $('mailNo').value.length != 0){
+			gewaUtil.alert('邮编不格式不正确！');
+			return ;
+		}
+	#end
+	gewa.util.mask({'element': "subBtParent",'title':'正在提交订单...'});
+	var values = GewaraUtil.getValues("orderForm");
+	GewaraUtil.sendRequest("${basePath}admin/drama/agent/saveOrderDis.xhtml", values, function(result){
+		if(result.success){
+			if(result.url) document.location.href="${basePath}" + result.url;
+			else document.location.href="${basePath}admin/drama/agent/confirmOrder.xhtml?orderId=$order.id";
+		}else{
+			gewaUtil.alert(result.msg, function(){
+				document.location.href="${basePath}admin/drama/agent/showOrder.xhtml?orderId=$order.id";
+			});
+		}
+	});
+}
+
+function getOrderMobile(){
+	getText('mobile','el');
+}
+function modOrderMobile(){
+	var values = {"orderid":$order.id,"mobile":$('mobile').value};
+	GewaraUtil.sendRequest('${basePath}admin/drama/agent/modOrderMobile.xhtml', values, function(result){
+		if(result.success){
+			$('mobileText').set('html',$('mobile').value);
+			getText('mobile','el', 'true');
+		}else{
+			if(result.msg) gewaUtil.alert(result.msg);
+		}
+	});
+}
+
+function getOrderGreetings(){
+	getText('greeting','btn_');
+	$('fontN').removeClass('none');
+}
+
+function modOrderGreetings(){
+	var oinputIndtext = $('greeting').value;
+	if(oinputIndtext.length >10){
+		gewaUtil.alert("个性化文字最多支持10个字!");
+		return;
+	}
+	var values = {"orderId":$order.id,"greeting":oinputIndtext};
+	GewaraUtil.sendRequest('${basePath}admin/drama/agent/saveGreetings.xhtml', values, function(result){
+		if(result.success){
+			$('greetingText').getElement('span').set('html',$('greeting').value);
+			$('fontN').addClass('none');
+			getText('greeting','btn_', 'true');
+		}else{
+			if(result.msg) gewaUtil.alert(result.msg);
+		}
+	});
+}
+
+function getText(){
+	var args = arguments;
+	var el1 = args[0],el2 = args[1], toggle = args[2];
+	var toggles = $chk(toggle);
+	var el1Text = $(el1 + 'Text');
+	el1 = $(el1);
+	if(el1 && el1Text){
+		if(toggles){
+			el1.addClass('none');
+			el1Text.removeClass('none');
+		}else{
+			el1.removeClass('none');
+			el1Text.addClass('none');
+		}
+	}
+	var el2Get = $(el2 + 'Get'),el2Save = $(el2 + 'Save');
+	if(el2Get && el2Save){
+		if(toggles){
+			el2Save.addClass('none');
+			el2Get.removeClass('none');
+		}else{
+			el2Get.addClass('none');
+			el2Save.removeClass('none');
+		}
+	}
+}
+
+function getOrderAddress(){
+	$('modifyMailInfo').getElements('input[type="text"]').removeClass('none');
+	$('modifyMailInfo').getElements('b').addClass('none');
+	$('modifyAddress').addClass('none');
+	$('saveAddress').removeClass('none');
+}
+
+function getRTime(){
+	var nM = Math.floor(remain/(1000*60)) % 60;
+	var nS = Math.floor(remain/1000) % 60;
+	$("RemainM").innerHTML = (nM < 10 ? "0" : "") + nM;
+	$("RemainS").innerHTML = (nS < 10 ? "0" : "") + nS;
+	remain -= 1000;
+	if(((remain/1000).toInt()*1000)%60000==0){
+		$clear(pfun);
+		data();
+	}
+	if(remain<=0){
+		if(pfun) $clear(pfun);
+		data();
+		return;
+	}
+}
+
+function radioTab(){
+	var radioTab = $('radioTab').getElements('input[name=selectTicket]');	
+	if(radioTab && radioTab.length>0){
+		radioTab.addEvent('click',function(){
+			radioTab.each(function(item){
+				item.checked = false;
+				var el = $(item.get('lang'));
+				if(el){
+					el.hide();
+				}
+			});
+			this.checked = true;
+			$(this.get('lang')).show();
+			if(this.get('id') == 'expTicketInput'){
+				if($('expressid'))$('expressid').getParent('span').show();
+			}else{
+				if($('expressid'))$('expressid').getParent('span').hide();
+			}
+		});
+		#if($otherFeeMap.get('E'))
+			$('expTicketInput').fireEvent('click');
+			var elements = $('expressRadio').getElements("input[type=radio]");
+			if(elements && elements.length == 1){
+				elements[0].fireEvent('click');
+			}
+		#else
+			radioTab[0].fireEvent('click');
+		#end
+	}
+}
+
+</script>
+</body>
+</html>

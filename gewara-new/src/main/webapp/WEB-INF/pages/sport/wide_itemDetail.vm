@@ -1,0 +1,403 @@
+<!Doctype html>
+<html>
+<head>
+	<!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>#if($VmUtils.isBlank($sportItem.seotitle))${sportItem.name}场地场馆预订_${sportItem.name}技巧_资讯#else${sportItem.seotitle}#{end} - 格瓦拉生活网</title>
+	<meta name="keywords" content="${sportItem.name}场馆,${sportItem.name}场馆查询,${sportItem.name}场馆预订,${sportItem.name}装备,${sportItem.name}知识"/>
+	<meta name="description" content="格瓦拉生活网提供本地${sportItem.name}场地场馆在线预订,最全面的${sportItem.name}技巧,资讯,${sportItem.name}场地场馆评测评分价格信息查询."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,tips,picture,scrollerbar,swfobject&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.detail_body_left{width:850px;padding:10px 10px 15px;float:left;}
+		.detail_body_right{width:310px;padding:10px 10px 15px;float:left; overflow:hidden;}
+		/*项目详情页*/
+		.detail_head {position:relative;padding:10px 10px 20px;}
+		.detail_head .detailPa{height:auto;line-height:22px;}
+		.detail_head .detailPa h1 span {font-size:18px;margin-left:10px;color:#999;}
+		.detail_head .detailName{border-bottom:1px solid #eee;padding-bottom:10px;}
+		.movieCountList {top:0;}
+		
+		.itemTopic {overflow:hidden;padding-top:20px;}
+		.itemTopic .ui_pic{margin-right:15px;}
+		.itemTopic .ui_text{position:relative;padding-left:25px;}
+		.itemTopic .ui_summary_big span.first{position:absolute;left:0;top:8px;}
+		.sportTags span {margin-right:20px;}
+		.sportTags b{color:#1885ae;}
+		.newListtwo li{width:280px; margin-right:10px; height:22px; line-height:22px; overflow:hidden; float:left;}
+		.newListtwo li a{color:#666;}
+		.newListtwo li a:hover{text-decoration:underline;}
+		.detail_head_user{padding:5px 10px 5px 5px;height:30px;line-height:30px;width:auto;background:#fff;display:inline-block;margin-top:50px;}
+		.detail_head_user ul li{padding-left:0;float:left;height:30px;width:30px}
+		.detail_head_user em{color:#999;padding-left:5px;}
+		
+		.ul-dot li{padding-left:8px; background:url(${staticPath}css/home/dot.gif) 0 center no-repeat;overflow:hidden;}
+		/*tab切换*/
+		.mod_tabs .mod_hd ul.nav_tabs{border-bottom:2px solid #1885ae; height:40px; background:none; overflow:hidden;}
+		.mod_tabs .mod_hd ul.nav_tabs li{height:40px; background:#eee; margin-right:1px;}
+		.mod_tabs .mod_hd ul.nav_tabs li a{border-top:0; color:#333; float:left;}
+		.mod_tabs .mod_hd ul.nav_tabs li a em{color:#999; font-size:12px; font-weight:normal; margin-left:5px;}
+		.mod_tabs .mod_hd ul.nav_tabs li.select a{background:#1885ae; color:#fff; border-top:none;}
+		.mod_tabs .mod_hd ul.nav_tabs li.select a em{color:#fff;}
+		
+		.detail_ticket_chooseBg {font-size:14px;}
+		.detail_ticket_chooseBg a {padding:0 5px;margin-right:5px;color:#333;display:inline-block;text-decoration:none;}
+		.detail_ticket_chooseBg a.select,.detail_ticket_chooseBg a:hover{background-color:#39c;color:#fff;}
+		.detail_ticket_chooseBg a.select{font-weight:bold;}
+		.chooseOpi .opitime {width:224px;}
+		.chooseOpi .opiEdition {width:70px;}
+		.chooseOpi .opiRoom {width:106px;}
+		.chooseOpi .chooseOpi_body .opiRoom {width:80px;}
+		.chooseOpi .opiPrice {width:80px;}
+		.chooseOpi .opitime a {overflow:hidden;width:230px;overflow:hidden;display:block;;line-height:40px;}
+		/*广告推送右侧 视频*/
+		.vidioShow {width:310px;height:200px;}
+		.sport_video .mask {height:50px;}
+		.sport_video p.txt {height:50px;position:absolute;overflow:hidden;bottom:0;left:10px;font-weight:bold;font-size:14px;}
+		.sport_video p.txt span {padding-left:37px;background-position:left -217px;display:block;height:30px;line-height:30px;overflow:hidden;margin-top:10px;}
+		.sport_video p.txt span a {color:#333;}
+	</style>
+</head>
+<body>
+#set($typeMap={'3':'专访','2':'新闻','1':'专题','4':'图组','5':'人物','sportrookie':'新手必读','sportmaster':'高手进阶',
+	'sportequipment':'运动装备','sporthealth':'运动保健','sportmatch':'运动赛事'})
+#set($issport=true)
+#set($isIndexBigAd = true)
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="detail_head">
+		<div class="mod_kong">
+			<div class="mod_hd detailPa">
+				<div class="detailName clear">
+					<h1 class="left">$!sportItem.itemname<span>$!sportItem.englishname</span></h1>
+					<div class="ratingsCount left">
+						<ul>
+							<li>
+								<span><a href="javascript:addCollection();" class="ad" id="nCollect">感兴趣</a></span>
+								<span><a href="javascript:cancelTreasure();" class="ad se none" id="hCollect">取消感兴趣</a></span>
+							</li>
+						</ul>
+					</div>
+					<div class="movieCountList">
+						<ul class="ui_inline">
+							<li class="first">
+								<b id="collectedTimes">$!sportItem.collectedtimes</b>
+								<span>感兴趣</span>
+							</li>
+							<li>
+								<b>$!sportItem.clickedtimes</b>
+								<span>关注</span>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="mod_bd itemTopic">
+				<div class="ui_left" style="width:850px;">
+					<div class="ui_media">
+						<div class="ui_pic">
+							<img width="200" height="300" src="$VmUtils.randomPic('cw200h300' ,$sportItem.limg)" title="$!sportItem.itemname">
+						</div>
+						<div class="ui_text">
+							<p class="ui_summary_big"><span class="first"></span>$!sportItem.seodescription<span></span></p>
+							#set($otherinfo=$VmUtils.readJsonToMap($sportItem.otherinfo))
+							#set($explosive=$otherinfo.get('explosive') + '0')
+							#set($calorie=($otherinfo.get('calorie')) + '0')
+							#set($endurance=($otherinfo.get('endurance')) + '0')
+							#set($ratio=$otherinfo.get('ratio'))
+							#set($ratio2 = 10-$math.abs($ratio))
+							<p class="mt20 c999 clear sportTags">
+								<span>爆发力指数：<b>$!explosive</b></span>
+								<span>卡路里消耗指数：<b>$!calorie</b></span>
+								<span>耐力指数：<b>$!endurance</b></span>								
+								<span style="margin-right:0">男女喜好比例：<b>$!{ratio}&nbsp;:&nbsp;$!{ratio2}</b></span>
+							</p>
+							<ul class="mt20 newListtwo clear">
+								#foreach($news in $newsList)
+								<li><a title="$!news.title" target="_blank" href="${basePath}news/$!news.id"><span class="ffst">[$!typeMap.get($news.newstype)]</span>$!VmUtils.escabbr($!news.title, 36)</a></li>
+								#end
+							</ul>
+							#if($VmUtils.gt($countPayMember, 0))
+							<div class="detail_head_user">
+								<ul class="ui_inline left">
+									#foreach($payMember in $payMemberList)
+									#set($memberinfo=$cacheMemberMap.get($payMember.memberid))
+									<li>
+										<a lang="$!memberinfo.nickname" target="_blank" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$memberinfo.id" class="picmin">
+											<img width="30" height="30" src="$VmUtils.randomPic('cw30h30',$memberinfo.headpicUrl)" alt="$!memberinfo.nickname">
+										</a>
+									</li>
+									#end
+								</ul>
+								<em>已有$countPayMember人参加该运动</em>
+							</div>
+							#end
+						</div>
+					</div>
+				</div>
+				#if(!$VmUtils.isEmptyList($videoList))
+				<div class="ui_right" style="width:310px; overflow:hidden;margin-left:20px;" id="morevideo">
+					<div class="sport_video right">
+						<div class="vidioShow">
+							<span class="mask"></span>
+							#set($video=$videoList.get(0))
+							<p class="txt"><span class="freeTag1"><a title="$video.videotitle" href="${basePath}sport/itemVideo.xhtml?vid=$!video.id&itemid=$sportItem.id">$VmUtils.escabbr($video.videotitle, 40)</a></span></p>
+							<a title="$video.videotitle" href="${basePath}sport/itemVideo.xhtml?vid=$!video.id&itemid=$sportItem.id" target="_blank"><img width="310" height="200" src="$VmUtils.randomPic('cw270h200',$!video.limg)"></a>
+						</div>
+					</div>
+				</div>
+				#end
+			</div>
+		</div>
+	</div>
+	<div class="detail_body_left">
+		<div class="mod_tabs mod_tabs_drama">
+			<div class="mod_hd" style="position: relative;">
+				<ul class="nav_tabs">
+					<li class="select"><a href="javascript:void(0);">$!sportItem.itemname场馆</a></li>
+					<a href="${basePath}sport/sportList.xhtml?servicetype=$!sportItem.id" class="more" target="_blank">查看更多场馆</a>
+				</ul>
+			</div>
+			<div class="mod_bd clear">
+				<div class="chooseOpi">
+					<div class="detail_ticket_chooseBg">
+						<dl class="ui_media">
+							<dt class="ui_pic">选择区域：</dt>
+							<dd class="ui_text">
+								#foreach($county in $countyList)
+								<a id="ott$!county.county.countycode" class="selectedCounty" href="javascript:getOttList('$!county.county.countycode');">$!county.county.briefname</a>
+								#end
+							</dd>
+						</dl>
+					</div>
+					<div id="ottDiv">
+						
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="mod_tabs mod_tabs_movie" id="walaContent">
+			<div class="mod_hd">
+				<ul class="nav_tabs">
+					<li class="walaCur select"><a href="javascript:void(0);" style="padding:0 40px;">哇啦</a></li>
+				</ul>
+			</div>
+			<div class="mod_bd">
+				<div id="WalaDetail" class="mt20"></div>
+			</div>
+		</div>	
+	</div>
+	<div class="detail_body_right">
+		#if(!$VmUtils.isEmptyList($commuList))
+		<div class="mod_kong">
+			<div class="mod_hd">
+				<h2>热门$!sportItem.itemname圈子</h2>
+				<a target="_blank" class="more" href="${basePath}quan/index.xhtml?tag=sport&relatedid=$!sportItem.id">更多&gt;&gt;</a>
+			</div>
+			<div class="mod_bd">
+				<ul>
+					#foreach ($commu in $commuList)
+					<li style="padding:10px 0;">
+						<dl class="ui_media">
+							<dt class="ui_pic">
+								<a target="_blank" href="${basePath}quan/$commu.id" title="$!commu.name">
+									<img width="50" height="50" src="$VmUtils.randomPic('cw50h50',$commu.headpicUrl)">
+								</a>
+							</dt>
+							<dd class="ui_text">
+								<a href="${basePath}quan/$commu.id" target="_blank" title="$!commu.name">$!commu.name</a><br/>
+								<span>$!VmUtils.escabbr($!commu.info,76)...</span>
+								<p class="c999"><em>$!commu.commumembercount成员</em><em class="ml20">$!commu.clickedtimes访问</em></p>
+							</dd>
+						</dl>
+					</li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+		#if($VmUtils.isEmptyList($qaCount))
+		<div class="mod_kong">
+			<div class="mod_hd">
+				<h2>$!sportItem.itemname知识问答</h2>
+				<a target="_blank" class="more" href="${basePath}qa/questionList.xhtml?status=Y&tag=sport">更多&gt;&gt;</a>
+			</div>
+			<div class="mod_bd">
+				<ul class="ul-dot">
+					#foreach($qa in $qaList)
+					<li class="mt5">
+						<span title="已有#if($qa.replycount)$!qa.replycount#{else}0#end人回答" class="right c999">#if($qa.replycount)$!qa.replycount#{else}0#end人回答</span>
+						<a target="_blank" href="${basePath}qa/q$!qa.id" title="$!qa.title" class="c333">$VmUtils.escabbr($!qa.title, 24)</a>
+					</li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$('.detail_head_user li a').each(function(ps){
+		ps.amTips({position:'top',content:function(){return ps.get('lang')}});
+	})
+	GewaraUtil.sendRequest("${basePath}ajax/common/isCollection.xhtml",{"relatedid":"$!sportItem.id","tag":"sportservice"}, function(result){
+		if(result.success && result.retval == "true"){
+			$("nCollect").addClass('none');
+			$("hCollect").removeClass('none');
+		}
+	});
+	#if(!$VmUtils.isEmptyList($countyList))
+		getOttList($countyList.get(0).county.countycode);
+	#end
+	#if(!$VmUtils.isEmptyList($videoList))
+	$('morevideo').addEvent('click',function(e){
+		if(e) e.preventDefault();
+		var options = {
+			type:"avideo",
+			pictureType:"apic",
+			videoType:"avideo",
+			tag:"sportservice",
+			isAjax:true,
+			isPicture:'video',
+			esc:true,
+			menu:{
+				pictureurl:'',
+				videourl:'${basePath}sport/itemVideo.xhtml',
+				picturevalues:{mid:'$relatedid','pvtype':'apic'},
+				videovalues:{itemid:'$!sportItem.id','vid':'$!video.id'},
+				picturecount:'0',
+				videocount:'$!videoListCount'
+			}
+		};
+		screenPicture.createPanel(options);
+	});
+	#end
+	if(gewaUtil.getRequestParams("videoList")== 'true'){
+		initVedio();
+	}
+})
+
+function initVedio(){
+	var options = {
+			type:"avideo",
+			pictureType:"apic",
+			videoType:"avideo",
+			tag:"sportservice",
+			isAjax:true,
+			isPicture:'video',
+			esc:true,
+			menu:{
+				pictureurl:'',
+				videourl:'${basePath}sport/itemVideo.xhtml',
+				picturevalues:{mid:'$relatedid','pvtype':'apic'},
+				videovalues:{itemid:'$!sportItem.id','vid':gewaUtil.getRequestParams("vid")},
+				picturecount:'0',
+				videocount:'$!videoListCount'
+			}
+		};
+		screenPicture.createPanel(options);
+}
+function getOttList(countycode){
+	var url = '${basePath}sport/ajax/getSportItemOttList.xhtml';
+	var values = {'countycode':countycode,'itemid':'$!sportItem.id'#if($spkey),'spkey':'$!spkey'#end};
+	$$('.selectedCounty').each(function(item){
+		item.removeClass('select');
+	});
+	$('ott'+countycode).addClass('select');
+	GewaraUtil.sendLoad('ottDiv', url, values, function(result){
+		playListPrivilege();
+	}, countycode, 'get');
+}
+//查看优惠信息 
+function playListPrivilege(){
+	var oListTags = $$('.opiInfo em');
+	viewList = {};
+	oListTags.each(function(item,index){
+		if(item.hasClass('y')){
+			viewList[index] = item.amTips({content:function(){return $('htmlcontent')},ispointer:false,position:'bottom',showDelay:200,center:false,mouseBandCallback:function(){
+				var url = "${basePath}sport/ajax/getSpdiscountList.xhtml";
+				var _this = arguments[0];
+				if(this.retrieve('key') == null){
+					if(this.get('data-type')){
+						GewaraUtil.sendRequest(url, {'ottid':this.get('data-type')}, function(result){
+							if(result.success){
+								var div = new Element('div',{'id':'htmlcontent','html':result.retval,'class':'none'}).inject(document.body);
+								_this._this.options.content = function(){
+									return div;
+								};
+								viewList[index].amTipsShow(true);
+								this.store('key',div);
+							}
+						}.bind(this),'key');
+					}
+				}else viewList[index].amTipsShow();
+			}.bind(item)});
+		}
+	});
+}
+function addCollection(){
+	checkLogin(true, function(){
+		GewaraUtil.sendRequest("${basePath}ajax/common/addCollection.xhtml",{"relatedid":"$sportItem.id","tag":"sportservice"}, function(result){
+			if(result.success){
+				$("nCollect").addClass('none');
+				$("hCollect").removeClass('none');
+				$("collectedTimes").innerHTML = result.retval;
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	});
+}
+function cancelTreasure(){
+	checkLogin(true, function(){
+		GewaraUtil.sendRequest("${basePath}ajax/common/cancelTreasure.xhtml",{"relatedid":"$sportItem.id","tag":"sportservice"}, function(result){
+			if(result.success){
+				$("hCollect").addClass('none');
+				$("nCollect").removeClass('none');
+				$("collectedTimes").innerHTML = result.retval;
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	});
+}
+</script>
+<script type="text/javascript">
+var isScroll = true , marks='';
+window.addEvent('domready',function(){
+	$('WalaDetail').innerHTML = '';
+	Asset.javascript("${basePath}scripts/gewara.js?n=wide_wala,slimbox&v=$!{VmUtils.jsVersion}", {
+		'id':'walaDynaScript',
+		'isScroll':false,//用于控制是否支持鼠标滚动事件
+		//'isTicket':true,
+		'bindWala':'WalaDetail',//把加载的哇啦放在什么位置
+		onLoad:function(){
+			Asset.css('${staticPath}css/wide_wala.css?v=$VmUtils.jsVersion',{'id':'walasCss'});
+			gewa.util.pageNumber = 0;
+	    	var _body = $(document.body);
+	    	gewa.util.requestUrl = 'ajax/common/qryComment.xhtml';
+	    	gewa.util.values = {
+    			pageNumber:gewa.util.pageNumber,//自动加载时的分页数
+    			relatedid:'$!sportItem.id',//关联对象的ID
+    			title:'',//话题的标题
+    			issue:true,//是否有发表框
+    			hasMarks:false,//是否支持评分
+    			tag:'sportservice',//关联那个板块的内容
+    			isPic:true,//是否支持传图片
+    			isVideo:false,//是否支持传视频
+	    		maxCount:6,//如果设置，即是单页显示N条
+				userLogo:gewara.util.member.headUrl,//用户的头像
+				//order:'flowernum',
+				isCount:true
+	    	};
+	    	gewa.util.init();
+		}
+	});
+});
+</script>
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

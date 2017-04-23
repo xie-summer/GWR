@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>编辑培训机构数据</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label{width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px;}
+		input, textarea, span {width:550px;}
+		#dramaForm div{padding:3px;}
+		#dramadata li{width:300px;display:inline-block; float:left;}
+		div input{width:230px;}
+		.container{
+			border:1px solid blue;
+			min-height:150px;
+			_height:150px;
+			margin:10px 30px; 
+		}
+		.buttonclass{
+			width: 90px;
+		}
+		.containerUL li{
+			float: left;
+			padding-right: 15px;
+		}
+		.containerUL li input{width: 10px;}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:750px;margin:auto">
+<div id="dramaDialog" class="yui-panel" style="width:750px;margin:auto">
+	<div class="hd">[编辑培训机构数据]</div>
+	<div class="bd" id="agencyForm">
+	<form name="agencyForm" action="javascript:saveAgency();">
+		<input type="hidden" name="agencyId" id="agencyId" value="$!{agency.id}"/>
+		<div>
+			<label for="type">类&nbsp;&nbsp;&nbsp;&nbsp;别：</label>
+			<select name="type">
+				<option value="sport" #if($VmUtils.eq($agency.type, 'sport')) selected="selected" #end>运动</option>
+			</select>
+		</div>
+		<div>
+			<label for="name">机构名称：</label>
+			<input name="name" id='name'  style="width:240px; " type="text" value='$!agency.name' /><span class="req" style="">*</span>
+		</div>
+		<div>
+			<label for="briefname">简&nbsp;&nbsp;&nbsp;&nbsp;称：</label>
+			<input name="briefname" id="briefname" style='width:120px; ' type="text" value="$!{agency.briefname}" />
+		</div>
+		<div>
+			<label for="remark">简介：</label>
+			<textarea style="display:none" name="remark" id="remark">$!{agency.remark}</textarea>
+		</div>
+		<div id="uploadDiv">
+			<label>海&nbsp;&nbsp;&nbsp;&nbsp;报：</label>
+			<input type="text" name="logo" id="logo" value="$!{agency.logo}" style="width:485px"/>
+			#if($VmUtils.isNotBlank($!{agency.logo}))<img style="width:162px; height:57px;" id='logoimg' src='${picPath}$!agency.limg' />#end
+		</div>
+		<div>
+			<label>上&nbsp;&nbsp;&nbsp;&nbsp;传：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/agency&callback=updateLogo"></iframe>
+		</div>
+		<div>
+			<label for="seotitle">SEO title：</label>
+			<input name="seotitle" id="seotitle" type="text" value="$!{agency.seotitle}" />
+		</div>
+		<div>
+			<label for="seodescription">SEO description：</label>
+			<input name="seodescription" id="seodescription" type="text" value="$!{agency.seodescription}" />
+		</div>
+		<div>
+			<label>&nbsp;</label><input type="submit" id="btnA" class="button" style="width:100px" value="保存数据"/>
+		</div>
+		</form>
+		<div id="msg" style="color:red;"></div>
+	</div>
+</div>
+<script type="text/javascript">
+	var ckeditor1;
+	window.addEvent('domready',function(){
+		ckeditor1 = CKEDITOR.replace("remark");
+	});
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg').src='${basePath}' + picpath;
+	}
+	function saveAgency(){
+		$("remark").value=ckeditor1.getData();
+		var values = GewaraUtil.getValues("agencyForm");
+		if(values.name == ''){
+			alert("机构名称不能为空！");
+			$("msg").set("html", "机构名称不能为空！");
+			return;
+		}
+		var url = '${basePath}admin/agency/ajax/saveAgency.xhtml'
+		GewaraUtil.mask("btnA");
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert('保存成功！');
+				$('agencyId').value = result.retval;
+				$("msg").set("html", '');
+				document.location.href="${basePath}admin/agency/modifyAgencyDetail.xhtml?agencyId="+result.retval;
+			}else{
+				alert("保存失败");
+				$("msg").set("html", result.msg);
+			}
+		})
+	}
+</script>
+</body>
+</html>

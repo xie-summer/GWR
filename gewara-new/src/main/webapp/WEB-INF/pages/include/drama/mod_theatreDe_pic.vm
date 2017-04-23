@@ -1,0 +1,45 @@
+#if(!$VmUtils.isEmptyList($pictureList))
+<div class="mod_kong theatreMien">
+	<div class="mod_hd">
+		<h2>场馆图片</h2><span>($!picCount)</span>
+	</div>
+	<div class="mod_bd">
+		<ul class="clear" id="pictureList">
+			#foreach($pic in $pictureList)
+			<li #if($foreach.count % 6==0) style="margin-right:0;"#end>
+				<a href="javascript:void(0)" pictureId="$pic.id">
+					<img src="$VmUtils.randomPic('cw100h100',$!pic.picturename)" alt="" width="130" height="96"/>
+				</a>
+			</li>
+			#end
+		</ul>
+	</div>
+</div>
+<script type="text/javascript">
+	window.addEvent('domready', function(){
+		$$("#pictureList a").each(function(item){
+			item.addEvent('click',function(e){
+				e.preventDefault();
+				var options = {
+					type:"apic",
+					pictureType:"apic",
+					videoType:"avideo",
+					tag:"theatre",
+					isAjax:true,
+					isPicture:'picture',
+					esc:true,
+					menu:{
+						pictureurl:'${basePath}picture/ajax/pictureDetail.xhtml',
+						videourl:'${basePath}video/ajax/videoList.xhtml',
+						picturevalues:{'tag':'theatre','relatedid':'$theatre.id','pvtype':'apic','pid':this.get('pictureId')},
+						videovalues:{"tag":"theatre",'relatedid':'$theatre.id'},
+						picturecount:"$VmUtils.size($pictureList)",
+						videocount:'$VmUtils.size($videoList)'
+					}
+				};
+				screenPicture.createPanel(options);
+			});
+		});
+	});
+</script>
+#end

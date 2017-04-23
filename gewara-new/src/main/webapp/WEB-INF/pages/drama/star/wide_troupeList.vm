@@ -1,0 +1,158 @@
+<!Doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>#if($VmUtils.eq($params.type,'star'))话剧演员_话剧导演 - 格瓦拉生活网#else $!{cookieCityname}话剧社_话剧工作室_话剧团 - 格瓦拉生活网#end</title>
+	<meta name="keywords" content="话剧,话剧查询,话剧演出,话剧购票,话剧院,话剧院查询,话剧院购票"/>
+	<meta name="description" content="#if($VmUtils.eq($params.type,'star'))格瓦拉生活网提供话剧演员及话剧导演人物介绍,主要作品,近期演出动态信息.最全面的话剧人物查询网站.#else格瓦拉生活网提供$!{cookieCityname}话剧社及各类话剧工作室及话剧团介绍及近期演出动态.全国最专业的话剧演出查询网站.#end"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,noobSlide&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ui_layout{background:none;}
+	</style>
+</head>
+<body>
+#set($relatedtag='drama')
+#set($dramaLeftTag = 'js')
+#set($isIndexBigAd = true)
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="index_wrap clear">
+	#parse('include/drama/wide_drama_menu.vm')
+		<div class="index_right">
+			<div class="ui_left">
+				<div class="mod_kong">
+					<div class="mod_hd">
+						<h2>演出机构</h2>
+					</div>
+					<div class="mod_bd">
+						<form id="searchFrom" action="${basePath}drama/star">
+						<ul class="club_list">
+							<li>
+								<div class="condition mt10">
+									<dl class="clear dlTy">
+										<dt>
+											<span class="typeTitle left">机构查询</span>
+										</dt>
+										<dd>
+											<div class="search_kuang">
+												<input id="searchkey" class="search_text searchText clubSerch" type="text"  alt="请输入搜索关键词"  name="searchkey" value="$!VmUtils.escapeHtml($!params.searchkey)">
+												<label class="searchButton">
+													<input type="button" value="" onclick="search('searchkey')"/>
+												</label>
+											</div>
+										</dd>
+									</dl>
+								</div>
+							</li>
+						</ul>
+						<div class="selectedMenus clear">
+							<div class="right">
+								<span>排序：</span>
+								<select name="order" onchange="search(this)">
+									<option value="avggeneral" #if($VmUtils.isBlank($!VmUtils.escapeHtml($!params.order)) || $VmUtils.eq($!VmUtils.escapeHtml($!params.order),'avggeneral')) selected="selected" #end>按评分(由高到低)</option>
+									<option value="clickedtimes" #if($VmUtils.eq($!VmUtils.escapeHtml($!params.order),'clickedtimes')) selected="selected" #end>按关注(由高到低)</option>
+									## <option value="starnum" #if($VmUtils.eq($!VmUtils.escapeHtml($!params.order),'starnum')) selected="selected" #end>按成员(由多到少)</option>
+									## <option value="worknum" #if($VmUtils.eq($!VmUtils.escapeHtml($!params.order),'worknum')) selected="selected" #end>按作品(由多到少)</option>
+								</select>
+							</div>
+							<div class="left">
+								#if($VmUtils.isNotBlank($params.searchkey))
+								<span class="">已选条件：</span>
+								<span class="selections">
+									<em>$!VmUtils.escapeHtml($params.searchkey)</em>
+									<a class="ui_x bg6_hover" href="javascript:search('searchkey','')">×</a>
+								</span>
+								#end
+								<span class="mr10">
+									共<b class="c80 sNum">$!{starcount}</b>家演出机构
+								</span>
+							</div>
+						</div>
+						</form>
+					</div>
+				</div>
+				<div class="clbuList_w">
+					<ul>
+					#foreach($star in $starList)
+						<li class="effectLi">
+							<div class="ui_media">
+								<div class="ui_pic clubName_w">
+									<a href="${basePath}drama/star/$!star.id" target="_blank" title="$!star.name">
+										<img src="$!VmUtils.randomPic('cw120h160',$star.limg)" alt="$!star.name" height="128" width="96" />
+									</a>
+								</div>
+								<div class="ui_text clubCon_w">
+									<div class="title">
+										#set($gmark=$VmUtils.getSingleMarkStar($star,"general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+										<span class="grade gradej right">
+											<sub>$gmark1</sub>
+											<sup>.$gmark2</sup>
+										</span>
+										<h2>
+											<a href="${basePath}drama/star/$!star.id" title="$!star.name" target="_blank" class="c333">$!VmUtils.escabbr($!star.name,20)</a>
+										</h2>
+										<span class="c999">($!{star.clickedtimes}关注#if($VmUtils.gt($VmUtils.size($historyDramaListMap.get($star.id)),0))<em class="ml10">$!{VmUtils.size($historyDramaListMap.get($star.id))}演出</em>#{end})</span>
+									</div>
+									<p class="mt10">$!VmUtils.htmlabbr($!star.content, 160)#if($star.content)...#end</p>
+									#if($historyDramaListMap.get($star.id))
+									<p class="mt10">
+										近期演出：
+										#foreach($drama in $historyDramaListMap.get($star.id))	
+										<em><a href="${basePath}drama/$!drama.id" class="brown mr5" target="_blank">《$drama.name》</a></em>
+										#end
+										<span class="ml5">共$!VmUtils.size($historyDramaListMap.get($star.id))个项目</span>
+									</p>
+									#end
+									#if($dramaStarMap.get($star.id) && !$VmUtils.isEmptyList($dramaStarMap.get($star.id)))
+									<p>成员：
+										#foreach($dramaStar in $dramaStarMap.get($star.id))
+										<em><a href="${basePath}drama/star/$!dramaStar.id" class="brown mr5" target="_blank">$!{dramaStar.name}</a></em>
+										#end
+										<span class="ml5">共$!{dramaStarCountMap.get($star.id)}人</span>
+									</p>
+									#end
+								</div>
+							</div>
+						</li>
+						#end
+					</ul>
+					<div class="page">#parse('include/pageUtil.vm')</div>
+				</div>
+			</div>
+			<div class="ui_right">
+				#parse('include/drama/mod_ryjm.vm')
+				#parse('include/drama/mod_hotComment.vm')
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$('submenu').addEvents({
+		'mouseover':function(){this.addClass('jm_hover')},
+		'mouseout':function(){this.removeClass('jm_hover')}
+	});
+	(function(){
+		gewaUtil.affix($('ui_left'));
+	}).delay(500);
+	secrchIn();
+});
+function secrchIn(){
+	$('searchkey').addEvents({
+		'focus':function(){this.getParents('div[class*="search_kuang"]').addClass('search_kuangClicked');},
+		'blur':function(){this.getParents('div[class*="search_kuang"]').removeClass('search_kuangClicked');}
+	});
+}
+function search(el, value){
+	el = $(el);
+	if(value || value == ""){
+		el.value = value;
+	}
+	$('searchFrom').submit();
+}
+</script>
+</body>
+</html>

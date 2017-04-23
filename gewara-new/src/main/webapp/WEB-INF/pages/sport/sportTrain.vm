@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	#parse('include/constant/cityParam.vm')
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>#if($VmUtils.isBlank($sport.seotitle))${sport.name}培训#else${sport.seotitle}#{end} - 格瓦拉生活网</title>
+	<meta name="keywords" content="${sport.name}场馆查询,${sport.name}资讯,${sport.name}公告,${sport.name}价格"/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,base_home&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	.title h2{font-weight:bold;}
+	
+	.sport_Train h2 {font-size:14px;}
+	.sport_Train .txt{margin:20px 0;display:none;}
+	.sport_Train span.iShow,.sport_Train span.iHide{cursor:pointer;}
+	.chooseOpi_body{background-color:#fff;height:60px;border-bottom:1px solid #BBBBBB;padding-right:0;}
+	.chooseOpi_body span{padding:20px 0;float:left;display:block;padding-right:1px;text-align:center;}
+	.chooseOpi_body span.opiurl{padding-right:0;}
+	.opitime{width:105px;}
+	.opiInt{width:130px;}
+	.opiPrice{width:75px;}
+	.opiTop{width:100px;}
+	.opiurl{width:113px;border-right:0 !important;}
+	</style>
+</head>
+<body>
+#set($tag="sport") #set($issport=true) #set($isSportDetail=true)
+#set($issite = true)
+#set($isTrain=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout detail_body">
+	<div class="inner">
+		<div class="ui_panel">
+			#parse('sport/module/detailHead.vm')
+			<div class="detail_body_left">
+				<div class="sport_Train">
+					#foreach($sportgoods in $sportgoodsList)
+					<div class="#if($foreach.count ne 1)mt20#end">
+						<h2>$!sportgoods.goodsname</h2><span class="ml5 cSport iShow"><em class="open"></em><b>查看详情</b></span>
+						<div class="chooseOpi_head mt10">
+							<span class="opitime"><b>预订日期</b></span>
+							<span class="opiInt"><b>时段</b></span>
+							<span class="opiPrice"><b>价格</b></span>
+							<span class="opiTop"><b>上限人数</b></span>
+							<span class="opiTop"><b>下限人数</b></span>
+							<span class="opiurl"><b>预订</b></span>
+						</div>
+						<div class="chooseOpi_body" style="overflow:hidden;">
+							<span class="opitime"><b>$!DateUtil.formar($sportgoods.releasetime, 'MM-dd')$!DateUtil.getCnWeek($sportgoods.releasetime)</b></span>
+							<span class="opiInt">$!sportgoods.hours</span>
+							<span class="opiPrice"><b class="cf60">$!sportgoods.unitprice</b></span>
+							<span class="opiTop">$!sportgoods.upperlimit</span>
+							<span class="opiTop">$!sportgoods.lowerlimit</span>
+							<span class="opiurl sport_btn">
+								<a target="_blank" class="button minBt redBt " href="${basePath}gewapay/sportGoods/step1.xhtml?sid=$!sportgoods.relatedid&tid=$!sportgoods.itemid"><span style="padding:0;"><em style="padding:0 5px 0 12px;background:url(${staticPath}css/global/wpt.png ) 3px 2px no-repeat;">立即预订</em></span></a>
+							</span>
+						</div>
+						<div class="txt">
+							$!sportgoods.description
+							<p><span class="ml5 right cSport iHide"><em class="close"></em><b>收起</b></span></p>
+						</div>
+					</div>
+					#end
+					#foreach($discountInfo in $discountInfoList)
+					<div class="#if($VmUtils.isEmptyList($sportgoodsList) && $foreach.count eq 1)#else mt20 #end">
+						<h2>$!discountInfo.title</h2><span class="ml5 cSport iShow"><em class="open"></em><b>查看详情</b></span>
+						<div class="txt">
+							$!discountInfo.content
+							<p><span class="ml5 right cSport iHide"><em class="close"></em><b>收起</b></span></p>
+						</div>
+					</div>
+					#end
+				</div>
+			</div>
+			
+			<div class="detail_body_right">
+				#parse('include/global/map.vm')
+				<div class="mt20">
+				#parse('sport/module/right_rimVenue.vm')
+				#parse('sport/module/right_rimEntertainment.vm')
+				</div>
+			</div>
+			<div class="cls"></div>
+		</div>
+	</div>
+</div>
+#parse('include/treasure.vm')
+#parse('include/newMarkDialog.vm')
+#parse('include/global/new_scorelevel.vm')
+<script type="text/javascript">
+var items = $$(".sport_Train span.iShow"), ihide = $$(".sport_Train span.iHide"), itxt=$$(".sport_Train .txt");
+window.addEvent('domready',function(){
+	myTreasure('sport',$sport.id,'logonMember');
+	items.each(function(item){
+		item.addEvent("click", function(){
+			itxt.hide();
+			items.show();
+			item.hide();
+			item.getParent().getElement('.txt').show();
+		});
+	});
+	ihide.addEvent('click',function(){
+		items.show();
+		itxt.hide();
+	})
+})
+</script>
+#parse('include/bottom.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

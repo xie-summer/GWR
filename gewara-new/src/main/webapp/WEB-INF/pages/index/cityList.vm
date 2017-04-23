@@ -1,0 +1,167 @@
+<!Doctype html>
+<html>
+<head><!-- SUCCESS_HEAD -->
+	#set($isCityParam=true)
+	#parse('include/constant/cityParam.vm')
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>格瓦拉生活网 - 全国电影票,演出票务,运动场馆预订平台</title>
+	<meta name="description" content="格瓦拉生活网是全国领先的电影票预订,演出票务,运动场馆预订平台.满足您不同的城市生活娱乐需求,格瓦拉-不只卖电！影！票！"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,index_w&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ui_layout a:hover{text-decoration:none;}
+		.topNav{height:30px; line-height:30px; padding:30px; background:#fafafa;}
+		.curCity,.searchBox{float:left;}
+		.curCity{font:bold 16px/30px '微软雅黑','宋体';}
+		.curCity a{font-size:30px; line-height:32px; font-weight:normal; color:#f60;}
+		.searchBox{margin-left:30px;}
+		.cityContent{padding:30px;}
+		.cityContent .tags{position:relative; z-index:3; border-bottom:1px solid #ddd; height:35px;}
+		.cityContent .tags ul{position:absolute; top:-1px;}
+		.cityContent .tags ul li{float:left; margin-right:10px;}
+		.cityContent .tags ul li a{display:block; background:#fff; width:140px; height:35px; line-height:35px; text-align:center; float:left; font-size:14px; color:#999;}
+		.cityContent .tags ul li a.select{font-weight:bold; border:1px solid #ddd; border-bottom:1px solid #fff; color:#333;}
+		.cityContent .tags ul li a:hover{color:#f60;}
+		.cityContent .lists{font-size:14px; padding:30px 0 0;}
+		.cityContent .lists b{width:120px; height:34px; font-weight:normal; display:block; float:left;}
+		.cityContent .lists a{color:#333; display:inline-block; float:left; height:30px; line-height:30px; line-height:32px\9; overflow:hidden; padding:0 10px; margin:2px 0;}
+		.cityContent .lists a.hotcity{font-weight:bold; color:#eb6120;}
+		.cityContent .lists a:hover{background:#ec6120; color:#fff;}
+		.cityContent .lists dl{line-height:36px; padding:6px 30px; border-bottom:1px solid #fff; border-top:1px solid #fff;}
+		.cityContent .lists dt{margin-right:50px; height:36px;}
+		.cityContent .lists dt span{display:inline-block; overflow:hidden; width:34px; height:34px; line-height:34px; text-align:center; font-weight:bold; border:1px solid #fc9;}
+		.cityContent .lists dl.select{background:#fffaf6; border-bottom:1px solid #ffe9d9; border-top:1px solid #ffe9d9;}
+		.cityContent .lists dl.select dt span{background:#ffcc99; color:#fff;}
+		.cityContent .lists #city_content dt span{width:80px;}
+		.cityContent .lists #city_content b{width:115px;}
+		.ui_city_search{float:left; height:34px; line-height:34px; padding:0 0 0 60px; position:relative; z-index:5;}
+		.ui_city_search span,.ui_city_search input{float:left;}
+		.ui_city_search .search_text{border-radius:3px; border:1px solid #ccc; padding:7px 3px; width:250px; font-family:Verdana,Geneva,Arial,Helvetica,sans-serif;}
+		.citySearch h2{font-size:12px; color:#fff; background:#fb9; display:block; padding:0 10px; font-weight:normal;}
+		.citySearch h2,.citySearch ul li{height:30px; line-height:30px;}
+		.citySearch ul li a{display:block; height:30px; line-height:30px; margin:0; padding:0;}
+		.citySearch ul li a:hover{color:#f60; background:#eee;}
+	</style>
+</head>
+<body>
+<div>
+#parse('include/wide_header.vm')
+#set($cityFirstInitialsList = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"])
+#set($reuseCityCodeList = ["110000", "310000", "120000", "500000"])
+<div class="ui_layout">
+	<div class="topNav">
+		<div class="curCity">
+			<p>当前城市：<a href="${basePath}$cityPinyin">$!{cookieCityname}</a></p>
+		</div>
+		<div class="ui_city_search">
+			<form action="${basePath}newSearchKey.xhtml" id="cityForm">
+				<span class="mr10">搜索：</span>
+				<input type="hidden" id="searchid" value="">
+				<input type="text" autocomplete="off" x-webkit-speech="" accesskey="s" name="cityKey" id="cityKey" alt="可直接输入城市全拼/简拼" class="search_text" value="" >
+			</form>
+			<ul class="autocompleter-choices" id="autoCity" style="left:106px;top:35px;width:256px; display:none; z-index:10;"></ul>
+		</div>
+	</div>
+	<div class="cityContent">
+		<div class="tags">
+			<ul>
+				<li><a id="piny" class="select" href="javascript:void(0);">按拼音查找</a></li>
+				<li><a id="city" href="javascript:void(0);">按省市查找</a></li>
+			</ul>
+		</div>
+		<div class="lists" id="lists">
+			<div id="piny_content">
+				#foreach($cityFirstInitials in $cityFirstInitialsList)
+				#set($cityList=$cityInitialsMap.get($VmUtils.lowerCase($cityFirstInitials)))
+				#if(!$VmUtils.isEmptyList($cityList))
+				<dl class="ui_media">
+					<dt class="ui_pic"><span>$cityFirstInitials</span></dt>
+					<dd class="ui_text">
+						#foreach($city in $cityList)
+						<b><a class="#if($VmUtils.eq($citycode, $city.citycode))select#end #if($VmUtils.eq($city.showHot, 'Y'))hotcity#end"  href="${basePath}$!city.pinyin">$!city.cityname</a></b>
+						#end
+					</dd>
+				</dl>
+				#end
+				#end
+			</div>
+			<div id="city_content" class="none">
+				<dl class="ui_media">
+					<dt class="ui_pic"><span>直辖市</span></dt>
+					<dd class="ui_text">
+						#foreach($reuseCityCode in $reuseCityCodeList)
+						#set($city = $AdminCityContant.citycode2GewaCity.get($reuseCityCode))
+						<b><a class="#if($VmUtils.eq($citycode, $city.citycode))select#end #if($VmUtils.eq($city.showHot, 'Y'))hotcity#end"  href="${basePath}$!city.pinyin">$!city.cityname</a></b>
+						#end
+					</dd>
+				</dl>
+				#foreach($proCity in $cityProMap.keySet())
+				#if(!$VmUtils.contains($reuseCityCodeList, $proCity.provincecode) && !$VmUtils.isEmptyList($cityProMap.get($proCity)))
+				<dl class="ui_media">
+					<dt class="ui_pic"><span>$proCity.provincename</span></dt>
+					<dd class="ui_text">
+						#foreach($city in $cityProMap.get($proCity))
+						<b><a class="#if($VmUtils.eq($citycode, $city.citycode))select#end #if($VmUtils.eq($city.showHot, 'Y'))hotcity#end"  href="${basePath}$!city.pinyin">$!city.cityname</a></b>
+						#end
+					</dd>
+				</dl>
+				#end
+				#end
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+</div>
+<script type="text/javascript">
+window.addEvents({
+	'domready':function(){
+		new PanelGroup(['piny', 'city'], 'piny', "select", "none", "click");
+		var list = $('lists').getElements('dl');
+		list.addEvents({
+			'mouseover':function(){
+				list.each(function(item){
+					item.removeClass('select');
+				});
+				this.addClass('select');
+			},
+			'mouseout':function(){
+				this.removeClass('select');
+			}
+		})
+		gewaUtil.fixIE();
+		$('cityKey').addEvents({
+			'blur':function(){hideResult(500);},
+			'focus':function(){if(this.value != '')searchCity(this);},
+			'keyup':function(){
+				if(this.value != ''){
+					searchCity(this);	
+				}else{
+					hideResult(0);
+				}
+			}
+		});
+	},
+	'resize':function(){
+		gewaUtil.fixIE();
+	}
+});
+
+function hideResult(delay){
+	if($('autoCity')){
+		(function(){
+			$('autoCity').setStyle('display','none');
+		}).delay(delay);
+	}
+}
+
+searchCity = function(el){
+	el = $(el);
+	GewaraUtil.sendLoad("autoCity", "${basePath}ajax/common/searchCity.xhtml",{"cityKey":el.value}, function(result){
+		if($('autoCity'))$('autoCity').setStyle('display','block');
+	});
+}
+</script>
+</body>
+</html>

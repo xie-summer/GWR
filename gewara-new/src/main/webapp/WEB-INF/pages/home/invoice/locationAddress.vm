@@ -1,0 +1,51 @@
+<div class="full_percent">
+	#if($VmUtils.contains($agtag, 'P'))
+	<span id="provinceHTML">
+	<input type="hidden" id="agtag" name="agtag" value="$!agtag" />
+	<select style="width: 80px;" name="province" id="province" #if($VmUtils.contains($agtag, 'C')) onchange="changeValue(this, 'province', 'cityHTML');" #end>
+		<option value="">
+			请选择...
+		</option>
+		#foreach($province in $provinceMap)
+		<option value="$province.provincecode"	
+			#if($VmUtils.eq($province.provincecode,$provincecode))selected="selected" #end>
+			$province.provincename
+		</option>
+		#end
+	</select>
+	</span>
+	#end
+	
+	#if($VmUtils.contains($agtag, 'C'))
+	<span id="cityHTML">
+	<select class="ml20" style="width: 100px;" name="citycode" id="citycode">
+		<option value="">
+			城市选择
+		</option>
+		#foreach($city in $cityMap)
+		<option value="$city.citycode"
+			#if($VmUtils.eq($city.citycode,$citycode))selected="selected" #end>
+			$city.cityname
+		</option>
+		#end
+	</select>
+	</span>
+	#end
+	
+</div>
+
+<script type="text/javascript">
+changeValue = function(obj, tag, destid){
+	var code = $(obj).value; 
+	var values;
+	if(tag == 'province'){
+		values = {'provincecode':code};
+	}else if(tag == 'city'){
+		values = {'citycode':code};
+	}
+	values['tag'] = tag;
+	values['agtag'] = $('agtag').value;
+	var url = "${basePath}home/invocie/ajaxLoadAddress.xhtml#"+destid;
+	GewaraUtil.sendLoad(destid, url, values, function(result){});
+}
+</script>

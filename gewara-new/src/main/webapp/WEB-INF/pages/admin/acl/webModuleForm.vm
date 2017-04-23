@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>WEB模块修改</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,selectbox"></script>
+	<style>
+		label { display:inline-block; width:70px;text-align:right;}
+		.rightLable { display:inline; width:150px;text-align:left;}
+		.clear { clear:both; }
+		.mouseBg{background-color: #FBE7DB;}
+	</style>
+</head>
+<body style="width:750px;margin:auto" class="yui-skin-sam">
+<div id="moduleDialog" class="yui-panel" style="width:450px;margin:10px auto">
+	<div class="hd">WEB Module信息</div>
+	<div class="bd">
+	<form name="webModuleForm" method="post" action="${basePath}admin/acl/saveWebModule.xhtml" id="webModuleForm">
+		#if($VmUtils.isNotBlank($params.moduleId))
+		<input type="hidden" name="moduleId" value="$!VmUtils.escapeHtml($params.moduleId)"/>
+		#end
+		<div>
+			<label for="moduleurl">模块URL：</label>
+			<input type="text" name="moduleurl" value="$!{module.moduleurl}" style="width:250px"/>
+		</div>
+		<div>
+			<label for="menutitle">标题：</label>
+			<input type="text" name="menutitle" id="menutitle" value="$!{module.menutitle}" style="width:250px"/>
+		</div>
+		<div>
+			<label for="matchorder">匹配次序：</label>
+			<input type="text" name="matchorder" value="$!{module.matchorder}" style="width:250px"/>
+		</div>
+		<div>
+			<label for="matchorder">菜单编码：</label>
+			<input type="text" name="menucode" value="$!{module.menucode}" style="width:50px" maxlength="4"/>(例如主菜单：08，子菜单：0808)
+		</div>
+		<div>
+			<label for="display">菜单显示：</label>
+			<select name="display">
+				<option value="N">菜单中不显示</option>
+				<option value="Y"  #if($VmUtils.eq($module.display,'Y'))selected="selected"#end>菜单中显示</option>
+			</select>
+			<label for="mainmenucode">主菜单：</label>
+			<select name="mainmenucode" id="mainmenucode">
+				<option value="">请选择</option>
+				#foreach($menu in $mainMenuList)
+				<option value="$menu.menucode" #if($VmUtils.eq($menu.menucode, $!{module.topMenucode}))selected#end>${menu.menutitle}($!menu.menucode)</option>
+				#end
+			</select>
+		</div>
+		<div>
+			<label for="target">打开方式：</label>
+			<select name="target" id="target">
+				<option value="mainFrame" #if($VmUtils.eq($module.target, 'mainFrame')||$VmUtils.isBlank($module.target))selected#end>本页面</option>
+				<option value="_blank" #if($VmUtils.eq($module.target, '_blank'))selected#end>新页面</option>
+				<option value="_top" #if($VmUtils.eq($module.target, '_top'))selected#end>父级</option>
+			</select>
+			<label for="tag">分类：</label>
+			<input type="hidden" name="tag" value="$tag"/>
+			#if($tag eq 'GP')合作伙伴模块#elseif($tag eq 'GM')商家模块#elseif($tag eq 'A')API模块#else Gewa模块 #end
+		</div>
+		<div>
+			<table class="table">
+			#foreach($role in $moduleRoles)
+			<tr><td><a href="${basePath}admin/acl/modifyRole.xhtml?roleId=$role.id" target="_blank">${role.name}[$role.description]</a></td><td><input type="checkbox" value="$role.id" name="roleid" checked="checked" /></td></tr>
+			#end
+			#foreach($role in $availableRoles)
+			<tr><td>${role.name}[$role.description]</td><td><input type="checkbox" value="$role.id" name="roleid" /></td></tr>
+			#end
+			</table>
+		</div>
+		<div>
+			<input type="submit" class="button" name="save" value="保存"/>
+			<input type="reset" class="button" name="cancel" value="重填"/>
+			<input type="button" class="button" value="取消" onclick="window.close();"/>
+		</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	window.addEvent("domready", function(){
+		$$(".table tr").addEvents({
+			'mouseenter':function(){
+				this.addClass("mouseBg");
+			},
+			'mouseleave':function(){
+				this.removeClass("mouseBg");
+			}
+		});
+	});
+</script>
+</body>
+</html>

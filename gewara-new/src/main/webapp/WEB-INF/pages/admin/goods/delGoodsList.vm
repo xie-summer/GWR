@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>已删除的物品</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline-block; width:70px;text-align:right;padding:1px 0 1px 0; }
+		input,textarea {width:450px;}
+		a{text-decoration: none; white-space: nowrap;}
+	</style>
+</head>
+<body style="margin:auto" class="yui-skin-sam">
+<table class="table" style="width:500px;margin-left: 300px;">
+	<thead>
+	<tr>
+		<th>&nbsp;</th>
+		<th>ID</th>
+		<th>商品名称</th>
+		<th>添加时间</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="goodsTable">
+		#foreach($goods in $goodsList)
+		<tr>
+			<th>$foreach.count</th>
+			<td>${goods.id}</td>
+			<td>${goods.goodsname}</td>
+			<td>$DateUtil.formatTimestamp($!{goods.addtime})</td>
+			<td width="60px">
+				<a href="javascript:renewGoods($goods.id)">恢复</a>
+			</td>
+		</tr>
+		#end
+	</tbody>
+</table>
+	<script type="text/javascript">
+	function renewGoods(gid){
+		if(confirm('确认要恢复吗?')==false) return;
+		var values = {"gid":gid};
+		GewaraUtil.sendRequest('${basePath}admin/goods/ajax/renewgoods.xhtml', values, function(result){
+			if(result.success){
+				alert('恢复成功！');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>报表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd120{width:120px;}
+		.wd100{width:100px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-top:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+<body style="width:85%; margin:auto">
+<div style="clear:both;"></div>
+#set($byGewa=true)
+#parse('admin/gewapay/common.vm')
+<form action="${basePath}admin/gewapay/reportByGewa.xhtml">
+<table  border="1" style="width: 98%" cellspacing="0" class="table">
+	<tr>
+	<td height="30">
+		<select name="cinemaid" id="cinemaid">
+			<option value="">请选择影院</option>
+			#foreach($map in $cinemaList)
+			<option value="$map.get('cinemaid')" #if($map.get('cinemaid') eq $cinema.id) selected #end>$map.get('cinemaname')</option>
+			#end
+		</select>
+		开始日期:<input type="text" name="datefrom" id="datefrom" value="$!params.datefrom" style="width: 100px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>&nbsp;
+		结束日期:<input type="text" name="dateto" id="dateto" value="$!params.dateto" style="width: 100px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>&nbsp;
+		<input type="radio" name="opentype" value="" #if($VmUtils.isBlank($!params.opentype))checked#end/>全部
+		<input type="radio" name="opentype" value="GEWA" #if($VmUtils.eq($!params.opentype,'GEWA'))checked#end/>格瓦拉
+		<input type="radio" name="opentype" value="HFH" #if($VmUtils.eq($!params.opentype,'HFH'))checked#end/>火凤凰
+		<input type="submit" value="查询" />
+	</td>
+	</tr>
+</table>
+<br/>
+</form>
+#if($VmUtils.isNotEmpObj($cinemaMap))
+<table width="98%" border="0"  cellspacing="0" class="itable">
+	#foreach($cid in $cinemaMap.keySet())
+	#set($cinema=$cinemaMap.get($cid))
+	<tr class="td">
+	<td colspan="7" align="center" class="td"><span>$cinema.name报表[$!{params.datefrom}--$!{params.dateto}]</span></td>
+	</tr>
+	#set($M=0)#set($Q=0)#set($quantity=0)#set($C=0)
+	#set($P=0)#set($D=0)
+	#set($sumpaid=0)#set($sumdiscount=0)
+	#foreach($map in $cdMap.get($cid))
+	#set($M=$M+$map.totalfee)
+	#set($Q=$Q+$map.quantity)
+	#set($C=$C+$map.count)
+	#set($P=$P+$map.paid)
+	#set($D=$D+$map.discount)
+	<tr>
+		<td align="left">
+			<b style="color: #FF6200;">$map.playdate</b> 
+			订单数量：<b style="color: #FF6200;">$!map.count</b> 
+			出票数量：<b style="color: #FF6200;">$!map.quantity</b> 
+			订单总额：<b style="color: #FF6200;">$!map.totalfee</b>
+			支付总额：<b style="color: #FF6200;">$!map.paid</b>
+			折扣总额：<b style="color: #FF6200;">$!map.discount</b>
+		</td>
+	</tr>
+	#end
+	<tr>
+		<td colspan="7"  style="margin-left: 200px;">
+			<span>共计:总订单：$C(个)，总票数:$Q(个)，总金额:$M(元)，总支付：$P(元)，总折扣：$D(元)</span>
+		</td>
+	</tr>
+	#end
+</table>
+#end
+</body>
+</html>

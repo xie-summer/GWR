@@ -1,0 +1,42 @@
+<data>
+<commentList>
+	#foreach($comment in $commentList)
+	#set($member=$cacheMemberMap.get($comment.memberid))
+	#set($relate=$relateMap.get($comment.id))
+	#set($body=$bodyMap.get($comment.id))
+	<comment>
+		<commentid>$!comment.id</commentid>
+		<memberid>$!comment.memberid</memberid>
+		<nickname><![CDATA[$!comment.nickname]]></nickname>
+		<logo>${mobilePath}sw50h50/$cacheMemberMap.get($!comment.memberid).headpicUrl</logo>
+		<headpic>${mobilePath}sw50h50/$cacheMemberMap.get($!comment.memberid).headpicUrl</headpic>
+		<tag>$!comment.tag</tag>
+		<relatedid>$!comment.relatedid</relatedid>
+		<body><![CDATA[$!body]]></body>
+		<smallpicture>#if($!picMap.get($comment.id))${mobilePath}sw90h90/$!picMap.get($comment.id)#end</smallpicture>
+		<middlepicture>#if($!picMap.get($comment.id))${mobilePath}sw300h300/$!picMap.get($comment.id)#end</middlepicture>
+		<picture>#if($!picMap.get($comment.id))${mobilePath}$!picMap.get($comment.id)#end</picture>
+		<replycount>$!comment.replycount</replycount>
+		<transfercount>$!comment.transfercount</transfercount>
+		<addtime>$!DateUtil.getTimeDesc($comment.addtime)</addtime>
+		<address>$!comment.fromFlag2</address>
+		<isbuy>#if($!VmUtils.contains($comment.flag,'ticket'))1#{else}0#end</isbuy>
+		<generalmark>$!comment.generalmark</generalmark>
+		<brandname><![CDATA[$!relate.name]]></brandname>
+		#set($transfer = $transferMap.get($!comment.id))
+		#set($transferMember = $cacheMemberMap.get($transfer.memberid))
+		<transferid>$!transfer.id</transferid>
+		<transfermemberid>$!transfer.memberid</transfermemberid>
+		<transfernickname><![CDATA[$!transferMember.nickname]]></transfernickname>
+		<transferlogo>#if(!$!VmUtils.isBlank($!transferMember.headpicUrl))${mobilePath}sw50h50/$!transferMember.headpicUrl#end</transferlogo>
+		<transferbody><![CDATA[$!VmUtils.getHtmlText($transfer.body,10000)]]></transferbody>
+		<transfersmallpicture>#if($!picMap.get($!transfer.id))${mobilePath}sw90h90/$!picMap.get($!transfer.id)#end</transfersmallpicture>
+		<transfermiddlepicture>#if($!picMap.get($!transfer.id))${mobilePath}sw300h300/$!picMap.get($!transfer.id)#end</transfermiddlepicture>
+		<transferpicture>#if($!picMap.get($!transfer.id))${mobilePath}$!picMap.get($!transfer.id)#end</transferpicture>
+		<transfergeneralmark>$!transfer.generalmark</transfergeneralmark>
+		#set($transfer = '')
+		#set($relate = '')
+	</comment>
+	#end
+</commentList>
+</data>

@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	#parse('include/constant/cityParam.vm')
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>#if($VmUtils.isBlank($sport.seotitle))${sport.name}哇啦#else${sport.seotitle}#{end} - 格瓦拉生活网</title>
+	<meta name="keywords" content="${sport.name}场馆查询,${sport.name}资讯,${sport.name}公告,${sport.name}价格"/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	.title h2{font-weight:bold;}
+	.gewa_outer_text{width:550px;}
+	</style>
+</head>
+<body>
+#set($tag="sport") #set($issport=true) #set($isSportDetail=true)
+#set($relatedid=$sport.id)
+#set($isComment=true)
+#set($issite=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout detail_body">
+	<div class="inner">
+		<div class="ui_panel">
+			#parse('sport/module/detailHead.vm')
+			<div class="detail_body_left">
+				<div id="walaDiary"></div>
+			</div>
+			
+			<div class="detail_body_right">
+				#parse('include/global/map.vm')
+				<div class="mt20">
+				#parse('sport/module/right_rimVenue.vm')
+				#parse('sport/module/right_rimEntertainment.vm')
+				</div>
+			</div>
+			<div class="cls"></div>
+		</div>
+	</div>
+</div>
+#parse('include/treasure.vm')
+#parse('common/compandingjs.vm')
+#parse('include/newMarkDialog.vm')
+#parse('include/global/new_scorelevel.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	myTreasure('sport',$sport.id);
+});
+</script>
+<script type="text/javascript">
+var isScroll = true;
+window.addEvent('domready',function(){
+	(function(){
+		Asset.javascript("${staticPath}scripts/gewara.js?n=wala,slimbox&v=$VmUtils.jsVersion", {
+			'id':'walaDynaScript',
+			'isScroll':false,//用于控制是否支持鼠标滚动事件
+			'maxNumber':null,//如果设置，滚轮或者点击加载的的次数
+    		'bindWala':'walaDiary',//把加载的哇啦放在什么位置
+			onLoad:function(){
+				Asset.css('${staticPath}css/new_wala.css?v=$VmUtils.jsVersion',{'id':'walasCss'});
+				gewa.util.pageNumber = 0;
+		    	var _body = $(document.body);
+		    	gewa.util.requestUrl = 'ajax/common/qryComment.xhtml';
+		    	gewa.util.values = {
+	    			pageNumber:gewa.util.pageNumber,//自动加载时的分页数
+	    			relatedid:'$!sport.id',//关联对象的ID
+	    			title:'',//话题的标题
+	    			issue:true,//是否有发表框
+	    			hasMarks:true,//是否支持评分
+	    			tag:'sport',//关联那个板块的内容
+	    			isPic:true,//是否支持传图片
+	    			isVideo:false,//是否支持传视频
+	    			pages:true,//是否分页
+		    		maxCount:20,//如果设置，即是单页显示N条
+					userLogo:gewara.util.member.headUrl//用户的头像
+		    	};
+		    	gewa.util.init();
+			}
+		})
+	}).delay(1000);
+});
+</script>
+#parse('include/bottom.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

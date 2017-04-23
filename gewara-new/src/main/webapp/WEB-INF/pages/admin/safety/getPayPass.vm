@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>找回支付密码</title>   
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		html,body{background: none;}
+		form label{display:inline-block;width:90px;text-align:right;}
+		form div{margin-top:5px;}
+		.add,.add_order{background: red; color: white;}
+		#authContent table tr td div{margin:5px;}
+	</style>
+</head>
+<body style="margin:auto;" class="yui-skin-sam">
+<div style="padding:1px;">
+	<form id="form" style="margin:3px; width:100%; float: left;">
+		手机号:<input type="text" name="mobile" id="mobile" style="width: 100px;" value=""/>
+		邮箱:<input type="text" name="email" id="email" style="width: 100px;" value=""/>
+		<input type="button" value="查 询" class="bt1" id="search" onclick="loadAuth()"/>
+	</form>
+</div>
+<div id="authContent" style="overflow:hidden;width:100%;"></div>
+<div><input id="reset" type="button" value="重置用户支付密码" onclick="reset();"/></div>
+<script type="text/javascript">
+function loadAuth(){
+	if(!$('mobile').value&&!$('email').value){ 
+		gewaUtil.alert('请至少输入一个查询条件！');
+		return;
+	}
+	var url = '${basePath}admin/safety/getPayPsss.xhtml';
+	GewaraUtil.mask('search');
+	var values = GewaraUtil.getValues("form");
+	GewaraUtil.sendLoad('authContent',url, values, function(result){
+		GewaraUtil.unmask();
+		if(!result.success){
+			gewaUtil.alert(result.json.msg);
+		}
+	});
+}
+function reset(){
+	if(!$('memberId')){ 
+		gewaUtil.alert('请先确认用户的身份信息！');
+		return;
+	}
+	gewaUtil.confirm('您确认要重置该用户的支付密码？',function(){
+		var url = '${basePath}admin/safety/resetPayPass.xhtml';
+		GewaraUtil.mask('reset');
+		var values = {memberId:$('memberId').value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(!result.success){
+				gewaUtil.alert(result.msg);
+			}else{
+				gewaUtil.alert(result.retval);
+			}
+		});
+	});
+}
+</script>
+</body>
+</html>

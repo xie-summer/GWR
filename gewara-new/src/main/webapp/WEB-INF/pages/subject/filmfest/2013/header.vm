@@ -1,0 +1,99 @@
+<style type="text/css">
+<!--
+/*button 按钮*/
+.redBt{background-position:0 -4054px;}
+.redBt span,.redBt input{background-position:right -4077px;color:#fff;}
+.bigBt{line-height:32px;padding-left:20px;height:32px;background-position:0 -4165px !important;}
+.bigBt span,.bigBt input{font-size:14px;font-weight:bold;padding-right:20px;height:32px;float:left;background-position:right -4198px !important;color:#fff;}
+.bigBt:hover,label.bg_hover{background-position:0 -3532px !important;}
+.bigBt:hover span,label.bg_hover input{background-position:right -3565px !important;color:#fff;}
+.redBt em,.whiteBt:hover em{color:#fff;}
+.bigWhiteBg{background-position:0 -3781px !important;margin-left:10px;}
+.bigWhiteBg span{background-position:right -3814px !important;}
+-->
+</style>
+#if($!ismovie)#set($navigation='movie')
+#elseif($!isActivity)#set($navigation='activity')
+#elseif($!isbar)#set($navigation='bar')
+#elseif($!isgym)#set($navigation='gym')
+#elseif($!isktv)#set($navigation='ktv')
+#elseif($!issite || $!issport)#set($navigation='sport')
+#elseif($!relatedtag eq 'drama' || $!isdrama)#set($navigation='drama')
+#end
+#parse('include/constant/city.vm')
+#if($syscitycodeKey)
+	#set($cookieCitycode=$syscitycodeKey)
+#else
+	#set($cookieCitycode=$cookieTool.citycode.value)
+#end
+#if($VmUtils.isBlank($cookieCitycode))#set($cookieCitycode='310000')#end
+#if(!$isCityParam)
+#parse('include/constant/cityPoint.vm')
+#parse('include/navigationParams.vm')
+#set($cityPinyin=$pinyinMap.get($cookieCitycode))
+#set($cookieCityname=$!CITY_MAP.get($cookieCitycode))
+#set($cityItemModule=$globalItemModuleMap.get($cookieCitycode))
+#set($cityActivityRelate=$globalActivityRelateMap.get($cookieCitycode))
+#set($cityOtherRelate=$globalOtherRelateMap.get($cookieCitycode))
+#set($globalCurPoint=$globalCityPoint.get($cookieCitycode))
+#end
+<div class="ui_top ui_$!{navigation}_shadow" lang="bgcolor">
+	<div class="ui_plugs_body" id="cityChoose">
+		#if(!$!isShow_Index)
+		<div class="ui_top_nav ui_icon_tag" lang="ishover">
+			#if($VmUtils.contains($cityItemModule,'index'))<a href="${basePath}" class="isDisabled"><span>首页</span></a>#end
+			#if($VmUtils.contains($cityItemModule,'movie'))<a href="${basePath}movie/" key="movie" #if($!ismovie)class="isDisabled ischoise"#end><span>电影#if($!ismovie)<i></i>#end</span></a>#end
+			#if($VmUtils.contains($cityItemModule,'drama'))<a href="${basePath}drama/" key="drama" #if($relatedtag eq 'drama' || $!isdrama)class="isDisabled ischoise"#end><span>演出#if($relatedtag eq 'drama' || $!isdrama)<i></i>#end</span></a>#end
+			#if($VmUtils.contains($cityItemModule,'sport'))<a href="${basePath}sport/" key="sport" #if($!issite || $!issport)class="isDisabled ischoise"#end><span>运动#if($!issite || $!issport)<i></i>#end</span></a>#end
+			#if($VmUtils.contains($cityItemModule,'gym'))<a href="${basePath}gym/" key="gym" #if($!isgym)class="isDisabled ischoise"#end><span>健身#if($!isgym)<i></i>#end</span></a>#end
+			#*
+			#if($VmUtils.contains($cityItemModule,'bar'))<a href="${basePath}bar/" key="bar" #if($!isbar)class="isDisabled ischoise"#end><span>酒吧#if($!isbar)<i></i>#end</span></a>#end
+			#if($VmUtils.contains($cityItemModule,'ktv'))<a href="${basePath}ktv/" key="ktv" #if($!isktv)class="isDisabled ischoise"#end><span>KTV#if($!isktv)<i></i>#end</span></a>#end
+			*#
+			#if($VmUtils.contains($cityItemModule,'activity'))<a href="${basePath}activity/" key="activity" #if($!isActivity)class="isDisabled ischoise"#end><span>活动#if($!isActivity)<i></i>#end</span></a>#end
+			<a href="${basePath}home/sns/personIndex.xhtml" key="home" #if($!istopic || $isqa || $isCommu || $communityIndex)class="isDisabled ischoise"#end><span>社区#if($!istopic || $isqa || $isCommu || $communityIndex)<i></i>#end</span></a>
+		</div>
+		#end
+		<div class="ui_logins" id="global_check_login"></div>
+	</div>
+</div>
+<div class="f_header">
+	<div class="ui_header_into">
+		<a href="${basePath}" title="网站首页">网站首页</a>
+	</div>
+</div>
+<div class="f_menuOut">
+ 	<div class="f_menuInner">
+		<div class="f_menu">
+			<ul class="clear">
+				<li><a href="${basePath}filmfest/sixteen.xhtml" #if($VmUtils.eq($tag, 'indexselect')) class="select" #end><span>首页</span></a></li>
+				<li><a href="${basePath}filmfest/sixteenMovieList.xhtml" #if($VmUtils.eq($tag, 'ticketselect')) class="select" #end><span>选座购票</span></a></li>
+				<li><a href="${basePath}filmfest/sixteenNewsList.xhtml" #if($VmUtils.eq($tag, 'newsselect')) class="select" #end><span>电影节快讯</span></a></li>
+				<li><a href="${basePath}filmfest/sixteenRaiders.xhtml" #if($VmUtils.eq($tag, 'cinemanoticeselect')) class="select" #end><span>影院攻略</span></a></li>
+				<li><a href="${basePath}filmfest/sixteenNotice.xhtml" #if($VmUtils.eq($tag, 'noticeelect')) class="select" #end><span>购票须知</span></a></li>
+				<li><a href="${basePath}filmfest/myViewFilm.xhtml" #if($VmUtils.eq($tag, 'joinselect')) class="select" #end><span> 我的片单&日程</span></a></li>
+			</ul>
+		</div>
+		<div class="ui_t_search">
+			<form action="${basePath}filmfest/sixteenMovieList.xhtml"  id="gForm">
+				<input type="text" name="moviename" value="" class="search_text" alt="影片搜索" id="skey" autocomplete="off" x-webkit-speech="" accesskey="s"/><label class="search_button"><input type="submit" value="&nbsp;"/></label>
+			</form>
+		</div>
+		<span class="tips">
+			#if($DateUtil.isAfter($DateUtil.parseDate('2013-06-15')))
+			离开幕还有<b>$!DateUtil.getDiffDay($DateUtil.parseDate('2013-06-15'),$DateUtil.getCurDate())</b>天
+			#elseif($DateUtil.isAfter($DateUtil.parseDate('2013-06-24')))
+			#set($day = $!DateUtil.getDiffDay($DateUtil.getCurDate(),$DateUtil.parseDate('2013-06-15')) + 1)
+			电影节第<b>$day</b>天
+			#else
+			已结束
+			#end
+		</span>
+	</div>
+</div>
+<script type="text/javascript" src="${staticPath}scripts/navigation.js" head='header'  cityMap='$proMap' cookieCityname='$cookieCityname' cookieCitycode='$cookieCitycode' id='navigation'></script>
+<script type="text/javascript">
+window.addEvent("load", function(){
+	nav.init();
+});
+</script>

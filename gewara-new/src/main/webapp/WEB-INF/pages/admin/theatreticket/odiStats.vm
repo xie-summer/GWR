@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次实时座位情况管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.none{display:none;}
+	</style>
+</head>
+<body>
+#set($isOdiStats=true)
+#set($targetUrl=$VmUtils.escapeHtml("admin/dramaTicket/odiStats.xhtml?tid="))
+#parse('admin/theatreticket/menu.vm')
+<div style="color:red" id="notifyWin"></div>
+#set($parnterMap={'HFH':'火','MTX':'满','DX':'鼎','GEWA':'格瓦拉'})
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+		<div class="checkMenu ck2 clear">
+			<ul>
+				#foreach($dateMap in $dateMapList)
+				#set($cdate=$dateMap.playdate + '-01')
+				<li #if($cdate eq $!params.date)class="chooseItem"#end>
+					<div><a href="${basePath}admin/dramaTicket/odiStats.xhtml?tid=$!theatre.id&date=${dateMap.playdate}-01">$dateMap.playdate</a>
+					<h2>${dateMap.count}场</h2>
+				</li>
+				#end
+			</ul>
+		</div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>类型</th>
+					<th>项目名称</th>
+					<th>场地</th>
+					<th>时间</th>
+					<th>总座位数</th>
+					<th>Gewa锁定数</th>
+					<th>Gewa卖出数</th>
+					<th>场馆卖出数</th>
+					<th>剩余数</th>
+					<th>更新时间</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody class="tbody">#set($curTime=$DateUtil.millTimestamp)
+				#foreach($odi in $odiList)
+				#set($areaList = $areaMap.get($odi.dpid))
+				<tr class="grayBg disp" style="background-color: #F0F7FD;">
+					<td><span class="yellow">#if($odi.isOpenseat())按座位#elseif($odi.isOpenprice())#if($odi.hasPeriod('N'))通票#{else}按价格#{end}#elseif($odi.isOpenArea())按区域#{end}#if($!partnerTextMap.get($odi.seller)) [$!partnerTextMap.get($odi.seller)]#end</span></td>
+					<td title="$odi.dramaname">$VmUtils.htmlabbr($odi.dramaname,10)</td>
+					<td>$odi.roomname</td>
+					<td><a href="${basePath}admin/dramaTicket/booking.xhtml?itemid=$odi.dpid" target="_blank">$odi.gainItemName()</a></td>
+					<td>$!odi.seatnum</td>
+					<td id="l$odi.dpid">$!odi.locknum</td>
+					<td id="g$odi.dpid">$!odi.gsellnum</td>
+					<td id="c$odi.dpid">$!odi.csellnum</td>
+					<td id="r$odi.dpid">$!odi.remainnum</td>
+					<td id="u$odi.dpid">$!{DateUtil.format($odi.updatetime,'dd HH:mm:ss')}[$DateUtil.getDiffStr($curTime,$odi.updatetime)]#if($VmUtils.contains($odi.otherinfo,'statistics'))<span style="color:red">[Finished]</span>#end</td>
+					<td>
+						<input type="button" onclick="updateOpiStats($odi.dpid,this)" value="更新"/>
+					</td>
+				</tr>
+				#foreach($area in $areaList)
+				<tr class="grayBg disp">
+					<td></td>
+					<td colspan="3">$!area.name</td>
+					<td>$!area.seatnum</td>
+					<td id="l$area.id">$!area.locknum</td>
+					<td id="g$area.id">$!area.gsellnum</td>
+					<td id="c$area.id">$!area.csellnum</td>
+					<td id="r$area.id">$!area.remainnum</td>
+					<td id="u$area.id">$!{DateUtil.format($area.updatetime,'dd HH:mm:ss')}[$DateUtil.getDiffStr($curTime,$area.updatetime)]#if($VmUtils.contains($area.otherinfo,'statistics'))<span style="color:red">[Finished]</span>#end</td>
+					<td>
+						## <input type="button" onclick="updateAreaStats($area.id,this)" value="更新"/>
+					</td>
+				</tr>
+				#end
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+	<script type="text/javascript">
+	window.addEvent("domready", function(){
+		$$(".tbody tr").addEvents({
+			'mouseenter':function(){
+				this.addClass("mouseBg");
+			},
+			'mouseleave':function(){
+				this.removeClass("mouseBg");
+			}
+		});
+	});
+	function updateOpiStats(itemid,bt){
+		$(bt).dispose();
+		GewaraUtil.sendRequest("${basePath}admin/dramaTicket/updateOdiStats.xhtml",{"itemid":itemid}, function(result){
+			if(result.success){
+				$("l"+itemid).set('html', result.locknum);
+				$("g"+itemid).set('html', result.gsellnum);
+				$("c"+itemid).set('html', result.csellnum);
+				$("r"+itemid).set('html', result.remainnum);
+				$("u"+itemid).set('html', result.updatetime);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function updateAreaStats(areaid, bt){
+		$(bt).dispose();
+		GewaraUtil.sendRequest("${basePath}admin/dramaTicket/updateAreaStats.xhtml",{"areaid":areaid}, function(result){
+			if(result.success){
+				$("l"+areaid).set('html', result.locknum);
+				$("g"+areaid).set('html', result.gsellnum);
+				$("c"+areaid).set('html', result.csellnum);
+				$("r"+areaid).set('html', result.remainnum);
+				$("u"+areaid).set('html', result.updatetime);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function showThisMove(el){
+		if(el.value != ''){
+			$$('.tbody').getElements('tr').each(function(item){
+				item.addClass('none'); item.removeClass("disp");
+			});
+			var cls = '.'+el.value;
+			$$(cls).removeClass('none');
+			$$(cls).addClass('disp');
+		}else{
+			$$('.tbody').getElements('tr').each(function(item){
+				item.removeClass('none');
+			});
+		}
+	}
+</script>
+</body>
+</html>

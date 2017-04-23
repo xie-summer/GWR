@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>演出场馆列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_movie&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.tableLayer .m_c h2{margin:0;}
+		html,body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,
+		fieldset,input,p,blockquote,th,td,ins,img{margin: 0px;padding: 0px;word-wrap:break-word;}
+		ul li{list-style: none;padding:0; margin:0;}
+		.clear:after,.button:after,.ui_layout:after,.abeam:after,.list li:after,.tales60:after,.tales100:after,.selectOptions:after,.inner:after,.nav_tabs:after{content:'content';clear:both;display:block;visibility: hidden;height:0px; width:0px;font-size:0px;}
+		.clear,.button,.ui_layout,.abeam,.list li,.tales60,.tales100,.selectOptions,.inner{zoom:1}
+		.ui_hide,.none{display:none!important;}
+		
+		/*切换城市*/
+		.ui_changeCity{display:block; position:absolute; left:auto;right:350px; top:53px; cursor:pointer; font-family:"微软雅黑","宋体"; }
+			.ui_cityChoose{display:block; *display:inline-block; color:#000; font-size:14px; font-weight:normal; height:36px; line-height:36px; *line-height:38px; overflow:hidden; padding:0 15px 0 10px; background:url(/css/global/ico_arrow.gif) no-repeat right 17px;}
+		.ui_cityChoice{background-position:right -15px;}
+		
+		.ui_city_plugs{-webkit-box-shadow:2px 2px 0px rgba(0, 0, 0, 0.1); -moz-box-shadow:2px 2px 0px rgba(0, 0, 0, 0.1); box-shadow:2px 2px 0px rgba(0, 0, 0, 0.1);}
+		.ui_city_plugs a.select{color:#c30;}
+		.ui_city_plugs a:hover{background-color:#ec6120; color:#fff;}
+
+		.ui_t_search{height:30px;width:230px; float:left; margin-top:10px;}
+		.ui_t_search .overTxtLabel{width:188px!important;}
+		.search_text{font-size:12px; height:18px; line-height:18px; color:#666; padding:5px 3px ;border:0; border-top-left-radius:3px; border-bottom-left-radius:3px; outline:none; float:left; width:194px;}
+		.search_button{width:27px;height:28px;float:left;display:inline-block;overflow:hidden; border-top-right-radius:3px;border-bottom-right-radius:3px;}
+		.search_button input{background-position:5px 6px; background-color:#fff; border:0px;outline:none;height:28px;width:27px;float:left;cursor:pointer;}
+		.ui_t_searchClicked .search_button input,.search_button input:hover{background-position:5px -30px; background-color:#e8e8e8;}
+		/************************************
+					search
+		*************************************/
+		.autocompleter-choices,.classW{position:absolute;margin:0px 0 0 0px;border-spacing:inherit;border-collapse:separate;padding:0;list-style:none;
+			border:1px solid #9F9F9F; background-color:#fff;text-align:left;font-family:Verdana, Geneva, Arial, Helvetica, sans-serif;
+			z-index:100;background: #FFF;
+		}
+		.autocompleter-choices li,.classW li{position:relative;margin:0;padding:0;text-indent:7px;display:block;float:none !important;cursor:pointer;
+			font-weight:normal;white-space:nowrap;font-size:12px;line-height:25px;overflow: hidden;height:25px;width:100%;clear: both;
+		}
+		.autocompleter-choices li.autocompleter-selected,.classW li.autocompleter-selected{background-color:#FF7B03;color:#fff;}
+		.autocompleter-choices li.autocompleter-selected a,.classW li.autocompleter-selected a{color:#fff;}
+		.autocompleter-choices span.autocompleter-queried,.classW span.autocompleter-queried{display:inline;float:none;font-weight:bold;margin:0;padding:0;}
+		.autocompleter-choices li.autocompleter-selected span.autocompleter-queried,.classW li.autocompleter-selected span.autocompleter-queried{color:#9FCFFF;}
+		
+		/*城市选择（新）*/
+		.ui_city_plugs{border:1px solid #ddd; z-index:50; top:0; position:absolute; border-top:0; width:450px; background:#fff; visibility:hidden;
+			-webkit-box-shadow:2px 2px 0px rgba(0, 0, 0, 0.1); -moz-box-shadow:2px 2px 0px rgba(0, 0, 0, 0.1); box-shadow:2px 2px 0px rgba(0, 0, 0, 0.1);
+		}
+		.ui_city_plugs .inner{padding:2px;}
+		.ui_city_plugs a{text-decoration:none!important;}
+		.ui_city_search{background:#fed; height:30px; line-height:30px; padding:15px 30px; margin:1px;}
+		.ui_city_search span,.ui_city_search input{float:left;}
+		.ui_city_search .search_text{border-radius:3px;}
+		.ui_city_cType{display:block; margin-bottom:-1px; *position:relative; *top:0px;}
+		.ui_city_cType a{display:inline-block; float:left; color:#333; width:80px; height:32px; line-height:32px; line-height:34px\9; overflow:hidden; text-align:center; margin:0 2px 0 0; cursor:pointer;}
+		.ui_city_cType a:hover{color:#f60; background:#eee;}
+		.ui_city_cType a.select{border:1px solid #cecece; color:#333!important; background:#fff; border-bottom:0; font-weight:bold;}
+		.ui_city_hotList,.ui_city_allList{border-top:1px solid #cecece;}
+		.ui_city_hotList ul li{float:left;}
+		.ui_city_hotList ul li a{display:inline-block; float:left; white-space:nowrap; padding:0 8px; margin:0 5px 2px 5px; height:28px; line-height:28px; line-height:30px\9; overflow:hidden; color:#999; text-align:left;}
+		.ui_city_hotList ul li a:hover,.ui_city_hotList ul li a.select,.citySearch ul li a:hover,.citySearch ul li a:hover em{color:#fff!important; background:#ec6120;}
+	</style>
+</head>
+<body style="margin:auto">
+#set($targetUrl=$VmUtils.escapeHtml("admin/drama/remote/qryTheatre.xhtml"))
+#parse('include/constant/cityParam.vm')
+<div class="logoPanel"></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore">演出场馆列表</li>
+			<li class="currs"><a><span>基础数据下载</span></a></li>
+			#set($citycode=$cookieTool.admin_citycode.value)
+				#set($cityname=$CITY_MAP.get($citycode))
+			<li style="float: right;">
+				<div id="cityChoose" class="ui_changeCity"><b class="ui_cityChoose ">切换城市 $cityname $citycode</b></div>
+			</li>
+		</ul>
+	</div>
+</div>
+<div style="color:red" id="notifyWin"></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	#if($params.msg)<dir style="color:green">$params.msg</dir>#end
+	<div class="contentInfoList">
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+			<tr>
+				<th>场馆ID</th>
+				<th>场馆名称</th>
+				<th>类型</th>
+				<th>设置</th>
+				<th>场地区域</th>
+				<th>座位图</th>
+				<th>远程排片</th>
+			</tr>
+			</thead>
+			<tbody>
+			#foreach($theatre in $theatreList)
+			<tr>
+				<td>${theatre.id}</td>
+				<td>${theatre.name}</td>
+				<td>$profileMap.get($theatre.id).opentype</td>
+				<td><a href="${basePath}admin/dramaTicket/baseData.xhtml?tid=$theatre.id" target="_blank">基础数据</a></td>
+				<td><a href="${basePath}admin/drama/remote/refreshField.xhtml?theatreid=$!theatre.id" target="_blank">更新场地区域</a></td>
+				<td><a href="${basePath}admin/drama/remote/refreshBaseSeat.xhtml?theatreid=$theatre.id" target="_blank">更新基础座位图</a></td> 
+				<td>
+					<a href="${basePath}admin/drama/remote/refreshDramaPlayItem.xhtml?theatreid=$theatre.id" target="_blank">下载一周</a>
+					<a href="${basePath}admin/drama/remote/updateDramaPlayItem.xhtml?theatreid=$theatre.id" target="_blank">增量更新</a>
+				</td>
+			</tr>
+			#end
+			</tbody>
+		</table>
+	</div>
+</div>
+<div class="ui_city_plugs clear" id="ui_city_plugs"></div>
+<script type="text/javascript">
+	function updateRoom(tid){
+		var url = '${basePath}admin/drama/remote/updateTheatreRoom.xhtml';
+		var values = {'tid':tid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('下载成功！');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	window.addEvent('domready',function(){
+		GewaraUtil.sendLoad("ui_city_plugs", "${basePath}admin/ajax/common/adminCityList.xhtml",{'targetUrl':'$VmUtils.escapeHtml("admin/drama/remote/qryTheatre.xhtml")'}, function(result){
+		});
+		var cityBox = $('ui_city_plugs');
+		$('cityChoose').hover(cityBox,null,function(){
+			$('autoCity').setStyle('display','none');
+			$('cityKey').value="";
+			cityBox.show();
+			cityBox.toPos('cityChoose','bottomLeft',0,0);
+			cityBox.setStyle('height','320px');
+		})
+	});
+</script>
+</body>
+</html>

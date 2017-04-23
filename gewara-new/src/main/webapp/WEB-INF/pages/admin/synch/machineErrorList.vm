@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>一体机上报的错误</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width:750px; margin:auto">
+<form action="${basePath}admin/synch/getMachineError.xhtml" method="get" style="width:740px;margin:3px">
+	&nbsp;&nbsp;影院id：<input name="cinemaid" value="$!params.cinemaid"/>
+	错误code：<input name="errorCode" value="$!params.errorCode"/><br/><br/>
+	开始日期：<input name="startTime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!params.startTime"/>
+	结束日期：<input name="endTime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!params.endTime"/>
+	<input type="submit" class="button" id="urlBtn" value="查询"/>
+</form>
+<table width="750px" class="table">
+	<thead>
+	<tr>
+		<th>ID</th>
+		<th>影院id</th>
+		<th>影院名称</th>
+		<th>错误code</th>
+		<th>设备id</th>
+		<th>说明</th>
+		<th>添加时间</th>
+	</tr>
+	</thead>
+	<tbody id="picUrlTable">
+	#foreach($err in $errorList)
+	<tr id='tr$!pic.get("id")'>
+		<td>$!err.get("id")</td>
+		<td>$!err.get("cinemaid")</td>
+		<td>$!err.get("name")</td>
+		<td>$!err.get("errorCode")</td>
+		<td>$!err.get("machineid")</td>
+		<td>$!err.get("remark")</td>
+		<td>$!DateUtil.format($!err.get("addtime"),"yyyy-MM-dd HH:mm:ss")</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+#parse('include/pageUtil.vm')
+	<script type="text/javascript">
+	function setInputValue(id){
+		$("urlId").value = $('tr'+id).cells[0].innerHTML;
+		$("url").value = $('tr'+id).cells[1].innerHTML;
+		$("display").value = $('tr'+id).cells[2].lang;
+		$("remark").value = $('tr'+id).cells[3].innerHTML;
+	}
+	function setDelUrl(vid){
+		var url = "${basePath}admin/synch/delMoviePicUrl.xhtml";
+		GewaraUtil.sendRequest(url, {id:vid}, function(result){
+			if(result.success) alert('删除成功！');
+			$('tr'+vid).addClass('none');
+		});
+	}
+</script>
+</body>
+</html>

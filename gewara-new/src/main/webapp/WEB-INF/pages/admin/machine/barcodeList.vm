@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>条形码列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script> 
+	<style type="text/css">
+		.w120{width: 120px;}
+		.ml20{margin-left: 20px;}
+		.ml40{margin-left: 50px;}
+		.mt10{margin-top: 10px;}
+		.table tbody tr td,.table thead tr th{min-width:20px;padding:5px !important;text-align:center;max-width:100px;}
+		.displayElement{display: none;}
+		.showElement{display: block;}
+	</style>
+</head>
+<body style="width:80%; margin:auto">
+<div style="width:100%;">
+	<div>
+		<a href="${basePath}admin/common/qryOrderResult.xhtml" target="_blank">查看订单取票状态</a>
+	</div>
+	<div>
+		<form action="${basePath}admin/machine/createBarcode.xhtml">
+			根据场馆生产条形码>>>请输入场馆id：<input type="text" name="placeid" />
+			<input type="submit" class="button" value=" 生产"/>
+		</form>
+	</div><br/>
+	<form action="${basePath}admin/machine/getBarcodeList.xhtml">
+		条形码:<input type="text" name="barcode" value="$!params.barcode"/>
+		场次/物品id:<input type="text" name="relatedid" value="$!params.relatedid"/>
+		场馆id:<input type="text" name="placeid" value="$!params.placeid"/>
+		订单号:<input type="text" name="tradeno" value="$!params.tradeno"/>
+		<input type="submit" class="button" value=" 查 询 "/>&nbsp;&nbsp;
+		<font color="red">$!msg</font>
+		<br/>
+	</form>
+	<div id="" style="overflow: scroll;height:auto;">
+		<table class="table">
+			<thead>
+			<tr>
+				<th>序号</th>
+				<th>条形码</th>
+				<th>订单号</th>
+				<th>关联id</th>
+				<th>场馆id</th>
+				<th>状态</th>
+				<th>标识</th>
+				<th>更新时间</th>
+				<th>取票时间</th>
+				<th>添加时间</th>
+			</tr>
+			</thead>
+			<tbody id="dramaTable">
+			#foreach($barcode in $barcodeList)
+			<tr>
+				<td>$foreach.count</td>
+				<td>$!barcode.barcode</td>
+				<td>$!barcode.tradeno</td>
+				<td>$!barcode.relatedid</td>
+				<td>$!barcode.placeid</td>
+				<td>#if($!barcode.status eq 'N')默认状态#elseif($!barcode.status eq 'Y')已同步#elseif($!barcode.status eq 'T')已进场#end</td>
+				<td>$!barcode.flag</td>
+				<td>$!DateUtil.formatTimestamp($barcode.updatetime)</td>
+				<td>$!DateUtil.formatTimestamp($barcode.taketime)</td>
+				<td>$!DateUtil.formatTimestamp($barcode.addtime)</td>
+			</tr>
+			#end
+			</tbody>
+		</table>
+		<div class="page">
+			#parse('include/pageUtil.vm')
+		</div>
+	</div>
+</div>
+</body>
+</html>

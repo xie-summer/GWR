@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>订单退款管理</title>
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		table{border-collapse: collapse;}
+		th, thread{cursor: pointer;}
+		td, th{
+			text-align: left;
+			height: 23px;
+		}
+		label {display:inline-block; width:70px;text-align:right;padding:1px 0 1px 0; }
+		textarea {width:420px;}
+		
+		.showOrder{
+			border:1px solid #639BF9;padding:2px 4px;
+		}
+		.roomManageTable tbody td table{border:0px;border-bottom:1px solid #eee;}
+		.roomManageTable tbody td td{text-align: left;text-indent:10px;border-color:#eee;width:auto !important;}
+	</style>
+</head>
+<body style="width:800px; margin: auto;" class="yui-skin-sam">
+	<div class="yui-panel">
+		#parse("admin/refund/order/refundInfo.vm")
+		#if($refund)
+			#set($tradeno=$refund.tradeno)
+			#set($refundtypeMap={"full":"全额退款","part":"部分退款","supplement":"调价退款"})
+			#set($retbackMap={"Y":"需要","N":"不需要","O":"参见描述","S": "已提交财务", "R":"财务成功","F":"财务失败"})
+			#set($statusMap={"prepare":"预处理","apply":"申请","accept":"接受","reject":"不接受","success":"处理成功","finish":"退款终结","cancel":"取消退款"})
+			#set($reasonMap={"user":"用户要求","gewa":"Gewa原因","merchant":"影院原因", "price":"价格调整", "unknown":"未知"})
+			<div class="hd" style="text-align: left;text-indent: 10px;">退款信息</div>
+			<div class="bd">
+				<table cellpadding="0" cellspacing="0" width="100%" >
+				<tr>
+					<td colspan="2">添加时间：$DateUtil.format(${refund.addtime}, "yyyy-MM-dd HH:mm")</td>
+					<td colspan="2">状态: $statusMap.get($!refund.status)</td>
+				</tr>
+				<tr>
+					<td colspan="2">预处理：$!refund.preinfo</td>
+					<td colspan="2">原因：#if($reasonMap.get($!refund.reason))$reasonMap.get($!refund.reason)#else$!refund.reason#end</td>
+				</tr>
+				<tr>
+					<td colspan="2">退款方式：$refundtypeMap.get($refund.refundtype)</td>
+					<td>Gewa退款：<span class="yellow">$!refund.gewaRetAmount</span></td>
+					<td>商家退款：<span class="yellow">$!refund.merRetAmount</span></td>
+				</tr>
+				<tr>
+					<td colspan="2">申请人: $!refund.applyuser</td>
+					<td colspan="2">描述: $!refund.applyinfo</td>
+				</tr>
+				<tr>
+					<td>处理描述: $!refund.dealinfo</td>
+					<td>账务退款: $retbackMap.get($refund.retback)</td>
+					<td>原结算金额: $!refund.oldSettle</td>
+					<td>新结算金额: $!refund.newSettle</td>
+				</tr>
+				#set($otherinfoMap = $VmUtils.readJsonToMap($refund.otherinfo))
+				<tr>
+					<td colspan="2">财务处理状态: #if($VmUtils.eq($!otherinfoMap.get('status'),'Y'))成功#elseif($VmUtils.eq($!otherinfoMap.get('status'),'N'))失败#else未知#end</td>
+					<td colspan="2">失败原因: $!otherinfoMap.get('reson')</td>
+				</tr>
+				</table>
+			</div>
+		#else
+			#set($tradeno=$order.tradeNo)
+			#set($newapply='Y')
+		#end
+		#if($newapply eq 'Y' || $reapply eq 'Y')
+		<div class="bd">
+			<table cellpadding="0" cellspacing="0" width="100%">
+				<tr><td>
+					#if($reapply eq 'Y')<div style="font-size: 18px; color:red; font-weight: bolder;">下面是重新申请</div>#end
+					#if($expire)#set($typetext='[过期]')#else#set($typetext='[未过期]')#end
+					#if($timetype eq 'cur')
+						#if($expire)
+						<div style="color: red; font-size: 16px; font-weight: bolder;">无权申请过期订单退款</div>
+						#elseif($opi && !$opi.hasGewara() && $order.paidSuccess && $cinemaProfile.isRefund eq 'N')
+						<div style="color: red; font-size: 16px; font-weight: bolder;">无权申请不可退票火凤凰成功订单</div>
+						#else
+						<a href="${basePath}admin/refund/order/addCurFullRefund.xhtml?tradeno=$tradeno&status=apply&reapply=$!reapply" style="font-size: 16px;color: blue;">全额退款$typetext</a>&nbsp;&nbsp;&nbsp;&nbsp;
+						#end
+					#else
+						#if($order.status eq 'paid_success')
+						<a href="${basePath}admin/refund/order/addSupplementRefund.xhtml?tradeno=$tradeno&status=apply&reapply=$!reapply" style="font-size: 16px;color: blue;">调价退款$typetext</a>&nbsp;&nbsp;&nbsp;&nbsp;
+							#if($expire)
+								#if($order.ordertype eq 'ticket')
+						<a href="${basePath}admin/refund/order/addPartRefund.xhtml?tradeno=$tradeno&status=apply&reapply=$!reapply" style="font-size: 16px;color: blue;">部分退款$typetext</a>&nbsp;&nbsp;&nbsp;&nbsp;
+								#end
+						<a href="${basePath}admin/refund/order/addExpFullRefund.xhtml?tradeno=$tradeno&status=apply&reapply=$!reapply" style="font-size: 16px;color: blue;">全额退款$typetext</a>&nbsp;&nbsp;&nbsp;&nbsp;
+							#elseif($opi && !$opi.hasGewara() && $order.paidSuccess && $cinemaProfile.isRefund eq 'N')
+						<a href="${basePath}admin/refund/order/addCurFullRefundByDs.xhtml?tradeno=$tradeno&status=apply&reapply=$!reapply" style="font-size: 16px;color: blue;">全额退款$typetext</a>&nbsp;&nbsp;&nbsp;&nbsp;
+							#end
+						#else
+						<a href="${basePath}admin/refund/order/addExpFullRefund.xhtml?tradeno=$tradeno&status=apply&reapply=$!reapply" style="font-size: 16px;color: blue;">全额退款$typetext</a>&nbsp;&nbsp;&nbsp;&nbsp;
+						#end
+					#end
+				</td></tr>
+			</table>
+		</div>
+		#end
+	</div>
+</body>
+</html>

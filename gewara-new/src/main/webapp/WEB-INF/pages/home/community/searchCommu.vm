@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>查找圈子_格瓦拉生活网</title>
+	<meta name="keywords" content="" />
+	<meta name="description" content="" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($type={'gym':'健身','cinema':'电影','sport':'运动','qita':
+'其他','bar':'酒吧','ktv':'KTV'}) #set($tag="home")#set($community=true)
+#set($findComunity=true)
+#set($countCommu=0)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/communityMenu.vm')
+				<div class="partBg mt20">
+					<ul class="ul-60">
+						<li>        
+							<div class="ul-60Inner">分类：</div>
+							<a href="${basePath}home/commu/searchCommu.xhtml?type=all" #if($params.type eq 'all') class="select"#end>全部圈子<span >#foreach($bigTag in $tagList)#set($countCommu=($countCommu+${bigTag.get('tagcount')}))#end($!countCommu)</span></a>
+							#foreach($bigTag in $tagList)
+								#if($VmUtils.eq($bigTag.get('tag'), 'cinema') || $VmUtils.eq($bigTag.get('tag'), 'ktv') || $VmUtils.eq($bigTag.get('tag'), 'bar'))
+								<a href="${basePath}home/commu/searchCommu.xhtml?tag=$!bigTag.get('tag')" #if($!params.tag eq $bigTag.get('tag')) class="select" #end>
+								#if($type.get($bigTag.get('tag')))$type.get($bigTag.get('tag'))<span>($bigTag.get('tagcount'))</span>#end</a>
+								#else
+								#set($tagvalue=$bigTag.get('tag'))
+								#if($type.get($bigTag.get('tag')))<a href="javascript:void(0)" onclick="searchItem('$tagvalue');">$type.get($bigTag.get('tag'))<span>($bigTag.get('tagcount'))</span></a>#end
+								#end
+							#end
+						</li>
+						<li id="hotsportitem" #if($!params.tag eq 'sport')#else style="display:none;"#end>
+							<div class="ul-60Inner">项目：</div>
+							<a href="${basePath}home/commu/searchCommu.xhtml?tag=sport">全部</a>
+							<a href="javascript:searchCommu('relatedid',288721)" #if($params.relatedid eq '288721')class="select"#end>篮球</a><a href="javascript:searchCommu('relatedid',288732)" #if($params.relatedid eq '288732')class="select"#end>羽毛球</a>
+							<a href="javascript:searchCommu('relatedid',288730)" #if($params.relatedid eq '288730')class="select"#end>桌球</a><a href="javascript:searchCommu('relatedid',288699)" #if($params.relatedid eq '288699')class="select"#end>游泳</a>
+							<a href="javascript:searchCommu('relatedid',288733)" #if($params.relatedid eq '288733')class="select"#end>乒乓球</a>
+							<a href="javascript:searchCommu('relatedid',303811)" #if($params.relatedid eq '303811')class="select"#end>溜冰</a>
+						</li>
+						<li id="hotgymitem" #if($!params.tag eq 'gym') #else style="display:none;"#end>
+							<div class="ul-60Inner">项目：</div>
+							<a href="${basePath}home/commu/searchCommu.xhtml?tag=gym">全部</a>
+							<a href="javascript:searchCommu('relatedid',291049)" #if($params.relatedid eq '291049')class="select"#end>踏板</a><a href="javascript:searchCommu('relatedid',300612)" #if($params.relatedid eq '300612')class="select"#end>搏击</a>
+							<a href="javascript:searchCommu('relatedid',291050)" #if($params.relatedid eq '291050')class="select"#end>搏击操</a><a href="javascript:searchCommu('relatedid',443490)" #if($params.relatedid eq '443490')class="select"#end>杠铃操</a>
+							<a href="javascript:searchCommu('relatedid',291056)" #if($params.relatedid eq '291056')class="select"#end>热瑜伽</a><a href="javascript:searchCommu('relatedid',291054)" #if($params.relatedid eq '291054')class="select"#end>哈达瑜伽</a>
+							<a href="javascript:searchCommu('relatedid',291053)" #if($params.relatedid eq '291053')class="select"#end>流瑜伽</a><a href="javascript:searchCommu('relatedid',291036)" #if($params.relatedid eq '291036')class="select"#end>肚皮舞</a>
+							<a href="javascript:searchCommu('relatedid',291040)" #if($params.relatedid eq '291040')class="select"#end>拉丁舞</a><a href="javascript:searchCommu('relatedid',291043)" #if($params.relatedid eq '291043')class="select"#end>恰恰恰</a>
+							<a href="javascript:searchCommu('relatedid',291062)" #if($params.relatedid eq '291062')class="select"#end>跆拳道</a><a href="javascript:searchCommu('relatedid',291059)" #if($params.relatedid eq '291059')class="select"#end>空手道</a>
+						</li>
+						<li>
+							<div class="ul-60Inner">区域：</div>
+							<a href="javascript:searchCommu('countycode','all')" #if($VmUtils.eq($!params.countycode, 'all'))class="select"#end>
+							所有区域($!countCommu)</a>
+							#foreach($county in $countyList)
+							#set($countyCount=$countyCountMap.get($county.id))
+							<a href="javascript:searchCommu('countycode',$county.countycode)" #if($VmUtils.eq($!params.countycode,$county.countycode))class="select"#end>
+							${county.briefname}($countyCount)</a>
+							#end
+						</li>
+						<form id="searchForm" action="${basePath}home/commu/searchCommu.xhtml">
+							<input type="hidden" id="tag" name="tag" value="$!VmUtils.escapeHtml($params.tag)"/>
+							<input type="hidden" id="relatedid" name="relatedid" value="$!VmUtils.escapeHtml($params.relatedid)"/>
+							<input type="hidden" id="countycode" name="countycode" value="$!VmUtils.escapeHtml($params.countycode)"/>
+							<input type="hidden" id="sort" name="sort" value="$!VmUtils.escapeHtml($params.sort)"/>
+						<li class="mt20">
+							<div class="ul-60Inner">搜索：</div>
+							<input type="text" value="$!VmUtils.escapeHtml($params.keyword)" class="text" name="keyword" id="keyword"/>
+							<input type="button" value="确定" class="fdBt" onclick="search();"/>
+							<div class="clear"></div>
+							<span class="gray">你能在这里搜索任何你感兴趣的圈子，如"电影"、"摇滚"、"美食"等</span>
+						</li>
+						</form>
+					</ul>
+				</div>
+				<div class="horn">
+					<div class="title mt10">查找到共<b class="fc_b">$count</b>个圈子</div>
+				</div>
+				<ul class="ui_abeam btLine">
+					#foreach($commu in $listCommu)
+					<li class="abeam">
+						<div class="uipic">
+							<a href="${basePath}quan/$commu.id" target="_blank"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw90h90',$!{commu.rlogo})) no-repeat center center" alt="" width="90" height="90"/></a>
+						</div>
+						<div class="uiText">
+							<h2>
+								<a href="${basePath}quan/$commu.id" class="brown" target="_blank">$!commu.name</a>
+							#if($VmUtils.eq($!commu.checkstatus,'Y'))<img src="${picPath}css/images/quan_cert.gif" class="ml20" style="position:relative;top:4px;" />#end
+							</h2>
+							<p>当前人数：$!commu.commumembercount人</p>
+							<p>创建时间：$DateUtil.format($!commu.addtime,'yyyy-MM-dd HH:mm')</p>
+							<p>#if(!$commu.interesttag)$!VmUtils.escabbr($!commu.info,100)
+								#else $!commu.interesttag#end
+							</p>
+							<p class="rsv  mt10">
+							#if($member.id ne $commu.adminid && !$mapIsCommuMember.get($!commu.id))
+							<a href="${basePath}home/commu/applyAddCommu.xhtml?commuid=$!commu.id" class="brown mr5" target="_blank"><span>加入圈子</span></a>|
+							#elseif($member.id eq $commu.adminid)
+							<a href="${basePath}home/commu/updateCommu.xhtml?commuid=$!commu.id" class="brown mr5" target="_blank">圈子管理</a>|
+							#else
+							<a href="${basePath}home/commu/messageLog.xhtml?commuid=$!commu.id" class="brown mr5" target="_blank">圈子名片</a>|
+							#end
+							<a href="${basePath}quan/getCommuDiaryList.xhtml?commuid=${commu.id}" class="brown mr5 ml5" target="_blank">圈内话题</a>|
+							<!--  <a href="${basePath}quan/getCommuActivityList.xhtml?commuid=${commu.id}" class="brown mr5 ml5" target="_blank">圈内活动</a>| -->
+							<a href="${basePath}quan/albumList.xhtml?commuid=${commu.id}" class="brown mr5 ml5" target="_blank">圈内相册</a>|
+							<a href="${basePath}quan/getCommuMemberList.xhtml?commuid=${commu.id}" class="brown mr5 ml5" target="_blank">圈内成员</a></p>
+						</div>
+					</li>
+					#end
+				</ul>
+				
+			#parse('include/pageUtil.vm')
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+function search(){
+	$('searchForm').submit();
+}
+function searchItem(value){
+	var item = 'hot'+value+'item';
+	if(value == 'sport'){
+		$('hotgymitem').hide();
+		$('tag').value = "sport";
+	}
+	if(value == 'gym') {
+		$('hotsportitem').hide();	
+		$('tag').value = "gym";
+	}
+	$(item).show();
+}
+function searchCommu(field, value){
+	$('relatedid').value = '';
+	$(field).value=value;
+	if(field == 'countycode') $('tag').value = "";
+	if($('keyword').value=='输入关键字') $('keyword').value='';
+	$('searchForm').submit();
+}
+</script>		
+</body>
+</html>

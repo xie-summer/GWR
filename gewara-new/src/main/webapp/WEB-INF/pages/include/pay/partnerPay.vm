@@ -1,0 +1,94 @@
+<div class="mt20">
+	#set($payinfo = $VmUtils.getJsonValueByKey($partner.otherinfo,'paymenu'))
+	#if($partner.partnerpath ne "sdo" && $partner.partnerpath ne "spsdo")
+	<div class="menu_ck" id="menu_ck">
+		<ul>
+			<li id="bank"><label for="n1"><input type="radio" id="n1" name="paymethod" value="pnrPay"  checked="checked"/>网上银行支付</label></li>
+			<li id="zfb"><label for="n2"><input type="radio" id="n2" name="paymethod" value="directPay"/>支付宝付款</label></li>
+			<li id="cnp"><label for="n7"><input type="radio" id="n7" name="paymethod" value="china2Pay"/>银联在线</label></li>
+		</ul>
+	</div>
+	#end
+	<div class="pay_out">
+		<div class="pay_inner">
+			<ul class="ui-160 clear">
+				#if($partner.partnerpath ne "douban" && $partner.partnerpath ne "kaixin")<li>
+					<div class="ui-160Inner" style="text-align:right"><b class="fs14">应付总额</b>：</div>
+					<b style="font-size:2em" class="yellow">${order.due}</b>元
+				</li>#end
+				#if($partner.partnerpath eq "sdo" || $partner.partnerpath eq "spsdo")
+				<li><input type="hidden" value="sdoPay" name="paymethod"><img src="$VmUtils.randomPic('','img/pay/logo3.png')" />确认支付后页面将进入盛大积分+现金支付页面，完成支付后页面会进入提示支付成功页面。</li>
+				#else
+				<li class="clear" id="pnrPay">
+					<div class="ui-160Inner" style="text-align:right">选择网上银行：</div>
+					<dl class="left">
+						<dd class="check-three clear">
+							<label style="background:url(${basePath}img/pay/icon_zsyh_s.gif) 24px center  no-repeat;" for="no1"><input name="paybank" id="no1" type="radio" value="07"/></label>
+							<label style="background:url(${basePath}img/pay/icon_ccb_s.gif) 24px center  no-repeat;" for="no2"><input name="paybank" id="no2" type="radio" value="10"/></label>
+							<label style="background:url(${basePath}img/pay/icon_zggsyh_s.gif) 24px center  no-repeat;" for="no3"><input name="paybank" id="no3" type="radio" value="25"/></label>
+							<label style="background:url(${basePath}img/pay/icon_zgyh.gif) 24px center  no-repeat;" for="no4"><input name="paybank" id="no4" type="radio" value="45"/></label>
+						</dd>
+						<dd class="mt10 check-three clear">
+							<label style="background:url(${basePath}img/pay/icon_pa.gif) 24px center  no-repeat;" for="no5"><input name="paybank" type="radio" id="no5" value="50"/></label>
+							<label style="background:url(${basePath}img/pay/icon_comm_s.gif) 24px center  no-repeat;" for="no6"><input name="paybank" id="no6" type="radio" value="41"/></label>
+							<label style="background:url(${basePath}img/pay/icon_abc_s.gif) 24px center  no-repeat;" for="no7"><input name="paybank" id="no7" type="radio" value="29"/></label>
+							<label style="background:url(${basePath}img/pay/icon_spdb_s.gif) 24px center  no-repeat;" for="no8"><input name="paybank" id="no8" type="radio" value="16"/></label>
+						</dd>
+					</dl>
+				</li>
+				<li class="none" id="directPay">
+					确认支付后页面将进入支付宝支付页面，完成支付后页面会进入提示支付成功页面。<a href="https://www.alipay.com/aip/aip_validate_list.htm?trust_id=AIP01027377" target="_blank"><img src="https://img.alipay.com/img/logo/aip/logo154x50.jpg" height="26"/></a>
+				</li>
+				<li class="none" id="china2Pay">
+					<div><img src="${picPath}css/buss/chinaPay.jpg"/></div>
+					<p class="mt5">您需要先拥有一张已开通网上支付功能的银行卡。</p>
+					<div class="gray mt5" style="width:630px;">支持工商银行、建设银行、招商银行、华夏银行、民生银行、兴业银行、上海农商行、广州农商银行、浦发银行、交通银行、中信银行、广发银行(全国)、光大银行(全国)、珠海农信、渤海银行、温州银行、晋城市商业银行等银行</div>
+				</li>
+				#end
+				<li>
+					<div class="xuzi-boxTitle" style="margin-top:0px;"><label class="yellow" for="xiyi" style="cursor: pointer;"><input type="checkbox" id="xiyi" class="mr5"/>*<b class="xzbx" style="font-size:14px;color:#000">服务条款</b></label>（重要提示：请仔细阅读服务条款，同意并勾选后付款）</div>
+					<div class="xuzi-box">
+						1、从锁定座位开始，请在15分钟内完成支付，否则您选择的座位或将被释放；<br/>
+						2、请仔细核对您的购票信息，影票一旦购买成功，不退不换；<br/>
+						3、该影票的票价中包含运营、维护、服务等费用；<br/>
+						4、在极少数情况下，由于影院设备或网络问题导致您选中的座位需要调换，请允许格瓦拉帮您换选其他最佳座位；
+					</div>
+				</li>
+				<li>
+					<label #if($!isKaixin) #else onmouseover="$(this).addClass('bg_hover');" onmouseout="$(this).removeClass('bg_hover')" class="bigBt button"#end for="subBt"><input type="submit" class="rb1-12" id="subBt" value="确认无误，提交"/></label>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>
+#if($partner.partnerpath ne "sdo" && $partner.partnerpath ne "spsdo")
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		$$('.menu_ck label').each(function(item,i){
+			if(item.getElement('input').checked){item.getParent().addClass("select");}
+			item.addEvent('click',function(){
+				if(this.getElement('input').checked && !this.getParent().hasClass('select')){
+					clearBankRadio();
+					clearRadio(this.getElement('input').value);
+					this.getParent().addClass('select');
+				}
+			});
+		});
+	});
+	
+	function clearRadio(val){
+		$$(".menu_ck input[type=radio]").each(function(item){
+			if(item.value != val){
+				item.checked='';
+				item.getParent('li').removeClass('select');
+				$(item.value).addClass('none');
+			}else{
+				$(val).removeClass('none');
+			}
+		});
+	}
+	function clearBankRadio(){
+		$$(".check-three input[type=radio]").each(function(item){item.checked='';});
+	}
+</script>
+#end

@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>手机客户端升级信息推荐</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.mt5{margin-top:5px;}
+		.ml15{margin-left: 15px;}
+		.mb5{margin-bottom: 5px;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+#parse('include/mobile/appsource.vm')
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td colspan="6" align="left" class="td">当前位置>>手机客户端升级信息推荐</td>
+		<td align="right" class="td" colspan="7">
+			<a href="javascript:void(0);" onclick="showUpGrade()" >增加</a>|
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td">
+		<td align="left" class="wd60"><b>手机类型</b></td>
+		<td align="left" class="wd60"><b>应用类型</b></td>
+		<td align="left" class="wd60"><b>应用来源</b></td>
+		<td align="left" class="wd60"><b>版本Code</b></td>
+		<td align="left" class="wd60"><b>版本Name</b></td>
+		<td align="left" class="wd220"><b>升级路径1</b></td>
+		<td align="left" class="wd60"><b>下载Name</b></td>
+		<td align="left" class="wd220"><b>升级路径2</b></td>
+		<td align="left" class="wd60"><b>强制升级版本号</b></td>
+		<td align="left" class="wd60"><b>特殊版本号</b></td>
+		<td align="left" class="wd60"><b>状态</b></td>
+		<td align="left" ><b>操作</b></td>
+	</tr>
+	#foreach($upgrade in $upGradeList)
+	<tr class="td">
+		<td align="left" class="wd60">
+			$!upgrade.tag
+		</td>
+		<td align="left" class="wd60">
+			$!appMap.get($!upgrade.apptype)
+		</td>
+		<td align="left" class="wd60">
+			$appSourcesMap.get($!upgrade.appsource)
+		</td>
+		<td align="left" class="wd60">
+			$!upgrade.versionCode
+		</td>
+		<td align="left" class="wd60">
+			$!upgrade.versionName
+		</td>
+		<td>
+			${absPath}/mobile/appdowload.xhtml?appid=$upgrade.id
+		</td>
+		<td align="center" class="wd60">
+			$!upgrade.downloadName
+		</td>
+		<td>
+			$!upgrade.upgradeUrl
+		</td>
+		<td>
+			$!upgrade.foceversion
+		</td>
+		<td>
+			$!upgrade.specificversion
+		</td>
+		<td>
+			#if($!upgrade.upgradeStatus eq 1)版本升级#else已升级#end
+		</td>
+		<td align="left">
+			<a href="javascript:void(0);" onclick="showUpGrade('$!upgrade.id')" >[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0);" onclick="delUpGrade('$!upgrade.id')">[删除]</a>
+		</td>
+		</tr>
+		#end
+</table>
+<div id="upgradeDiv" style="visibility: hidden;z-index: 100;width: 480px;height: 480px;background: #ffffff;border: 1px solid black;">
+<div class="ml15 mt5">
+<div style="text-align: center;"><span id="addtype">保存</span>手机客户端升级信息</div>
+<hr/>
+<form id="gform" name="gform">
+<input type="hidden" name="uid" id="uid"/>
+<div class="mt5">
+<div class="mt10">
+手机类型:<select name="tag" id="tag"><option value="iphone">iphone</option><option value="android">android</option></select>
+</div>
+版本code：<input name="versionCode" id="versionCode"/>
+</div>
+<div class="mt5">
+版本name：<input name="versionName" id="versionName"/>
+</div>
+<div class="mt5">
+下载name：<input name="downloadName" id="downloadName"/><span style="color:red">只限英文</span>
+</div>
+<div class="mt5">
+版本说明：<textarea rows="3" cols="15" name="remark" id="remark"></textarea>
+</div>
+<div class="mt5">
+版本升级：<select name="upgradeStatus" id="upgradeStatus"><option value="1">版本升级</option><option value="0">已升级</option></select>
+</div>
+<div class="mt5">
+应用类型：<select name="apptype" id="apptype">
+			<option value="cinema">影院</option>
+			<option value="fest">电影节</option>
+			<option value="bar">酒吧</option>
+			<option value="sport">运动</option>
+			<option value="gym">健身</option>
+			<option value="drama">演出</option>
+			<option value="cinema_cmcc">移动android客户端</option>
+			</select>
+			
+</div>
+</form>
+<div class="mt5">
+应用来源：<select name="appsource" id="appsource">
+		#foreach($key in $appSourcesMap.keySet())
+		<option value="$!key">$!appSourcesMap.get($key)</option>
+		#end
+</select>
+</div>
+<div class="mt5">
+强制升级版本号(code)：<input name="foceversion" id="foceversion"/><br/>（请填写需要升级的应用的最大版本code，只能一个，例如：3，就是升级小于等于3的应用）
+</div>
+<div class="mt5">
+特殊版本号（code）：<input name="specificversion" id="specificversion"/><br/>（不需要更新的应用code,可填写多个，例如：3，5，6，这三个版本的应用不需要升级）
+</div>
+<div>
+上传客户端程序（文件不大于10M,格式为apk)：
+<iframe height="25px" width="460px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSingleAPK.xhtml?uploadPath=common/&callback=uploadAPK"></iframe><br />
+下载路径：<input type="text" name="upgradeUrl" id="upgradeUrl" style="width:340px"/>
+</div>
+<div class="mt5 ml30">
+<input type="button" onclick="addUpGrade()" value="保存"/> <input type="button" value="取消" onclick="hideUpGrade()"/>
+</div>
+</div>		
+</div>
+<script type="text/javascript">
+function showUpGrade(uid){
+	var url = "${basePath}admin/mobile/getUpGrade.xhtml";
+	var values = {'uid':uid};
+	GewaraUtil.sendRequest(url,values,function(result){
+		if(result.success){
+			//GewaraUtil.setValues(result);
+			$('uid').value = result.id;
+			$('tag').value = result.tag;
+			$('versionCode').value = result.versionCode;
+			$('versionName').value = result.versionName;
+			$('upgradeStatus').value = result.upgradeStatus;
+			$('upgradeUrl').value = result.upgradeUrl;
+			$('apptype').value = result.apptype;
+			$('appsource').value = result.appsource;
+			$('foceversion').value = result.foceversion;
+			$('specificversion').value = result.specificversion;
+			$('remark').value = result.remark;
+			$('downloadName').value=result.downloadName;
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+	GewaraUtil.showDialog('upgradeDiv');
+}
+
+function hideUpGrade(){
+	$('uid').value = '';
+	GewaraUtil.hideDialog('upgradeDiv');
+}
+
+function addUpGrade(){
+	var uid = $('uid').value;
+	var tag = $('tag').value;
+	var code = $('versionCode').value;
+	var name = $('versionName').value;
+	var status = $('upgradeStatus').value;
+	var upgradeurl = $('upgradeUrl').value;
+	var apptype = $('apptype').value;
+	var appsource = $('appsource').value;
+	var foceversion = $('foceversion').value;
+	var specificversion = $('specificversion').value;
+	var remark = $('remark').value;
+	var downloadName=$('downloadName').value;
+	
+	if(!$chk(code)){
+		gewaUtil.alert('版本code不能为空！');
+		return;
+	}
+	if(!$chk(name)){
+		gewaUtil.alert('版本name不能为空！');
+		return;
+	}
+	if(!$chk(upgradeurl)){
+		gewaUtil.alert('下载路径不能为空！');
+		return;
+	}
+	
+	if(!$chk(downloadName)){
+		gewaUtil.alert('下载文件名不能为空！');
+		return;
+	}
+	
+	var url = "${basePath}admin/mobile/saveUpGrade.xhtml";
+	var values = {'uid':uid,'tag':tag,'code':code,'name':name,"status":status,"upgradeUrl":upgradeurl,"apptype":apptype,"appsource":appsource,"foceversion":foceversion,"specificversion":specificversion,"remark":remark,"downloadName":downloadName};
+	GewaraUtil.sendRequest(url,values,function(result){
+		if(result.success){
+			gewaUtil.alert('保存成功！');
+			refreshPage();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function delUpGrade(uid){
+	gewaUtil.confirm('确认删除吗？',function(){
+		var url = "${basePath}admin/mobile/delUpGrade.xhtml";
+		var values = {'uid':uid};
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success) refreshPage();
+			else gewaUtil.alert('删除失败！');
+		});		
+	});
+}
+function uploadAPK(params){
+	var picpath = params['picpath'];
+	if(picpath != ''){
+		$('upgradeUrl').value = '${uploadPath}'+picpath;
+	}
+}
+</script>
+</body>
+</html>

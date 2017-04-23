@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>添加</title>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+</head>
+<body>
+<div style="width:800px;margin:0 auto; text-align:left;">
+	<input type="text" name="cityname" id="cityname" value="$!params.cityname"/>
+	<input type="button" value="搜索" onclick="query()"/>
+</div>
+<div id="macDetail"></div>
+<script type="text/javascript">
+function query(){
+	var url = '${basePath}admin/city/getCityByName.xhtml';
+	var values={'cityname':$('cityname').value};
+	GewaraUtil.sendLoad('macDetail', url, values, function(result){
+		if(!result.success){
+			var msg = result.json.msg;
+			alert(msg);
+		}else{
+			gewa.util.maskContent("","macDetail","城市信息",400,"macDetail");
+		}
+	});
+}
+function saveGewaCity(){
+	var values = GewaraUtil.getValues($("cityForm"));
+	var url = "${basePath}admin/city/saveGewaCity.xhtml";
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			refreshPage();
+		}else {
+			alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

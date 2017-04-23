@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>用户账目平衡试算</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.notZero{background-color: red; color: white;}
+	</style>
+</head>
+<body style="width:750px; margin:auto;">
+<div style="width:700px; margin:auto;">
+	<div>账目时段：$checkRecord.fromtime至$checkRecord.checktime</div>
+	<div class="mt10 bolder fs16">用户账户变化平衡表</div>
+	<ul>
+		<li>上次余额：$arecord.lbanlance</li>
+		<li>本次余额：$arecord.abanlance</li>
+		<li>本次充值：$arecord.charge</li>
+		<li>本次消费：$arecord.gewapay</li>
+		<li>本次退款：$arecord.refund</li>
+		<li>上次余额+本次充值-本次消费-本次账户余额-本次退款: $arecord.zero</li>
+	</ul>
+	<div>本次账目详细</div>
+	<table class="table mt10">
+		<thead>
+			<tr>
+				<th>项目</th>
+				<th>余额增加</th>
+				<th>余额减少</th>
+			</tr>
+		</thead>
+		<tbody>
+			#set($chargeAmount=0)
+			#foreach($charge in $chargeList)#set($chargeAmount=$chargeAmount+$charge.totalfee)
+			<tr>
+				<td><a href="${basePath}admin/gewapay/chargeDetail.xhtml?tradeNo=$charge.tradeNo" target="_blank">$charge.tradeNo</a></td>
+				<td>$charge.totalfee</td>
+				<td>0</td>
+			</tr>
+			#end
+			<tr>
+				<th colspan="3">充值合计：$chargeAmount</th>
+			</tr>
+			#set($orderPayAmount=0)
+			#foreach($order in $orderList)#set($orderPayAmount=$orderPayAmount+$order.gewapaid)
+			<tr>
+				<td><a href="${basePath}admin/gewapay/orderDetail.xhtml?tradeNo=$order.tradeNo" target="_blank">$order.tradeNo</a></td>
+				<td>0</td>
+				<td>$order.gewapaid</td>
+			</tr>
+			#end
+			<tr>
+				<th colspan="3">支付订单合计：$orderPayAmount</th>
+			</tr>
+			#set($adjAmount=0)
+			#foreach($adj in $adjustmentList)
+			<tr>
+				<td>$adj.correcttype</td>
+			#if($adj.correcttype.startsWith('sub')) #set($adjAmount=$adjAmount - $adj.amount)
+				<td>$adj.amount</td>
+				<td>0</td>
+			#else  #set($adjAmount=$adjAmount + $adj.amount)
+				<td>0</td>
+				<td>$adj.amount</td>
+			#end			
+			</tr>
+			#end
+			<tr>
+				<th colspan="3">调整合计：$adjAmount</th>
+			</tr>
+		</tbody>
+	</table>
+	#set($totalBan = $chargeAmount - $orderPayAmount + $adjAmount)
+	<div>总增加额=充值合计-支付订单合计+调整合计=$totalBan</div>
+</div>
+</body>
+</html>

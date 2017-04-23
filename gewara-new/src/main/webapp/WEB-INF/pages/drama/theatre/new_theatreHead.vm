@@ -1,0 +1,109 @@
+<div class="detail_head isTheatre clear new_detail_head">
+	<div class="detail_head_pic">
+		<div class="slideshow">
+			<a href="" title="">
+				<img class="bp" width="120" title="$!theatre.name" alt="" src="$VmUtils.randomPic('sw120h60',$theatre.logo)" />
+			</a>
+		</div>
+	</div>
+	<div class="detail_head_desc">
+		<div class="detail_head_name">
+			<span style="right:0px; height:24px;" class="right">
+			 	<span class="freeTag0 f_bt" id="nCollect" onclick="collection($!theatre.id, 'theatre')"></span>
+				<span id="nTResult"></span><span id="hTResult"></span>
+				<span class="cancelBox clear none" id="hCollect">
+					<span class="mr5">已添加</span>|
+					<a href="javascript:void(0)" onclick="cancelTreasure('theatre','$theatre.id')">取消</a>
+				</span>				
+			</span>
+			<h1>$!theatre.name</h1>
+		</div>
+	#if($theatre.feature)
+	<dl>
+		<dt><em>剧院特色：</em></dt>
+		<dd>$!theatre.feature</dd>
+	</dl>
+	#end
+	#if($theatre.address)
+	<dl>
+		<dt><em>详细地址：</em></dt>
+		<dd><a class="cDrama" href="${basePath}theatre/theatreList.xhtml?countycode=$theatre.countycode" target="_blank">$!theatre.countyname</a>$!theatre.address<span class="ffst ml5">[<a target="_black" href="${basePath}common/baiduMap.xhtml?id=$theatre.id" class="blue">地图</a>]</span></dd>
+	</dl>
+	#end
+	#if($theatre.contactphone)
+	<dl>
+		<dt><em>联系电话：</em></dt>
+		<dd>$!theatre.contactphone</dd>
+	</dl>
+	#end
+	<p class="mt10 clear">
+		<a href="javascript:void(0);" title="免费发送地址到手机" onclick="showTemplate();" class="right c999">地址发送到手机</a>
+		#if($VmUtils.gt($playCount,0))
+		<label class="gym_btn"><a class="button bigBt redBt" href="${basePath}theatre/$theatre.id/pricetable"><span>在线购票</span></a></label>
+		#end
+	</p>
+</div>
+<div class="detail_head_ratings">
+	<dl class="clear">
+		<!-- <dt>评分：</dt> -->
+		<dd>
+			<div class="ratingsSide clear">
+				#set($gmark=$VmUtils.getSingleMarkStar($theatre, "general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+				#set($isBigStaticRating=true)
+				#parse('include/global/staticRating.vm')
+				<span><sub id="mark_integer">$gmark1</sub><sup id="mark_decimal">.$gmark2</sup></span>
+			</div>
+			<div class="ratingsGo">
+				<div class="mt10 center"><span class="button minBt whiteBt" onclick="showMovieMark();"><span><em>我要评分</em></span></span><!--<span class="ml10 scoretips">详情</span>--></div>
+					#set($generalmark=$goCount*100/$sumCount)
+					#if($sumCount > 60 && $sumCount ne 100 && $mtCount ne 25 && $geCount ne 25 && $okCount ne 25 && $neCount ne 25)
+					<div class="gray center mt10"><span class="brown fs14 mr5"><strong>$!{generalmark}%</strong></span>瓦友推荐</div>
+					#end
+			</div>
+		<div class="ratingsCount">
+			<span><b>$!theatre.clickedtimes</b>关注</span>|
+			<span><b>$!commentCount</b>点评</span>
+		</div>
+	</div>
+</div>
+
+<div class="detail_nav">
+	<ul>
+		<li #if($isDetail)class="select" #end><a href="${basePath}theatre/$theatre.id">首页</a></li>
+		<li class="navline"></li>
+		<li#if($isPlayItem) class="select" #end><a href="${basePath}theatre/$theatre.id/pricetable">上演剧目<span>($!playCount)</span></a></li>
+		<li class="navline"></li>
+		<li #if($isIntro)class="select" #end><a href="${basePath}theatre/$theatre.id/introduce">简介</a></li>
+		<li class="navline"></li>
+		<li #if($isComment)class="select" #end><a href="${basePath}theatre/$theatre.id/commentlist">哇啦<span>($!commentCount)</span></a></li>
+		<li class="navline"></li>
+		<li #if($isNews)class="select" #end><a href="${basePath}theatre/$theatre.id/newslist">资讯<span>($!newsCount)</span></a></li>
+		<li class="navline"></li>
+		<li #if($isPictureDetail) class="select" #end><a href="${basePath}theatre/$theatre.id/picturelist">图片<span>($!picCount)</span></a></li>
+		<li class="navline"></li>
+		<li #if($isMap) class="select" #end><a href="${basePath}theatre/baiduMap.xhtml?id=$theatre.id">地图</a></li>
+	</ul>
+	<a target="_blank" class="goblog" href="${basePath}blog/theatre">话剧论坛</a>
+</div>
+#parse('drama/theatre/sendToPhone.vm')
+<script type="text/javascript">
+function showTemplate(){
+	checkLogin(true,function(){
+		gewa.util.issure('','SendtheatreInfo','发送剧院信息',540,'SendtheatreInfo',function(){
+			$('mform').submit();
+		});
+		getMobile();
+		GewaraUtil.refreshCaptcha('captchaTheatre');
+	});
+}
+function getMobile(){
+	var url='${basePath}ajax/getLogonMemberMobile.xhtml';
+	gewara.util.sendRequest(url,{},function(result){
+		if(result.success){
+			if(result.mobile!=null){
+				$('mobile').value = result.mobile;
+			}
+		}
+	});
+}
+</script>

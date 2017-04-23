@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>影片预测基础数据</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body>
+	<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+	<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+	<form action="${basePath}admin/trends/index.xhtml" method="post">
+		统计时间：
+		<input name="queryDate" id="queryDate" readonly="readonly" onclick="WdatePicker()" type="text" style="width:80px" value="$!queryDate"/>
+		<input type="submit" value="查询"/>
+	</form> 
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>影片ID</th>
+					<th>影片名称</th>
+					<th>统计日期</th>
+					<th>首映日期</th>
+					<th>想看数</th>
+					<th>感兴趣数</th>
+					<th>关注数</th>
+					<th>购票数</th>
+					<th>评分用户数（购）</th>
+					<th>评分用户数（未）</th>
+					<th>哇啦数</th>
+					<th>影评数</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+			#if(!$VmUtils.isEmptyList($trendsCountList))
+				#foreach($movieTrend in $trendsCountList)
+				<tr>
+					<td>$movieTrend.movieId</td>
+					<td><a href="${basePath}admin/trends/movieTrends.xhtml?movieid=$movieTrend.movieId" target="_blank">$movieTrend.moviename</a></td>
+					<td>$movieTrend.countDate $movieTrend.countTime</td>
+					<td>#if($movieTrend.releasedate) $DateUtil.formatDate($DateUtil.parseDate($DateUtil.formatTimestamp($movieTrend.releasedate))) #end</td>
+					<td>$movieTrend.collectedtimesCountN</td>
+					<td>$movieTrend.collectedtimesCountY</td>
+					<td>$movieTrend.clicktimesCount</td>
+					<td>$movieTrend.boughtcount</td>
+					<td>
+						<a href="${basePath}admin/trends/memberMarkList.xhtml?movieid=$!movieTrend.movieId&queryModel=N"
+							 target="_blank">
+							$movieTrend.memberMarkCountY
+						</a>
+					</td>
+					<td>
+						<a href="${basePath}admin/trends/memberMarkList.xhtml?movieid=$!movieTrend.movieId&queryModel=N"
+							 target="_blank">
+							$movieTrend.memberMarkCountN
+						</a>
+					</td>
+					<td><a href="${basePath}movie/$movieTrend.movieId" target="_blank">$movieTrend.walaCount</a></td>
+					<td><a href="${basePath}movie/$movieTrend.movieId" target="_blank">$movieTrend.diaryCount</a></td>
+				</tr>
+				#end
+			#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+</body>
+</html>

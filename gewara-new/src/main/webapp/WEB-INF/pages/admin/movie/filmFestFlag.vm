@@ -1,0 +1,29 @@
+<div class="table" style="width:500px;height:auto;position:relative;top:30px;left:-10px;">
+<ul>
+<form id="gcForm">
+<input type="hidden" value="$!movie.id" name="id" />
+<input type="hidden" value="$!tag" name="tag" />
+<li class="hhhhh">
+#foreach($gc in $gcList)
+<input type="checkbox" value="$gc.tag" name="flag" #if($VmUtils.contains($movie.flag,$gc.tag)) checked="checked" #end/>$gc.title &nbsp;
+#end
+</li>
+	<li>&nbsp;&nbsp;<input type="button" onclick="save()" value="保存" style="width: 50px;"/>
+	<input type="button" onclick="javascript:GewaraUtil.hideDialog('pointText');" value="取消" style="width: 50px;"/></li>
+</form>
+</ul>
+</div>
+<script>
+save = function(){
+	var values = GewaraUtil.getValues('gcForm', ',');
+	var url = "${basePath}admin/filmfest/saveMovieFlag.xhtml";
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("信息添加成功！");
+			refreshPage();
+		}else {
+			alert(result.msg);
+		}
+	});
+}
+</script>

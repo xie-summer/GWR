@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>合作用户管理</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<style>
+		label {display:inline-block;width:100px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea {display:inline}
+		.rolesList label{display:inline-block; width:150px; margin:0 10px 10px 0; text-align:left;}
+	</style>
+</head>#parse('include/mobile/appsource.vm')
+<body class="yui-skin-sam" style="margin:auto">
+<div id="movieDialog" class="yui-panel" style="width:700px;margin:auto">
+	<div class="hd">[合作账户管理]</div>
+	<div class="bd">
+	<form name="apiUserForm" id="apiUserForm" action="${basePath}admin/api/saveCooperUser.xhtml" method="post">
+		<input type="text" name="uid" value="$!{apiUser.id}"/>
+		<div>
+			<label for="name">公司名称：</label>
+			<input name="name" type="text" value="$!{apiUser.name}" style="width:150px;" />
+			<label for="usertype">用户类型：</label>
+			<select name="usertype" style="width:100px;">
+				<option value="ticket">电影订票</option>
+				<option value="sport" #if($apiUser.usertype eq 'sport')selected="selected"#end>运动订票</option>
+				<option value="synch" #if($apiUser.usertype eq 'synch')selected="selected"#end>同步数据</option>
+				<option value="other" #if($apiUser.usertype eq 'other')selected="selected"#end>其他</option>
+			</select>
+		</div>
+		<div>
+			<label for="loginname">登录账号：</label>
+			<input name="loginname" type="text" value="$!{apiUser.loginname}"  style="width:220px;"/>
+			#if(!$!params.uid)
+			<label for="loginpass">登录密码：</label>
+			<input name="loginpass" type="password" style="width:220px;"/>
+			#end
+		</div>
+		<div>
+			<label for="status">开通状态：</label>
+			<select name="status">
+				<option value="pause" #if('pause' eq $apiUser.status) selected="selected"#end>暂停使用</option>
+				<option value="open" #if('open' eq $apiUser.status) selected="selected"#end>正常使用</option>
+				<option value="stop" #if('stop' eq $apiUser.status) selected="selected"#end>停止使用</option>
+			</select>
+		</div>
+		<div>
+			<label for="roles">角色：</label>
+			<input name="roles" id="roles" value="$!{apiUser.roles}" style="width:400px;"/><span class="req" style="">*</span>
+		</div>
+		<div>
+			<label for="partnerids">合作商ID：</label>
+			<input name="partnerids" id="partnerids" value="$!{apiUser.partnerids}" style="width:400px;"/><span class="req" style="">*</span>
+		</div><br/>
+		
+		<div>
+			<label for="tag">tag：</label>
+			<input name="tag" id="tag" value="$!{apiUser.tag}" style="width:400px;"/><span class="req" style="">*</span>
+		</div><br/>
+		
+		<div>
+			<label for="relatedids">场馆ID：</label>
+			<input name="partnerids" id="partnerids" value="$!{apiUser.relatedids}" style="width:400px;"/><span class="req" style="">*</span>
+		</div><br/>
+		
+		<div>
+			<label for="category">category：</label>
+			<input name="category" id="category" value="$!{apiUser.category}" style="width:400px;"/><span class="req" style="">*</span>
+		</div><br/>
+		
+		<div>
+			<label for="categoryids">项目ID：</label>
+			<input name="categoryids" id="categoryids" value="$!{apiUser.categoryids}" style="width:400px;"/><span class="req" style="">*</span>
+		</div><br/>
+		
+		<div class="rolesList">
+			<label>手机渠道：</label><br/>
+			#foreach($as in $appSourcesMap.keySet())
+			<label><input type="checkbox" name="appsource" value="$as"  #if($apiUser.asList.contains($as))checked="checked"#end/>$appSourcesMap.get($as)</label>
+			#end
+		</div><br/>
+		<div class="rolesList">
+			<label>来源：</label><br/>
+			#foreach($ori in $oriMap.keySet())
+			<label><input type="checkbox" name="origin" value="$ori"  #if($apiUser.oriList.contains($ori))checked="checked"#end/>$oriMap.get($ori)</label>
+			#end
+		</div>
+		<div>
+			<label>&nbsp;</label><input type="submit" class="button" style="width:100px" value="保存数据"/>
+		</div>
+		</form>
+	</div>
+</div>
+</body>
+</html>

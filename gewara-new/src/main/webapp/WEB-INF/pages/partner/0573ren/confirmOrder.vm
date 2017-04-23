@@ -1,0 +1,275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Expires" content="0" />    
+	<meta http-equiv="Cache-Control" content="no-cache" />    
+	<meta http-equiv="Pragma" content="no-cache" />    
+	<title>确认订单-嘉兴人论坛</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=new_partner&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.bodyCantainer em{color:#497bac;}
+		.ck_panel a.select,.ck_panel a:hover{background:#ff9e21;color:#fff;}
+		.ck_date a.select,.ck_date a:hover{color:#fff;background:#ff9420;font-weight: bold;}
+		.gewaT{
+			height:45px;
+			line-height:22px;
+			padding:10px;
+			background:#fff url(${staticPath}css/buss/logo.gif?v=0001) 0 0 no-repeat;
+			font-size:12px;
+			color:#045FA5;
+			position: relative;
+			width:960px;
+			margin:10px auto;
+		}
+		.gewaT .gocity{width:40px;height:30px;line-height:30px;padding:0 26px 0 4px;display:inline-block;position: absolute;left:221px;top:11px;cursor: pointer;text-align:center;overflow:hidden;color:#333;font-weight:bold;font-size:14px;font-family: '宋体'}
+		.gewaT .p{height:22px;width:86%;position: absolute;left:90px;bottom:3px;overflow:hidden;}
+		.gewaT .more{top:10px; position:absolute; right:0; text-align:right;}
+	</style>
+</head>
+<body>#set($partnerFlag='chinapay')
+#set($page='cmwifi/index')
+<div class="ui_layout" style="width:980px;position: relative;margin:0 auto;">
+	<div class="gewaT">
+		<div class="more">
+			<p><img src="${staticPath}css/buss/serverPhone.gif?v=0001"/></p>
+			<p>在线选座购票服务由格瓦拉生活网提供</p>
+		</div>
+		<div class="p">
+			<span class="left">
+				#if(!$VmUtils.isNull($gewaCommend))
+				<a href="$!gewaCommend.link" class="dot" target="_blank">$!gewaCommend.title </a>
+				#end
+			</span>
+		</div>
+	</div>
+	<div class="payOrderSteps">
+		<ul class="payStep03">
+			<li class="step1">1.选择场次</li>
+			<li class="step2">2.在线选座</li>
+			<li class="step3">3.确认订单并支付</li>
+			<li class="step4">4.完成购票</li>
+		</ul>
+	</div>
+	<form id="payForm" action="${basePath}partner/${partner.partnerpath}/saveOrder.xhtml" target="_top" method="post">
+	<input type="hidden" name="orderId" value="$!order.id"/>
+	<input type="hidden" name="encQryStr" value="$!encQryStr" />
+	<input type="hidden" name="phonenumber" id="phonenumber" value="$!{phonenumber}"/>
+	<input type="hidden" name="checkvalue" id="checkvalue" value="$!{checkvalue}"/>
+	<div class="pay_info_box mt20">
+		<div class="title"><h2>确认购买信息</h2></div>
+			<ul class="ui_abeam">
+				<li class="abeam">
+					<div class="uipic"><img src="$VmUtils.randomPic('cw96h128',${movie.limg})" alt="${opi.moviename}"/></div>
+					<div class="uiText" style="width:360px;">
+						<p>影片：<b class="fs14">$!{opi.moviename}</b></p>
+						<p>影院：<b class="fs14">$!{opi.cinemaname}</b><span class="ml10">（$opi.roomname）</span></p>
+						<p>地址：$!{cinema.countyname}$!{cinema.address}<a href="${basePath}common/baiduMap.xhtml?id=$cinema.id&tag=cinema" class="blue" target="_blank">[地图]</a></p>
+						<p>场次：<b class="fs14 yellow">$DateUtil.format($opi.playtime,"MM-dd HH:mm")（$DateUtil.getCnWeek($opi.playtime)）</b></p>
+						<p>数量：<span class="fs14">$order.quantity张</span><span class="ml10">($!VmUtils.getJsonValueByKey($!order.description2, '影票'))</span></p>
+						<p>总额：<span class="yellow fs14">${order.totalAmount}元</span></p>
+					</div>
+				</li>
+			</ul>
+			<div class="timeNotice">
+				<p> 您选中的座位已经成功锁定，<b class="yellow">请在$!opi.gainLockMinute()分钟内完成支付</b>，否则系统将释放已选座位。</p>
+				<p class="mt10 center">剩余支付时间：<span style="font-size:2em;color:#C03B0C"><b id="CountMsg"><b id="RemainM">15</b><b>分</b><b id="RemainS">00</b><b>秒</b></b></span></p>
+			</div>
+		</div>
+		<div class="pay_info_box mt10">
+			<div class="title"><h2>确认联系信息</h2></div>
+			<div class="inner">
+				<label for="mobileText">接收手机：</label>
+				<input type="text" style="width:150px;margin:0" id="mobileText" name="mobile" value="$!order.mobile" class="text"/>
+				<span class="yellow ml5 mr5">*</span>成功购票后，该手机将在$!opi.gainLockMinute()分钟内收到取票短信。
+			</div>
+		</div>
+		#parse('partner/discount.vm')
+		<div class="pay_out mt10">
+			<div class="pay_inner">
+				<ul>
+					<li class="sum">
+						<span>应付总额：<b class="yellow" id="payMoney">${order.due}</b>元</span>
+						<span id="totalDiscount" class="yellow left">
+						#if($order.discount gt 0)（总额：$order.totalAmount元，优惠：$order.discount元）
+						#elseif($spdiscount)<label for="discounttype" style="text-decoration: underline;cursor: pointer;line-height: 30px;height: 30px;">$!spdiscount.getFullRecommendRemark($order.totalAmount, $discountAmount)</label>#end
+						</span>
+					</li>
+					<li class="xuzi">
+						<div class="xuzi-boxTitle">
+							<label style="cursor:pointer;">
+								<input type="checkbox" class="mr5" id="xiyi"/><em style="color:red;">*</em><b style="font-size:14px;" class="xzbx">服务条款</b>
+							</label>
+							（提示：请仔细阅读服务条款，同意并勾选后付款）
+						</div>
+						<div style="width:86%;" class="xuzi-box">
+							1、从锁定座位开始，请在$!opi.gainLockMinute()分钟内完成支付，否则您选择的座位或将被释放；<br/>
+							2、请仔细核对您的购票信息，影票一旦购买成功，不退不换；<br/>
+							3、该影票的票价中包含运营、维护、服务等费用；<br/>
+							4、在极少数情况下，由于影院设备或网络问题导致您选中的座位需要调换，请允许格瓦拉帮您换选其他最佳座位；
+						</div>
+					</li>
+					<li class="mt20 clear"><label class="sblueBt"><input type="submit" value="确认无误，提交" class="Btn"/></label></li>
+				</ul>
+				<div class="clear"></div>
+			</div>
+		</div>
+		</form>
+		<form id="submitForm" name="submitForm" target="_blank" method="post"></form>
+</div>
+<div class="isDialog" id="isPayDialog" style="width:360px;height:240px;">
+	<div class="isDialog_zone"></div>
+	<div class="isDialog_text" style="width:350px;">
+		<h2>格瓦拉生活网支付提示<a href="javascript:gewa.util.isClosePayDialog();">x</a></h2>
+		<div class="inner" style="padding:10px 20px;height:175px;">
+			<div id="isPayDialog_html">
+				
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+function removeDiscount(did){
+	GewaraUtil.sendRequest("${basePath}ajax/trade/partnerRemoveDiscount.xhtml",{"orderId":$order.id, "discountId":did}, function(result){
+		if(result.success){
+			refreshPage();
+		}else {
+			alert(result.msg);
+		}
+	});
+}
+var remain, pfun;
+function getRTime(){
+	var nM = Math.floor(remain/(1000*60)) % 60;
+	var nS = Math.floor(remain/1000) % 60;
+	$("RemainM").innerHTML = (nM < 10 ? "0" : "") + nM;
+	$("RemainS").innerHTML = (nS < 10 ? "0" : "") + nS;
+	remain -= 1000;
+	if(((remain/1000).toInt()*1000)%60000==0){
+		$clear(pfun);
+		data();
+	}
+	if(remain<=0){
+		if(pfun) $clear(pfun);
+		data();
+		return;
+	}
+};
+function data(){
+	var random = (Math.random()*1000000).toInt();
+	new Request({
+		url: '${basePath}cinema/order/time.xhtml?tid=$order.id&'+random,
+		method:'get',
+		onSuccess: function(responseText) {
+			remain = responseText * 1;
+			if(remain <= 0){
+				$("CountMsg").empty();
+				$("CountMsg").innerHTML = "订单已超时";
+			}else{
+				pfun = getRTime.periodical(1000);
+			}
+		}
+	}).send();
+}
+
+window.addEvent('domready', function(){
+	$$('.object').addEvents({
+		'mouseenter':function(){this.addClass('select')},
+		'mouseleave':function(){$$('.object').each(function(item){
+				if(item.getElement('input') && !item.getElement('input').checked)item.removeClass('select');
+			});
+		}
+	});
+	data();
+	
+	$('payForm').addEvent('submit', function(e) {
+		e.stop();
+		if(!$('xiyi').checked){
+			$('xiyi').focus();
+			$$('.xuzi-boxTitle').setStyles({'font-weight':'bold','background':'#ff6200','font-size':'14px','color':'#fff','border-color':'#ff6200'});
+			$$('.xuzi-box').setStyle('border-color','#ff6200');
+			return false;
+		}
+		gewa.util.mask({'element':"disBtn",'title':'请在$!opi.gainLockMinute()分钟内完成支付'});
+		this.set('send', {onSuccess: function(response) {
+			eval(response);
+			gewa.util.clearMask();
+			if(data.success){
+				var confromhtml = '<form target="_blank" method="post" action="${absPath}/'+data.url+'"><div class="conitce"><span class="tips"></span><div class="line"><b>请再次仔细核对你的订单信息！</b><br/></div>'
+				confromhtml += '<div class="mt10">影片：$!{opi.moviename}<em class="gray">#if($movie.videolen)[$!movie.videolen分钟]#end</em><br/>影院：$!{opi.cinemaname}<br/>场次：<em class="yellow">$DateUtil.format($opi.playtime,"MM月dd日")（$DateUtil.getCnWeek($opi.playtime)）$DateUtil.format($opi.playtime,"HH:mm")</em></div></div>';
+				confromhtml += '<div class="center"><label class="sblueBt"><input type="submit" onclick="payNotice();" value="确认支付" class="Btn"/></label></div></form>';
+				gewa.util.isPartnerDialog(confromhtml);
+				/* $("submitForm").action = '${absPath}/'+data.url;
+				var showTip = '<div class="cnotice"><b>请确保当前浏览器不会阻止打开新页面，并在新页面上完成付款！</b><br/><p>付款完成前请不要关闭本窗口。<br/>完成付款后请根据您的情况点击下面按钮。</p></div>';
+					showTip += '<div class="center"><a href="javascript:cancelBt();" class="button whiteBt minBt"><span>遇到问题，重新支付</span></a><a href="javascript:sureBt();" class="button redBt minBt ml20"><span>已支付成功</span></a></div>';
+				gewa.util.maskContent('','<div class="black">'+ showTip +'</div>','',360,'gopay');
+				$("submitForm").submit(); */
+			}else{
+				gewaUtil.alert(data.msg);
+			}
+		}, onFailure:function(){
+			gewaUtil.alert("订单错误!");
+			gewa.util.clearMask();
+		}});
+		this.send();
+	});
+	$$('label.button,span.button').addEvents({
+		'mouseenter':function(){if(this.hasClass('bigBt')){this.addClass('bg_hover')}else{this.addClass('hover')}},
+		'mouseleave':function(){if(this.hasClass('bigBt')){this.removeClass('bg_hover');}else{this.removeClass('hover');}}
+	});
+});
+
+gewa.util.isClosePayDialog = function(){
+	if($('isCoreDialog') && $('isPayDialog')){
+		$('isCoreDialog').hide()
+		$('isPayDialog').hide();
+	}
+}
+
+function payNotice(){
+	gewa.util.isClosePayDialog();
+	var showTip = '<div class="cnotice"><b>请确保当前浏览器不会阻止打开新页面，并在新页面上完成付款！</b><br/><p>付款完成前请不要关闭本窗口。<br/>完成付款后请根据您的情况点击下面按钮。</p></div>';
+	showTip += '<div class="center"><a href="javascript:cancelBt();" class="button whiteBt minBt"><span>遇到问题，重新支付</span></a><a href="javascript:sureBt();" class="button redBt minBt ml20"><span>已支付成功</span></a></div>';
+	gewa.util.maskContent('','<div class="black">'+ showTip +'</div>','',360,'gopay');
+}
+
+gewa.util.isPartnerDialog = function(options){
+	options = {'html':options,'pos':$(document.body).getScrollSize(),'zone':$('isPayDialog'),'panel':$('isPayDialog_html')}
+	if(!$('isCoreDialog')){
+		options.coreDisable = new Element('div',{styles:{
+			'position':'absolute',
+			'width':options.pos.x+'px',
+			'height':options.pos.y+'px',
+			'top':'0px',
+			'left':'0px',
+			'opacity':'0.5',
+			'background-color':'#000',
+			'z-index':0
+		}}).inject(document.body);
+		options.coreDisable.set('id','isCoreDialog');
+	}else $('isCoreDialog').show()
+	options.panel.set('html',options.html);
+	options.zone.show()
+	GewaraUtil.toCenter(options.zone);
+}
+
+function cancelBt(){
+	gewa.util.container['gopay'].dispose('gopay');
+	refreshPage();
+}
+function sureBt(){
+	gewa.util.container['gopay'].dispose('gopay');
+	var index = window.history.length;
+	window.history.go((!Browser.ie)?(-index+2):(-index));
+}
+</script>
+<script src="${staticPath}scripts/loaderProxy.js?v=$VmUtils.jsVersion" data-frameid="frame_content"  data-timer="600" data-proxy="http://www.0573ren.com/gewala.html"></script>
+<script type="text/javascript">
+var pageCode="confirm.html"
+</script>
+#parse('partner/googleGa.vm')
+</body>
+</html>

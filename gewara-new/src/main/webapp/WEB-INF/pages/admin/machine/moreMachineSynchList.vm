@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>多台机器同步结果</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script> 
+	<style type="text/css">
+		.w120{width: 120px;}
+		.ml20{margin-left: 20px;}
+		.ml40{margin-left: 50px;}
+		.mt10{margin-top: 10px;}
+		.table tbody tr td,.table thead tr th{min-width:20px;padding:5px !important;text-align:center;max-width:100px;}
+		.displayElement{display: none;}
+		.showElement{display: block;}
+	</style>
+</head>
+<body style="width:75%; margin:auto">
+<div style="width:100%;">
+	<form action="${basePath}admin/machine/moreMachineSynchList.xhtml" method="get">
+		场馆id:<input type="text" name="placeid" value="$!params.placeid"/>
+		机器编号:<input type="text" name="macid" value="$!params.macid"/>
+		<input type="submit" class="button" value=" 查 询 "/>&nbsp;&nbsp;
+		<font color="red">$!msg</font>
+		<br/>
+	</form>
+	<div id="" style="overflow: scroll;height:auto;">
+		<table class="table">
+			<thead>
+			<tr>
+				<th>&nbsp;</th>
+				<th>场馆id</th>
+				<th>机器编号</th>
+				<th>TAG</th>
+				<th>同步时间</th>
+				<th>成功时间</th>
+				<th>查看取票结果</th>
+			</tr>
+			</thead>
+			<tbody id="dramaTable">
+			#foreach($mc in $mcList)
+			<tr>
+				<td>$foreach.count</td>
+				<td>$!mc.placeid</td>
+				<td>$!mc.macid</td>
+				<td>$!mc.tag</td>
+				<td>$!DateUtil.formatTimestamp($mc.synchtime)</td>
+				<td>$!DateUtil.formatTimestamp($mc.successtime)</td>
+				<td><a href="${basePath}admin/machine/takeTicketList.xhtml?placeid=$!mc.placeid" target="_blank">查看取票结果</a></td>
+			</tr>
+			#end
+			</tbody>
+		</table>
+	</div>
+</div>
+</body>
+</html>

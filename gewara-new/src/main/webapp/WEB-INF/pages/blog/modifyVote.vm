@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	#parse('include/constant/cityParam.vm')
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="robots" content="noindex" />
+	<title>发表话题-格瓦拉</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,wala&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script> 
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		.plug .tales60 .w120{width:128px;}
+		.plug .tales60 .w120 .text{width:120px;}
+		.plug .tales60 .clew .tales60{padding:0 0 0 30px;}
+		.plug .tales60 .clew .tales60 dt{margin-left:-30px;_margin-left:-15px;margin-top:0px;width:30px;}
+		.cke_skin_chris{width:600px !important;border-bottom:1px solid #bbb;float:left;}
+	</style>
+</head>
+
+<body class="plug">
+#set($isbbs=true) 
+#set($cfgHeader='header')#parse('include/navigation.vm')
+#set($titleMap={"cinema":"电影","movie":"电影","gym":"健身","gymcourse":"健身","sport":"运动","sportservice":"运动","ktv":"KTV","bar":"酒吧"})
+<div class="ui_layout">
+	<div class="crumbs">
+		<a href="${basePath}">格瓦拉生活网</a><span class="m5">»</span>
+		<a href="${basePath}activity">论坛</a><span class="m5">»</span>
+		<span>创建投票</span>
+		<span class="gr-r" style="width:100%"></span>
+	</div>
+	<div class="ui_left">
+		<div class="inner">
+			<h1 class="modifyH1">创建投票</h1>
+			<form id="voteForm">
+			<dl class="tales60">
+				<dt>主题：</dt>
+				<dd>
+					<label class="text label"><input type="text" name="subject" id="subject" value="$!VmUtils.escapeHtml($!topic.subject)" class="text"  mustTxt="请输入标题!" alt="请输入标题，最多不超过30字"/></label>
+				</dd>
+			</dl>
+			<dl class="tales60">
+				<dt style="margin-top:0px;">关联：</dt>
+				<dd id="toplug" class="plug_tales" style="height:24px;overflow:hidden;position: relative;">
+					<div>
+						<label for="no0"><input type="radio" name="tag" class="switchDis" value="" id="no0" lang="" #if(!$activity.tag)checked="checked"#end/>不关联</label>
+						#if($VmUtils.contains($cityOtherRelate,'movie'))<label class="ml10" for="no_cinema"><input name="tag" class="switchDis" id="no_cinema" lang="cinema" title="影片/影院"  type="radio" value="cinema" #if($VmUtils.eq($activity.tag, 'cinema'))checked="checked"#end align="middle"/>电影</label>#end
+						#if($VmUtils.contains($cityOtherRelate,'ktv'))<label class="ml10" for="no_ktv"><input name="tag" class="switchDis" id="no_ktv" type="radio" lang="ktv" title="ktv场馆" value="ktv" #if($VmUtils.eq($activity.tag, 'ktv'))checked="checked"#end/>KTV</label>#end
+						#if($VmUtils.contains($cityOtherRelate,'bar'))<label class="ml10" for="no_bar"><input name="tag" class="switchDis" id="no_bar" type="radio" lang="bar" title="酒吧场馆" value="bar" #if($VmUtils.eq($activity.tag, 'bar'))checked="checked"#end/>酒吧</label>#end
+						#if($VmUtils.contains($cityOtherRelate,'gym'))<label class="ml10" for="no_gym"><input name="tag" class="switchDis" id="no_gym" type="radio" lang="gym" title="项目/场馆" value="gym" #if($VmUtils.eq($activity.tag, 'gym'))checked="checked"#end/>健身</label>#end
+						#if($VmUtils.contains($cityOtherRelate,'sport'))<label class="ml10" for="no_sport"><input name="tag" class="switchDis" id="no_sport" type="radio" lang="sport" title="项目/场馆" value="sport" #if($VmUtils.eq($activity.tag, 'sport'))checked="checked"#end/>运动</label>#end
+						#if($VmUtils.contains($cityOtherRelate,'drama'))<label class="ml10" for="no_theatre"><input name="tag" class="switchDis" id="no_theatre" type="radio" lang="theatre" title="演出场馆" value="theatre" #if($VmUtils.eq($activity.tag, 'theatre'))checked="checked"#end/>演出</label>#end
+						#if($VmUtils.contains($cityOtherRelate,'activity'))<label class="ml10" for="no_activity"><input name="tag" class="switchDis" id="no_activity" type="radio" lang="activity" title="活动" value="activity" #if($VmUtils.eq($activity.tag, 'activity'))checked="checked"#end/>活动</label>#end
+					</div>
+				</dd>
+				<dd class="mt10">
+					<div class="clew">
+						<div class="title">
+							<span class="left">选项：</span>
+							<label class="left mr20" for="dx"><input type="radio" name="radio_multi" id="dx" value="topic_vote_radio" checked="checked"/>单选</label>
+							<label class="left mr20" for="fx"><input type="radio" name="radio_multi" id="fx" value="topic_vote_multi" class="ml10"/>多选</label>
+							<label class="more" for="overdate">截止日期：<input class="Wdate" type="text" size="15" id="overdate" name="overdate" value="$!diary.updatetime" onclick="WdatePicker({minDate:'${DateUtil.curDateStr}'})" readonly="readonly"/></label>
+						</div>
+						<div class="mt10">
+							#foreach($i in [1..5])
+							<dl class="tales60">
+								<dt>$i、</dt><dd><label class="text label"><input type="text" class="text" name="option$i" id="option$i"/></label></dd>
+							</dl>
+							#end
+						</div>
+						<div style="display:none;" id="more">
+							#foreach($i in [6..20])
+							<dl class="tales60 none" id="odiv$i">
+								<dt>$i、</dt><dd><label class="text label"><input type="text" class="text" name="option$i" id="option$i"/></label></dd>
+							</dl>
+							#end
+						</div>
+						<div class="tales60 mt10">
+							<p class="brown">投票选项提交以后不能修改<span class="ml20" id="shmore" onclick="showMore();" style="cursor: pointer;color:#666">更多选项...</span></p>
+						</div>
+					</div>
+				</dd>
+			</dl>
+			<dl class="tales60" style="height: 260px;">
+				<dt>内容：</dt>
+				<dd><textarea id="body" name="body"></textarea></dd>
+			</dl>
+			<dl class="tales60">
+				<dt>验证码</dt>
+				<dd>
+					
+					<input type="hidden" name="captchaId" id="captcha" />
+					<label class="text label w120"><input type="text" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" size="18" onfocus="GewaraUtil.refreshCaptcha('captcha');"/></label><span class="yellow">*</span>
+					<img id="captchaImg" src="${staticPath}css/images/blank.gif" style="cursor: pointer;vertical-align: middle;" onclick="GewaraUtil.refreshCaptcha('captcha');" title="看不清? 点我刷新"/>
+				</dd>
+			</dl>
+			<div class="tales60" id="jsq"><label class="button redBt bigBt"><input type="button" onclick="saveVote();" value="写好了，加上去"/></label></div>
+			</form>
+		</div>
+	</div>
+	<div class="ui_right">
+		<div class="inner">
+			<div class="fs14">哪些内容格瓦拉不欢迎</div>
+			<div class="mt10">
+				<p>1、广告内容</p>
+				<p>2、涉及政治敏感信息</p>
+				<p>3、对他人进行人身攻击的内容(包括不文明用语和任何形式的挑衅,侮辱等)</p>
+				<p>4、灌水,与主题毫无关系的内容</p>
+				<p>5、违反互联网电子公告服务管理规定的内容</p>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+var ckeditor;
+window.addEvent('domready',function(){
+	//ckeditor = CKEDITOR.replace("body");
+	ckeditor = CKEDITOR.replace("body", {customConfig : '/ckeditor/gewaConfig.js'});
+	ckeditor.on('paste',function(e){
+		if($chk(e.data.html)){
+			var data = this.getData();
+			var htm = e.data.html;
+			if(e.data.html.indexOf('data:image/') > 0){
+				gewa.util.alert('图片不能直接粘贴，请点击图像上传！',function(){
+					this.setData(data);
+				}.bind(this));
+			}else if((htm.indexOf('&lt;script&gt;') > 0 || htm.indexOf('<script>') > 0 )
+			 && (htm.indexOf('&lt;style&gt;') > 0 || htm.indexOf('<style>') > 0)){
+				gewa.util.alert('粘贴非法数据，请在文本中过滤后再进行粘贴！',function(){
+					this.setData(data);
+				}.bind(this));
+			}
+		}
+	})
+	gewaUtil.textOver('.text');
+	updateModify();
+});
+function saveVote(){
+	if($('subject').value.length < 4){ 
+		gewaUtil.alert('投票标题不能少于4个字！');
+		return;
+	}
+	if($('overdate').value==""){ 
+		gewaUtil.alert('截止日期不能为空!');
+		return;
+	}
+	if($('option1').value=="" || $('option2').value==""){ 
+		gewaUtil.alert('设置答案至少2个,并按顺序填写！');
+		return;
+	}
+	el = $('jsq').getElement('input');
+	el.disabled=true;
+	checkLogin(true,function(){
+		//getAndClearFCKElement("body")
+		$('body').value = ckeditor.getData();
+		gewa.util.mask({'element':el,'title':'正在提交，请稍等...'});
+		var values = GewaraUtil.getValues("voteForm");
+		var url = '${basePath}blog/saveVote.xhtml';
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				document.location = '${basePath}blog/t'+result.retval;
+			}else{
+				el.disabled=false;
+				badEggAlert(result.msg);
+				GewaraUtil.refreshCaptcha('captcha');
+				gewaUtil.alert(result.msg);
+				gewa.util.clearMask();
+			}
+		});
+	});
+}
+function badEggAlert(status){
+	if(status == '1'){
+		gewaUtil.alert('您的发表体验机会已用完，完善账户信息就可以使用哇啦、站内信、活动、知道、论坛的所有功能啦！', function(){gotoURL('${basePath}home/acct/safetyCenter.xhtml')});
+	}else if(status == '7'){
+		gewaUtil.alert('您的发表体验机会已用完，确认您的邮件地址就可以使用哇啦、站内信、活动、知道、论坛的所有功能啦！', function(){gotoURL('${basePath}home/acct/safetyCenter.xhtml')});
+	}else if(status == '0'){
+		gewaUtil.alert('非法请求！');
+	}else if(status == '51'){
+		gewaUtil.alert('操作过于频繁！');
+	}
+	if(status =='1' || status=='7' || status == '0' || status == '51'){
+		GewaraUtil.refreshCaptcha('captcha');
+		gewa.util.clearMask();
+		return;
+	}
+}
+var atemp=0;var rtemp=0;
+function showMore(){
+	if(atemp<3){
+		atemp = atemp+1;
+		rtemp = rtemp+1;
+		for(var i=5*atemp;i<=5*atemp+5;i++){
+			if(i!=5){
+				$('more').show();
+				$('odiv'+i).removeClass('none');
+			}
+			if(atemp==3){
+				$('shmore').innerHTML='隐藏选项...';
+			}
+		}
+	}else{
+		for(var i=5*rtemp+5;i>5*rtemp;i--){
+			$('odiv'+i).addClass('none');
+		}
+		rtemp = rtemp-1;
+		if(rtemp==0){
+			atemp=0;
+			$('shmore').innerHTML='更多选项...';
+		}
+	}
+}
+function updateModify(){
+	var defiend = new modifyDefiend('.switchDis',{'to':'toplug','cookieCitycode':'$!{cookieCitycode}'});
+	var mapList = new Hash(),relList = new Hash(),catList = new Hash();
+	var related = {'rel':'relatedid','id':'$!topic.relatedid','name':'','text':'$!relate.name','lang':'$!{topic.tag}'}
+	var category = {'rel':'categoryid','id':'$!{topic.categoryid}','name':'$!{topic.category}','text':'$!{relate2.name}','lang':'#if(!$!topic.relatedid)$!{topic.tag}#end'}
+	relList.extend(related);
+	catList.extend(category);
+	mapList.set(0,relList);
+	mapList.set(1,catList);
+	mapList.each(function(item){
+		if(item.get('id'))defiend.reset(item);
+	})
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

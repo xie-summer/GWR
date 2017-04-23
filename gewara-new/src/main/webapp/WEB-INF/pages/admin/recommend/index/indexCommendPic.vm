@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>推荐</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+	<td align="left" class="td">当前位置>><a href="${basePath}admin/recommend/indexCommend.xhtml">首页推荐</a>>>
+	<span>购票推荐</span></td>
+		<td colspan="2">
+			<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signnamemovelist&tag=movie&relatedid=true&link=true&logo=true&title=true&starttime=true&endtime=true">[电影购票推荐]</a>&nbsp;&nbsp;
+			<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signnamedramalist&tag=drama&relatedid=true&link=true&logo=true&summary=true&title=true">[话剧购票推荐]</a>&nbsp;&nbsp;
+			<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!newsignnamesportlist&tag=sportservice&relatedid=true&link=true&logo=true">[运动项目购票推荐]</a>&nbsp;&nbsp;
+			#if($isShowSportPlace)
+			<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signnamesportlist&tag=sport&relatedid=true&logo=true">[首个运动项目对应购票场馆推荐]</a>&nbsp;&nbsp;
+			#end
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;电影标题为小图标类型：3D,4D,Imax,Imax3D
+		</td>
+	</tr>
+	<tr class="td">
+			<td align="left" class="wd120"><b>电影购票推荐</b></td>
+		<td align="left" class="wd60"><b>排序</b></td>
+		<td align="left" class="wd120" colspan="2"><b>操作</b></td>
+	</tr>
+	#foreach($gcm in $gcMovieList)
+	#set($relate=$relatedHelper.getR1("gcMovieList",$gcm.id))
+	<tr class="td">
+		<td align="left" class="wd120">$!relate.moviename</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$gcm.ordernum" id="gc$gcm.id" style="width: 50px" onblur="orderNum($gcm.id, this.value)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="aEvent" href="${basePath}noLink.xhtml?id=$!gcm.id&signname=$!signnamemovelist&tag=movie&relatedid=true&link=true&logo=true&title=true&starttime=true&endtime=true">[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" onclick="javascript:del($gcm.id)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+<table border="0" width="95%"  cellspacing="0" class="itable">
+	<tr class="td">
+			<td align="left" class="wd120"><b>话剧购票推荐</b></td>
+		<td align="left" class="wd60"><b>排序</b></td>
+		<td align="left" class="wd120" colspan="2"><b>操作</b></td>
+	</tr>
+	#foreach($gcd in $gcDramaList)
+	#set($relate=$relatedHelper.getR1("gcDramaList",$gcd.id))
+	<tr class="td">
+		<td align="left" class="wd120">$!relate.dramaname</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$!{gcd.ordernum}" id="gc$gcd.id" style="width: 50px" onblur="orderNum($gcd.id, this.value)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="aEvent" href="${basePath}noLink.xhtml?id=$gcd.id&signname=$!signnamedramalist&tag=drama&relatedid=true&link=true&logo=true&summary=true&title=true">[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" onclick="javascript:del($gcd.id)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+#if($isShowSportPlace)
+<table border="0" width="95%"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td align="left" class="wd120"><b>运动场馆购票推荐</b></td>
+		<td align="left" class="wd60"><b>排序</b></td>
+		<td align="left" class="wd120" colspan="2"><b>操作</b></td>
+	</tr>
+	#foreach($gcs in $gcSportList)
+	#set($relate=$relatedHelper.getR1("gcSportList",$gcs.id))
+	<tr class="td">
+		<td align="left" class="wd120">$!relate.name</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$!{gcs.ordernum}" id="gc$gcs.id" style="width: 50px" onblur="orderNum($gcs.id, this.value)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="aEvent" href="${basePath}noLink.xhtml?id=$gcs.id&signname=$!signnamesportlist&tag=sport&relatedid=true&logo=true">[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" onclick="javascript:del($gcs.id)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+#end
+<table border="0" width="95%"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td align="left" class="wd120"><b>运动项目购票推荐</b></td>
+		<td align="left" class="wd60"><b>排序</b></td>
+		<td align="left" class="wd120" colspan="2"><b>操作</b></td>
+	</tr>
+	#foreach($gcs in $newgcSportList)
+	#set($relate=$relatedHelper.getR1("newgcSportList",$gcs.id))
+	<tr class="td">
+		<td align="left" class="wd120">$!relate.name</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$!{gcs.ordernum}" id="gc$gcs.id" style="width: 50px" onblur="orderNum($gcs.id, this.value)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="aEvent" href="${basePath}noLink.xhtml?id=$gcs.id&signname=$!newsignnamesportlist&tag=sport&relatedid=true&link=true&logo=true">[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" onclick="javascript:del($gcs.id)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+
+#parse('admin/recommend/commonjs.vm')
+</body>
+</html>

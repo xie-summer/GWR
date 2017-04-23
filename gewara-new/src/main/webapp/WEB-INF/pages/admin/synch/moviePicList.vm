@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>一体机显示的图片</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width:750px; margin:auto">
+<form action="${basePath}common/uploadPicture.xhtml" method="post" enctype="multipart/form-data" style="width:740px;margin:3px">
+	<input name="callbackUrl" value="${basePath}admin/synch/saveMoviePicUrl.xhtml" type="hidden" />
+	U R L ：<input type="file" name="image" size="50"/><br/><br/>
+	是否显示：
+	<select name="display">
+		<option value="1">是</option>
+		<option value="0">否</option>
+	</select>
+	备 注 ：<input name="remark" style="width:300px"/>
+	<input type="submit" class="button" id="urlBtn" value="新增"/>
+</form>
+<table width="750px" class="table">
+	<thead>
+	<tr>
+		<th>编号</th>
+		<th>URL</th>
+		<th>是否显示</th>
+		<th>备注</th>
+		<th>删除</th>
+	</tr>
+	</thead>
+	<tbody id="picUrlTable">
+	#foreach($pic in $picMap)
+	#set($id = $!pic.get("id"))
+	<tr id='tr$!pic.get("id")'>
+		<td>$!pic.get("id")</td>
+		<td>${picPath}$!pic.get("url")</td>
+		<td>#if($!pic.get("display")==1)是#else否#end</td>
+		<td>$!pic.get("remark")</td>
+		<td><a href="javascript:void(0);" onclick='setDelUrl("$id");'>删除</a></td>
+	</tr>
+	#end
+	</tbody>
+</table>
+	<script type="text/javascript">
+	function setDelUrl(vid){
+		var url = "${basePath}admin/synch/delMoviePicUrl.xhtml";
+		GewaraUtil.sendRequest(url, {id:vid}, function(result){
+			if(result.success) alert('删除成功！');
+			$('tr'+vid).addClass('none');
+		});
+	}
+</script>
+</body>
+</html>

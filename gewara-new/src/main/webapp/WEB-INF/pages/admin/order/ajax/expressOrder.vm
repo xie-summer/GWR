@@ -1,0 +1,50 @@
+<table>
+   	<tbody>
+   		<tr class="trbg">
+     		<td rowspan="6" class="desc">物流信息</td>
+		    <td>手机号码：</td>
+		    <td>$!order.mobile</td>
+		    <td>原手机号码：</td>
+   		</tr>
+   		<tr class="trbg">
+    		<td>物流信息：</td>
+		    <td colspan="7" style="color:red;">$!{expressStatusMap.get($orderExtra.dealStatus)}</td>
+   		</tr>
+   		<tr class="trbg">
+     		<td>快递地址：</td>
+		    <td colspan="7">$!{orderAddress.provincename}&nbsp;&nbsp;$!{orderAddress.cityname}&nbsp;&nbsp;$!{orderAddress.countyname}$!{orderAddress.address}</td>
+   		</tr>
+   		<tr class="trbg">
+	     	<td>其它信息：</td>
+		    <td colspan="7">$!order.otherinfo</td>
+   		</tr>
+   		<tr class="trbg">
+     		<td>其它操作：</td>
+		    <td>
+		    	<a style="color:blue;" href="${basePath}admin/ticket/orderLoghis.xhtml?tradeNo=$!order.tradeNo&post=true"  target="_blank">订单操作历史</a>
+		    </td>
+		    <td>
+				<a style="color:blue;" target="_blank" href="${monitorPath}admin/ticket/getRemoteOrderLog.xhtml?orderid=$order.id&timefrom=$DateUtil.formatTimestamp($order.createtime)&timeto=$!DateUtil.formatTimestamp($order.playtime)">订单远程错误</a>
+			</td>
+			<td>
+				#if(!$order.allPaid())
+					<a href="${basePath}admin/gewapay/checkOrderPayStatus.xhtml?tradeNo=$order.tradeNo" target="_blank" style="color:red">检查付款状态</a>
+				#end
+			</td>
+			<td>
+				#if($order.paymethod eq 'ccbposPay')
+					<a href="${basePath}admin/balance/ccbpos/ccbposQuickyQry.xhtml?tradeNo=$order.tradeNo" target="_blank" style="color:red">检查建行信用卡付款信息</a>
+				#end
+			</td>
+			<td>
+				<a href="${basePath}admin/orderqry/getPayProjectOrder.xhtml?tradeNo=$order.tradeNo" target="_blank" style="color:red">检查支付项目信息</a>
+			</td>
+			<td>
+				&nbsp;
+			</td>
+			<td>
+				<a href="${basePath}admin/common/callbackOrder.xhtml?tradeno=$order.tradeNo" target="_blank" style="color:red">推送信息</a>
+			</td>
+	    </tr>
+    </tbody>
+</table>

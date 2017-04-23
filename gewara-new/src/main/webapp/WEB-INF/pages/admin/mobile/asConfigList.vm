@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>渠道来源管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div class="manageItemList" style="width: 98%">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<div class="aboutMovie">
+			<table class="roomManageTable" cellpadding="0" width="98%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th style="width:60px;">合作商</th>
+						<th style="width:60px;">渠道号</th>
+						<th style="width:60px;">渠道名称</th>
+						<th style="width:60px;">版本</th>
+						<th>支付方式</th>
+						<th>扩展</th>
+						<th style="width:50px;">查询</th>
+						<th style="width:50px;">删除</th>
+					</tr>
+				</thead>
+				<tbody id="tbody">
+					#foreach($as in $asList)
+						<tr>
+							<td>$as.partnerid</td>
+							<td>$as.appsource</td>
+							<td>$!appSourcesMap.get($as.appsource)</td>
+							<td>$!as.appVersion</td>
+							<td>$!as.paymethod</td>
+							<td>$!as.specialmethod</td>
+							<td><input type="button" value="修改" onclick="getAs($as.id)"/></td>
+							<td><input type="button" value="删除" onclick="delAs($as.id)"/></td>
+						</tr>
+					#end
+				</tbody>
+			</table>
+		</div>
+		</div>
+		<b class="b2f"></b><b class="b1f"></b>
+	</div>
+</div>
+<div>
+<form id="dataForm"><br/>
+		<input type="hidden" name="id" id="id" />
+		合&nbsp;作&nbsp;商：<input type="text" name="partnerid" id="partnerid" />[50000020：android, 50000070：ios]<br/><br/>
+		渠&nbsp;&nbsp;&nbsp;&nbsp;道：<input type="text" name="appsource" id="appsource" /><br/><br/>
+		版&nbsp;&nbsp;&nbsp;&nbsp;本：<input type="text" name="appVersion" id="appVersion" /><br/><br/>
+		支付方式：<input type="text" id="paymethod" name="paymethod" style="width: 600px;"/><br/><br/>
+		特殊方式：<input type="text" id="specialmethod" name="specialmethod" /><br/><br/>
+		<input type="button" value="保存" onclick="saveAs()"/><br/>
+</form>
+</div>
+<script>
+function saveAs(){
+	var values = GewaraUtil.getValues($("dataForm"));
+	GewaraUtil.sendRequest('${basePath}admin/mobile/saveAsConfig.xhtml',values,function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function getAs(id){
+	var url = "${basePath}admin/mobile/getAsConfig.xhtml";
+	var values = {'id':id};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			GewaraUtil.setValues(result);
+		}else alert(result.msg);
+	});
+}
+function delAs(id){
+	var url = "${basePath}admin/mobile/delAsConfig.xhtml";
+	var values = {'id':id};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			refreshPage();
+		}else alert(result.msg);
+	});
+}
+</script>
+</body>
+</html>

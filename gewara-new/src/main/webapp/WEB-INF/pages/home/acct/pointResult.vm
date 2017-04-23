@@ -1,0 +1,151 @@
+#if($errorMsg || !$VmUtils.gt($pointValue,99))
+<div class="get_red get_red_after">
+	<p style="padding:25px 0 35px 0" class="center">
+		#if($errorMsg)
+			<b class="ml20">$!errorMsg</b>
+		#else
+		#if($festival)
+		<b class="ml20">
+			$!{point.reason}
+			#if($VmUtils.eq($continunum,7))， 连续<font color="red"> 7 </font>天额外奖励<font color="red"> 10 </font>积分！ #end
+		</b>	
+		#else
+		<b class="ml20">
+			#if($pointValue gt 0)今日成功领取<font color="red">$pointValue</font>个积分的大礼包！#elseif($VmUtils.eq($pointValue,0))今日成功领取<font class="red">${point.reason}</font> #else 今日冒险失败被扣除了<font color="red">$pointValue</font>个积分，愿赌服输不要灰心哦(⊙_⊙)#end
+			
+		</b><br/>
+		<b class="ml20">
+			<br /> 你当前积分总数为<a href="${basePath}home/acct/pointList.xhtml"><font style="font-size: 14px;color: red;">$!memberInfo.pointvalue</font></a>，积分可用于支付抵值，继续加油哦^_^
+		</b>
+		#end
+		#end
+	</p>
+</div>
+#else
+<div class="joinSuccess">
+	<a class="more closeTag" title="关闭" onclick="gewa.util.container['joinSuccess'].dispose('joinSuccess')" href="javascript:void(0);">关闭</a>
+	<p class="tips">恭喜抽中<b class="cMovie">$!pointValue</b>积分！</p>
+	<img src="${staticPath}css/home/red/pic_5.jpg" height="180" width="180" alt="获得200积分"/>
+	<div class="mt30">
+		<div class="send_wala clear">	
+			<div class="wala_text">
+				<div class="wala_text_inner">
+					<label for="say_area" id="wala_defV" class="wala_defV">运气好爆了哟~！$!{pointValue}积分不是谁都有的哟，赶紧得瑟一下说几句吧！</label>
+					<textarea class="walaL_say_area c666" id="say_area_tips"></textarea>
+				</div>
+			</div>
+			<div class="linkd">
+				<div class="left mt5">
+					<div class="dialogs" id="dialogs_Tips" style="float: left;">
+						<a class="face">表情<span class="dmore"></span></a>
+					</div>
+					<dl class="moved">
+						<dt>同步到：</dt><dd class="tSina"><input class="left" id="Wb_tips" type="checkbox" title="新浪微博" lang="/home/bind/sina/userApp.xhtml?source=close" style="margin-top:2px;*margin:-2px;"/><label for="Wb">新浪微博</label></dd>
+					</dl>
+				</div>
+				<div class="right">
+					<span class="num mr10 left" id="font_tips">你还可以输入<b id="font_tips_text">140</b>字！</span>
+					<a onclick="submitMicroT();" class="ibutton w90_button right" href="javascript:void(0);">发&nbsp;&nbsp;布</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#end
+<script type="text/javascript">
+var isWb_Open=true;
+window.addEvent('domready',function(){
+	if($('say_area_tips') && $('font_tips') && $('wala_defV'))new issue('say_area_tips',{'font':'font_tips','tips':'wala_defV'});
+	if($('Wb_tips')){
+		$('Wb_tips').addEvent('click',function(){
+			if(isWb_Open){
+				this.checked = '';
+				checkLogin(true, function(){
+					syscData(this.get('lang'),this.get('title'),'sina',this);
+				}.bind(this));
+			}
+		});
+	}
+	if($('Wb_tips')){
+		gewara.util.sendRequest('${basePath}ajax/member/synchroizaInfo.xhtml',{},function(result){
+			if(result.success){
+				if(result.appList){
+					if(result.appList.contains('sina')){$('Wb_tips').checked=true;isWb_Open = false;}
+				}
+			}
+		});
+	}
+	if($('say_area_tips'))new modifyTextArea('say_area_tips','font_tips_text');
+});
+submitMicroT = function(){
+	checkLogin(true,function(){
+		doSubmitMicroT();
+	}); 
+}
+doSubmitMicroT = function(){
+	if($('say_area_tips').value != ''){
+		if($('say_area_tips').value.trim().length >140){
+			gewaUtil.alert('最多输入140字符!');
+			return false;
+		}
+	}
+	var url = '${basePath}ajax/common/saveComent.xhtml';
+	var values = {title:'每日红包','micrbody':"#每日红包#" + $('say_area_tips').value};
+	var doms = new Element('div').inject($('walaDiary').getElement('div.ui_wala_comment'),'top');
+	GewaraUtil.sendLoad(doms,url, values, function(result){
+		if(result.success){
+			gewa.util.nodeBindWala(doms);
+			gewa.util.walaPhoto(doms);
+			$('say_area_tips').value = '';
+			$('say_area_tips').fireEvent('blur',[$('say_area_tips')]);
+			$('font_tips').innerHTML = '你还可以输入<b>140</b>字';
+			gewaUtil.alert('发表成功！',function(){
+				refreshPage();
+			});
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+syscData = function(url,title,tag,el){
+	var html = "",width=600;
+	if(tag == 'sina'){
+		html = new Element('iframe',{
+			'frameborder':0,
+			'scrolling':'no',
+			'height':'368',
+			'width':'600',
+			'src':url
+		});
+	}else{
+		html = new Element('div',{
+			'styles':{
+				'width':'620px',
+				'height':window.ActiveXObject?'380px':'330px',
+				'overflow':'hidden'
+			}
+		});
+		new Element('iframe',{
+			'frameborder':0,
+			'scrolling':'no',
+			'height':'850',
+			'width':'810',
+			'src':url,
+			'styles':{
+				'margin-top':'-280px',
+				'margin-left':'-160px'
+			}
+		}).inject(html);
+		width = 650;
+	}
+	gewa.util.maskContent('',html,'正在设置'+title+'的同步',width,'syscing');
+}
+var isBind = function(el){
+	var wb = document.getElements('input[type=checkbox][title=新浪微博]');
+	if(wb.length > 0){
+		wb.each(function(iput){iput.checked = true;})
+		isWb_Open = false;
+	}
+	if(gewa.util.container['syscing'])gewa.util.container['syscing'].dispose('syscing');
+}
+</script>

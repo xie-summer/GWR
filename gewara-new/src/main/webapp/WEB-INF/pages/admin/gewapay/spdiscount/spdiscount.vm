@@ -1,0 +1,438 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>特殊折扣信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline-block;width:80px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea {display:inline-block;}
+		input{width:200px;}
+		a{text-decoration: none; white-space: nowrap;}
+		.ptnidList label{display:inline-block; width:270px; margin:0 10px 10px 0; text-align:left;}
+		.bd div{margin-top:5px;}
+	</style>
+</head>
+#set($editionList=["2D","3D","IMAX2D","IMAX3D","巨幕2D","巨幕3D","双机3D", "4D"])
+<body style="width:850px;margin:auto" class="yui-skin-sam">
+<div id="priceDialog" class="yui-panel" style="width:750px;">
+	<div class="hd" id="title">编辑特殊折扣</div>
+	<div class="bd">
+	<form name="priceForm" id="priceForm" method="post">
+		<input type="hidden" name="origdid" id="origdid" value="$!origdid"/>
+		<input type="hidden" name="discountId" id="discountId" value="$!spdiscount.id"/>
+		<div>
+			<label for="flag">补贴信息：</label>
+			#if($params.discountId)
+			#if($spdiscount.extraInfo eq 'Y')
+			<a href="${basePath}admin/gewapay/spdiscount/spdiscountExtra.xhtml?discountId=$!spdiscount.id">修改补贴信息</a>
+			#else
+			<a href="${basePath}admin/gewapay/spdiscount/spdiscountExtra.xhtml?discountId=$!spdiscount.id"><font color="red">补贴信息不完成，点击修改</font></a>
+			#end
+			#else
+			<font color="red"><b>请添加完后，完成补贴信息！</b></font>
+			#end
+		</div><div>
+			<label for="flag">标识：</label>
+			<input name="flag" value="$!spdiscount.flag" type="text" mustTxt='[标识]不能为空！'/>
+			<span class="req">*</span>
+			<label for="tag">订单类型：</label>
+			<select name="tag" id="tag" mustTxt='[订单类型]不能为空！'>
+				<option value="movie"#if($spdiscount.tag eq 'movie') selected="selected"#end>电影</option>
+				<option value="goods" #if($spdiscount.tag eq 'goods') selected="selected"#end>物品</option>
+				<option value="drama"#if($spdiscount.tag eq 'drama') selected="selected"#end>话剧</option>
+				<option value="sport"#if($spdiscount.tag eq 'sport') selected="selected"#end>运动</option>
+			</select>
+			<span class="req">*</span>
+			<label for="sortnum">排序：</label>
+			<input name="sortnum" value="$!spdiscount.sortnum" type="text" style="width: 50px;" mustTxt='[排序]不能为空！'/>
+			<span class="req">*</span>
+		</div><div>
+			<label for="opentype">开放类型：</label>
+			<select name="opentype" onchange="chgPtn(this.value)" mustTxt='[开放类型]不能为空！'>
+				<option value="S"#if($spdiscount.opentype eq 'S') selected="selected"#end>特别设置</option>
+				<option value="G"#if($spdiscount.opentype eq 'G') selected="selected"#end>Gewa全站</option>
+				<option value="P"#if($spdiscount.opentype eq 'P') selected="selected"#end>渠道页面</option>
+				<option value="W"#if($spdiscount.opentype eq 'W') selected="selected"#end>GewaWAP</option>
+			</select>
+			<span class="req">*</span>
+			<label for="ptnids" style="font-weight: bolder;cursor: pointer;" title="参考页面最后的合作商id，非合作商家填写“0”">商家ID：</label>
+			<input name="ptnids" id="ptnids" value="$!spdiscount.ptnids" type="text" style="width: 300px;"/>
+		</div><div>
+			<label for="discount">折扣金额：</label>
+			<input name="discount" value="$!spdiscount.discount" type="text" style="width: 50px;" mustTxt='[折扣金额]不能为空！'/>
+			<span class="req">*</span>
+			<label for="distype">折扣方式：</label>
+			<select name="distype" mustTxt='[折扣方式]不能为空！'>
+				<option value="uprice"#if($spdiscount.distype eq 'uprice') selected="selected"#end>按单价折扣</option>
+				<option value="order" #if($spdiscount.distype eq 'order') selected="selected"#end>按订单折扣</option>
+				<option value="fprice"#if($spdiscount.distype eq 'fprice') selected="selected"#end>按固定价格</option>
+				<option value="percent"#if($spdiscount.distype eq 'percent') selected="selected"#end>按订单总额百分比</option>
+				<option value="one2one"#if($spdiscount.distype eq 'one2one') selected="selected"#end>买1送1</option>
+				<option value="exp"#if($spdiscount.distype eq 'exp') selected="selected"#end>公式</option>
+			</select>
+			<span class="req">*</span>
+		</div><div>
+			<label for="expression" style="font-weight: bolder;cursor: pointer;" title="公式的计算结果是每单的折扣金额，计算方式类似“按订单折扣”">折扣公式：</label>
+			<input name="expression" value="$!spdiscount.expression" type="text" style="width: 510px;"/>
+			<a href="${basePath}admin/gewapay/spdiscount/expression.xhtml" target="_blank">公式</a>
+		</div><div>
+			<label for="limitperiod">限够周期：</label>
+			<input name="limitperiod" value="$!spdiscount.limitperiod" style="width:50px" type="text" mustTxt='[限购周期]不能为空！'/>
+			<span class="req">*</span>
+			<label for="limitnum" style="font-weight: bolder;cursor: pointer;" title="单人限购次数<1000">限购次数：</label>
+			<input name="limitnum" value="$!spdiscount.limitnum" type="text" style="width:50px" mustTxt='[限购次数]不能为空！'/>
+			<span class="req">*</span>
+			<label for="minnum" style="width:80px;">每单限购数：</label>
+			<input name="minbuy" value="$!spdiscount.minbuy" type="text" style="width:50px" mustTxt='[每单限购数左值]不能为空！'/>～
+			<input name="buynum" value="$!spdiscount.buynum" type="text" style="width:50px" mustTxt='[每单限购数右值]不能为空！'/>
+			<span class="req">*</span>
+			<label for="periodtype" style="width:80px;">周期类型：</label>
+			<select name="periodtype" mustTxt='[周期类型]不能为空！'>
+				<option value="A" #if($VmUtils.isBlank($!spdiscount.periodtype) || $!spdiscount.periodtype eq 'A')selected="selected"#end>默认</option>
+				<option value="D" #if($!spdiscount.periodtype eq 'D')selected="selected"#end>自然一天</option>
+				<option value="W" #if($!spdiscount.periodtype eq 'W')selected="selected"#end>自然一周</option>
+				<option value="DW" #if($!spdiscount.periodtype eq 'DW')selected="selected"#end>自然两周</option>
+				<option value="M" #if($!spdiscount.periodtype eq 'M')selected="selected"#end>自然一月</option>
+			</select>
+		</div><div>
+			<label for="bankname" class="req">银行名称：</label>
+			<input type="text" name="bankname" value="$!spdiscount.bankname" style="width:200px;" mustTxt='[银行名称]不能为空！'/>
+			<span class="req">*</span>
+			<label for="extdiscount" style="width:100px;">外部折扣金额：</label>
+			<input type="text" name="extdiscount" value="$!spdiscount.extdiscount" style="width:50px;" mustTxt='[外部折扣金额]不能为空！'/>
+			<span class="req">*</span>(默认0)
+		</div><div>
+			<label for="uniqueby">唯一标识：</label>
+			<select name="uniqueby" mustTxt='[唯一标识]不能为空！'>
+				<option value="mobile">手机号标识</option>
+				<option value="memberid" #if($spdiscount.uniqueby eq 'memberid') selected="selected"#end>用户ID标识</option>
+				<option value="all" #if($spdiscount.uniqueby eq 'all') selected="selected"#end>手机+用户ID标识</option>
+				<option value="partnername" #if($spdiscount.uniqueby eq 'partnername') selected="selected"#end>合作商用户标识</option>
+			</select>
+			<span class="req">*</span>
+			<label for="description">简要说明：</label>
+			<input name="description" value="$!spdiscount.description" type="text" style="width:340px;" mustTxt='[简要说明]不能为空！'/>
+			<span class="req">*</span>
+		</div><div>
+			<label for="rebates">返利数：</label>
+			<input name="rebates" value="$!spdiscount.rebates" style="width:100px" type="text" mustTxt='[返利数]不能为空！'/>
+			<span class="req">*</span>
+			<label for="rebatesmax">返利名额：</label>
+			<input name="rebatesmax" value="$!spdiscount.rebatesmax" type="text" style="width:100px"  mustTxt='[返利名额]不能为空！'/>
+			<span class="req">*</span>
+			<label for="rebatestype">返利类型：</label>
+			<select name="rebatestype" style="width:100px"  mustTxt='[返利类型]不能为空！'>
+				<option value="Y"#if($spdiscount.rebatestype eq 'Y') selected="selected"#end>余额充值</option>
+				<option value="A"#if($spdiscount.rebatestype eq 'A') selected="selected"#end>送A券</option>
+				<option value="D"#if($spdiscount.rebatestype eq 'D') selected="selected"#end>送D券</option>
+				<option value="P"#if($spdiscount.rebatestype eq 'P') selected="selected"#end>返积分</option>
+			</select>
+			<span class="req">*</span>
+		</div><div>
+			<label for="costtype" style="font-weight:bolder; cursor: pointer;">更改成本价：</label>
+			<select name="costtype" id="costtype">
+				<option value="" #if($VmUtils.isBlank($spdiscount.costtype))selected="selected"#end>原价不变</option>
+				<option value="fixed" #if($spdiscount.costtype eq 'fixed')selected="selected"#end>固定价格</option>
+			</select>
+			<label for="costnum">成本价设置：</label>
+			<input name="costnum" id="costnum" type="text" value="$!{spdiscount.costnum}" style="width:60px;"/>
+			<label for="verifyType" style="font-weight:bolder; cursor: pointer;" title="选择后，“开放类型”必须为“特别设置”，也就是不对外显示，凭码参与">电子码参与：</label>
+			<select name="verifyType" id="verifyType">
+				<option value="" #if($VmUtils.isBlank($spdiscount.verifyType))selected="selected"#end>无</option>
+				<option value="fixed" #if($spdiscount.verifyType eq 'fixed')selected="selected"#end>固定码（可重复使用）</option>
+				<option value="onlyone" #if($spdiscount.verifyType eq 'onlyone')selected="selected"#end>只可用一次（不可重复使用）</option>
+			</select>
+		</div><div>
+			<span style="color:red;font-weight:bolder;">“更改成本价”设置后，1）折扣方式只能“按单价折扣”或按“按订单折扣”。2）低于最低限价的场次将不支持 。3）用户使用后无论是否付款都不能取消！</span>
+		</div><div>
+			<label for="drawactivity">抽奖活动id：</label>
+			<input name="drawactivity" value="$!spdiscount.drawactivity" type="text"/>(返利类型为:送D券时填写)
+			<b>领取周期:</b><input name="drawperiod" value="$!spdiscount.drawperiod" type="text" style="width: 50px;"/>
+			<label for="bindDrawCardNum" style="font-weight: bolder;cursor: pointer;" title="填写“2”，表示本活动、本周或本月内同一用户下单成功只能两次领取返券机会">领取次数：</label>
+			<input name="bindDrawCardNum" value="$!spdiscount.bindDrawCardNum" style="width: 50px;" type="text" title="填写“2”，表示本活动、本周或本月内同一用户下单成功只能两次领取返券机会"/>
+		</div>
+		<div>
+			<label for="bindgoods">绑定套餐：</label>
+			<input name="bindgoods" value="$!spdiscount.bindgoods" type="text"/>
+			<label for="bindnum" style="font-weight: bolder;cursor: pointer;" title="填写“2”，表示只有选2个座位的订单才可换1分套餐">使用数量：</label>
+			<input name="bindnum" value="$!spdiscount.bindnum" type="text"/>
+			<span class="req">*</span>
+		</div><div>
+			<label for="channel">活动类型：</label>
+			<select name="channel" mustTxt='[活动类型]不能为空！'>
+				<option value="01">01-官方活动优惠</option>
+				<option value="02" #if($spdiscount.channel eq '02')selected="selected"#end>02-合作银行优惠</option>
+			</select>
+			<span class="req">*</span>
+			<label for="bindmobile">绑定手机：</label>
+			<select name="bindmobile">
+				<option value="Y">需要</option>
+				<option value="N" #if(!$VmUtils.isNull($spdiscount) && ($spdiscount.bindmobile eq 'N'))selected="selected"#end>不需要</option>
+			</select>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<div style="color:red; display: inline-block; width: 500px;"></div>
+		</div><div>
+			<label for="paymethod" style="font-weight: bolder;cursor: pointer;" title="可使用“支付代码+支付银行”，具体见说明">支付限制：</label>
+			<input name="paymethod" value="$!spdiscount.paymethod" type="text" style="width:400px;"/>
+		</div>
+		<div>
+			<label for="ipLimitedOrderCount" style="font-weight: bolder;cursor: pointer;" title="单IP最大下单数量，移动应用活动别小于260">IP下单数量：</label>
+			<input name="ipLimitedOrderCount" value="#if($VmUtils.isNull($!spdiscount.ipLimitedOrderCount))1000#else$!spdiscount.ipLimitedOrderCount#end" type="text" style="width:100px;"  mustTxt='[IP下单数量]不能为空！'/>
+			<span class="req">*</span>
+			<label for="spcounterid" style="width:90px;font-weight: bolder;">计数器设置：</label>
+			<input name="spcounterid" value="$!spdiscount.spcounterid" type="text" style="width:100px;" mustTxt='[计数器设置]不能为空！'/>
+			<span style="font-weight: bolder;color:red;">请仔细核对，一经设置，不可以更改！</span>
+		</div><div>
+			<label for="timefrom">开始时间：</label>
+			<input name="timefrom" type="text" readonly="readonly" value="$!DateUtil.formatTimestamp($spdiscount.timefrom)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})"  mustTxt='[开放时间]不能为空！'/>
+			<span class="req">*</span>
+			<label for="timeto">结束时间：</label>
+			<input name="timeto" type="text" readonly="readonly" value="$!DateUtil.formatTimestamp($spdiscount.timeto)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})"  mustTxt='[结束时间]不能为空！'/>
+			<span class="req">*</span>
+		</div><div>
+			<label for="time1">场次时段：</label>
+			<input name="time1" type="text" style="width:90px;" value="$!spdiscount.time1" onclick="WdatePicker({dateFmt:'HHmm'})" readonly="readonly"  mustTxt='[场次时段左值]不能为空！'/><span>～</span>
+			<input name="time2" type="text" style="width:90px;" value="$!spdiscount.time2" onclick="WdatePicker({dateFmt:'HHmm'})" readonly="readonly" mustTxt='[场次时段右值]不能为空！'/>
+			<span class="req">*</span>
+			<label for="weektype">场次星期：</label>
+			<input name="weektype" type="text" value="$!spdiscount.weektype"/>
+		</div><div>
+			<label for="addtime1">下单时段：</label>
+			<input name="addtime1" type="text" style="width:90px;" value="$!spdiscount.addtime1" onclick="WdatePicker({dateFmt:'HHmm'})" readonly="readonly" mustTxt='[下单时段]不能为空！'/><span>～</span>
+			<input name="addtime2" type="text" style="width:90px;" value="$!spdiscount.addtime2" onclick="WdatePicker({dateFmt:'HHmm'})" readonly="readonly" mustTxt='[下单时段]不能为空！'/>
+			<span class="req">*</span>
+			<label for="addweek" style="font-weight: bolder;cursor: pointer;" title="星期：1,2,3,4,5,6,7 逗号隔开">下单星期：</label>
+			<input name="addweek" type="text" value="$!spdiscount.addweek"/>
+		</div><div>
+			<label>&nbsp;</label>
+			<span style="color:red; display: inline-block; width: 600px;"></span>
+		</div><div>
+			<label for="price1" style="font-weight: bolder;cursor: pointer;" title="20～100表示20&lt;=Gewa卖价&lt;=100的才优惠">卖价范围：</label>
+			<input name="price1" type="text" value="$!spdiscount.price1" style="width:50px;" mustTxt='[卖价范围左值]不能为空！'/><span>～</span>
+			<input name="price2" type="text" value="$!spdiscount.price2" style="width:50px;" mustTxt='[卖价范围右值]不能为空！'/>
+			<span class="req">*</span>
+			<label for="pricegap" style="cursor: pointer;" title="2，表示“Gewa卖价-成本价”&gt;=2元的才优惠">成本差额：</label>
+			<input name="pricegap" type="text" value="$!spdiscount.pricegap" style="width:90px;"  mustTxt='[成本差额]不能为空！'/>
+			<span class="req">*</span>
+			<label for="price1" style="font-weight: bolder;cursor: pointer;" title="20～100表示20&lt;=成本价&lt;=100的才优惠">成本范围：</label>
+			<input name="costprice1" type="text" value="$!spdiscount.costprice1" style="width:50px;" mustTxt='[成本范围左值]不能为空！'/><span>～</span>
+			<input name="costprice2" type="text" value="$!spdiscount.costprice2" style="width:50px;" mustTxt='[成本范围右值]不能为空！'/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="cardNumUnique">卡号限制：</label>
+			<select name="cardNumUnique">
+				<option value="false">否</option>
+				<option value="true" #if($spdiscount.cardNumUnique eq 'true') selected="selected"#end>是</option>
+			</select>
+			<label for="cardNumPeriodIntvel">间隔周期：</label>
+			<input type="text" style="width:50px" value="$!spdiscount.cardNumPeriodIntvel" name="cardNumPeriodIntvel" />
+			<label for="cardNumPeriodSpan" >限够周期：</label>
+			<input type="text" style="width:50px" value="$!spdiscount.cardNumPeriodSpan" name="cardNumPeriodSpan" />
+			<label for="cardNumLimitnum">限够次数：</label>
+			<input type="text" style="width:50px" value="$!spdiscount.cardNumLimitnum" name="cardNumLimitnum" />
+			<br/>
+			<span style="font-weight: bolder;color:red;">
+				间隔周期指用户使用同一卡号支付前后间隔时间，限够周期表示在此周期内同一银行卡能使用的次数。列如
+				每张银行卡一天内只能使用一次，且在一周内最多只能使用3次！间隔周期填写：3600.限购周期填写10080，限购次数填3.
+				如果只限制每张卡每周使用一次，即只需填写间隔周期（填写10080）和限购次数（填写1），限够周期则无需填写。
+			</span>
+		</div>
+		<div>
+			<label for="cardbinUkey" style=" width: 90px;">卡bin验证标识：</label>
+			<input type="text" style="width:90px" value="$!spdiscount.cardbinUkey" name="cardbinUkey" />
+		</div>
+		<div>
+			<label for="validateUrl" style="font-weight: bolder;cursor: pointer;" title="点击后跳转的链接，需要程序员配合">跳转链接：</label>
+			<input name="validateUrl" type="text" value="$!spdiscount.validateUrl" style="width:540px;"/>
+		</div>
+		<div>
+			<label for="validBackUrl" style="font-weight: bolder;cursor: pointer;" title="支付后验证是否合法，需要程序员配合">验证链接：</label>
+			<input name="validBackUrl" type="text" value="$!spdiscount.validBackUrl" style="width:540px;"/>
+		</div>
+		<div>
+			<label for="cardUkey" style="font-weight: bolder;cursor: pointer;">卡验证组：</label>
+			<input name="cardUkey" type="text" value="$!spdiscount.cardUkey" style="width:80px;"/>
+			<span class="req">多个活动支付卡号限制名额共用，则每个活动要填写一样</span>
+		</div><div>
+			<label for="relatedid" style="font-weight: bolder;cursor: pointer;" title="场所ID列表，如影院、剧院">场馆ID：</label>
+			<input name="relatedid" type="text" value="$!spdiscount.relatedid" style="width:540px;"/>
+		</div><div>
+			<label for="categoryid" style="font-weight: bolder;cursor: pointer;" title="如影片、话剧">项目ID：</label>
+			<input name="categoryid" type="text" value="$!spdiscount.categoryid" style="width:540px;"/>
+		</div><div>
+			<label for="itemid" style="font-weight: bolder;cursor: pointer;" title="如场次">场次ID：</label>
+			<input name="itemid" type="text" value="$!spdiscount.itemid" style="width:540px;"/>
+		</div><div>
+			<label for="edition" style="font-weight: bolder;cursor: pointer;" title="如电影版本">版本：</label>
+			<input name="edition" type="text" value="$!spdiscount.edition" style="width: 300px;"/>&nbsp;&nbsp;<input type="text" style="width: 300px;" readonly="readonly" value="2D,3D,IMAX2D,IMAX3D,巨幕2D,巨幕3D,双机3D,4D"/>
+		</div><div>
+			<label for="fieldid" style="font-weight: bolder;cursor: pointer;" title="如场地">场地ID：</label>
+			<input name="fieldid" type="text" value="$!spdiscount.fieldid" style="width:540px;"/>
+		</div><div>
+			<label for="loginfrom">登录来源：</label>
+			<input name="loginfrom" value="$!spdiscount.loginfrom" type="text" style="width:400px;"/>
+		</div><div>
+			<label for="citycode">可用城市：</label>
+			<input name="citycode" value="$!spdiscount.citycode" type="text" style="width:400px;" mustTxt='[可用城市]不能为空！'/>
+			<span class="req">*</span>
+			<span>000000表示全部城市可用</span>
+		</div><div>
+			<label for="remark">不可用标题：</label>
+			<textarea name="remark" id="remark" rows="3" style="width:530px;">$!spdiscount.remark</textarea>
+		</div><div>
+			<label for="enableRemark">可用标题：</label>
+			<textarea name="enableRemark" id="enableRemark" rows="3" style="width:530px;">$!spdiscount.enableRemark</textarea>
+		</div><div>
+			<label for="adcontent">详细说明：<br /><input type="button" value="HTML编辑" style="width:60px" onclick="openEditor('$np.pageno')"/></label>
+			<textarea name="adcontent" id="adcontent" style="width:520px;">$!{spdiscount.adcontent}</textarea>
+		</div><div>
+			<label for="recommendRemark">推荐文字：</label>
+			<textarea name="recommendRemark" id="recommendRemark" rows="3" style="width:530px;">$!spdiscount.recommendRemark</textarea>
+		</div><div>
+			<label>&nbsp;</label>
+			<div style="color:blue; display: inline-block; width: 600px;">“可用说明”和“推荐说明”使用amount表示折扣后的订单金额，discount表示折扣的金额</div>
+		</div><div id="logoDiv">
+			<label>银行Logo：</label>
+			<input type="text" name="logo" id="logo" value="$!{spdiscount.logo}" style="width:485px"/>
+		</div><div id="uploadDiv">
+			<label>头背景：</label>
+			<input type="text" name="banner" id="banner" value="$!{spdiscount.banner}" style="width:485px"/>
+			#if($VmUtils.isNotBlank(${spdiscount.banner}))<img style="width:162px; height:50px;" id='bannerImg' src='${basePath}$spdiscount.banner' />
+			#else<img style="width:162px; height:50px;" id='bannerImg' src='${staticPath}css/images/blank.gif' />#end
+		</div><div>
+			<label>上传：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/spdisount&callback=updateLogo&notLimit=true"></iframe>
+		</div><div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" style="width:100px" onclick="saveSpdiscount()" value="保存"/>
+		</div>
+	</form>
+	</div>
+	<div class="bd">
+		<label>订单号：</label>
+		<input type="text" id="tradeno" style="width:200px"/>
+		<input type="button" class="button" style="width:100px" onclick="checkSpdicount('tradeno')" value="验证订单" />
+	</div>
+</div>
+<ul>
+	<li>
+		<label>折扣方式：</label>
+		<div style="width:570px; display: inline-block;">
+			<span style="color:blue;">单价：</span>5表示每个座位折扣5元。<span style="color:blue;">订单：</span>5表示第个订单折扣5元。<br />
+			<span style="color:blue;">固定价格：</span>25表示每个座位的价格都是25元。<span style="color:blue;">总额百分比：</span>40表示折扣40%，只收订单总额60%的款<br />
+			<span style="color:blue;">买1送1：</span>如：用户买2免1，买3个免1，买4免2，买5个免2  ......
+		</div>
+	</li>
+	<li><div>
+			<label>限够周期：</label>
+			<div style="color:red; width:500px; display:inline-block;">单位：分钟 1小时=60，1天=1440，1周=10080，次数是指订单数。1440，2表示第天只能下两个订单。此项付款后会检查，超出数量则订单不成功</div>
+		</div>
+	</li>
+	<li>
+		<div  class="ptnidList">
+		<label>支付代码：</label><br/>
+		#foreach($pmkey in $paytextMap.keySet())
+		<label>${pmkey}&nbsp;$paytextMap.get($pmkey)</label>
+		#end
+		</div>
+	</li><li><div>
+		<label>银行代码：</label>
+		<span style="color:red; display: inline-block; width: 600px;">pnrPay:$paybankMap</span>
+		</div>
+	</li>
+	<li><div  class="ptnidList">
+		<label>合作商id：</label><br/>
+		格瓦拉电影手机：WAP：50000010,Android：50000020,IOS：50000070&nbsp;&nbsp;【50000010,50000020,50000070】<br/>
+		格瓦拉运动手机：WAP：50000010,Android：50000035,IOS：50000030&nbsp;&nbsp;【50000010,50000035,50000030】<br/>
+		格瓦拉演出手机：WAP：50000010,Android：50000080,IOS：50000081&nbsp;&nbsp;【50000010,50000080,50000081】<br/><br/>
+		#foreach($apiUser in $apiUserList)
+		<label>$apiUser.id  $apiUser.partnername</label>
+		#end
+		</div>
+	</li>
+</ul>
+<form name="htmlForm" id="htmlForm" action="${basePath}common/contentEditor.xhtml" method="post" target="_blank">
+	<input type="hidden" name="editorContent" id="editorContent"/>
+	<input type="hidden" name="returnId" id="returnId" value="adcontent"/>
+</form>
+<script type="text/javascript">
+	function openEditor(){
+		$("editorContent").value = $("adcontent").value;
+		$("htmlForm").submit();
+	}
+	function saveSpdiscount(){
+		var baseValid = GewaraUtil.baseValidForm("priceForm", "admin");
+		if (!baseValid) {
+			return;
+		}
+		
+		var values = GewaraUtil.getValues("priceForm", ",");
+		if(values.cardNumUnique == 'true'){
+			if(!values.cardNumPeriodIntvel || values.cardNumPeriodIntvel == ""){
+				alert('卡号限制时，使用间隔不可为空！');
+				return;
+			}
+			if(!values.cardNumLimitnum || values.cardNumLimitnum == ""){
+				alert('卡号限制时，限够次数不可为空！');
+				return;
+			}			
+		}
+		var url = "${basePath}admin/gewapay/spdiscount/saveSpdiscount.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('成功保存！');
+				document.location.href='${basePath}admin/gewapay/spdiscount/modifySpdiscount.xhtml?discountId='+result.retval;
+			}else{
+				alert("保存失败！" + result.msg);
+			}
+			gewa.util.clearMask();
+		});
+	}
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('banner').value = picpath;
+		$('bannerImg').src='${basePath}' + picpath;
+	}
+	
+	function checkSpdicount(el){
+		var url = '${basePath}admin/gewapay/spdiscount/checkSpdicount.xhtml';
+		var values = {'tradeno':$(el).value,'discountId':'$!params.discountId'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("认证成功！");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function chgPtn(opentype){
+		#if($!params.discountId)
+			return;
+		#end
+		if(opentype!='W'){
+			return;
+		}
+		var tag=$('tag').value
+		if(tag=='movie'){
+			$('ptnids').value='50000010,50000020,50000070';
+		}else if(tag=='sport'){
+			$('ptnids').value='50000010,50000035,50000030';
+		}else if(tag=='drama'){
+			$('ptnids').value='50000010,50000080,50000081';
+		}
+	}
+</script>
+</body>
+</html>

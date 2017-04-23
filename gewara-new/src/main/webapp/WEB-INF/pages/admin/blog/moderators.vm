@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>用户建议，投诉，Bug</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		.inputradio{vertical-align: middle;}
+		.OkMsg {
+			background: url(${staticPath}styles/images/standard_msg_ok.gif) #e6ffe6 no-repeat 5px 0px; color: #000;
+			border: #00be00 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.WarningMsg {
+			background: url(${staticPath}styles/images/standard_msg_warning.gif) #e2f5ff no-repeat 5px 0px; color: #000;
+			border: #00a8ff 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.ErrorMsg {
+			background: url(${staticPath}styles/images/standard_msg_error.gif) #fff2e9 no-repeat 5px 0px; color: #000;
+				border: #f60 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		
+	</style>
+</head>
+<body>
+#set($cururl='banzhu')
+<div class="logoPanel"></div>
+<div class="menu">
+	<div class="menuInner">
+		#parse("admin/blog/customerMenu.vm")
+	</div>
+</div>
+<div class="manageItemList">
+	<em class="b1f"></em><em class="b2f"></em>
+	<div class="contentInfoList"> 
+		<ul class="orderSet mt20">
+			<li class="seeOrder"><a href="javascript:void(0);" onclick="" class="blue">版主列表</a></li>
+			<li class=""><a href="javascript:void(0);" onclick="showDialog()" class="blue">添加版主</a></li>
+		</ul>
+		<div style="right:10px;top:35px;" id="alertmsg" >
+		</div>
+		<div id="loadapplyTableDIV">
+		<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+		<thead><tr>
+			<th>版主名称</th>
+			<th style="width:150px;">身份</th>
+			<th style="width:150px;">操作</th>
+		</tr></thead>
+		<tbody id="tbody">
+			#foreach($bkmember in $bkmemberList)
+			<tr class="grayBg h">
+				<td><a href="${absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$bkmember.memberid" target="_blank">$cacheMemberMap.get($bkmember.memberid).nickname</a>
+				<td>$bkmember.rolename</td>
+				<td>
+					<a href="javascript:void(0);" onclick="delBKMember($!bkmember.id, this)">删除</a>
+				</td>
+			</tr>
+			#end
+		</tbody>
+	</table>
+		</div>
+	</div>
+	<em class="b2f"></em><em class="b1f"></em>
+</div>
+
+<!-- FORM 添加 -->
+<div id="bkMemberDialog" style="width:370px; visibility:hidden; z-index:20;background: #000">
+	<div style="width:350px;margin:10px;background:#FFF;">
+		<div style="text-align:center;height:20px;line-height: 20px;">
+			<strong>添加论坛建议/投诉区版主</strong>
+		</div>
+		<div class="bd" style="text-align:center;">
+			<form name="bkMemberForm" id="bkMemberForm">
+				<div style="padding:5px 40px;text-align:left">
+					<label for="price" class="left">用户ID：</label>
+					<input type="text" name="memberid" class="left" mustTxt="用户ID必填!" style="width: 120px"/>
+					<span class="req left">*</span>
+					<div class="height0"></div>
+				</div>
+				<div>
+					<label>&nbsp;</label>
+					<input type="button" class="cbt1"  value="保存" onclick="saveBKmember()"/>
+					<input type="button" class="cbt1" onclick="hiDialog();" value="取消"/>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+	<script type="text/javascript">
+	function delBKMember(id, obj){
+		if(window.confirm("确定移除该版主?")){
+			var url = '${basePath}admin/blog/delModerators.xhtml';
+			var values = {'id': id};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					$(obj).getParent().getParent().dispose();
+				}else{
+					alert(result.msg);
+				}
+			})
+		}
+	}
+</script>
+	<script type="text/javascript">
+	function hiDialog(){
+		GewaraUtil.hideDialog("bkMemberDialog");
+	}
+	function showDialog(){
+		GewaraUtil.showDialog('bkMemberDialog');
+	}
+	function saveBKmember(){
+		if(!GewaraUtil.baseValidForm('bkMemberForm')) return false;
+		var url = '${basePath}admin/blog/saveModerators.xhtml';
+		var values = GewaraUtil.getValues('bkMemberForm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+</script>
+</body>
+</html>

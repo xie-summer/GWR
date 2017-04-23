@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影院影厅信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/admin.css?v=$VmUtils.jsVersion" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<style>
+		label {display:inline;float:left;width:75px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline;}
+		a{text-decoration: none; white-space: nowrap;}
+		.roomPic{height: 130px; text-align: center; float: left; border: 1px solid gray; margin:3px;}
+		input[type="radio"] {
+			margin: 3px 3px 0px 5px;
+			width:12px;
+		}
+		#roomContent{
+			width:1000px;
+		}
+	</style>
+</head>
+<body style="width:750px;margin:auto" class="yui-skin-sam">
+#set($status='spRoom')
+#parse('admin/cinema/cinemaFormHead.vm')
+<div style="width:740px;">
+	<span style="color:#ff6600">${cinema.name}</span><span>的影厅信息</span>
+	<input type="button" class="button" style="width:80px" value="增加" onclick="addCinemaRoom();"/>
+</div>
+<div id="roomContent">
+	#set($otherinfo=$VmUtils.readJsonToMap($cinema.otherinfo).get('roomList'))
+	#foreach($cinemaroom in $roomList)
+	<ul id="r$cinemaroom.id" style="border: 1px blue solid; list-style: none; padding: 5px; clear:both;">
+		<li style="background-color: gray; padding:5px; color: white;">
+			<span class="bold">影厅名称：</span><span class="orange">$cinemaroom.roomname</span>
+			<span class="bold ml20">次序：</span><span class="orange">$!cinemaroom.num</span>
+			<span class="bold ml20">座位数：</span><span class="orange">$!cinemaroom.seatnum</span>
+			<input type="button" class="ml20" style="width:60px" value="修改" onclick="modifyCinemaRoom(${cinemaroom.id});"/>
+			<input type="button" class="ml20" style="width:60px" value="删除" onclick="deleteCinemaRoom(${cinemaroom.id});"/>
+			<span class="bold ml20">电影院详细页推荐：</span><input name="otherinfoCheck" type="checkbox" style="width:10px" value="$cinemaroom.id" onclick="saveCinemaRoom(this);" #if($otherinfo != '' && $otherinfo.contains($cinemaroom.id.toString()))checked=true #end/>
+			<a class="button" href="/admin/common/pictureList.xhtml?tag=cinemaroom&relatedid=${cinemaroom.id}&uploadPath=images/cinema" target="_blank">上传影厅图片</a>
+			<a class="button" href="/admin/common/pictureList.xhtml?tag=characterroom&relatedid=${cinemaroom.id}&uploadPath=images/cinema&notLimit=2000" target="_blank">上传特色影厅图片</a>
+			<a class="button" href="$!{basePath}admin/cinema/outerRingSeat.xhtml?rid=$!{cinemaroom.id}" target="_blank">安排影厅外围座位</a>
+		</li>
+	</ul>
+	#end
+</div>
+<div id="cinemaRoomDialog" class="yui-panel" style="width:550px; position: absolute;z-index: 200; left:0px; top:0px; visibility: hidden;">
+	<div class="hd" id="title">编辑分区数据</div>
+	<div class="bd">
+	<form name="cinemaRoomForm" id="cinemaRoomForm">
+		<input type="hidden" name="id" id="id"/>
+		<input type="hidden" name="cinemaId" id="cinemaId" value="$cinema.id"/>
+		<div>
+			<label for="roomname">名称：</label>
+			<input name="roomname" type="text" id="roomname"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="num">影厅排序：</label>
+			<input name="num" id="num" type="text"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="seatnum">座位数：</label>
+			<input name="seatnum" type="text" id="seatnum"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<span style="color:red;">不确认座位数量填写0,银幕宽高单位 m,若无请保存为空</span>
+		</div>
+		<div>
+			<label for="screenwidth">银幕宽：</label>
+			<input name="screenwidth" id="screenwidth" type="text"/>
+		</div>
+		<div>
+			<label for="screenheight">银幕高：</label>
+			<input name="screenheight" id="screenheight" type="text"/>
+		</div>
+		<div>
+			<label for="content">介绍：</label>
+			<textarea name="content" id="content" rows="5"></textarea>
+		</div>
+		<div>
+			<label for="characteristictype">特色厅类型：</label>
+			<div style="margin-left: 75px;">
+			<input type="radio" name="characteristictype" id="defaultCha" value=""/>&nbsp;无特色
+			<input type="radio" name="characteristictype" value="IMAX"/>&nbsp;IMAX厅
+			<input type="radio" name="characteristictype" value="CHINAMAX"/>&nbsp;中国巨幕厅
+			<input type="radio" name="characteristictype" value="POLYMAX"/>&nbsp;保利巨幕厅
+			<input type="radio" name="characteristictype" value="DOLBYATMOS"/>&nbsp;杜比全景声<br/>
+			<input type="radio" name="characteristictype" value="4K"/>&nbsp;4K厅
+			<input type="radio" name="characteristictype" value="REALD"/>&nbsp;RealD厅
+			<input type="radio" name="characteristictype" value="DOLBY"/>&nbsp;Dolby厅
+			<input type="radio" name="characteristictype" value="XPAN"/>&nbsp;XPAN<br/>
+			<input type="radio" name="characteristictype" value="4D"/>&nbsp;4D厅
+			<input type="radio" name="characteristictype" value="SHAKE"/>&nbsp;震动厅
+			<input type="radio" name="characteristictype" value="LOVERS"/>&nbsp;情侣厅
+			<input type="radio" name="characteristictype" value="VIP"/>&nbsp;VIP厅
+			<input type="radio" name="characteristictype" value="DOUBLE3D"/>&nbsp;双机3D
+			</div>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="save();" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg').src='${basePath}' + picpath;
+	}
+	function deleteCinemaRoom(cinemaroomId){
+		alert("请与系统管理员联系！");return;
+	}
+
+	function save(){
+		var values = GewaraUtil.getValues($("cinemaRoomForm"));
+		if (values.roomname == "") {
+			alert("请输入包房的名称！");
+			return;
+		}
+		if(values.screenheight != "" && values.screenheight <= 0){
+			alert("银幕高度有问题！");
+			return;
+		}
+		if(values.screenwidth != "" && values.screenwidth <= 0){
+			alert("银幕宽度有问题！");
+			return;
+		}
+		var url = "${basePath}admin/cinema/ajax/saveOrUpdateCinemaRoom.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("保存成功");
+				gewa.util.mask({'title':"正在刷新页面...."});
+				refreshPage();
+			}
+			else alert(result.msg);
+		});
+	}
+	function cancle(){
+		GewaraUtil.hideDialog("cinemaRoomDialog");
+	}
+	function addCinemaRoom(){
+		$("id").value="";
+		GewaraUtil.showDialog("cinemaRoomDialog");
+	}
+	function modifyCinemaRoom(cinemaId){
+		var url = "${basePath}admin/cinema/ajax/getCinemaRoomById.xhtml";
+		var values = {'cinemaRoomId':cinemaId};
+		var resultArr = ["content","screenheight","screenwidth","seatnum","num","roomname","cinemaid","id"];
+		var lengthA = resultArr.length;
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				for(var index = 0;index < lengthA;index++){
+					if($(resultArr[index])){
+						if(result[resultArr[index]]){
+							$(resultArr[index]).set("value",result[resultArr[index]]);
+						}else{
+							$(resultArr[index]).set("value","");
+						}
+					}
+				}
+				if(result.characteristic){
+					$$('input[value="'+result.characteristic+'"]').set('checked','checked');
+				}else{
+					$('defaultCha').set('checked','checked');
+				}
+				isModify = true;
+				GewaraUtil.showDialog("cinemaRoomDialog");
+			}else alert(result.msg);
+		});
+	}
+	function showPic(params){
+		picpath = params['picpath'];
+		picid = params['picid'];
+		relatedid = params['relatedid'];
+		id = 'p' + picid;
+		var el = new Element('div', {
+			'id': id,
+			'styles':{'height':'130px','text-align':'center', 'float':'left', 'border':'1px solid gray', 'margin':'3px'}
+		});
+		var tmpHtml = '<div><a href="${basePath}' + picpath + '" target="_blank"><img style="height:100px;" src="${basePath}' + picpath + '" /></a></div>';
+		tmpHtml +='<div><input type="button" style="width:60px" value="删除" onclick="deletePicture(' + picid + ')" /></div>';
+		tmpHtml +='<div id="height0"></div>';
+		el.set('html', tmpHtml);
+		el.inject($('clear_' + relatedid), 'before');
+	}
+	function saveCinemaRoom(el){
+		var check = false;
+		if(el.checked){
+			check=true;
+			var checkes = document.getElementsByName('otherinfoCheck');
+			if(checkes != ''){
+				var clickNum = 0;
+				for(var i=0;i<checkes.length;i++){
+					if(checkes[i].checked){
+						clickNum++;
+					}
+				}
+				if(clickNum > 2){
+					alert('只能推荐两个放映厅');
+					refreshPage();
+					return;
+				}
+			}
+		}
+		var values = {'check':check, 'cinemaId':$cinema.id, 'cinemaRoomId':el.value};
+		var url = "${basePath}admin/cinema/saveCinemaRoom.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("保存成功");
+			}
+			else alert(result.msg);
+		});
+	}
+</script>
+</body>
+</html>

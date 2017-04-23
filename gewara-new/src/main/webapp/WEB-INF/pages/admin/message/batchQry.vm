@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>群发短信</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width: 750px; margin:auto" class="yui-skin-sam">
+<br/>
+<fieldset style="width: 520px;text-align: left;margin-left: 105px;">
+	<legend class="yellow">未登录</legend>
+	<form action="${basePath}admin/message/batchQryMember.xhtml">
+		<div>
+			<label>从：</label>
+			<input name="startdate" style="width: 100px;" value="$!params.startdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" readonly="readonly"/>
+			<label>至今未登录</label>&nbsp;&nbsp;
+			<label>查询：</label>
+			<input type="radio" name="type" value="id" #if($!params.type eq 'id' || $VmUtils.isBlank($!params.type))checked #end/>ID
+			<input type="radio" name="type" value="email" #if($!params.type eq 'email')checked #end/>email
+			<input type="radio" name="type" value="mobile" #if($!params.type eq 'mobile')checked #end/>手机
+			<input type="submit" value="查询"/>
+		</div>
+	</form>
+</fieldset>
+<fieldset style="width: 520px;text-align: left;margin-left: 105px;">
+	<legend class="yellow">未购票</legend>
+	<form action="${basePath}admin/message/batchQryOrder.xhtml">
+		<div>
+			<label>从：</label>
+			<input name="startdate" style="width: 100px;" value="$!params.startdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" readonly="readonly"/>
+			<label>至今未购买</label>&nbsp;&nbsp;
+			<label>查询：</label>
+			<input type="radio" name="type" value="id" #if($!params.type eq 'id' || $VmUtils.isBlank($!params.type))checked #end/>ID
+			<input type="radio" name="type" value="email" #if($!params.type eq 'email')checked #end/>email
+			<input type="radio" name="type" value="mobile" #if($!params.type eq 'mobile')checked #end/>手机
+			<input type="submit" value="查询"/>
+		</div>
+	</form>
+</fieldset>
+
+<fieldset style="width: 520px;text-align: left;margin-left: 105px;">
+	<legend class="yellow">购票用户</legend>
+	<form action="${basePath}admin/message/batchQryTicketOrder.xhtml">
+		<div>
+			支付方式：<select name="paytype">
+					<option value="">请选择....</option>
+				#foreach($key in $keySet)
+					<option value="$key" #if($key eq $!params.paytype)selected="selected"#end>$payMap.get($key)</option>
+				#end
+			</select>
+			<label>从：</label>
+			<input name="starttime" style="width: 140px;" value="$!params.starttime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>至
+			<input name="endtime" style="width: 140px;" value="$!params.endtime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/><br/>
+			订单状态：<select name="status">
+				<option value="">请选择....</option>				
+				#foreach($key in $skeySet)
+					<option value="$key" #if($key eq $!params.status)selected="selected"#end>$statusMap.get($key)</option>
+				#end
+			</select>
+			电影id：<input value="$!params.movieid" name="movieid" style="width: 85px;"/>
+			影院id：<input value="$!params.cinemaid" name="cinemaid" style="width: 85px;"/><br/>
+			<label>查询：</label>
+			<input type="radio" name="type" value="id" #if($!params.type eq 'id' || $VmUtils.isBlank($!params.type))checked #end/>ID
+			<input type="radio" name="type" value="email" #if($!params.type eq 'email')checked #end/>email
+			<input type="radio" name="type" value="mobile" #if($!params.type eq 'mobile')checked #end/>手机
+			<input type="submit" value="查询"/>
+		</div>
+	</form>
+</fieldset>
+
+<div style="width: 520px;text-align: left;margin-left: 105px;">
+<div>
+共查询记录：<span class="yellow">$!count</span>
+#parse('include/pageUtil.vm')
+</div>
+#if($!params.type eq 'id')
+<form action="${basePath}admin/message/websiteMessageMulty.xhtml" method="post" target="_blank">
+<textarea name="memberid" style="width: 500px;height: 250px;">$!result</textarea>
+<input type="submit" value="提交"/>
+<form>
+#elseif($!params.type eq 'mobile')
+<form action="${basePath}admin/message/batchMessage.xhtml" method="post" target="_blank">
+<textarea name="mobileList" style="width: 500px;height: 250px;">$!result</textarea>
+<input type="submit" value="提交"/>
+<form>
+#else
+<textarea style="width: 540px;height: 250px;">$!result</textarea>
+#end
+</div>
+<script type="text/javascript">
+	
+</script>
+
+</body>
+</html>

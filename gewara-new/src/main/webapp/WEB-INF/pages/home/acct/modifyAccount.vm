@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>账户充值_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}formcheck/formcheck.js"></script>
+</head>
+<body>
+#set($modifyAccount=true)#set($myAccount = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/myAccount.vm')
+			<form id="accountForm" method="post">
+				<div class="mt20">
+					<img style='vertical-align: middle;' src='${picPath}css/images/hint_icon.png'/>
+					<b class="fc_b fs14">
+						#if($passCheck)
+							#if($account.nopassword)
+							为了你的账户安全，请设置支付密码。
+							#else
+							修改密码
+							#end
+						#else
+							请输入支付密码
+						#end
+					</b>
+					#if($!params.password && $errorPass)<div class="ml20"><b class="fc_b">$errorPass</b></div>#end
+				</div>
+				<ul class="ul-150">
+					#if($passCheck)
+					<li class="list_h"><span class="left_150">真实姓名：</span><input type="text" name="realname" class="text left validate['required','length[2,15]']" value="$!account.realname"/><b class="fc_b ml10">*</b><font class="gray">由数字或字母组成，长度为2-15位</font></li>
+					<li class="list_h"><span class="left_150">证件号码：</span><input type="text" name="idcard" class="text left" value="$!account.encryidcard"/><b class="fc_b ml10">*</b><font class="gray">供找回密码使用</font></li>
+					#if($account.nopassword)
+					<li class="list_h"><span class="left_150">支付密码：</span><input type="hidden" value="123456"  name="oldPassword"/><input type="password" class="text left validate['required','length[6,12]']" maxlength="12" name="password" id="password" value=""/><b class="fc_b ml10">*</b><font class="gray">长度为6-12位，请牢记支付密码</font></li>
+					<li class="list_h"><span class="left_150">密码确认：</span><input type="password" class="text left validate['confirm[password]']" maxlength="12" name="confirmPassword" id="confirmPassword" value=""/><b class="fc_b ml10">*</b></li>
+					#else
+					<li class="list_h"><span class="left_150">原始密码：</span><input type="password" class="text left" maxlength="12" name="oldPassword" value=""/><b class="fc_b ml10">*</b>（为了安全，修改账户必须填写）</li>
+					<li class="fs14"><span class="fc_b" onclick="showInput('payShow')" style="margin-left:120px;cursor: pointer;">修改支付密码</span></li>
+					<li id="payShow" class="none list_h">
+						<span class="left_150">新支付密码：</span><input type="password" class="left text validate['length[6,12]']" maxlength="12" name="password" id="password" value=""/><span class="fc_b ml10">*</span><span class="gray">长度为6-12位，请牢记密码</span>
+						<div class="clear"></div>
+						<div style="padding-top:15px;">
+							<span class="left_150">新密码确认：</span><input type="password" class="left text validate['confirm[password]']" maxlength="12" name="confirmPassword" id="confirmPassword" value=""/><span class="fc_b ml10">*</span>
+						</div>
+					</li>
+					#end
+					<li>
+						<div class="clear"></div>
+						<label for="disBtnaccount" class="button redBt minBt ml39 mt5"><input type="button" value="确&nbsp;&nbsp;定" id="disBtnaccount" onclick="savePass();"/></label>
+					</li>
+					#else
+					<li class="list_h"><span class="left_150">支付密码：</span><input type="password" class="text left" maxlength="12" name="password" /><span class="fc_b ml10">*</span></li>
+					<li><span class="left_150"></span><span class="fc_b fs14">输入支付密码进入管理账户&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:chargePayPass();">忘记密码？</a></span></li>
+					<li>
+						<label for="disBtnaccount" class="button ml39 redBt minBt"><input type="submit" value="确&nbsp;&nbsp;定" id="disBtnaccount"/></label>
+					</li>
+					#end
+				</ul>
+			</form>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+		new FormCheck('accountForm', {
+			tipsClass : 'fc-tbx',
+			display : {
+				scrollToFirst : true
+			}
+		});
+		$$(".check-three label").addEvent('click',function(){
+	});
+});
+function clearBank(){
+	$$(".check-three input").each(function(item){item.checked='';});
+}
+function showInput(id){
+	$(id).removeClass('none');
+}
+
+function savePass(){
+	var url = '';
+	#if($passCheck)
+		url = '${basePath}home/saveAccountPwd.xhtml';
+	#else
+		url = '${basePath}home/modifyAccount.xhtml';
+	#end
+	var values = GewaraUtil.getValues('accountForm');
+	values.isAjax = 'true';
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.alert('操作成功！');
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+
+function chargePayPass(){
+		var url = '${basePath}home/acct/changePayPass.xhtml';
+		GewaraUtil.sendRequest(url, {}, function(result){
+			if(result.success){
+				gewaUtil.alert("邮件已发送到您绑定的邮箱中，请接收邮件完成修改支付密码!");
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+}
+</script>
+</body>
+</html>

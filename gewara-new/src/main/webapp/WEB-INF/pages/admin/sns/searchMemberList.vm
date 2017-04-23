@@ -1,0 +1,248 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>用户列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="margin:auto;">
+<div style="text-align:center;">
+	<h1>#if($check) 已审核 #else 未审核 #end</h1>
+	<form action="${basePath}admin/sns/searchMemberList.xhtml" method="post">
+	用户ID<input type="text" name="memid" value="$!memid"/>
+	<input type="submit" value="查询"/>
+	</form>
+</div>
+<table class="table clear">
+	<thead>
+	<tr>
+		#*<th>用户编号</th>*#
+		<th>用户头像<a href="javascript:selectAllCheck('headpic')">全选</a><a href="javascript:invertSelection('headpic')">反选</a></th>
+		<th>用户昵称</th>
+		<th>签名<a href="javascript:selectAllCheck('sign')">全选</a><a href="javascript:invertSelection('sign')">反选</a></th>
+		<th>注册时间</th>
+		#*<th>手机号</th>*#
+		#*<th>email</th>*#
+		<th>简介<a href="javascript:selectAllCheck('introduce')">全选</a><a href="javascript:invertSelection('introduce')">反选</a></th>
+		#*<th>历史记录</th>*#
+	</tr>
+	</thead>
+	<tbody id="pointTable">
+	#foreach($member in $memberMapList)
+	<tr>
+		#*<td>$!member.id</td>*#
+		<td><img src="${staticPath}css/images/blank.gif" width="50" height="50" style="background:url($VmUtils.randomPic('cw90h90',$!member.headpic)) center center no-repeat;"/><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$member.headpicUrl)) center center no-repeat;"/>
+			#if($VmUtils.isNotBlank($member.headpic))
+			<input type="button" value="删除" onclick="showDel('$!member.id','headpic')" />
+			<input type="checkbox" name="headpicCheck" data-type='headpic'  value="$!member.id"/>
+			#end
+		</td>
+		<td>$!member.nickname</td>
+		<td width="15%">
+			#if($VmUtils.isNotBlank($member.sign))
+			$VmUtils.getText($member.sign)
+			<input type="button" value="删除 " onclick="showDel('$!member.id','sign')" />
+			<input type="checkbox" name="signCheck" data-type='sign'  value="$!member.id"/>
+			#end
+		</td>
+		<td>$DateUtil.format($!member.addtime,'yyyy-MM-dd')</td>
+		#*<td>$!member.mobile</td>*#
+		#*<td>$!member.email</td>*#
+		<td width="15%">
+			#if($VmUtils.isNotBlank($!member.introduce))
+			$!member.introduce
+			<input type="button" value="删除 " onclick="showDel('$!member.id','introduce')" />
+			<input type="checkbox" name="introduceCheck" data-type='introduce'  value="$!member.id"/>
+			#end
+		</td>
+		#*<td>
+			<a target="_blank" href="${basePath}admin/common/getChangeHis.xhtml?tag=MemberInfo&relatedid=$!member.id">历史</a>
+		</td>*#
+	</tr>
+	#end
+	</tbody>
+</table>
+<div id="deleteReason" style="display: none;border:2px solid gray;widht:500px;height:30px;padding-top:10px;background:#ffffff;z-index: 10">
+	<input type="hidden"  id="editid"/><input type="hidden"  id="editstatus"/>
+	<input type="hidden"  id="isDelMulti" />
+	请选择删除原因：<select name="reason" id="reason">
+					<option value="1">广告信息</option>
+					<option value="2">政治敏感话题</option>
+					<option value="3">情、色、暴力等不健康信息</option>
+					<option value="4">非法买卖等违法信息</option>
+					<option value="5">手动输入原因</option>
+				</select> <input name="handReason" type="text" id="handReason" onclick="this.focus();"/>
+				<input type="button" id="reason_ok" value="确定" onclick="deleteInfoSingle()"/>
+				<input type="button" id="reason_cancel" value="取消" onclick="hiddenDiv()"/>
+</div>
+<div style="padding:1px;padding-bottom:40px;">
+	<input type="button" value="删除选中项目" onclick = "showDel('all','')"/>
+	<form action="${basePath}admin/sns/searchMemberList.xhtml" method="post" onsubmit="return searchMember()" >
+		#if(!$check)
+		#if(!$VmUtils.isEmptyList($memberMapList))
+			<input type="button" value="本页审核完成请点击" class="mr20 button" onclick="operatorTime('$!time')"/>
+		#end
+		#end
+		<span>已审核 $!checkCount 个用户，</span><span>还有 $!uncheckCount 个用户未审核。</span>
+		<span style="float:right;">#if($manageCheck)<a href="${basePath}admin/sns/searchMemberList.xhtml?check=true">查看已审核用户</a>#end<a href="${basePath}admin/sns/searchMemberList.xhtml">查看未审核用户</a></span>
+	</form>
+</div>
+#parse('include/pageUtil.vm')
+<script type="text/javascript">
+var checkAll = [];
+checkAll['headpic'] = true;
+checkAll['introduce'] = true;
+checkAll['sign'] = true;
+function selectAllCheck(flag){
+	document.getElements("input[name=" + flag + "Check]").each(function(item){
+		if(checkAll[flag]){
+			item.checked = 'checked';
+		}else{
+			item.checked = '';
+		}
+	})
+	if(checkAll[flag]){
+		checkAll[flag] = false;
+	}else{
+		checkAll[flag] = true;
+	}
+}
+
+function invertSelection(flag){
+	document.getElements("input[name=" + flag + "Check]").each(function(item){
+		if(item.checked){
+			item.checked = '';
+		}else{
+			item.checked = 'checked';
+		}
+	})
+}
+
+function searchMember(){
+	var memberid=$("memberid").value;
+	if(memberid.length!=0){
+		if(!parseInt(memberid)){
+			alert('用户编号只能是整数');
+			return false;
+		}
+	}
+	return true;
+}
+
+function showDel(id, param){
+	$('editid').value=id;
+	$('editstatus').value=param;
+	var widthvalue=document.body.clientWidth;
+	var heightvalue=document.body.clientHeight;
+	$('deleteReason').set('styles',{'display':'block',
+									'position':'absolute',
+									'left':(widthvalue-500)/2,
+									'top':(heightvalue-30)/2,
+									'opacity':1});
+	
+	var divbig=new Element('div',{"id":"divbig",
+							"styles":{
+								"position": "absolute",
+								"left": "0px",
+								"top": "0px",
+								"background-color":"#000"}});
+	divbig.setStyles({
+		"width": widthvalue+"px",
+		"height": heightvalue+"px",
+		"visibility":"visible",
+		"z-index": 8
+	});
+	divbig.setOpacity(0.5);
+	gewara.util.toCenter($('deleteReason'));
+	document.body.appendChild(divbig);
+	return;
+}
+var deleteRefreshFlag = 0;
+function deleteInfoSingle(){
+	$('reason_ok').disabled = true;
+	$('reason_cancel').disabled = true;
+	var rea=$('reason').value;
+	var handReason=$('handReason').value;
+	if(rea==5&&handReason.length==0){
+		alert("请输入删除此贴的原因");
+		return false;
+	}
+	var memberid=$('editid').value;
+	var param=$('editstatus').value
+	if(memberid == 'all' && param == ''){
+		if(!window.confirm('确定此操作？')){ 
+			hiddenDiv();
+			return false;
+		}
+		document.getElements('input[data-type=headpic]').each(function(item){
+			if(item.checked){
+				deleteRefreshFlag++;
+				delProperty(item.value,'headpic', rea, handReason);
+			}
+		});
+		document.getElements('input[data-type=sign]').each(function(item){
+			if(item.checked){
+				deleteRefreshFlag++;
+				delProperty(item.value,'sign', rea, handReason);
+			}
+		});
+		document.getElements('input[data-type=introduce]').each(function(item){
+			if(item.checked){
+				deleteRefreshFlag++;
+				delProperty(item.value,'introduce', rea, handReason);
+			}
+		});
+	}else{
+		if(!window.confirm('确定此操作？')){ 
+			hiddenDiv();
+			return false;
+		}
+		deleteRefreshFlag = 1;
+		delProperty(memberid,param, rea, handReason);
+	}
+}
+function delProperty(memberid,param, reason, handReason){
+	var url ='${basePath}admin/sns/setMemberInfo.xhtml';
+	var values = {'memberid':memberid,'param':param,'reason':reason,'reasonDetail':handReason};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			deleteRefreshFlag--;
+			if(deleteRefreshFlag == 0){
+				refreshPage();
+			}
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function hiddenDiv(){
+	$('handReason').value='';
+	$('deleteReason').set('styles',{'display':'none'});
+	$('reason_ok').disabled = "";
+	$('reason_cancel').disabled = "";
+	$('divbig').dispose();
+}
+function operatorTime(timeStr){
+		if(!window.confirm('确定已操作完成？')) return false;
+		var url = "${basePath}admin/sns/operationUserHeadAndSign.xhtml";
+		var values = {"modifytime":timeStr,"tag":"$!tag"};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('操作成功！');
+				document.location.href='${basePath}admin/sns/searchMemberList.xhtml';
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+
+</script>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!Doctype html>
+<html>
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>运动项目_羽毛球_游泳_篮球_桌球_网球_乒乓球 - 格瓦拉生活网</title>
+	<meta name="keywords" content="羽毛球,游泳,运动,乒乓球,桌球,篮球,足球,保龄球,溜冰,高尔夫球,场馆,场馆预订"/>
+	<meta name="description" content="涵盖全最全的运动项目的场馆和活动查询，最新热门羽毛球活动,游泳活动,运动场馆,乒乓球活动,桌球活动,篮球活动,足球活动,保龄球活动,溜冰,高尔夫球等,场馆,场馆预订"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${basePath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ui_layout{background:none;}
+		.ui_simulate{width:190px;}
+		.ui_simulate .simulate_options{width:188px;}
+		.ui_simulate .simulate_options li{width:182px;}
+	</style>
+</head>
+<body>
+#set($issport=true)
+#set($cfgHeader='header')
+#set($sportitemselect=true)
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="index_wrap clear">
+		#parse('include/sport/wide_menu_left.vm')
+		#set($sportItemPicMap={'288732':'si_ymq','288722':'si_zq','288699':'si_yy','288731':'si_wq','288733':'si_ppq','288721':'si_lq'
+									,'91275434':'si_lq','6582889':'si_bq','288730':'si_slk','288730':'si_slk','111006658':'si_sj','288734':'si_blq'
+									,'301954':'si_gef','288704':'si_sji','303811':'si_lb','311713':'si_sc','296083':'si_py','288690':'si_lh'
+									,'288691':'si_hb','288692':'si_zxc','312511':'si_hx','288711':'si_kdc','3993698':'si_ms','288723':'si_pq'
+									,'288708':'si_other'})
+		<div class="index_right">
+			<div class="mt10">
+				<div class="ui_left">
+					<div class="mod_kong">
+						<div class="mod_hd">
+							<h2>运动项目</h2>
+						</div>
+						<div class="mod_bd">
+							<div class="mt10">
+								<dl class="clear dlTy">
+									<dt>
+										<span class="typeTitle left">名称查询</span>
+									</dt>
+									<dd>
+										<div class="search_kuang left">
+											<form action="javascript:searchItem();">
+												<input id="searchItemKey" value="$!searchItem" class="search_text searchText noradius" type="text"  alt="请输入搜索关键词"  name="searchItemKey">
+												<label class="search_button noradius">
+													<input type="button" onclick="searchItem();"/>
+												</label>
+											</form>
+										</div>
+										#if(!$VmUtils.isEmptyList($itemSearchList))
+										<span class="ml20 c999 searchHot">热门搜索：
+											#foreach($itemSearch in $itemSearchList)
+											#if($foreach.count gt 1)<span class="ml5 mr5">|</span>#end
+											<a href="javascript:hotSearchItem('$!itemSearch.title');" class="c999">$!itemSearch.title</a>
+											#end
+										</span>
+										#end
+									</dd>
+								</dl>
+							</div>
+						</div>
+					</div>
+					<div class="mod_tabs mod_tabs_sport">
+						<div class="mod_bd clear selectedMenus">
+							<div class="right">
+								<div class="ui_simulate">
+									<div class="simulate_select">
+										<div class="select_value">默认(优先展示可预订项目)</div>
+										<a class="select_arrow" href="javascript:void(0);"></a>
+										<input class="simulate_value" type="hidden" value="" name="order">
+									</div>
+									<ul class="simulate_options">
+										<li><a href="javascript:void(0);" data-value="">默认(优先展示可预订项目)</a></li>
+										#*<li><a href="javascript:void(0);" data-value="popularIndex">按流行指数(由高到低)</a></li>*#
+										<li><a href="javascript:void(0);" data-value="clickedtimes">按关注度(由高到低)</a></li>
+									</ul>
+								</div>
+							</div>
+							<div class="left tiaojian_p">
+								<span>
+									共<b class="cSport sNum">$count</b>个运动项目
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="sportList">
+						<ul>
+						#foreach ($sportItem in $sportItemList)
+						#set($itemcsskey=$sportItem.id+'')
+							<li class="effectLi sportList" style="width:100%">
+								<div class="ui_media">
+									<div class="ui_pic cinema">
+										<a target="_blank" title="$!sportItem.itemname" href="${basePath}sport/item/$!sportItem.id#if($spkey)?spkey=$!spkey#end" class="sportItemsBox $!sportItemPicMap.get($itemcsskey)">
+											<em class="mt20">$!sportItem.itemname</em>
+										</a>
+										#if($VmUtils.contains($openItemIdList, $!sportItem.id))
+										<p class="mt10">
+											<a class="button redBt bigBt" href="${basePath}sport/item/$!sportItem.id#if($spkey)?spkey=$!spkey#end" target="_blank"><span>在线预订</span></a>
+										</p>
+										#end
+									</div>
+									<div class="ui_text">
+										<div class="title">
+											<h2>
+												<a href="${basePath}sport/item/$!sportItem.id#if($spkey)?spkey=$!spkey#end" title="$!sportItem.itemname" target="_blank" class="color3">$!sportItem.itemname</a>
+											</h2>
+											<span class="ml5">($!sportItem.clickedtimes关注)</span>
+										</div>
+										<p class="ui_summary"><span class="first"></span>$!sportItem.seodescription<span></span></p>
+										#set($otherinfo=$VmUtils.readJsonToMap($sportItem.otherinfo))
+										#if($otherinfo.get('explosive'))#set($explosive=$otherinfo.get('explosive') + '0')#end
+										#if($otherinfo.get('explosive'))#set($calorie=($otherinfo.get('calorie')) + '0')#end
+										#if($otherinfo.get('explosive'))#set($endurance=($otherinfo.get('endurance')) + '0')#end
+										#set($ratio=$otherinfo.get('ratio'))
+										#set($ratio2 = 10-$!math.abs($ratio))
+										<p class="mt5">爆发需求指数：<b>$!explosive</b>卡路里消耗指数：<b>$!calorie</b>耐力需求指数：<b>$!endurance</b>男女喜好比例：<b>$!{ratio}&nbsp;:&nbsp;$!{ratio2}</b></p>
+										#set($key = $sportItem.id+'sportservice')
+										#set($openkey = $!sportItem.id+'')
+										<div class="favorable mt20">
+											<p>#if($VmUtils.gt($!itemSportBookingMap.get($sportItem.id), 0))<span class="cSport">$!itemSportBookingMap.get($sportItem.id) </span>家场馆在线预订#end #if($VmUtils.gt($!itemMemberCardCountMap.get($sportItem.id), 0))<span class="cSport">$!itemMemberCardCountMap.get($sportItem.id) </span>家场馆支持会员预订#end</p>
+										</div>
+										<ul class="hotMenu">
+											#if($!sportItemOpenCount.get($openkey))<li class="hm_cg"><a href="${basePath}sport/sportList.xhtml?servicetype=$!sportItem.id" title="场馆" target="_blank">场馆(<span>$!sportItemOpenCount.get($openkey)</span>)</a></li>#end
+											#if($!activityCountMap.get($key))<li class="hm_hd"><a href="${basePath}activity/activityList.xhtml?tag=sg&relatedid=$!sportItem.id" title="活动" target="_blank">活动(<span>$!activityCountMap.get($key)</span>)</a></li>#end
+											#if($!sportCommuCount.get($key))<li class="hm_qz"><a href="${basePath}quan/index.xhtml?tag=sport&relatedid=$!sportItem.id" title="圈子" target="_blank">圈子(<span>$!sportCommuCount.get($key)</span>)</a></li>#end
+											#if($!sportNewsCount.get($key))<li class="hm_zx"><a href="${basePath}news/sport" title="资讯" target="_blank">资讯(<span>$!sportNewsCount.get($key)</span>)</a></li>#end
+										</ul>
+									</div>
+								</div>
+							</li>
+							#end
+						</ul>
+						<div class="page">#parse('include/pageUtil.vm')</div>
+					</div>
+				</div>
+				<div class="ui_right">
+					#if(!$VmUtils.isEmptyList($adList))
+					<div class="sport_video mb20">
+						<ul id="slidePanel">
+							#foreach($ad in $adList)
+							<li><a href="$!ad.link" title="$!ad.title" target="_blank"><img width="310" height="200" src="$VmUtils.randomPic('cw270h200',$ad.logo)" /></a></li>
+							#end
+						</ul>
+						<div class="control" id="controlChild"></div>
+					</div>
+					#end
+					<div id="activityDiv"></div>
+					<div id="walaDiv"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	new toggleImage();
+	$('searchItemKey').addEvents({
+		'focus':function(){this.getParents('div[class*="search_kuang"]').addClass('search_kuangClicked');},
+		'blur':function(){this.getParents('div[class*="search_kuang"]').removeClass('search_kuangClicked');}
+	});
+	#if($params.orderby && !$VmUtils.isBlank($params.orderby))
+	var simulateSelect = $$('.simulate_select');
+	simulateSelect.each(function(item){
+		var e = item.getNext().getElement('a[data-value=$!{params.orderby}]')
+		item.getElement('.select_value').set('html',e.get('html'));
+		item.getElement('.simulate_value').set('value',e.get('data-value'));
+	});
+	#end
+	(function(){
+		gewaUtil.affix($('ui_left'));
+	}).delay(500);
+	selectBar();
+	getActivityList();
+	getWalaList();
+});
+function selectBar(){
+	var simulateSelect = $$('.simulate_select');
+	simulateSelect.each(function(item){
+		item.addEvent('click',function(){
+			item.getNext().toggle();
+		})
+		item.getParent().addEvent('mouseleave',function () {
+			item.getNext().hide();
+		})
+		item.getNext().getElements('a').addEvent('click',function (e){
+			e.preventDefault();
+			if(item.getElement('.simulate_value').get('value') != this.get('data-value')) {
+				sorder(this.get('data-value') ? this.get('data-value') : "");
+			}
+		});
+	});
+}
+function sorder(order){
+	document.location="${basePath}sport/itemList.xhtml?type=$!params.type&orderby="+order#if($spkey)+"&spkey=$!spkey"#end;
+}
+var toggleImage = new Class({
+	Implements: [Options,Events],
+	options: {'panel':'slidePanel',count:0,deep:0},
+	initialize:function(options){
+		this.setOptions(options);
+		this.panel = $(this.options.panel);
+		this.lis = this.panel.getElements('li');
+		this.options.count = this.lis.length;
+		this.runcallbackEvent();
+	},
+	runbackofaway:function(){
+		if(this.options.deep > this.options.count - 1)this.options.deep = 0;
+		this.auto(this.lis[this.options.deep]);
+		this.options.deep++;
+	},
+	runcallbackEvent:function(){
+		var self = this;
+		this.lis.each(function(img,index){
+			if(index != 0){img.fade(0);}
+			var span = new Element('span',{'class':(index==0)?'select':''}).addEvents({
+				'mouseenter':function(){
+					$clear(self.options.clear);
+					self.auto(this.retrieve('key'));
+				},
+				'mouseleave':function(){self.options.clear = self.autoPlay.periodical(5000,self);}
+			}).inject('controlChild');
+			img.store('key',span);
+			span.store('key',img);
+		});
+		this.options.clear = this.autoPlay.periodical(5000,this);
+	},
+	autoPlay:function(){
+		this.runbackofaway();
+	},
+	auto:function(el){
+		$('controlChild').getElements('span').removeClass('select');
+		this.lis.fade(0);
+		el.fade(1);
+		el.retrieve('key').addClass('select');
+	}
+})
+function searchItem(){
+	var value=$('searchItemKey').value;
+	if(value!='请输入搜索关键词'){
+		hotSearchItem(value);
+	}
+}
+function hotSearchItem(value){
+	location.href='${basePath}sport/itemList.xhtml?searchItem='+value#if($spkey)+"&spkey=$!spkey"#end;
+}
+function getActivityList(){
+	var url = '${basePath}sport/ajax/getActivityList.xhtml';
+	var values = {};
+	GewaraUtil.sendLoad('activityDiv',url, values, function(result){});
+}
+function getWalaList(){
+	var url = '${basePath}sport/ajax/getWalaList.xhtml';
+	var values = {'type':'sportservice'};
+	GewaraUtil.sendLoad('walaDiv',url, values, function(result){});
+}
+</script>
+</body>
+<!-- SUCCESS_BOTTOM -->
+</html>

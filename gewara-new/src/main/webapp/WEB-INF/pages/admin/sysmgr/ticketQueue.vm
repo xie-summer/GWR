@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css"/>
+</head>
+<body>
+<div id="warn" style="margin: 10px 0px 0px 50px">
+	<table class="table">
+		<thead>
+		<tr><th>Server</th>
+			<th>商家访问总次数</th>
+			<th>商家被拒总次数</th>
+			<th>用户访问总次数</th>
+			<th>用户被拒总次数</th>
+			<th>用户最后被拒时间</th>
+			<th>IP被拒总次数</th>
+			<th>IP最后被拒时间</th>
+		</tr></thead>
+		<tbody>
+		#foreach($key in $resultMap.keySet()) #set($sc=$resultMap.get($key))
+		<tr>
+			<td>$key</td>
+			<td>$!sc.totalPartnerCount</td>
+			<td>$!sc.totalPartnerRejectCount</td>
+			<td>$!sc.totalMemberCount</td>
+			<td>$!sc.totalMemberRejectCount</td>
+			<td>#foreach($mid in $sc.memberLastRejectedTime.keySet()) $mid: $DateUtil.mill2Timestamp($sc.memberLastRejectedTime.get($mid))#end</td>
+			<td>$!sc.ipRejectedCount</td>
+			<td>$!sc.ipLastRejectedTime</td>
+		</tr>
+		#end
+		</tbody>
+	</table>
+	<div>$errorServer</div>
+</div>
+</body>
+</html>

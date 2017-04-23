@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>网友添加电影列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline}
+	</style>
+</head>
+<body style="width:75%; margin:auto" class="yui-skin-sam">
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+		    <li class="selectMore"></li>
+			<li #if($!tag eq "untreated") class="currs" id="unhandle" #else  id="handled" #end ><a href="${basePath}admin/audit/tempMovieList.xhtml?tag=untreated"><span>未处理</span></a></li>
+			<li  #if($!tag eq "treated") class="currs" id="unhandle" #else id="handled" #end ><a href="${basePath}admin/audit/tempMovieList.xhtml?tag=treated" ><span>已处理</span></a></li>
+		</ul>
+	</div>
+</div>
+<form action="${basePath}admin/audit/tempMovieList.xhtml" id="ajaxDataFrm">
+<table style="width: 100%" cellspacing="0" class="roomManageTable" >
+	<tr>
+	<td height="30">
+		<input type="hidden" name="tag" id="tag" value="$!tag"/>
+		开始日期:<input type="text" name="sdatefrom" id="datefrom" value="$!sdatefrom" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>&nbsp;
+		结束日期:<input type="text" name="sdateto" id="dateto" value="$!sdateto" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>&nbsp;
+		<input type="submit" class="bt1" value="查 询" />
+	</td>
+	</tr>
+</table>
+<br/>
+</form>
+#if(!$VmUtils.isEmptyList($!tempMovieList))
+#if($!tag eq "untreated")
+<div style="text-align:center;">
+		<select name="sendPointValue" id="sendPointValue">
+			#foreach($x in [1..5])
+			#set($point=$x*10)
+			<option value="$point">$!point</option>
+			#end
+		</select> 
+		<input type="button" class="bt2" value="设置初始积分" onclick="withPoint()"/>
+	</div>
+#end
+<form id="myform">
+<table width="75%" class="table">
+	<thead>
+	<tr>
+		<th width="15%">用户名</th>
+		<th width="20%">电影名称</th>
+		<th width="15%">添加时间</th>
+		<th width="10%">查看详细</th>
+		<th width="10%">赠送积分</th>
+	    <th width="30%">赠送说明</th>  	
+	</tr>
+	</thead>
+	<tbody id="gymTable">
+	#foreach($tm in $tempMovieList)
+	<tr>
+		<td><a href="${absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!tm.memberid" target="_blank">$cacheMemberMap.get($tm.memberid).nickname</a></td>
+		<td>$!VmUtils.escapeHtml($tm.moviename)</td>
+		<td>$DateUtil.format($!tm.addtime,'yyyy-MM-dd hh:mm')</td>
+		<td><a href="${basePath}admin/movie/copyTempMovie.xhtml?tmId=$tm.id" target="_blank">复制到正式数据</a></td>
+		<td align="center">
+		  #if($!tag eq "untreated")
+			<select name="$tm.id">
+			   <option value="-1" selected="selected" >不处理</option>
+				<option value="0" >不加分</option>
+				<option value="10">加10分</option>
+				<option value="20">加20分</option>
+				<option value="30">加30分</option>
+				<option value="40">加40分</option>
+				<option value="50">加50分</option>
+			</select>
+		 #end
+		 #if($!tag eq "treated")
+				加$!tm.point分 
+		 #end
+		</td>
+		<td>
+		  #if($!tag eq "untreated") <input type="text" name="$tm.id" />#end
+		  #if($!tag eq "treated") $!tm.reason #end
+		</td>
+	</tr>
+	#end
+	#if($!tag eq "untreated")
+	<tr>
+		<td colspan="6" style="text-align: center;" id="addpointFrm">
+				<input type="button" class="bt1" value="加积分" onclick="pass();" />
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+</form>
+<div id="page">
+	#parse('include/pageUtil.vm')
+</div>
+#end
+	<script type="text/javascript">
+	withPoint = function (){
+		var sendValue = $('sendPointValue');
+		var value = sendValue.value;
+		var ss = $('myform').getElements('select');
+		$each(ss, function(i, n){
+			$(i).set('value', value);
+		})		
+
+	}
+	function pass(){
+	    if(confirm("确定保存吗？")){
+			var values=GewaraUtil.getValues("myform",",");
+			 var url = "${basePath}admin/movie/passTempMovie.xhtml";
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert('成功');
+					submitForm();
+				}else{
+					alert(result.msg);
+					submitForm();
+				}
+			});
+		}
+	}
+	function passCallBack(result){
+		if(result.same){
+			alert("该电影名称已经在电影列表中");
+		}else if(result.success){
+		    submitForm();
+			refreshPage();
+		}else alert("审核失败");
+	}
+	function removeCallBack(result){
+		if(result){
+			refreshPage();
+		}else alert("删除失败");
+	}
+	function cancle(){
+		$("tmDialog").setStyle("visibility","hidden");
+		refreshPage();
+	}
+	function submitForm(){
+		$('ajaxDataFrm').submit();
+	}
+</script>
+</body>
+</html>

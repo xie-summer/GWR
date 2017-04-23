@@ -1,0 +1,333 @@
+<!Doctype html>
+<html>
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>在线演出票预订_演出优惠订票 - 格瓦拉生活网</title>
+	<meta name="keywords" content="" />
+	<meta name="description" content="格瓦拉生活网提供全国电影票订购,最新上映电影影院排片查询,优惠打折电影票.话剧,展览,演唱会等演出门票购买.羽毛球,篮球等运动场馆预订.集城市生活、消费、互动为一体." />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,odi,scrollerbar,tips&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	.inner20{padding:20px;}
+	.ui_layout h1{font:normal 30px/40px '微软雅黑';}
+	.ui_layout h2{font:normal 24px/32px '微软雅黑';}
+	.ui_layout h2 a{color:#333;}
+	.ui_summary{color:#999; margin:0;}
+	.ui_media .ui_media{margin-top:0;}
+	.ticket_choose_con .ui_media{margin:10px 0 0 0;}
+	.ticket_choose_con .ui_pic{color:#999; width:70px; text-align:center; line-height:26px;}
+	.ticket_choose_con a{padding:0 9px; display:inline-block;margin:0 11px 2px 0;float:left; height:24px; line-height:24px;color:#333333;text-decoration:none !important; white-space:nowrap;}
+	.ticket_choose_con a.select, .ticket_choose_con a:hover{background:#d90; color:#fff;}
+	.ticket_choose_con a em{color:#999;}
+	.ticket_choose_con a.select em, .ticket_choose_con a:hover em{color:#fff;}
+	.ticket_choose_tags{background:#f4f4f4; height:24px; line-height:24px; padding:12px 10px;}
+	.selections span{float:left; height:24px; line-height:24px;}
+	.selections span.select,.selections span.selected{border:1px solid #d90; background:#fff; color:#c80; height:22px; line-height:22px; position:relative; margin-right:5px; padding:0 22px 0 5px;}
+	.selections span.selected{padding:0 10px;}
+	.selections span.select a{display:block; cursor:pointer; width:14px; height:13px; background-position:0 -895px; position:absolute; right:5px; top:5px;}
+	.selections span.select a:hover{background-position:0 -870px;}
+	.ui_simulate{float:right; margin-top:-1px;}
+	.playItemCont .itemLi{border-bottom:1px solid #efefef; padding:40px 0;}
+	.playItemCont .itemLi .title{height:40px; line-height:40px; overflow:hidden; margin-bottom:10px;}
+	.dramaPlayItem{padding:20px; min-height:150px;}
+	</style>
+</head>
+<body>
+#set($dramaLeftTag='searchOdi')
+#set($relatedtag='drama')
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="inner20">
+		<h1>快速购票</h1>
+		<div class="ticket_choose_con inner">
+			<form id="searchOdiForm" action="${basePath}drama/searchOdi.xhtml" target="_self">
+				<input type="hidden" name="citycode" id="citycode" value="$!VmUtils.escapeHtml($command.citycode)"/>
+				<input type="hidden" name="dramatype" id="dramatype" value="$!VmUtils.escapeHtml($command.dramatype)"/>
+				<input type="hidden" name="playdate" id="playdate" value="$!VmUtils.escapeHtml($command.playdate)"/>
+				<input type="hidden" name="price" id="price" value="$!command.price"/>
+				<input type="hidden" name="starid" id="starid" value="$!command.starid"/>
+				<input type="hidden" name="order" id="order" value="$!VmUtils.escapeHtml($command.order)"/>
+			</form>
+			<div class="ui_media">
+				<div class="ui_pic">按城市</div>
+				<div class="ui_text">
+					#foreach($citycode in $citycodeList)
+						<a #if($VmUtils.eq($citycode,$command.citycode)) class="select" #set($searchTJ1=${CITY_MAP.get($citycode)}) #end href="javascript:searchDrama('citycode','$citycode');">$CITY_MAP.get($citycode)</a>
+					#end
+				</div>
+			</div>
+			<div class="ui_media">
+				<div class="ui_pic">按类型</div>
+				<div class="ui_text">
+					#foreach($dramatype in $!dramaTypeMap.keySet())
+					<a #if($VmUtils.eq($dramatype,$command.dramatype)) class="select" #set($searchTJ2=${dramaTypeMap.get($dramatype)}) #end href="javascript:searchDrama('dramatype','$dramatype');">$!dramaTypeMap.get($dramatype)<em>($VmUtils.size($dramaListMap.get($dramatype)))</em></a>
+					#end
+				</div>
+			</div>
+			#set($curDate=$DateUtil.getMonthFirstDay($DateUtil.curDate))
+			<div class="ui_media">
+				<div class="ui_pic">按日期</div>
+				<div class="ui_text">
+					#foreach($i in [0..7])
+					<a #if($VmUtils.eq($DateUtil.formatDate($curDate),$command.playdate)) class="select" #set($searchTJ3=$DateUtil.format($curDate, 'yyyy年M月份')) #end href="javascript:searchDrama('playdate','$DateUtil.formatDate($curDate)');" title="$DateUtil.format($curDate, 'yyyy年M月份')">$!{DateUtil.format($curDate, 'M月份')}</a>
+					#set($curDate=$DateUtil.getNextMonthFirstDay($curDate))
+					#end
+				</div>
+			</div>
+			#if(!$VmUtils.isEmptyList($dramaStarList))
+			<div class="ui_media">
+				<div class="ui_pic">按明星</div>
+				<div class="ui_text">
+					#foreach($gc in $dramaStarList)
+					#set($dramsStar=$relatedHelper.getR1('dramaStarList', $gc.id))
+					<a #if($VmUtils.eq($dramsStar.id,$command.starid)) class="select" #set($searchTJ4=$dramsStar.name) #end href="javascript:searchDrama('starid','$dramsStar.id');">$dramsStar.name</a>
+					#end
+				</div>
+			</div>
+			#end
+			<div class="ui_media">
+				<div class="ui_pic">按费用</div>
+				<div class="ui_text">
+					#set($priceMap={1:'10-100',2:'101-200',3:'201-300',4:'301-500',5:'501-800',6:'801-1000',7:'大于1000'})
+					<a #if($VmUtils.eq(1,$command.price)) class="select"  #set($searchTJ5=$priceMap.get($command.price)) #end href="javascript:searchDrama('price','1');">10-100元</a>
+					<a #if($VmUtils.eq(2,$command.price)) class="select"  #set($searchTJ5=$priceMap.get($command.price)) #end href="javascript:searchDrama('price','2');">101-200元</a>
+					<a #if($VmUtils.eq(3,$command.price)) class="select"  #set($searchTJ5=$priceMap.get($command.price)) #end href="javascript:searchDrama('price','3');">201-300元</a>
+					<a #if($VmUtils.eq(4,$command.price)) class="select"  #set($searchTJ5=$priceMap.get($command.price)) #end href="javascript:searchDrama('price','4');">301-500元</a>
+					<a #if($VmUtils.eq(5,$command.price)) class="select"  #set($searchTJ5=$priceMap.get($command.price)) #end href="javascript:searchDrama('price','5');">501-800元</a>
+					<a #if($VmUtils.eq(6,$command.price)) class="select"  #set($searchTJ5=$priceMap.get($command.price)) #end href="javascript:searchDrama('price','6');">801-1000元</a>
+					<a #if($VmUtils.eq(7,$command.price)) class="select"  #set($searchTJ5=$priceMap.get($command.price)) #end href="javascript:searchDrama('price','7');">大于1000元</a>
+				</div>
+			</div>
+			<div class="ui_media">
+				<div class="ui_pic">搜　索</div>
+				<div class="ui_text">
+					<div class="search_kuang">
+						<form action="">
+							<input type="text" name="dramaname" id="dramaname" class="searchText search_text" value="$!VmUtils.escapeHtml($command.dramaname)" alt="请输入搜索关键词"/>
+							<label class="searchButton">
+								<input type="submit" value="">
+							</label>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="ticket_choose_tags mt15">
+			#if($searchTJ1 || $searchTJ2 || $searchTJ3 || $searchTJ4 || $searchTJ5 || $VmUtils.isNotBlank($command.dramaname))
+			<span class="selections">
+				<span>已选条件：</span>
+				#if($searchTJ1)
+				<span class="selected">$!searchTJ1</span>
+				#end
+				#if($searchTJ2)
+				<span class="select">$!searchTJ2<a href="javascript:searchRemoveKey('dramatype');"></a></span>
+				#end
+				#if($searchTJ3)
+				<span class="select">$!searchTJ3<a href="javascript:searchRemoveKey('playdate');"></a></span>
+				#end
+				#if($searchTJ4)
+				<span class="select">$!searchTJ4<a href="javascript:searchRemoveKey('starid');"></a></span>
+				#end
+				#if($searchTJ5)
+				<span class="select">$!searchTJ5<a href="javascript:searchRemoveKey('price');"></a></span>
+				#end
+				#if($VmUtils.isNotBlank($command.dramaname))
+					<span class="select">$!command.dramaname<a href="javascript:searchRemoveKey('dramaname');"></a></span>
+				#end
+			</span>
+			#end
+			<span class="ml10">共有<b class="cDrama">$!count</b>个剧目</span>
+			<div class="ui_simulate">
+				<div class="simulate_select">
+					<div class="select_value">按关注(由高到低)</div>
+					<a href="javascript:void(0);" class="select_arrow"></a>
+					<input type="hidden" name="order" value="" class="simulate_value">
+				</div>
+				<ul class="simulate_options" style="display: none;">
+					<li><a data-value="clickedtimes" href="javascript:void(0);">按关注(由高到低)</a></li>
+					<li><a data-value="releasedate" href="javascript:void(0);">按日期(由近到远)</a></li>
+					<li><a data-value="avggeneral" href="javascript:void(0);">按评分(由高到低)</a></li>
+					<li><a data-value="boughtcount" href="javascript:void(0);">按购票(由高到低)</a></li>
+				</ul>
+			</div>
+		</div>
+		<div id="playItemBox" class="clear">
+			#if($VmUtils.isEmptyList($dramaList))
+			<div class="ui_warning"><b class="ico_g"></b>没有查询到符合条件的演出结果，请调整筛选条件！</div>
+			#else
+			<div class="playItemCont">
+				<ul>
+					#foreach($drama in $dramaList)
+					<li class="itemLi" id="$!drama.id" #if($VmUtils.eq($foreach.count,$VmUtils.size($dramaList)))style="border-bottom:none;"#end>
+						<div class="ui_media">
+							<div class="ui_pic" style="margin-right:40px;">
+								<a target="_blank" href="${basePath}drama/$!drama.id" title="$drama.name">
+									<img width="180" height="240" src="$VmUtils.randomPic('cw180h240',$drama.limg)" alt="$!drama.name" />
+								</a>
+							</div>
+							<div class="ui_text" data-config="playItem">
+								<div class="title">
+									<h2 class="left"><a target="_blank" href="${basePath}drama/$!drama.id" title="$!drama.name">$!VmUtils.escabbr($!drama.dramaname,50)</a></h2>
+									<span class="ml10 left c999">($!{drama.clickedtimes}关注<em class="ml10">$!{drama.boughtcount}购票</em>)</span>
+									#set($gmark=$VmUtils.getSingleMarkStar($drama,"general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+									<span class="bigSubp left">
+										<sub>$gmark1</sub>
+										<sup>.$gmark2</sup>
+									</span>
+								</div>
+								<div class="clear c999">
+									#if($drama.highlight)
+									<em class="left">看点：</em>
+									<span class="ui_summary left" style="margin-right:30px;">
+										<span class="first"></span>
+										$!VmUtils.htmlabbr($!drama.highlight,80)
+										<span></span>
+									</span>
+									#end
+									#if(!$VmUtils.isNull($drama.releasedate) || !$VmUtils.isNull($drama.enddate))
+									<span class="mr30">演出日期：$!DateUtil.format($!drama.releasedate, 'yyyy-MM-dd') #if(!$VmUtils.isNull($drama.releasedate) && !$VmUtils.isNull($drama.enddate))至#end $!DateUtil.format($!drama.enddate, 'yyyy-MM-dd')</span>
+									#end
+								</div>
+								<div class="clear mt10 c999">
+									<span class="mr30 left">类型：$!dramaTypeMap.get($drama.dramatype)</span>
+									#set($directorsList=$dramaDirectorListMap.get($drama.id))
+									#if(!$VmUtils.isEmptyList($directorsList) || $VmUtils.isNotBlank($!drama.directortext))
+										<span class="mr30 left starInfo">导演：
+											#if($VmUtils.size($directorsList) gt 0)
+											<em>
+											#foreach($dramaDirector in $directorsList)
+												<a href="${basePath}drama/star/$dramaDirector.id" target="_blank" lang="$dramaDirector.id" class="gold">$!dramaDirector.name</a>
+												&nbsp;&nbsp;
+											#end
+											</em>
+											#end 
+											#if($VmUtils.isNotBlank($!drama.directortext))
+											<em>
+												$!VmUtils.replaceSeparator($!drama.directortext,',',' ')
+											</em>
+											#end
+										</span>
+									#end
+									#if(!$VmUtils.isEmptyList($dramaPriceMap.get($drama.id)))
+									<span class="left">票价：</span>
+									<span class="fs14 mark_price left">¥<b>#foreach($price in $dramaPriceMap.get($drama.id)) $price #end</b></span>
+									#end
+								</div>
+							</div>
+						</div>
+					</li>
+					#end
+				</ul>
+			</div>
+			#end
+			#parse('include/pageUtil.vm')
+		</div>
+	</div>
+</div>	
+#parse('include/wide_footer.vm')
+<div style="display:none;" id="chooseConfirmOrder"></div>
+<script type="text/javascript">
+var cacheList = new Hash(),_catch = true;
+var show = gewaUtil.getRequestParams('show');
+window.addEvents({
+	'domready':function(){
+		selectBar();
+		#if($VmUtils.isNotBlank($command.order))
+			var simulateSelect = $$('.simulate_select');
+			simulateSelect.each(function(item){
+				var e = item.getNext().getElement('a[data-value=$!{command.order}]')
+				item.getElement('.select_value').set('html',e.get('html'));
+				item.getElement('.simulate_value').set('value',e.get('data-value'));
+			});
+		#end
+		excuteLoadOdi();
+		starInfo();
+	},
+	'scroll':function(){
+		var last = $('playItemBox').getElements('li[class="itemLi"]');
+		if(last.length <= 0 || !_catch)return;
+		_catch = false;
+		(function(){
+			_catch = true;
+			last.each(function(el){
+				if(this.getScroll().y + 220 > el.getPosition().y){
+					excuteLoadOdi(el.id);
+				}
+			});
+		}).delay(200);
+	}
+});
+
+function starInfo(){
+	var oListTags = $$('.starInfo em a');
+	if(oListTags && oListTags.length>0){
+		gewa.util.popo(oListTags,'','','up',function(){
+			if(arguments[0].get('lang') != null){
+				if(arguments[0].retrieve('key') == null){
+					GewaraUtil.sendRequest(GewaraUtil.basePath+"drama/ajax/star/detail.xhtml",{'starid':arguments[0].get('lang')}, function(result){
+						if(result.success){
+							var div = new Element('div');
+							div.innerHTML = result.retval;
+							this[0].store('key',div);
+							gewa.util.tips(this[0],div,380,this[1],this[2],this[3],'','',true);
+						}
+					}.bind(arguments),'key');
+				}else{
+					gewa.util.tips(arguments[0],arguments[0].retrieve('key'),380,arguments[1],arguments[2],arguments[3],'','',true);
+				}
+			}
+		},function(){
+			//isView = !isView;
+		});
+	}
+}
+
+function searchDrama(field, value){
+	$(field).value = value;
+	$('searchOdiForm').set("target","_self");
+	$('searchOdiForm').submit();
+}
+
+function searchRemoveKey(key){
+	$(key).value = '';
+	$('searchOdiForm').submit();
+}
+
+function selectBar(){
+	var simulateSelect = $$('.simulate_select');
+	simulateSelect.each(function(item){
+		item.addEvent('click',function(){
+			item.getNext().toggle();
+		})
+		item.getParent().addEvent('mouseleave',function () {
+			item.getNext().hide();
+		})
+		item.getNext().getElements('a').addEvent('click',function (e){
+			e.preventDefault();
+			if(item.getElement('.simulate_value').get('value') != this.get('data-value')) {
+				sorder(this.get('data-value') ? this.get('data-value') : "");
+			}
+		});
+	});
+}
+function sorder(order){
+	var values = gewaUtil.getUrlParams();
+	values = Object.filter(values, function(value, key){ return key != 'order'});
+	document.location="${basePath}drama/searchOdi.xhtml?"+Object.toQueryString(values)+"&order="+order;
+}
+
+function excuteLoadOdi(num){
+	if(!num){
+		$('playItemBox').getElements('li[class="itemLi"]').each(function(el,index){
+			if(index < 2)new odis({'dramaid':el.id,'show':$chk(show)});
+		})
+	}else{
+		if($('dramaPlayItem'+num))return
+		else new odis({'dramaid':num,'show':$chk(show)});
+	}
+}
+</script>
+</body>
+<!-- SUCCESS_BOTTOM -->
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>编辑电影院数据</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label{display:inline-block;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:550px; display:inline}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:720px;margin:auto">
+#set($brandList = ["北京万达院线", "上海联和院线", "大光明院线", "浙江时代院线", "浙江横店院线", "中影数字院线", "四川太平洋院线", "中影星美院线",
+						"武汉天河院线", "江苏亚细亚院线", "重庆保利院线", "世纪环球院线", "湖北银兴院线", "深圳中影南方院线", "广州金逸珠江院线",
+						 "北京新影联院线", "北京九州中原院线", "北京华夏联合院线", "北京长城沃美院线", "北京翼达九州院线", "福建中兴", "广东大地院线",
+						 "河北中联影业院线", "河南奥斯卡院线", "湖南楚湘院线", "华夏新华大地院线", "吉林吉影院线", "江苏东方影业院线", "江西星河院线",
+						  "辽宁北方院线", "内蒙古民族院线", "山东新世纪院线", "上海弘歌数字院线", "四川峨嵋院线", "天津电影院线", "温州雁荡院线",
+						 "西安长安院线", "潇湘影视院线", "新疆院线", "云南荣滇院线", "浙江星光院线", "北京时代今典","北京红鲤鱼数字院线","珠江时代院线"])
+<div style="color: red;margin-top: 20px">$!errorMsgs</div>
+<div id="cinemaDialog" class="yui-panel" style="width:710px;margin:auto">
+	<div class="hd">编辑电影院数据</div>
+	<div class="bd">
+	<form name="cinemaForm" id="cinemaForm" method="post">
+		<input type="hidden" name="cinemaId" id="cinemaId" value="$!{params.cinemaId}"/>
+		<input type="hidden" name='stationid' id="stationid" value='$!cinema.stationid'/>
+		<input type="hidden" name='lineidlist' id="lineidlist" value='$!cinema.lineidlist'/>
+		<div>
+			<label for="name">影院名称：</label>
+			<input name="name" id="name"  type="text" value="$!{cinema.name}"/><span class="req">*</span>
+		</div>
+		<div>
+			<label for="englishname">英文名称：</label>
+			<input name="englishname" type="text" value="$!{cinema.englishname}" />
+		</div>
+		<div>
+			<label for="briefname">影院简称：</label>
+			<input name="briefname" id="briefname" type="text" value="$!{cinema.briefname}" /><span class="req">*(如果不知道简称,直接填入影院名称)</span>
+		</div>
+		<div>
+		<label for="briefaddress">地址简称：</label>
+			<input name="briefaddress" id="briefaddress" type="text" value="$!{cinema.briefaddress}" />
+		</div>
+		<div>
+			<label for="brandname">院线名称：</label>
+			<select name="brandname" id="brandname">
+				<option value="">未入院线</option>
+				#foreach($brandname in $brandList)
+				<option #if($VmUtils.eq($!{cinema.brandname},$brandname)) selected #end value="$brandname">$brandname</option>
+				#end
+			</select>
+		</div>
+		<div>
+			<label for="website">官方主页：</label>
+			<input name="website" type="text" value="$!{cinema.website}" />
+		</div>
+		<div>
+			<label for="opentime">营业时间：</label>
+			<input name="opentime" type="text" value="$!{cinema.opentime}"/>
+		</div>
+		<div>
+			<label for="email">E-Mail：</label>
+			<input name="email" type="text" value="$!{cinema.email}" />
+		</div>
+		<div>
+			<label for="fax">传真：</label>
+			<input name="fax" type="text" value="$!{cinema.fax}" />
+		</div>
+		<div>
+			<label for="contactphone">联系电话：</label>
+			<input name="contactphone" type="text" value="$!{cinema.contactphone}" />
+		</div>
+		<div>
+			<label for="postalcode">邮政编码：</label>
+			<input name="postalcode" type="text"  value="$!{cinema.postalcode}" />
+		</div>
+		<div>
+			<label for="subwaylineid">地铁线路：</label>
+			<a href="${basePath}admin/common/subwayList.xhtml?stationid=$!cinema.stationid&lineidlist=$!cinema.lineidlist" target="_blank">[修改地铁线路]</a>
+			<label for="exitnumber" style="float:none; width:70px;text-align:right;">地铁出口：</label>
+			<input name="exitnumber" id="exitnumber" style="width:125px" type="text" value="$!{cinema.exitnumber}" />
+			<input name="resetsubway" type="button" style="width:80px;" onclick="reset_subway();" value="重置" />
+		</div>
+		<div>
+			<label for="transport">乘车路线：</label>
+			<input name="transport" type="text" value="$!{cinema.transport}" />
+		</div>
+		<div>
+			<label for="countyCode">区县：</label>
+			<select name = "countyCode" id="county" onchange="queryIndexarea()" style="width:185px">
+				<option value="">请选择....</option>
+				#foreach($county in $countyList)
+				<option value="$!{county.countycode}" #if($VmUtils.eq($cinema.countycode, $county.countycode))selected#end>$!{county.countyname}</option>
+				#end
+			</select>
+			<label for="indexareaCode" style="float:none; width:70px;text-align:right;">商圈：</label>
+			<select name="indexareaCode" id="indexarea" style="width:185px">
+				<option value="">请选择....</option>
+				#foreach($indexarea in $indexareaList)
+				<option value="$!{indexarea.indexareacode}" #if($VmUtils.eq($cinema.indexareacode, $indexarea.indexareacode))selected#end>$!{indexarea.indexareaname}</option>
+				#end
+			</select>
+		</div>
+		<div>
+			<label for="address">地址：</label>
+			<input type="text" name="address" value="$!{cinema.address}" />
+		</div>
+		#set($otherinfo=$VmUtils.readJsonToMap($cinema.otherinfo))
+		<div>
+			<label for="pairseat">情侣座：</label>
+			#if($VmUtils.isBlank($otherinfo.get('pairseat')))
+			#set($pairseat=$!cinema.pairseat)
+			#else
+			#set($pairseat=$otherinfo.get('pairseat'))
+			#end
+			<input type="text" name="pairseat" value="$!pairseat" style="width:440px;"/>
+			<input type="text" name="pairseatRecommend" value="$!otherinfo.get('pairseatRecommend')" style="width:100px;" class="recommend"/>
+		</div>
+		<div>
+			<label for="park">停车位：</label>
+			#if($VmUtils.isBlank($otherinfo.get('park')))
+			#set($park=$!cinema.park)
+			#else
+			#set($park=$otherinfo.get('park'))
+			#end
+			<input type="text" name="park" value="$!park" style="width:440px;"/>
+			<input type="text" name="parkRecommend" value="$!otherinfo.get('parkRecommend')" style="width:100px;" class="recommend"/>
+		</div>
+		<div>
+			<label for="visacard">刷卡：</label>
+			#if($VmUtils.isBlank($otherinfo.get('visacard')))
+			#set($visacard=$!cinema.visacard)
+			#else
+			#set($visacard=$otherinfo.get('visacard'))
+			#end
+			<input type="text" name="visacard" value="$!visacard" style="width:440px;"/>
+			<input type="text" name="visacardRecommend" value="$!otherinfo.get('visacardRecommend')" style="width:100px;" class="recommend"/>
+		</div>
+		<div>
+			<label for="3D">3D：</label>
+			<input type="text" name="3D" value="$!otherinfo.get('3D')" style="width:440px;"/>
+			<input type="text" name="3DRecommend" value="$!otherinfo.get('3DRecommend')" style="width:100px;" class="recommend"/>
+		</div>
+		<div>
+			<label for="IMAX">IMAX：</label>
+			<input type="text" name="imax" value="$!otherinfo.get('imax')" style="width:440px;"/>
+			<input type="text" name="imaxRecommend" value="$!otherinfo.get('imaxRecommend')" style="width:100px;" class="recommend"/>
+		</div>
+		<div>
+			<label for="child">儿童票优惠：</label>
+			<input type="text" name="child" value="$!otherinfo.get('child')" style="width:440px;"/>
+			<input type="text" name="childRecommend" value="$!otherinfo.get('childRecommend')" style="width:100px;" class="recommend"/>
+		</div>
+		<div>
+			<label for="sale">卖品：</label>
+			<input type="text" name="sale" value="$!otherinfo.get('sale')" style="width:440px;"/>
+			<input type="text" name="saleRecommend" value="$!otherinfo.get('saleRecommend')" style="width:100px;" class="recommend"/>
+		</div>
+		<div>
+			<label for="food">餐饮：</label>
+			<input type="text" name="food" value="$!otherinfo.get('food')" style="width:440px;"/>
+			<input type="text" name="foodRecommend" value="$!otherinfo.get('foodRecommend')" style="width:100px;" class="recommend"/>
+		</div>
+		<div>
+			<label for="restregion">休息区：</label>
+			<input type="text" name="restregion" value="$!otherinfo.get('restregion')" style="width:440px;"/>
+			<input type="text" name="restregionRecommend" value="$!otherinfo.get('restregionRecommend')" style="width:100px;" class="recommend"/>
+		</div>
+		<div>
+			<label for="recreation">娱乐：</label>
+			<input type="text" name="recreation" value="$!otherinfo.get('recreation')" style="width:440px;"/>
+			<input type="text" name="recreationRecommend" value="$!otherinfo.get('recreationRecommend')" style="width:100px;" class="recommend"/>
+		</div>
+		<div>
+			<label for="shopping">购物：</label>
+			<input type="text" name="shopping" value="$!otherinfo.get('shopping')" style="width:440px;"/>
+			<input type="text" name="shoppingRecommend" value="$!otherinfo.get('shoppingRecommend')" style="width:100px;" class="recommend"/>
+		</div>
+		<div>
+			<label for="shoppingTime">商场营业时间：</label>
+			<input type="text" name="shoppingTime" value="$!otherinfo.get('shoppingTime')" style="width:440px;"/>
+			<input type="text" name="shoppingTimeRecommend" value="$!otherinfo.get('shoppingTimeRecommend')" style="width:100px;" class="recommend"/>
+		</div>
+		
+		<div>
+			<label for="characteristic">特色影厅：</label>
+			<input type="text" name="characteristic" value="$!otherinfo.get('characteristic')" style="width:440px;"/>
+			<input type="text" name="characteristicRecommend" value="$!otherinfo.get('characteristicRecommend')" style="width:100px;" class="recommend"/>
+		</div>
+		<div>
+			<label for="feature">影院特色：</label>
+			<textarea name="feature" cols="80" rows="2">$!{cinema.feature}</textarea>
+		</div>
+		<div>
+			<label for="webcomment">网友点评：</label>
+			<textarea name="webcomment" cols="80" rows="2">$!otherinfo.get('webcomment')</textarea>
+		</div>
+		<div>
+			<label for="commentID">影院测评：</label>
+			<input type="text" name="commentID" value="$!otherinfo.get('commentID')"/>
+		</div>
+		<div>
+			<label for="flag">特殊标识：</label>
+			<input name="flag" type="text" value="$!{cinema.flag}" />
+		</div>
+		<div>
+			<label for="content">影院简介：</label>
+			<textarea name="content" id="content">$!{cinema.content}</textarea>
+		</div>
+		<div>
+			<label for="remark">备注：</label>
+			<textarea name="remark" cols="80" rows="2">$!{cinema.remark}</textarea>
+		</div>
+		<div>
+			<label for="firstpic">第一张图片：</label>
+			<input type="text" name="firstpic" id="firstpic" value="$!{cinema.firstpic}" style="width:485px"/>
+		</div>
+		<div id="uploadDiv">
+			<label>LOGO：</label>
+			<input type="text" name="logo" id="logo" value="$!{cinema.logo}" style="width:485px"/>
+			#if($VmUtils.isNotBlank($!{cinema.logo}))<img style="width:162px; height:57px;" id='logoimg' src='${basePath}$cinema.logo' />#end
+		</div>
+		<div>
+			<label>上传：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/cinema&callback=updateLogo"></iframe>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="saveCinema()"  style="width:100px" value="保存"/>
+		</div>
+		<div id="msg" style="color:red;margin-left: 4px;"></div>
+		<div style="color:blue;margin-left: 4px;">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+		</form>
+	</div><!-- end of bd -->
+</div>
+<script type="text/javascript">
+	var defaultOption=new Array(1);
+	defaultOption[0] = new Object();
+	defaultOption[0].value="";
+	defaultOption[0].text="请选择...";
+	function queryIndexarea(){
+		var countyCode = $('county').value;
+		GewaraUtil.removeAllOptions("indexarea");
+		GewaraUtil.addOptions("indexarea",defaultOption,"value","text");
+		var url = "${basePath}admin/common/ajax/getIndexareaByCountyCode.xhtml";
+		GewaraUtil.sendRequest(url, {"countycode":countyCode}, function(result){
+			GewaraUtil.addOptions("indexarea",result.indexareaList,'indexareacode','indexareaname');
+		});
+	}
+	var ckeditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("content");
+	});
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg').src='${basePath}' + picpath;
+	}
+	function updateCoupon(params){
+		var picpath = params['picpath'];
+		$('coupon').value = picpath;
+		$('couponimg').src='${basePath}' + picpath;
+		$('yhq1').setStyle('display','');
+		$('yhq2').setStyle('display','');
+		$('couponimg').setStyle('display','');
+	}
+	
+	function checkname(){
+		if('$params.cinemaId'!='' && $('name').value == '$!{cinema.name}') return;
+		var url = "${basePath}admin/common/ajax/checkname.xhtml";
+		GewaraUtil.sendRequest(url, {"checkItem":'cinemaname', "name":$('name').value},function(result){
+			if(!result.success){
+				alert('电影院名称已存在！');
+				$('name').focus();
+			}
+		});
+	}
+	function saveCinema(){
+		gewa.util.mask({'title':"正在保存数据..."});
+		if(!$chk($('name').value)){
+			alert("电影院名称不能为空！");
+			gewa.util.clearMask();
+			return;
+		}
+		if(!$chk($('briefname').value)){
+			alert("电影院简称不能为空！");
+			gewa.util.clearMask();
+			return;
+		}
+		var count = 0;
+		$$(".recommend").filter(function(item){
+			if(item.value!='') count++;
+		});
+		if(count > 3){
+			gewaUtil.alert('只能推荐3个特色');
+			gewa.util.clearMask();
+			return;
+		}
+		$("content").value=ckeditor.getData();
+		var values = GewaraUtil.getValues("cinemaForm");
+		var url = "${basePath}admin/cinema/ajax/saveCinema.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('成功保存！');
+				$('cinemaId').value=result.retval;
+				$("msg").set("html", '');
+			}else{
+				alert("保存失败！");
+				$("msg").set("html", result.msg);
+			}
+			gewa.util.clearMask();
+		});
+	}
+	function reset_subway(){
+		$("stationid").value="";
+		$("lineidlist").value="";
+		$("exitnumber").value="";
+		saveCinema();
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>商品订单处理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			#if($agency)
+			<li>$!agency.name</li>
+			<li><a href="${basePath}admin/training/trainingGoodsList.xhtml?agencyId=$!agency.id"><span>课程管理 </span></a></li>
+			<li class="currs"><a><span>订单管理</span></a></li>
+			<li><a href="${basePath}admin/agency/baseData.xhtml?agencyId=$!agency.id"><span>基础数据</span></a></li>
+			#else
+			<li>$!trainingGoods.goodsname</li>
+			#end
+		</ul>
+	</div>
+</div>
+<div class="manageItemList">
+	<em class="b1f"></em><em class="b2f"></em>
+	<div class="contentInfoList"> 
+		<div class="aboutMovie">
+		<form id="orderFrom" action="${basePath}admin/training/goodsOrderList.xhtml">
+			<input type="hidden" name="placeid" value="$!agency.id" />
+			<input type="hidden" name="gid" value="$!trainingGoods.id" />
+			<input type="hidden" id="status" name="status" value="$!{params.status}"/>
+			<input type="hidden" id="ctype" name="ctype"/>
+			<span class="i black bold">查询条件</span>
+			<label class="ml10">下单时间：</label><input type="text" name="timeFrom" value="$!{params.timeFrom}" class="pubinput" size="20" style="height:20px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+			<input type="text" name="timeTo" value="$!{params.timeTo}" class="pubinput" size="20" style="height:20px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+			<label class="ml10">订单号：<input type="text" name="tradeNo" value="$!{params.tradeNo}" class="pubinput" size="18" style="height:20px;"/></label>
+			<label class="ml10">手机号：<input type="text" name="mobile" value="$!{params.mobile}" class="pubinput" size="12" style="height:20px;"/></label>
+			<input type="submit" value="查  询" class="bt1"/>
+		</form>
+		</div>
+		<ul class="orderSet mt20">
+			<li id="all" #if($VmUtils.isBlank($params.status))class="seeOrder"#end><a href="javascript:void(0)" onclick="subStatus('','');" class="blue">全部</li>
+			<li id="paid" #if($params.status eq 'paid_success')class="seeOrder"#end><a href="javascript:void(0)" onclick="subStatus('paid_success','');" class="blue">已付款</a></li>
+			<li id="new" #if($params.status eq 'new')class="seeOrder"#end><a href="javascript:void(0)" onclick="subStatus('new','');" class="blue">待付款</a></li>
+			<li id="paid_failure" #if($params.status eq 'paid_failure')class="seeOrder"#end><a href="javascript:void(0)" onclick="subStatus('paid_failure','');" class="blue">待处理</a></li>
+			<li id="cancel" #if($params.status eq 'cancel')class="seeOrder"#end><a href="javascript:void(0)" onclick="subStatus('cancel','');" class="blue">已取消</a></li>
+			<div class="seeOrder right"style="padding:0 5px;"><a href="javascript:void(0)" onclick="subStatus('$!{params.status}','true');" class="blue">导出xls</a></div>		
+		</ul>
+		<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+			<thead><tr>
+				<th>订单号</th>
+				<th>下单时间</th>
+				<th>手机号</th>
+				<th>用户</th>
+				<th>数量</th>
+				<th width="10%">单价</th>
+				<th>优惠</th>
+				<th>总价</th>
+				<th>支付方式</th>
+				<th>物品名称</th>
+				#if($agency)
+				<th>项目</th>
+				#else
+				<th>场馆</th>
+				#end
+				<th>取票密码</th>
+				<th>商户确认</th>
+				<th>状态</th>
+				<th>操作</th>
+			</tr></thead>
+			<tbody id="tbody">
+				#set($sumQ=0)
+				#foreach($order in $orderList)
+				#set($sumQ=$sumQ + $order.quantity)
+				#set($noteList=$noteMap.get($order.id))
+				#set($descMap=$VmUtils.readJsonToMap($order.description2))
+				#if(!$VmUtils.isEmptyList($noteList)) #set($note=$noteList.get(0)) #end
+				<tr class="grayBg h" id="row${order.id}">
+					<td title="$order.description2"><a href="${basePath}admin/order/getOrderInfo.xhtml?orderId=$!order.id" target="_blank">$order.tradeNo</a></td>
+					<td>$DateUtil.format(${order.addtime},'MM-dd HH:mm:ss')</td>
+					<td title="$order.text('remark')" onclick="showMobile($order.id,$order.mobile)"><span name="demobile" id="order$order.id" title="$order.mobile">$VmUtils.getSmobile($order.mobile)</span></td>
+					<td><a href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$order.memberid">$!cacheMemberMap.get($order.memberid).nickname</a></td>
+					<td>${order.quantity}</td>
+					<td>${order.unitprice}</td>
+					<td>$!{order.discount}</td>
+					<td #if($VmUtils.gt($!{order.discount},0)) style="color:red" #end>${order.totalAmount}</td>
+					<td>${order.paymethodText}</td>
+					<td>$!order.ordertitle</td>
+					#if($agency)
+					<td>$!{note.itemname}</td>
+					#else
+					<td>$!{note.placename}</td>
+					#end
+					<td>$!note.checkpass</td>
+					<td>#if($VmUtils.eq($descMap.get('isSure'), 'Y'))该订单商户已确认#else#if($VmUtils.eq($order.status,'paid_success'))<input type="button" class="cbt2" value="商户确认该订单" onclick="isSure($order.tradeNo)" />#end#end</td>
+					<td>#if(!$VmUtils.isBlank($!note.message) && $VmUtils.eq($order.status,'paid_success'))[<span style="color: red;">已发</span>]#{end}#if($VmUtils.eq($order.status,'paid_success'))<a href="javascript:void(0)" onclick="orderNoteMessage('$!note.id', $!VmUtils.isNotBlank($!note.message))" title="#if(!$VmUtils.isBlank($!note.message))短信已加入#end">重发短信</a>#end</td>
+					<td>${order.statusText}#if($VmUtils.contains($order.status,'paid_failure'))<input type="button" class="cbt2" value="确认成功" id="btn$order.tradeNo" onclick="confirmSuccess($order.tradeNo)" />#end</td>
+				</tr>
+				#end
+				<tr class="grayBg h" id="row${order.id}">
+				<td colspan="15">共有订单：$VmUtils.size($orderList),  报名人数:$sumQ</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<em class="b2f"></em><em class="b1f"></em>
+</div>
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+});
+function isSure(tradeNo){
+	var values = {"tradeNo":tradeNo};
+	GewaraUtil.sendRequest('${basePath}admin/training/isSure.xhtml', values, function(result){
+		if(result.success){
+			gewaUtil.alert('确认成功！',refreshPage);
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function confirmSuccess(tradeNo){
+	var values = {"tradeNo":tradeNo};
+	GewaraUtil.sendRequest('${basePath}admin/training/failConfirm.xhtml', values, function(result){
+		if(result.success){
+			gewaUtil.alert('修改成功！',refreshPage);
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function subStatus(value,ctype){
+	$('status').value=value;
+	$('ctype').value=ctype;
+	$('orderFrom').submit();
+}
+function showMobile(orderid, mobile){
+	$('tbody').getElements('span[name=demobile]').each(function(item){
+		item.set('html', item.title);
+		item.removeClass('yellow');
+		$('order' + orderid).set('html', mobile);
+		$('order' + orderid).addClass('yellow');
+	});
+}
+
+orderNoteMessage = function(id, el){
+	if(el && el == true){
+		if(!window.confirm('短信已发送成功，确定重发?')) return;
+	}
+	var url = "${basePath}admin/training/sendOrderNoteSms.xhtml";
+	var values = {"id":id};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('发送成功');
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

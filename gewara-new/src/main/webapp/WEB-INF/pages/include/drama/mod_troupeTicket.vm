@@ -1,0 +1,155 @@
+<!-- SUCCESS_HEAD -->
+<div id="dramaPlayItem" class="dramaPlayItem"></div>
+<div class="performInfo">
+	#if(!$VmUtils.isEmptyList($historyDramaList))
+	<div class="mod_kong xgpeo1">
+		<div class="mod_hd">
+			<h2>机构作品</h2>
+		</div>
+		<div class="mod_bd">
+			<div class="picFocusScroll1 clear" id="picPlay">
+				<div class="xgpeo_pic1">
+					<ul id="picPlayList">
+						#foreach($drama in $historyDramaList)
+						#set($hotDrama=$dramaMap.get($!drama.id))
+						<li>
+							<dl>
+								<dd>
+									<a class="img_wrap" target="_blank" href="${basePath}drama/$!drama.id"><img width="120" height="160" alt="" src="$!VmUtils.randomPic('cw120h160',$hotDrama.limg)" /></a>
+									<p class="mt10"><a href="${basePath}drama/$!drama.id" target="_blank" title="">$!hotDrama.realBriefname</a></p>
+								</dd>
+							</dl>
+						</li>
+						#end
+					</ul>
+				</div>
+				#if($VmUtils.size($historyDramaList) gt 5)
+				<div class="slide">
+					<span class="slideL"><em class="orientation">左滑动</em></span>
+					<span class="slideR"><em class="orientation">右滑动</em></span>
+				</div>
+				#end
+			</div>
+		</div>
+	</div>
+	#end
+	#if($VmUtils.isNotBlank(${dramaStar.content}))
+	<div class="mod_kong theraIntroduce" id="theraIntroduce">
+		<div class="mod_hd">
+			<h2>机构简介</h2>
+		</div>
+		<div class="mod_bd spaceP" id="review_$!{dramaStar.id}_short">
+			<p>$!VmUtils.htmlabbr($dramaStar.content,200) ...<a class="ui_readMore fs14" href="javascript:void(0)" onclick="fullContent($!dramaStar.id)">展开&gt;&gt;</a></p>
+		</div>
+		<div class="mod_bd spaceP" style="display: none;" id="review_$!{dramaStar.id}_full">
+			<p>$!{dramaStar.content}<a class="ui_readMore fs14" href="javascript:void(0)" onclick="fullContent($!dramaStar.id)">收起&gt;&gt;</a></p>
+		</div>
+	</div>
+	#end
+	#if(!$VmUtils.isEmptyList($pictureList))
+	<div class="mod_kong theatreMien mt30">
+		<div class="mod_hd">
+			<h2>剧照</h2><span>(#if($pictureCount)$pictureCount#{else}0#end)</span>
+		</div>
+		<div class="mod_bd">
+			<ul class="clear" id="aPictureList">
+				#foreach($picture in $pictureList)
+				<li #if($foreach.count % 6==0) style="margin-right:0;"#end>
+					<a href="javascript:void(0)" title="$!VmUtils.escapeHtml($picture.name)">
+						<img src="$VmUtils.randomPic('cw128h96',$picture.limg)" alt="$!VmUtils.escapeHtml($picture.name)" width="130" height="96"/>
+					</a>
+				</li>
+				#end
+			</ul>
+		</div>
+	</div>
+	#end
+	<div class="mod_tabs mod_tabs_drama">
+		<div class="mod_hd" id="walaData">
+			<ul class="nav_tabs">
+				<li class="walaCur" lang=""><a href="javascript:void(0);">最新哇啦</a></li>
+				<li class="walaCur" lang="flowernum"><a href="javascript:void(0);">热门哇啦</a></li>
+			</ul>
+		</div>
+		<div class="mod_bd">
+			<div id="WalaDetail" class="mt20"></div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+getWalaList = function(){
+	if($('walaData')){
+		var tmpWala = $('walaData').getElements('li');
+		if(tmpWala && tmpWala.length>0){
+			tmpWala.addEvent('click', function(){
+				tmpWala.removeClass('select');
+				this.addClass('select');
+				getWala('WalaDetail', this.get('lang'));
+			});
+			tmpWala[0].fireEvent('click');
+		}
+	}
+}
+picture = function(){
+	$$("#aPictureList a").addEvent('click',function(){
+		$('club_videoPhoto').fireEvent('click');
+		gewaUtil.pagePos('club_videoPhoto');
+	});
+}
+
+fullContent = function(id){
+	if($('review_'+id+'_short'))
+		$('review_'+id+'_short').toggleDisplay();
+	if($('review_'+id+'_full'))
+		$('review_'+id+'_full').toggleDisplay();
+}
+getPlayItem = function(dramaid, show){
+	var url = '${basePath}drama/ajax/starDramaPlayItem.xhtml';
+	var values = {'starid':'$dramaStar.id'};
+	if(dramaid){
+		values.dramaid = dramaid;
+	}
+	GewaraUtil.sendLoad('dramaPlayItem', url, values, function(result){
+		if(result.success){
+			if($('wrapper') != null && $('wrapper').getElements('li') != null){
+				var elements = $('wrapped').getElements('div[configShow=unShow]');
+				if(elements){
+					if(!show && show == ""){
+						elements.each(function(item){
+							item.getParent('li').dispose();
+						});
+					}
+				}
+				var odiElements = $('wrapper').getElements('li');
+				if(odiElements && odiElements.length>0){
+					if($('wrapped').getElement('ul') != null && $('wrapped').getElement('ul').getDimensions().y > 219){
+						$('wrapper').setStyle('height','219px');
+						new ScrollerBar('wrapper',{wrapped:'wrapped',step:62});
+					}
+					$$('#playTimeList div,#playPriceList div').each(function(item){
+						new amTips(item,{position:'top',width:250,content:function(){return item.get('istips')}});
+					});
+					pageInit();
+				}else{
+					$('dramaPlayItem').addClass('none');
+				}
+			}else{
+				$('dramaPlayItem').addClass('none');
+			}
+		}else{
+			$('dramaPlayItem').addClass('none');
+		}
+	});
+}
+window.addEvent('domready',function(){
+	getWalaList();
+	#if($VmUtils.size($historyDramaList) gt 5)
+	new sigleLeep('picPlay','picPlayList',{isNode:'li','disable':'disable','size':144,'length':5});
+	#end
+	picture();
+	var dramaid = gewaUtil.getRequestParams('dramaid');
+	var show = gewaUtil.getRequestParams('show');
+	getPlayItem(dramaid,show);
+});
+</script>
+<!-- SUCCESS_BOTTOM -->

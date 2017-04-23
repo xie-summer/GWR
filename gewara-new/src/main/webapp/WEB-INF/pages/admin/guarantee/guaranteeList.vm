@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>收费项目管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline-block; width:70px;text-align:right;padding:1px 0 1px 0; }
+		input,textarea {width:450px;}
+		a{text-decoration: none; white-space: nowrap;}
+	</style>
+</head>
+<body style="width:1000px; margin:auto" class="yui-skin-sam">
+<div>
+	<form action="${basePath}admin/guarantee/guaranteeList.xhtml">
+	<a href="${basePath}admin/guarantee/getGuarantee.xhtml" target="_blank">增加</a><br/>
+	开始时间：<input type="text" name="starttime" value="$!DateUtil.formatTimestamp($!starttime)" style="width:150px;" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>
+	结束时间：<input type="text" name="endtime" value="$!DateUtil.formatTimestamp($!endtime)" style="width:150px;" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>
+	状态：<select name="status" style="width:60px;">
+			<option value="" #if($VmUtils.isBlank($!params.status)) selected="selected" #end>默认</option>
+			<option value="Y" #if($VmUtils.eq($!params.status,"Y")) selected="selected" #end>有效</option>
+			<option value="N" #if($VmUtils.eq($!params.status,"N")) selected="selected" #end>无效</option>
+	</select>
+		<input type="submit" value="查询" style="width: 50px;"/>
+	</form>
+</div>
+<table class="table" style="width:1000px">
+	<thead>
+	<tr>
+		<th>ID</th>
+		<th>名称</th>
+		<th>卖价</th>
+		<th>增加人</th>
+		<th>增加时间</th>
+		<th>修改时间</th>
+		<th>状态</th>
+		<th>操作</th>
+		<th>其它</th>
+	</tr>
+	</thead>
+	<tbody id="goodsTable">
+		#foreach($guarantee in $guaranteeList)
+		<tr title="短信：$!VmUtils.escapeHtml($!guarantee.ordermsg)">
+			<td>${guarantee.id}</td>
+			<td>${guarantee.name}</td>
+			<td>$!{guarantee.price}</td>
+			<td>$!{guarantee.createuser}</td>
+			<td>$!DateUtil.formatTimestamp($!{guarantee.addtime})</td>
+			<td>$!DateUtil.formatTimestamp($!guarantee.updatetime)</td>
+			<td>$!guarantee.status</td>
+			<td>
+				<a href="${basePath}admin/guarantee/getGuarantee.xhtml?id=$!guarantee.id" target="_blank">修改</a>
+			</td>
+			<td><a href="${basePath}admin/guarantee/getGuaranteeOther.xhtml?id=$!guarantee.id" target="_blank">其它</a></td>
+		</tr>
+		#end
+	</tbody>
+</table>
+<script type="text/javascript">
+
+</script>
+</body>
+</html>

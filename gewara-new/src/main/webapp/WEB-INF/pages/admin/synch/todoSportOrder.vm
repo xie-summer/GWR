@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>有冲突的订单</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width:750px; margin:auto">
+<form action="${basePath}admin/synch/searchSportOrder.xhtml" style="width:740px;margin:3px">
+	订单号：<input name="tradeno" type="text" style="width:160px" value=""/>
+	<input type="submit" class="fdBt" value="新增"/>
+</form>
+<table width="750px" class="table">
+	<thead>
+	<tr>
+		<th>订单号</th>
+		<th>订单类型</th>
+		<th>取票时间</th>
+		<th>取票状态</th>
+		<th>手机号</th>
+		<th>处理状态</th>
+	</tr>
+	</thead>
+	<tbody id="sportTable">
+	#foreach($orderResult in $orderResultList)
+	#set($gewaorder=$!gewaOrderMap.get($!orderResult.tradeno))
+	<tr>
+		<td>$!orderResult.tradeno</td>
+		<td>#if($!orderResult.ordertype eq 'sport') 运动 #end</td>
+		<td>$!orderResult.taketime</td>
+		<td>#if($!orderResult.istake eq 'Y') 已取票 #else 未取票 #end</td>
+		<td><input type="text"  class="mobile" name="$!orderResult.tradeno" value="$!gewaorder.mobile" /></td>
+		<td><input type="button" value="强制同步" onclick="synchTradeNo('$!orderResult.tradeno');" /></td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<script type="text/javascript">
+	function synchTradeNo(tradeNo){
+		var url = '${basePath}admin/synch/synchOrderByTradeNo.xhtml';
+		var values = {'tradeno':tradeNo};
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){
+				gewaUtil.alert("同步订单成功！");
+			}else{
+				gewaUtil.alert(result.msg+"同步订单失败！");
+			}
+		});
+	}
+</script>
+</script>
+</body>
+</html>

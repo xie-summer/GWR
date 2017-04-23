@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>用户列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.hiddenBt{
+			visibility: hidden
+		}
+		.showBt{
+			visibility: visible;
+		}
+		.select{
+			color:red;
+		}
+	</style>
+</head>
+<body style="margin:auto; padding: 10px;">
+<div style="padding:1px;">
+		<div><input type="button"  onclick="showMemberForm()" class="button" value="添加话题" /></div>
+		<hr/>
+	  <a href="#" onclick="refreshPage()">刷新</a>
+		<table class="table clear">
+			#if(!$VmUtils.isEmptyList($memberList))
+			<thead>
+			<tr>
+				<td colspan="8">今日话题 </td>
+			</tr>
+			<tr>
+				<td>用户ID</td>
+				<td>用户姓名</td>
+				<td>推荐理由</td>
+				<td>添加时间</td>
+				<td>排序</td>
+				<td>状态</td>
+			</tr>
+			</thead>
+			#foreach($membermap in $memberList)
+			<tr>
+				<td>$!membermap.get('id')</td>
+				<td>$!membermap.get('membername')</td>
+				<td>$!membermap.get('reason')</td>
+				<td>$!DateUtil.format($!membermap.get('addtime'),'MM月dd日 HH:mm')</td>
+				<td><input type="text" style="width: 20px;" name="ordernum" value="$!membermap.get('ordernum')" id="ordernum" onblur="setOrderNum($!membermap.get('id'),this.value)"/></td>
+				<td><select name="showfloor" id="showfloor" style="width: 60px;" onchange="isShowFloor($!membermap.get('id'),this.value)">
+						<option #if($!VmUtils.eq($!membermap.get('status'),'y')) selected="selected" #end value="y">显示</option>
+						<option #if($!VmUtils.eq($!membermap.get('status'),'n')) selected="selected" #end value = "n">不显示</option>
+					</select>
+				</td>
+				<td>
+					<input type="button"  onclick='setModerator($!membermap.get('id'),"$!membermap.get('membername')","$!membermap.get('reason')")' class="button" value="修改" />
+					<input type="button"  onclick='delMember($!membermap.get('id'))' class="button" value="删除" />
+				</td>
+			</tr>
+			#end
+			#else
+			<tr>
+				<td colspan="6">暂时没数据</td>
+			</tr>
+			#end
+		</table>
+		<form name="memberForm" id="memberForm">
+			<table class="table clear" style="visibility:hidden; z-index:20;width:800px" id="memberFormDiv">
+			<tr>
+				<td>添加用户数据</td>
+			</tr>
+			<tr>
+				<td>用户ID:<input  type="text" name="memberid" id="memberid"/></td>
+			</tr>
+			<tr>
+				<td>用户name:<input  type="text" name="membername" id="membername"/></td>
+			</tr>
+			<tr>
+				<td>推荐理由:<textarea rows="" style="vertical-align: top;width: 500px;height:70px;margin-top: 5px;" cols="" name="reason" id="reason"></textarea></td>
+			</tr>
+			<tr>
+				<td>
+					<input type="button"  onclick="saveOrUpdateMember()" class="button" value="确定" />
+					<input type="button"  onclick="updateMember()" class="button hiddenBt" id="updatemember" value="修改" />
+					<input type="button"  onclick="cancelMember()" value="取消" class="button"/>
+				</td>
+			</tr>
+			</table>
+		</form>	
+</div>
+<script type="text/javascript">
+function isShowFloor(id,value){
+	var url = "${basePath}admin/showFloor.xhtml";
+	var values = {'id':id,'showfloor':value};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("设置成功！");
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function saveOrUpdateMember(){
+	var url = "${basePath}admin/saveOrUpdateRecommendMembers.xhtml";
+	var values = {'memberid':$('memberid').value,'reason':$('reason').value,'membername':$('membername').value};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function setOrderNum(id,ordernum){
+	var url = "${basePath}admin/setOrder.xhtml";
+	var values = {'id':id,'ordernum':ordernum};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("设置成功！");
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function setModeratorShowAddress(id,address){
+	var url = "${basePath}admin/sns/setModeratorAddress.xhtml";
+	var values = {'id':id,'showaddress':address};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("设置成功！");
+		}else{
+			alert(result.msg);
+		}	
+	});
+}
+
+function updateMember(){
+	var url="${basePath}admin/blog/updateModerator.xhtml";
+	var values = {'id':$('id').value,'memberid':$('memberid').value,'title':$('title').value,'summary':$('summary').value,'type':$('type').value};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			alert("修改失败！");
+		}
+	});
+}
+
+function setModerator(id,membername,reason){
+	$('memberid').value = id;
+	$('membername').value = membername;
+	$('reason').value = reason;
+	GewaraUtil.showDialog('memberFormDiv');
+}
+
+function cancelMember(){
+	$('memberid').value ='';
+	$('membername').value ='';
+	$('reason').value ='';
+	GewaraUtil.hideDialog('memberFormDiv');
+}
+
+function delMember(id){
+	if(confirm('确认删除吗？')){
+		var url="${basePath}admin/deleteMember.xhtml";
+		var values={'id':id};
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+}
+function showMemberForm(){
+	GewaraUtil.showDialog('memberFormDiv');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>退款报表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+</head>
+<body style="width:95%; margin:auto">
+<div style="clear:both;"></div>
+<form action="${basePath}merchant/report/summary.xhtml" method="post" target="reportResult">
+<table  border="1" style="width:98%;position:relative;" cellspacing="0" class="table">
+	<tr>
+	<td height="30">
+		影院：<select name="selectCinema">
+			<option value="">全部</option>
+			#foreach($citycode in $cinemaMap.keySet())
+			<option value="C$citycode">$cityMap.get($citycode)</option>
+			#foreach($cinema in $cinemaMap.get($citycode))
+			<option value="$cinema.id">&nbsp;&nbsp;&nbsp;&nbsp;$cinema.name</option>
+			#end
+			#end
+		</select>
+		退款时间：<input type="text" name="timefrom" id="timefrom" style="width: 140px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:00:00'})" />---
+		<input type="text" name="timeto" id="timeto" style="width: 140px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:00:00'})"/>
+		<input type="hidden" name="isXls" id="isXls"/>
+		<input type="submit" value="查询" />
+		<a style="position:absolute; right:20px; bottom:10px;" href="javascript:report.downloadxls()">导出Xls</a>
+	</td>
+	</tr>
+</table>
+<br/>
+</form>
+<iframe name="reportResult" id="reportResult" src="${basePath}blank.html" frameborder="0" width="100%" height="100%"></iframe>
+<script type="text/javascript">
+var apps = {};
+apps.scroll = function(){
+	$("reportResult").setStyle('height',$(document.body).getSize().y - 72);
+};
+window.addEvents({
+	'domready':function(){
+		apps.scroll();
+	},
+	'resize':function(){apps.scroll();}
+});
+</script>
+<script>
+var report=report||{};
+report.downloadxls=function(){
+	if(document.forms[0]){
+		$("isXls").value="downloadxls";
+		document.forms[0].submit();
+		$("isXls").value="";
+	}else{
+		var a=document.location.href;
+		a=a+"&isXls=download";
+		document.location.href=a;
+	}
+};
+
+</script>
+</body>
+</html>

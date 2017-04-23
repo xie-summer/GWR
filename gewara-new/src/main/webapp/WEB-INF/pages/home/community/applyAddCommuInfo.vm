@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>加入圈子_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,commnu&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,base_home&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	#parse('home/community/commnu_style.vm')
+</head>
+<body>
+#set($isFlase=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+#parse('include/home/communityHeadMenu.vm')
+<h1>加入圈子</h1>
+<div class="commnu_layout">
+	<div class="commnu_left">
+		<div class="showList" style="margin-top:0px;">
+			<div class="outside-box">
+				<div class="inside-box">
+					<div class="gui-content topBg">
+						<div class="gui-title">
+							<h2>加入圈子</h2>
+						</div>
+						<form action="" method="post" id="commuForm">
+							<input type="hidden" name="commuid" id="commuid" value="$!commuid"/>
+							<div class="unsolve mt20" style="height:20px;">加入此圈子需要通过管理员的同意，您可以留言申请！</div>
+							<textarea rows="3" cols="60" name="body" id="body" class="text mt10" style="width:300px;"></textarea><br/><br/>
+							<span class="button minBt redBt" onclick="addCommu();"><span>申请加入</span></span>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="commnu_right">
+	#parse('include/home/commuRightMenu.vm')
+	#parse('include/home/commuRightList.vm')
+	</div>
+	<div class="height0"></div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+window.addEvent('domready',function(){new DefaultValue('body','告诉Ta,您也擅长...');});
+function addCommu(){
+	var url = '${basePath}home/commu/saveApplyAddCommu.xhtml';
+	var values = GewaraUtil.getValues("commuForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.alert(result.msg);
+			document.location.href='${basePath}quan/'+result.commuid;
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>		
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>#if($!logonMember.id eq $member.id)我#else$!member.nickname#end回答的知道_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($newQa=true)
+#set($replyQa=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+	  <div class="inner">
+		#parse('include/home/qaMenu.vm')
+		#if(!$VmUtils.isEmptyList($listAnswer))
+		<table cellpadding="0" cellspacing="0" class="titleTable" border="0">
+			<thead>
+				<tr>
+					<th width="50%">标题（共${count}项）</th>
+					<th><span class="inIco ico" style="background-position:0 -2280px;">经验值</span></th>
+					<th><span class="inIco ico" style="background-position:0 -2001px;">采纳</span></th>
+					<th><span class="inIco ico" style="background-position:0 -2054px;">回答数</span></th>
+					<th><span class="inIco ico" style="background-position:0 -2001px;">发表时间</span></th>
+				</tr>
+			</thead>
+			<tbody>
+				#set($tag={'cinema':'电影','gym':'健身','sport':'运动','bar':'酒吧','ktv':'KTV','theatre':'话剧','':'其他'})
+				#foreach($answer in $listAnswer)
+				#set($isadopt=$!adoptMap.get($answer.id))
+				<tr>
+					<td #if($answer.questionstatus eq 'Z'||$answer.questionstatus eq 'N' ) class="qus" #else if($answer.questionstatus eq 'Y' ) class="solve" #end><a href="${basePath}qa/q${answer.id}" target="_blank" title="$!answer.title">$!answer.title</a>
+					【#if($VmUtils.eq($!answer.tag,null))$tag.get('')#else<a href="${basePath}#if($answer.tag eq 'cinema')movie#else$answer.tag#end" class="ml5" target="_blank">$!tag.get($answer.tag)</a>#end
+					#if($mapAnswerTag.get($answer.id) eq 'movie')<a href="${basePath}movie/${mapAnswer.get($answer.id).id}">-$mapAnswer.get($answer.id).moviename </a>#end
+					#if($mapAnswerTag.get($answer.id) eq 'gymcourse')<a href="${basePath}gym/course/$mapAnswer.get($answer.id).id">-$mapAnswer.get($answer.id).coursename </a>#end 
+					#if($mapAnswerTag.get($answer.id) eq 'sportservice')<a href="${basePath}sport/item/$mapAnswer.get($answer.id).id">-$mapAnswer.get($answer.id).itemname </a>#end
+					】
+					</td>
+					<td>$!answer.reward</td>
+					<td>#if($VmUtils.eq($isadopt,'1'))<div class="icn_best"></div>#end</td>
+					<td>$!answer.replycount</td>
+					<td>$DateUtil.format($answer.addtime,'M月d日 HH:mm')</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+		#else
+		<div class="clew mt20">你从未帮助瓦友解决过问题，<a href="${basePath}qa" target="_blank">马上去看看瓦友们的问题</a></div>
+		#end
+	  </div>
+	</div>
+	#parse('include/pageUtil.vm')
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody").getElements("tr").each(function(item){
+		item.addEvents({'mouseenter':function(){this.addClass("tdHover");},'mouseleave':function(){this.removeClass("tdHover");}});
+	});
+	getQuestionOrAnswer('answer','answer');
+});
+</script>
+</body>
+</html>

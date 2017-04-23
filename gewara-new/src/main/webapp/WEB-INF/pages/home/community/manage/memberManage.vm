@@ -1,0 +1,328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>圈子成员管理_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+<style type="text/css">
+	.creator{background-position:0 -2483px;padding-left:20px;cursor: default;}
+	.keeper{background-position:0 -2576px;padding-left:20px;cursor: default;}
+	.normal{background-position:0 -2545px;padding-left:20px;cursor: default;}
+</style>
+</head>
+<body>
+#set($community = true)
+#set($tag="home")#set($isMenberManage=true)#set($isShow=false)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('home/community/manage/commuM.vm')
+			<div class="ui_rightInner_left">
+				<div class="inner">
+					<div class="mt20 fs14"><strong>圈内成员管理</strong></div>
+					<div class="tab_menu mt10" id="pk-color">
+						<ul>
+							<li><a id="st_administer" style="cursor:pointer;" onclick="javascript:manageCommu('administer')"><span>管理员</span></a></li>
+							<li><a id="st_member" style="cursor:pointer;" onclick="javascript:manageCommu('member')"><span>普通成员</span></a></li>
+							<li><a id="st_unapprove" style="cursor:pointer;" onclick="javascript:manageCommu('unapprove')"><span>等待审核#if($VmUtils.size($sysMessageActionList) gt 0) $VmUtils.size($sysMessageActionList) #end</span></a></li>
+							<li><a id="st_blackmember" style="cursor:pointer;" onclick="javascript:manageCommu('blackmember')"><span>小黑屋</span></a></li>
+						</ul>
+					</div>
+						<ul class="ul-80 mt10">
+							<li>
+								<div class="ul-80Inner">图标说明：</div>
+								<span class="inIco creator">创建者</span>
+								<span class="inIco keeper ml10">管理员</span>
+								<span class="inIco normal ml10">普通成员</span>
+							</li>
+						</ul>
+						<form action="" name="commuMemberForm" id="commuMemberForm" method="post">
+						<input type="hidden" name="commuid" id="commuid" value="$!VmUtils.escapeHtml($params.commuid)"/>
+						<input type="hidden" name="commutype" id="commutype" value=""/>
+						<table cellpadding="0" cellspacing="0" class="titleTable" width="100%" id="commonController2" class="none">
+							<thead>
+								<tr>
+									<th width="10%" style="text-align:right">全选<input type="checkbox" name="" style="vertical-align: middle;" onclick="selectCommuMemberForm(this)" value=""/></th>
+									<th width="20%">成员</th>
+									<th width="12%">访问次数</th>
+									<th width="20%">加入时间</th>
+									<th width="20%">上次访问时间</th>
+									<th>状态</th>
+								</tr>
+							</thead>
+						</table>
+						<table cellpadding="0" cellspacing="0" class="titleTable" width="100%"  style="margin-top:0px;">
+							<!-- 管理成员start -->
+							<tbody id="administer">
+								#foreach($adminid in $adminIdList)
+								#set($adminMember=$adminMemberMap.get($adminid))
+								#set($adminvcr=$adminVCRMap.get($adminid))
+								#set($adminCommuMember=$adminCommuMemberMap.get($adminid))
+								<tr class="#if($foreach.index%2 eq 0)even #else old #end">
+									<td width="10%" style="text-align:right"><input type="checkbox" name="memberid" id="memberid" value="$!adminMember.id"/></td>
+									<td width="20%"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!adminid" class="brown inIco #if($adminid eq $commu.adminid)creator#elseif($adminid eq $commu.subadminid)keeper #end" target="_blank">$!adminMember.nickname</a></td>
+									<td width="12%">$!adminvcr.visitnum</td>
+									<td width="20%" title='$!DateUtil.format($!adminCommuMember.addtime, "yyyy-MM-dd")'>$!DateUtil.format($!adminvcr.addtime, 'yy-MM-dd')</td>
+									<td width="20%" title='$!DateUtil.format($!adminvcr.lasttime, "yyyy-MM-dd")'>$!DateUtil.format($!adminvcr.lasttime, 'yy-MM-dd')</td>
+									<td>#if($adminid eq $commu.adminid)创建者#elseif($adminid eq $commu.subadminid)管理员#end</td>
+								</tr>
+								#end
+							</tbody>
+							<!-- 普通成员start --> 
+							<tbody id="member">
+								#foreach($commuMember in $commonCommuMemberList)
+								#set($visitCommuRecord=$visitCommuRecordMap.get($commuMember.id))
+								<tr class="#if($foreach.index%2 eq 0)even #else old #end">
+									<td width="10%" style="text-align:right"><input type="checkbox" name="memberid" id="memberid" value="$!commuMember.memberid"/></td>
+									<td width="20%"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$commuMember.memberid" class="brown inIco normal" target="_blank">$commuMemberMap.get($!commuMember.id).nickname</a></td>
+									<td width="12%">$!visitCommuRecord.visitnum</td>
+									<td width="20%">$!DateUtil.format($!commuMember.addtime, 'yyyy-MM-dd')</td>
+									<td width="20%">$!DateUtil.format($!visitCommuRecord.lasttime, 'yyyy-MM-dd')</td>
+									<td>普通成员</td>
+								</tr>
+								#set($visitCommuRecord='')
+								#end
+							</tbody>
+							<tbody id="commonController">
+								<tr>
+									<td width="10%" style="text-align:right">全选<input type="checkbox" name="" style="vertical-align: middle;" onclick="selectCommuMemberForm(this)" vlaue=""/></td>
+									<td colspan="5">
+										<label class="minBt whiteBt button  left"><input type="button" onclick="commuMember('administer');" value="升为管理员" /></label>
+										<label class="minBt whiteBt button  ml10 left"><input type="button" onclick="commuMember('common');" value="降为普通成员" /></label>
+										<label class="minBt whiteBt button  ml10 left"><input type="button" onclick="commuMember('blackmember');" value="关入小黑屋" /></label>
+										<label class="minBt whiteBt button  ml10 left"><input type="button" onclick="commuMember('deletemember');" value="踢出圈子" /></label>
+									</td>
+								</tr>
+								<tr>
+									<td width="100%" colspan="6" style="border:0px;"><div class="clew mt20">暂时只支持添加一位管理员</div></td>
+								</tr>
+							</tbody>
+						</table>
+						</form>
+						<form action="" name="manageMemberForm" id="manageMemberForm" method="post">
+						<input type="hidden" name="commuid" id="commuid" value="$!VmUtils.escapeHtml($params.commuid)"/>
+						<input type="hidden" name="ctype" id="ctype" value=""/>
+						<table cellpadding="0" cellspacing="0" class="titleTable" width="100%" id="blackController2">
+							<thead>
+								<tr>
+									<th width="10%" style="text-align:right">全选<input type="checkbox" name="" style="vertical-align: middle;" onclick="selectManageMemberForm(this)" value=""/></th>
+									<th width="20%">成员</th>
+									<th width="12%">访问次数</th>
+									<th width="20%">加入时间</th>
+									<th width="20%">上次访问时间</th>
+									<th>状态</th>
+								</tr>
+							</thead>
+						</table>
+						<table cellpadding="0" cellspacing="0" class="titleTable" width="100%"  style="margin-top:0px;">
+								<!-- 未批准成员start -->
+								<tbody id="unapprove" class="none">
+								#foreach($sysMessage in $sysMessageActionList)
+								#set($unappoeMember=$cacheMemberMap.get($sysMessage.frommemberid))
+								<tr class="#if($foreach.index%2 eq 0)even #else old #end">
+									<td width="10%" style="text-align:right">
+										<input type="checkbox" name="blackmemberid" id="blackmemberid" value="$!unappoeMember.id"/>
+									</td>
+									<td width="20%"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$unappoeMember.id" class="brown inIco #if($unappoeMember.id eq $commu.adminid)creator#elseif($unappoeMember.id eq $commu.subadminid)keeper #else normal #end" target="_blank">$!unappoeMember.nickname</a></td>
+									<td width="12%"></td>
+									<td width="20%"></td>
+									<td width="20%"></td>
+									<td></td>
+								</tr>
+								#end
+							</tbody>
+							<!-- 圈子小黑屋成员start -->
+							<tbody id="blackmember" class="none">
+								#foreach($commuBlackMember in $commuBlackMemberList)
+								#set($blackMember=$blackMemberMap.get($commuBlackMember.id))
+								#set($bVisitCommuMember=$bVisitCommuRecordMap.get($commuBlackMember.id))
+								<tr class="#if($foreach.index%2 eq 0)even #else old #end">
+									<td width="10%" style="text-align:right">
+										<input type="checkbox" name="blackmemberid" id="blackmemberid" value="$!blackMember.id"/>
+									</td>
+									<td width="20%"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!blackMember.id" class="brown inIco #if($blackMember.id eq $commu.adminid)creator#elseif($blackMember.id eq $commu.subadminid)keeper #else normal #end" target="_blank">$!blackMember.nickname</a></td>
+									<td width="12%">$!bVisitCommuMember.visitnum</td>
+									<td width="20%">$!DateUtil.format($!commuBlackMember.addtime, 'yyyy-MM-dd')</td>
+									<td width="20%">$!DateUtil.format($!bVisitCommuMember.lasttime, 'yyyy-MM-dd')</td>
+									<td>#if($commuBlackMember.memberid eq $commu.adminid)创建者#elseif($commuBlackMember.memberid eq $commu.subadminid)管理员#else 普通成员 #end</td>
+								</tr>
+								#end
+							</tbody>
+							<tbody id="blackController" class="none">
+								<tr>
+									<td width="10%" style="text-align:right">全选<input type="checkbox" name="" style="vertical-align: middle;" onclick="selectManageMemberForm(this)" value=""/></td>
+									<td colspan="4">
+										<label class="minBt whiteBt button  ml20" style="display: none;" id="approvecommuLable"><input type="button" onclick="unapproveAndBlack('approvecommu');" value="批准加入"/></label>
+										<label class="minBt whiteBt button  ml20" style="display: none;" id="commonmemberLable"><input type="button" onclick="unapproveAndBlack('commonmember');" value="放出成员"/></label>
+										<label class="minBt whiteBt button  ml20" style="display: none;" id="deleteLable"><input type="button" onclick="unapproveAndBlack('delete');" value="踢出圈子"/></label>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</form>
+					<div id="memberPage" style="display:none">
+						#parse('include/pageUtil.vm')
+					</div>
+				</div>
+			</div>
+			#parse('home/community/manage/commuManageRight.vm')
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	#if($commumember)
+		manageCommu('member');
+		$('memberPage').removeClass('none');
+	#else
+		manageCommu('administer');
+	#end
+	$('commonController').removeClass('none');
+})
+</script>
+	<script type="text/javascript">
+function manageCommu(mtag){
+	$('administer').addClass('none');
+	$('member').addClass('none');
+	$('blackmember').addClass('none');
+	$('unapprove').addClass('none');
+	$(mtag).removeClass('none');
+	showClass(mtag);
+}
+function showClass(mtag){
+	el='st_'+mtag;
+	if(mtag=='administer' || mtag=='member') {
+		$('commonController').removeClass('none');
+		$('commonController2').removeClass('none');
+		$('blackController').addClass('none');
+		$('blackController2').addClass('none');
+	}
+	if(mtag=='unapprove' || mtag=='blackmember'){
+		$('blackController').removeClass('none');
+		$('blackController2').removeClass('none');
+		$('commonController').addClass('none');
+		$('commonController2').addClass('none');
+	}
+	if(mtag == 'unapprove'){
+		$('approvecommuLable').style.display = '';
+		$('commonmemberLable').style.display = 'none';
+		$('deleteLable').style.display = 'none';
+	}else{
+		$('approvecommuLable').style.display = 'none';
+		$('commonmemberLable').style.display = '';
+		$('deleteLable').style.display = '';
+	}
+	if(mtag=='member') $('memberPage').show();
+	$$('.tab_menu').getElements('a').each(function(item){
+	item.removeClass('select');$(el).addClass('select');});
+}
+function selectCommuMemberForm(obj){
+	var allInput = document.commuMemberForm.getElementsByTagName("input");
+	var loopTime = allInput.length;
+	for(i = 0;i < loopTime;i++){
+		if(allInput[i].type == "checkbox"){
+			allInput[i].checked = obj.checked;
+		}
+	}
+}
+function selectManageMemberForm(obj){
+	var allInput = document.manageMemberForm.getElementsByTagName("input");
+	var loopTime = allInput.length;
+	for(i = 0;i < loopTime;i++){
+		if(allInput[i].type == "checkbox"){
+			allInput[i].checked = obj.checked;
+		}
+	}
+}
+function commuMember(item){
+	var obj = document.getElementsByName("memberid");
+	var len = obj.length;
+	var checked = false; 
+	for (i=0;i<len;i++){
+		if (obj[i].checked == true){
+			checked = true;
+			break;
+		}
+	}
+	if (!checked){
+		gewaUtil.alert("请至少选择一个用户！");
+		return;
+	}
+	$('commutype').value = item;
+	var url = '${basePath}home/commu/commuMember.xhtml';
+	GewaraUtil.mask("commuMemberForm");
+	var values = GewaraUtil.getValues("commuMemberForm");
+	if(item =='deletemember'){
+		gewaUtil.confirm('确认删除吗？', function(){
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewaUtil.alert('操作成功');
+					refreshPage();
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		});
+	}else {
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert('操作成功');
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	GewaraUtil.unmask();
+	$("commuMemberForm").reset();
+}
+function unapproveAndBlack(item){
+	var obj = document.getElementsByName("blackmemberid");
+	var len = obj.length
+	var checked = false; 
+	for (i=0;i<len;i++){
+		if (obj[i].checked == true){
+			checked = true;
+			break;
+		}
+	}
+	if (!checked){
+		gewaUtil.alert("请至少选择一个用户！");
+		return;
+	}
+	$('ctype').value = item;
+	var url = '${basePath}home/commu/commuUnapproveAndBlackMember.xhtml';
+	var values = GewaraUtil.getValues("manageMemberForm");
+	GewaraUtil.mask("manageMemberForm");
+	if(item=='delete'){
+		if(confirm('确认删除吗？')){
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewaUtil.alert('操作成功');
+					refreshPage();
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		}
+	}else {
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert('操作成功');
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	GewaraUtil.unmask();
+	$("manageMemberForm").reset();
+}
+</script>
+</body>
+</html>

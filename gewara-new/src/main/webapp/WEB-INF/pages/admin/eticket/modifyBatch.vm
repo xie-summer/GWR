@@ -1,0 +1,266 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>编辑电子影票</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}formcheck/formcheck.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}formcheck/formcheck.js?v=$VmUtils.jsVersion"></script>
+	<style>
+		label{width:90px;text-align:right; display:inline-block;}
+		input, select{width:140px;}
+		.yui-panel div{margin-top: 5px;}
+	</style>
+</head>
+<body>
+<div class="yui-skin-sam">
+<div id="batchDialog" class="yui-panel" style="width:650px;margin:50px auto;">
+	<div class="hd">[编辑电子影票]</div>
+	<div class="bd">
+	<form name="batchForm" id="batchForm" action="javascript:saveBatch()">
+		<input type="hidden" name="pid" id="pid" value="$!{batch.pid}"/>
+		<input type="hidden" name="bid" id="bid" value="$!{batch.id}"/>
+		<div>
+			<label for="tag">所属板块：</label>
+			<select name="tag" id="tag">
+				<option value="" #if($VmUtils.isBlank($batch.tag))selected="selected"#end>请选择</option>
+				<option value="movie" #if($batch.tag eq 'movie')selected="selected"#end>电影</option>
+				<option value="drama" #if($batch.tag eq 'drama')selected="selected"#end>演出</option>
+				<option value="sport" #if($batch.tag eq 'sport')selected="selected"#end>运动</option>
+				<option value="gym" #if($batch.tag eq 'gym')selected="selected"#end>健身</option>
+				<option value="goods" #if($batch.tag eq 'goods')selected="selected"#end>物品</option>
+			</select><span class="req">*</span>
+		</div><div>
+			<label for="cardtype">类型：</label>
+			<select name="cardtype" id="cardtype" onchange="showExchangetype(this)">
+				<option value="A">A:每次抵用一张票</option>
+				<option value="B" #if($batch.cardtype eq 'B')selected="selected"#end>B:补差券：最多抵用xx元</option>
+				<option value="D" #if($batch.cardtype eq 'D')selected="selected"#end>D:抵用金额xx元,限用1张</option>
+				<option value="E" #if($batch.cardtype eq 'E')selected="selected"#end>E:每张可充值xx元</option>
+			</select><span class="req">*</span>
+			<label for="amount" style="width:70px;font-weight: bolder; cursor: pointer; " title="对A、B券是指限额，对D类是抵用金额，对E类是充值金额">抵用金额：</label>
+			<input name="amount" id="amount" type="text" value="$!{batch.amount}" style="width:60px;" class="validate['digit[0,1200]']"/><span class="req" style="">*</span>
+			<label for="edition" style="width:60px;">类型：</label>
+			<select name="edition" id="edition" style="width:120px;" style="font-weight: bolder; cursor: pointer;" title="只针对A类券">
+				<option value="ALL">2D+3D都可用</option>
+				<option value="2D" #if($batch.edition eq '2D')selected="selected"#end>只限2D</option>
+				<option value="3D" #if($batch.edition eq '3D')selected="selected"#end>只限3D</option>
+				<option value="IMAX" #if($batch.edition eq 'IMAX')selected="selected"#end>只限IMAX</option>
+				<option value="4D" #if($batch.edition eq '4D')selected="selected"#end>只限4D</option>
+				<option value="IMAX4D" #if($batch.edition eq 'IMAX4D')selected="selected"#end>只限IMAX+4D</option>
+			</select><span class="req">*</span>
+		</div>
+		<div id="cardA">
+			<label for="exchangetype">类别：</label>
+			<select name="exchangetype" id="exchangetype">
+				<option value="A">橙券</option>
+				<option value="B" #if($batch.exchangetype eq 'B')selected="selected"#end>蓝券</option>
+				<option value="D" #if($batch.exchangetype eq 'D')selected="selected"#end>兑换券</option>
+				<option value="E" #if($batch.exchangetype eq 'E')selected="selected"#end>IMAX券</option>
+			</select>
+		</div>
+		<div>
+			<label for="limitdesc" style="width:70px;font-weight: bolder; cursor: pointer; " title="只对非A类券有限额时，超出不可用给用户的提示">超限提示</label>
+			<input name="limitdesc" id="limitdesc" type="text" value="$!{batch.limitdesc}" style="width:480px;" />
+		</div><div>
+			<label for="timefrom">有效时间：</label>
+			<input name="timefrom" id="timefrom" type="text" value="$!{batch.timefrom}" class="validate['required']" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly" /><span class="req">*</span>
+			<label for="timeto" style="width:10px;">至</label>
+			<input name="timeto" id="timeto" type="text" value="$!{batch.timeto}" class="validate['required']" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly" /><span class="req">*</span>
+			<label for="daynum" style="width:70px;font-weight: bolder; cursor: pointer;" title="券的有效期从领到之时算起多少天有效，“0”表示不设置">有效天数：</label>
+			<input name="daynum" id="daynum" type="text" value="$!{batch.daynum}" style="width:60px;" /><span class="req">*</span>
+		</div><div>
+			<label>场次时段：</label>
+			<input name="opentime" type="text" style="width:90px;" value="$!batch.opentime" onclick="WdatePicker({dateFmt:'HHmm'})" readonly="readonly"/><span>～</span>
+			<input name="closetime" type="text" style="width:90px;" value="$!batch.closetime" onclick="WdatePicker({dateFmt:'HHmm'})" readonly="readonly"/>
+			<span class="req">*</span>
+			<label for="weektype" style="font-weight: bolder; cursor: pointer;" title="使用英文逗号“,”分隔">场次星期：</label>
+			<input name="weektype" type="text" value="$!batch.weektype"/>
+		</div><div>
+			<label for="addtime1">下单时段：</label>
+			<input name="addtime1" type="text" style="width:90px;" value="$!batch.addtime1" onclick="WdatePicker({dateFmt:'HHmm'})" readonly="readonly"/><span>～</span>
+			<input name="addtime2" type="text" style="width:90px;" value="$!batch.addtime2" onclick="WdatePicker({dateFmt:'HHmm'})" readonly="readonly"/>
+			<span class="req">*</span>
+			<label for="addweek" style="font-weight: bolder; cursor: pointer;" title="使用英文逗号“,”分隔">下单星期：</label>
+			<input name="addweek" type="text" value="$!batch.addweek"/>
+		</div><div>
+			<label for="validcinema" style="font-weight: bolder; cursor: pointer;"  title="可以是影院、剧院、运动场馆ID">可用场馆：</label>
+			<input name="validcinema" id="validcinema" type="text" value="$!{batch.validcinema}" style="width:480px;" />
+		</div><div>
+			<label for="validmovie" style="font-weight: bolder; cursor: pointer;" title="可以是影片、话剧、运动项目">可用影片：</label>
+			<input name="validmovie" id="validmovie" type="text" value="$!{batch.validmovie}" style="width:480px;" />
+		</div><div>
+			<label for="validitem">可用场次：</label>
+			<input name="validitem" id="validitem" type="text" value="$!{batch.validitem}" style="width:480px;" />
+		</div><div>
+			<label for="validprice">可用价格：</label>
+			<input name="validprice" id="validprice" type="text" value="$!{batch.validprice}" style="width:480px;" />
+		</div><div>
+			#set($vpList=[])
+			#if($!batch.validpartner)#set($vpList=$batch.validpartner.split(','))#end
+			<label>可用商家：</label>
+			<span><a onclick="javascript:showPartner()" style="cursor: pointer;">展开+</a><span class="yellow ml10">不勾选，表示全部适用</span></span>
+			<div style="margin-left: 50px;" id="partnerList" class="none">
+				<ul>
+					#foreach($partner in $partnerList)
+					<li style="float: left;width:120px;overflow: hidden;">
+					<input type="checkbox" name="validpartner" value="$partner.id" style="width: 15px;" #if($!VmUtils.contains($vpList,$partner.id))checked#end/>$partner.partnername
+					</li>
+					#end
+				</ul>
+				<div class="height0"></div>		
+			</div>
+		</div><div>
+			<label for="citycode">城市设置：</label>
+			<input type="text" name="citycode" value="$!batch.citycode" style="width:480px;" />
+		</div>
+		<div>
+			<label for="citypattern">城市设置：</label>
+			<select name="citypattern" id="citypattern">
+				<option value="include">只有这些城市可用</option>
+				<option value="exclude" #if($batch.citypattern eq 'exclude')selected="selected"#end>这些城市【不】可用</option>
+			</select>
+			<label for="activation" style="width:160px;">是否需要绑定到账户使用：</label>
+			<select name="activation" id="activation" style="width:auto;">
+				<option value="N">否</option>
+				<option value="Y" #if($batch.activation eq 'Y')selected="selected"#end>是</option>
+			</select>
+			<label for="appoint" style="width:70px;">绑定数量：</label>
+			<input name="appoint" id="appoint" type="text" value="$!{batch.appoint}" style="width:40px;"/>
+		</div>
+		<div>
+			<label for="soldType">
+				销售类型：
+			</label>
+			<select name="soldType" style="width:auto" onchange="changeSoldType(this)">
+				<option value="P"  #if(!($batch.soldType eq 'S')) selected='selected' #end>赠券</option>
+				<option value="S" #if($batch.soldType eq 'S') selected='selected' #end>销售</option>
+			</select>
+			<span class="req">*</span>
+		</div>
+		<div #if(!($batch.soldType eq 'S')) class="none" #end id="soldDelay">
+			<label for="delayDays" style="width: 100px;">可申请延期天数：</label>
+			<input type="text" name="delayDays" value="$!batch.delayDays" style="width:60px;"/>
+			<label for="delayUseDays" style="width: 140px;">延期通过后使用天数：</label>
+			<input type="text" name="delayUseDays" value="$!batch.delayUseDays" style="width:60px;"/>
+			<label for="delayFee">延期费用：</label>
+			<input type="text" name="delayFee" value="$!batch.delayFee" style="width:60px;"/>
+		</div>
+		<div>
+			<hr />
+		</div>
+		<div>
+			<label for="bindpay">绑定支付：</label>
+			<input name="bindpay" id="bindpay" type="text" value="$!{batch.bindpay}"/>
+			<span style="color:red;">例如建行支付是 pnrPay:10#if($batch.id)，此批次券支付：elecardPay:${batch.id}#end</span>
+		</div><div>
+			<label for="costtype" style="font-weight:bolder; cursor: pointer;" title="“更改成本价”设置后“绑定支付”将不起作用，支付方式自动绑定为此批次卡！">更改成本价：</label>
+			<select name="costtype" id="costtype">
+				<option value="" #if($VmUtils.isBlank($batch.costtype))selected="selected"#end>原价不变</option>
+				<option value="minadd" #if($batch.costtype eq 'minadd')selected="selected"#end>影片最底价加x元</option>
+				<option value="fixed" #if($batch.costtype eq 'fixed')selected="selected"#end>固定价格</option>
+			</select>
+			<label for="costnum">成本价设置：</label>
+			<input name="costnum" id="costnum" type="text" value="$!{batch.costnum}" style="width:60px;"/>
+			<label for="costnum3D">成本价[3D]：</label>
+			<input name="costnum3D" id="costnum3D" type="text" value="$!{batch.costnum3D}" style="width:60px;"/>
+		</div><div>
+			<label for="bindgoods" style="font-weight:bolder; cursor: pointer;" title="套餐的ID">绑定套餐：</label>
+			<input name="bindgoods" id="bindgoods" type="text" value="$!{batch.bindgoods}"/>
+			<a href="${basePath}admin/goods/goodsListToBMH.xhtml" target="_blank">查找</a>
+			<label for="bindratio" style="font-weight:bolder; cursor: pointer;" title="填写“2”，使用2张券才可换1分套餐。一旦使用，定单金额必须都要使用此批次券支付完成！">兑换比例：</label>
+			<input name="bindratio" id="bindratio" type="text" value="$!{batch.bindratio}" style="width:40px;"/>
+		</div><div>
+			<label for="remark">使用说明：</label>
+			<textarea rows="2" name="remark" id="remark" style="width:485px;">$!{batch.remark}</textarea>
+		</div>
+		<div>
+			<label for="channelinfo">渠道说明：</label>
+			<textarea rows="2" name="channelinfo" id="channelinfo" style="width:485px;">$!{batch.channelinfo}</textarea>
+		</div>
+		<div>
+			<hr />
+		</div><div>
+			<label>支付代码：</label>
+			<div style="color:blue; display: inline-block; width: 500px;">$paytextMap</div>
+		</div><div style="vertical-align: middle; ">
+			<label>pnrPay银行：</label>
+			<span style="color:red; display: inline-block; width: 500px;">$paybankMap</span>
+		</div><div>
+			<label>城市代码：</label>
+			<div style="width:500px; display: inline-block; color: blue">000000:不限，$cityMap</div>
+		</div><div>
+			<label>&nbsp;</label><input type="submit" class="button" style="width:100px" value="保存数据"/>
+		</div>
+	</form>
+	</div>
+</div>
+</div>
+<script type="text/javascript">
+	function changeSoldType(el){
+		var value = el.value;
+		if(value=='S'){
+			$('soldDelay').removeClass("none");
+		}else{
+			$('soldDelay').addClass("none");
+		}
+	}
+	window.addEvent("domready", function(){
+		new FormCheck("batchForm", {
+			tipsClass : "fc-tbx",
+			display : {
+				scrollToFirst : true
+			}
+		});
+	});
+	function saveBatch(){
+		if($('tag').value==''){
+			alert('请选择所属板块');
+			return;
+		}
+		if($('channelinfo').value==''){
+			alert('请输入渠道说明');
+			return;
+		}
+		GewaraUtil.mask();
+		var url = '${basePath}admin/eticket/saveBatch.xhtml';
+		var values = GewaraUtil.getValues("batchForm", ",");
+		if(values.soldType == "S"){
+			if(values.delayDays.trim() == "" || values.delayUseDays.trim() == "" || values.delayFee.trim() == ""){
+				alert("销售类型为销售券时，可申请延期天数、延期通过后使用天数、 延期费用不能为空值！ ");
+				return;
+			}
+		}
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert(result.retval);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function showPartner(){
+		var e = $('partnerList')
+		if(e.hasClass('none')) {
+			$('partnerList').removeClass('none');
+		}else {
+			$('partnerList').addClass('none');
+		}
+		
+	}
+	function showExchangetype(el){
+		if(el.value=='A'){
+			$('cardA').removeClass('none');
+		}else{
+			$('cardA').addClass('none');
+		}
+	}
+</script>
+</body>
+</html>

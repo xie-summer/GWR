@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>#if($params.tag eq 'movie')影评#elseif($params.tag eq 'drama')剧评#end列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+</head>
+<body style="width:75%;margin:auto" class="yui-skin-sam">
+#parse('include/pageUtil.vm')
+<div style="text-align: center;">
+<a href="${basePath}admin/point/historyFreebackDiary.xhtml?tag=movie">影评历史操作列表</a>
+<a href="${basePath}admin/point/historyFreebackDiary.xhtml?tag=drama">剧评历史操作列表</a>
+<div>	
+<form name="myform" id="myform">
+<input type="hidden" name="pointtype" value="$params.tag" />
+<table width="75%" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th style="width: 40%">标题</th>
+		<th>用户ID</th>
+		<th>关联对象</th>
+		<th>发布日期</th>
+		<th>赠送积分</th>
+		<th>说明</th>
+		<th>前台</th>
+	</tr>
+	</thead>
+	<tbody id="newsTable">
+	#if($VmUtils.size($diaryList) gt 0)
+	#foreach($diary in $diaryList)
+		<tr>
+			<td>$diary.subject</td>
+			<td>$diary.memberid</td>
+			<td>$!movieMap.get($diary.categoryid).name</td>
+			<td>$DateUtil.format($!{diary.addtime},'yyyy-MM-dd')</td>
+			<td>$diary.point</td>
+			<td>$diary.reason</td>
+			<td><a href="$!{absPath}${basePath}blog/t${diary.id}" target="_blank">前台页面</a></td>
+		</tr>
+	#end
+	#end
+	</tbody>
+</table>
+<form>
+#parse('include/pageUtil.vm')
+</body>
+</html>

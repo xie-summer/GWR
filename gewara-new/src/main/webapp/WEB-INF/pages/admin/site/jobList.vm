@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>推荐</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+	<td align="left" class="td">当前位置>>招聘</td>
+		<td align="right" class="td">
+			<a href="${basePath}admin/site/modJob.xhtml" target="_blank">增加</a>|
+				<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td">
+			<td align="left" class="wd200"><b>标题</b></td>
+		<td align="left" class="wd120"><b>操作</b></td>
+	</tr>
+	#foreach($job in $jobMapList)
+	<tr class="td">
+			<td align="left" class="wd200">$job.title</td>
+		<td align="left" class="wd120">
+			<a href="${basePath}admin/site/modJob.xhtml?id=$job.jobid" target="_blank">[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:del($job.jobid)">[删除]</a>
+		</td>
+		</tr>
+		#end
+</table>
+	<script type="text/javascript">
+	function del(jobid){
+		if(confirm('确认要删除吗?')==false) return;
+		var values = {"jobid":jobid};
+		GewaraUtil.sendRequest('${basePath}admin/site/delJob.xhtml', values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				if(result.msg) alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

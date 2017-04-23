@@ -1,0 +1,69 @@
+<div id="micro" style="display:none">
+	<div id="useMicroBlog">
+		
+	</div>
+	<form name="transferForm" id="transferForm">
+	<input type="hidden" name="transferid" id="transferid"/>
+	<textarea style="width:94%;height:90px" class="text" onkeyup="microChanges(this)" id="modifyMicro"></textarea>
+	<div class="title mt10">
+		<span class="more"><b id="microsText">你还可以输入<font style="font-size:15px;">140</font>个字</b></span>
+		<label class="button redBt minBt"><input type="button" value="转 发" onclick="addTransfer()"/></label>
+		<label class="button whiteBt minBt ml10"><input type="button" onclick="hideMicro('micro')" value="取 消"/></label>
+	</div>
+	</form>
+</div>
+<script type="text/javascript">
+function showMicro(el,transfer,body,transferid){
+	checkLogin(true, function(){
+		$('useMicroBlog').set('text',transfer);
+		$('modifyMicro').value = body;
+		$('transferid').value = transferid;
+		var num=140;
+		if($chk($('modifyMicro').value)){
+			var num = 140-$('modifyMicro').value.length;
+		}
+		if(num<0){ 
+			var value = Math.abs(num);
+			$('microsText').set('html','已超出<font style="font-size:15px;">'+value+'</font>个字');
+			$('microsText').set('styles',{'color':'red'});
+		}else{
+			$('microsText').set('html','你还可以输入<font style="font-size:15px;">'+num+'</font>个字');
+			$('microsText').set('styles',{'color':'black'});
+		}
+		if($('modifyMicro').value.length==0){new DefaultValue("modifyMicro","顺便哇啦一下...");}
+		gewa.util.maskContent('','micro','转发到我的哇啦',420,'micro');
+	});
+}
+function hideMicro(el){
+	gewa.util.container['micro'].dispose('micro');
+}
+function microChanges(obj){
+	var num=140;
+	if($chk($(obj).value)){
+		var num = 140-$(obj).value.length;
+	}
+	if(num<0){ 
+		var value = Math.abs(num);
+		$('microsText').set('html','已超出<font style="font-size:15px;">'+value+'</font>个字');
+		$('microsText').set('styles',{'color':'red'});
+	}else{
+		$('microsText').set('html','你还可以输入<font style="font-size:15px;">'+num+'</font>个字');
+		$('microsText').set('styles',{'color':'black'});
+	}
+}
+function addTransfer(){
+	if($('modifyMicro').value.length > 140)return;
+	var url="${basePath}home/sns/replyComment.xhtml";
+	var values = {'commentid':$('transferid').value,'body':$('modifyMicro').value,'type':'f'};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			if($('allfriend'))hideMicro('micro');
+			if($('allfriend'))$('micro').addClass('nav');
+			if($('allfriend'))$('allfriend').removeClass('nav');
+			gewaUtil.alert("转载成功！", refreshPage);;
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>

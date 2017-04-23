@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>$cursport.name -- $sportItem.name 时间段基础数据</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/admin.css?v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		input{
+			margin-top: 5px;
+		}
+	</style>
+</head>
+<body>
+#set($isItemTime=true)
+#set($isProgram=true)
+#parse('admin/sport/open/menu.vm')
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<div><input type="button" onclick="getPrgramItem('')" value="新增数据"/></div>
+		<div id="programData" style="display:none;"></div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th width="10%">日期</th>
+					<th width="10%">时段</th>
+					<th width="10%">场馆价</th>
+					<th width="10%">网站售价</th>
+					<th width="10%">成体价</th>
+					<th width="10%">计价方式</th>
+					<th width="10%">计价单位</th>
+					<th width="10%">可预约人数</th>
+					<th width="10%">操作</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				#set($weekData={1:'星期一',2:'星期二',3:'星期三',4:'星期四',5:'星期五',6:'星期六',7:'星期日'})
+				#foreach($programItem in $programItemList)
+				<tr class="grayBg">
+					<td>$!weekData.get($programItem.week)</td>
+					<td>$!{programItem.starttime} -- $!{programItem.endtime}</td>
+					<td>$!{programItem.sportprice}</td>
+					<td>$!{programItem.price}</td>
+					<td>$!{programItem.costprice}</td>
+					<td>
+						#if($!VmUtils.eq($programItem.unitType,'whole'))
+						整体时段计价
+						#elseif($!VmUtils.eq($programItem.unitType,'time'))
+						单位时长计价
+						#end
+					</td>
+					<td>
+						#if($!VmUtils.eq($programItem.unitType,'whole'))
+						元
+						#elseif($!VmUtils.eq($programItem.unitType,'time'))
+						元/$!{programItem.unitMinute}分钟
+						#end
+					</td>
+					<td>$!programItem.quantity</td>
+					<td>
+						<input type="button" onclick="getPrgramItem('$!programItem.id')"  value="修改"/>
+						<input type="button" onclick="delProgramItem(this,'$!programItem.id')"  value="删除"/>
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+
+<script type="text/javascript">
+	function saveupdate(obj){
+		var url = '${basePath}admin/sport/open/saveProgramItemTime.xhtml';
+		if(!GewaraUtil.baseValidForm('programData','admin'))return;
+		var values = GewaraUtil.getValues("programData");
+		GewaraUtil.mask(obj);
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert('保存成功！');
+				hideProgramItem('programData');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function changeCloseTime(obj){
+	    if(obj.value<=$('starttime').value){
+	    	alert("结束时间小于或等于开始时间！");
+		}
+	}
+	
+	function getPrgramItem(id){
+		var url = "${basePath}admin/sport/open/getProgramItemTime.xhtml";
+		var values = {'id': id,'sportid':'$!cursport.id','itemid':'$!sportItem.id'};
+		GewaraUtil.sendLoad('programData',url, values, function(result){
+			if(result.success){
+				gewa.util.maskContent('','programData','时间段数据管理',600,'programData');
+			}else alert(result.msg);
+		});
+	}
+	
+	function delProgramItem(obj, id){
+		var url = '${basePath}admin/sport/open/delProgramItemTime.xhtml';
+		var values = {'id':id};
+		GewaraUtil.mask(obj);
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				$(obj).getParent('tr').dispose();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function hideProgramItem(el){
+		if(gewa.util.container[el]){
+			gewa.util.container[el].dispose(el);
+		}
+	}
+</script>
+</body>
+</html>

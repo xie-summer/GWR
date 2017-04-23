@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电子票列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.D{background-color: red; color: white;}
+		ul li{width:350px; float: left;}
+	</style>
+</head>
+#parse('include/constant/city.vm')
+<body style="width: 800px; margin:auto">
+<div style="margin-top:20px; width:700px;" id="operation">
+	#if($card)
+	<table class="table" style="width: 700px;">
+		<thead>
+		<tr><th style="width:75px;">卡号：</th><td style="width:615px;">${card.cardno}#if($cardpass)[$cardpass]#end</td></tr>
+		<tr><th>批次：</th><td><a href="${basePath}admin/eticket/showBatch.xhtml?bid=$batch.id">$batch.id</a></td></tr>
+		<tr><th>状态：</th><td>$card.gainStatusText()</td></tr>
+		<tr><th>类型：</th><td>${batch.cardtype}#if($batch.amount)[$batch.amount]#end</td></tr>
+		<tr><th>有效时间:</th><td>$!{card.timefrom}至$!{card.timeto}</td></tr>
+		<tr><th>#if($VmUtils.eq($batch.citypattern,'exclude'))不适用城市:#{else}适用城市:#{end}</th><td>
+		#if($VmUtils.eq($!batch.citycode,'000000'))
+			全国		
+		#else
+			#set($citys=$VmUtils.split($!batch.citycode,","))
+			#foreach($code in $citys)
+			$CITY_MAP.get($code),
+			#end
+		#end
+		</td></tr>
+		<tr><th>可用星期:</th><td>$!batch.weektype</td></tr>
+		<tr><th>可用影院:</th><td>$!batch.vatrdcinema</td></tr>
+		<tr><th>生成者:</th><td>$!batch.adduser.realname</td></tr>
+		<tr><th>生成时间:</th><td>$!batch.addtime</td></tr>
+		<tr><th>销售渠道:</th><td>$!extra.channel</td></tr>
+		<tr><th>销售时间:</th><td>$!batch.soldtime</td></tr>
+		<tr><th>卖出说明:</th><td>$!batch.sellremark</td></tr>
+		<tr><th>可用场馆:</th><td style="white-space: normal">
+		#if($batch.validcinema)
+		#foreach($rid in $placeMap.keySet())<a href="${absPath}${basePath}$placeMap.get($rid).url">$placeMap.get($rid).name</a>&nbsp;&nbsp;&nbsp;&nbsp;#if($foreach.count % 3 eq 0)<br />#end#end
+		#else 不限
+		#end
+		</td></tr>
+		<tr><th>可用影片:</th><td>
+		#if($batch.validmovie)
+		#foreach($rid in $categoryMap.keySet())<a href="${absPath}${basePath}$placeMap.get($rid).url" target="_blank">$categoryMap.get($rid).name</a>&nbsp;&nbsp;&nbsp;&nbsp;#end
+		#else 不限
+		#end
+		</td></tr>
+		#if($member)
+		<tr><th>拥有者:</th><td><a href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$member.id" target="_blank">${member.nickname}[$member.id]</a></td></tr>
+		#end
+		<tr><th>其他说明:</th><td><textarea style="width:486px; height:150px;">$!batch.remark</textarea></td></tr>
+		#if($order)
+		<tr><th>关联订单:</th><td><a href="${basePath}admin/gewapay/orderDetail.xhtml?tradeNo=$order.tradeNo" target="_blank">$order.tradeNo</a></td></tr>
+		<tr><th>订单状态:</th><td>$order.statusText</td></tr>
+		<tr><th>订单金额:</th><td>$order.totalAmount</td></tr>
+		<tr><th>订单详细:</th><td>$order.ordertitle,$order.description2</td></tr>
+		<tr><th>折扣详细:</th><td>$order.disreason</td></tr>
+		#end
+		</thead>
+	</table>
+	#end
+</div>
+<div><form action="${basePath}admin/eticket/queryCard.xhtml">
+	请输入卡号/密码：<input name="cardno" value="$!params.cardno"/>
+	<input type="submit" value="查询"/>
+	<input type="radio" name="type" value="1" #if($params.type || $params.type eq '1')checked="checked"#end/>正常查询
+	<input type="radio" name="type" value="0" #if($params.type eq '0')checked="checked"#end/>历史查询
+	<span style="color: #ff0099; margin-left: 20px;">如果未找到对应的卡号与密码, 请尝试查询历史数据!</span>
+</form></div>
+</body>
+</html>

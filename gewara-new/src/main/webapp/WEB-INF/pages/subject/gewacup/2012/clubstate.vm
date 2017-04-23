@@ -1,0 +1,363 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>格瓦拉羽毛球活力赛_上海羽毛球业余选手大赛_格瓦拉生活网</title>
+<meta name="keywords" content="羽毛球公开赛"/>
+<meta name="description" content="羽毛球公开赛"/>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout&v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+#parse('subject/gewacup/2012/style.vm')
+</head>
+<body>
+#set($tag="sport") #set($issport=true) #set($isSportIndex=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+#set($typename={"boysingle":"男单","girlsingle":"女单","boydouble":"男双","girldouble":"女双","mixeddouble":"混双"})
+#set($sexMapData={'boy':'男','girl':'女'})
+<div id="pointText" style="visibility:hidden; z-index:601;position: absolute;top:0px;left:0px;display:none;"></div>
+<div class="ui_layout">
+	<div class="bodybg">
+		<div class="click">
+	    	<div class="menutext"><a href="${basePath}subject/gewacup/2012/index.xhtml">首页</a>　|　<a href="${basePath}subject/gewacup/2012/instruction.xhtml">大赛简介</a>　|　<a href="${basePath}subject/gewacup/2012/intro.xhtml">参赛须知</a>　|　<a class="select" href="javascript:goMyPlayersInfo()">我的报名状态</a>　|　<a href="${basePath}subject/gewacup/2012/award.xhtml">大赛奖品</a>　|　<a href="http://www.gewara.com/sport/sportList.xhtml" target="_blank">羽毛球在线预订</a></div>
+	   </div>
+	   <div class="sport_tips"></div>
+		<div class="import">
+			<div class="logo"><a href="http://www.gewara.com/sport/index.xhtml"><img src="${staticPath}styles/images/gewacup/gewala.gif" boder="0"/></a></div>
+			<div class="banner2012"></div>
+		   <div class="menubg"></div>
+		</div>
+	   <div class="entryform">
+	   	#if($VmUtils.isEmptyList($personalList) && $VmUtils.isEmptyList($clubMapList))
+	   		<div style="margin:40px 0;width:674px;text-align:center;">你当前还未报名，请<a href="${basePath}subject/gewacup/2012/index.xhtml" class="yellow">立即报名</a></div>
+	   	#end
+	   	#if(!$VmUtils.isEmptyList($personalList))
+	   	<div class="column">
+				<div class="hleft"></div>
+				<div class="htext"><img src="${staticPath}styles/images/gewacup/column_a.gif"/></div>
+				#if($VmUtils.eq($personalstatus,'game'))<div class="hadd"><a href="${basePath}subject/gewacup/2012/personalApply.xhtml"><img src="${staticPath}styles/images/gewacup/add.gif" border="0"/></a></div>#end
+				<div class="hright"></div>
+			</div>
+			<div class="msg">
+				#foreach($map in $personalList)
+				<div class="in">
+					报名方式：个人 #if(!$VmUtils.eq($map.status,'Y'))<a href="${basePath}subject/gewacup/2012/personalApply.xhtml?mid=$!map.mid">修改</a>#end #if(!$VmUtils.eq($map.orderInfo.status,'paid_success'))<a href="javascript:deletePlayers('$map.mid');">删除</a>#end<br/>
+					报名支付：<span class="yellow">#if($VmUtils.eq($map.orderInfo.status,'paid_success'))支付成功#else未支付<a href="javascript:void(0);" onclick="sure('$!map.id', '$!map.phone', '');">（立即支付）</a>#end</span><br/>
+					报名状态：<span class="yellow">#if($VmUtils.eq($map.status,'Y'))审核通过#elseif($VmUtils.eq($map.status,'N'))审核未通过#else申请中#end</span><br/>
+					参赛类型：$!typename.get($!map.type)<br/>
+					姓　　名：$!map.name #if($VmUtils.eq($!map.type,'mixeddouble'))（$!sexMapData.get($!map.sex)）#end<br/>
+					身 份 证：$!map.idcards<br/>
+					手　　机：$!map.phone<br/>
+					#if($map.partnerplayer)
+					<span class="yellow">搭档信息</span><br/>
+					姓　　名：$!map.partnerplayer #if($VmUtils.eq($!map.type,'mixeddouble'))（$!sexMapData.get($!map.partnersex)）#end<br/>
+					身 份 证：$!map.partneridcards<br/>
+					手　　机：$!map.partnerphone
+					#end
+				</div>
+				#if($foreach.count % 2 eq 0)<div style="clear:both;width:0;height:0;"></div>#end
+				#end
+	    	</div>
+	    	#end
+	    	#foreach($club in $clubMapList)
+	    		#set($boysingleList = $club.boysingleList)
+	    		#set($girlsingleList = $club.girlsingleList)
+	    		#set($boydoubleList = $club.boydoubleList)
+	    		#set($girldoubleList = $club.girldoubleList)
+	    		#set($mixeddoubleList = $club.mixeddoubleList)
+		    	<div class="column">
+					<div class="hleft"></div>
+					<div class="htext"><img src="${staticPath}styles/images/gewacup/column_b.gif"/></div>
+					#if($VmUtils.eq($clubstatus,'game'))<div class="hadd"><a href="${basePath}subjectLink.xhtml?commuid=$!club.club.id" class="clubEvent"><img src="${staticPath}styles/images/gewacup/add.gif" border="0"/></a></div>#end
+					<div class="hright"></div>
+				</div>
+				<div class="msg">
+					<div class="in">
+						俱乐部：$!club.club.communame <a href="${basePath}subject/gewacup/2012/clubApply.xhtml?commuid=$!club.club.id">修改</a><br/>
+						报名支付：<span class="yellow">#if($VmUtils.eq($!club.orderInfo.status,'paid_success'))支付成功#else未支付<a href="javascript:void(0);" onclick="sure('', '$!club.club.phone', '$!club.club.id');">（立即支付）</a>#end</span><br/>
+						联系人：$!club.club.contact<br/>
+						身份证：$!club.club.idcards<br/>
+						手　机：$!club.club.phone<br/>
+					</div>
+					<div class="tips">
+			    	#if($VmUtils.size($boysingleList) ge 2 && $VmUtils.size($girlsingleList) ge 1 && $VmUtils.size($boydoubleList) ge 1 && $VmUtils.size($girldoubleList) ge 1 && $VmUtils.size($mixeddoubleList) ge 1) 
+			    		恭喜你，此俱乐部已经符合报名条件！
+			    	#else 
+			    		此俱乐部还差 #if($VmUtils.size($boysingleList) lt 2)#set($i = (2-$VmUtils.size($boysingleList)))男单$i个 #end#if($VmUtils.size($girlsingleList) lt 1)女单1个 #end#if($VmUtils.size($boydoubleList) lt 1)男双1个 #end#if($VmUtils.size($girldoubleList) lt 1)女双1个 #end#if($VmUtils.size($mixeddoubleList) lt 1)混双1个 #end 才能符合俱乐部报名条件！
+			    	#end
+			    	</div>
+				</div>
+				#if(!$VmUtils.isEmptyList($boysingleList))
+				<div class="colorful hgreen">
+					<span class="round"><img src="${staticPath}styles/images/gewacup/hgreen.gif"/></span>
+					<span class="rtitle"><img src="${staticPath}styles/images/gewacup/cansai1.gif"/></span>
+				</div>
+				<div class="msg">
+					#foreach ($boysingle in $boysingleList)
+					<div class="in">
+						报名方式：俱乐部 #if(!$VmUtils.eq($boysingle.status,'Y'))<a class="clubEvent" href="${basePath}subjectLink.xhtml?commuid=$!club.club.id&mid=$!boysingle.mid">修改</a>#end #if(!$VmUtils.eq($!club.orderInfo.status,'paid_success'))<a href="javascript:deletePlayers('$boysingle.mid');">删除</a>#end<br/>
+						报名状态：<span class="yellow">#if($VmUtils.eq($boysingle.status,'Y'))审核通过#elseif($VmUtils.eq($boysingle.status,'N'))审核未通过#else申请中#end</span><br/>
+						姓　　名：$!boysingle.player<br/>
+						身 份 证：$!boysingle.idcards<br/>
+						手　　机：$!boysingle.phone
+					</div>
+					#end
+		    	</div>
+		    	#end
+		    	#if(!$VmUtils.isEmptyList($girlsingleList))
+		    	<div class="colorful hgreen">
+					<span class="round"><img src="${staticPath}styles/images/gewacup/hgreen.gif"/></span>
+					<span class="rtitle"><img src="${staticPath}styles/images/gewacup/cansai2.gif"/></span>
+				</div>
+				<div class="msg">
+					#foreach ($girlsingle in $girlsingleList)
+					<div class="in">
+						报名方式：俱乐部 #if(!$VmUtils.eq($girlsingle.status,'Y'))<a class="clubEvent" href="${basePath}subjectLink.xhtml?commuid=$!club.club.id&mid=$!girlsingle.mid">修改</a>#end #if(!$VmUtils.eq($!club.orderInfo.status,'paid_success'))<a href="javascript:deletePlayers('$girlsingle.mid');">删除</a>#end<br/>
+						报名状态：<span class="yellow">#if($VmUtils.eq($girlsingle.status,'Y'))审核通过#elseif($VmUtils.eq($girlsingle.status,'N'))审核未通过#else申请中#end</span><br/>
+						姓　　名：$!girlsingle.player<br/>
+						身 份 证：$!girlsingle.idcards<br/>
+						手　　机：$!girlsingle.phone
+					</div>
+					#end
+		    	</div>
+		    	#end
+		    	#if(!$VmUtils.isEmptyList($boydoubleList))
+		    	<div class="colorful hyellow">
+					<span class="round"><img src="${staticPath}styles/images/gewacup/hyellow.gif"/></span>
+					<span class="rtitle"><img src="${staticPath}styles/images/gewacup/cansai3.gif"/></span>
+				</div>
+				<div class="msg">
+					#foreach ($boydouble in $boydoubleList)
+					<div class="in">
+						报名方式：俱乐部 #if(!$VmUtils.eq($boydouble.status,'Y'))<a class="clubEvent" href="${basePath}subjectLink.xhtml?commuid=$!club.club.id&mid=$!boydouble.mid">修改</a>#end #if(!$VmUtils.eq($!club.orderInfo.status,'paid_success'))<a href="javascript:deletePlayers('$boydouble.mid');">删除</a>#end<br/>
+						报名状态：<span class="yellow">#if($VmUtils.eq($boydouble.status,'Y'))审核通过#elseif($VmUtils.eq($boydouble.status,'N'))审核未通过#else申请中#end</span><br/>
+						姓　　名：$!boydouble.player<br/>
+						身 份 证：$!boydouble.idcards<br/>
+						手　　机：$!boydouble.phone<br/>
+						<span class="yellow">搭档信息</span><br/>
+						姓　　名：$!boydouble.partnerplayer<br/>
+						身 份 证：$!boydouble.partneridcards<br/>
+						手　　机：$!boydouble.partnerphone
+					</div>
+					#end
+		    	</div>
+		    	#end
+		    	#if(!$VmUtils.isEmptyList($girldoubleList))
+		    	<div class="colorful hyellow">
+					<span class="round"><img src="${staticPath}styles/images/gewacup/hyellow.gif"/></span>
+					<span class="rtitle"><img src="${staticPath}styles/images/gewacup/cansai4.gif"/></span>
+				</div>
+				<div class="msg">
+					#foreach ($girldouble in $girldoubleList)
+					<div class="in">
+						报名方式：俱乐部 #if(!$VmUtils.eq($girldouble.status,'Y'))<a class="clubEvent" href="${basePath}subjectLink.xhtml?commuid=$!club.club.id&mid=$!girldouble.mid">修改</a>#end #if(!$VmUtils.eq($!club.orderInfo.status,'paid_success'))<a href="javascript:deletePlayers('$girldouble.mid');">删除</a>#end<br/>
+						报名状态：<span class="yellow">#if($VmUtils.eq($girldouble.status,'Y'))审核通过#elseif($VmUtils.eq($girldouble.status,'N'))审核未通过#else申请中#end</span><br/>
+						姓　　名：$!girldouble.player<br/>
+						身 份 证：$!girldouble.idcards<br/>
+						手　　机：$!girldouble.phone<br/>
+						<span class="yellow">搭档信息</span><br/>
+						姓　　名：$!girldouble.partnerplayer<br/>
+						身 份 证：$!girldouble.partneridcards<br/>
+						手　　机：$!girldouble.partnerphone
+					</div>
+					#end
+		    	</div>
+		    	#end
+		    	#if(!$VmUtils.isEmptyList($mixeddoubleList))
+		    	<div class="colorful hred">
+					<span class="round"><img src="${staticPath}styles/images/gewacup/hred.gif"/></span>
+					<span class="rtitle"><img src="${staticPath}styles/images/gewacup/cansai5.gif"/></span>
+				</div>
+				<div class="msg">
+					#foreach ($mixeddouble in $mixeddoubleList)
+					<div class="in">
+						报名方式：俱乐部 #if(!$VmUtils.eq($mixeddouble.status,'Y'))<a class="clubEvent" href="${basePath}subjectLink.xhtml?commuid=$!club.club.id&mid=$!mixeddouble.mid">修改</a>#end #if(!$VmUtils.eq($!club.orderInfo.status,'paid_success'))<a href="javascript:deletePlayers('$mixeddouble.mid');">删除</a>#end<br/>
+						报名状态：<span class="yellow">#if($VmUtils.eq($mixeddouble.status,'Y'))审核通过#elseif($VmUtils.eq($mixeddouble.status,'N'))审核未通过#else申请中#end</span><br/>
+						姓　　名：$!mixeddouble.player（$!sexMapData.get($!mixeddouble.sex)）<br/>
+						身 份 证：$!mixeddouble.idcards<br/>
+						手　　机：$!mixeddouble.phone<br/>
+						<span class="yellow">搭档信息</span><br/>
+						姓　　名：$!mixeddouble.partnerplayer（$!sexMapData.get($!mixeddouble.partnersex)）<br/>
+						身 份 证：$!mixeddouble.partneridcards<br/>
+						手　　机：$!mixeddouble.partnerphone
+					</div>
+					#end
+		    	</div>
+		    	#end
+	    	 #end
+			<div class="tips">如您有任何疑问请联系客服电话：4000-406-506，客服工作时间：8:30-23:00</div>
+		</div>
+		<div class="cls"></div>
+		<div class="circular">
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular1.gif"/></div>
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular2.gif"/></div>
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular3.gif"/></div>
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular4.gif"/></div>
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular5.gif"/></div>
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular6.gif"/></div>
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular10.gif"/></div>
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular11.gif"/></div>
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular12.gif"/></div>
+	    </div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$('.clubEvent').addEvent('click',function(e){
+		e.preventDefault();
+		var url = "${basePath}subject/gewacup/2012/popup.xhtml";
+		var values = {};
+		var ul = this.get('href').split('?');
+		if($defined(ul[1])){
+			values = ul[1].parseQueryString();
+		}
+		gewaUtil.loadData('pointText',url, values, function(result){
+			if(result.success){
+				GewaraUtil.showDialog('pointText');
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		},'true');
+	});
+});
+function deletePlayers(mid){
+	gewaUtil.confirm("确定删除此报名信息吗？",function(){
+		GewaraUtil.sendRequest("${basePath}subject/gewacup/2012/deletePlayers.xhtml", {'mid':mid}, function(result){
+			if(result.success){
+				gewaUtil.alert('删除成功！',refreshPage);
+			}else{
+				alert(result.msg);
+			}
+		});
+	});
+}
+function	sure(cupid, mobile, commuid){
+	gewaUtil.confirm("你确定前去支付吗？",function(){
+		var url = '${basePath}blog/joinActivity.xhtml';
+		if(commuid == ''){
+			values = {'relatedid':4106697, 'joinnum':1,'mobile':mobile}
+		}else{
+			values = {'relatedid':4106705, 'joinnum':1, 'mobile':mobile}
+		}
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				bindGewaCupOrder(cupid, result.retval,commuid);					
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	})
+}
+function bindGewaCupOrder(cupid, orderid,commuid) {
+	var url = '${basePath}subject/gewacup/2012/bindGewaCupOrder.xhtml';
+	var values = {'cupid':cupid, 'commuid':commuid, 'orderid':orderid}
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			document.location.href="${basePath}gewapay/order.xhtml?orderId=" + orderid;
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>
+<script>
+function replaceStr(el){
+	$(el).value = $(el).value.replace(/[^\d]/g,'');
+}
+function goMyPlayersInfo(){
+	checkLogin(true, function(){
+		location.href="${basePath}subject/gewacup/2012/myPlayersInfo.xhtml";
+	});
+}
+function gewaActivity(){
+	checkLogin(true,function(){
+		if(!GewaraUtil.baseValidForm('activityForm','member')) return;
+		var values = GewaraUtil.getValues('activityForm');
+		if(!gewara.util.isMobile($('phone').value)){
+			gewaUtil.alert("手机号码不正确！");
+			return;
+		}
+		if(values.type == 'boydouble' || values.type == 'girldouble' || values.type == 'mixeddouble'){
+			if($('partnerplayer').value == ''){
+				gewaUtil.alert('搭档姓名不能为空！');
+				return;
+			}
+			if(!gewara.util.isMobile($('partnerphone').value)){
+				gewaUtil.alert("搭档手机号码不正确！");
+				return;
+			}
+		}
+		if(!$('checkbox').checked){
+			gewaUtil.alert("请阅读并同意我们的报名须知和竞赛规则！");
+			return;
+		}
+		var url = '${basePath}subject/gewacup/2012/savePlayersInfo.xhtml'
+		$('sex').disabled = false;
+		$('partnersex').disabled = false;
+		gewa.util.mask({'element': "disBtn",'title':'正在提交，请稍等...'});
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				document.location.href="${basePath}subject/gewacup/2012/myPlayersInfo.xhtml";
+			}else{
+				gewaUtil.alert(result.msg);
+				gewa.util.clearMask();
+			}
+		});
+		$('sex').disabled = true;
+		$('partnersex').disabled = true;
+	});
+}
+function updateSex(el){
+	if(el.value == 'boy'){
+		$('partnersex').value="girl";
+	}else{
+		$('partnersex').value="boy";
+	}
+}
+function changeData(el){
+	if(el == 'boysingle'){
+		$('partnerinfo').style.display = 'none';
+		$('sex').value="boy";
+		$('sex').disabled = true;
+		$('partnersex').disabled = true;
+		$('partnersex').value="boy";
+	}else if(el == 'girlsingle'){
+		$('partnerinfo').style.display = 'none';
+		$('sex').value="girl";
+		$('sex').disabled = true;
+		$('partnersex').disabled = true;
+		$('partnersex').value="girl";
+	}else if(el == 'boydouble'){
+		$('partnerinfo').style.display = '';
+		$('sex').value="boy";
+		$('sex').disabled = true;
+		$('partnersex').disabled = true;
+		$('partnersex').value="boy";
+	}else if(el == 'girldouble'){
+		$('partnerinfo').style.display = '';
+		$('sex').value="girl";
+		$('sex').disabled = true;
+		$('partnersex').disabled = true;
+		$('partnersex').value="girl";
+	}else{
+		$('partnerinfo').style.display = '';
+		$('sex').disabled = false;
+		$('partnersex').disabled = false;
+	}
+}
+function updateCardPic(params){
+	var picpath = params['picpath'];
+	$('idcardslogo').value = picpath;
+	$('idcardslogoimg').src = "$VmUtils.randomPic('sw400h400','"+picpath+"')";
+	$('playerimg').style.display = "";
+}
+function updatePCardPic(params){
+	var picpath = params['picpath'];
+	$('partneridcardslogo').value = picpath;
+	$('partneridcardslogoimg').src = "$VmUtils.randomPic('sw400h400','"+picpath+"')";
+	$('partnerimg').style.display = "";
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

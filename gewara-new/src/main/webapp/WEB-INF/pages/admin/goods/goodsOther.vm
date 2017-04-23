@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次其他信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline-block;width:100px; text-align:right; padding:1px 0 1px 0; margin-top:3px;}
+		input,textarea { width:500px; display:inline-block;}
+	</style>
+</head>
+<body style="width:750px;margin:auto" class="yui-skin-sam">
+<div id="mpiDialog" class="yui-panel" style="width:650px; margin: auto;">
+	<div class="bd">
+	<form name="mpiDialog" action="javascript:saveOther()" method="post">
+		<input type="hidden" name="goodsid" value="${goods.id}"/>
+		#parse('include/pay/otherConfig.vm')
+		<fieldset>
+			<legend class="yellow">积分设定</legend>
+			<div>
+				<label>最少使用：</label>
+				<input name="minpoint" value="$!goods.minpoint" style="width: 100px;"/>
+			</div>
+			<div>
+				<label>最多使用：</label>
+				<input name="maxpoint" value="$!goods.maxpoint" style="width: 100px;"/>
+			</div>
+		</fieldset>
+		<fieldset>
+			<legend class="yellow">场次个性短信设置</legend>
+			<div>
+				<label>订单成功短信：</label>
+				<input name="ordermsg" value="$!goods.ordermsg" style="width: 400px;"/><br />
+				<span style="color:red;display:inline-block;margin: 5px 0 0 20px;">设置说明：数量：quantity   取票密码：password   有效期：time</span>
+			</div>
+			<div class="mt5">
+				<label>温馨提示时间：</label>
+				<input name="msgMinute" value="$!goods.msgMinute" style="width: 100px;"/>
+				<span style="color:red;">（分钟）说明：距离演出开始时间提前N分钟发送</span>
+			</div>
+			<div class="mt5">
+				<label>温馨提示短信：</label>
+				<input name="notifymsg" value="$!goods.notifymsg" style="width: 400px;"/>
+			</div>
+		</fieldset>
+		<fieldset style="margin-top: 30px;height: 45px;">
+			<legend class="yellow">特价活动</legend>
+			<div>活动标识：<input type="text" name="spflag" id="spflag" value="$!goods.spflag" style="width: 100px;"/>
+			</div>
+		</fieldset>
+		<fieldset>
+			<legend class="yellow">是否生产条形码</legend>
+			<div>
+				<label>选择：$!goods.barcode</label>
+				<input type="radio" name="barcode" value="" #if($VmUtils.isBlank($goods.barcode) || $VmUtils.eq($goods.barcode, 'Y'))checked#end style="width:20px;"/>否
+				<input type="radio" name="barcode" value="Y" #if($VmUtils.eq($goods.barcode, 'Y'))checked#end style="width:20px;"/>是
+			</div><br/>
+		</fieldset>
+		#parse('include/pay/otherPayConfig.vm')
+		<fieldset>
+			<legend class="yellow">券适用</legend>
+			<div class="right">
+				<input type="button" value="删除" style="width: 50px;" onclick="removeCard()"/><br/>
+			</div>
+			<div>
+				<label>券选择：</label>
+				<input type="radio" name="cardoption" value="canuse" #if($VmUtils.eq($cardoption, 'canuse'))checked#end style="width:20px;"/>可用
+				<input type="radio" name="cardoption" value="notuse" #if($VmUtils.eq($cardoption, 'notuse'))checked#end style="width:20px;"/>不可用
+			</div>
+			<div>
+				<label>批次ID：</label>
+				<input type="text" name="batchidlist" value="$!batchidlist" style="width: 380px;"/>&nbsp;用英文","分开
+			</div>
+		</fieldset>
+		<div>
+			<label>&nbsp;</label>
+			<input type="submit" class="button" style="width:100px" value="确定"/>
+		</div>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+	function saveOther(){
+		var url = "${basePath}admin/goods/saveGoodsOther.xhtml";
+		var values = GewaraUtil.getValues("mpiDialog", ",");
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+				refreshPage();
+			}else{
+				alert('保存失败：' + result.msg);
+			}
+		});
+	}
+	function removePay(){
+		var url = "${basePath}admin/goods/removeGoodsOther.xhtml";
+		var values = {'goodsid':$goods.id, 'payoption':'true'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert('保存失败：' + result.msg);
+			}
+		});
+	}
+	function removeCard(){
+		var url = "${basePath}admin/goods/removeGoodsOther.xhtml";
+		var values = {'goodsid':$goods.id, 'cardoption':'true'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert('保存失败：' + result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

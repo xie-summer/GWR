@@ -1,0 +1,169 @@
+#if($payMemberList && $payMemberList.size() gt 0)
+<div class="mod_kong payUser">
+	<div class="mod_hd">
+		<h2>最近购票瓦友</h2>
+	</div>
+	<div class="mod_bd clear">
+		<ul>
+			#foreach($payMember in $payMemberList)
+			<li>
+				<a class="pubpic" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$memberMap.get($payMember.tradeNo).id" 
+					title="" target="_blank"><img width="50" height="50" 
+					alt="" src="$VmUtils.randomPic('cw50h50',$memberMap.get($payMember.tradeNo).headpicUrl)"/></a>
+				<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$memberMap.get($payMember.tradeNo).id" 
+						title="$!memberMap.get($payMember.tradeNo).nickname" target="_blank">
+						$!VmUtils.escabbr($!memberMap.get($payMember.tradeNo).nickname,8)
+					</a>
+				</p>
+				<p class="c666">$DateUtil.getDateDesc($payMember.paidtime)</p>
+			</li>
+			#end
+		</ul>
+	</div>
+</div>
+#end
+#set($otherinfo=$VmUtils.readJsonToMap($cinema.otherinfo))
+#if($showservice==true || $showAround==true || $showTraffic==true)
+<div class="mod_tabs new_ser">
+	<div class="mod_hd">
+		<ul class="nav_tabs">
+			#if($showTraffic==true)
+			<li id="traffic" ><a  href="javascript:void(0);">交通信息</a></li>
+			#end
+			#if($showservice==true)
+			<li id="cinemaSer" ><a href="javascript:void(0);">影院服务</a></li>
+			#end
+			#if($showAround==true)
+			<li id="aroundFac" ><a href="javascript:void(0);">周边设施</a></li>
+			#end
+		</ul>
+	</div>
+	<div class="mod_bd">
+	#if($showTraffic==true)
+		<div id="traffic_content" class="trafficn none">
+			#if($subwayTransportMap)
+			<dl class="ui_media">
+				<dt class="ui_pic"><em class="S1 P2 left"></em><em class="t1">地铁</em></dt>
+				<dd class="ui_text">
+					#foreach($sta in $stationList)
+						#foreach($subwayLine in $subwayTransportMap.get($sta.id))
+							<b>$!subwayLine.get('lines')号线  $!sta.stationname $!{subwayLine.get('exitnumber')}号口</b>       $!{subwayLine.get('detail')}<br/>
+						#end
+					#end
+				</dd>
+			</dl>
+			#end
+			#set($park = $otherinfo.get('park'))
+			#if($park || $parkOtherInfoMap.get('parkRecommendRemark') || $parkOtherInfoMap.get('otherPark'))
+				<dl class="ui_media">
+					<dt class="ui_pic"><em class="S1 P3 left"></em><em class="t1">驾车</em></dt>
+					<dd class="ui_text">
+						#if($park)停车信息：<b>$!park</b><br/>#end
+						#if($parkOtherInfoMap.get('parkRecommendRemark'))推荐车区：<b>$parkOtherInfoMap.get('parkRecommendRemark')</b><br/>#end
+						#if($parkOtherInfoMap.get('otherPark'))附近其它停车场：<b>$parkOtherInfoMap.get('otherPark')</b><br/>#end
+					</dd>
+				</dl>
+			#end
+			#if($VmUtils.isNotBlank($cinema.transport))
+			#set($transportList = $VmUtils.replace($cinema.transport,'@','<br/>'))
+			<dl class="ui_media">
+				<dt class="ui_pic"><em class="S1 P1 left"></em><em class="t1">公交</em></dt>
+				<dd class="ui_text">
+					$!{transportList}
+				</dd>
+			</dl>
+			#end
+		</div>
+	#end
+	#if($showservice==true)
+		<div id="cinemaSer_content" class="cinemaServer none">
+			#if($VmUtils.isNotBlank($otherinfo.get('sale')))
+			<dl class="ui_media">
+				<dt class="ui_pic"><em class="S1 P1"></em>卖品</dt>
+				<dd class="ui_text">$!otherinfo.get('sale')</dd>
+			</dl>
+			#end
+			#if($VmUtils.isNotBlank($otherinfo.get('imax')))
+			<dl class="ui_media">
+				<dt class="ui_pic"><em class="S1 P2"></em>IMAX</dt>
+				<dd class="ui_text">$!otherinfo.get('imax')</dd>
+			</dl>
+			#end
+			#if($VmUtils.isNotBlank($otherinfo.get('3D')))
+			<dl class="ui_media">
+				<dt class="ui_pic"><em class="S1 P3"></em>3D眼镜</dt>
+				<dd class="ui_text">$!otherinfo.get('3D')</dd>
+			</dl>
+			#end
+			#if($VmUtils.isNotBlank($otherinfo.get('pairseat')))
+			<dl class="ui_media">
+				<dt class="ui_pic"><em class="S1 P4"></em>情侣座</dt>
+				<dd class="ui_text">$!otherinfo.get('pairseat')</dd>
+			</dl>
+			#end
+			#if($VmUtils.isNotBlank($otherinfo.get('child')))
+			<dl class="ui_media">
+				<dt class="ui_pic"><em class="S1 P5"></em>儿童票</dt>
+				<dd class="ui_text">$!otherinfo.get('child')</dd>
+			</dl>
+			#end
+			#if($VmUtils.eq($cinemaProfile.isRefund,'Y'))
+			<dl class="ui_media">
+				<dt class="ui_pic"><em class="S1 P6"></em>退票服务</dt>
+				<dd class="ui_text">放映前4小时可退票</dd>
+			</dl>
+			#end
+			#if($VmUtils.isNotBlank($otherinfo.get('restregion')))
+			<dl class="ui_media">
+				<dt class="ui_pic"><em class="S1 P7"></em>休息区</dt>
+				<dd class="ui_text">$!otherinfo.get('restregion')</dd>
+			</dl>
+			#end
+			#if($VmUtils.isNotBlank($otherinfo.get('shoppingTime')))
+			<dl class="ui_media">
+				<dt class="ui_pic"><em class="S1 P8"></em>商场营业时间</dt>
+				<dd class="ui_text">$!otherinfo.get('shoppingTime')</dd>
+			</dl>
+			#end
+		</div>
+	#end
+	#if($showAround==true)
+		<div id="aroundFac_content" class="arfacility none">
+			#if($VmUtils.isNotBlank($otherinfo.get('food')))
+			<dl class="ui_media">
+				<dt class="ui_pic"><em class="S1 P1"></em>餐饮</dt>
+				<dd class="ui_text">$!otherinfo.get('food')</dd>
+			</dl>
+			#end
+			#if($VmUtils.isNotBlank($otherinfo.get('recreation')))
+			<dl class="ui_media">
+				<dt class="ui_pic"><em class="S1 P2"></em>娱乐</dt>
+				<dd class="ui_text">$!otherinfo.get('recreation')</dd>
+			</dl>
+			#end
+			#if($VmUtils.isNotBlank($otherinfo.get('shopping')))
+			<dl class="ui_media">
+				<dt class="ui_pic"><em class="S1 P3"></em>购物</dt>
+				<dd class="ui_text">$!otherinfo.get('shopping')</dd>
+			</dl>
+			#end
+		</div>
+	#end
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+		var dateArr = [];
+		#if($showTraffic==true)
+			dateArr.push("traffic");
+		#end
+		#if($showservice==true)
+			dateArr.push("cinemaSer");
+		#end
+		#if($showAround==true)
+			dateArr.push("aroundFac");
+		#end
+	new PanelGroup(dateArr, dateArr[0], "select", "none", "click");
+});
+</script>
+#end

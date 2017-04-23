@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>圈子公告_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($community = true)
+#set($tag="home")#set($isCommuNotice=true)#set($isShow=false)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('home/community/manage/commuM.vm')
+			<div class="ui_rightInner_left">
+				<div class="inner">
+					<div class="mt20 fs14"><strong>圈子公告</strong></div>
+					<div class="partBg mt20">
+						<strong>发布公告</strong>
+						<ul class="ul-60">
+							<li>
+								<div class="ul-60Inner">内容：</div>
+								<input type="hidden" id="noid" name="noid" />
+								<textarea class="text" name="body" id="body"  style="width:450px;height:80px;"></textarea>
+								<label class="redBt button minBt"><input type="button" onclick="addNotice($!commu.id)" value="确 定"/></label>
+							</li>
+						</ul>
+					</div>
+					<div class="mt20 title"><h2>已发公告</h2></div>
+					<table cellpadding="0" cellspacing="0" class="titleTable">
+						<thead>
+							<tr>
+								<th width="68%" style="color:#C03B0C"><strong>公告内容</strong></th>
+								<th width="20%" style="color:#C03B0C"><strong>发表时间</strong></th>
+								<th style="color:#C03B0C; text-align: center;"><strong>操作</strong>	</th>
+							</tr>
+						</thead>
+						<tbody>
+							#foreach($notice in $noticeList)
+							<tr class="#if($foreach.index%2 eq 0)even #else old #end">
+								<td>$!notice.body</td>
+								<td>$!DateUtil.format($!notice.addtime,'MM-dd HH:mm:ss')</td>
+								<td>
+								<a href="javascript:void(0);" onclick="modNotice($!notice.id, $!commu.id)" class="brown">修改</a>|
+								<a href="javascript:void(0);" onclick="delNotice($!notice.id,$!commu.id)" class="brown">删除</a></td>
+							</tr>
+							#end
+							<tr>
+								<td colspan="3" style="border:0px;"><div class="clew mt20">说明：圈子公告只显示最新发布的内容！</div></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>	
+			#parse('home/community/manage/commuManageRight.vm')
+		</div>
+	</div>
+</div>
+	<script type="text/javascript">
+	function modNotice(id, commuid){
+		var url = '${basePath}home/commu/preLoadNotice.xhtml';
+		var values = {'id':id,'commuid':commuid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$('body').value = result.body;
+				$('noid').value = result.id;
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	}
+
+	function delNotice(id,commuid){
+		gewaUtil.confirm("确认删除此公告吗?", function(){
+			var url = "${basePath}home/commu/delecommunotice.xhtml";
+			var values = {'id':id,'commuid':commuid};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewaUtil.alert(result.retval);
+					refreshPage();
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		})
+	}
+	
+	function addNotice(commuid){
+		if(!$chk($('body').value)){
+			gewaUtil.alert('公告内容不能为空！');
+			return;
+		}
+		if($('body').value.length>400){
+			gewaUtil.alert('公告内容不能太长，长度最好400字以内！');
+			return;
+		}
+		var url = "${basePath}home/commu/addcommunotice.xhtml";
+		var id = $('noid').value;
+		var values = {'id':id, 'commuid':commuid,'body':$('body').value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert("发布成功!");
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

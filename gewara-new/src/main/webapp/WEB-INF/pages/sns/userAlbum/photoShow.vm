@@ -1,0 +1,302 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>相册_详细_格瓦拉社区</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/default.css?v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/userPhoto.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,Autocompleter,page,pagesNavigation,noobSlide,slimbox,scrollerbar&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div id="snsHeader"></div>
+<div class="ui_layout">
+	#set($menuTag = 'photo')
+	#parse('sns/common/left.vm')
+<div class="body_right">
+
+#set($photo=true)
+#set($isShow=false)
+#if($!rights.get(1) eq 'album_public')
+#set($isShow=true)
+#elseif($!rights.get(1) eq 'album_friend' && $isMyFriend)
+#set($isShow=true)
+#end
+#if(!$!rights)
+	#set($isShow=true)
+#end
+
+#parse('sns/userAlbum/common_menu.vm')
+<div class="bodys" id="_body">
+	
+	<div class="ablum_wrap">
+		#if($isShow)
+		#if($isCanShow)
+		<div class="ablum_opt lineBot">
+			<ul class="ui_abeam">
+					<li>
+						<div class="uipic"><img width="120" height="120" style="background:url($VmUtils.randomPic('sw120h120',$curAlbum.limg)) center center no-repeat;" src="${staticPath}css/images/blank.gif"></div>
+						<div class="uiText">
+							<b>$curAlbum.subject</b>
+							<p class="user_name">创建者：
+							#if($!logonMember.id eq $member.id)
+								<a href="${basePath}home/sns/personIndex.xhtml">$!member.nickname</a>
+							#else
+								<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$member.id">$!member.nickname</a>
+							#end
+							</p>
+							#if($!curAlbum.description)
+							<p>描述：$!curAlbum.description</p>
+							#end
+							<div class="title ablumOpt">
+								#set($ta = 'TA')
+								#if($!isShowCommuAlbum)
+									<a href="${basePath}home/new/uploadPicture.xhtml?tag=member&relatedid=$!logonMember.id&albumid=$!curAlbum.id">上传图片</a>
+									<a href="javascript:setCover();" title="把当前图片设置成相册封面">设置封面</a>
+									<input type="hidden" name="curAlbumImage" id="curAlbumImage" value="$curAlbumImage.limg"/>
+								#end
+								<a href="${basePath}home/new/album/albumList.xhtml?memberid=$!member.id">返回#if($logonMember.id eq $member.id)我#else$ta#end的相册</a>	
+							</div>
+						</div>
+						
+					</li>
+			</ul>	
+		</div>
+		
+		<div class="detail_body_left">
+		
+				<!--相框-->	
+					<!--翻页-->
+					<div class="groupOutside">
+						<div id="img" class="groupImgs">
+							<span title="上一张" class="prive">上一张</span>
+							<span style="left:auto;right:0px;" title="下一张" class="nex">下一张</span>
+						</div>
+					</div>
+					<!--/翻页-->
+					<div class="title">
+						<span class="more fs14">[<a href="$VmUtils.randomPic('',$!curAlbumImage.limg)" id="picLink" target="_blank">查看原图</a>]</span>
+					</div>
+					<!--画布-->
+					<div id="container" class="groupImgsControl">
+						<ul id="scoll" class="clear" style="overflow:hidden;"></ul>
+					</div>
+					<!--/画布-->
+				<!--/相框-->	
+					
+					<div class="mt30"><h2 class="fs14">评论...</h2></div>
+						<!--发布输入框-->
+						<div id="walaDialog" class="send_wala ui_abeam mt10">
+							<div id="loadHtml" style="display:none"></div>
+							<div class="uipic mt5">
+								<a id="logonMember" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$logonMember.id" class="pubpic" target="_blank"><img style="background: url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($!logonMember.id).headpicUrl)) no-repeat scroll 0px center transparent;" src="${staticPath}css/images/blank.gif" id="logonMemberPic"/></a>
+							</div>
+							<div class="uiText">
+								<div class="wala_text">
+									<span class="pl"></span>
+									<input type="hidden" id="albumid" name="albumid" value="$!albumid"/>
+									<input type="hidden" id="imageid" name="imageid" value="$!curAlbumImage.id"/>
+									<div class="wala_text_inner">
+										<textarea class="walaL_say_area" id="bodyid" name="body" title="评论输入框"></textarea>
+									</div>
+								</div>
+								<div class="linkd"><div class="right"><a href="javascript:;" id="commenBtn" class="button w90Bt" onclick="saveComment();return false;">发&nbsp;&nbsp;布</a></div></div>
+							</div>
+						</div>
+						<!--/发布输入框-->
+						
+						<!--评论列表容器-->
+						<div id="showComment">
+						</div>
+						<!--/评论列表容器-->
+				</div>
+				
+			#else
+				<div class="clew mt20">
+					#if($!curAlbum.rights eq 'private')
+						[$member.nickname]的相册【$!curAlbum.subject】设置了权限为【全体不可见】
+					#elseif($!curAlbum.rights eq 'friend')
+						[$member.nickname]的相册【$!curAlbum.subject】设置了权限为【仅好友可见】<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$member.id" class="brown">加为好友</a>即可一睹为快!
+					#end
+				</div>
+			#end
+			
+			#else
+				<div class="clew mt20">
+				#if($!rights.get(1) eq 'album_private')
+					【$member.nickname】的相册设置了权限为【全体不可见】
+				#elseif($!rights.get(1) eq 'album_friend')
+					【$member.nickname】的相册设置了权限为【仅好友可见】<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$member.id" class="brown">加为好友</a>即可一睹为快!
+				#end
+			#end
+	</div>
+	
+</div>
+<script type="text/javascript">
+//设置封面
+function setCover(){
+	var albumId = $curAlbum.id;
+	var values = {'albumId':albumId,'imageUrl':$('curAlbumImage').value};
+	var url = "${basePath}home/album/setAlbumCover.xhtml";
+	GewaraUtil.sendRequest(url,values,function(result){
+		if(result.success){ 
+			gewaUtil.alert("设置成功！",refreshPage);
+		}else{
+			gewaUtil.alert(result.msg);
+		} 
+	});
+}
+
+function getImageMap(){
+	#set($picMapList=[])
+	#foreach($pics in $mapList)
+	#set($temp=$picMapList.add({"picturename":"$VmUtils.randomPic('',$!pics.picturename)","minpic":"$VmUtils.randomPic('cw128h96',$!pics.picturename)","description":"$!pics.description","membername":"$!pics.membername","posttime":"$!pics.posttime","id":"$!pics.id"}))
+	#end
+	var imageMap = $VmUtils.getScriptObject($picMapList);
+	return imageMap;
+}
+var count=0;
+#if($recordCount)
+count=$!recordCount;
+#end
+var picList = getImageMap(),flag = true,scroll = $empty;
+window.addEvent('domready',function(){
+	picsolid();
+	taskCount();
+})
+function picsolid(){
+	if(picList.length<=1){
+		$("img").getElements("span").hide();
+	}
+	picList.each(function(img,index){
+		new Element('img',{'src':"$VmUtils.randomPic('','css/images/blank.gif')",'lazeSrc':picList[index].minpic,'class':index==count?'select':'','styles':{'background-image':'url($VmUtils.randomPic('','css/images/loading3.gif'))','background-position':'center center','background-repeat':'no-repeat'}}).addEvent('click',function(){
+			count = index;
+			taskCount();
+		}).inject(new Element('li').inject('scoll'));
+	})
+	$('img').getElements('span').addEvent('click',function(){
+		if(flag){
+			if(this.get('title') == '上一张'){
+				if(count > 0)count--
+				else count = 0;
+				if(count == 0)this.hide();
+				$$('.nex').show();
+			}else{
+				if(count < picList.length-1) count++;
+				else count = picList.length-1;
+				if(count == picList.length-1)this.hide();
+				$$('.prive').show();
+			}
+			taskCount();
+		}
+	});
+	if(picList.length > 4)$('scoll').setStyle('width',138*picList.length);
+	scroll = new ScrollerBar('container',{mode:'horizontal','laze':true,wrapped:'scoll'});
+}
+function taskCount(){
+	if(flag){
+		flag = false;
+		$('img').PlayPicture(picList[count].picturename,632,395,function(collback){
+			flag = collback;
+			if(picList.length > 4){
+				scroll.setStyle(count,function(obj){
+					$('scoll').getElements('img').removeClass('select');
+					$(obj).getChildren().addClass('select');
+					scroll.slider.set(count*(scroll.getSub()/picList.length));
+				});
+			}else{
+				$('scoll').getElements('img').each(function(item,index){
+					if(index == count) item.addClass('select');
+					else item.removeClass('select');
+				});
+			}
+			$('picLink').set('href',picList[count].picturename);
+			$('imageid').value=picList[count].id;
+			//当前显示图片
+			if($('curAlbumImage'))$('curAlbumImage').value=picList[count].picturename;
+			commentList(picList[count].id);
+		});
+	}
+}
+
+var commentLoadUrl="${basePath}quan/new/album/albumCommentList.xhtml";
+function commentList(id){
+	var sendUrl = commentLoadUrl+"?imageid="+id+"&r="+Math.random();
+	$('showComment').load(sendUrl);
+}
+var commentCounts=0;
+function saveComment(){
+	checkLogin(true,function(){
+	
+		if(commentCounts>=2){
+			gewaUtil.alert('休息一下，稍后再评论吧！');
+			return;
+		}
+		
+		if($('bodyid').value==''){
+			gewaUtil.alert('回复内容不能为空！');
+			return;
+		}
+		if($('bodyid').value.length > 200){
+			gewaUtil.alert("回复内容不能大于200字！");
+			return;
+		}
+		GewaraUtil.mask('commenBtn');
+		var url = '${basePath}home/new/album/saveAlbumComment.xhtml';
+		var myRequest = new Request({url: url, method: 'post',
+			onSuccess: function(resText){
+				commentCounts++;
+				GewaraUtil.unmask();
+				var fxel = new Element('div').inject($('showComment'),'top'),el = $('loadHtml');
+				el.set('html',resText);
+				var myFx = new Fx.Tween($(fxel),{duration:1000}),datas = el.get('html');
+					myFx.start("height",0,68).chain(function(){
+					fxel.set("html", datas);
+					fxel.setStyle('height','auto');
+					$('bodyid').value='';
+				});
+			}
+		});
+		myRequest.send({'data':{'imageid':$('imageid').value,'albumid':$('albumid').value,'body':$('bodyid').value}});
+	});
+}
+	
+function deleteComment(self,commentid){
+	var url = '${basePath}home/album/deleteAlbumComment.xhtml';
+	var values = {'commentid':commentid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			new Fx.Reveal($(self).getParent('ul')).dissolve();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	})
+}
+</script>
+#parse('include/home/adoptAlbum.vm')
+	</div>
+</div>
+<div class="ui_view_menu"></div>
+<div class="footer_warp">
+	<div class="isFooter"></div>
+</div>
+#parse('include/innerLogin.vm')
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=snsUtil,index_even&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	if($('publicize'))new adSoild('publicize','navControl',{'position':{'x':#if($!params.memberid)280#{else}180#end,'y':#if($!params.memberid)80#{else}70#end},'width':14});
+	if($('slidePanel'))new noobSlide({
+		box: $('slidePanel'),
+		size:180,
+		items: $$('#slidePanel li'),
+		handle_event:'click',
+		addButtons: {
+			previous:$('eventL'),
+			next:$('eventR')
+		}
+	});
+});
+</script>
+#parse('sns/common/ga.vm')
+</body>
+</html>

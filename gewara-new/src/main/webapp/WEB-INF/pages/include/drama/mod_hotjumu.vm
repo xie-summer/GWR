@@ -1,0 +1,140 @@
+<div class="jumuList">
+	<ul>
+	#foreach($drama in $dramaList)
+	#set($dirayList = $dramaDiarys.get($drama.id))
+	#set($key=${drama.id}+'drama')
+		<li class="effectLi">
+			<div class="ui_media jumutName">
+				<div class="ui_pic ui_pic1">
+					<a href="${basePath}drama/$!drama.id" target="_blank" title="$!drama.name">
+						<img src="$VmUtils.randomPic('sw96h128',$!drama.limg)" alt="$!drama.name" height="160" width="120" />
+					</a>
+				</div>
+				<div class="ui_text">
+					<div class="title">
+						<h2>
+							<a href="${basePath}drama/$!drama.id" title="$!drama.name" target="_blank" class="c80">$!VmUtils.escabbr($drama.name,40)</a>
+						</h2>
+						<span class="c999 ml10">(<em class="fs14 mr20">${drama.clickedtimes}关注</em>${drama.boughtcount}购票)</span>
+					</div>
+					#if($VmUtils.isNotBlank($drama.highlight))<p class="mt10 jumutRow c666"><span class="q"></span>$!drama.highlight<span class="h"></span></p>#end
+					<p class="mt10 c999">演出时间：
+						$!DateUtil.format($!drama.releasedate, 'yyyy年MM月dd日') 
+						#if($drama.enddate) - $!DateUtil.format($!drama.enddate, 'yyyy年MM月dd日') 
+						#end 
+					</p>
+					<p class="jumuCount c999"><a href="javascript:void(0)" title="评论" class="c999 fs14"><em>#if($VmUtils.gt($diaryCountMap.get($key),0))$diaryCountMap.get($key)#{else}0#end</em>评论 </a><a style="margin-left:120px;" href="${basePath}drama/${drama.id}/commentlist" class="c999 fs14" title="哇啦"><img class="uiPt1 none" src="${staticPath}css/images/blank.gif" /><em>#if($VmUtils.gt($!dramaWalaCountMap.get($drama.id)))$!dramaWalaCountMap.get($drama.id)#{else}0#end</em>哇啦</a></p>
+					<div class="jumuPl_con">
+						#set($dramaid=$drama.id)
+						#if(!$VmUtils.isEmptyList($dirayList))
+							#parse('include/drama/mod_hotJumuComment.vm')
+							<div id="loadcommentbody$dramaid" ></div>
+						#end
+						#if($VmUtils.gt($diaryCountMap.get($key),3))
+						<div id="loadCommnet" class="ui_warning center"><a id="jiazid$drama.id" href="javascript:loadMoreComment('$drama.id');">加载更多评论</a></div>
+						#end
+						<input type="hidden" id="commnetIndex$drama.id" value="3" />
+					</div>
+				</div>
+			</div>
+		</li>
+	#end
+	</ul>
+	<div class="clear">
+		#parse('include/pageUtil.vm')
+	</div>
+</div>
+#parse('common/compandingjs.vm')
+<script type="text/javascript">
+
+function showOppose(id){
+	$('support'+id).addClass('none');
+	checkLogin(true,function(){
+		var url = '${basePath}blog/addDiaryFlower.xhtml';
+		var values = {'diaryId':id, 'tag':'oppose'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$('pooh'+id).innerHTML = result.retval;
+			}
+		})
+	});
+	$('oppose'+id).toggleClass('none').addEvent('click',function(){
+		if(!this.hasClass('none')) {
+	  		if($('say_oppose'+id).value == '说说反对理由')$('say_oppose'+id).value='';
+	  	}
+  });
+}
+function showSupport(id){
+     $('oppose'+id).addClass('none');
+     checkLogin(true,function(){
+		var url = '${basePath}blog/addDiaryFlower.xhtml';
+		var values = {'diaryId':id, 'tag':'support'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				 $('flowers'+id).innerHTML = result.retval;
+			}
+		})
+	});
+     $('support'+id).toggleClass('none').addEvent('click',function(){
+    	 if(!this.hasClass('none')) {
+    	  	if($('say_support'+id).value == '说说支持理由') $('say_support'+id).value='';
+    	  }
+  });
+}
+addComment = function(el,diaryid,tag,say_area,captchaName){
+	var replyconent = $(say_area).value;
+	if(replyconent == '' || replyconent == '说说支持理由' || replyconent == '说说反对理由'){
+		gewaUtil.alert("请输入回复内容！"); return;
+	}
+	var captchaId = $(captchaName).value;
+	var captcha = $(captchaName + 'Input').value;
+	checkLogin(true,function(){
+		gewa.util.mask({'element':el,'title':'正在提交，请稍等...'});
+		var url = '${basePath}blog/saveDiaryComment.xhtml';
+		var values = {'diaryId':diaryid, 'body':replyconent,'captchaId':captchaId,'captcha':captcha};
+		GewaraUtil.sendRequest(url, values, function(result){
+		gewara.util.unmask();
+			if(result.success){
+				$(tag+diaryid).addClass('none');
+				$(say_area).value = '';
+				$(captchaName + 'Input').value = '';
+			}else{
+				gewaUtil.alert(result.msg);
+				gewa.util.clearMask();
+				GewaraUtil.refreshCaptcha(captchaName);
+			}
+		});
+	});
+}
+showAll = function(target,id){
+	if(target == 'showDown'){
+		gewa.util.show('showUp_content' + id);
+		gewa.util.hide('showDown_content' + id);
+	}else{
+		gewa.util.hide('showUp_content' + id);
+		gewa.util.show('showDown_content' + id);
+	}
+}
+function loadMoreComment(dramaId){
+	var indexKey = "commnetIndex"+dramaId;
+	var index = $(indexKey).value;
+	var url = "${basePath}drama/ajax/diaryList.xhtml";
+	var le = new Element('div').inject('loadcommentbody'+dramaId);
+	GewaraUtil.sendLoad(le, url,{"index":index,"dramaId":dramaId}, function(result){
+		if(result.success){
+			if(result.html.length != 0){
+				index = index.toInt()+5;
+				$(indexKey).value = index;
+			}else{
+				var els = "jiazid"+dramaId;
+				$(els).set("text","没有更多评论了");
+				$(els).set("href","javascript:void(0)");
+			}
+		}else{
+			var els = "jiazid"+dramaId;
+			$(els).set("text","没有更多评论了");
+			$(els).set("href","javascript:void(0)");
+		}
+	});
+}
+</script>

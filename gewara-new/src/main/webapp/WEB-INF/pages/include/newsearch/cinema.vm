@@ -1,0 +1,24 @@
+#set($cinema=$sk.relatedObj)
+#set($gmark=$VmUtils.getSingleMarkStar($cinema, "general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+<dl class="ui_abeam search_cinema">
+	<dt class="uipic">
+		<a target="_blank" href="${basePath}cinema/$!cinema.id" title="">
+			<img width="120" height="60" src="$VmUtils.randomPic('sw120h60',$!cinema.limg)">
+		</a>
+	</dt>
+	<dd class="uiText">
+		<h2><em class="ffst">[电影院]</em><a target="_blank" title="" href="${basePath}cinema/$!cinema.id">$!cinema.name</a></h2>
+		<span class="mr10"><sub>$!gmark1.</sub><sup>$!gmark2</sup></span><span class="c666">($!cinema.clickedtimes关注)</span><br/>
+		<span><em>联系电话：</em>$!cinema.contactphone</span><br/>
+		<span><em>详细地址：</em><a class="cMovie" target="_blank" href="${basePath}movie/searchCinema.xhtml?countycode=$!{cinema.countycode}">$!{cinema.countyname}</a>$!cinema.address<a class="blue ffst" target="_blank" href="${basePath}common/baiduMap.xhtml?id=$cinema.id&tag=cinema">[地图]</a></span><br/>
+		<span><em>影院特色：</em>$!cinema.feature</span><br/>
+		<span><em>地铁交通：</em>
+		#if($VmUtils.isNotBlank($cinema.getLineName($subwaylineMap)))
+			$!cinema.getLineName($!subwaylineMap)&nbsp;（$!cinema.stationname&nbsp;$!cinema.exitnumber）
+		#end
+		</span><br/>
+		#if($opiCinemaList.contains($cinema.id))
+		<a class="button minBt redBt" target="_blank" href="${basePath}cinema/$!cinema.id"><span>选座购票</span></a>
+		#end
+	</dd>
+</dl>

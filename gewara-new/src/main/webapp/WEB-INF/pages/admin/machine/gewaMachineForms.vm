@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>编辑机器信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script> 
+	<style>
+		.w150{width: 150px;}
+		.center{text-align:center;}
+		div{margin-top:8px;}
+		.ml20{margin-left: 20px}
+		.ml10{margin-left:10px;}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:700px;margin:auto">
+#set($machineMapData={'newhost':'主机','lcd':'显示器','vpn':'VPN','integration':'一体机','rpt':'拖线板','exchange':'交换机','router':'路由器','notebook':'笔记本','3gcard':'3G上网卡','phone':'移动座机','pos':'pos机'})
+<div id="dramaDialog" class="yui-panel" style="width:750px;margin:auto">
+	<div class="hd">[编辑Gewa机器数据]</div>
+	<div class="bd">
+	<form name="gewaMachineForm" id="gewaMachineForm" action="javascript:saveGewaMachine();" style="padding-left: 20px;padding-top: 10px;">
+		<input type="hidden" name="id" id="gewamachineid" value="$!{gewaMachine.id}"/>
+		<div>
+			<span class="center">
+				<label for="machinenumber" class="ml20">编码：</label>
+				<input name="machinenumber"  id="machinenumber" class="w150" style="width:300px;" type="text" value="$!{gewaMachine.machinenumber}"/>
+				#if(!${gewaMachine.id})如果是批量添加数据请以 <font color="red">,</font>格开#end
+			</span>
+		</div>
+		<div>
+			<span class="center">
+				<label for="machinename">设备名称：</label>
+				<select name="machinename" class="w150" id="machinename" onchange="changeMachine()">
+					#foreach($machine in $machineMap.entrySet())
+					<option value="$machine.key" #if($VmUtils.eq($gewaMachine.machinename, $machine.key)) selected="selected"#end>$machineMapData.get($machine.value)</option>
+					#end
+				</select>
+			</span>
+			<span class="center">
+				<label for="machineowner" class="ml20">使用者：</label>
+				<input name="machineowner" id="machineowner" class="w150" type="text" value="$!{gewaMachine.machineowner}" />
+			</span>
+		</div>
+		<div>
+			<span class="center">
+			<label for="buydate" >购买日期：</label>
+			<input name="buydate"  class="w150" id="buydate" name="buydate" class="Wdate" readonly="readonly" onclick="WdatePicker()" type="text" value="$!DateUtil.formatDate($!gewaMachine.buydate)" />
+			</span>
+			<span class="center">
+			<label for="userdate" class="ml20">使用日期：</label>
+			<input name="usedate"  class="w150" id="usedate" name="usedate"  readonly="readonly" onclick="WdatePicker()" type="text" value="$!DateUtil.formatDate($!gewaMachine.usedate)" />
+			</span>
+			<label for="machinestatus" class="ml20">使用状态：</label>
+			<select name="machinestatus" id="machinestatus" class="w150">
+				<option value="pend" #if($VmUtils.eq($gewaMachine.machinestatus,'pend')) selected="selected" #end>未使用</option>
+				<option value="use" #if($VmUtils.eq($gewaMachine.machinestatus,'use')) selected="selected"#end>使用中</option>
+				<option value="stop" #if($VmUtils.eq($gewaMachine.machinestatus,'stop')) selected="selected"#end>暂停使用</option>
+			</select>
+		</div>
+		<div>
+			<label for="machinecontent">配置数据：</label>
+			<textarea style="width: 650px;height:20px;vertical-align: middle;" name="machinecontent" id="machinecontent">$!{gewaMachine.machinecontent}</textarea>
+		</div>
+		<div>
+			<label for="remark">备注描述：</label>
+			<textarea style="width: 650px;height:100px;vertical-align: middle;" name="remark" id="remark">$!{gewaMachine.remark}</textarea>
+		</div>
+		<fieldset id="vpnfieldSet" style="display: none;">
+		<legend>VPN属性</legend>
+		<div>
+			<label for="machineusage">性质：</label>
+			<input name="machineusage" id="machineusage" style='width:160px' type="text" value="$!{gewaMachine.machineusage}" />
+			<label for="cinemaid" class="ml20">所在影院：</label>
+			<select name="vpncinemaid" id="vpncinemaid" class="w150">
+				<option value="">请选择...</option>
+				#foreach($cinema in $cinemaList)
+				<option value="$cinema.id" #if($VmUtils.eq($cinema.id, $gewaMachine.cinemaid)) selected="selected"#end>$cinema.name</option>
+				#end
+			</select> 
+		</div>
+		</fieldset>
+		<fieldset style="display: none;" id="integrationFieldSet">
+		<legend>一体机属性</legend>
+		<span style="color:red">机器类型：<br/>A类型：出票口上面有一个拖台，打印机能支持使用500张票纸，双条保护片;<br/> B类型：省略拖台，打印机能支持1000张票纸，单条保护片;</span>
+		<div>
+			<label for="cinemaid" >所在影院：</label>
+			<select name="cinemaid" id="integcinemaid" class="w150">
+				<option value="">请选择...</option>
+				#foreach($cinema in $opencinemaList)
+				<option value="$cinema.id" #if($VmUtils.eq($cinema.id, $gewaMachine.cinemaid)) selected="selected"#end>$cinema.name</option>
+				#end
+			</select> 
+			<label for="hfhopendate" class="ml20">火凤凰日期：</label>
+			<input name="hfhopendate" id="hfhopendate" class="w150" readonly="readonly" onclick="WdatePicker()" type="text" value="$!DateUtil.formatDate($!gewaMachine.hfhopendate)" />
+			<label for="ticketcount" class="ml10">票纸数：</label>
+			<input name="ticketcount" id="ticketcount" class="w150"  type="text" value="$!{gewaMachine.ticketcount}" />
+		</div>
+		<div>
+			<label for="linkmethod">连接方式：</label>
+			<select name="linkmethod" class="w150">
+				<option value="">请选择...</option>
+				<option value="wired" #if($VmUtils.eq($gewaMachine.linkmethod,'wired')) selected="selected"#end>有线</option>
+				<option value="wireless" #if($VmUtils.eq($gewaMachine.linkmethod,'wireless')) selected="selected"#end>无线</option>
+			</select>
+			<label for="touchtype" class="ml20">触摸类型：</label>
+			<select name="touchtype" class="w150">
+				<option value="">请选择...</option>
+				<option value="new" #if($VmUtils.eq($gewaMachine.touchtype,'new')) selected="selected"#end>新触摸屏</option>
+				<option value="old" #if($VmUtils.eq($gewaMachine.touchtype,'old')) selected="selected"#end>旧触摸屏</option>
+			</select>
+			<label for="machinetype" class="ml20">机器类型：</label>
+			<select name="machinetype" class="w150">
+				<option value="">请选择...</option>
+				<option value="amachine" #if($VmUtils.eq($gewaMachine.machinetype,'amachine')) selected="selected"#end>A类型</option>
+				<option value="bmachine" #if($VmUtils.eq($gewaMachine.machinetype,'bmachine')) selected="selected"#end>B类型</option>
+			</select>
+		</div>
+		<div>
+			<label for="machineservice">维修周期：</label>
+			<input name="machineservice" id="machineservice" style="width: 600px;" maxlength="100" type="text" value="$!gewaMachine.machineservice" />
+		</div>
+		<div>
+		</div>
+		</fieldset>
+		<fieldset style="display: none;" id="newhostFieldSet">
+		<legend>IP信息</legend>
+		<div>
+			<label for="ip">IP地址：</label>
+			<input name="ip" id="ip" style="width: 100px;" maxlength="100" type="text" value="$!gewaMachine.ip" />
+		</div>
+		<div>
+			<label for="ipremark">IP备注：</label>
+			<textarea style="width: 600px;height:60px;vertical-align: middle;" name="ipremark" id="ipremark">$!gewaMachine.ipremark</textarea>
+		</div>
+		</fieldset>
+		<div>
+			<label>&nbsp;</label><input type="submit" id="btn" class="button" style="width:100px" value="保存数据"/>
+		</div>
+		</form>
+	</div>
+</div>
+#parse('admin/drama/dialog.vm')
+	<script type="text/javascript">
+	function saveGewaMachine(){
+		var values = GewaraUtil.getValues("gewaMachineForm");
+		var url = '${basePath}admin/machine/saveGewaMachine.xhtml'
+		gewa.util.mask({'element': "btn",'title':'正在提交，请稍等...'});
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				alert('保存成功！');
+				window.location='${basePath}admin/machine/gewaMachineList.xhtml?machinename='+$('machinename').value;
+			}else{
+				alert('保存失败！');
+			}
+		})
+	}
+	
+	function changeMachine(){
+		exchangeMachine();
+		sexMaxNumber();
+	}
+	
+	function exchangeMachine(){
+		var value = $('machinename').value;
+		if(value == 'vpn'){
+			$('integcinemaid').value = '';
+			setDisPlay('vpnfieldSet','integrationFieldSet','newhostFieldSet','block','none','block');
+		}else if(value == 'integration'){
+			setDisPlay('vpnfieldSet','integrationFieldSet','newhostFieldSet','none','block','block');
+			$('vpncinemaid').value = '';
+		}else if(value == 'newhost'){
+			setDisPlay('vpnfieldSet','integrationFieldSet','newhostFieldSet','none','none','block');
+		}else{
+			$('vpncinemaid').value = '';
+			$('integcinemaid').value = '';
+			setDisPlay('vpnfieldSet','integrationFieldSet','newhostFieldSet','none','none','none');
+		}
+	}
+	function sexMaxNumber(){
+		var value = $('machinename').value;
+		var url = "${basePath}admin/machine/getMaxMachineNumber.xhtml";
+		GewaraUtil.sendRequest(url,{'machinename':value},function(result){
+			if(result.success){
+				$('machinenumber').value = result.retval;
+			}else{
+				alert('保存出错，请联系管理员！');
+			}
+		});
+	}
+	function setDisPlay(obj1,obj2,obj3,value1,value2,value3){
+		$(obj1).set('styles',{'display':value1});
+		$(obj2).set('styles',{'display':value2});
+		$(obj3).set('styles',{'display':value3});
+	}
+	
+	function loadData(){
+		exchangeMachine();
+		#if($VmUtils.isNull($!gewaMachine))
+			sexMaxNumber();
+		#end
+	}
+	window.onload = loadData;
+</script>
+</body>
+</html>

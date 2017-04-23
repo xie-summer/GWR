@@ -1,0 +1,58 @@
+<xml>#set($msize=$VmUtils.size($movieList))#set($csize=$VmUtils.size($cinemaList))
+	#set($size=$msize + $csize)
+	 <ToUserName><![CDATA[$!reply.toUserName]]></ToUserName>
+	 <FromUserName><![CDATA[$!reply.fromUserName]]></FromUserName>
+	 <CreateTime>$!reply.createTime</CreateTime>
+	 <MsgType><![CDATA[text]]></MsgType>
+	 #if($size gt 0)
+	 <Content>
+<![CDATA[#if(!$isSort)你附近（10km）的影院
+#else
+找到”$!{reply.content}“$size条信息
+#end
+------------------------
+#foreach($cinema in $cinemaList)
+影院:$cinema.name
+评分:$!VmUtils.getSingleMarkStar($cinema,'generalmark')
+#if($VmUtils.isNotBlank($!cinema.contactphone))
+电话:$!{cinema.contactphone}
+#end
+地址:$!cinema.address
+详情:m.gewara.com/cinema/$cinema.id
+#if($foreach.count lt $csize)
+
+#end
+#end
+#if($cinemaList.size() gt 0)
+
+#end
+#foreach($movie in $movieList)
+#set($body=$!VmUtils.getHtmlText($!movie.content, 150))
+影片:${movie.name}
+评分:$!generalmarkMap.get($!movie.id)
+#if($VmUtils.isNotBlank($!movie.director))
+导演:$!{movie.director}
+#end
+#if($VmUtils.isNotBlank($!movie.actors))
+主演:$!{movie.actors}
+#end
+#if($!movie.releasedate)
+首映:$!DateUtil.format($!movie.releasedate,'yyyy-MM-dd')
+#end
+#if($VmUtils.isNotBlank($body))
+剧情:$body.replaceAll('\n','').replace(' ','')...
+#end
+详情:m.gewara.com/movie/$movie.id
+#if($foreach.count lt $msize)
+
+#end
+#end
+]]>
+</Content>
+#else
+<Content><![CDATA[#if(!$isSort)你附近(10km)内没有查找到影院 你还可以选择#else欢迎使用格瓦拉微信！
+------------------------
+$!content
+#end]]></Content>
+#end
+</xml>

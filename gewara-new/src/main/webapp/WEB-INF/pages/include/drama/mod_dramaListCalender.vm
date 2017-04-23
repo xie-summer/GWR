@@ -1,0 +1,30 @@
+<!-- SUCCESS_HEAD -->
+<dl>
+	#foreach($curDrama in $curDramaList)
+	<dd>
+		<div class="ui_media drBt">
+			<div class="ui_picR">
+				<a target="_blank" href="${basePath}drama/$curDrama.id" title="#if($!curDrama.briefname)$curDrama.briefname #else $curDrama.dramaname #end"  class="x">
+					<img width="96" height="128" alt="" src="$VmUtils.randomPic('cw150h200', $!curDrama.limg)" />
+				</a>
+			</div>
+			<div class="ui_text">
+				<a href="${basePath}drama/$curDrama.id" title="#if($!curDrama.briefname)$curDrama.briefname #else $curDrama.dramaname #end" target="_blank" class="t">#if($!curDrama.briefname)$curDrama.briefname #else $curDrama.dramaname #end</a>
+				#if(!$VmUtils.isEmptyList($theatreMap.get($!curDrama.id)))
+				<p class="p_wd" title="#foreach($theatre in $theatreMap.get($!curDrama.id))#if($foreach.index gt 0)  #end$!theatre.name#end">场馆：$theatreMap.get($!curDrama.id).get(0).name#if($VmUtils.size($theatreMap.get($!curDrama.id)) gt 1)...#end</p>
+				#end
+				#if(!$VmUtils.isEmptyList($dramaPriceMap.get($!curDrama.id)))
+				#set($s=$dramaPriceMap.get($curDrama.id).size()+(-1))
+				<p>票价(元)：$!dramaPriceMap.get($curDrama.id).get(0) ~ $!dramaPriceMap.get($curDrama.id).get($s)</p>
+				#end
+				<p class="mt10">
+					<a class="button bigBt #if($bookingList.contains($curDrama.id))redBt #else bigWhiteBt #end" target="_blank" href="${basePath}drama/$curDrama.id">
+					<span>#if($openSeatList.contains($curDrama.id))<em class="bt_seat">选座购票</em> #elseif($bookingList.contains($curDrama.id))立即购票 #else 停止售票 #end</span>
+					</a>
+				</p>
+			</div>
+		</div>
+	</dd>
+	#end
+</dl>
+<!-- SUCCESS_BOTTOM -->

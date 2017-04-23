@@ -1,0 +1,131 @@
+#set($realtag=$VmUtils.getTag($params.tag))
+#set($adoptCommunity=true)
+<div id="createQuan" style="visibility:hidden;top:0px;position: absolute;z-index: 9999" class="popup">
+	<div class="creat_circle"><a href="javascript:GewaraUtil.hideDialog('createQuan');"><img src="${staticPath}styles/images/gewacup/close.gif" border="0"/></a></div>
+	<div class="hinput">
+		<div class="ui-layout">
+		<form name="commuForm" method="post" id="commuForm" >
+			<ul class="ul-60 ml40" style="margin-top: 10px ! important;padding-bottom:20px;">
+				<li>
+					<div class="ul-60Inner">圈子名称：</div>
+					<input class="text"  type="text" value="" maxlength="30" name="name" id="name"/>
+					<span class="yellow">(最多只能输出30个字符)</span>
+				</li>
+				<li id="radioTags">
+					<div class="ul-60Inner">圈子类型：</div>
+					<label for="no0"><input type="radio" name="tag" value="" id="no0" onclick="clearSelect()" checked="checked" #if(!$commu.tag)checked="checked"#end/>不关联</label>
+					<label class="ml10" for="no_cinema"><input name="tag" id="no_cinema" type="radio" value="cinema" onclick="trigerSelect(this)" #if($VmUtils.eq($commu.tag, 'cinema'))checked="checked"#end/>电影</label>
+					<label class="ml10" for="no_ktv"><input name="tag" id="no_ktv" type="radio" value="ktv" onclick="trigerSelect(this)" #if($VmUtils.eq($commu.tag, 'ktv'))checked="checked"#end/>KTV</label>
+					<label class="ml10" for="no_bar"><input name="tag" id="no_bar" type="radio" value="bar" onclick="trigerSelect(this)" #if($VmUtils.eq($commu.tag, 'bar'))checked="checked"#end/>酒吧</label>
+					<label class="ml10" for="no_gym"><input name="tag" id="no_gym" type="radio" value="gym" onclick="trigerSelect(this)" #if($VmUtils.eq($commu.tag, 'gym'))checked="checked"#end/>健身</label>
+					<label class="ml10" for="no_sport"><input name="tag" id="no_sport" type="radio" value="sport" onclick="trigerSelect(this)" #if($VmUtils.eq($commu.tag, 'sport'))checked="checked"#end/>运动</label>
+					<label class="ml10" for="no_theatre"><input name="tag" id="no_theatre" type="radio" value="theatre" onclick="trigerSelect(this)" #if($VmUtils.eq($commu.tag, 'theatre'))checked="checked"#end/>演出</label>
+				</li>
+				<li class="#if(!($!commu.tag || $!commu.countycode || $!commu.relatedid))none#end seleczz">
+					<em id="countycode"><input type="hidden" name="countycode" value="$!commu.countycode"/></em><span #if(!$!county.countyname) style="display:none"#end>$!county.countyname</span>
+					<em id="relatedid"><input type="hidden" name="relatedid" value="$!commu.relatedid"/></em><span #if(!$!commu.relate.name) style="display:none" #end>$!commu.relate.name</span>
+					<em id="categoryid"><input type="hidden" name="smallcategoryid" value="$!commu.smallcategoryid"/></em><span #if(!$!commu.relate2.name) style="display:none"#end>$!commu.relate2.name</span>
+					<input type="hidden" name="smallcategory" id="category" value="$!{commu.smallcategory}"/>
+					<em class="edits" onclick="trigerSelect();">重新选择</em>
+				</li>
+				<li>
+					<div class="ul-60Inner">身份验证：</div>
+					<label for="x1"><input #if($commu.publicflag eq 'public') checked="checked"#end #if(!$commu.publicflag)checked="checked"#end  type="radio" name="publicflag" id="publicflag" value="public" id="x1"/>成员加入无需审核</label><br/>
+					<label for="x1"><input #if($commu.publicflag eq 'auth_sns') checked="checked"#end type="radio" name="publicflag" id="publicflag" value="auth_sns" id="x1"/>成员加入需要管理员审核</label><br/>
+				</li>
+				<li>
+					<div class="ul-60Inner">访问权限：</div>
+					<label for="x1"><input #if($commu.visitpermission eq 'public') checked="checked"#end #if(!$commu.visitpermission)checked="checked"#end  type="radio" name="visitpermission" value="public" id="x1"/>对外开放</label><br/>
+					<label for="x2"><input #if($commu.visitpermission eq 'commumember') checked="checked"#end type="radio" name="visitpermission" value="commumember" id="x2"/>对成员开放</label><br/>
+					<label for="x3"><input #if($commu.visitpermission eq 'commuadmin') checked="checked"#end type="radio" name="visitpermission" value="commuadmin" id="x3"/>仅对管理员开放</label><br/>
+				</li>
+				<li style="height:100%">
+					<div class="ul-60Inner">圈子说明：</div>
+					<textarea class="text" name="info"  id="info"  style="width:330px;height:90px;" >$!commu.info</textarea>
+				</li>
+				<li>
+					<div class="ul-60Inner">封面图片：</div>
+					<div class="left wd90 mt5">
+						<iframe  allowtransparency=true width="450px" height="26" frameborder="0" scrolling="no" id="uploadIFrame"
+								src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=$!commu.getPicpath()&callback=updateLogo"></iframe>
+							<div><span class="yellow ml5">注：（*上传图片不要超过2M）</span></div>
+							<input type="hidden" name="logo" id="logo" value="$!commu.logo"/>
+							#if($VmUtils.isNotBlank($!{commu.logo}))
+							<div><img style="width:110px;" id='logoimg' src='${picPath}$!commu.limg' /></div>
+							#else<div><img style="width:110px; display: none" id='logoimg' src="${staticPath}css/images/blank.gif"/></div>#end
+					</div>
+				</li>
+				<li class="mt10 clear">
+					<div class="ul-60Inner">验证码：</div>
+					<input type="hidden" name="captchaId" id="captcha" />
+					<label class="left" style="width:80px">
+					<input type="text" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" size="18" style="width:80px" mustTxt="请输入验证码!" onfocus="GewaraUtil.refreshCaptcha('captcha');"/></label>
+					<img id="captchaImg" src="${staticPath}css/images/blank.gif" class="ml20" style="cursor: pointer;vertical-align: middle;float:left;height:30px; width:80px;" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清楚，请点击换一张图片"/>
+				</li>
+				<li style="padding-top:10px;"><label class="button redBt bigBt"><input type="button" id="disCommuBtn" onclick="saveCommu()"  value="创建圈子"/></label></li>
+			</ul>
+		</form>
+	</div>
+	<!-- 创建圈子 end -->
+	<div class="subjectPanel w634" style="visibility:hidden;top:0px;z-index:9999;position: absolute;" id="createSucc">
+		<div class="subjectHead w634">
+			<div class="head-title"><img class="mt10" src="${staticPath}styles/images/badminton-title1.jpg"/></div>
+			<a class="gui-more close2" href="javascript:GewaraUtil.hideDialog('createSucc');"><img src="$VmUtils.randomPic('','styles/images/2011_king_23.png')"/></a>
+		</div>
+		<div class="w352">
+			<div class="badminton-cgtj"></div>
+			<div class="textBox">
+				<p>1.俱乐部的成员数大于10人</p>
+				<p>2.俱乐部参赛必须报名全部项目</p>
+			</div>
+			<div class="badminton-kefu fs14">客服电话：<span>4000-406-506</span></div>
+		</div>
+	</div>
+	</div>
+</div>
+#parse('blog/modifyTypeJs.vm')
+#parse('include/innerLogin.vm')
+<script type="text/javascript">
+function saveCommu(){
+	GewaraUtil.hideDialog('createQuan');
+	if(!$chk($('name').value)){ 
+		gewaUtil.alert('圈子名称不能为空！');
+		return false;
+	}
+	if($('name').value.length>30){
+		gewaUtil.alert("圈子名称长度不能超过30个字！");
+		return false;
+	}
+	if($('info').value.length==0){
+		gewaUtil.alert('圈子说明不能为空！');
+		return false;
+	}
+	if($('info').value.length>200){
+		gewaUtil.alert("圈子说明的长度不能大于200");
+		return false;
+	}
+	var url = '${basePath}home/commu/saveCommu.xhtml';
+	var values = GewaraUtil.getValues("commuForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.alert('恭喜你创建俱乐部成功', function(){
+				location.href="${basePath}gewacup2013/clubApply.xhtml?temp=createcoummu&commuid="+result.retval;
+			});
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function updateLogo(params){
+	var picpath = params['picpath'];
+	$('logo').value = picpath;
+	$('logoimg').src='${basePath}' + picpath;
+	$('logoimg').setStyle('display','');
+}
+
+function checkUser(){
+	checkLogin(true,function(){
+		GewaraUtil.showDialog('createQuan','',true)
+	});
+}
+</script>

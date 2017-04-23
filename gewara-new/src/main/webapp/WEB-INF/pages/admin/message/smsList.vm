@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>短信管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body>
+#set($sms=true)
+#if($!params.orderType eq 'drama')
+#parse('admin/theatreticket/menu.vm')
+#else
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore">$!{cinema.name}</li>
+			<li><a href="${basePath}admin/ticket/orderList.xhtml?cid=$!cinema.id" class="admin"><span>订单管理</span></a></li>
+			<li class="currs"><a href="${basePath}admin/message/smsList.xhtml?status=failure" class="admin"><span>失败短信</span></a></li>
+			<li><a href="${basePath}admin/message/unSmsRecordOrderList.xhtml" class="admin"><span>未加入短信</span></a></li>
+			<li><a href="${basePath}admin/message/hisSmsList.xhtml" class="admin"><span>历史短信</span></a></li>
+		</ul>
+	</div>
+</div>
+#end
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<div class="aboutMovie">
+			<div>状态说明：Y：成功发送，N：未发送，Y_TRANS：成功提交给发送网关，<span style="color:red">Y_IGNORE：合作方要求不要发送</span>，D：废弃，P：已处理，FILTER：内容等待审核<br />
+				<span style="color:red">N_ERR：发送网关发送失败，比如：短信内容包含关键字、或移动通道余额不足</span><br />
+				<span style="color:red">N_SEND_ERR：发送时出现错误，比如：MAS服务器关闭、移动服务器关闭、手机号格式不正确等</span><br />
+				<span style="color:red">Y_LARGE：内容超长，分多条发送</span>
+			</div>
+			#if($msg)<div style="color:red; font-size:24px; font-weight: bolder">$msg</div>#end
+			<form action='${basePath}admin/message/smsList.xhtml' method="get">
+			<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th>场次/关联:<input type="text" name="relatedid" value="$!params.relatedid" style="width:80px;"/>
+						订单:<input type="text" name="tradeNo" value="$!params.tradeNo"/>
+						手机:<input type="text" name="contact" value="$!params.contact"/>
+						类型:<select name="smstype">
+							<option value=""#if($VmUtils.isBlank($!params.tag))selected#end>全部</option>
+							<option value="now"#if($VmUtils.eq($!{params.smstype},'now'))selected#end>立即发短信</option>
+							<option value="batch"#if($VmUtils.eq($!{params.smstype},'batch'))selected#end>群发短信</option>
+							<option value="3h"#if($VmUtils.eq($!{params.smstype},'3h'))selected#end>提前3小时发短信</option>
+							<option value="1d"#if($VmUtils.eq($!{params.smstype},'1d'))selected#end>提前一天发短信</option>
+							<option value="agenda"#if($VmUtils.eq($!{params.smstype},'agenda'))selected#end>生活短信</option>
+							<option value="manu"#if($VmUtils.eq($!{params.smstype},'manu'))selected#end>手工短信</option>
+							<option value="ecard"#if($VmUtils.eq($!{params.smstype},'ecard'))selected#end>电子票</option>
+							<option value="10m"#if($VmUtils.eq($!{params.smstype},'10m'))selected#end>观影后10分钟</option>
+						</select>状态
+						<select name="status">
+							<option value="">全部</option>
+							<option value="N" #if($VmUtils.eq($!{params.status},'N'))selected#end>发送失败短信</option>
+							<option value="Y_LARGE" #if($VmUtils.eq($!{params.status},'Y_LARGE'))selected#end>超长短信</option>
+						</select>
+						页码：<input type="text" name="pageNo" value="0"/>
+						<input type="submit" value="查询"/></th>
+					</tr>
+				</thead>
+			</table>
+			</form>
+			<div style="margin-top: 10px;margin-right: 20px;" class="yellow right">
+				发送渠道：
+				<input type="radio" name="channel" value="mlink" checked onclick="getChannel('mlink')"/>移通(mlink)
+				<input type="radio" name="channel" value="mas" onclick="getChannel('mas')"/>MAS
+				<input type="radio" name="channel" value="xuanwu" onclick="getChannel('xuanwu')"/>玄武(xuanwu)
+			</div>
+			<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th>编号</th>
+						<th>关联</th>
+						<th>订单号</th>
+						<th>手机</th>
+						<th>发送时间</th>
+						<th>有效时间</th>
+						<th>内容</th>
+						<th>发送次数</th>
+						<th>状态</th>
+						<th>通道</th>
+						<th>ID</th>
+						<th>发送</th>
+						<th>修改</th>
+					</tr>
+				</thead>
+				<tbody id="tbody">
+					#foreach($sms in $smsList)
+					<tr class="grayBg">
+						<td>$foreach.count</td>
+						<td>$!sms.relatedid</td>
+						<td>$sms.tradeNo</td>
+						<td>$sms.contact</td>
+						<td>$DateUtil.format($sms.sendtime,'M月d日 HH:mm:ss')</td>
+						<td>$DateUtil.format($sms.validtime,'M月d日 HH:mm:ss')</td>
+						<td style="text-align: left; width: 320px; white-space: normal;">$SmsHelper.filterContent($sms)</td>
+						<td>$sms.sendnum</td>
+						<td>$sms.status</td>
+						<td>$sms.channel</td>
+						<td>$!sms.seqno</td>
+						<td><input type="button" id="f$sms.id" class="cbt1" onclick="sendMessage($sms.id, this)" value="发送"/></td>
+						<td><input type="button" class="cbt1" onclick="getSMS($sms.id)" value="修改"/>
+						#if($sms.status.startsWith('N') && $sms.sendnum ge 1)
+						<input type="button" id="p$sms.id" class="cbt1" onclick="processMessage($sms.id, this)" value="已处理"/>
+						#end
+						</td>
+					</tr>
+					#end
+				</tbody>
+			</table>
+		</div>
+		<b class="b2f"></b><b class="b1f"></b>
+	</div>
+</div>
+<div id="messageDialog" style="width:450px; visibility:hidden; z-index:20;background: #000">
+	<div style="width:430px;margin:10px;background:#FFF;">
+		<div style="text-align:center;height:20px;line-height: 20px;">
+			<strong>修改消息数据</strong>
+		</div>
+		<div class="bd" style="text-align:center;">
+			<form name="messageForm" id="messageForm">
+				<input type="hidden" name="id" id="id" />
+				<div style="padding:0 40px;text-align:left">
+					<label for="content">内容：</label>
+					<textarea  name="content" id="content" cols="40" rows="10" style="border-width:1px;border-style:solid;border-color:#404040 #CCC #CCC #404040;"></textarea>
+					<span class="req">&nbsp;</span>
+				</div>
+				<div style="padding:0 40px;text-align:left">
+					<label for="sendtime" style="display:inline-block;">发送时间：</label>
+					<input  name="sendtime" id="sendtime" style="150px;display:inline-block;border-width:1px;border-style:solid;border-color:#404040 #CCC #CCC #404040;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly" />
+					<span class="req">&nbsp;</span>
+				</div>
+				<div>
+					<label>&nbsp;</label>
+					<input type="button" class="cbt1" onclick="save();" value="保存"/>
+					<input type="button" class="cbt1" onclick="cancle();" value="取消"/>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	var channel = "mlink";
+	function sendMessage(id){
+		if(confirm('确认要发信息吗?')==false) return;
+		var url = "${basePath}admin/message/ajax/sendMessageById.xhtml";
+		GewaraUtil.sendRequest(url, {"smsId":id,'channel':channel}, function(result){
+			if(result.success){
+				$("f"+id).dispose();
+				#if($sms.status eq 'N' && $sms.sendnum ge 1)$('p'+id).dispose();#end
+				alert("成功发送信息！");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function processMessage(id, bt){
+		if(confirm('确认要标记为已处理吗?')==false) return;
+		bt.dispose();
+		var url = "${basePath}admin/message/ajax/processMessageById.xhtml";
+		GewaraUtil.sendRequest(url, {"smsId":id}, function(result){
+			if(result.success){
+				$("f"+id).dispose();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function getSMS(id){
+		var url = "${basePath}admin/message/ajax/getSMS.xhtml";
+		GewaraUtil.sendRequest(url, {"id":id}, function(result){
+			GewaraUtil.setValues(result);
+		});	
+		GewaraUtil.showDialog("messageDialog");
+	}
+	
+	function save(){
+		var values = GewaraUtil.getValues("messageForm");
+		var url = "${basePath}admin/message/ajax/saveSMS.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(!result.success){
+				alert(result.msg);
+			}
+			GewaraUtil.hideDialog('seoDialog');
+			refreshPage();
+		});
+	}
+	function cancle(){
+		GewaraUtil.hideDialog('messageDialog');
+	}
+	function getChannel(v){
+		channel = v;
+	}
+</script>
+</body>
+</html>

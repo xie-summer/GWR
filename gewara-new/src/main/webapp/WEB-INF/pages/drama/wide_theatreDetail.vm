@@ -1,0 +1,173 @@
+<!Doctype html>
+<html>
+<head>
+	<!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>${theatre.name}_在线订票_演出_地址_票价_交通 - 格瓦拉生活网</title>
+	<meta name="keywords" content="${theatre.name},远东第一剧院之美誉.每日${theatre.name}在线订票.${theatre.name}地址及停车交通指南.剧院票价及最新演出信息." />
+	<meta name="description" content="${theatre.name},远东第一剧院之美誉.每日${theatre.name}在线订票.${theatre.name}地址及停车交通指南.剧院票价及最新演出信息."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,noobSlide,tips,raphael,picture&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ui_layout{background:none;}
+	</style>
+</head>
+<body>
+#set($dramaHeadFlag='isDramaIndex')#set($relatedtag='drama')
+#set($isIndexBigAd = true)
+#set($dramaLeftTag='index')
+#parse('include/wide_header.vm')
+<div class="ui_layout theDetail_body">
+	<div class="theatreDetail_head clear">
+		#parse('include/drama/mod_theatreDetail_head.vm')
+	</div>
+	<div class="theatreDetail_content clear">
+		<div class="ui_left">
+			<div class="mod_tabs mod_tabs_drama">
+				<div class="mod_hd">
+					<ul class="nav_tabs" id="nav_tabsDiv">
+						<li #if($subs eq "index" || !$subs) class="select" #end id="dramaInfoBoxTab"><a href="${basePath}theatre/$theatre.id">演出信息#*<em>($!playCount)</em>*#</a></li>
+						<li #if($subs eq "introduce" ) class="select" #end id="theatraIntruduceTab"><a href="${basePath}theatre/$theatre.id/introduce" >简  介</a></li>
+						<li #if($subs eq "picture" )class="select" #end id="theatraPic"><a href="${basePath}theatre/$theatre.id/picturelist" >场馆图片</a></li>
+						<li #if($subs eq "wala") class="select" #end id="walaInfoBoxTab"><a href="${basePath}theatre/$theatre.id/commentlist" >场馆评论<em>($!commentCount)</em></a></li>
+					</ul>
+				</div>
+				<div class="mod_bd clear wiP">
+				#if($subs eq "index" || !$subs)
+					#parse('include/drama/mod_theatreDe_ycxx.vm')
+				#elseif($subs eq "introduce")
+					#parse('include/drama/mod_theatreDe_introduce.vm')
+				#elseif($subs eq "picture")
+					#parse('include/drama/mod_theatreDe_pic.vm')
+				#elseif($subs eq "wala")
+					#parse('include/drama/mod_theatreDe_wala.vm')
+				#end
+				</div>
+			</div>
+		</div>
+		#*ui_left over*#
+		<div class="ui_right">
+		#if(!$VmUtils.isEmptyList($newsList))
+			<div class="mod_kong">
+				<div class="mod_hd cgInfo">
+					<h2>场馆资讯</h2>
+					<a class="more" target="_blank" href="${basePath}theatre/$theatre.id/newslist">更多&gt;&gt;</a>
+				</div>
+				<div class="mod_bd">
+					<div class="cgInfo_01">
+						<a href="${basePath}news/$newsList.get(0).id" title="$newsList.get(0).title" target="_blank">
+							<img src="$VmUtils.randomPic('cw260h120' ,$newsList.get(0).logo)" alt="$newsList.get(0).title" width="310" height="120"/>
+						</a>
+						<p>
+							<a class="" href="${basePath}news/$newsList.get(0).id" target="_blank" title="$newsList.get(0).title">$!VmUtils.htmlabbr($newsList.get(0).title, 34)</a>
+						</p>
+					</div>
+					<div class="cgInfo_02">
+						<ul class="ui_list">
+							#foreach($new in $newsList)
+							#if($VmUtils.gt($foreach.count,1))
+							<li>
+								<a title="$!new.title" target="_blank" href="${basePath}news/$!new.id">$!VmUtils.htmlabbr($!new.title, 40)</a>
+							</li>
+							#end
+							#end
+						</ul>
+					</div>
+				</div>
+			</div>
+		#end
+			#parse('include/drama/mod_cgAct.vm')
+			#parse('include/drama/mod_ryjm.vm')
+			#parse('include/drama/mod_rimCg.vm')
+		</div>
+		#*ui_right over*#
+	</div>
+</div>
+
+<!-- 收藏场馆-->
+<div class="addTheatre" id="addTheatre" style="display:none;">
+	<div class="closed" onclick="gewa.util.container['addTheatre'].dispose('addTheatre')">关闭</div>
+	<div class="addTheatre_con">
+		<h2>收藏场馆</h2>
+		<div class="tal">
+			<p><input type="checkbox" checked="checked" name="" />场馆剧目开放购票通知我</p>
+			<p><input type="checkbox" checked="checked" name="" />有新的场馆评论通知我</p>
+			<p class="but"><a class="button redBt bigBt" target="_blank" onclick="gewa.util.container['addTheatre'].dispose('addTheatre')"><span>添加收藏</span></a></p>
+		</div>
+	</div>
+</div>
+
+#parse('include/wide_footer.vm')
+#parse('drama/theatre/sendToPhone.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	tabQh();
+	showTheatrRoomSeat();
+	myTreasure('theatre','$theatre.id');
+});
+function showTheatrRoomSeat(){ //查看座位图
+	var roomseat = document.getElements("a[config=tirger]");
+	var isView = true;
+	gewa.util.popo(roomseat,'','','left',function(){
+		var args = arguments;
+		if(args[0].retrieve('key') == null){
+			var url = '${basePath}ajax/drama/seatView.shtml';
+			GewaraUtil.sendRequest(url, {'roomid':args[0].get('id')}, function(result){
+				if(result.success){
+					var div = new Element('div').addClass('viewSeatPanel');
+					div.innerHTML = result.viewPage;
+					if(args[0].retrieve('isher') != null){
+						args[0].store('isher',null);
+						args[0].store('key', div);
+						var width = div.getFirst().getComputedSize().totalWidth+40;
+						gewa.util.tips(args[0],div,width,args[1],args[2],args[3]);
+					}else{
+						args[0].store('isher',null);
+						args[0].store('key',div);
+					}
+				}
+			}.bind(this),'key');
+		}else{
+			var width = args[0].retrieve('key').getFirst().getComputedSize().totalWidth+40;
+			gewa.util.tips(args[0],args[0].retrieve('key'),width,args[1],args[2],args[3]);
+		}
+	},function(){
+		isView = !isView;
+	});
+}
+function showTemplate(){
+	checkLogin(true,function(){
+		gewa.util.issure('','SendtheatreInfo','发送剧院信息',540,'SendtheatreInfo',function(){
+			$('mform').submit();
+		});
+		//getMobile();
+		GewaraUtil.refreshCaptcha('captchaTheatre');
+	});
+}
+function addTheatrePicture(){
+	checkLogin(true,function(){
+		location.href = "${basePath}theatre/attachPicture.xhtml?relatedid=$!theatre.id&tag=theatre";
+	});
+}
+var tabQh = function(){
+	if(!$('nav_tabsDiv')) return;
+	else{
+		var oList = $('nav_tabsDiv').getElements('li');
+		oList.each(function(el,i){
+			el.addEvent('click',function(){
+				oList.removeClass("select");
+				this.addClass("select");
+				return;
+			});
+		});
+	};
+};
+function showaddTheatre(){
+	gewa.util.maskContent('','addTheatre','',480,'addTheatre');
+}
+</script>
+#parse('include/newMarkDialog.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

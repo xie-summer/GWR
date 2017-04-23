@@ -1,0 +1,24 @@
+#set($movie=$sk.relatedObj)
+#set($vgmark=$VmUtils.getLastMarkStar($movie, "general",$curMarkCountMap.get($movie.id),$!markData))#set($gmark1=$vgmark/10) #set($gmark2=$vgmark % 10)
+<dl class="ui_abeam search_channel">
+			<dt class="uipic">
+			#if($fyrqnum)#set($curfyrqdate=$DateUtil.formatDate($fyrqnum))#end
+				<a target="_blank" href="${basePath}movie/$movie.id?fyrq=$!curfyrqdate" title="">
+					<img width="96" height="128" src="$VmUtils.randomPic('cw96h128',$!movie.limg)">
+				</a>
+			</dt>
+			<dd class="uiText">
+				<h2><em class="ffst">[电影]</em><a target="_blank"  href="${basePath}movie/$movie.id#if($!curfyrqdate)?fyrq=$!curfyrqdate#end">$!movie.name</a></h2>
+				<span class="mr10"> #if($VmUtils.isNotBlank($gmark1))<sub>$!gmark1.</sub><sup>$!gmark2</sup> #end </span><span class="c666">($!movie.rclickedtimes关注)</span><br/>
+				<span><em>精彩看点：</em>$!movie.highlight</span><br/>
+				<span class="ihalf"><em>上映时间：</em>$!DateUtil.format(${movie.releasedate},"yyyy年M月d日")</span><span class="ihalf"><em>语言/片长：</em>$!{movie.language}#if(${movie.language}&&${movie.videolen})/#end #if($movie.videolen)$!{movie.videolen}分钟#end</span><br/>
+				<span class="ihalf"><em>电影类型：</em>$!{movie.type}</span><span class="ihalf"><em>国家地区：</em>$!{movie.state}</span><br/>
+				<span><em>导演/主演：</em>$!{movie.director}#if($VmUtils.isNotBlank($movie.actors)&&$!movie.actors ne "null")/$!{movie.actors}#end</span><br/>
+				#if($movie.maxprice && $!{movie.maxprice} gt 0)
+				<span><em>票价：</em><b class="mr10">$!{movie.minprice}-$!{movie.maxprice}元</b></span>
+				#end
+				#if($opiMovieList && $opiMovieList.contains($movie.id))
+				<a class="button minBt redBt" href="${basePath}movie/opi.xhtml?mid=$!movie.id&fyrq=$!curfyrqdate" target="_blank"><span>选座购票</span></a>
+			    #end
+			</dd>
+</dl>

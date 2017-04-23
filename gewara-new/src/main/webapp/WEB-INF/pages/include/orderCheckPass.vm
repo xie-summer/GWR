@@ -1,0 +1,37 @@
+<div id="qryWindow"  style="display:none">
+	<form name="qryForm" id="qryForm" action="javascript:qryPass()">
+	<dl class="dl-80 clear">
+		<dt>支付密码：</dt>
+		<dd class="left"><input type="password" name="paypass" class="text" id="paypass" /><font class="ml10 fc_b">*</font></dd>		
+	</dl>
+	</form>
+</div>  
+<span id="qryResult" class="brown"></span>
+<script type="text/javascript">
+var myOrderId='';
+function showQry(orderid){
+	myOrderId = orderid;
+	$('paypass').value = '';
+	$('qryResult').set('html','');
+	gewa.util.issure('','qryWindow','查看取票密码',380,'qryWindow',function(){
+		$('qryForm').submit();
+	})
+}
+function qryPass(){
+	if(!$chk($('paypass').value)){
+		gewaUtil.alert("请输入支付密码!");
+		return;
+	}
+	GewaraUtil.mask("qryWindow");
+	var values = {"orderid":myOrderId,'paypass':$('paypass').value};
+	GewaraUtil.sendRequest('${basePath}home/qryOrderCheckpass.xhtml', values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			gewa.util.container['qryWindow'].dispose('qryWindow');
+			gewa.util.maskContent('',result.retval,'取票密码',180);
+		}else{
+			if(result.msg) gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>

@@ -1,0 +1,207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>编辑明星数据</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label{width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px;}
+		input, textarea, span {width:550px;}
+		#dramaForm div{padding:3px;}
+		#dramadata li{width:300px;display:inline-block; float:left;}
+		div input{width:230px;}
+		.container{
+			border:1px solid blue;
+			min-height:150px;
+			_height:150px;
+			margin:10px 30px; 
+		}
+		.buttonclass{
+			width: 90px;
+		}
+		.containerUL li{
+			float: left;
+			padding-right: 15px;
+		}
+		.containerUL li input{width: 10px;}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:750px;margin:auto">
+<div id="dramaDialog" class="yui-panel" style="width:750px;margin:auto">
+	<div class="hd">[编辑#if($VmUtils.eq($!type,'drama'))明星#else教练#end数据]</div>
+	<div class="bd">
+	<form name="starForm" id="starForm" action="javascript:saveDramaStar();">
+		<input type="hidden" name="starid" id="starid" value="$!dramaStar.id"/>
+		<input type="hidden" name="tag" id="tag" value="$!type"/>
+		<div>
+			<label for="name">中文名：</label>
+			<input name="name" id='name' mustTxt="明星/剧团名称为必填项" type="text" value="$!dramaStar.name" /><span class="req" style="">*</span>
+		</div>
+		#if($VmUtils.eq($!type,'drama'))
+		<div>
+			<label for="startype">类型：</label>
+			<input type="checkbox" name="startype" onclick="changeContent1('content_star', 'content_troupe')" value="star" id="startype_star" #if($VmUtils.contains($!dramaStar.startype,'star') || $VmUtils.isBlank($!dramaStar.startype)) checked="checked" #end style="width: 10px;"/>明星
+			<input type="checkbox" name="startype" onclick="changeContent1('content_star', 'content_troupe')" value="director" id="startype_director" #if($VmUtils.contains($!dramaStar.startype,'director')) checked="checked" #end style="width: 10px;"/>导演
+			<span class="ml20">
+			<input type="checkbox" name="startype" onclick="changeContent1('content_troupe', 'content_star')" value="troupe" id="startype_troupe" #if($!dramaStar.startype eq 'troupe') checked="checked" #end style="width: 10px;"/>剧团
+		</div>
+		<div>
+			<label for="starnum">成员数：</label>
+			<input name="starnum" id="starnum" type="text" value="$!dramaStar.starnum" style="width:60px;"/>
+			<span style="color:red;">非机构填“0”</span>
+		</div>
+		<div>
+			<label for="worknum">作品数：</label>
+			<input name="worknum" id="worknum" type="text" value="$!dramaStar.worknum" style="width:60px;"/>
+		</div>
+		<div>
+			<label for="englishname">英文名：</label>
+			<input name="englishname" id="englishname" type="text" value="$!dramaStar.englishname" />
+		</div>
+		<div>
+			<label for="state">所属地区：</label>
+			<select name="state" id="state">
+				<option value="大陆" selected="selected">大陆</option>
+				<option value="港澳台">港澳台</option>
+				<option value="国外">国外</option>
+			</select>
+		</div>
+		<div>
+			<label for="website">官方主页：</label>
+			<input name="website" id="website" type="text" value="$!dramaStar.website" />
+		</div>
+		<div id="content_star">
+		<div>
+			<label for="birthday">生日：</label>
+			<input name="birthday" readonly="readonly" onclick="WdatePicker()" type="text" value="$!DateUtil.formatDate($dramaStar.birthday)" />
+		</div>
+		<div>
+			<label for="bloodtype">血型：</label>
+			<input name="bloodtype" id="bloodtype"  type="text" value="$!dramaStar.bloodtype" />
+		</div>
+		<div>
+			<label for="constellation">星座：</label>
+			<input name="constellation" id="constellation" type="text" value="$!dramaStar.constellation" />
+		</div>
+		<div>
+			<label for="height">身高：</label>
+			<input name="height" id="height"  type="text" value="$!dramaStar.height" />
+		</div>
+		<div>
+			<label for="hometown">出生地：</label>
+			<input name="hometown" id="hometown"  type="text" value="$!dramaStar.hometown" />
+		</div>
+		<div>
+			<label for="graduated">毕业院校：</label>
+			<input name="graduated" id="graduated" type="text" value="$!dramaStar.graduated" />
+		</div>
+		<div>
+			<label for="job">职业：</label>
+			<input name="job" id="job" type="text" value="$!dramaStar.job" />
+		</div>
+		</div>
+		<div id="content_troupe" style="display: none;">
+			<label for="establishtime">成立时间：</label>
+			<input name="establishtime" readonly="readonly" onclick="WdatePicker()" type="text" value="$!DateUtil.formatDate($dramaStar.establishtime)" />
+		</div>
+		<div>
+			<label for="representativeRelate">代表作(超链)：</label>
+			<input type="hidden" name="dramaids" id="dramaids" value="$!dramaids"/>
+			<input name="dramas" readonly="readonly" id="dramas" type="text" value="$!dramas" style="width: 500px;" onclick="GewaraUtil.showDialog('troupeDialog')"/>
+		</div>
+		#else
+			<input type="hidden" name="startype" id="startype" value="coach"/>
+		#end
+		<div>
+			<label for="representative">#if($VmUtils.eq($!type,'drama'))代表作(文本)#else擅长项目#end：</label>
+			<input name="representative" id="representative" type="text" value="$!dramaStar.representative" style="width: 500px;"/>
+			<span style="color: red;">以“,”格开</span>
+		</div>
+		<div>
+			<label for="content">个人简介：</label>
+			<textarea name="content" id="content">$!{dramaStar.content}</textarea>
+		</div>
+		<div id="uploadDiv">
+			<label>海&nbsp;&nbsp;&nbsp;&nbsp;报：</label>
+			<input type="text" name="logo" id="logo" value="$!{dramaStar.logo}"/>
+			<img style="width:162px; height:57px;" id='logoimg' src='${basePath}$!dramaStar.logo'/>
+		</div>
+		<div>
+			<label>上&nbsp;&nbsp;&nbsp;&nbsp;传：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/star&callback=updateLogo"></iframe>
+		</div>
+		<div>
+			<label>&nbsp;</label><input type="submit" id="btn" class="button" style="width:100px" value="保存数据"/>
+		</div>
+		<div id="msg" style="color:red;"></div>
+		<div style="color:blue;">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+		</form>
+	</div>
+</div>
+#parse('admin/drama/star/dialog.vm')
+<script type="text/javascript">
+var ckeditor;
+window.addEvent('domready',function(){
+	ckeditor = CKEDITOR.replace("content");
+});
+function updateLogo(params){
+	var picpath = params['picpath'];
+	$('logo').value = picpath;
+	$('logoimg').src='${basePath}' + picpath;
+}
+function saveDramaStar(){
+		if(!GewaraUtil.baseValidForm('starForm', 'admin')){
+			return ;
+		}
+	$("content").value=ckeditor.getData();
+	var url = '${basePath}admin/drama/saveStar.xhtml';
+	var values = GewaraUtil.getValues("starForm",",");
+	gewa.util.mask({'element': "btn",'title':'正在提交，请稍等...'});
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			gewaUtil.alert('保存成功!');
+			$("msg").set("html", '教练ID：'+result.retval);
+			$('starid').value = result.retval;
+			#if($VmUtils.eq($!type,'sport') && $params.relatedid)
+				saveSportStar(result.retval);
+			#end
+		}else{
+			alert('保存失败!');
+			$("msg").set("html", result.msg);
+		}
+	})
+}
+// 页面加载后 显示明星/剧团的可显示区
+function changeContent1(id1, id2){
+	if(id1=='content_star'){
+		$('startype_troupe').checked = false;
+	}else{
+		$('startype_star').checked = false;
+		$('startype_director').checked = false;
+	}
+	changeContent(id1, id2);
+}
+function changeContent(id1, id2){
+	$(id1).style.display = '';
+	$(id2).style.display = 'none';
+}
+function saveSportStar(starId){
+	var url = "${basePath}admin/agency/saveSporStar.xhtml";
+	var values = {"relatedId":'$!params.relatedid', "starId":starId};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			location.href="${basePath}admin/agency/getSportStarList.xhtml?agencyId=$!params.relatedid";
+		}else alert(result.msg);
+	});
+}
+</script>
+</body>
+</html>

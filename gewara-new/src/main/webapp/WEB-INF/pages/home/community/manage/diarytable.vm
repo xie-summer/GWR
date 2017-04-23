@@ -1,0 +1,59 @@
+#if($VmUtils.size($diarylist) gt 0)
+<thead>
+	<tr>
+		<th width="44%" style="text-indent: 30px;">主题</th>
+		<th width="20%">发表时间</th>
+		<th width="16%">作者</th>
+		<th align="center">操作</th>
+	</tr>
+</thead>
+<tbody>
+#foreach($diary in $diarylist)
+<tr class="#if($foreach.index%2 eq 0)odd#else even#end" id="t$diary.id">
+	<td><a href="${basePath}blog/t$diary.id" class="brown" target="_blank">$diary.subject</a></td>
+	<td title='$DateUtil.format($diary.addtime, "yyyy-MM-dd HH:mm")'>$DateUtil.format($diary.addtime, "yy-MM-dd HH:mm")</td>
+	<td><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.memberid" class="gray" target="_blank">$diary.membername</a></td>
+	<td>
+		<a href="javascript:void(0);" class="brown" onclick="mov_diary('$diary.id')">转移</a>
+		<!--  
+		<a href="javascript:void(0);" class="brown ml10" onclick="digup_diary('$diary.id')">置顶</a>
+		-->
+		<a href="javascript:void(0);" class="ml10 brown" onclick="del_diary('$diary.id')">删除</a>
+	</td>
+</tr>
+#end
+#else
+<tr>
+	<td colspan="4" style="border:0px;"><div class="clew mt20">圈内暂无话题！</div></td>
+</tr>
+#end
+</tbody>
+	<script>
+	function mov_diary(id){
+		// ajax load 填充selcommutopic.vm内容
+		var url = '${basePath}home/commu/loadCommuTopic.xhtml';
+		var values = {'commuid':'$!commu.id', 'did':id};
+		GewaraUtil.sendLoad('selcommutopicOUTDIV', url, values, function(result){
+			if(result.success){
+				$('prepare2movid').value = id;
+				showMark('selcommutopicDIV');
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+	
+	function del_diary(id){
+		gewaUtil.confirm("确认删除该记录吗?", function(){
+			var url = '${basePath}home/commu/diary2del.xhtml';
+			var values = {'commuid': '$!commu.id', 'did': id};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					$('t' + id).dispose();
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			})
+		})
+	}
+</script>

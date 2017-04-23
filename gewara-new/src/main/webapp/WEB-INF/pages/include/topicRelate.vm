@@ -1,0 +1,100 @@
+	<!-- 具体关联 -->
+	#if($relate2)
+		<div class="mod_kuang">
+			<div class="mod_bd">
+				#if($relate2.logo)
+				<div class="center">
+					<a href="#if($VmUtils.eq($topic.category,'movie')||$VmUtils.eq($activity.category,'movie'))${basePath}movie/$relate2.id#else${basePath}$relate2.url#end" target="_blank" class="unLine">
+					<img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw150h200',$relate2.limg)) center center no-repeat;" width="150" height="200" class="bline"/></a>
+				</div>
+				#end
+				<div class="mt10">
+					<strong><a href="#if($VmUtils.eq($topic.category,'movie')||$VmUtils.eq($activity.category,'movie'))${basePath}movie/$relate2.id#else${basePath}$relate2.url#end" class="yellow fs14">$relate2.name</a></strong>
+					#set($vgmark=$VmUtils.getLastMarkStar($relate2,"general",$curMarkCountMap.get($!relate2.id),$!markData))
+					#if($vgmark)#set($gmark1=$vgmark/10)#set($gmark2=$vgmark % 10)<sub>${gmark1}.</sub><sup>${gmark2}</sup>#end
+					#if($category eq 'movie')
+					<dl class="ui_media">
+						<dt class="ui_pic">导演：</dt>
+						<dd class="ui_text">$!relate2.director</dd>
+					</dl>
+					<dl class="ui_media">
+						<dt class="ui_pic">主演：</dt>
+						<dd class="ui_text">$!relate2.actors</dd>
+					</dl>
+					<dl class="ui_media">
+						<dt class="ui_pic">类型：</dt>
+						<dd class="ui_text">$!relate2.type</dd>
+					</dl>
+					<dl class="ui_media">
+						<dt class="ui_pic">上映日期：</dt>
+						<dd class="ui_text">$!DateUtil.format($relate2.releasedate, 'yyyy年MM月dd日')</dd>
+					</dl>
+					#end
+				</div>
+			</div>
+		</div>
+	#end
+	
+	#if($relate)
+		<div class="mod_kuang">
+			<div class="mod_bd">
+				#if($relate.logo)
+				<div class="center">
+					<a href="#if($VmUtils.eq($topic.tag,'cinema'))${basePath}cinema/$relate.id#elseif($VmUtils.eq($topic.tag,'activity'))${basePath}activity/$relate.id#else${basePath}$relate.url#end" target="_blank" class="unLine">
+					<img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('sw120h60',$relate.limg)) center center no-repeat;" width="120" height="60" class="bline"/></a>
+				</div>
+				#end
+				
+				<div class="mt10">
+					<strong><a href="#if($VmUtils.eq($topic.tag,'cinema'))${basePath}cinema/$relate.id#else${basePath}$relate.url#end" class="yellow fs14">$relate.name</a></strong>
+					#if($VmUtils.eq($topic.tag,'activity'))
+						#if($!relate.address)
+						<dl class="ui_media">
+							<dt class="ui_pic">地址：</dt>
+							<dd class="ui_text">$!relate.address</dd>
+						</dl>
+						#end
+						<dl class="ui_media">
+							<dt class="ui_pic">时间：</dt>
+							<dd class="ui_text">$!DateUtil.format($!relate.startdate, 'yyyy年MM月dd日')（$!DateUtil.getCnWeek($!relate.startdate)）#if($relate.starttime)$!relate.starttime#end
+							#if($relate.enddate)-- $!DateUtil.format($relate.enddate, 'yyyy年MM月dd日')（$!DateUtil.getCnWeek($!relate.enddate)）#if($relate.endtime)$!relate.endtime#end#end</dd>
+						</dl>
+						#if($!relate.contactway)
+						<dl class="ui_media">
+							<dt class="ui_pic">电话：</dt>
+							<dd class="ui_text">$!relate.contactway</dd>
+						</dl>
+						#end
+						#if($!relate.priceinf)
+						<dl class="ui_media">
+							<dt class="ui_pic">价格：</dt>
+							<dd class="ui_text">$!relate.priceinfo</dd>
+						</dl>
+						#end
+					#else
+						<dl class="ui_media">
+							<dt class="ui_pic">地址：</dt>
+							<dd class="ui_text">$relate.address</dd>
+						</dl>
+						<dl class="ui_media">
+							<dt class="ui_pic">电话：</dt>
+							<dd class="ui_text">$!relate.contactphone</dd>
+						</dl>
+					#end
+				</div>
+			</div>
+		</div>
+	#end
+	
+	#if(($isActivity && $!relate.pointx) || ($isActivity && $!relate.googlemap))
+	<div><span class="fs14">活动地图...</span></div>
+	<div class="mapBox">
+		#if($relate.pointx)
+		#set($rpic='images/map/'+$activity.tag+$!{relate.id}+'.gif')
+		<a href="${basePath}common/baiduMap.xhtml?id=$!relate.id&tag=$activity.tag" target="_blank"><img src="$VmUtils.randomPic('',$rpic)" width="206"/></a>
+		#else
+			$!relate.googlemap
+		#end
+	</div>
+	<div class="tar"><a href="${basePath}common/baiduMap.xhtml?id=$!relate.id&tag=$activity.tag" class="blue" target="_blank">查看大图</a></div>
+	#end

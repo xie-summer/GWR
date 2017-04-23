@@ -1,0 +1,72 @@
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<form  id="dataForm" method="post" >
+			<ul>
+			<li>
+				<input type="hidden" name="id" id="id" value="$!goods.id"/>
+				<input type="hidden" name="relatedid" id="relatedid" value="$!params.relatedid"/>
+				<input type="hidden" name="tag" id="tag" value="theatre"/>
+				<input type="hidden" name="category" id="category" value="drama"/>
+				<span>演&nbsp;&nbsp;出&nbsp;&nbsp;厅：</span>
+				<select style="width: 100px;" name="roomid" id="roomid" mustTxt="演出厅不能为空！">
+					<option value="">请选择</option>
+					#foreach($room in $roomList)
+					<option value="$!room.id" #if($room.id eq $goods.roomid)selected#end>$!{room.roomname}</option>
+					#end
+				</select>
+				
+			</li>
+			
+			<li class="mt10">
+				<span>话&nbsp;&nbsp;&nbsp;&nbsp;剧：</span>
+				<select style="width: 100px;" name="categoryid" id="categoryid" onchange="changeStar(this.value)">
+					<option value="">请选择</option>
+					#foreach($drama in $dramaList)
+					<option value="$!drama.id" #if($drama.id eq $goods.categoryid)selected#end>$!{drama.name}   【$!DateUtil.format($drama.releasedate, 'yyyy-MM-dd')】</option>
+					#end
+				</select>
+				<span>语&nbsp;&nbsp;&nbsp;&nbsp;言：</span>
+				<input type="text" name="language" id="language" style="width: 95px" value="$!goods.language" />
+			</li>
+			<li class="mt10">
+				<span>剧&nbsp;&nbsp;&nbsp;&nbsp;社：</span>
+				<select style="width: 100px;" name="starid" id="starid">
+					#foreach($star in $starList)
+					<option value="$!star.id" #if($star.id eq $goods.starid)selected#end>$!star.name</option>
+					#end
+				</select>
+			</li>
+			<li class="mt10">
+					<span>单次购买数：</span>
+					<input type="text" name="maxbuy" id="maxbuy" style="width:95px" value="$!goods.maxbuy" mustTxt="单次购买数不能为空！"/>
+			</li>
+			<li class="mt10">
+					<span>场次说明：</span>
+					<textarea name="description" cols="60" rows="2">$!goods.description</textarea>
+				</li>
+			<li class="mt10">
+				<span>演出时间：</span>
+				<input type="text" name="fromvalidtime" id="fromvalidtime" value="$!DateUtil.format($!goods.fromvalidtime, 'yyyy-MM-dd HH:mm:ss')" style="width:140px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00',minDate:'$minStr'})" readonly="readonly"/>
+			</li>
+			<li><input type="button" class="cbt1" value="保存" onclick="saveItem()"/><input type="button" class="cbt1" onclick="GewaraUtil.hideDialog('dialog')" value="取消"/></li>
+			</ul>
+		</form>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<script>
+saveItem = function(){
+	var url = "${basePath}admin/goods/ajax/savePeriodTicketGoods.xhtml";
+	if(!GewaraUtil.baseValidForm('dataForm')) return;
+	var values = GewaraUtil.getValues('dataForm');
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('保存成功！');
+			GewaraUtil.hideDialog('dialog');
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+</script>

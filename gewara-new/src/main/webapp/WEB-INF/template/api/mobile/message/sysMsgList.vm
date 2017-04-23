@@ -1,0 +1,25 @@
+<data>
+<list>
+	#foreach($sysMsg in $sysMsgList)
+	#set($relate=$relatedHelper.getR1("sysMsgList",$sysMsg.id))
+		<msg>
+		<id>$sysMsg.id</id>
+		#if($VmUtils.eq($sysMsg.action, 'apply_commu_invite'))
+			<body><![CDATA[$cacheMemberMap.get($sysMsg.frommemberid).nickname 邀请你加入圈子 $!relate.name]]></body>
+		#elseif($VmUtils.eq($sysMsg.action, 'apply_commu_join'))
+			<body><![CDATA[$cacheMemberMap.get($sysMsg.frommemberid).nickname 申请加入圈子 $!relate.name]]></body>
+		#elseif($VmUtils.eq($sysMsg.action, 'apply_friend_add'))
+			<body><![CDATA[$cacheMemberMap.get($sysMsg.frommemberid).nickname 申请添加你为站内好友 #if($sysMsg.body)请求消息：$sysMsg.body#end]]></body>
+		#elseif($VmUtils.eq($sysMsg.action, 'apply_c_admin'))
+			<body><![CDATA[把圈子$!relate.name管理员移交给你]]></body>
+		#elseif($VmUtils.eq($sysMsg.action, 'friend_birthday'))
+			<body><![CDATA[您有好友即将过生日啦]]></body>
+		#else
+			<body><![CDATA[$!sysMsg.body]]></body>
+		#end
+		<isread>$sysMsg.isread</isread>
+		<addtime>$!DateUtil.format($sysMsg.addtime,'yyyy-MM-dd HH:mm:ss')</addtime>
+		</msg>
+	#end
+</list>
+</data>

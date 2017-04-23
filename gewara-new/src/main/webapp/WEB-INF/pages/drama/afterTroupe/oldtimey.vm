@@ -1,0 +1,72 @@
+<div class="panel_33_40" id="panel_01"></div>
+<ul class="row postop" id="iHeight">
+	#foreach($diary in $diaryList)
+	<li>
+	#set($stitle=$!VmUtils.split($diary.title, "，"))
+		<div class="#if($!VmUtils.startsWith($stitle[0],'SP'))panel_f6_70 #else panel_66_50#end " style="height:408px;"></div>
+		<div class="box postop">
+			<div class="topbox">
+				<p class="panel_33_50" style="height:30px;"></p>
+				<em class="postop">$stitle[0]</em>
+			</div>
+			<div class="cerbox">
+				<div class="">
+					<a href="$!diary.link" title="$!diary.title" target="_blank">
+					<img width="150" src="$VmUtils.randomPic('cw150h200', $!diary.limg)" alt="$!diary.title"/>
+					</a><br/>
+					<h3><a href="$!diary.link" title="$!diary.title" target="_blank">#if($VmUtils.eq($VmUtils.size($stitle), 2))$!VmUtils.escabbr($stitle[1], 16) #{else} $!diary.title #end</a></h3>
+					<span>$!VmUtils.escabbr($!diary.summary, 84)</span>
+				</div>
+			</div>
+			#set($membername=$!cacheMemberMap.get($!memberidMap.get($!diary.id)).nickname)
+			<div class="btmbox">
+				<p class="panel_33_50" style="height:53px;"></p>
+				<dl class="ui_abeam postop">
+					<dt class="uipic">
+						<a title="$!membername" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!memberidMap.get($!diary.id)" target="_blank">
+							<img width="30" height="30" src="$VmUtils.randomPic('cw30h30',$cacheMemberMap.get($!memberidMap.get($!diary.id)).headpicUrl)" alt="$!membername" />
+						</a>
+					</dt>
+					<dd class="uiText">
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!memberidMap.get($!diary.id)" title="$!membername" target="_blank">$!VmUtils.escabbr($!membername,8)</a>&nbsp;&nbsp;发表剧评：$!VmUtils.escabbr($!diaryMap.get($!diary.id), 28)
+					</dd>
+				</dl>
+			</div>
+		</div>
+	</li>
+	#end
+	#if($pageUtil && $pageUtil.pageCount gt 1)
+	<li style="width:930px;">
+		#set($pageFun='_ajaxAutoPage')
+		<div id='page'>
+		#if($pageUtil.isPrePage())
+			<a href="javascript:void(0);" class='pre' onclick="${pageFun}($math.sub($!pageUtil.currentPage,1)#if($pageUtil.scriptParams),$pageUtil.scriptParams, '$pageUtil.preurl'#end)" title="上一页"><span>&lt;</span></a>
+		#end
+		#if($pageUtil.isFirstPage())
+			<a href="javascript:void(0);" onclick="${pageFun}('0'#if($pageUtil.scriptParams),$pageUtil.scriptParams, '$pageUtil.firsturl'#end)"><span>1</span></a><strong>...</strong>
+		#end
+		#foreach($pageInfo in $pageUtil.pageInfoList)
+			<a href="javascript:void(0);" onclick="${pageFun}($pageInfo.realPageNo#if($pageUtil.scriptParams),$pageUtil.scriptParams, '$pageInfo.url'#end)" 
+				#if($pageInfo.currentPage)class='match on'#end
+			><span>${pageInfo.pageNo}</span></a>
+		#end
+		#if($pageUtil.isLastPage())
+			<strong>...</strong><a href="javascript:void(0);" #if(${pageUtil.isOnLast($!{params.pageNo})})class='match on'#end onclick="${pageFun}('$math.sub(${pageUtil.pageCount},1)'#if($pageUtil.scriptParams),$pageUtil.scriptParams, '$pageUtil.lasturl'#end)" ><span>${pageUtil.pageCount}</span></a>
+		#end
+		#if($pageUtil.isNextPage())
+			<a href="javascript:void(0);" class='next' onclick="${pageFun}('$math.add($!pageUtil.currentPage,1)'#if($pageUtil.scriptParams),$pageUtil.scriptParams, '$!pageUtil.nexturl'#end)" title="下一页"><span>&gt</span></a>
+		#end
+		</div>
+	</li>
+	#end
+</ul>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	var ihiehgt = $('iHeight').offsetHeight;
+	$('panel_01').setStyle('height',ihiehgt);
+})
+
+_ajaxAutoPage = function(pageNo){
+	gewaUtil.loadData('OldTimey', '${basePath}drama/ajax/oldTimey.xhtml?pageNo=' + pageNo, {'type':'$!params.type'},function(){});
+}
+</script>

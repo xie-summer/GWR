@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>#if($!logonMember.id eq $member.id)我#else$!member.nickname#end的个人相册_格瓦拉社区</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/default.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,Autocompleter,page,noobSlide&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div id="snsHeader"></div>
+<div class="ui_layout">
+#set($menuTag = 'photo')
+#parse('sns/common/left.vm')
+	<div class="body_right">
+		#set($tag="home")
+		#set($photo=true)
+		#set($adoptAlbum=true)
+		#set($isShow=false)
+		#if($!rights.get(1) eq 'album_public')
+			#set($isShow=true)
+		#elseif($!rights.get(1) eq 'album_friend' && $isMyFriend)
+			#set($isShow=true)
+		#end
+		#if(!$!rights)
+			#set($isShow=true)
+		#end
+		#if($isShow)
+		
+		#parse('sns/userAlbum/common_menu.vm')
+		
+		<!--内容区-->
+		<div class="bodys" id="_body">
+			<div class="ablum_wrap">
+				#if($count gt 0)<div class="title mt10"><span class="gray">共$count个相册</span></div>#end
+				#if(!$VmUtils.isEmptyList($albumList))
+				<div class="ablum_list mt10">
+					<ul class="clear">
+						#foreach($album in $albumList)
+						<li>
+							<a class="ablumBox" href="${basePath}home/new/album/albumImageList.xhtml?albumid=$!album.id"><img width="100" height="100" alt="" style="background:url($VmUtils.randomPic('cw100h100',$album.albumLogoUrl)) center 0 no-repeat;" src="${staticPath}css/images/blank.gif"/></a>				
+							<p class="ablumBox_info"><em>$VmUtils.escabbr($album.subject, 20)</em><br>共$imageNum.get($album.id)张</p>
+						</li>
+						#end
+					</ul>
+					<div class="page">#parse('include/pageUtil.vm')</div>
+				</div>
+				#else
+				
+					#if($!logonMember.id==$!params.memberid)
+						<div class="ui_warning"><b class="ico_g"></b>你还没有相册，立即新建一个吧！<a class="ml5" style="color:#c30;" href="javascript:showCreateAlbum('adoptAlbum')">新建相册</a></div>
+					#else
+						<div class="ui_warning"><b class="ico_g"></b>TA还没有相册！</div>
+					#end
+				
+				#end
+			</div>
+		</div>
+		#parse('include/home/adoptAlbum.vm')
+		<!--/内容区-->
+		#else
+			<div class="outside-box">
+				<div class="inside-box">
+					<div class="gui-content topBg">
+					#if($!rights.get(1) eq 'album_private')
+						【$member.nickname】的相册设置了权限为【全体不可见】
+					#elseif($!rights.get(1) eq 'album_friend')
+						【$member.nickname】的相册设置了权限为【仅好友可见】<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$member.id" class="brown">加为关注</a>即可一睹为快!
+					#end
+					</div>
+				</div>
+			</div>
+		#end
+		
+	</div>
+</div>
+<div class="ui_view_menu"></div>
+<div class="footer_warp">
+	<div class="isFooter"></div>
+</div>
+#parse('include/innerLogin.vm')
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=snsUtil,index_even&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	if($('publicize'))new adSoild('publicize','navControl',{'position':{'x':#if($!params.memberid)280#{else}180#end,'y':#if($!params.memberid)80#{else}70#end},'width':14});
+	if($('slidePanel'))new noobSlide({
+		box: $('slidePanel'),
+		size:180,
+		items: $$('#slidePanel li'),
+		handle_event:'click',
+		addButtons: {
+			previous:$('eventL'),
+			next:$('eventR')
+		}
+	});
+});
+</script>
+#parse('sns/common/ga.vm')
+</body>
+</html>

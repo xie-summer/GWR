@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电子票列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	
+</head>
+<body style="width: 850px; margin:auto">
+<div><a href="${basePath}admin/eticket/issuerBatchList.xhtml">未过期</a>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="${basePath}admin/eticket/issuerBatchList.xhtml?qryType=his">过期</a>&nbsp;&nbsp;&nbsp;&nbsp;
+<a href="${basePath}admin/eticket/issuerBatchList.xhtml?qryType=all">全部</a></div>
+<table class="table">
+	<thead>
+	<tr style="height: 30px">
+		<th>卡号</th>
+		<th>卡类型</th>
+		<th>有效时间</th>
+		<th>总数</th>
+		<th>废弃</th>
+		<th>待售</th>
+		<th>卖出（未使用）</th>
+		<th>卖出（已使用）</th>
+	</tr>
+	</thead>
+	<tbody>
+	#foreach($batchExtra in $batchList)
+	#set($batch=$elecCardBatchMap.get($batchExtra.batchid))
+		<tr>
+			<td>$batchExtra.channel,$!{batchExtra.mincardno.substring(0,11)}[$!{batchExtra.mincardno.substring(0,11)} ~ $!{batchExtra.maxcardno.substring(0,11)}]</td>
+			<td>$!batch.cardtype#if($batch.amount)-$batch.amount#end</td>
+			<td>$!{DateUtil.format($batch.timefrom,'yyyy-MM-dd')}~$!{DateUtil.format($batch.timeto,'yyyy-MM-dd')}</td>
+			<td>$!batchExtra.cardcount</td>
+			<td><a href="${basePath}admin/eticket/viewCardList.xhtml?bid=$batch.id&status=D" target="_blank">$!batchExtra.delcount</a></td>
+			<td><a href="${basePath}admin/eticket/viewCardList.xhtml?bid=$batch.id&status=N" target="_blank">$!batchExtra.newcoun</a></td>
+			<td><a href="${basePath}admin/eticket/viewCardList.xhtml?bid=$batch.id&status=Y" target="_blank">$!batchExtra.soldcount</a></td>
+			<td><a href="${basePath}admin/eticket/viewCardList.xhtml?bid=$batch.id&status=U" target="_blank">$!batchExtra.usedcount</a></td>
+		</tr>
+	#end
+	</tbody>
+</table>
+	<script type="text/javascript">
+	window.addEvent('domready',function(){
+		$$(".table tbody tr").addEvents({
+			'mouseover':function(){this.setStyle("background", "#eee");},
+			'mouseout':function(){this.setStyle("background","");}
+		})
+	});
+</script>
+</body>
+</html>

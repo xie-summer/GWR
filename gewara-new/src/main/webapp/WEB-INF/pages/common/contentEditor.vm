@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+   <title>HTML编辑</title>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+</head>
+<body style="width: 650px; margin: auto">
+   <form method="post" action="${basePath}common/contentEditor.xhtml" target="_self" id="editForm">
+      <input type="hidden" name="save" value="false"/>
+      <input type="hidden" name="returnId" value="$!VmUtils.escapeHtml(${params.returnId})"/>
+      <input type="hidden" name="returnHtml" value="$!VmUtils.escapeHtml(${params.returnHtml})"/>
+      <textarea name="editorContent" id="editorContent">${params.editorContent}</textarea>
+   </form>
+   <input type="button" value="确定" onclick="saveForm();"/>
+   <input type="button" value="取消" onclick="window.close();"/>
+   <input type="button" value="清理空行" onclick="removeBr();"/>
+   <script type="text/javascript">
+   	var ckeditor;
+   	window.addEvent('domready',function(){
+   		//ckeditor = CKEDITOR.replace("editorContent", {'height':470});
+   		ckeditor = CKEDITOR.replace("editorContent", {'height':470, customConfig : '/ckeditor/gewaConfig.js'});
+   		ckeditor.on('paste',function(e){
+			if($chk(e.data.html)){
+				var data = this.getData();
+				var htm = e.data.html;
+				if(e.data.html.indexOf('data:image/') > 0){
+					gewa.util.alert('图片不能直接粘贴，请点击图像上传！',function(){
+						this.setData(data);
+					}.bind(this));
+				}else if((htm.indexOf('&lt;script&gt;') > 0 || htm.indexOf('<script>') > 0 )
+				 && (htm.indexOf('&lt;style&gt;') > 0 || htm.indexOf('<style>') > 0)){
+					gewa.util.alert('粘贴非法数据，请在文本中过滤后再进行粘贴！',function(){
+						this.setData(data);
+					}.bind(this));
+				}
+			}
+		})
+		});
+      function saveForm(){
+         var id='${params.returnId}';
+         var htmlId = '${params.returnHtml}';
+         var parentElement = window.opener.document.getElementById(id);
+         var value = ckeditor.getData();
+         if(parentElement){
+            parentElement.value = value;
+         }
+         var htmlElement = window.opener.document.getElementById(htmlId);
+         if(htmlElement){
+            htmlElement.innerHTML = value;
+         }
+         window.close();
+      }
+      function removeBr(){
+      	var tmpDiv = new Element('div');
+      	tmpDiv.set('html', getFCKHtml('editorContent'));
+      	tmpDiv.getElements('br').each(function(item){item.dispose();});
+      	setFCKHtml('editorContent',tmpDiv.get('html'));
+      }
+   </script>
+</body>
+</html>

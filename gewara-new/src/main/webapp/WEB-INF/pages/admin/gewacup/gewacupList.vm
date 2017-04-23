@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>gewaCup列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script> 
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+#set($matchMapData={'mansignle':'男单','mandouble':'男双','womansignle':'女单','womandouble':'女双','mixed':'混双'})
+<body style="width:1000px; margin:auto">
+<div style="width:1000px;">
+<div>
+<form action="${basePath}admin/sport/getGewaCupList.xhtml" name="" method="post">
+<input name="cupid" id="cupid" #if($VmUtils.isNotBlank($!params.cupid))value="$!{params.cupid}" #else value="cup$!{params.cupid}" #end/>
+<input type="submit" class="button" value=" 查 询 "/><br/>
+</form>
+</div>
+<table class="table">
+	<thead>
+	<tr>
+		<th>编号</th>
+		<th>是否支付</th>
+		<th>用户名</th>
+		<th>报名类型</th>
+		<th>参赛类型</th>
+		<th>活动状态</th>
+		<th>审核管理</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	#if($VmUtils.isNotBlank($!params.cupid) && $VmUtils.isNotBlank($!dataMap.get('cupid')))
+	<tbody id="dramaTable">
+		<tr>
+		<td>$!dataMap.get('cupid').substring(3,16)</td>
+		<td>$!member.nickname</td>
+		<td style="color:red"><strong>#if($VmUtils.eq($dataMap.get('joinmethod'), 'club'))俱乐部#elseif($VmUtils.eq($dataMap.get('joinmethod'), 'personal'))个人#end</strong></td>
+		<td style="color:red">$!matchMapData.get($!dataMap.get('matchtype'))</td>
+		<td>#if($VmUtils.eq($dataMap.get('cupstatus'),'y'))<span style="color:red">审核通过</span>#elseif($VmUtils.eq($dataMap.get('cupstatus'),'n'))审核未通过#elseif($VmUtils.eq($dataMap.get('cupstatus'),'a'))申请中#end</td>
+		<td>
+			<a href="${basePath}admin/sport/gewaCupInfo.xhtml?cupid=$dataMap.get('cupid')" target="_blank">详细</a>
+			<select name="cupstatus" id="$!gewaCup.cupid" onchange="checkGewaCup('$!dataMap.get('cupid')')">
+				<option value="a" #if($VmUtils.eq($dataMap.get('cupstatus'), 'a')) selected="selected" #end>申请中</option>
+				<option value="y" #if($VmUtils.eq($dataMap.get('cupstatus'), 'y')) selected="selected" #end>审核通过</option>
+				<option value="n" #if($VmUtils.eq($dataMap.get('cupstatus'), 'n')) selected="selected" #end>审核未通过</option>
+			</select>
+			<a href="javascript:void(0)" onclick="removeGewaCup('$!dataMap.get('cupid')')">删除</a>&nbsp;&nbsp;
+			</td>
+			<td>&nbsp;</td>
+		</tr>
+	</tbody>
+	#else
+	<tbody id="dramaTable">
+	#foreach($gewaCup in $gewaCupList)
+	#set($commu=$commuMap.get($gewaCup.cupid))
+	#set($gewaOrder=$gewaOrderMap.get($gewaCup.cupid))
+	<tr>
+		<td>$!gewaCup.cupid.substring(3,16)</td>
+		<td>#if($VmUtils.eq($!gewaOrder.status, 'paid_success')) 已支付 #else 未支付 #end</td>
+		<td>$cacheMemberMap.get($gewaCup.get('memberid')).nickname</td>
+		<td style="color:red"><strong>#if($VmUtils.eq($gewaCup.joinmethod, 'club'))俱乐部#elseif($VmUtils.eq($gewaCup.joinmethod, 'personal'))个人#end</strong></td>
+		<td style="color:red">$!matchMapData.get($!gewaCup.matchtype)</td>
+		<td>#if($VmUtils.eq($gewaCup.cupstatus,'y'))<span style="color:red">审核通过</span>#elseif($VmUtils.eq($gewaCup.cupstatus,'n'))审核未通过#elseif($VmUtils.eq($gewaCup.cupstatus,'a'))申请中#end</td>
+		<td>
+			<a href="${basePath}admin/sport/gewaCupInfo.xhtml?cupid=$gewaCup.cupid" target="_blank">详细</a>
+			<select name="cupstatus" id="$!gewaCup.cupid" onchange="checkGewaCup('$!gewaCup.cupid')">
+				<option value="a" #if($VmUtils.eq($gewaCup.cupstatus, 'a')) selected="selected" #end>申请中</option>
+				<option value="y" #if($VmUtils.eq($gewaCup.cupstatus, 'y')) selected="selected" #end>审核通过</option>
+				<option value="n" #if($VmUtils.eq($gewaCup.cupstatus, 'n')) selected="selected" #end>审核未通过</option>
+			</select>
+			<a href="javascript:void(0)" onclick="removeGewaCup('$!gewaCup.cupid')">删除</a>
+		</td>
+		<td><input type="text" name="orderid" id="orderid$!{gewaCup.cupid}" width="30" value="$!{gewaCup.orderid}"/>
+		<input type="button" onclick="updateGewaCup('$!gewaCup.cupid')" value="设置订单ID"/>
+		</td>
+		</tr>
+	#set($commu='')
+	#set($gewaOrder='')
+	#end
+	</tbody>
+	#end
+</table>
+</div>
+	<script type="text/javascript">
+	function checkGewaCup(elid){
+		var values={'cupid':elid, 'cupstatus':$(elid).value};
+		var url= '${basePath}admin/sport/checkGewaCup.xhtml';
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('审核成功！');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function removeGewaCup(el){
+		var values={'cupid':el};
+		var url= '${basePath}admin/sport/deleteGewaCup.xhtml';
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('删除成功！');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});   	
+	}
+	function updateGewaCup(el){
+		if(confirm('确认要设置订单ID吗？')){
+			var tmp='orderid'+el;
+			var values={'orderid':$(tmp).value, 'cupid':el};
+			var url ="${basePath}admin/sport/updateGewaCup.xhtml";
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert('设置成功！');
+					refreshPage();
+				}else{
+					alert(result.msg);
+				}
+			})
+		}
+	}
+</script>
+</body>
+</html>

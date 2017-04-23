@@ -1,0 +1,55 @@
+<div class="hd">订单基本信息</div>
+<div class="bd">
+	<table cellpadding="0" cellspacing="0" width="100%" class="table" >
+		<tr>
+			<td>订单号：<a href="${basePath}admin/gewapay/orderDetail.xhtml?tradeNo=$order.tradeNo" target="_blank"><span class="yellow">$order.tradeNo</span></a></td>
+			<td>类型：$!order.ordertype#if($order.ordertype eq 'ticket')<a href="${basePath}admin/ticket/booking.xhtml?mpid=$order.mpid&ordertype=$order.status">查看场次</a>#end</td>
+			<td>名称：$!order.ordertitle</td>
+			<td>状态：<span class="yellow">$!{order.statusText}</span></td>
+		</tr>
+		<tr>
+			<td><a href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$!order.memberid" target="_blank">用户ID：$order.memberid</a></td>
+			<td>用户名：$!order.membername</td>
+			<td>商家ID：$!order.partnerid</td>
+			<td>手机号码：<span class="yellow">$!order.mobile</span></td>
+		</tr>
+		<tr>
+			<td>下单时间：$DateUtil.formatTimestamp($order.addtime)</td>
+			<td>有效时间：$DateUtil.formatTimestamp($order.validtime)</td>
+			<td>付款时间：$!DateUtil.formatTimestamp($order.paidtime)</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>订单总额：${order.totalAmount}</td>
+			<td>应付款：${order.due}</td>
+			<td>付款方式：$!order.paymethodText</td>
+			<td>
+			#if($VmUtils.eq($order.status,'paid_return'))
+			<span class="yellow">已退款</span>
+			#elseif($refund)
+			<span class="yellow">$!refund.getStatusText($refund.status)</span>
+			#end
+			&nbsp;
+			</td>
+		</tr>
+		<tr>
+			<td colspan="4">
+			#if($order.description2)
+				#set($descMap=$VmUtils.readJsonToMap($order.description2))
+				#foreach($m in $descMap.keySet())
+					${m}：$!descMap.get($m)
+				#end
+			#end
+			</td>
+		</tr>
+		#if($itemList.size() gt 0)
+		<tr>
+			<td colspan="4">
+				#foreach($item in $itemList)
+					同时购买：$item.goodsname数量$item.quantity单价$item.unitprice总价$item.totalfee
+				#end
+			</td>
+		</tr>
+		#end
+	</table>
+</div>

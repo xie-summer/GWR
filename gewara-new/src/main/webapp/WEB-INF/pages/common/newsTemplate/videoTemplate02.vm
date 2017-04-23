@@ -1,0 +1,37 @@
+#*视频模板左结构*#
+<div class="title mt20"><h2>$!right.title</h2><span class="linet"></span></div>
+<div class="videoTem_02" id="videoBox_02">
+	#if($VmUtils.size($RshipinList) gt 0)
+	#set($firstshipin=$RshipinList.get(0))
+	<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=7,0,19,0" width="260" height="150" id="myFlash">
+	   <param name="movie" value="$!firstshipin.newslink" />
+	   <param name="quality" value="high" />
+	   <param value="transparent" name="wmode" />
+	   <embed src="$!firstshipin.newslink" quality="high" pluginspage="http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash" width="260" height="150" wmode="transparent" name="myFlash"></embed>
+	</object>
+	#end
+</div>
+<ul class="video_02" id="video_02">
+	#foreach($shipin in $RshipinList)
+	<li class="#if($foreach.index eq 0)top select#end" lang="$!shipin.newslink">
+		$!shipin.newstitle
+	</li>
+	#end
+</ul>
+#if($VmUtils.isNotBlank($!right.newslink))
+<div class="tar mt5"><a href="$!right.newslink" target="_blank">更多»</a></div>
+#end
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$('video_02').getElements('li').addEvent('click',function(){
+		if(!this.hasClass('select')){
+			$('video_02').getElements('li').removeClass('select');
+			this.addClass('select');
+			gewa.util.mask({'element':'video_02','title':'正在获取视频信息...'});
+			$("videoBox_02").empty();
+			setFlash(this.get('lang'),"videoBox_02",260,150);
+			gewa.util.clearMask();
+		}
+	});
+})
+</script>

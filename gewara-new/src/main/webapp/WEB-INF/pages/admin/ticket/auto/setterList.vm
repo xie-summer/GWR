@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次自动开放列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="menu">
+		<div class="menuInner">
+			<ul>
+				<li class="selectMore">$cinema.name</li>
+				<li><a href="${basePath}admin/ticket/mpiManage.xhtml?cid=$cinema.id"><span>场次管理</span></a></li>
+				<li><a href="${basePath}admin/ticket/orderList.xhtml?cid=$cinema.id" class="admin"><span>订单管理</span></a></li>
+				<li><a href="${basePath}admin/ticket/baseData.xhtml?cid=$cinema.id"><span>基础数据</span></a></li>
+				<li class="currs"><a><span>自动设置器</span></a></li>
+				<li><a href="${basePath}admin/ticket/auto/mpiList.xhtml?cid=$cinema.id"><span>自动设置器审核列表</span></a></li>
+				<li><a href="${basePath}admin/ticket/opiStats.xhtml?cid=$cinema.id" class="admin"><span>座位统计</span></a></li>
+				<li><a href="${basePath}admin/ticket/settleList.xhtml?cid=$!cinema.id" class="admin"><span>结算说明</span></a></li>
+				<li><a href="${basePath}admin/ticket/settleConfirm.xhtml?cid=$!cinema.id" class="admin"><span>结算确认</span></a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="contentInfoList">
+		<div>
+		<a href="${basePath}admin/ticket/auto/setterList.xhtml?cinemaid=$!params.cinemaid" #if(!$params.expired) style="color:red" #end>查看未过期</a> <a href="${basePath}admin/ticket/auto/setterList.xhtml?cinemaid=$!params.cinemaid&expired=y" #if($params.expired) style="color:red" #end>查看已过期</a>
+		</div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>名称</th>
+					<th>开始时间</th>
+					<th>截止时间</th>
+					<th>星期</th>
+					<th>时段</th>
+					<th>版本</th>
+					<th>结算价</th>
+					<th>格瓦售价</th>
+					<th>优惠标识</th>
+					<th>场次说明</th>
+					<th>审核状态</th>
+					<th>使用状态</th>
+					<th>操作&nbsp;&nbsp;<a style="color: blue;" target="_blank" href="${basePath}admin/ticket/auto/modifySetter.xhtml?cinemaid=$params.cinemaid">增加</a>
+						&nbsp;&nbsp;<a style="color: blue;" target="_blank" href="${basePath}admin/ticket/auto/checkCollision.xhtml?cinemaid=$params.cinemaid">检测冲突</a>
+					</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				#foreach($setter in $setterList)
+				<tr class="grayBg">
+					<td>$!setter.id</td>
+					<td>
+						$!setter.name
+						<br/><a href="${basePath}admin/common/getChangeHis.xhtml?tag=AutoSetter&relatedid=$setter.id" target="_blank">[历史]</a>
+					</td>
+					<td>$!setter.playtime1</td>
+					<td>$!setter.playtime2</td>
+					<td>$!setter.weektype</td>
+					<td>$!setter.timescope</td>
+					<td>$!setter.edition</td>
+					<td>$!setter.costprice <a href="javascript:void(0)" title='$!setter.limitScript'>查看限制</a></td>
+					<td>$!setter.gewaprice <a href="javascript:void(0)" title='$!setter.priceScript'>查看设置</a></td>
+					<td>$!setter.elecard</td>
+					<td title="$!VmUtils.getHtmlText($setter.remark, 100)">$!VmUtils.getHtmlText($setter.remark, 20)</td>
+					<td>#if($setter.checkStatus eq 'F')未审核#elseif($setter.checkStatus eq 'T')通过#else 不通过#end</td>
+					<td>#if($setter.status eq 'open_a')自动#elseif($setter.status eq 'open')手动#else 废弃#end</td>
+					<td><a href="${basePath}admin/ticket/auto/modifySetter.xhtml?sid=$setter.id" target="_blank">修改</a>
+					&nbsp;&nbsp;<a href="javascript:copySetter('$!setter.id')">复制</a>
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<script type="text/javascript">
+	function copySetter(sid){
+		var url = "${basePath}admin/ticket/auto/copySetter.xhtml";
+		GewaraUtil.sendRequest(url, {'sid':sid}, function(result){
+			if(result.success){
+				gewaUtil.alert("复制成功");
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

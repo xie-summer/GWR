@@ -1,0 +1,100 @@
+<div class="mod_tabs mt30 de_wyG de_yp">
+	<div class="mod_hd">
+		<ul class="tabs clear">
+			<li class="ypCur #if($VmUtils.isBlank($order)||$VmUtils.eq($order,'addtime'))) select #end"><a href="${basePath}drama/dramaDiaryList.xhtml?dramaid=${drama.id}&order=addtime">最新剧评</a></li>
+			<li class="ypCur #if($VmUtils.eq($order,'poohnum')) select #end"><a href="${basePath}drama/dramaDiaryList.xhtml?dramaid=${drama.id}&order=poohnum">热门剧评</a></li>
+		</ul>
+		<a class="button redBt bigBt more" onclick="submitDiary();return false;" href="javascript:void(0)"><span>发表评论</span></a>
+	</div>
+	<div class="mod_bd">
+		#if($VmUtils.size($diaryList) gt 0)
+			#parse('include/drama/mod_juComment.vm')
+			#parse('include/pageUtil.vm')
+		#end
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+//	showAll();
+})
+showAll = function(target,id){
+	if(target == 'showDown'){
+		gewa.util.show('showUp_content' + id);
+		gewa.util.hide('showDown_content' + id);
+	}else{
+		gewa.util.hide('showUp_content' + id);
+		gewa.util.show('showDown_content' + id);
+	}
+}
+function getWalaList(e){
+	$$('.ypCur').removeClass('select');
+	if(e)e.getParent('li').addClass('select');
+	else $$('.ypCur')[0].addClass('select');
+}
+function submitDiary(){
+	checkLogin(true,function(){
+		GewaraUtil.openwin('${basePath}blog/modifyTopic.xhtml?tag=drama&relatedid=$drama.id&type=1','_blank');
+	});
+}
+function showOppose(id){
+	$('support'+id).addClass('none');
+	checkLogin(true,function(){
+		var url = '${basePath}blog/addDiaryFlower.xhtml';
+		var values = {'diaryId':id, 'tag':'oppose'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$('pooh'+id).innerHTML = result.retval;
+			}
+		});
+		$('oppose'+id).toggleClass('none').addEvent('click',function(){
+			if(!this.hasClass('none')) {
+		  		if($('say_oppose'+id).value == '说说反对理由')$('say_oppose'+id).value='';
+		  	}
+	  	});
+	});
+	
+}
+function showSupport(id){
+     $('oppose'+id).addClass('none');
+     checkLogin(true,function(){
+		var url = '${basePath}blog/addDiaryFlower.xhtml';
+		var values = {'diaryId':id, 'tag':'support'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				 $('flowers'+id).innerHTML = result.retval;
+			}
+		});
+		$('support'+id).toggleClass('none').addEvent('click',function(){
+	    	 if(!this.hasClass('none')) {
+	    	  	if($('say_support'+id).value == '说说支持理由') $('say_support'+id).value='';
+	    	  }
+	  	});
+	});
+     
+}
+addComment = function(el,diaryid,tag,say_area,captchaName){
+	var replyconent = $(say_area).value;
+	if(replyconent == '' || replyconent == '说说支持理由' || replyconent == '说说反对理由'){
+		gewaUtil.alert("请输入回复内容！"); return;
+	}
+	var captchaId = $(captchaName).value;
+	var captcha = $(captchaName + 'Input').value;
+	checkLogin(true,function(){
+		gewa.util.mask({'element':el,'title':'正在提交，请稍等...'});
+		var url = '${basePath}blog/saveDiaryComment.xhtml';
+		var values = {'diaryId':diaryid, 'body':replyconent,'captchaId':captchaId,'captcha':captcha};
+		GewaraUtil.sendRequest(url, values, function(result){
+		gewara.util.unmask();
+			if(result.success){
+				$(tag+diaryid).addClass('none');
+				$(say_area).value = '';
+				$(captchaName + 'Input').value = '';
+			}else{
+				gewaUtil.alert(result.msg);
+				gewa.util.clearMask();
+				GewaraUtil.refreshCaptcha(captchaName);
+			}
+		});
+	});
+}
+</script>

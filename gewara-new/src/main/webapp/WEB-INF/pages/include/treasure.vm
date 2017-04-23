@@ -1,0 +1,116 @@
+<div id="treasure"  style="display:none">
+	<dl class="dl-60">
+		<dt class="dl-60Inner">标签：</dt>
+		<dd class="rating2">
+			<input type="text" name="actionlabel" class="text" id="actionlabel"/>
+			<input type="hidden" name="treasureid" id="treasureid"/>
+			<input type="hidden" name="eflag" id="eflag"/>
+			<input type="hidden" name="erelatedid" id="erelatedid"/>
+		</dd>
+	</dl>
+	<div id="labelValue" class="none">我的标签：<span id="myLabel"></span></div>
+	<div id="showMsg" style="border-bottom:1px solid #EFEFEF"></div>
+	<div class="mt" style="padding:7px 0;text-align:right;position: relative;z-index: 0;width:100%;">
+		<span onclick="save()" class="minBt redBt button">
+			<span>
+				<em style="padding-left:20px;background:url(${staticPath}css/home/right.png) 0 center no-repeat;">提交</em>
+			</span>
+		</span>
+		<span class="minBt ml10 whiteBt button none" onclick="delTreasure()" id="dTreasure"><span>删除</span></span>
+		<span class="minBt ml10 whiteBt button" onclick="hideTreasure()"><span>关闭</span></span>
+	</div>
+</div>
+<script type="text/javascript">
+function cmxiangqu(eid, eflag, etype){
+	checkLogin(true,function(){
+		var title="",etag=eflag;
+		if(eflag =='movie' || eflag =='drama')
+			title="我想看";
+		else if(eflag== 'cinema' || eflag=='theatre' ||  eflag=='sport' || eflag =='ktv' || eflag =='bar' || eflag =='gym')
+			title="我想去";
+		else if(eflag == 'barsinger')	
+			title="我想听";
+		else if(eflag == 'together'){	
+			title="我想练";
+			etag=etype
+		}else if(eflag == 'xiangxue'){	
+			title="我想学";
+			etag=etype
+		}
+		$('erelatedid').value=eid;
+		$('eflag').value=eflag;
+		var url="${basePath}ajax/common/getDetail.xhtml";
+		var values={'relatedid':eid,'tag':etag};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$('showMsg').innerHTML=result.showMsg;
+				$('actionlabel').value=result.alabel;
+				if(result.alabel != '') $('dTreasure').removeClass('none');
+				$('treasureid').value=result.treasureid;
+				var aValue= '';
+				result.aList.each(function(item){
+					var tmp=[];
+					tmp = item.split(",");
+					aValue+=' <a href="javascript:void(0)" style="color:#C03B0C" onclick="updateLabel('+"'"+tmp+"'"+')">'+tmp+'</a>';
+				})
+				if(aValue != '') $('labelValue').removeClass('none');
+				$('myLabel').innerHTML=aValue;
+				gewa.util.maskContent('','treasure',title,400,'treasure');
+			}
+		});	
+	});
+}
+function save(){
+	var eflag=$('eflag').value;
+	var relatedid=$('erelatedid').value;
+	var url, vauels;
+	var actionLabel=$('actionlabel').value;
+	if(actionLabel.length>15){
+		gewaUtil.alert('标签不能超过15个字符');
+		return;
+	}
+	if(eflag == 'together' || eflag == 'xiangxue'){//gym、sport项目想练、gym教练，跟TA学
+		url="${basePath}ajax/gym/updateGymAndSportTreasure.xhtml"
+		values={"treasureid":$('treasureid').value,"relatedid":relatedid, "stattype":eflag, 'actionlabel':$('actionlabel').value};
+	}else if(eflag == '' || relatedid == ''){
+		url="${basePath}gym/addCoachImpression.xhtml"
+		values={"content":$("actionlabel").value, "relatedid":$coach.id}
+	}else{
+		url="${basePath}ajax/common/addXiangqu.xhtml"
+		values={'treasureid':$('treasureid').value,'relatedid':$('erelatedid').value, 'tag':$('eflag').value,'actionlabel':$('actionlabel').value};
+	}
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			hideTreasure();
+			refreshPage();
+		}else {
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function hideTreasure(){
+	gewa.util.container['treasure'].dispose('treasure');
+}
+function cancelTreasure(tag, relatedid){
+	var url="${basePath}ajax/common/cancelTreasure.xhtml?v"+GewaraUtil.rtime,values={'tag':tag, 'relatedid':relatedid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			$('nCollect').removeClass('none');
+		   $('hCollect').addClass('none');
+		}else gewaUtil.alert(result.msg);
+	}, 'get');
+}
+function updateLabel(el){
+	$('actionlabel').value+=' '+el;
+}
+function delTreasure(){
+	var treasureid=$('treasureid').value;
+	var url="${basePath}ajax/common/delInterest.xhtml"
+	var values={'treasureid':treasureid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success) {
+			refreshPage();
+		}
+	})
+}
+</script>

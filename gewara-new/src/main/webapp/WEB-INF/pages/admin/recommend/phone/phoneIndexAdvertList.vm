@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>手机客户端首页广告列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		label {float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px;}
+	</style>
+</head>
+<body style="width:750px; margin: auto;" class="yui-skin-sam">
+	<div><input type="button" class="button" onclick="addPhoneAdvert()" value="增加广告"/></div>
+	<table class="table">
+		<thead valign="top"><tr>
+			<th>编号</th>
+			<th>名称</th>
+			<th>图片</th>
+			<th>关联信息</th>
+			<th>显示位置</th>
+			<th>是否显示</th>
+			<th>操作</th>
+		</tr></thead>
+		<tbody >
+			#foreach($gc in $gcList)
+				<tr>
+					<td>$!gc.id</td>
+					<td>$!gc.title</td>
+					<td><img src='$!picPath$!gc.logo' onerror="this.src='${basePath}img/default_head.png'" width="50" height="50"/></td>
+					<td>#if($!VmUtils.isBlank($!gc.relateid))$!gc.link#else$!gc.relateid#end</td>
+					<td>$!gc.tag</td>
+					<td><input type="text" style="width: 30px;" value="$!gc.ordernum" onblur="orderNum($!gc.id,this.value,this)"></td>
+					<td><input type="button" onclick='updatePhoneAdvert($!gc.id,"$!gc.title","$!gc.logo","$!gc.relatedid","$!gc.link","$!gc.tag","$!gc.citycode")' value="修改"/> <input type="button" onclick="delPhoneAdvert($gc.id)" value="删除"/></td>
+				</tr>
+			#end
+		</tbody>
+	</table>
+	#parse('include/pageUtil.vm')
+	<div id="phoneAdvertDialog" class="yui-panel" style="width:650px;visibility:hidden;">
+	<div class="hd">保存广告信息</div>
+	<div class="bd" style="padding-left: 5px;">
+		<input type="hidden" name="id" id="id"/>
+		<div>
+			<label for="title">广告名称：</label>
+			<input type="text" name="title" id="title"/>*
+		</div>
+		<div>
+			<label for="relateid">关联ID：</label>
+			<input type="text" name="relatedid" id="relatedid"/>*（关联链接填写，此项不要填写！）
+		</div>
+		<div>
+			<label for="link">关联链接：</label>
+			<input type="text" name="link" id="link"/>*（关联ID填写，此项不要填写！）
+		</div>
+		<div>
+			<label for="tag">显示：</label>
+			<select id="tag" name="tag">
+				<option value="android">android</option>
+				<option value="iphone">iphone</option>
+				<option value="all">全部</option>
+			</select>
+		</div>
+		#parse("admin/common/adminInnerCityList.vm")
+		<div>
+			<label for="uploadIFrame">LOGO(<b>640*80</b>)：</label>
+			<iframe class="center" height="25px" width="500px" frameborder="0" scrolling="no" id="uploadIFrame" 
+			src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updateLogo&notLimit=true"></iframe>
+			<div style="margin-left: 70px;"><input type="text" name="logo" id="logo" style="width: 300px;"/></div>
+			<img style="height:100px; margin-left:80px;" id='srclogo' src='${picPath}$gc.logo' onerror="this.src='${basePath}img/default_head.png'"/>
+		</div>
+		<div class="mt5">
+			<input type="button" value="保存" onclick="addOrUpdate()"/> <input type="button" value="取消" onclick="cancelPhoneAdvert()" /> 
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('srclogo').src='${picPath}' + picpath;
+	}
+	function addPhoneAdvert(){
+		$('id').value = '';
+		$('title').value = '';
+		$('logo').value = '';
+		$('srclogo').value = '';
+		$('relatedid').value = '';
+		$('link').value = '';
+		GewaraUtil.showDialog('phoneAdvertDialog');
+	}
+	function orderNum(gcid, val, obj){
+		var url = "${basePath}admin/common/ajax/changeGCOrderNum.xhtml";
+		GewaraUtil.sendRequest(url, {'id':gcid, 'ordernum':val}, function(result){
+			if(result.success){
+				if($(obj)){
+					$(obj).setStyle('background-color','red');
+					(function(){
+						$(obj).setStyle('background-color','');
+					}.bind(obj)).delay(800);
+				}
+			}else{
+				alert('设置失败');
+			}
+		});
+	}
+	function updatePhoneAdvert(id,title,logo,relatedid,link,tag,citycode){
+		$('id').value = id;
+		$('title').value = title;
+		$('logo').value = logo;
+		$('srclogo').src = '${picPath}'+logo;
+		$('relatedid').value = relatedid;
+		$('link').value = link;
+		$('tag').value = tag;
+		var citycodes = citycode.split(',');
+		var citys = $$("input[type=checkbox]");
+		for(var i = 0;i<citys.length;i++){
+			if(citycodes.contains(citys[i].value)){
+				citys[i].checked = true;
+			}else citys[i].checked = false;
+			if(citycode == '000000') citys[i].checked = true;
+		}
+		GewaraUtil.showDialog('phoneAdvertDialog');
+	}
+	
+	function cancelPhoneAdvert(){
+		GewaraUtil.hideDialog('phoneAdvertDialog');
+	}
+	
+	function addOrUpdate(){
+		var id = $('id').value;
+		var logo = $('logo').value;
+		var link = $('link').value;
+		var title = $('title').value;
+		var relatedid = $('relatedid').value;
+		var tag = $('tag').value;
+		if(!$chk(title)) {
+			gewaUtil.alert('名称不能为空！');
+			return;
+		}
+		if($chk(relatedid) && $chk(link)){
+			gewaUtil.alert('关联ID与关联链接只能二选一填写！');
+		}
+		var cityArray = new Array();
+		var allCitys = $$("input[name=selectcitycodes]");
+		var citys = $$("input[name=selectcitycode]");
+		if (allCitys[0].checked) {
+			cityArray.push('000000');
+		} else {
+			for(var i = 0;i<citys.length;i++){
+				if(citys[i].checked){
+					cityArray.push(citys[i].value);
+				}
+			}
+		}
+		var citycode = cityArray.toString();
+		var url = "${basePath}admin/mobile/savePhoneAdvert.xhtml";
+		GewaraUtil.sendRequest(url,{'id':id,'title':title,'link':link,'logo':logo,'relatedid':relatedid,'tag':tag,'citycode':citycode},function(result){
+			if(result.success){
+				gewaUtil.alert('保存成功！',refreshPage);
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	function delPhoneAdvert(id){
+		gewaUtil.confirm("确认删除吗？",function(){
+			var url = "${basePath}admin/mobile/deleteMovieLink.xhtml";
+			GewaraUtil.sendRequest(url,{'id':id},function(result){
+				if(result.success){
+					gewaUtil.alert('删除成功！',refreshPage);
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		});
+	}
+	
+</script>
+</body>
+</html>

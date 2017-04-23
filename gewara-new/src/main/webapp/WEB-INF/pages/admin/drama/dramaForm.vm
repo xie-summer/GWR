@@ -1,0 +1,410 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>编辑演出数据</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label{width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px;}
+		input, textarea, span {width:550px;}
+		#dramaForm div{padding:3px;}
+		#dramadata li{width:300px;display:inline-block; float:left;}
+		div input{width:230px;}
+		.container{
+			border:1px solid blue;
+			min-height:150px;
+			_height:150px;
+			margin:10px 30px; 
+		}
+		.buttonclass{
+			width: 90px;
+		}
+		.containerUL li{
+			float: left;
+			padding-right: 15px;
+		}
+		.containerUL li input{width: 10px;}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:920px;margin:auto">
+<div id="dramaDialog" class="yui-panel" style="width:750px;margin:auto">
+	<div class="hd">[编辑演出数据]</div>
+	<div class="bd" id="dramaForm">
+	<form name="dramaForm" action="javascript:saveDrama();">
+		<input type="hidden" name="dramaid" id="dramaid" value="$!{drama.id}"/>
+		#set($otherInfoMap=$VmUtils.readJsonToMap($!drama.otherinfo))
+		<div>
+			<label for="dramaname">演出名称：</label>
+			<input name="dramaname" id='dramaname'  style="width:240px; " type="text" value='$!drama.dramaname' /><span class="req" style="">*</span>
+			<label for="englishname">英文名称：</label>
+			<input name="englishname" id="englishname" style='width:235px' type="text" value="$!{drama.englishname}" />
+		</div>
+		<div>
+			<label for="briefname">简&nbsp;&nbsp;&nbsp;&nbsp;称：</label>
+			<input name="briefname" id="briefname" style='width:120px; ' type="text" value="$!{drama.briefname}" mustTxt="简称不能为空！"/>
+			<label for="dramatype">类&nbsp;&nbsp;别：</label>
+			<select name="dramatype" id="dramatype" onchange="changeSelect();">
+				#foreach($!key in $dramaTypeMap.keySet())
+				<option value="$!key" #if($VmUtils.eq($drama.dramatype,$!key)) selected="selected"#end>$!dramaTypeMap.get($key)</option>
+				#end
+			</select>
+			<label for="type">演出类型：</label>
+			<input name="type" id="type" style='width:240px;' type="text" value="$!{drama.type}" readonly="readonly" onclick="showTypeDialog()"/>
+		</div>
+		<div>
+			<label for="releasedate">首映日期：</label>
+			<input name="releasedate" id="releasedate" readonly="readonly" onclick="WdatePicker()" type="text" value="$!DateUtil.formatDate($!drama.releasedate)" />
+			<label for="releasedate">结束日期：</label>
+			<input name="enddate" id="enddate" name="enddate" readonly="readonly" onclick="WdatePicker()" type="text" value="$!DateUtil.formatDate($!drama.enddate)" />
+		</div>
+		<div>
+			<label for="pretype">是否代售：</label>
+			<select name="pretype" id="pretype">
+				<option value="M" #if($drama.hasPretype('M'))selected#end>非代售项目</option>
+				<option value="E" #if($drama.hasPretype('E'))selected#end>代售项目</option>
+			</select>
+			<label for="pretype">售卖周期：</label>
+			<select name="saleCycle" id="saleCycle">
+				#foreach($saleCycle in $dramaSaleCycleMap.keySet())
+				<option value="$saleCycle" #if($VmUtils.eq($saleCycle,$!drama.saleCycle))selected#end>$dramaSaleCycleMap.get($saleCycle)</option>
+				#end
+			</select>
+		</div>
+#*	<div>
+			<label for="releasedate">放映日期：</label>
+			<input name="playinfo" id="playinfo" type="text" value="$!drama.playinfo" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" />
+		</div>
+*#	
+		<fieldset>
+		<legend>创作导演信息</legend>
+#*	<div>例如：</div>
+			<div>
+				<label for="">头&nbsp;&nbsp;&nbsp;&nbsp;衔：</label>
+				<input name="" id="" style='width:240px;' type="text" value="总监" readonly="readonly" />
+				<label for="">名称：</label>
+				<input name="" id="" style='width:235px' type="text" value="某某" readonly="readonly"/>
+			</div>
+			<hr/>
+*#	
+			<div>
+				<label for="dname">头&nbsp;&nbsp;&nbsp;&nbsp;衔：</label>
+				<select name="dname" id="dname">
+					<option value="导演">导演</option>
+					<option value="主演">主演</option>
+					<option value="制作人">制作人</option>
+					<option value="主创">主创</option>
+					<option value="原创">原创</option>
+					<option value="演出机构">演出机构</option>
+					<option value="作曲">作曲</option>
+					<option value="策划">策划</option>
+					<option value="改编">改编</option>
+					<option value="出品人">出品人</option>
+					<option value="宣传">宣传</option>
+					<option value="服装设计">服装设计</option>
+					<option value="灯光">灯光</option>
+					<option value="舞台">舞台</option>
+					<option value="道具">道具</option>
+					<option value="音效">音效</option>
+					<option value="其他">其他</option>	
+				</select>
+				<label for="dvalue">名称(文本)</label>
+				<input name="dvalue" id="dvalue" style='width:155px' type="text" value="" />
+				<input type="button" name="dramaproperty" id="dramaproperty" value="添加数据" onclick="addProperyData();" style="width: 60px;"/>
+			</div>
+			<hr/>
+			<div>
+				<ul  style="list-style:none; display:block;" id="dramadata">
+				#foreach($dramaData in $dramaDataMap.entrySet())
+				<li id="d$foreach.index">
+					<label>$dramaData.key： $dramaData.value</label>
+					<input type="button" style="width: 60px;" value="删除" onclick="delProperty('d$foreach.index', '$dramaData.key')"/>
+				</li>
+				#end
+				</ul>
+			</div>
+		</fieldset>
+		<div>
+			<label for="dramalength">片长分钟：</label>
+			<input name="length" id="dramalength" style='width:80px;' type="text" value="$!{drama.length}" />
+			<label for="language">语言：</label>
+			<input name="language" id="language" style='width:80px;' type="text" value="$!{drama.language}" />
+			<label for="website">官方主页：</label>
+			<input name="website" id="website" type="text" value="$!{drama.website}" />
+		</div>
+		<div>
+			<label for="actors">主演(超链)：</label>
+			<input type="hidden" name="actorids" id="actorids" value="$!VmUtils.join($actorMap.keySet(),',')"/>
+			<input name="actors" id="actors" type="text" value="$!VmUtils.join($actorMap.values(),',')" readonly="readonly" onclick="showDialog('troupeDialog', 'star')"/>
+			<label for="actorstext">主演(文本)：</label>
+			<input type="text" name="actorstext" id="actorstext" value="$!{drama.actorstext}"/>
+		</div>
+		<div>
+			<label for="director">导演(超链)：</label>
+			<input type="hidden" name="directorids" id="directorids" value="$!VmUtils.join($direcotrMap.keySet(),',')"/>
+			<input name="director" id="director" style='width:240px;' type="text" value="$!VmUtils.join($direcotrMap.values(),',')" readonly="readonly" onclick="showDialog('troupeDialog', 'director')"/>
+			<label for="directortext">导演(文本)：</label>
+			<input type="text" name="directortext" id="directortext" value="$!{drama.directortext}"/>
+		</div>
+		<div>
+			<label for="troupecompany">出品剧社(超链)：</label>
+			<input type="hidden" name="troupecompanyids" id="troupecompanyids" value="$!VmUtils.join($troupecompanyMap.keySet(),',')"/>
+			<input name="troupecompany" id="troupecompany" style='width:235px' type="text" readonly="readonly" value="$!VmUtils.join($troupecompanyMap.values(),',')"  onclick="showDialog('troupeDialog', 'troupe')"/>
+			<label for="troupecompanytext">出品剧社(文本)：</label>
+			<input type="text" name="troupecompanytext" id="troupecompanytext" value="$!{drama.troupecompanytext}" />
+		</div>
+		<div>
+			<label for="ticketdesc">购票说明(贴子ID)：</label>
+			<input type="text" name="ticketdesc" value="$!otherInfoMap.get('ticketdesc')"/>
+		</div>
+		<div>
+			<label for="highlight">简约剧情：</label>
+			<input name="highlight" id="highlight" type="text" value="$!{drama.highlight}" />
+		</div>
+		<div>
+			<label for="content">剧情简介：</label>
+			<textarea style="display:none" name="content" id="content">$!{drama.content}</textarea>
+		</div>
+		<div id="uploadDiv">
+			<label>海&nbsp;&nbsp;&nbsp;&nbsp;报：</label>
+			<input type="text" name="logo" id="logo" value="$!{drama.logo}" style="width:485px"/>
+			#if($VmUtils.isNotBlank($!{drama.logo}))<img style="width:162px; height:57px;" id='logoimg' src='${picPath}$!drama.limg' />#end
+		</div>
+		<div>
+			<label>上&nbsp;&nbsp;&nbsp;&nbsp;传：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/drama&callback=updateLogo"></iframe>
+		</div>
+		<div>
+			<label>&nbsp;</label><input type="submit" id="btnA" class="button" style="width:100px" value="保存数据"/>
+		</div>
+		<div id="msg" style="color:red;"></div>
+		<div style="color:blue;">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+		</form>
+	</div>
+</div>
+<div id="typeDialogconcert" class="yui-panel" style="width:600px;visibility:hidden;z-index:20;">
+	<div class="hd">
+		<label>选择类型：</label>
+	</div>
+	<div class="bd">
+		<div id="allTypeconcert">
+			<input type="checkbox" value="流行" style="width:10px" #if($VmUtils.contains($drama.type, '流行')) checked="checked" #end/>流行
+			<input type="checkbox" value="爵士" style="width:10px" #if($VmUtils.contains($drama.type, '爵士')) checked="checked" #end/>爵士
+			<input type="checkbox" value="摇滚" style="width:10px" #if($VmUtils.contains($drama.type, '摇滚')) checked="checked" #end/>摇滚
+			<input type="checkbox" value="民族" style="width:10px" #if($VmUtils.contains($drama.type, '民族')) checked="checked" #end/>民族
+			<input type="checkbox" value="音乐节" style="width:10px" #if($VmUtils.contains($drama.type, '音乐节')) checked="checked" #end/>音乐节
+			<input type="checkbox" value="其他" style="width:10px" #if($VmUtils.contains($drama.type, '其他')) checked="checked" #end/>其他
+		</div>
+		<input type="button" value="确定" onclick="setType('concert')" style="width:50px"/>
+		<input type="button" value="取消" onclick="cancelTypeDialog('concert')" style="width:50px"/>
+	</div>
+</div>
+<div id="typeDialogdrama" class="yui-panel" style="width:600px;visibility:hidden;z-index:20;">
+	<div class="hd">
+		<label>选择类型：</label>
+	</div>
+	<div class="bd">
+		<div id="allTypedrama">
+			<input type="checkbox" value="经典" style="width:10px" #if($VmUtils.contains($drama.type, '经典')) checked="checked" #end/>经典
+			<input type="checkbox" value="剧情" style="width:10px" #if($VmUtils.contains($drama.type, '剧情')) checked="checked" #end/>剧情
+			<input type="checkbox" value="推理" style="width:10px" #if($VmUtils.contains($drama.type, '推理')) checked="checked" #end/>推理
+			<input type="checkbox" value="悬疑" style="width:10px" #if($VmUtils.contains($drama.type, '悬疑')) checked="checked" #end/>悬疑
+			<input type="checkbox" value="惊悚" style="width:10px" #if($VmUtils.contains($drama.type, '惊悚')) checked="checked" #end/>惊悚
+			<input type="checkbox" value="文艺" style="width:10px" #if($VmUtils.contains($drama.type, '文艺')) checked="checked" #end/>文艺
+			<input type="checkbox" value="励志" style="width:10px" #if($VmUtils.contains($drama.type, '励志')) checked="checked" #end/>励志
+			<input type="checkbox" value="青春" style="width:10px" #if($VmUtils.contains($drama.type, '青春')) checked="checked" #end/>青春
+			<input type="checkbox" value="喜剧" style="width:10px" #if($VmUtils.contains($drama.type, '喜剧')) checked="checked" #end/>喜剧
+			<input type="checkbox" value="爱情" style="width:10px" #if($VmUtils.contains($drama.type, '爱情')) checked="checked" #end/>爱情
+			<input type="checkbox" value="传记" style="width:10px" #if($VmUtils.contains($drama.type, '传记')) checked="checked" #end/>传记
+			<input type="checkbox" value="其他" style="width:10px" #if($VmUtils.contains($drama.type, '其他')) checked="checked" #end/>其他<br/>
+		</div>
+		<input type="button" value="确定" onclick="setType('drama')" style="width:50px"/>
+		<input type="button" value="取消" onclick="cancelTypeDialog('drama')" style="width:50px"/>
+	</div>
+</div>
+<div id="typeDialogmusicale" class="yui-panel" style="width:600px;visibility:hidden;z-index:20;">
+	<div class="hd">
+		<label>选择类型：</label>
+	</div>
+	<div class="bd">
+		<div id="allTypemusicale">
+			<input type="checkbox" value="管选乐" style="width:10px" #if($VmUtils.contains($drama.type, '管选乐')) checked="checked" #end/>管选乐
+			<input type="checkbox" value="独奏" style="width:10px" #if($VmUtils.contains($drama.type, '独奏')) checked="checked" #end/>独奏
+			<input type="checkbox" value="室内乐" style="width:10px" #if($VmUtils.contains($drama.type, '室内乐')) checked="checked" #end/>室内乐
+			<input type="checkbox" value="古乐" style="width:10px" #if($VmUtils.contains($drama.type, '古乐')) checked="checked" #end/>古乐
+			<input type="checkbox" value="声乐" style="width:10px" #if($VmUtils.contains($drama.type, '声乐')) checked="checked" #end/>声乐
+			<input type="checkbox" value="合唱 " style="width:10px" #if($VmUtils.contains($drama.type, '合唱')) checked="checked" #end/>合唱 
+			<input type="checkbox" value="其他" style="width:10px" #if($VmUtils.contains($drama.type, '其他')) checked="checked" #end/>其他
+		</div>
+		<input type="button" value="确定" onclick="setType('musicale')" style="width:50px"/>
+		<input type="button" value="取消" onclick="cancelTypeDialog('musicale')" style="width:50px"/>
+	</div>
+</div>
+<div id="typeDialogmusicalplay" class="yui-panel" style="width:600px;visibility:hidden;z-index:20;">
+	<div class="hd">
+		<label>选择类型：</label>
+	</div>
+	<div class="bd">
+		<div id="allTypemusicalplay">
+			<input type="checkbox" value="剧歌" style="width:10px" #if($VmUtils.contains($drama.type, '剧歌')) checked="checked" #end/>剧歌
+			<input type="checkbox" value="音乐会" style="width:10px" #if($VmUtils.contains($drama.type, '音乐会')) checked="checked" #end/>音乐会
+		</div>
+		<input type="button" value="确定" onclick="setType('musicalplay')" style="width:50px"/>
+		<input type="button" value="取消" onclick="cancelTypeDialog('musicalplay')" style="width:50px"/>
+	</div>
+</div>
+<div id="typeDialogdance" class="yui-panel" style="width:600px;visibility:hidden;z-index:20;">
+	<div class="hd">
+		<label>选择类型：</label>
+	</div>
+	<div class="bd">
+		<div id="allTypedance">
+			<input type="checkbox" value="舞剧" style="width:10px" #if($VmUtils.contains($drama.type, '舞剧')) checked="checked" #end/>舞剧
+			<input type="checkbox" value="芭蕾" style="width:10px" #if($VmUtils.contains($drama.type, '芭蕾')) checked="checked" #end/>芭蕾
+			<input type="checkbox" value="舞蹈" style="width:10px" #if($VmUtils.contains($drama.type, '舞蹈')) checked="checked" #end/>舞蹈
+			<input type="checkbox" value="其他" style="width:10px" #if($VmUtils.contains($drama.type, '其他')) checked="checked" #end/>其他<br/>
+		</div>
+		<input type="button" value="确定" onclick="setType('dance')" style="width:50px"/>
+		<input type="button" value="取消" onclick="cancelTypeDialog('dance')" style="width:50px"/>
+	</div>
+</div>
+<div id="typeDialograce" class="yui-panel" style="width:600px;visibility:hidden;z-index:20;">
+	<div class="hd">
+		<label>选择类型：</label>
+	</div>
+	<div class="bd">
+		<div id="allTyperace">
+			<input type="checkbox" value="球类" style="width:10px" #if($VmUtils.contains($drama.type, '球类')) checked="checked" #end/>球类
+			<input type="checkbox" value="车类" style="width:10px" #if($VmUtils.contains($drama.type, '车类')) checked="checked" #end/>车类
+			<input type="checkbox" value="搏击" style="width:10px" #if($VmUtils.contains($drama.type, '搏击')) checked="checked" #end/>搏击
+			<input type="checkbox" value="田径" style="width:10px" #if($VmUtils.contains($drama.type, '田径')) checked="checked" #end/>田径
+			<input type="checkbox" value="其他" style="width:10px" #if($VmUtils.contains($drama.type, '其他')) checked="checked" #end/>其他<br/>
+		</div>
+		<input type="button" value="确定" onclick="setType('race')" style="width:50px"/>
+		<input type="button" value="取消" onclick="cancelTypeDialog('race')" style="width:50px"/>
+	</div>
+</div>
+<div id="typeDialogacrobatics" class="yui-panel" style="width:600px;visibility:hidden;z-index:20;">
+	<div class="hd">
+		<label>选择类型：</label>
+	</div>
+	<div class="bd">
+		<div id="allTypeacrobatics">
+			<input type="checkbox" value="相声" style="width:10px" #if($VmUtils.contains($drama.type, '相声')) checked="checked" #end/>相声
+			<input type="checkbox" value="魔术" style="width:10px" #if($VmUtils.contains($drama.type, '魔术')) checked="checked" #end/>魔术
+			<input type="checkbox" value="马戏" style="width:10px" #if($VmUtils.contains($drama.type, '马戏')) checked="checked" #end/>马戏
+			<input type="checkbox" value="杂技" style="width:10px" #if($VmUtils.contains($drama.type, '杂技')) checked="checked" #end/>杂技
+			<input type="checkbox" value="戏曲" style="width:10px" #if($VmUtils.contains($drama.type, '戏曲')) checked="checked" #end/>戏曲
+			<input type="checkbox" value="其他" style="width:10px" #if($VmUtils.contains($drama.type, '其他')) checked="checked" #end/>其他<br/>
+		</div>
+		<input type="button" value="确定" onclick="setType('acrobatics')" style="width:50px"/>
+		<input type="button" value="取消" onclick="cancelTypeDialog('acrobatics')" style="width:50px"/>
+	</div>
+</div>
+#parse('admin/drama/dialog.vm')
+<script type="text/javascript">
+	var ckeditor1, ckeditor2;
+	window.addEvent('domready',function(){
+		ckeditor1 = CKEDITOR.replace("content");
+	});
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg').src='${basePath}' + picpath;
+	}
+	function saveDrama(){
+		$("content").value=ckeditor1.getData();
+		if(!GewaraUtil.baseValidForm('dramaForm', 'admin')){
+			return;
+		}
+		var values = GewaraUtil.getValues("dramaForm");
+		var url = '${basePath}admin/drama/saveDrama.xhtml'
+		GewaraUtil.mask("btnA");
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert('保存成功！');
+				$('dramaid').value = result.retval;
+				$("msg").set("html", '');
+				document.location.href="${basePath}admin/drama/modifyDramaDetail.xhtml?dramaId="+result.retval;
+			}else{
+				alert("保存失败");
+				$("msg").set("html", result.msg);
+			}
+		})
+	}
+	function showDialog(id, type){
+		GewaraUtil.showDialog(id);
+		$('startype').value = type;
+		$(type+'Div').removeClass('none');
+	}
+	function addProperyData(){
+		var dname=$('dname').value;
+		var dvalue=$('dvalue').value;
+		var dramaid=$('dramaid').value;
+		var dvaluelink=$('dvaluelink').value;
+		var starId=$('starId').value;
+		var values={'dname':dname,'dvalue':dvalue,'dramaid':dramaid,'starId':starId}
+		var url = '${basePath}admin/drama/saveDramaProperty.xhtml'
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				var elid='d'+GewaraUtil.rtime(), el = new Element("li",{"id":elid});
+				var elhtml = "<label>" + $('dname').value + "： " + $('dvalue').value;
+				if(starId!='')
+					elhtml = elhtml+','+dvaluelink;
+				elhtml += '</label>';
+				elhtml += '<input type="button" style="width: 60px;" value="删除" onclick="delProperty(';
+				elhtml += "'" + elid + "', '" + $('dname').value + "')" + '"/>';
+				el.innerHTML=elhtml;
+				el.inject("dramadata");
+//				$('dname').value="";
+				$('dvalue').value="";
+				$('dvaluelink').value="";
+				$('starId').value="";
+				document.location.href="${basePath}admin/drama/modifyDramaDetail.xhtml?dramaId="+dramaid;
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+	function delProperty(id, el){
+		var dramaid = $('dramaid').value;
+		var values = {'dramaData':el,'dramaid':dramaid};
+		var url = '${basePath}admin/drama/delDramaProperty.xhtml'
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$(id).dispose();
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+	function showTypeDialog(){
+		var id = $('dramatype').value;
+		GewaraUtil.showDialog('typeDialog'+id);
+	}
+	function changeSelect(){
+		$('type').value='';
+	}
+	function setType(id){
+		var type="";
+		$('allType'+id).getElements('input[type=checkbox]').each(function(el){
+			if(el.checked){
+				type += "," + el.value;
+			}
+		});
+		$('type').value=type.substring(1);
+		GewaraUtil.hideDialog('typeDialog'+id);
+	}
+	function cancelTypeDialog(id){
+		GewaraUtil.hideDialog('typeDialog'+id);
+	}
+</script>
+</body>
+</html>

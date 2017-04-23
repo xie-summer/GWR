@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>系统消息</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,user&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($sysMsgs=true)#set($dialogMessage=true)#set($isCloseAll=false)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui-layout">
+	#parse('include/home/userMenu.vm')
+	<div class="ui-right">
+		<div class="gui-title"><h2>我的消息</h2></div>
+		#parse('include/home/messageMenu.vm')
+		<form action="" name="stForm" id="stForm">
+			<input type="hidden" name="sid" id="sid"/>
+			<input type="hidden" name="st" id="st"/>
+		</form>
+		<ul class="ul-box findBox">
+			#set($sysMsg=$sysMessage)
+			#set($sendMember=$sysMember)
+			<li>
+				<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$sendMember.id" class="pubpic" target="_blank" title="$sendMember.nickname"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$sendMember.headpicUrl)) no-repeat center center"/></a>
+				<span class="gray ml10 gui-more" style="margin-right:60px;top:3px;">$!DateUtil.format($!sysMsg.addtime,'yyyy-MM-dd HH:mm')</span>
+				#if($VmUtils.eq($sysMsg.action, 'apply_commu_invite'))
+					<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$sendMember.id">$sendMember.nickname</a>邀请你加入圈子 <a href="${basePath}quan/$sysMsg.actionid" style="color:gray">$!sysMsg.relate.name</a></p>
+					<div class="tar mt10">
+					#if($VmUtils.eq($sysMsg.status,'apply'))
+					<a href="javascript:st($sysMsg.id,'a')" id="disa$sysMsg.id">同意</a>
+					<a href="javascript:st($sysMsg.id,'r')" id="disr$sysMsg.id">拒绝</a>
+					#elseif($VmUtils.eq($sysMsg.status,'agree'))已同意
+					#elseif($VmUtils.eq($sysMsg.status,'refuse'))已拒绝
+					#end
+					<a href="javascript:void(0)" onclick="javascript:delSysMsg($sysMsg.id)" style="color:gray"><img src="${staticPath}css/home/del.gif" class="ml10"/>删除</a>
+					</div>
+				#elseif($VmUtils.eq($sysMsg.action, 'apply_commu_join'))
+					<p>申请加入圈子&nbsp;&nbsp;<a href="${basePath}quan/$sysMsg.actionid">$!sysMsg.relate.name</a></p>
+					<div class="tar mt10">
+					#if($VmUtils.eq($sysMsg.status,'apply'))
+					<a href="javascript:st($sysMsg.id,'a')" id="disa$sysMsg.id">同意</a>
+					<a href="javascript:st($sysMsg.id,'r')" id="disr$sysMsg.id">拒绝</a>
+					#elseif($VmUtils.eq($sysMsg.status,'agree'))已同意
+					#elseif($VmUtils.eq($sysMsg.status,'refuse'))已拒绝
+					#end
+					<a href="javascript:void(0)" onclick="javascript:delSysMsg($sysMsg.id)" style="color:gray"><img src="${staticPath}css/home/del.gif" class="ml10"/>删除</a>
+				</div>
+				#elseif($VmUtils.eq($sysMsg.action, 'apply_friend_add'))
+					<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$sendMember.id">$sendMember.nickname</a>加你为好友 <a href="${basePath}quan/$sysMsg.actionid">$!sysMsg.relate.name</a></p>
+					<div class="tar mt10">
+					#if($VmUtils.eq($sysMsg.status,'apply'))
+					<a href="javascript:st($sysMsg.id,'a')" id="disa$sysMsg.id">同意</a>
+					<a href="javascript:st($sysMsg.id,'r')" id="disr$sysMsg.id">拒绝</a>
+					#elseif($VmUtils.eq($sysMsg.status,'agree'))已同意
+					#elseif($VmUtils.eq($sysMsg.status,'refuse'))已拒绝
+					#end
+					<a href="javascript:void(0)" onclick="javascript:delSysMsg($sysMsg.id)" style="color:gray"><img src="${staticPath}css/home/del.gif" class="ml10"/>删除</a>
+				</div>
+				#elseif($VmUtils.eq($sysMsg.action, 'apply_c_admin'))
+					<p>把圈子&nbsp;&nbsp;<a href="${basePath}quan/$sysMsg.actionid">$!sysMsg.relate.name</a>&nbsp;&nbsp;管理员移交给你</p>								
+					<div class="tar mt10">
+					#if($VmUtils.eq($sysMsg.status,'apply'))
+					<a href="javascript:st($sysMsg.id,'a')" id="disA$sysMsg.id">同意</a>
+					<a href="javascript:st($sysMsg.id,'r')" id="disR$sysMsg.id">拒绝</a>
+					#elseif($VmUtils.eq($sysMsg.status,'agree'))已同意
+					#elseif($VmUtils.eq($sysMsg.status,'refuse'))已拒绝
+					#end
+					<a href="javascript:void(0)" onclick="javascript:delSysMsg($sysMsg.id)" style="color:gray"><img src="${staticPath}css/home/del.gif" class="ml10"/>删除</a>
+				</div>
+				#elseif($VmUtils.eq($sysMsg.action, 'ticket_sucess'))
+					<p>$sysMsg.body</p>								
+					<div class="tar mt10">
+						<a href="javascript:void(0)" onclick="javascript:delSysMsg($sysMsg.id)" style="color:gray"><img src="${staticPath}css/home/del.gif" class="ml10"/>删除</a>
+					</div>
+				#elseif($VmUtils.eq($sysMsg.action, 'result'))
+					<p>$sysMsg.body</p>								
+					<div class="tar mt10">
+						<a href="javascript:void(0)" onclick="javascript:delSysMsg($sysMsg.id)" style="color:gray"><img src="${staticPath}css/home/del.gif" class="ml10"/>删除</a>
+					</div>
+				#elseif($VmUtils.eq($sysMsg.action, 'movie_ghg'))
+					<p>$sysMsg.body</p>								
+					<div class="tar mt10">
+						<a href="javascript:void(0)" onclick="javascript:delSysMsg($sysMsg.id)" style="color:gray"><img src="${staticPath}css/home/del.gif" class="ml10"/>删除</a>
+					</div>
+				#end
+			</li>
+		</ul>
+	<div>#parse('include/pageUtil.vm')</div>
+	</div>
+	<div class="height0"></div>
+</div>
+#parse('include/bottom.vm')
+#parse('include/home/friend.vm')
+#parse('include/home/messageBox.vm')
+<script type="text/javascript">
+	function st(sid, st){
+		var disID = 'dis'+st+sid;
+		$('sid').value=sid;
+		$('st').value=st;
+		checkst(disID);
+	}
+	function checkst(disID){
+		checkLogin(true, function(){
+			var url = '${basePath}home/message/checkst.xhtml'
+			GewaraUtil.mask(disID);
+			var values = GewaraUtil.getValues("stForm");
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewaUtil.alert('操作成功！');
+					refreshPage();
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		});
+	}
+	function delSysMsg(sid){
+		gewaUtil.confirm("确认要删除吗?", function(){
+			checkLogin(true, function(){
+				var url = '${basePath}home/message/delSysMsg.xhtml';
+				var values = {'sid':sid};
+				GewaraUtil.sendRequest(url, values, function(result){
+					if(result.success){
+						location.href="${basePath}home/message/sysMsgList.xhtml";
+					}else{
+						gewaUtil.alert(result.msg);
+					}
+				});
+			});
+		})
+	}
+</script>
+</body>
+</html>

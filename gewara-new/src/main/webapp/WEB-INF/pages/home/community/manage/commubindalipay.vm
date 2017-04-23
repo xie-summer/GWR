@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>绑定支付宝账户_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($tag="home")#set($isBindAlipay=true)#set($isShow=false)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('home/community/manage/commuM.vm')
+			<div class="ui_rightInner_left">
+				<div class="inner">
+					<div class="title mt10"><h2>绑定支付宝账户</h2></div>
+					<div class="clew">
+						<b>友情提示：</b><br/>
+						1、为了顺利为您转账，请正确填写您的支付宝账号信息。<br/>
+						2、绑定后目前暂时不支持修改绑定的支付宝账户。<br/>
+						3、带*为必填项
+					</div>
+					<div id="commubindalipayFrm">
+						<input type="hidden" name="commumanageid" value="$!commuManage.id" />
+						<ul class="ul-80 mt20">
+							
+							<li><div class="ul-80Inner">账户姓名：</div><input #if($!commuManage.alipay) disabled="disabled" #end type="text" name="alipayname" mustTxt="账户姓名必填" class="text" id="alipayname" value="$!commuManage.alipayname"/><span class="ml5 brown">*</span><div class="height0"></div></li>
+							<li><div class="ul-80Inner">支付宝账号：</div><input #if($!commuManage.alipay) disabled="disabled" #end type="text" mustTxt="支付宝账号必填" name="alipay" class="text" id="alipay" value="$!commuManage.alipay" /><span class="ml5 brown">*</span><div class="height0"></div></li>
+							<li><div class="ul-80Inner">确认账号：</div><input #if($!commuManage.alipay) disabled="disabled" #end type="text" id="alipay2" value="" class="text" mustTxt="确认账号必填"/><span class="ml5 brown">*</span><div class="height0"></div></li>
+							<li><div class="ul-80Inner">手机号码：</div><input #if($!commuManage.alipay) disabled="disabled" #end type="text" name="contactphone" id="contactphone" value="$!commuManage.contactphone" class="text" mustTxt="手机号码必填"/><span class="ml5 brown">*</span><div class="height0"></div></li>
+							<li class="mt10">
+								<label class="redBt button minBt"><input type="button" value="提&nbsp;交" onclick="submitFrm(this)" #if($!commuManage.alipay) disabled="disabled" #end/></label>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			#parse('home/community/manage/commuManageRight.vm')
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+	
+	function submitFrm(obj){
+		if(!GewaraUtil.baseValidForm('commubindalipayFrm')){
+			return false;
+		}
+		if($('alipay').get('value') != $('alipay2').get('value')){
+			gewaUtil.alert("两次账号输入不一致!");
+			$('alipay2').set('value', '');
+			return false;
+		}
+		if(!GewaraUtil.isMobile($('contactphone').get('value'))){
+			gewaUtil.alert("请输入正确的手机号");
+			return false;
+		}
+		if(!GewaraUtil.isEmail($('alipay').get('value'))){
+			gewaUtil.alert("请输入正确的支付宝账号");
+			return false;
+		}
+		gewa.util.mask({'element':$(obj).get('id'),'title':'正在提交，请稍等...'});
+		var url = '${basePath}home/commu/saveCommumanage4Alipay.xhtml';
+		var values = GewaraUtil.getValues('commubindalipayFrm');
+		
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				gewaUtil.alert("设置成功!");
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	}
+</script>
+</body>
+</html>

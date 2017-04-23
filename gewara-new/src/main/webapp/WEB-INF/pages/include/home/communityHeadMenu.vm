@@ -1,0 +1,55 @@
+#set($titleMap={"cinema":"电影","gym":"健身","sport":"运动","ktv":"KTV","bar":"酒吧","theatre":"演出"})
+<div class="global-layout">
+	<dl class="commnu_top">
+		<dt><a href="${basePath}quan/$commu.id"><img src="$VmUtils.randomPic('sw120h120',$!commu.rlogo)"  class="img2" alt="$!commu.name"/></a></dt>
+		<dd class="gui-left" style="width:85%">
+			<h2>$!commu.name</h2>
+			#if($isAdmin eq true)
+				#if($VmUtils.eq($checkstatus, "N") || $VmUtils.eq($checkstatus, null))
+				<a href="${basePath}home/commu/applyCertification.xhtml?commuid=$!commu.id" class="ml10"><img src="${picPath}css/images/quan_certno.gif" style="vertical-align: middle;" title="立即认证"></a>
+				#elseif($VmUtils.eq($checkstatus, "W"))
+				<img src="${picPath}css/images/quan_certno.gif" style="vertical-align: middle;margin-left:10px"  title="圈子认证中...">
+				#elseif($VmUtils.eq($checkstatus, "Y"))
+				<img src="${picPath}css/images/quan_certyes.gif" style="vertical-align: middle;margin-left:10px"  title="已认证圈子">
+				#end
+			#else
+				#if($VmUtils.eq($checkstatus, "N") || $VmUtils.eq($checkstatus, null))
+				<img src="${picPath}css/images/quan_certno.gif" style="vertical-align: middle;margin-left:10px" title="立即认证">
+				#elseif($VmUtils.eq($checkstatus, "Y"))
+				<img src="${picPath}css/images/quan_certyes.gif" style="vertical-align: middle;margin-left:10px" title="已认证圈子">
+				#end
+			#end
+			
+			<p>本圈地址：${absPath}${basePath}quan/$!commu.id</p>
+			<p><img class="mr5" src="${picPath}css/global/ml.png">$!VmUtils.escabbr($!commu.info,170)<img class="ml5" src="${picPath}css/global/mr.png"></p>
+			<p>创建者：<a href="#if($!adminMember.id eq $member.id)${basePath}home/sns/personIndex.xhtml#else${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!adminMember.id#end" class="brown" target="_blank">$!adminMember.nickname</a><span class="ml20">管理员：<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!adminMember.id" class="mr10 brown" target="_blank">$adminMember.nickname</a></span></p>
+			#*<p>本圈兴趣：#if($!commu.interesttag)$commu.interest#else其他#end</p>*#
+			<div class="commnu_site">
+				所在地域： #if($!commu.citycode) $CITY_MAP.get($!commu.citycode) #else 上海  #end #if($!commuCounty.briefname)，$!commuCounty.briefname#end<br/>
+				创建时间：$DateUtil.format($commu.addtime,'yyyy-MM-dd')<br/>
+				所属类型：#if($!commu.tag)$!titleMap.get($!commu.tag)#else其他#end<br/>
+				成员总数：$!commuMemberNum<br/>
+				访问总数：$!commu.clickedtimes<br/>
+				当前状态：#if ($commu.publicflag eq "public")
+						公开（自由加入,内容公开）
+						#elseif ($commu.publicflag eq "auth_sns")
+						半公开（加入须管理员批准,内容公开）
+						#elseif ($commu.public_flag eq "auth_commu_member")
+						不公开（加入须管理员批准,内容不公开）
+						#end
+			</div>
+		</dd>
+		<dd class="commnu_bg_01 commnu_pos"></dd>
+	</dl>
+	<div class="commnu_menu">
+		<div></div>
+		<span><a href="${basePath}quan/$commu.id" #if($communityIndex)class="select"#end>首页</a></span>
+		<span><a href="${basePath}quan/getCommuDiaryList.xhtml?commuid=$commu.id" #if($communityTopic)class="select"#end>话题</a></span>
+		<!--  <span><a href="${basePath}quan/getCommuActivityList.xhtml?commuid=$commu.id" #if($communityAcivity)class="select"#end>活动</a></span> -->
+		<span><a href="${basePath}quan/albumList.xhtml?commuid=$commu.id" #if($communityPhoto) class="select" #end>相册</a></span>
+		<span><a href="${basePath}quan/getCommuMemberList.xhtml?commuid=$commu.id" #if($communityMenber)class="select" #end>成员</a></span>
+		#if($isCommuMember)
+		<span><a href="#if($!commu.adminid eq $!member.id||$!commu.subadminid eq $!member.id)${basePath}home/commu/updateCommu.xhtml?commuid=$!commu.id#else${basePath}home/commu/messageLog.xhtml?commuid=$!commu.id#end">管理</a></span>
+		#end
+	</div>
+</div>

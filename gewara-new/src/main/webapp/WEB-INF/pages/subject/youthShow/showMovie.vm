@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>杭州亚洲青年影展2012_青年影展购票_青年影展官方指定售票平台 – 格瓦拉生活网</title>
+<meta name="keywords" content="杭州亚洲青年影展2012 - 格瓦拉生活网"/>
+<meta name="description" content="杭州亚洲青年影展2012."/>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout&v=$VmUtils.jsVersion"/>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/layout.css?v=$VmUtils.jsVersion"/>
+<link rel="stylesheet" type="text/css" href="${staticPath}styles/slider.css"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even&v=$VmUtils.jsVersion"></script>
+#parse('subject/youthShow/style.vm')
+<style type="text/css">
+.ui_layout{background:#fff;}
+.inner{padding:10px;}
+.title h2{font-family:'微软雅黑','宋体';font-size:18px;font-weight:bold; color:#0068a9;}
+.opilist_lc{background:url(${staticPath}styles/youthShow/opilist_lc.jpg) no-repeat;width:940px;height:61px;}
+.opilist_main{border:1px solid #ccc;clear:both;width:938px;border-radius:5px 5px 5px 5px; position:relative;}
+.opilist_main .inner{padding:15px;}
+.opilist_list {}
+.opilist_list a{padding:0 5px;margin-right:5px;display:inline-block;}
+.opilist_list a.select{background-color:#2ca6f4;color:#fff;text-decoration:none !important;}
+.opilist_list .ul-80 li{ clear:both;color:gray;height:100%;margin:0 0 8px;overflow:hidden;padding-left:60px;}
+/**/
+.movieList { width:908px;}
+.movieList li{width:454px; margin-top:20px; height:128px; overflow:hidden; float:left;}
+.movieList li .uiText{width:338px;}
+</style>
+</head>
+<body>
+#set($hasLogo = false)
+#set($tag = 'movieselect')
+#set($isSubject=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+#parse('subject/youthShow/header.vm')
+#set($moderate='杭州亚洲青年影展2012')
+<form name="searchFilmForm" action="${basePath}youthFilm/movieList.xhtml" id="searchFilmForm" method="get">
+		<input type="hidden" name="type"  id="type" value="$!VmUtils.escapeHtml($params.type)"/>
+	<input type="hidden" name="state" id="state" value="$!VmUtils.escapeHtml($params.state)"/>
+</form>
+<h1 style="display:none">杭州亚洲青年影展2012</h1>
+<div class="ui_layout">
+	<div class="inner">
+		<div class="title mt15">
+			<h2>参展影片</h2>
+		</div>
+		<div class="opilist_main mt15">
+			<div class="inner">
+				<div class="opilist_list">
+					<ul class="ul-80 clear">
+						<li>
+							<div class="ul-80Inner">电影类型：</div>
+							#set($typeList = ['动作','喜剧','爱情','科幻','灾难','惊悚','纪录','犯罪','战争','历史','动画','黑色电影','其他'])
+							<a #if($VmUtils.isNull($!params.type)) class="select"#end href="${basePath}youthFilm/movieList.xhtml">全部</a>
+							#foreach($type in $typeList)
+								<a #if($!params.type eq $type) class="select" #end href="javascript:searchFilmMovie('type','$!type');">$type</a>
+							#end
+						</li>
+						<li>
+							#set($stateList = ['中国', '中国香港', '中国台湾', '伊拉克', '比利时', '伊朗', '韩国', '斯里兰卡', '日本', '土耳其', '以色列', '丹麦', '菲律宾', '加拿大', '英国', '德国', '新加坡', '美国', '奥地利', '瑞士'])
+							<div class="ul-80Inner">国家/地区：</div>
+							<a #if($VmUtils.isNull($params.state)) class="select" #end href="${basePath}youthFilm/movieList.xhtml">全部</a>
+							#foreach($state in $stateList)
+							<a #if($params.state eq $state) class="select" #end href="javascript:searchFilmMovie('state','$state');">$!state</a>
+							#end
+						</li>
+						<li style="margin:0px;padding-bottom:10px;">
+							<div class="ul-80Inner">影片查询：</div>
+							<form action="${basePath}youthFilm/movieList.xhtml" id="searchMovieName">
+							<input type="text" title="请输入搜索关键词" value="$!VmUtils.escapeHtml($params.moviename)" name="moviename" id="moviename" style="padding:4px 4px 5px;width:280px;border:1px solid #a6a6a6;height:14px;margin-left:7px;" class="text left" />
+							<input type="button" value="搜 索" onclick="searchMovieName()" style="height:25px;background-position:-25px -104px;width:82px; cursor:pointer;" class="inIco left"/>
+							</form>
+						</li>
+					</ul>
+				</div>
+				<div class="movieList clear">
+					<ul>
+					#if($VmUtils.isEmptyList($movieList))
+						<div class="ui_warning center">没有查询到符合条件的电影，请重新搜索。</div>
+					#else
+						#foreach($movie in $movieList)
+						<li>
+							<div class="uipic">
+								<a target="_blank" href="${basePath}movie/$!movie.id" title="$!movie.moviename"><img width="96" height="128" src="$VmUtils.randomPic('cw96h128',$!movie.logo)" /></a>
+							</div>
+							<div class="uiText">
+								<div class="title">
+									<p><a href="${basePath}movie/$!movie.id" target="_blank" title="$!movie.moviename" class="bold">$!movie.moviename</a></p>
+								</div>
+								<p><em>看点：</em>$!VmUtils.escabbr($!movie.highlight,48)</p>
+								<p><em>语言/片长：</em>$!movie.language#if($movie.videolen)/$!movie.videolen分钟#end</p>
+								<p><em>类型：</em>$!movie.type</p>
+								<p><em>导演/主演：</em>$!movie.director#if($movie.actors)/$!movie.actors#end</p>
+								<p><em>国家：</em>$!movie.state</p>
+							</div>
+						</li>
+						#end
+					#end
+					</ul>
+				</div>
+				<div class="page">
+					#parse('include/pageUtil.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+
+})
+function searchFilmMovie(field,value){
+	$(field).value = value;
+	$('searchFilmForm').submit();
+}
+function searchMovieName(){
+	var moviename = $('moviename').value;
+	if(!$chk(moviename) || moviename == '请输入搜索关键词'){
+		gewaUtil.alert('请输入要查询电影的关键字！');
+		return;
+	}
+	$('searchMovieName').submit();
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

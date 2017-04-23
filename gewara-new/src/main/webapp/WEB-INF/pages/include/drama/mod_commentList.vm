@@ -1,0 +1,161 @@
+<div class="commentList">
+	#if($VmUtils.size($diaryList) gt 0)
+	<ul>
+	#foreach($diary in $diaryList)
+	#set($drama = $dramasMap.get($diary.categoryid))
+		<li class="effectLi">
+			<div class="ui_media commentName">
+				<div class="ui_picR">
+					<a href="${basePath}drama/$!drama.id" target="_blank" title="$!drama.name">
+						<img src="$VmUtils.randomPic('sw96h128',$!drama.limg)" alt="$!drama.name" height="160" width="120" />
+					</a>
+					<p class="mt10 c999">[$dramaTypeMap.get($!{drama.dramatype})]<a class="ml5" href="${basePath}drama/$!drama.id" target="_blank">$!VmUtils.escabbr($drama.name,10)</a></p>
+				</div>
+				<div class="ui_text">
+					<div class="title">
+						<h2>
+							<a href="${basePath}blog/t${diary.id}" title="$!diary.subject" target="_blank" class="c80">$!VmUtils.escabbr($diary.subject, 60)</a>
+						</h2>
+					</div>
+					<p class="commentRow">
+						<span class="c333">
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.memberid" target="_blank" title="$cacheMemberMap.get($diary.memberid).nickname" class="left mr5">
+							<img src="$VmUtils.randomPic('sw50h50',$cacheMemberMap.get($diary.memberid).headpicUrl)" alt="$cacheMemberMap.get($diary.memberid).nickname" height="25" width="25" /></a>
+							$cacheMemberMap.get($diary.memberid).nickname<em class="c999 ml10">评论：</em>$!drama.realBriefname
+						</span>
+						<span class="ml15 ccc">该剧共<a href="${basePath}drama/$drama.id/diarylist" target="_blank" class="pcount">$!diary.replycount</a>条评论</span>
+					</p>
+					<div class="c999 mt10">
+						<p id="showDown_content$diary.id" >
+							$!VmUtils.htmlabbr($diary.summary,250) #if($!VmUtils.getByteLength($diary.summary) gt 250)...    
+							<a onclick="showAll('showDown','$diary.id')" class="ui_readMore fs12" href="javascript:void(0)">展开全文&gt;&gt;</a>
+							#end
+						</p>
+						<p id="showUp_content$diary.id" style="display:none;">
+							$!diary.summary
+							<a onclick="showAll('showUp','$diary.id')" class="ui_readMore fs12" href="javascript:void(0)">收起全文&gt;&gt;</a>
+						</p>
+					</div>
+					<div class="supportOuter">
+						<div class="right">
+							<a onclick="showSupport($diary.id);" href="javascript:void(0);"><span class="iconBt"  title="对我有用"><span><em class="support" id="flowers$!{diary.id}">$!{diary.flowernum}</em></span></span></a>
+							<a onclick="showOppose($diary.id);" href="javascript:void(0);" ><span class="iconBt"  title="对我没用"><span><em class="oppose"id="pooh$!{diary.id}">$!{diary.poohnum}</em></span></span></a>
+						</div>
+						<span>发表于$DateUtil.format($diary.addtime, 'yyyy-MM-dd HH:mm')</span>
+					</div>
+					<div id="support$diary.id" class="film_review none mt10 clear">
+	              <div class="film_review_text">
+							<img class="uiPt" src="${staticPath}css/images/blank.gif" />
+							<textarea id="say_support$diary.id" name="body">说说支持理由</textarea>
+					  </div>
+					  <div class="tar mt5">
+					  		<dl class="left" style="margin:0;">
+								<dt class="left" style="margin-top:3px;">验证码：</dt>
+								<dd class="left">
+									<input type="hidden" id="captcha$diary.id" name="captchaId" />
+									<input type="text" class="text captcha" name="captcha" style="width:80px;" alt="点击获取" autocomplete="off"  id="captcha$!{diary.id}Input" onfocus="GewaraUtil.refreshCaptcha('captcha$!{diary.id}');" size="18" /><span class="yellow">*</span>
+									<img width="59" height="24"  id="captcha$!{diary.id}Img" onclick="GewaraUtil.refreshCaptcha('captcha$!{diary.id}');" src="${staticPath}css/images/blank.gif" style="cursor: pointer;vertical-align:middle;" title="看不清楚，请点击换一张图片"/>
+								</dd>
+							</dl>
+					     <a target="_blank" class="button minBt redBt" onclick="addComment(this,$diary.id,'support','say_support$diary.id','captcha$diary.id');">
+					     <span>发布</span></a>
+					  </div>
+			   	</div>
+					<div id="oppose$diary.id" class="film_review none mt10 clear">
+	                <div class="film_review_text">
+								<img class="uiPt" src="${staticPath}css/images/blank.gif" />
+								<textarea id="say_oppose$diary.id"  name="body" >说说反对理由</textarea>
+						  </div>
+						  <div class="tar mt5">
+						  		<dl class="left" style="margin:0;">
+									<dt class="left" style="margin-top:3px;">验证码：</dt>
+									<dd class="left">
+										<input type="hidden" name="captchaId" id="captchan$!{diary.id}"/>
+										<input type="text" class="text captcha" name="captcha" style="width:80px;" alt="点击获取"  id="captchan$!{diary.id}Input" onfocus="GewaraUtil.refreshCaptcha('captchan$!{diary.id}');" size="18"  value='点击获取' /><span class="yellow">*</span>
+										<img width="59" height="24" src="${staticPath}css/images/blank.gif" id="captchan$!{diary.id}Img" style="cursor: pointer;vertical-align:middle;" onclick="GewaraUtil.refreshCaptcha('captchan$!{diary.id}');" title="看不清楚，请点击换一张图片"/>
+									</dd>
+								</dl>
+						     <a target="_blank" onclick="addComment(this,$diary.id,'oppose','say_oppose$diary.id','captchan$diary.id');" class="button minBt redBt">
+						     <span>发布</span></a>
+						  </div>
+				   </div>
+				</div>
+			</div>
+		</li>
+		#end
+	</ul>
+	<div class="clear">
+		#parse('include/pageUtil.vm')
+	</div>
+	#end
+</div>
+<script type="text/javascript">
+function showOppose(id){
+	$('support'+id).addClass('none');
+	checkLogin(true,function(){
+		var url = '${basePath}blog/addDiaryFlower.xhtml';
+		var values = {'diaryId':id, 'tag':'oppose'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$('pooh'+id).innerHTML = result.retval;
+			}
+		})
+	});
+	$('oppose'+id).toggleClass('none').addEvent('click',function(){
+		if(!this.hasClass('none')) {
+	  		if($('say_oppose'+id).value == '说说反对理由')$('say_oppose'+id).value='';
+	  	}
+  });
+}
+function showSupport(id){
+     $('oppose'+id).addClass('none');
+     checkLogin(true,function(){
+		var url = '${basePath}blog/addDiaryFlower.xhtml';
+		var values = {'diaryId':id, 'tag':'support'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				 $('flowers'+id).innerHTML = result.retval;
+			}
+		})
+	});
+     $('support'+id).toggleClass('none').addEvent('click',function(){
+    	 if(!this.hasClass('none')) {
+    	  	if($('say_support'+id).value == '说说支持理由') $('say_support'+id).value='';
+    	  }
+  });
+}
+addComment = function(el,diaryid,tag,say_area,captchaName){
+	var replyconent = $(say_area).value;
+	if(replyconent == '' || replyconent == '说说支持理由' || replyconent == '说说反对理由'){
+		gewaUtil.alert("请输入回复内容！"); return;
+	}
+	var captchaId = $(captchaName).value;
+	var captcha = $(captchaName + 'Input').value;
+	checkLogin(true,function(){
+		gewa.util.mask({'element':el,'title':'正在提交，请稍等...'});
+		var url = '${basePath}blog/saveDiaryComment.xhtml';
+		var values = {'diaryId':diaryid, 'body':replyconent,'captchaId':captchaId,'captcha':captcha};
+		GewaraUtil.sendRequest(url, values, function(result){
+		gewara.util.unmask();
+			if(result.success){
+				$(tag+diaryid).addClass('none');
+				$(say_area).value = '';
+				$(captchaName + 'Input').value = '';
+			}else{
+				gewaUtil.alert(result.msg);
+				gewa.util.clearMask();
+				GewaraUtil.refreshCaptcha(captchaName);
+			}
+		});
+	});
+}
+showAll = function(target,id){
+	if(target == 'showDown'){
+		gewa.util.show('showUp_content' + id);
+		gewa.util.hide('showDown_content' + id);
+	}else{
+		gewa.util.hide('showUp_content' + id);
+		gewa.util.show('showDown_content' + id);
+	}
+}
+</script>

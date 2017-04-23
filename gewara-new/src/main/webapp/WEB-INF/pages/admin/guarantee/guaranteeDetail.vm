@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>收费项目管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		label {display:inline-block; width:100px;text-align:right;padding:1px 0 1px 0; }
+		input,textarea {width:450px;}
+		a{text-decoration: none; white-space: nowrap;}
+	</style>
+</head>
+<body style="width:850px; margin:auto" class="yui-skin-sam">
+<div id="goodsDialog" class="yui-panel" style="width:850px; position: absolute;z-index: 200; left:0px; top:0px;margin-left: 200px">
+	<div class="hd" id="title">编辑保证金数据</div>
+	<form name="guaranteeForm" id="guaranteeForm" action="javascript:save()">
+	<div class="bd">
+		<input type="hidden" name="id" id="id" value="$!guarantee.id"/>
+		<div class="mt10">
+			<label for="name">名称：</label>
+			<input name="name" type="text" id="name" style="width: 100px" value="$!guarantee.name" mustTxt="名称不能为空！"/>
+			<span class="req">*</span>建议名称不超过9个字。
+		</div>
+		<div class="mt10">
+			<label for="price">卖&nbsp;&nbsp;&nbsp;&nbsp;价：</label>
+			<input name="price" id="price" type="text" maxlength="5" style="width: 70px" value="$!guarantee.price" mustTxt="卖价不能为空！"/>
+			<span class="req">*</span>
+		</div>
+		<div class="mt10">
+			<label for="remark">特殊说明：</label>
+			<input name="remark" id="remark" type="text" value="$!guarantee.remark"/>
+		</div>
+		<div class="mt10">
+			<label for="ordermsg">接收短信：</label>
+			<input name="ordermsg" id="ordermsg" value="$!guarantee.ordermsg" />
+			<span class="req">*</span>
+		</div>
+		<div class="mt10">
+			<label for="description">描述：</label>
+			<textarea name="description" id="description">$!guarantee.description</textarea>
+		</div>
+		<div class="mt10">
+			<label>&nbsp;</label>
+			<input type="submit" class="button" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+		<div id="msg" style="color:red;"></div>
+		<div style="color:blue;">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+	</div>
+	</form>
+</div>
+<script type="text/javascript">
+	var ckeditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("description");
+	});
+	function save(){
+		$("description").value=ckeditor.getData();
+		if(!GewaraUtil.baseValidForm('guaranteeForm', 'admin')){
+			return;
+		}
+		var values = GewaraUtil.getValues($("guaranteeForm"));
+		var url = "${basePath}admin/guarantee/saveGuarantee.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("保存成功");
+				$("msg").set("html", '');
+				$('id').value=result.retval;
+			} else{
+				alert("保存失败");
+				$("msg").set("html", result.msg);
+			}
+		});
+	}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,612 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	#parse('include/constant/cityParam.vm')
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>$!{cookieCityname}$!{curCounty.countyname}羽毛球场地_游泳池_网球场_保龄球场_高尔夫球场馆预订 - 格瓦拉生活网</title>
+	<meta name="keywords" content="格瓦拉生活网提供羽毛球场地,游泳池,网球场,保龄球场,高尔夫球场等各类场地场馆预订及地址,线路,优惠信息查询."/>
+	<meta name="description" content="格瓦拉生活网提供羽毛球场地,游泳池,网球场,保龄球场,高尔夫球场等各类场地场馆预订及地址,线路,优惠信息查询."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,tips,index_even&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	.ot a{background-position:-433px -449px;}
+	.ot a.select{background-position:-433px -417px; background-color:#39c; color:#fff;}
+	new_sportmenus a{background:url(/css/sport/sportBg.png) no-repeat -650px -369px; padding-left:20px;}
+	.new_sportmenus a.select{background:url(/css/sport/sportBg.png) no-repeat -650px -336px; padding-left:20px;}
+	.new_sportmenus {width: 66%;}
+	.selectedMenus{position:relative;overflow:hidden;padding:10px 10px 5px 10px;border:1px solid #fff;border-top:0;border-radius:0 0 5px 5px;}
+	.ui_itemsList em{color:#999;}
+	.ui_itemsList .uiText p b{margin-right:0;}
+	
+	/*2013-01-21 add css*/
+	.uiText .S_sell{font-weight:bold;color:#fff;background:#ff407a;border-radius:2px;padding:1px 2px; cursor:pointer;}
+	.sell_text{background: none repeat scroll 0 0 #FFFFDD;border: 1px solid #FFE3BB;height:auto;padding:5px;}
+	</style>
+</head> 
+<body>
+#set($tag="sport")#set($issite = true)
+#set($relatedid=$sport.id)
+#set($obj=$sport)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<form id="searchForm" action="${basePath}sport/sportList.xhtml">
+	<input type="hidden" name="sportname" id="sportname" value="$!VmUtils.getText($params.sportname)"/>
+	<input type="hidden" name="countycode" id="countycode" value="$!VmUtils.getText($params.countycode)"/>
+	<input type="hidden" name="indexareacode" id="indexareacode" value="$!VmUtils.getText($params.indexareacode)"/>
+	<input type="hidden" name="servicetype" id="servicetype" value="$!VmUtils.getText($params.servicetype)"/>
+	<input type="hidden" name="lineid" id="lineid" value="$!VmUtils.getText($params.lineid)"/>
+	<input type="hidden" name="order" id="order" value="$!VmUtils.getText($params.order)"/>
+	<input type="hidden" name="coupon" id="coupon" value="$!VmUtils.getText($params.coupon)"/>
+	<input type="hidden" name="park" id="park" value="$!VmUtils.getText($params.park)"/>
+	<input type="hidden" name="booking" id="booking" value="$!VmUtils.getText($params.booking)"/>
+	<input type="hidden" name="visacard" id="visacard" value="$!VmUtils.getText($params.visacard)" />
+	<input type="hidden" name="cupboard" id="cupboard" value="$!VmUtils.getText($params.cupboard)" />
+	<input type="hidden" name="bathe" id="bathe" value="$!VmUtils.getText($params.bathe)" />
+	<input type="hidden" name="indoor" id="indoor" value="$!VmUtils.getText($params.indoor)" />
+	<input type="hidden" name="outdoor" id="outdoor" value="$!VmUtils.getText($params.outdoor)" />
+	<input type="hidden" name="meal" id="meal" value="$!VmUtils.getText($params.meal)" />
+	<input type="hidden" name="sale" id="sale" value="$!VmUtils.getText($params.sale)" />
+	<input type="hidden" name="train" id="train" value="$!VmUtils.getText($params.train)" />
+	<input type="hidden" name="maintain" id="maintain" value="$!VmUtils.getText($params.maintain)" />
+	<input type="hidden" name="lease" id="lease" value="$!VmUtils.getText($params.lease)" />
+	<input type="hidden" name="restregion" id="restregion" value="$!VmUtils.getText($params.restregion)" />
+</form>
+<div class="ui_layout">
+	<div class="ui_left">
+		<div class="inner">
+			<div class="ui_panel">
+				<div style="padding:30px 20px 10px;">
+					<h2 class="fs20 ffwr">运动场馆</h2>
+				</div>
+				<dl class="new_list clear">
+					<dt>选择项目：</dt>
+					<dd date-role="tgheight">
+						<div style="padding-right:80px;">
+							#set($sportItemCount = $VmUtils.size($sportItemList))
+							#foreach($sportItem in $sportItemList)
+							<a #if($VmUtils.eq($sportItem.id, $params.servicetype)||$VmUtils.eq($sportItemDetail.parentid, $sportItem.id)) #set($searchTJ4=${sportItem.itemname}) class="select" #end href="javascript:searchPPPV('servicetype','$sportItem.id');">${sportItem.itemname}</a>
+							#end
+							<span date-even="even" style="color:#666;cursor:pointer;" class="more"><em class="close"></em>收起($!{sportItemCount}项)</span>
+						</div>
+					</dd>
+				</dl>
+				<dl class="new_list clear">
+					<dt>选择区域：</dt>
+					<dd>
+						<div>
+							#foreach($pair in $countyGroup)
+							#set($pairCount = $countyGroup.size())
+							#set($str=${pair.get('county').briefname})
+							<a #if(!$VmUtils.eq($pair.get('county').countycode,$params.countycode)) href="javascript:searchPPPV('countycode','${pair.get('county').countycode}');"#end #if($VmUtils.eq($pair.get('county').countycode,$params.countycode)) #set($searchTJ1=$str) class="select" #end>$str</a>
+							#end
+						</div>
+					</dd>
+				</dl>
+				#if($VmUtils.isNotBlank($params.countycode))
+				<dl class="new_list clear">
+					<dt>选择商圈：</dt>
+					<dd>
+						<div>
+							#foreach($pair in $indexareaGroup)
+							<a #if(!$VmUtils.eq($pair.indexarea.indexareacode,$params.indexareacode)) href="javascript:searchPPPV('indexareacode','${pair.indexarea.indexareacode}');"#end #if($VmUtils.eq($pair.indexarea.indexareacode,$params.indexareacode))class="select" #set($searchTJ2=$pair.indexarea.indexareaname) #end>${pair.indexarea.indexareaname}</a>
+							#end
+						</div>
+					</dd>
+				</dl>
+				#end
+				#if(!$VmUtils.isEmptyList($!subwaylineGroup))
+				#set($sublineCount=$VmUtils.size($subwaylineGroup))
+				<dl class="new_list clear">
+					<dt>地铁沿线：</dt>
+					<dd date-role="tgheight">
+						<div style="padding-right:80px;">
+							#foreach($pair in $subwaylineGroup)
+							   <a #if(!$VmUtils.eq($pair.lineid,$params.lineid)) href="javascript:searchPPPV('lineid','$pair.lineid');"#end #if($VmUtils.eq($pair.lineid,$params.lineid))class="select" #set($searchTJ3=$pair.linename) #end>$pair.linename</a>
+							#end
+							<span date-even="even" style="color:#666;cursor:pointer;" class="more"><em class="close"></em>收起($!{sublineCount}项)</span>
+						</div>
+					</dd>
+				</dl>
+				#end
+				<dl class="new_list ot clear">
+					<dt>特色筛选：</dt>
+					<dd>
+						<a href="javascript:searchPPPV2('park','park');" #if($VmUtils.eq($!params.park,'park')) class="select"  #set($searchTJ5='停车场') #set($searchTJKey5='park') #else #end ><span class="freeTag0 sp_tcc" style="margin-right:12px;">停车场</span></a>
+						<a #if($VmUtils.eq($!params.meal,'meal')) class="select"  #set($searchTJ6='优惠信息') #set($searchTJKey6='meal') #else #end href="javascript:searchPPPV2('meal','meal');" ><span class="freeTag0 sp_yhxx">优惠信息</span></a>
+						<a #if($VmUtils.eq($!params.sale,'sale')) class="select"  #set($searchTJ7='场馆卖品') #set($searchTJKey7='sale') #else #end href="javascript:searchPPPV2('sale','sale');" ><span class="freeTag0 sp_cgmp"> 场馆卖品</span></a>
+						<a #if($VmUtils.eq($!params.train,'train')) class="select"  #set($searchTJ8='专业培训') #set($searchTJKey8='train') #else #end href="javascript:searchPPPV2('train','train');" ><span class="freeTag0 sp_zypx"> 专业培训</span></a>
+						<a #if($VmUtils.eq($!params.lease,'lease')) class="select"  #set($searchTJ9='器材租借') #set($searchTJKey9='lease') #else #end href="javascript:searchPPPV2('lease','lease');" ><span class="freeTag0 sp_qccz"> 器材租借</span></a>
+						<a #if($VmUtils.eq($!params.maintain,'maintain')) class="select"  #set($searchTJ10='器材维护') #set($searchTJKey10='maintain') #else #end href="javascript:searchPPPV2('maintain','maintain');" ><span class="freeTag0 sp_qcwx"> 器材维护</span></a>
+						<a #if($VmUtils.eq($!params.visacard,'visacard')) class="select" #set($searchTJKey11='visacard') #set($searchTJ11='刷卡结算') #else #end href="javascript:searchPPPV2('visacard','visacard');" ><span class="freeTag0 sp_skjs"> 刷卡结算</span></a>
+						<a #if($VmUtils.eq($!params.restregion,'restregion')) class="select" #set($searchTJKey12='restregion') #set($searchTJ12='休息区域') #else #end href="javascript:searchPPPV2('restregion','restregion');" ><span class="freeTag0 sp_xxqy"> 休息区域</span></a>
+						<a #if($VmUtils.eq($!params.cupboard,'cupboard')) class="select" #set($searchTJKey13='cupboard') #set($searchTJ13='柜子租凭') #else #end href="javascript:searchPPPV2('cupboard','cupboard');" ><span class="freeTag0 sp_gzzp"> 柜子租凭</span></a>
+						<a #if($VmUtils.eq($!params.bathe,'bathe')) class="select" #set($searchTJKey14='bathe') #set($searchTJ14='洗浴设施') #else #end href="javascript:searchPPPV2('bathe','bathe');" ><span class="freeTag0 sp_xyss"> 洗浴设施</span></a>
+					</dd>
+				</dl>
+				<dl class="new_list clear search_bg">
+					<dt>名称查询：</dt>
+					<dd>
+						<input type="text" id="sportname2" style="padding:4px;width:280px;border:1px solid #a6a6a6;font-size:13px;height:15px" class="text left" title="请输入搜索关键词" name="sportname2" value="$VmUtils.dft($!VmUtils.getText($params.sportname), '请输入搜索关键词')" onblur="setDefault(this)" onfocus="clearDefault(this)"/>
+						<input type="button" value="搜 索" onclick="searchname('sportname',$('sportname2').value)" style="height:25px;background-position:-26px -104px;width:82px" class="searchBt left" />
+					</dd>
+				</dl>
+				<div class="bm_imenu mt20">
+					<p class="#if(!$VmUtils.eq($params.booking,'open')) in_on #else in_off #end"><a href="javascript:searchPPPV('booking', '');">全部</a></p>
+					<p class="#if($VmUtils.eq($params.booking,'open')) in_on #else in_off #end"><a href="javascript:searchPPPV('booking', 'open');">可预订</a></p>
+				</div>
+				<div class="selectedMenus">
+					<dl class="new_sportmenus">
+						#if(${searchTJ1} || ${searchTJ2} || ${searchTJ3} || ${searchTJ4} || ${searchTJ5} || ${searchTJ6} || ${searchTJ7} || ${searchTJ8} || ${searchTJ9} || ${searchTJ10} || ${searchTJ11} || ${searchTJ12} || ${searchTJ13} || ${searchTJ14} || ${searchTJ15} || $VmUtils.isNotBlank($params.sportname))
+						<dt class="menuNav">已选条件:</dt>
+						#end
+						<dd>
+							#if(${searchTJ1})
+								<span class="selections"><span onclick="searchRemoveKey('countycode','$searchTJ1')" class="select">$!{searchTJ1}</span></span>
+							#end
+							#if(${searchTJ2})
+								<span class="selections"><span onclick="searchRemoveKey('indexareacode','$searchTJ2')" class="select" >$!{searchTJ2}</span></span>
+							#end
+							#if(${searchTJ3})
+								<span class="selections"><span onclick="searchRemoveKey('lineid','$searchTJ3')" class="select" >$!{searchTJ3}</span></span>
+							#end
+							#if(${searchTJ4})
+								<span class="selections"><span onclick="searchRemoveKey('servicetype','$searchTJ4')" class="select" >$!{searchTJ4}</span></span>
+							#end
+							#if(${searchTJ5})
+									<span class="selections"><span onclick="searchRemoveKey('$searchTJKey5','$searchTJ5')" class="select" >$!{searchTJ5}</span></span>
+							#end
+							#if(${searchTJ6})
+									<span class="selections"><span onclick="searchRemoveKey('$searchTJKey6','$searchTJ6')" class="select" >$!{searchTJ6}</span></span>
+							#end
+							#if(${searchTJ7})
+									<span class="selections"><span onclick="searchRemoveKey('$searchTJKey7','$searchTJ7')" class="select" >$!{searchTJ7}</span></span>
+							#end
+							#if(${searchTJ8})
+									<span class="selections"><span onclick="searchRemoveKey('$searchTJKey8','$searchTJ8')" class="select" >$!{searchTJ8}</span></span>
+							#end
+							#if(${searchTJ9})
+									<span class="selections"><span onclick="searchRemoveKey('$searchTJKey9','$searchTJ9')" class="select" >$!{searchTJ9}</span></span>
+							#end
+							#if(${searchTJ10})
+									<span class="selections"><span onclick="searchRemoveKey('$searchTJKey10','$searchTJ10')" class="select" >$!{searchTJ10}</span></span>
+							#end
+							#if(${searchTJ11})
+									<span class="selections"><span onclick="searchRemoveKey('$searchTJKey11','$searchTJ11')" class="select" >$!{searchTJ11}</span></span>
+							#end
+							#if(${searchTJ12})
+									<span class="selections"><span onclick="searchRemoveKey('$searchTJKey12','$searchTJ12')" class="select" >$!{searchTJ12}</span></span>
+							#end
+							#if(${searchTJ13})
+									<span class="selections"><span onclick="searchRemoveKey('$searchTJKey13','$searchTJ13')" class="select" >$!{searchTJ13}</span></span>
+							#end
+							#if(${searchTJ14})
+									<span class="selections"><span onclick="searchRemoveKey('$searchTJKey14','$searchTJ14')" class="select" >$!{searchTJ14}</span></span>
+							#end
+							#if(${searchTJ15})
+									<span class="selections"><span onclick="searchRemoveKey('$searchTJKey15','$searchTJ15')" class="select" >$!{searchTJ15}</span></span>
+							#end
+							#if($VmUtils.isNotBlank($params.sportname))
+									<span class="selections"><span onclick="searchRemoveKey('sportname','$!VmUtils.getText($params.sportname)')" class="select" >$!VmUtils.escabbr($params.sportname, 20)</span></span>
+							#end
+							<span>共有<b class="cSport">$!{searchCount}</b>家场馆</span>
+						</dd>
+					</dl>
+					<div style="margin-right:10px;" class="more mt10 c666">
+						排序:
+						<select class="c999 fs12" onchange="onChangeOrder('order',this.value)">
+							<option #if($VmUtils.eq($!params.order,''))selected="selected"  #end value="">默认(优先展示预订场馆)</option>
+							<option #if($VmUtils.eq($!params.order,'generalmark'))selected="selected" #end value="generalmark" >按评分(由高到低)</option>
+							<option #if($VmUtils.eq($!params.order,'clickedtimes'))selected="selected" #end value="clickedtimes">按关注(由高到低)</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			
+			<div class="ui_itemsList" id="ui_itemsList">
+				<ul class="ui_abeam">
+					#foreach($sport in $sportList)
+					#set($gmark=$VmUtils.getSingleMarkStar($sport, "general"))#set($gmark1=$gmark/10) #set($gmark2=$gmark % 10)
+					#set($sp=$spMap.get($sport.id))
+					<li class="abeam effectWala">
+						<div class="uipic" style="width:126px;">
+							<a title="$!sport.name" target="_blank" href="${basePath}sport/$!sport.id"><img width="120" height="60" class="imgOutside" src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('sw120h60',$sport.limg)) center center no-repeat #fff; border:1px solid #eee; padding:2px;" /></a><br/>
+							#if(($VmUtils.eq($sport.booking,'open') && $VmUtils.contains($sportIdList,$sport.id)))
+							<a target="_blank" class="button redBt minBt mt10" href="${basePath}sport/$!sport.id"><span>在线预订</span></a>
+							#end
+						</div>
+						<div class="uiText" style="width:522px;">
+							<div class="ui_panel">
+								<div class="panel_inner clear">
+									<div style="position: relative;">
+										<h2><a class="fs14 bold" target="_blank" href="${basePath}sport/$!sport.id">$sport.name</a></h2>
+										#if($sp.hasPretype('E'))
+										<span class="S_sell">代售</span>
+										<div class="sell_text none">
+											<div style="width:250px;">
+											#if($VmUtils.isNotBlank($sp.premessage))
+												$!sp.premessage
+											#else
+												代售场馆发票仅由场馆提供，且不可享受格瓦拉提供的积分、优惠券、活动、瓦币支付等各类会员特权。
+											#end
+											</div>
+										</div>
+										#end
+										<span class="c666">($!{sport.clickedtimes}人关注)</span>
+										<span class="more tar">
+											#set($isMinStaticRating=true)
+											#parse('include/global/staticRating.vm')
+											<sub>$gmark1</sub><sup>.$gmark2</sup>
+											<br />
+										</span>
+									</div>
+									<p class="mt10"><em>详细地址：</em><a title="$!sport.countyname" class="cSport" href="${basePath}sport/sportList.xhtml?countycode=$!sport.countycode" target="_blank">$!sport.countyname</a>$VmUtils.getLight($!sport.address, $queryString)<span class="ffst">[<a target="_blank" class="blue" href="${basePath}common/baiduMap.xhtml?id=$sport.id&tag=sport">地图</a>]</span></p>
+									#if($VmUtils.isNotBlank($!{sport.contactphone}))<p class="mt5"><em>联系电话：</em>$!{sport.contactphone}</p>#end
+									<p class="mt5"><em>经营项目：</em>#foreach($item in $itemMap.get($sport.id))$!item.itemname #end</p>
+									#if($VmUtils.isNotBlank($!params.servicetype) && $curSportItem && $VmUtils.eq($sport.booking,'open') && $VmUtils.contains($sportIdList,$sport.id))
+										#if($VmUtils.size($priceMap.get($sport.id)) gt 0)
+											<p class="mt5"><em>预订价格：</em>
+											<b class="cSport">
+											#if($VmUtils.eq($priceMap.get($sport.id).get('pricemin'),$priceMap.get($sport.id).get('pricemax')))
+											$!priceMap.get($sport.id).get('pricemin')
+											#else
+											$!priceMap.get($sport.id).get('pricemin')-$!priceMap.get($sport.id).get('pricemax')
+											#end
+											</b>元</p>
+										#end
+										#if($sportBookingMap.get($sport.id))
+										<p class="mt5"><em>空余场次：</em>
+										#foreach($itemCount in $sportBookingMap.get($sport.id))
+											<span class="mr10">
+											$!DateUtil.getAgendaDate($itemCount.get('playdate'),'M月d日')
+											<b class="cf60">$!itemCount.get('remain')</b>场
+											</span>
+										#end
+										</p>
+										#end
+									#end
+									<p class="mt5 clear">
+										#set($sportOtherinfo = $!VmUtils.readJsonToMap($!sport.otherinfo))
+										#if($VmUtils.isNotBlank($!sportOtherinfo.get('park')))
+											<span title="$!sportOtherinfo.get('park')" class="freeTag0 mr5 sp_tcc">停车场</span>
+										#end
+										#if($VmUtils.isNotBlank($!sportOtherinfo.get('meal')))
+											<span title="$!sportOtherinfo.get('meal')" class="freeTag0 mr5 sp_yhxx">优惠信息</span>
+										#end
+										#if($VmUtils.isNotBlank($!sportOtherinfo.get('sale')))
+											<span title="$!sportOtherinfo.get('sale')" class="freeTag0 mr5 sp_cgmp">场馆卖品</span>
+										#end
+										#if($VmUtils.isNotBlank($!sportOtherinfo.get('train')))
+											<span title="$!sportOtherinfo.get('train')"  class="freeTag0 mr5 sp_zypx">专业培训</span>
+										#end
+										#if($VmUtils.isNotBlank($!sportOtherinfo.get('lease')))
+											<span title="$!sportOtherinfo.get('lease')" class="freeTag0 mr5 sp_qccz">器材租借</span>
+										#end
+										#if($VmUtils.isNotBlank($!sportOtherinfo.get('visacard')))
+											<span title="$!sportOtherinfo.get('visacard')" class="freeTag0 mr5 sp_skjs">刷卡结算</span>
+										#end
+										#if($VmUtils.isNotBlank($!sportOtherinfo.get('restregion')))
+											<span title="$!sportOtherinfo.get('restregion')" class="freeTag0 mr5 sp_xxqy">休息区域</span>
+										#end
+										#if($VmUtils.isNotBlank($!sportOtherinfo.get('cupboard')))
+											<span title="$!sportOtherinfo.get('cupboard')" class="freeTag0 mr5 sp_gzzp">柜子租赁</span>
+										#end
+										#if($VmUtils.isNotBlank($!sportOtherinfo.get('maintain')))
+											<span title="$!sportOtherinfo.get('maintain')" class="freeTag0 sp_qcwx" >器材维护</span>
+										#end
+										#if($VmUtils.isNotBlank($!sportOtherinfo.get('bathe')))
+											<span title="$!sportOtherinfo.get('bathe')" class="freeTag0 mr5 sp_xyss">洗浴设施</span>
+										#end
+									</p>
+									<div class="left mt20"></div>
+									<div class="right_wala mt20">
+										#set($commentKey=$!sport.id+'sport')
+										<a target="_blank" class="wmore" href="${basePath}sport/$sport.id/commentlist">共<span class="cSport">#if($!commentMap.get($commentKey))$!commentMap.get($commentKey)#{else}0#end</span>条哇啦！</a>
+									</div>
+									#if($!commentMap.get($commentKey))
+									<div class="objTips" id="$sport.id" style="display:none;" >
+									</div>
+									#end
+								</div>
+							</div>
+							<span class="npl">
+								<em>◆</em>
+								<span>◆</span>
+							</span>
+						</div>
+					</li>
+					#end
+				</ul>
+				#parse('include/pageUtil.vm')
+			</div>
+		</div>
+	</div>
+	<div class="ui_right">
+		<div class="inner">
+			#if(!$VmUtils.isEmptyList($gewaActivitylist))
+			<div class="sport_video">
+				<ul id="slidePanel">
+					#foreach($gewaActivity in $gewaActivitylist)
+					<li lang="$foreach.count"><a href="$!gewaActivity.link" title="$!gewaActivity.title" target="_blank"><img width="260" height="180" src="$VmUtils.randomPic('',$gewaActivity.limg)" alt="$!foreach.count" /></a></li>
+					#end
+				</ul>
+				<div class="control" id="controlChild"></div>
+			</div>
+			<div class="cut-off"></div>
+			#end
+			#if(!$VmUtils.isEmptyList($activitylist))
+			<div class="outer_title">
+				<a target="_blank" href="${basePath}activity/activityList.xhtml?tag=sg" class="right ffst ml20 cSport">更多>></a>
+				<h2>热门活动</h2>
+			</div>
+			<div class="ui_abeam">
+				<ul class="right_Hotlist mt15">
+					#foreach($gcActivty in $activitylist)
+					#set($userActivity=$relatedHelper.getR1("activitylist",$gcActivty.id))
+					#set($userActivityRelate2=$relatedHelper.getR2("activitylist",$gcActivty.id))
+					<li #if($foreach.count eq $activitylist.size())style="padding-bottom:0"#end>
+						<div class="uipic">
+							<a title="$!userActivity.title" href="${basePath}activity/$userActivity.id" target="_blank">
+								<img width="96" height="128" src="$VmUtils.randomPic('cw96h128',$userActivity.limg)" alt="" />
+								#if($userActivity.playing)
+								<span class="ing"></span>
+								#else
+								<span class="end"></span>
+								#end
+								<span class="mask"></span>
+								<span class="txt">$!{userActivity.clickedtimes}人关注</span>
+							</a>
+						</div>
+						<div class="uiText">
+							<p>
+								#if($userActivity.atype eq 'gewa')<img width="37" height="17" src="${staticPath}css/images/blank.gif" class="uiMark"/>#end
+								#if($VmUtils.isNotEmpty($!userActivityRelate2.itemname))<em class="cSport ffst">[$!userActivityRelate2.itemname]</em>#end
+								<a target="_blank" title="" href="${basePath}activity/$userActivity.id" title="$!userActivity.title">$!VmUtils.escabbr($userActivity.title,40)</a>
+							</p>
+							<p class="c666 mt5">时间：$!DateUtil.format($userActivity.startdate, 'yyyy-MM-dd')#if($userActivity.enddate&&$userActivity.enddate ne $userActivity.startdate)到$!DateUtil.format($userActivity.enddate, 'yyyy-MM-dd')#end</p>
+							#if($VmUtils.isNotBlank($userActivity.address))<p class="c666">地点：$!userActivity.address</p>#end
+						</div>
+					</li>
+					#end
+				</ul>
+			</div>
+			<div class="cut-off"></div>
+			#end
+			<div class="">
+				<a target="_blank" href="${basePath}mobile/mobileSport.xhtml"><img width="260" height="120" src="${picPath}css/global/sport_002.png?v=$VmUtils.jsVersion" /></a>
+			</div>
+			<div class="cut-off"></div>
+			<div class="outer_title">
+				<h2>热门场馆点评</h2>
+			</div>
+			<ul class="ui_itemsList ui_abeam">
+				#foreach($comment in $commentList)
+				<li class="mt10 clear">
+					<div class="uipic" style="width:50px;overflow:hidden;">
+						<a class="pubpic" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid"><img width="50" height="50" alt="" src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" /></a>
+					</div>
+					<div class="uiText text_right_wala" style="width:200px;overflow:hidden;">
+						<div class="ui_panel">
+							<div class="inner">
+								<a target="_blank" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid">$!comment.nickname</a>：$!VmUtils.getWebBody($!comment.body,$picPath)
+								<div class="t">
+									<span class="rtime">$DateUtil.getTimeDesc($!comment.addtime)</span><span class="ruse"><a target="_blank" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid"><span class="reply">($!comment.replycount)</span></a><a target="_blank" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid"><span class="cite">($!comment.transfercount)</span></a></span>
+								</div>
+							</div>
+						</div>
+						<span class="npl">
+							<em>◆</em>
+							<span>◆</span>
+						</span>
+					</div>
+				</li>
+				#end
+			</ul>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	var autoTips = document.body.autoTips({width:290,bgColor:'#E3F3FC',border:'#e1e1e1',clazz:'wmore_hover'});
+	if($$('.effectWala')){
+		$$('.effectWala').addEvents({
+			'mouseenter':function(){this.getElement('.wmore').addClass('wmore_hover');},
+			'mouseleave':function(){this.getElement('.wmore').removeClass('wmore_hover');}
+		});
+	}
+	$$('.wmore').addEvents({
+		'mouseenter':function(){
+			var el = this.getParent('.effectWala').getElement('.objTips');
+			if(el){
+				var id = el.get('id');
+				showWala(id,el,this,autoTips);
+			}
+		},
+		'mouseleave':function(){
+			autoTips.isAttach = false;
+			autoTips.hide.delay(200);
+		}
+	});
+	var fx = [];
+	document.getElements('dd[date-role="tgheight"]').each(function(item,index){
+		fx[index]=new Fx.Toggle(item,{duration:400, link: 'cancel'});
+		fx[index].toggleHeight(20,function(){
+			replaceTxt(item.getElement('span[date-even="even"]'));
+		});
+		item.getElement('span[date-even="even"]').addEvent('click',function(){
+			fx[index].toggleHeight(20,function(){
+				replaceTxt(this);
+			}.bind(this));
+		});
+	});
+	#if(!$VmUtils.isEmptyList($gewaActivitylist))
+	var toggleImage = new Class({
+		Implements: [Options,Events],
+		options: {'panel':'slidePanel',count:0,deep:0},
+		initialize:function(options){
+			this.setOptions(options);
+			this.panel = $(this.options.panel);
+			this.lis = this.panel.getElements('li');
+			this.options.count = this.lis.length;
+			this.runcallbackEvent();
+		},
+		runbackofaway:function(){
+			if(this.options.deep > this.options.count - 1)this.options.deep = 0;
+			this.auto(this.lis[this.options.deep]);
+			this.options.deep++;
+		},
+		runcallbackEvent:function(){
+			var self = this;
+			this.lis.each(function(img,index){
+				if(index != 0){img.fade(0);}
+				var span = new Element('span',{'class':(index==0)?'select':''}).addEvents({
+					'mouseenter':function(){
+						$clear(self.options.clear);
+						self.auto(this.retrieve('key'));
+					},
+					'mouseleave':function(){self.options.clear = self.autoPlay.periodical(5000,self);}
+				}).inject('controlChild');
+				img.store('key',span);
+				span.store('key',img);
+			});
+			this.options.clear = this.autoPlay.periodical(5000,this);
+		},
+		autoPlay:function(){
+			this.runbackofaway();
+		},
+		auto:function(el){
+			$('controlChild').getElements('span').removeClass('select');
+			this.lis.fade(0);
+			el.fade(1);
+			el.retrieve('key').addClass('select');
+		}
+	});
+	#end
+	try{
+		playListPrivilege();
+	}catch(e){}
+});
+function showWala(id,el,ele,autoTips){
+	var url = '${basePath}ajax/common/qryTopComment.xhtml';
+	var values = {'tag':'sport','relatedid':id};
+	GewaraUtil.sendLoad(id,url, values, function(result){
+		if(result.success){
+			autoTips.property.content(el,ele);
+			autoTips.show();
+		}
+	},id,'get');
+}
+function playListPrivilege(){
+	var oListTags = $$('#ui_itemsList .S_sell');
+	viewList = {};
+	if(oListTags){
+		oListTags.each(function(item,index){
+			var htmlcontent = item.getNext('div');
+			if(!htmlcontent){
+				new amTips(item,{position:'right',center:false});
+			}else{
+				viewList[index] = item.amTips({content:function(){return htmlcontent},ispointer:false,position:'right',showDelay:200,arrowSize:15,center:false,mouseBandCallback:function(){
+					var _this = arguments[0];
+					_this._this.options.content = function(){
+						return htmlcontent;
+					};
+					viewList[index].amTipsShow(true);
+				}.bind(item)});
+			}
+		});
+	}
+}
+
+
+function replaceTxt(el){
+	var v1='收起',v2='展开',v3 = el.get('text').indexOf(v2)<0?v2:v1,v4 = el.get('text').indexOf(v2)==0?v2:v1,em = el.getElement('em');
+	if(em.hasClass('close'))em.set('class','open');
+	else em.set('class','close');
+	el.set('html',el.get('html').replace(v4,v3));
+}
+function onChangeOrder(field,value){
+	if($('lineid').value != ''){
+		if(field=='countycode'){//第n(n>1)次点击地区的时候去掉以前保留的地铁线路
+			//$('sportname').value = '';
+			//clearPPPV();
+			$(field).value = value;
+		}else{
+			//clearPPPV();
+			$(field).value = value;
+		}
+	}else{
+		//clearPPPV();
+		$(field).value = value;
+	}
+	$('searchForm').submit();
+}
+
+function searchPPPV(field, value){
+	//clearPPPV();
+	$(field).value = value;
+	if(field == 'lineid'){
+		$('countycode').value = '';
+		$('indexareacode').value = '';
+	}
+	if(field == 'countycode' || field == 'indexareacode'){
+		$('lineid').value = '';
+	}
+	$('searchForm').submit();
+}
+function allPPPV(){
+	clearPPPV();
+	$('searchForm').submit();
+}
+function clearPPPV(){
+	$('park').value = '';
+	$('indoor').value = '';
+	$('outdoor').value = '';
+	$('visacard').value = '';
+	$('bathe').value = '';
+	$('cupboard').value = '';
+	$('restregion').value = '';
+	$('sale').value='';
+	$('train').value='';
+	$('meal').value='';
+	$('maintain').value='';
+	$('lease').value='';
+}
+function searchRemoveKey(key, value){
+	if(value != '所有'){
+		$(key).value = '';
+	}else if(value != ''){
+		$(key).value = '';
+	}
+	$('searchForm').submit();
+}
+function searchname(field, value){
+	if($('sportname2').value=='请输入搜索关键词' || $('sportname2').value == ''){
+		$('sportname2').focus();
+		$('sportname2').value = '';
+		return;
+	};
+	$(field).value= value;
+	$('searchForm').submit();
+}
+function showsportwala(sportid,sportname){
+	var url = '${basePath}sport/new_sportWala.xhtml?sportid='+sportid+'&sportname='+sportname;
+	gewaUtil.loadData('show', url, {}, function(result){
+		if(result.success){
+			btnClick();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function searchPPPV2(el, value){
+	if($(el).value != value){
+		$(el).value = value;
+	}else{
+		$(el).value = '';
+	}
+	$('searchForm').submit();
+}
+</script>
+#parse('include/bottom.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>电商订单退款管理</title>
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		table{border-collapse: collapse;}
+		th, thread{cursor: pointer;}
+		td, th{
+			text-align: left;
+			height: 23px;
+		}
+		label {display:inline-block; width:70px;text-align:right;padding:1px 0 1px 0; }
+		textarea {width:420px;}
+		
+		.showOrder{
+			border:1px solid #639BF9;padding:2px 4px;
+		}
+		.roomManageTable tbody td table{border:0px;border-bottom:1px solid #eee;}
+		.roomManageTable tbody td td{text-align: left;text-indent:10px;border-color:#eee;width:auto !important;}
+	</style>
+</head>
+<body style="width:85%; margin:auto;background-color: #fff">
+<div class="checkOrder"><h2>电商订单退款</h2></div>
+<div style="margin-top: 10px;">
+	#set($retbackMap={"Y":"需要","N":"不需要","O":"参见描述","S": "已提交财务", "R":"财务成功","F":"财务失败"})
+	#set($refundtypeMap={"full":"全额退款","part":"部分退款","supplement":"调价退款"})
+	#set($reasonMap={"user":"用户要求","gewa":"Gewa原因","merchant":"影院原因", "price":"价格调整", "unknown":"未知"})
+	#set($statusMap={"prepare":"预处理","apply":"申请","accept":"接受","reject":"不接受","success":"处理成功","finish":"退款终结","cancel":"取消退款"})
+	<div style="border:2px solid #ccc;padding:2px 4px;">
+		<form action="${basePath}admin/refund/order/refundList.xhtml">
+		订单号：<input type="text" name="tradeno" value="$!{params.tradeno}" style="width:130px;" />
+		/手机号码：<input type="text" name="mobile" value="$!{params.mobile}" style="width:90px;" />
+		/用户ID:<input type="text" name="memberid" value="$!{params.memberid}" style="width:90px;" />
+		/状态:<select name="status">
+			<option value="">全部</option>
+			<option value="apply" #if($params.status eq 'apply')selected="selected"#end>新申请</option>
+			<option value="accept" #if($params.status eq 'accept')selected="selected"#end>接受</option>
+			<option value="success" #if($params.status eq 'success')selected="selected"#end>处理成功</option>
+			<option value="reject" #if($params.status eq 'reject')selected="selected"#end>不接受</option>
+			<option value="finish" #if($params.status eq 'finish')selected="selected"#end>退款终结</option>
+		</select>
+		/返还状态：<select name="retback">
+			<option value="">全部</option>
+			#foreach($retback in $retbackMap.keySet())
+			<option value="$retback" #if($params.retback eq $retback)selected="selected"#end>$retbackMap.get($retback)</option>
+			#end
+		</select>
+		/退款类型：<select name="refundtype">
+			<option value="">全部</option>
+			#foreach($refundtype in $refundtypeMap.keySet())
+			<option value="$refundtype" #if($params.refundtype eq $refundtype)selected="selected"#end>$refundtypeMap.get($refundtype)</option>
+			#end
+		</select>
+		<br /><br />
+		申请时间：<input type="text" name="addtimefrom" value="$!params.addtimefrom" style="width: 140px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:00:00'})"/>~
+		<input type="text" name="addtimeto" value="$!params.addtimeto" style="width: 140px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:00:00'})"/>&nbsp;
+		/退款时间：<input type="text" name="refundtimefrom" value="$!params.refundtimefrom" style="width: 140px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:00:00'})"/>~
+		<input type="text" name="refundtimeto" value="$!params.refundtimeto" style="width: 140px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:00:00'})"/>&nbsp;
+		/场馆ID：<input type="text" name="placeid" value="$!{params.placeid}" style="width:90px;" />
+		/页码：<input type="text" name="pageNo" value="$!pageNo" style="width: 50px;"/>
+			<input type="submit" value="查询"/>
+		</form>
+	</div>
+	<div style="border:2px solid #ccc;padding:2px 4px;">
+		<form action="${basePath}admin/refund/order/viewAllRefund.xhtml" target="_blank" style="float: left;">
+			<input type="hidden" name="timetype" value="exp"/>
+		订单号：<input type="text" name="tradeno" value="" />
+			<input type="submit" value="申请/修改"/>
+		</form>
+		<form action="${basePath}admin/refund/order/viewOpiOrder.xhtml" target="_blank" style="float: left;margin-left:50px;">
+		场次ID：<input type="text" name="mpid" value="$!{params.mpid}" />
+			<input type="submit" value="更换场次批量处理"/>
+		</form>
+		<div style="float: right;"><a href="${basePath}admin/refund/account/applyList.xhtml">查看账户退款申请</a></div>
+		<div style="clear: both;"></div>
+	</div>
+</div>
+<ul class="orderSet mt20">
+	<li id="all" #if($VmUtils.isBlank($params.status))class="seeOrder"#end><a href="${basePath}admin/refund/order/refundList.xhtml" class="blue">全部</a></li>
+	<li id="apply" #if($!params.status eq 'apply')class="seeOrder"#end><a href="${basePath}admin/refund/order/refundList.xhtml?status=apply" class="blue">新申请($!applyCount)</a></li>
+	<li id="accept" #if($!params.status eq 'accept')class="seeOrder"#end><a href="${basePath}admin/refund/order/refundList.xhtml?status=accept" class="blue">接受($!acceptCount)</a></li>
+	<li id="success" #if($!params.status eq 'success')class="seeOrder"#end><a href="${basePath}admin/refund/order/refundList.xhtml?status=success" class="blue">处理成功</a></li>
+	<li id="reject" #if($!params.status eq 'reject')class="seeOrder"#end><a href="${basePath}admin/refund/order/refundList.xhtml?status=reject" class="blue">不接受</a></li>
+	<li id="finish" #if($!params.status eq 'finish')class="seeOrder"#end><a href="${basePath}admin/refund/order/refundList.xhtml?status=finish" class="blue">退款终结</a></li>
+</ul>
+<table id="roomManageTable" class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+	<thead id="thead">
+		<tr>
+			<th axis="number"><div class="thead asc_desc">&nbsp;</div></th>
+			<th axis="number"><div class="thead asc_desc">订单号</div></th>
+			<th axis="number"><div class="thead asc_desc">用户ID</div></th>
+			#if($VmUtils.isBlank($params.status))
+			<th axis="string"><div class="thead asc_desc">状态</div></th>
+			#end
+			<th axis="string"><div class="thead asc_desc">退款方式</div></th>
+			#if($params.status eq 'finish' || $params.status eq 'success')
+			<th axis="string">退前状态</th>
+			<th axis="number"><div class="thead asc_desc">原结算</div></th>
+			<th axis="number"><div class="thead asc_desc">新结算</div></th>
+			#else
+			<th axis="number"><div class="thead asc_desc">手机号</div></th>
+			<th axis="string"><div class="thead asc_desc">原因</div></th>
+			<th axis="string"><div class="thead asc_desc">申请信息</div></th>
+			#end
+			<th axis="string"><div class="thead asc_desc">Gewa退款</div></th>
+			<th axis="string"><div class="thead asc_desc">原路返还</div></th>
+			<th axis="string"><div class="thead asc_desc">申请人</div></th>
+			<th axis="string"><div class="thead asc_desc">电商处理人</div></th>
+			<th axis="string"><div class="thead asc_desc">财务处理人</div></th>
+			<th axis="string"><div class="thead asc_desc">申请时间</div></th>
+			<th axis="string"><div class="thead asc_desc">场次时间</div></th>
+			<th axis="string"><div class="thead asc_desc">退票</div></th>
+			<th axis="string"><div class="thead asc_desc">退款时间</div></th>
+			<th><div class="thead asc_desc">操作</div></th>
+		</tr>
+	</thead>
+	<tbody id="tbody">
+	#foreach($refund in $refundList)
+	#set($otherinfoMap = $VmUtils.readJsonToMap($refund.otherinfo))
+	#set($manageDealIndex=$VmUtils.indexOf($!otherinfoMap.manageDeal, ',')+1)
+	#set($financeDealIndex=$VmUtils.indexOf($!otherinfoMap.financeDeal, ',')+1)
+	<tr id="tr$refund.id">
+		<td style="width: 30px;">$foreach.count</td>
+		<td class="minwid"><a href="${basePath}admin/refund/order/viewAllRefund.xhtml?rid=$refund.id" target="_blank">$!{refund.tradeno}</a></td>
+		<td class="minwid" #if($refund.preinfo)style="color: red" title="$!{refund.preinfo}" #end>$!refund.memberid</td>
+		#if($VmUtils.isBlank($params.status))
+		<td class="minwid">$!statusMap.get($refund.status)</td>
+		#end
+		<td class="maxwid">$!refundtypeMap.get($refund.refundtype)</td>
+		#if($params.status eq 'finish' || $params.status eq 'success')
+		<td class="minwid">$!orderStatusMap.get($refund.orderstatus)</td>
+		<td class="minwid">$!refund.oldSettle</td>
+		<td class="minwid">$!refund.newSettle</td>
+		#else
+		<td class="minwid"><span id="order$refund.id" onclick="showMobile($refund.id,$refund.mobile)" title="$!VmUtils.getSmobile($!refund.mobile)">$!VmUtils.getSmobile($!refund.mobile)</span></td>
+		<td class="maxwid">$!reasonMap.get($refund.reason)</td>
+		<td class="minwid">$!refund.applyinfo</td>
+		#end
+		<td class="minwid"><a href="${basePath}admin/common/getChangeHis.xhtml?tag=OrderRefund&relatedid=$refund.tradeno" target="_blank">$!refund.gewaRetAmount</a></td>
+		<td class="minwid">#if($refund.status eq 'success' && $refund.retback eq 'Y')<a href="${basePath}admin/refund/order/submit2Financial.xhtml?rid=$refund.id" target="_blank">账务退款</a>#else $!retbackMap.get($refund.retback)#end</td>
+		<td class="maxwid">$!usernameMap.get($refund.applyuser)</td>
+		<td class="maxwid">$!VmUtils.substring($!otherinfoMap.manageDeal, $manageDealIndex)</td>
+		<td class="maxwid">$!VmUtils.substring($!otherinfoMap.financeDeal, $financeDealIndex)</td>
+		<td class="minwid">$!DateUtil.format(${refund.addtime}, "M月d日 HH:mm")</td>
+		<td class="maxwid">$!DateUtil.format(${refund.expiretime}, "M月d日 HH:mm")</td>
+		<td class="maxwid">#if($VmUtils.contains($refund.opmark,'cancelTicket'))需要#else不需要#end</td>
+		<td class="minwid">$!DateUtil.format(${refund.refundtime}, "M月d日 HH:mm")</td>
+		<td>
+		#if($refund.status eq 'prepare')
+			<a href="${basePath}admin/refund/order/modifyRefund.xhtml?rid=$refund.id" target="_blank">修改</a>
+		#elseif($refund.status eq 'apply')
+			<a href="javascript:openDialog('$refund.id', 'accept','确认接受？', false);">接受</a>
+			<a href="javascript:openDialog('$refund.id', 'reject','不接受理由', true);">不接受</a>
+			<a href="${basePath}admin/refund/order/modifyRefund.xhtml?rid=$refund.id" target="_blank">修改</a>
+		#elseif($refund.status eq 'reject' || $refund.status eq 'cancel')
+			<a href="${basePath}admin/refund/order/viewAllRefund.xhtml?rid=$refund.id&reapply=Y" target="_blank">重新申请</a>
+		#elseif($refund.status ne 'finish')
+			<a href="javascript:openDialog('$refund.id', 'reject','不接受理由', true);">不接受</a>
+			<a href="${basePath}admin/refund/order/processRefund.xhtml?rid=$refund.id" target="_blank">处理</a>
+		#end
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		$('thead').addEvent('click',function(){
+			if($(document.body).retrieve('tr') != null){
+				$(document.body).retrieve('tr').node.setStyle('background-color',$(document.body).retrieve('tr').bgcolor);
+				$(document.body).retrieve('tr').tr.dispose();
+			}
+		})
+	})
+	var myTable = {};
+	window.addEvent('domready', function(){
+		myTable = new sortableTable('roomManageTable', {overCls: 'over'});
+	});
+	function openDialog(rid, status,title,input){
+		var str = title;
+		if(input) str = "<div style='padding:20px;'>" + title + ": <textarea name='reason' id='reasonText'></textarea></div>";
+		gewa.util.issure('',str,'退款处理',420,'keys',function(){//keys为动态标识可以自定义,执行函数放在回调函数内
+			var dealinfo = '';
+			if(input){
+				if($("reasonText").value == '') {
+					gewaUtil.alert("请输入" + title);
+					return;
+				}
+				dealinfo = $("reasonText").value;
+			}
+			var url = '${basePath}admin/refund/order/changeStatus.xhtml';
+			GewaraUtil.sendRequest(url, {"rid":rid, "status":status, "dealinfo": dealinfo}, function(result){
+				if(result.success) {
+					gewa.util.container['keys'].dispose('keys');
+					gewaUtil.alert(result.retval, refreshPage);
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		});
+	}	
+	function showMobile(orderid, mobile){
+		$('order' + orderid).set('html', mobile);
+		$('order' + orderid).addClass('yellow');
+	}
+</script>
+</body>
+</html>

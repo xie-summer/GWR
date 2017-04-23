@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>订单退款管理</title>
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		table{border-collapse: collapse;}
+		th, thread{cursor: pointer;}
+		td, th{
+			text-align: left;
+			height: 23px;
+		}
+		.maxwid, td{
+			width:210px !important;
+		}
+		.minwid, td{
+			width:100px !important;
+		}
+		label {display:inline-block; width:70px;text-align:right;padding:1px 0 1px 0; }
+		textarea {width:420px;}
+		
+		.showOrder{
+			border:1px solid #639BF9;padding:2px 4px;
+		}
+		.roomManageTable tbody td table{border:0px;border-bottom:1px solid #eee;}
+		.roomManageTable tbody td td{text-align: left;text-indent:10px;border-color:#eee;width:auto !important;}
+	</style>
+</head>
+<body style="width:800px; margin: auto;" class="yui-skin-sam">
+	<div class="yui-panel">
+		#parse("admin/refund/order/refundInfo.vm")
+		#set($refundtypeMap={"full":"全额退款","part":"部分退款","supplement":"调价退款"})
+		#set($statusMap={"prepare":"预处理","apply":"申请","accept":"接受","reject":"不接受","success":"处理成功","finish":"退款终结","cancel":"取消退款"})
+		<div class="bd">
+			<form id="orderForm" style="margin-left: 10px;">
+				当前状态：$statusMap.get($refund.status)<br /><br />
+				<input type="hidden" name="rid" value="$refund.id" />
+				手机号码： <input type="text" name="mobile" id="mobile" value="$refund.mobile" style="width: 100px;" /><br /><br/>
+				退款方式：$refundtypeMap.get($refund.refundtype)(<span style="color:blue">参见下面的退款设置说明</span>)
+				<br /><br />
+			#if($refund.refundtype eq 'supplement')
+				Gewa退款金额： <input type="text" name="gewaRetAmount" id="gewaRetAmount" value="$refund.gewaRetAmount" style="width: 100px;" /><br /><br/>
+				影院结算金额： <input type="text" name="newSettle" id="newSettle" value="$refund.newSettle" style="width: 100px;" />（原始结算金额：$refund.oldSettle）<br /><br/>
+				退款原因：价格调整<br /><br />
+			#else
+				#if($refund.refundtype eq 'part')
+				Gewa金额： <input type="text" name="gewaRetAmount" id="gewaRetAmount" value="$refund.gewaRetAmount" style="width: 100px;" /><br /><br/>
+				商家金额： <input type="text" name="merRetAmount" id="merRetAmount" value="$refund.merRetAmount" style="width: 100px;" />（如：影院已经给用户退款30元，我们只退款5元服务费）<br /><br/>
+				影院结算金额： <input type="text" name="newSettle" id="newSettle" value="$refund.newSettle" style="width: 100px;" />（原始结算金额：$refund.oldSettle）<br /><br/>
+				#elseif($order.paidSuccess)
+				影院结算金额： <input type="text" name="newSettle" id="newSettle" value="$refund.newSettle" style="width: 100px;" />（原始结算金额：$refund.oldSettle）<br /><br/>
+				(<span style="color:red">“未过期成功订单”退款成功后，结算金额自动调为“0”</span>)<br /><br />
+				#end
+				退款原因：<select name="reason">
+					<option #if($VmUtils.eq($refund.reason, 'gewa')) selected #end value="gewa">Gewara原因退款</option>
+					<option #if($VmUtils.eq($refund.reason, 'merchant')) selected #end value="merchant">场次更改退票</option>
+					<option #if($VmUtils.eq($refund.reason, 'user')) selected #end value="user">用户要求退票</option>
+				</select><br /><br />
+			#end
+			（Gewara原因：待处理订单、排片信息出现错误等。场次更改退票：影院场次更改退票、更换场次，场次价格调整）<br/><br/>
+				原路返还：
+				<select name="retback" id="retback">
+					<option value="N" #if($VmUtils.eq($refund.retback,'N')) selected #end>只退站内</option>
+					<option value="Y" #if($VmUtils.eq($refund.retback,'Y')) selected #end>原路返还</option>
+				</select>(说明：选择其他方式，要填写备注)
+				<br /><br />
+				#if($refund.status eq 'prepare')
+				预处理要求：<br />
+				<textarea name="preinfo" id="preinfo" rows="4" style="text-align: left;">$!refund.preinfo</textarea>(如：要求和用户电话确认等)<br/>
+				#elseif($refund.status eq 'apply')
+				申请说明：<br />
+				<textarea name="applyinfo" id="applyinfo" rows="4" style="text-align: left;">$!refund.applyinfo</textarea>(如：银行名称、银行账号、开户名)<br/>
+				#end		
+				<input type="button" id="btns" value="保存" onclick="saveRefund()" />
+			</form>
+		</div>
+		<div class="hd">退款场景及设置说明</div>
+		<div class="bd">
+			<span style="color:blue">全额退款</span>：待处理、万达退票等，<span style="color:blue">部分退款</span>：影院退场次已经给用户退了部分金额
+			<span style="color:blue">调价退款：</span>场次降价，退降价金额<br />
+			1、未过期场次订单退款<br />
+			&nbsp;&nbsp;&nbsp;&nbsp;1.1 <span style="color: blue">待处理订单(paid_failure*)</span>：正常的待处理无法处理（无法换座、影院连接不正常）。<br />
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: bolder">退款方式：全额退款，退款原因：Gewara原因退款、用户原因（如：违反特价活动规则），原路返还：根据需要设置</span><br />
+			&nbsp;&nbsp;&nbsp;&nbsp;1.2 <span style="color: blue">成功订单(paid_success)，用户要求退票</span>：用户订错位置、Gewara场次信息出错等导致退款。<br />
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: bolder">退款方式：全额退款，退款原因：用户要求或Gewara原因，原路返还：根据需要设置。</span><br />
+			2、过期场次订单退款<br />
+			&nbsp;&nbsp;&nbsp;&nbsp;2.1 <span style="color: blue">待处理订单(paid_failure*)</span>：可能是前期的待处理未处理，处理方式同<span style="font-weight: bolder">1.1</span><br />
+			&nbsp;&nbsp;&nbsp;&nbsp;2.2 <span style="color: blue">成功订单(paid_success)，影院场次有问题（如取消）</span>：Gewara负责<span style="font-weight: bolder">全额退款。</span><br />
+			&nbsp;&nbsp;&nbsp;&nbsp;2.3 <span style="color: blue">成功订单(paid_success)，影院场次有问题（如取消）</span>：<span style="font-weight: bolder">影院</span>全额退款。<br />
+			&nbsp;&nbsp;&nbsp;&nbsp;2.4 <span style="color: blue">成功订单(paid_success)，影院场次有问题（如取消）</span>：<span style="font-weight: bolder">影院部分</span>退款，另一部分Gewara退款。<br />
+			3、调价退款 <br />
+			&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: blue">成功订单(paid_success)，影院价格调整</span>，要给用户退多收的金额。<span style="color:red;font-size: 14px;font-weight: bolder;">不修改订单状态</span><br />
+			&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: bolder">退款方式：调价退款，退款原因：Gewara原因退款，原路返还：根据需要设置，</span><br />
+			<br />
+		</div>
+	</div>
+<script type="text/javascript">
+	function saveRefund(){
+		var values = GewaraUtil.getValues($("orderForm"));
+		if(values.reason == "") return alert("请选择退款原因！");	
+		var url = "${basePath}admin/refund/order/saveRefund.xhtml";
+		gewa.util.mask({'element': "btns",'title':'正在保存...', "opacity":"0.4"});
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				alert("保存成功！");
+			}else {
+				var msg = result.msg;
+				alert(msg);			
+			}
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,517 @@
+<!Doctype html>
+<html>
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>$!{cookieCityname}$!{curCounty.countyname}羽毛球场地_游泳池_网球场_保龄球场_高尔夫球场馆预订 - 格瓦拉生活网</title>
+	<meta name="keywords" content="格瓦拉生活网提供羽毛球场地,游泳池,网球场,保龄球场,高尔夫球场等各类场地场馆预订及地址,线路,优惠信息查询."/>
+	<meta name="description" content="格瓦拉生活网提供羽毛球场地,游泳池,网球场,保龄球场,高尔夫球场等各类场地场馆预订及地址,线路,优惠信息查询."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${basePath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ui_layout{background:none;}
+		.ui_simulate{width:190px;}
+		.ui_simulate .simulate_options{width:188px;}
+		.ui_simulate .simulate_options li{width:182px;}
+	</style>
+</head>
+<body>
+#set($issport=true)
+#set($cfgHeader='header')
+#set($sportlistselect=true)
+#parse('include/wide_header.vm')
+<form id="searchForm" action="${basePath}sport/sportList.xhtml">
+	#if($!spkey)
+	<input type="hidden" name="spkey" id="spkey" value="$!spkey"/>
+	#end
+	<input type="hidden" name="sportname" id="sportname" value="$!VmUtils.getText($params.sportname)"/>
+	<input type="hidden" name="countycode" id="countycode" value="$!VmUtils.getText($params.countycode)"/>
+	<input type="hidden" name="indexareacode" id="indexareacode" value="$!VmUtils.getText($params.indexareacode)"/>
+	<input type="hidden" name="servicetype" id="servicetype" value="$!VmUtils.getText($params.servicetype)"/>
+	<input type="hidden" name="lineid" id="lineid" value="$!VmUtils.getText($params.lineid)"/>
+	<input type="hidden" name="order" id="order" value="$!VmUtils.getText($params.order)"/>
+	<input type="hidden" name="coupon" id="coupon" value="$!VmUtils.getText($params.coupon)"/>
+	<input type="hidden" name="park" id="park" value="$!VmUtils.getText($params.park)"/>
+	<input type="hidden" name="booking" id="booking" value="$!VmUtils.getText($params.booking)"/>
+	<input type="hidden" name="visacard" id="visacard" value="$!VmUtils.getText($params.visacard)" />
+	<input type="hidden" name="cupboard" id="cupboard" value="$!VmUtils.getText($params.cupboard)" />
+	<input type="hidden" name="bathe" id="bathe" value="$!VmUtils.getText($params.bathe)" />
+	<input type="hidden" name="indoor" id="indoor" value="$!VmUtils.getText($params.indoor)" />
+	<input type="hidden" name="outdoor" id="outdoor" value="$!VmUtils.getText($params.outdoor)" />
+	<input type="hidden" name="meal" id="meal" value="$!VmUtils.getText($params.meal)" />
+	<input type="hidden" name="sale" id="sale" value="$!VmUtils.getText($params.sale)" />
+	<input type="hidden" name="train" id="train" value="$!VmUtils.getText($params.train)" />
+	<input type="hidden" name="maintain" id="maintain" value="$!VmUtils.getText($params.maintain)" />
+	<input type="hidden" name="lease" id="lease" value="$!VmUtils.getText($params.lease)" />
+	<input type="hidden" name="restregion" id="restregion" value="$!VmUtils.getText($params.restregion)" />
+	<input type="hidden" name="membercard" id="membercard" value="$!VmUtils.getText($params.membercard)" />
+	<input type="hidden" name="sportids" id="sportids" value="$!VmUtils.getText($params.sportids)" />
+</form>
+<div class="ui_layout bgtrans">
+	<div class="index_wrap clear">
+		#parse('include/sport/wide_menu_left.vm')
+		<div class="index_right">
+			<div class="mt10">
+				<div class="ui_left">
+					<div class="mod_kong">
+						<div class="mod_hd">
+							<h2>运动馆</h2>
+						</div>
+						<div class="mod_bd">
+							<ul class="ulist">
+								<li>
+									<div class="condition">
+										<dl class="clear dlTy">
+											<dt>
+												<span class="typeTitle mr10">选择项目 </span>
+											</dt>
+											<dd>
+											#foreach($sportItem in $sportItemList)
+											<a #if($VmUtils.eq($sportItem.id, $params.servicetype)) #set($searchTJ1=${sportItem.itemname}) class="selected" #end href="javascript:searchPPPV('servicetype','$sportItem.id');">${sportItem.itemname}</a>
+											#end
+											</dd>
+										</dl>
+									</div>
+								</li>
+								<li>
+									<div class="condition">
+										<dl class="clear dlTy">
+											<dt>
+												<span class="typeTitle mr10">行政区域 </span>
+											</dt>
+											<dd>
+											<input type="hidden" name="tempids" id="tempids" />
+											<a id="myBuyTicketSport" #if($VmUtils.isBlank($params.sportids)) class="none" #else #set($searchTJ0='我常去的') class="selected" #end href="javascript:setSportids();">我常去的 </a>
+											#foreach($pair in $countyGroup)
+											#set($circle=${pair.get('county')})
+											<a #if($VmUtils.eq($pair.get('county').countycode,$params.countycode)) #set($searchTJ2=$!circle.briefname) class="selected" #end href="javascript:searchPPPV('countycode','$!circle.countycode');">$!circle.briefname</a>
+											#end
+											</dd>
+										</dl>
+									</div>
+								</li>
+								#if($VmUtils.isNotBlank($params.countycode))
+								<li>
+									<div class="condition">
+										<dl class="clear dlTy">
+											<dt>
+												<span class="typeTitle mr10">选择商圈 </span>
+											</dt>
+											<dd>
+											#foreach($pair in $indexareaGroup)
+											<a #if($VmUtils.eq($pair.indexarea.indexareacode,$params.indexareacode))class="selected" #set($searchTJ3=$pair.indexarea.indexareaname) #end href="javascript:searchPPPV('indexareacode','${pair.indexarea.indexareacode}');">${pair.indexarea.indexareaname}</a>
+											#end
+											</dd>
+										</dl>
+									</div>
+								</li>
+								#end
+								#if(!$VmUtils.isEmptyList($!subwaylineGroup))
+								<li>
+									<div class="condition">
+										<dl class="clear dlTy">
+											<dt>
+												<span class="typeTitle mr10">地铁沿线</span>
+											</dt>
+											<dd>
+												#foreach($pair in $subwaylineGroup)
+												<a #if($VmUtils.eq($pair.lineid,$params.lineid))class="selected trg" #set($searchTJ4=$pair.linename) #else class="trg" #end href="javascript:searchPPPV('lineid','$pair.lineid');">$pair.linename</a>
+												#end
+											</dd>
+										</dl>
+									</div>
+								</li>
+								#end
+								<li>
+									<div class="condition">
+										<dl class="clear dlTy">
+											<dt>
+												<span class="typeTitle mr10">特色筛选 </span>
+											</dt>
+											<dd class="conditionIco">
+												<a href="javascript:searchPPPV2('park','park');" #if($VmUtils.eq($!params.park,'park')) class="O1 selected"  #set($searchTJ5='停车场') #set($searchTJKey5='park') #else class="O1" #end><em class="S3 sp_tcc"></em>停车场</a>
+												<a href="javascript:searchPPPV2('visacard','visacard');" #if($VmUtils.eq($!params.visacard,'visacard')) class="O1 selected" #set($searchTJKey6='visacard') #set($searchTJ6='刷卡结算') #else class="O1" #end><em class="S3 sp_skjs"></em>刷卡结算</a>
+												<a href="javascript:searchPPPV2('lease','lease');" #if($VmUtils.eq($!params.lease,'lease')) class="O1 selected"  #set($searchTJ7='器材租借') #set($searchTJKey7='lease') #else class="O1" #end><em class="S3 sp_qczj"></em>器材租借 </a>
+												<a href="javascript:searchPPPV2('membercard','membercard');" #if($VmUtils.eq($!params.membercard,'membercard')) class="O1 selected"  #set($searchTJ8='支持会员卡预定') #set($searchTJKey8='membercard') #else class="O1" #end><em class="S3 sp_hyyd"></em>支持会员卡预定</a>
+											</dd>
+										</dl>
+									</div>
+								</li>
+								<li>
+									<div class="condition mt10">
+										<dl class="clear dlTy">
+											<dt>
+												<span class="typeTitle left">名称查询</span>
+											</dt>
+											<dd>
+												<div class="search_kuang left">
+													<form action="javascript:searchname('sportname',$('sportname2').value)">
+														<input id="sportname2" value="$!params.sportname" class="search_text searchText noradius" type="text"  alt="请输入搜索关键词" name="sportname2">
+														<label class="search_button noradius">
+															<input type="button" value="" onclick="searchname('sportname',$('sportname2').value)"/>
+														</label>
+													</form>
+												</div>						
+											</dd>
+										</dl>
+									</div>
+								</li>
+							</ul>
+							<div class="mod_tabs mod_tabs_sport">
+								<div class="mod_hd">
+									<ul class="nav_tabs" id="nav_tabsDiv">
+										<li #if(!$VmUtils.eq($params.booking,'open')) class="select" #end id="dramaInfoBoxTab"><a href="javascript:searchPPPV('booking', '');">全　部#*<em>($!playCount)</em>*#</a></li>
+										<li #if($VmUtils.eq($params.booking,'open')) class="select" #end id="theatraIntruduceTab"><a href="javascript:searchPPPV('booking', 'open');">可预订</a></li>
+									</ul>
+								</div>
+								<div class="mod_bd clear wiP">
+									<div class="selectedMenus clear">
+										<div class="right">
+											<div class="ui_simulate">
+												<div class="simulate_select">
+													<div class="select_value">默认(优先展示可预订场馆)</div>
+													<a class="select_arrow" href="javascript:void(0);"></a>
+													<input class="simulate_value" type="hidden" value="" name="order">
+												</div>
+												<ul class="simulate_options">
+													<li><a href="javascript:void(0);" data-value="">默认(优先展示可预订场馆)</a></li>
+													<li><a href="javascript:void(0);" data-value="generalmark">按评分(由高到低)</a></li>
+													<li><a href="javascript:void(0);" data-value="clickedtimes">按关注(由高到低)</a></li>
+												</ul>
+											</div>
+										</div>
+										<div class="left tiaojian_p">
+											#if(${searchTJ0} ||${searchTJ1} || ${searchTJ2} || ${searchTJ3} || ${searchTJ4} || ${searchTJ5} || ${searchTJ6} || ${searchTJ7} || ${searchTJ8} || $VmUtils.isNotBlank($params.sportname))
+											<span class="">已选条件：</span>
+											#end
+											#if(${searchTJ1})
+											<span class="selections">
+												<em>$!{searchTJ1}</em>
+												<a class="ui_x bg6_hover" onclick="searchRemoveKey('servicetype','$!{searchTJ1}')">×</a>
+											</span>
+											#end
+											#if(${searchTJ0})
+											<span class="selections">
+												<em>$!{searchTJ0}</em>
+												<a class="ui_x bg6_hover" onclick="searchRemoveKey('sportids','$!{searchTJ0}')">×</a>
+											</span>
+											#end
+											#if(${searchTJ2})
+											<span class="selections">
+												<em>$!{searchTJ2}</em>
+												<a class="ui_x bg6_hover" onclick="searchRemoveKey('countycode','$!{searchTJ2}')">×</a>
+											</span>
+											#end
+											#if(${searchTJ3})
+											<span class="selections">
+												<em>$!{searchTJ3}</em>
+												<a class="ui_x bg6_hover" onclick="searchRemoveKey('indexareacode','$!{searchTJ3}')">×</a>
+											</span>
+											#end
+											#if(${searchTJ4})
+											<span class="selections">
+												<em>$!{searchTJ4}</em>
+												<a class="ui_x bg6_hover" onclick="searchRemoveKey('lineid','$!{searchTJ4}')">×</a>
+											</span>
+											#end
+											#if(${searchTJ5})
+											<span class="selections">
+												<em>$!{searchTJ5}</em>
+												<a class="ui_x bg6_hover" onclick="searchRemoveKey('park','$!{searchTJ5}')">×</a>
+											</span>
+											#end
+											#if(${searchTJ6})
+											<span class="selections">
+												<em>$!{searchTJ6}</em>
+												<a class="ui_x bg6_hover" onclick="searchRemoveKey('visacard','$!{searchTJ6}')">×</a>
+											</span>
+											#end
+											#if(${searchTJ7})
+											<span class="selections">
+												<em>$!{searchTJ7}</em>
+												<a class="ui_x bg6_hover" onclick="searchRemoveKey('lease','$!{searchTJ7}')">×</a>
+											</span>
+											#end
+											#if(${searchTJ8})
+											<span class="selections">
+												<em>$!{searchTJ8}</em>
+												<a class="ui_x bg6_hover" onclick="searchRemoveKey('membercard','$!{searchTJ8}')">×</a>
+											</span>
+											#end
+											#if($VmUtils.isNotBlank($params.sportname))
+											<span class="selections">
+												<em>$params.sportname</em>
+												<a class="ui_x bg6_hover" onclick="searchRemoveKey('sportname','$params.sportname')">×</a>
+											</span>
+											#end
+											<span>
+												共<b class="cSport sNum">$!{searchCount}</b>家场馆
+											</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="sportList" id="cinemaListArea">
+						#foreach($sport in $sportList)
+						#set($sp=$spMap.get($sport.id))
+						#set($sportMemberCardCount=$sportMemberCardCountMap.get($sport.id))
+						#set($gmark=$VmUtils.getSingleMarkStar($sport, "general"))#set($gmark1=$gmark/10) #set($gmark2=$gmark % 10)
+						<ul>
+							<li class="effectLi sportList" style="width:100%; position:static;">
+								<div class="ui_media">
+									<div class="ui_pic cinema">
+										<a href="${basePath}sport/$!sport.id#if($spkey)?spkey=$!spkey#end" target="_blank" title="$!sport.name">
+											<img src="${staticPath}css/images/blank.gif" alt="$!sport.name" height="90" width="120" style="border:1px solid #f4f4f4; background:url($VmUtils.randomPic('sw120h90',$!sport.limg)) center center no-repeat #fff; display:block; padding:1px; vertical-align:middle;"/>
+											#if($sp.hasPretype('E'))<span class="mark"></span>#end
+										</a>
+										<p class="mt10">
+											#if($VmUtils.eq($sport.booking,'open') && $VmUtils.contains($sportIdList,$sport.id))<a class="button redBt bigBt" href="${basePath}sport/$!sport.id#if($spkey)?spkey=$!spkey#end" target="_blank"><span>在线预订</span></a>#end
+										</p>
+									</div>
+									<div class="ui_text">
+										<div class="title">
+											<h2>
+												<a href="${basePath}sport/$!sport.id#if($spkey)?spkey=$!spkey#end" title="$!sport.name" target="_blank" class="color3">$!sport.name</a>
+											</h2>
+											<span class="ml5">($!{sport.clickedtimes}关注)</span>
+											<span class="grade">
+												<sub style="margin:0;">$gmark1</sub>
+												<sup>.$gmark2</sup>
+											</span>
+										</div>
+										#if(!$VmUtils.isBlank($!sport.address))
+										<p class="mt10">
+											详细地址：<a href="${basePath}sport/sportList.xhtml?countycode=$!sport.countycode#if($spkey)&spkey=$!spkey#end" target="_blank">$!sport.countyname</a>$VmUtils.getLight($!sport.address, $queryString)
+											<span class="ffst">[</span><a class="cSport" target="_blank" href="${basePath}common/baiduMap.xhtml?id=$sport.id&tag=sport">地图</a><span class="ffst">]</span>
+										</p>
+										#end
+										#if(!$VmUtils.isBlank($!sport.contactphone))<p>联系电话：$!{sport.contactphone}</p>#end
+										#if(!$VmUtils.isEmptyList($itemMap.get($sport.id)))<p>经营项目：#foreach($item in $itemMap.get($sport.id))$!item.itemname #end</p>#end
+										<div class="favorable mt10">
+											#if($sportBookingMap.get($sport.id))
+											#foreach($itemCount in $sportBookingMap.get($sport.id))
+											<p><span class="cSport">$!itemCount.get('remain') </span>片${searchTJ1}场次空余</p>
+											#end
+											#end
+											#if($VmUtils.gt($sportMemberCardCount, 0))<p><span class="cSport">$sportMemberCardCount </span>种会员卡可购买</p>#end
+										</div>
+										<div class="mt5 conditionIco">
+											#set($sportOtherinfo = $!VmUtils.readJsonToMap($!sport.otherinfo))
+											#if($VmUtils.isNotBlank($!sportOtherinfo.get('park')))
+											<span class="O1"><em class="S3 sp_tcc"></em>停车场</span>
+											#end
+											#if($VmUtils.isNotBlank($!sportOtherinfo.get('visacard')))
+											<span class="O1"><em class="S3 sp_skjs"></em>刷卡结算</span>
+											#end
+											#if($VmUtils.isNotBlank($!sportOtherinfo.get('lease')))
+											<span class="O1"><em class="S3 sp_qczj"></em>器材租借</span>
+											#end
+											#if($VmUtils.isNotBlank($!sportOtherinfo.get('membercard')))
+											<span class="O1"><em class="S3 sp_hyyd"></em>支持会员卡预定</span>
+											#end
+										</div>
+									</div>
+								</div>
+							</li>
+						</ul>
+						#end
+						<div class="page">#parse('include/pageUtil.vm')</div>
+					</div>
+				</div>
+				<div class="ui_right">
+					#if(!$VmUtils.isEmptyList($bannerGclist))
+					<div class="sport_video mb20">
+						<ul id="slidePanel">
+							#foreach($banner in $bannerGclist)
+							<li><a href="$!banner.link" title="$!banner.title" target="_blank"><img width="310" height="200" alt="$!banner.title" src="$VmUtils.randomPic('sw270h200',$!banner.limg)" /></a></li>
+							#end
+						</ul>
+						<div class="control" id="controlChild"></div>
+					</div>
+					#end
+					<div id="activityDiv"></div>
+					<div id="walaDiv"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	getActivityList();
+	getWalaList();
+	#if(!$VmUtils.isEmptyList($bannerGclist)) new toggleImage(); #end
+	selectBar();
+	$('sportname2').addEvents({
+	 	'focus':function(){this.getParents('div[class*="search_kuang"]').addClass('search_kuangClicked');},
+	 	'blur':function(){this.getParents('div[class*="search_kuang"]').removeClass('search_kuangClicked');}
+	});
+	#if($params.order && !$VmUtils.isBlank($params.order))
+		var simulateSelect = $$('.simulate_select');
+		simulateSelect.each(function(item){
+			var e = item.getNext().getElement('a[data-value=$!{params.order}]')
+			item.getElement('.select_value').set('html',e.get('html'));
+			item.getElement('.simulate_value').set('value',e.get('data-value'));
+		});
+	#end
+	(function(){
+		gewaUtil.affix($('ui_left'));
+	}).delay(500);
+	#if($VmUtils.isBlank($params.sportids))
+	getMySportids();
+	#end
+});
+
+var toggleImage = new Class({
+	Implements: [Options,Events],
+	options: {'panel':'slidePanel',count:0,deep:0},
+	initialize:function(options){
+		this.setOptions(options);
+		this.panel = $(this.options.panel);
+		this.lis = this.panel.getElements('li');
+		this.options.count = this.lis.length;
+		this.runcallbackEvent();
+	},
+	runbackofaway:function(){
+		if(this.options.deep > this.options.count - 1)this.options.deep = 0;
+		this.auto(this.lis[this.options.deep]);
+		this.options.deep++;
+	},
+	runcallbackEvent:function(){
+		var self = this;
+		this.lis.each(function(img,index){
+			if(index != 0){img.fade(0);}
+			var span = new Element('span',{'class':(index==0)?'select':''}).addEvents({
+				'mouseenter':function(){
+					$clear(self.options.clear);
+					self.auto(this.retrieve('key'));
+				},
+				'mouseleave':function(){self.options.clear = self.autoPlay.periodical(5000,self);}
+			}).inject('controlChild');
+			img.store('key',span);
+			span.store('key',img);
+		});
+		this.options.clear = this.autoPlay.periodical(5000,this);
+	},
+	autoPlay:function(){
+		this.runbackofaway();
+	},
+	auto:function(el){
+		$('controlChild').getElements('span').removeClass('select');
+		this.lis.fade(0);
+		el.fade(1);
+		el.retrieve('key').addClass('select');
+	}
+})
+function selectBar(){
+	var simulateSelect = $$('.simulate_select');
+	simulateSelect.each(function(item){
+		item.addEvent('click',function(){
+			item.getNext().toggle();
+		})
+		item.getParent().addEvent('mouseleave',function () {
+			item.getNext().hide();
+		})
+		item.getNext().getElements('a').addEvent('click',function (e){
+			e.preventDefault();
+			if(item.getElement('.simulate_value').get('value') != this.get('data-value')) {
+				sorder(this.get('data-value') ? this.get('data-value') : "");
+			}
+		});
+	});
+}
+function sorder(order){
+	$('order').value = order;
+	$('searchForm').submit();
+}
+function searchPPPV(field, value){
+	//clearPPPV();
+	$(field).value = value;
+	if(field == 'lineid'){
+		$('countycode').value = '';
+		$('indexareacode').value = '';
+	}else if(field == 'countycode'){
+		$('lineid').value = '';
+		$('sportids').value = '';
+	}else if(field == 'indexareacode'){
+		$('lineid').value = '';
+	}
+	$('searchForm').submit();
+}
+function allPPPV(){
+	clearPPPV();
+	$('searchForm').submit();
+}
+function clearPPPV(){
+	$('park').value = '';
+	$('indoor').value = '';
+	$('outdoor').value = '';
+	$('visacard').value = '';
+	$('bathe').value = '';
+	$('cupboard').value = '';
+	$('restregion').value = '';
+	$('sale').value='';
+	$('train').value='';
+	$('meal').value='';
+	$('maintain').value='';
+	$('lease').value='';
+}
+function searchRemoveKey(key, value){
+	$(key).value = '';
+	if(key == 'countycode'){
+		$('indexareacode').value = '';	
+	}
+	$('searchForm').submit();
+}
+function searchPPPV2(el, value){
+	if($(el).value != value){
+		$(el).value = value;
+	}else{
+		$(el).value = '';
+	}
+	$('searchForm').submit();
+}
+function searchname(field, value){
+	if($('sportname2').value=='请输入搜索关键词' || $('sportname2').value == ''){
+		$('sportname2').focus();
+		$('sportname2').value = '';
+		return;
+	};
+	$(field).value= value;
+	$('searchForm').submit();
+}
+function getActivityList(){
+	var url = '${basePath}sport/ajax/getActivityList.xhtml';
+	var values = {};
+	GewaraUtil.sendLoad('activityDiv',url, values, function(result){});
+}
+function getWalaList(){
+	var url = '${basePath}sport/ajax/getWalaList.xhtml';
+	var values = {};
+	GewaraUtil.sendLoad('walaDiv',url, values, function(result){});
+}
+function setSportids(){
+	$('countycode').value = '';
+	$('indexareacode').value = '';
+	$('sportids').value = $('tempids').value;
+	$('searchForm').submit();
+}
+function getMySportids(){
+	var url = '${basePath}sport/ajax/getMyFrequented.xhtml';
+	var values = {};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			if(result.retval != ""){
+				$('tempids').value = result.retval;
+				$('myBuyTicketSport').removeClass("none");
+			}
+		}
+	});
+}
+</script>
+</body>
+<!-- SUCCESS_BOTTOM -->
+</html>

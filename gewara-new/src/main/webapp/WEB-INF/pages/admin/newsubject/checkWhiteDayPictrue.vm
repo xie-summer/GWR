@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>专题(图片审核)</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		body{background:none;}
+	</style>
+</head>
+<body>
+<div style="text-align:center;">
+	<form action="${basePath}admin/newsubject/checkPictureWhiteDay.xhtml">
+	用户ID:<input name="memberid" type="text"/><input type="submit" value="查看"/>
+	</form>
+	<a href="${basePath}admin/newsubject/checkPictureWhiteDay.xhtml?status=Y ">查看已通过</a>
+	<a href="${basePath}admin/newsubject/checkPictureWhiteDay.xhtml?status=N">查看已删除</a>
+	<a href="${basePath}admin/newsubject/checkPictureWhiteDay.xhtml?">返回查看新上传</a>
+</div>
+<div style="width: 800px;margin:0 auto;">
+	<div><h1>
+	#if($memberid)
+		$memberid
+	#else
+		#if($status eq 'Y')已通过#elseif($status eq 'N')已删除#elseif($status eq 'Y_NEW')新上传#end
+	#end
+	</h1></div>
+	#if($VmUtils.size($whiteCheckPicList) eq 0)
+		暂时无图片
+	#end
+	#foreach($pic in $whiteCheckPicList)
+	#set($id = $pic.get('_id'))
+	<div style="width:130px;position: relative;float: left;padding:3px;margin:4px;margin-top:  20px;border: 2px solid gray; display:inline-block;overflow:hidden;">
+		上传者：<a href="${basePath}admin/newsubject/checkPictureWhiteDay.xhtml?memberid=$!pic.memberid" target="_blank">$pic.membername</a><br/>
+		<img class="picId" id="$pic.id" src="$VmUtils.randomPic('',$pic.picurl)"  width="120px" height="100px"/><br/>
+		#if($memberid)
+			#if($pic.status eq 'Y')已通过#elseif($pic.status eq 'N')已删除#elseif($pic.status eq 'Y_NEW')新上传#end
+		#end
+		#if($pic.status ne 'Y')
+		<input type="button" class="button" value="通过" onclick="checkPicture('Y','$id')"/>
+		#end
+		#if($pic.status ne 'N')
+		<input type="button" class="button" value="删除" onclick="checkPicture('N','$id')"/>
+		#end
+		支持数:<input type="text" value="$!pic.support" style="width:25px;" onchange="updateSupport(this,'$id')" /> 
+	</div>
+	#end
+</div>
+<div class="clear"style="width: 800px;margin:0 auto;">
+	#parse('include/pageUtil.vm')
+</div>
+<script type="text/javascript">
+	function checkPicture(status,id){
+		var url = "${basePath}admin/newsubject/whitePicStatus.xhtml?status="+status+"&id="+id;
+		location.href=url;
+	}
+	function updateSupport(obj,el){
+		var url = "${basePath}admin/newsubject/updatePictureSupport.xhtml";
+		var values = {"support":obj.value,"id":el};
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){
+				$(obj).setStyle('background-color','red');
+				(function(){
+					$(obj).setStyle('background-color','');
+				}.bind(obj)).delay(800);
+			}else{
+				gewaUtil.alert(result.msg);
+			}	
+		});
+	}
+</script>
+</body>
+</html>

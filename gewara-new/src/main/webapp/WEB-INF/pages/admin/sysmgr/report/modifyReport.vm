@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>编辑动态报表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:550px; display:inline}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:800px;margin:auto">
+<div id="barDialog" class="yui-panel" style="width:710px;margin:auto;">
+	<div class="hd">编辑动态报表</div>
+	<div class="bd">
+	<form name="reportForm" id="reportForm" action="javascript:saveReport()" method="post">
+		<input type="hidden" name="rid" id="rid" value="$!params.rid"/>
+		<div>
+			<label for="name">报表名称：</label>
+			<input name="name" id="name"  type="text" value="$!{report.name}"/><span class="req">*</span>
+		</div>
+		<div>
+			<label for="category">分类：</label>
+			<input name="category" id="category" type="text" value="$!{report.category}" />
+		</div>
+		<div>
+			<label for="maxnum">最大数量：</label>
+			<input name="maxnum" type="text" value="$!{report.maxnum}" />
+		</div>
+		<div>
+			<label for="roles">角色：</label>
+			<input name="roles" type="text" value="$!{report.roles}" />
+		</div>
+		<div>
+			<label for="qrysql">查询语句：</label>
+			<textarea  name="qrysql" id="qrysql">$!{report.qrysql}</textarea>
+		</div>
+		<div>
+			<label for="params">参数：</label>
+			<textarea  name="params" id="params">$!{report.params}</textarea><br />
+			<div>[{"fieldname":"timefrom","fieldtype":"timestamp","fieldorder":1},{"fieldname":"timeto","fieldtype":"timestamp","fieldorder":1}]</div>
+		</div>
+		<div>
+			<label for="fields">字段配置：</label>
+			<textarea  name="fields" id="fields">$!{report.fields}</textarea>
+		</div>
+		<div>
+			<label for="displayname">显示名称：</label>
+			<textarea  name="displayname" id="displayname">$!{report.displayname}</textarea>
+		</div>
+		<div>
+			<label for="description">报表描述：</label>
+			<textarea  name="description" id="description">$!{report.description}</textarea>
+		</div>
+		
+		<div>
+			<label>&nbsp;</label>
+			<input type="submit" class="button" style="width:100px" value="保存"/>
+		</div>
+		</form>
+	</div><!--end of bd -->
+</div>
+<script type="text/javascript">
+	function saveReport(){
+		var values = GewaraUtil.getValues("reportForm");
+		var url = "${basePath}admin/sysmgr/report/saveReport.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$('rid').value=result.retval;
+				alert('成功保存！');
+				gewa.util.clearMask();
+			}else{
+				alert("保存失败！");
+				gewa.util.clearMask();
+			}
+		});
+	}
+	
+</script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影节场次监测</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#fff;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		td, th{
+			text-align: center;
+			height: 23px;
+		}
+	</style>
+	<script>
+	   function downloadxls(){
+		$('isXls').value='downloadxls';
+		document.forms[0].submit();
+		$('isXls').value='';
+	   }
+	</script>
+</head>
+<body>
+#if($VmUtils.isBlank($params.isXls))
+#set($FFplayItem=true)
+#parse('admin/gewapay/report/monitorMenu.vm')
+#end
+<div class="manageItemList" id="data">
+	<b class="b1f"></b>
+	<b class="b2f"></b>
+	<div class="contentInfoList">
+		<!--search form-->
+		#if($VmUtils.isBlank($params.isXls))
+		<form action="${basePath}admin/gewapay/monitorFilmFestivalOPI.xhtml" id="selectSubmit">
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>
+					<select name="cinemaid" id="cinemaid">
+						<option value="">请选择影院</option>
+						#foreach($cinema in $cinemaList)
+						<option value="$cinema.id" #if($cinema.id eq $!params.cinemaid) selected #end>$VmUtils.substring(${cinema.pinyin},0,3) - $cinema.name</option>
+						#end
+					</select>
+					#parse("common/TWidget.vm")
+					<select name="order" id="order">
+						<option #if($params.order eq '总座位数')selected='selected'#end value="总座位数">总座位数</option>
+						<option #if($params.order eq '格瓦拉售出')selected='selected'#end value="格瓦拉售出">格瓦拉售出</option>
+						<option #if($params.order eq '格瓦拉剩余')selected='selected'#end value="格瓦拉剩余">用户可买数</option>
+					</select>
+					<select name="opentype" id="opentype">
+						<option #if($params.opentype eq 'PNX')selected='selected'#end value="GEWA">格瓦拉</option>
+						<option #if($params.opentype eq 'PNX')selected='selected'#end value="PNX">东票</option>
+					</select>
+					 <input type="submit" value="刷新"/>
+					 
+					 <input type="hidden" name="pageSize" id="pageSize" value="200" />
+					 <input type="hidden" name="isXls" id="isXls" />
+					 <a href="javascript:void(0);" onclick="downloadxls();">导出xls</a>&nbsp;|&nbsp;
+					 <a href="javascript:void(0);" onclick="refreshAllData()">刷新负数</a>
+					</th>
+				</tr>
+			</thead>
+		</table>
+		</form>
+		#end  
+		<!--电影节场次监控 -->
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th width="30px"><a href="javascript:showDiv()">设置</a></th>
+					<th>状态</th>
+					<th>序号</th>
+					<th>场次编号</th>
+					<th>影院</th>
+					<th>影片</th>
+					<th>影厅</th>
+					<th>时间</th>
+					<th>总座位数</th>
+					<th>影院保留[B]</th>
+					<th>格瓦保留[C]</th>
+					<th>格瓦保留[D]</th>
+					<th>格瓦售出</th>
+					<th>用户可买数</th>
+					<th>格瓦剩余总数[C+D+可买数]</th>
+					<th>操作</th>
+					<th>刷新</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				#foreach($map in $opiMapList)
+				<tr>
+					<td><input type="checkbox" name="mpids" value="$!map.get('MPID')"/></td>
+					<td>#if($VmUtils.contains($!map.get('其他'), 'unopengewa'))
+							不对格瓦拉开放
+						#elseif($VmUtils.contains($!map.get('其他'), 'unshowgewa'))
+							不对格瓦拉显示
+						#end
+						</td>
+					<td>$!foreach.count</td>
+					<td>$!map.get('MPID')</td>
+					<td>$!map.get('影院')</td>
+					<td>$!map.get('影片')</td>
+					<td>$!map.get('影厅')</td>
+					<td>$!map.get('时间')</td>
+					<td>$!map.get('总座位数')</td>
+					<td>$!bNumMap.get($map.get('MPID'))</td>
+					<td>$!cNumMap.get($map.get('MPID'))</td>
+					<td>$!dNumMap.get($map.get('MPID'))</td>
+					<td>$!map.get('格瓦拉售出')</td>
+					<td>$!map.get('格瓦拉剩余')</td>
+					<td>#set($ks=$math.toNumber($!map.get('总座位数')) - $math.toNumber($!map.get('格瓦拉售出')) - $math.toNumber($!bNumMap.get($map.get('MPID'))))
+					#if($ks)$ks#{else}0#end
+					</td>
+					<td><a href="${basePath}admin/ticket/booking.xhtml?mpid=$!map.get('MPID')&ordertype=paid_success" target="_blank">场次信息</a></td>
+					<td><input type="button" value="刷新数据" #if($ks lt 0)class="needVerify" id="$map.get('MPID')"#end onclick="refreshData($map.get('MPID'),this)"/></td>
+				</tr>
+				#end					
+			</tbody>
+		</table>
+		#parse('include/pageUtil.vm')
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+	<!--  场次数据分页器 -->
+	<div id="showDiv" style="display:none">
+		开放类型
+		<div style="margin-left: 50px;">
+			<label>不对格瓦拉开放：</label>
+			<input type="checkbox" name="unopengewa" id="unopengewa" value="Y" style="width: 20px;" #if($VmUtils.isNotBlank($unopengewa))checked#end/>
+		</div>
+		
+		<div style="margin-left: 50px;">
+			<label>不对格瓦拉显示：</label>
+			<input type="checkbox" name="unshowgewa" id="unshowgewa" value="Y" style="width: 20px;" #if($VmUtils.isNotBlank($unshowgewa))checked#end/>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+
+function refreshData(mpid, el){
+	$(el).dispose();
+	GewaraUtil.sendRequest("${basePath}admin/ticket/mpi/refreshLockNum.xhtml",{"mpid":mpid},function(){});
+}
+function refreshAllData(){
+	var count = 0;
+	$$(".needVerify").each(function(el){
+		refreshData(el.get("id"), el);
+		count ++;
+	});
+	alert("共刷新" + count + "个！")
+}
+function showDiv(){
+	gewa.util.issure('','showDiv','',420,'keys',function(){
+		var values = GewaraUtil.getValues('data', ',');
+		values.unopengewa = $('unopengewa').checked;
+		values.unshowgewa = $('unshowgewa').checked;
+		url = "${basePath}admin/filmfest/updateMpiOtherinfo.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$('selectSubmit').submit();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	});	
+}
+</script>
+</body>
+</html>

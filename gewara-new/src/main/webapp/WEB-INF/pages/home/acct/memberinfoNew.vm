@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+   <title>#if($!logonMember.id eq $member.id)我#else$!member.nickname#end的资料_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($myBaseInfo=true)#set($isBase=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/userInfo.vm')
+			<div class="minTab" id="minTab">
+				<div>
+					<a href="#" id="st_base" rel="base">基本信息</a><span>|</span>
+					<a href="#" id="st_contact" rel="contact">联系方式</a><span>|</span>
+					<a href="#" id="st_favor" rel="favor">兴趣爱好</a><span>|</span>
+					<a href="#" id="st_edu" rel="edu">教育信息</a><span>|</span>
+					<a href="#" id="st_job" rel="job">职业信息</a>
+				</div>
+				<em class="navs" id="selectNavs"><em></em></em>
+			</div>
+			<div id="ajaxMemberInfo"></div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+var ajaxtag = ['base', 'contact', 'favor', 'edu', 'job'],as = $('minTab').getElements('a');
+window.addEvent('domready', function(result){
+	if($('st_base').hasClass('seleced')){
+		$('st_base').removeClass('seleced');
+	}
+	var type = ajaxtag.contains('$!params.type') == true ? '$!params.type' : 'base';
+	as.addEvent('click',function(e){
+		e.preventDefault();
+		manageLoding(this.get('rel'));
+	});
+	manageLoding(type);
+})
+
+function manageLoding(mtag){
+	as.removeClass('off');
+	var url = '${basePath}home/acct/memberinfo.xhtml?tagNo=$VmUtils.getRandom()';
+	var values = {'tag': mtag};
+	var el = $('st_'+mtag);
+	gewaUtil.loadData('ajaxMemberInfo', url, values, function(result){
+		if(result.success){
+			el.addClass('off');
+			selectPosition(el,'selectNavs',0,'linear',function(){
+				as.removeClass('seleced');
+				el.addClass('seleced')
+			});
+			$$('label.button,span.button').addEvents({
+				'mouseenter':function(){if(this.hasClass('bigBt')){this.addClass('bg_hover')}else{this.addClass('hover')}},
+				'mouseleave':function(){if(this.hasClass('bigBt')){this.removeClass('bg_hover');}else{this.removeClass('hover');}}
+			});
+		}else{
+			gewaUtil.alert(result.json.msg);
+		}
+	});
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

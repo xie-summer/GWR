@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次扩展信息设定</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/admin.css?v=$VmUtils.jsVersion"/>
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#set($maxwidth=33+30*$room.ranknum)
+		#content{ width: ${maxwidth}px; background:#fff;}
+		.stype dd, .stype dt{float: left; width: 90px; height: 30px; line-height: 30px; vertical-align: middle;}
+		.stype input, .stype span{float:left; line-height: normal; margin-top: 10px;}
+		.stype div{float:left;}
+		.stype input{width:50px;}
+		.seatpic dt, .head dt{width:30px;}
+		.warp{width:960px; margin:0 auto;}
+		.contentInfoList{border:1px solid #bbb;}
+	</style>
+</head>
+<body>
+<div class="logoPanel warp"><a href="${basePath}">Gewara</a></div>
+<div class="manageItemList warp">
+	<div class="contentInfoList" id="extForm">	
+	    #foreach($movie in $movieList)
+	    	<input type="radio" name="mpids" value="$movieMap.get($movie.id)"/>&nbsp;$movie.moviename
+	    #end
+		<fieldset style="margin-top: 30px;height: 350px;">
+			<legend class="yellow">场次扩展信息</legend>
+			<div style="width:370px;margin:10px;background:#FFF;">
+				<div class="bd" style="text-align:center;" >
+					<div style="padding:5px 40px;text-align:left">
+						<label for="actualprice" class="left" title="差额=系统录入结算价 - 与影院实际结算价，“0”表示不设置">结算差额：</label>
+						<input type="text" name="actualprice" id="actualprice" class="left" value="$!opiExt.actualprice" style="width: 100px"/>
+						<span class="yellow req left">*</span>
+						<div class="height0"></div>
+					</div>
+					<div style="padding:5px 40px;text-align:left;">
+						<label for="remark" class="left">备注：</label>
+						<textarea rows="3" cols="20" name="remark" class="left" >$!opiExt.remark</textarea>
+						<span class="req left"></span>
+						<div class="height0"></div>
+					</div>
+					<div style="text-align:center;height:20px;line-height: 20px;">
+						<span class="yellow">* 为必填项，0表示不设置</span>
+					</div>
+					<div>
+						<label>&nbsp;</label>
+						<input type="button" onclick="saveExt(this)" class="cbt1"  value="保存"/>
+					</div>
+				</div>
+			</div>
+		</fieldset>
+		<div id="height0"></div>
+	</div>
+</div>
+<script type="text/javascript">
+	function saveExt(bt){
+		var url = "${basePath}admin/ticket/saveMovieOpenPlayItemExt.xhtml";
+		var values = GewaraUtil.getValues('extForm');
+		if(!values.actualprice || values.actualprice == ""){
+			alert("实际结算价不能为空");
+			return ;
+		}
+		GewaraUtil.mask(bt);
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(!result.success){
+				alert(result.msg);
+			}
+		}); 
+	}
+</script>
+</body>
+</html>

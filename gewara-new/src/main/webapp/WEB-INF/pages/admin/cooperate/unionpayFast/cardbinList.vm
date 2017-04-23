@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>卡bin查询</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin,bbs&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body>
+	<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+	<div class="menu">
+		<div class="menuInner">
+			<ul>
+				<li class="selectMore"><a href="$!{basePath}admin/unionpayFast/modifyCardbin.xhtml"><span>添加卡BIN</span></a></li>
+				<li class="currs"><a href="$!{basePath}admin/unionpayFast/cardbinList.xhtml"><span>卡BIN列表</span></a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<form action="$!{basePath}admin/unionpayFast/cardbinList.xhtml">
+			卡BIN标识：<input type="text" name="cardbinUkey" value="$!cardbin.cardbinUkey"/>
+			需求人员：<input type="text" name="requirements" value="$!cardbin.requirements"/>
+			开通备注：<input type="text" name="remark" value="$!cardbin.remark"/>
+			<input type="submit" value="查询"/>
+		</form>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>卡bin标识</th>
+					<th>需求人员</th>
+					<th>开通备注</th>
+					<th>删除</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+			#if(!$VmUtils.isEmptyList($unionPayFastCardbinList))
+				#foreach($unionPayFastCardbin in $unionPayFastCardbinList)
+				<tr>
+					<td>$!{unionPayFastCardbin.cardbinUkey}</td>
+					<td>$!{unionPayFastCardbin.requirements}</td>
+					<td>$!{unionPayFastCardbin.remark}</td>
+					<td>
+						<a href="${basePath}admin/unionpayFast/cardbinDetail.xhtml?id=$!unionPayFastCardbin.id">详情</a>
+						<a href="${basePath}admin/unionpayFast/modifyCardbin.xhtml?id=$!unionPayFastCardbin.id">修改</a>
+						<a href="javascript:delateCardbind('$!unionPayFastCardbin.id','')">删除</a>
+					</td>
+				</tr>
+				#end
+			#end
+			</tbody>
+		</table>
+	</div>
+	#parse('include/pageUtil.vm')
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<script type="text/javascript">
+function delateCardbind(id,cardbinNo){
+	var url = "${basePath}admin/unionpayFast/removeCardbin.xhtml";
+	GewaraUtil.sendRequest(url, {"id":id, "cardbinNo":cardbinNo}, function(result){
+		if(result.success) {
+			refreshPage();
+		}else {
+			alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

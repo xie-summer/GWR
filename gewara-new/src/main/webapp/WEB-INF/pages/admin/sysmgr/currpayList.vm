@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>支付列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>#parse('include/constant/paybank.vm')
+<body style="width:750px; margin:auto">
+<div style="width:740px;">
+<table class="table">
+	<thead>
+	<tr>
+		<th>ID</th>
+		<th>简称</th>
+		<th>名称</th>
+		<th>支付方式</th>
+		<th>渠道</th>
+		<th>类型</th>
+		<th>适合城市</th>
+		<th width="45px;">排序</th>
+		<th>渠道</th>
+	</tr>
+	</thead>
+	<tbody id="movieTable">
+	#foreach($pay in $payList)
+	#set($bankicon=$PAYBANK_MAP.get($pay.name))
+	#if($VmUtils.isNotBlank($bankicon))
+		#set($bicoll=$VmUtils.split($bankicon, ","))
+		#set($paymethod=$pay.paymethod)
+		#if($paymethod.startsWith('directPay'))#set($qudao='支付宝')
+		#elseif($paymethod.startsWith('pnrPay'))#set($qudao='汇付天下')
+		#elseif($paymethod.startsWith('cmPay'))#set($qudao='移动手机')
+		#elseif($paymethod.startsWith('unionPay'))#set($qudao='unionPay')
+		#else #set($qudao='')
+		#end
+	<tr>
+		<td>$pay.id</td>
+		<td>${pay.name}</td>
+		<td>$bicoll[0]</td>
+		<td>$pay.paymethod</td>
+		<td>$qudao</td>
+		<td>$pay.banktype</td>
+		<td>$pay.citycode</td>
+		<td><input type="text" value="$pay.sortnum" style="width: 40px;" onchange="javascript:sortNum($pay.id, this)"/></td>
+		<td><a href="${basePath}admin/sysmgr/paybankList.xhtml?parentid=$pay.id" target="_blank">渠道</a></td>
+	</tr>
+	#end
+	#end
+	</tbody>
+</table>
+</div>
+<script type="text/javascript">
+function sortNum(id, el){
+	el.style.backgroundColor = 'red';
+	var url = "${basePath}admin/sysmgr/payBankSort.xhtml";
+	GewaraUtil.sendRequest(url, {"id":id, "sortnum":el.value},function(result){
+		el.style.backgroundColor = '#fff';
+	});
+}
+</script>
+</body>
+</html>

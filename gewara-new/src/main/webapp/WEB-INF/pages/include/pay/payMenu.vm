@@ -1,0 +1,258 @@
+#set($orderPaymethod = $order.paymethod)
+#if($VmUtils.isNotBlank($order.paybank)) #set($orderPaymethod=$order.paymethod + ":" + $!order.paybank) #end
+#set($paymethod=$valHelp.getDefMethod($orderPaymethod))
+#parse('include/pay/bankList.vm')
+#if($order.due gt 0 && !$valHelp.denyAll())
+#if(!$account)#set($notPassCheck=true)#elseif($account.isIncomplete()||$account.isNopassword())#set($notPassCheck=true)#else#set($notPassCheck=false)#end
+<div class="menu_ck" id="menu_ck">
+	<ul>
+		#if($valHelp.supportPaymethod('gewaPay'))<li #if($paymethod eq 'gewaPay')class="select"#end><label for="n3" lang="gewaPay" onclick="setChoosePay(false)"><input type="radio" name="paymethod" id="n3" value="gewaPay" #if($paymethod eq "gewaPay") checked="checked"#end/>格瓦拉余额支付</label></li>#end
+		#if($valHelp.supportAny('unionPay,unionPay_activity,unionPay_js,pnrPay,china2Pay,directPay,cmPay,spsdo2Pay,tempusPay,cmbPay,bcPay,gdbPay,onetownPay,yagaoPay'))
+		<li #if($VmUtils.contains('unionPay,unionPay_activity,unionPay_js,pnrPay,china2Pay,directPay,cmPay,spsdo2Pay,tempusPay,cmbPay,bcPay,gdbPay,onetownPay,yagaoPay',$paymethod))class="select"#end>
+			<label lang="netPay" for="emptyPay1" onclick="setChoosePay(false)"><input type="radio" name="paymethod" id="emptyPay1" value=""/>网上支付</label>
+		</li>
+		#end
+		#*
+		#if($valHelp.supportPaymethod('ipsPay'))<li #if($paymethod eq 'ipsPay')class="select"#end><label for="n5" lang="ipsPay" onclick="setChoosePay(false)"><input type="radio" name="paymethod" id="n5" value="ipsPay" #if($paymethod eq "ipsPay") checked="checked"#end/>信用卡支付</label></li>#end
+		#if($valHelp.supportPaymethod('umPay') && $order.citycode eq '310000')<li #if($paymethod eq 'umPay')class="select"#end>
+		<label for="emptyPay2" lang="umPay" onclick="setChoosePay(true)"><input type="radio" name="paymethod" id="emptyPay2" value=""/>移动话费支付</label>
+		</li>#end
+		*#
+	</ul>
+</div>
+#else
+<div class="menu_ck" id="menu_ck"></div>
+#end
+#set($chinaUnion='unionPay')
+#if($order.paymethod eq 'china2Pay' && $VmUtils.eq($order.paybank, '8607'))
+#set($chinaUnion='china2Pay:8607')
+#elseif($order.paymethod eq 'unionPay_activity')
+#set($chinaUnion='unionPay_activity')
+#elseif($order.citycode.startsWith('320'))
+#set($chinaUnion='unionPay_js')
+#else
+#set($chinaUnion='unionPay')
+#end
+<div class="pay_out">
+	<div class="pay_inner">
+		#if($order.due gt 0 && !$valHelp.denyAll())
+		<div class="plug_pay ckM #if($paymethod eq 'gewaPay'  || $paymethod eq 'umPay' )none#end" id="netPay">
+			#if($valHelp.supportAny('unionPay,unionPay_activity,unionPay_js,directPay,spsdo2Pay,tempusPay,cmPay,china2Pay'))
+			<div class="title">请选择以下支付平台支付</div>
+			#if($order.ordertype ne 'drama' && $valHelp.supportPaymethod($chinaUnion))
+			<div class="c6 mt10 picdowBox">
+				支持所有银行，无需开通网银，关联一张银行卡即可轻松支付。
+				<span style="width:13px;height:8px;position:absolute;top:25px;left: 10px;_top:23px;"><img  src="/css/movie/picdow.gif"></span>
+			</div>
+			#end
+			<div class="payObject">
+				#if($valHelp.supportPaymethod($chinaUnion) || $valHelp.supportPaymethod("china2Pay:9999"))
+				<ul class="clear">
+					#if($order.ordertype eq 'drama')
+					<li><label style="background:url(${picPath}css/buss/bay_online.jpg) 26px center no-repeat;" class="object"><input type="radio" name="paymethod" value="$chinaUnion" #if($paymethod eq $chinaUnion) checked="checked"#end id="china2Pay"/></label></li>
+					#else
+					#if($valHelp.supportPaymethod($chinaUnion))
+					<li><label style="background:url(${picPath}css/buss/bay_online.jpg) 26px center no-repeat;" class="object" title="您仅需持有一张银联卡，无需开通网上银行，即享安全、便捷的支付体验。"><input type="radio" name="paymethod" value="$chinaUnion" #if($paymethod eq $chinaUnion) checked="checked"#end id="china2Pay"/></label></li>
+					#end
+					#end
+					#if($valHelp.supportPaymethod("china2Pay:9999"))
+					<li><label style="background:url(${picPath}css/buss/chinaPay.jpg) 26px center no-repeat;" class="object"><input type="radio" name="paymethod" value="china2Pay:9999"/></label></li>
+					#end
+				</ul>
+				#end
+				<ul class="clear">
+					#if($valHelp.supportPaymethod("directPay"))<li><label style="background:url(${picPath}css/buss/zfb.jpg) 26px center no-repeat;" class="object"><input type="radio" name="paymethod" value="directPay" #if($paymethod eq "directPay") checked="checked"#end/></label></li>#end
+					#if($valHelp.supportPaymethod("cmPay"))<li><label style="background:url(${picPath}css/buss/mobilePay.jpg) 26px center no-repeat;" class="object"><input type="radio" name="paymethod" value="cmPay" #if($paymethod eq "cmPay") checked="checked"#end/></label></li>#end
+					#if($valHelp.supportPaymethod("spsdo2Pay"))<li><label style="background:url(${picPath}img/pay/sdopay.jpg) 26px center no-repeat;" class="object"><input type="radio" name="paymethod" value="spsdo2Pay" #if($paymethod eq "spsdo2Pay") checked="checked"#end/></label></li>#end
+				</ul>
+			</div>
+			#end
+			
+			#if($valHelp.supportAny('pnrPay,china2Pay,cmbPay,bcPay,gdbPay,directPay,psbcPay,hzbankPay,spdPay,ccbposPay,spdPay_activity,pnrfastPay,pnrfastPay2'))
+			<div class="title">请选择以下银行支付</div>
+			<div class="payObject">
+				<ul class="clear">
+					#foreach($bank in $bankPayList) #set($pair=$VmUtils.split($bank, ","))
+					#if($valHelp.supportPaymethod($pair[2]))
+					<li>
+						<label class="object $pair[1]" title="$pair[0]" for="$pair[3]">
+							<input type="radio" name="paymethod" id="$pair[3]" value="$!pair[2]" #if($paymethod eq $pair[2])checked="checked"#end/>
+						</label>
+					</li>
+					#end
+					#end
+					#if($valHelp.supportPaymethod('pnrPay') && $paymethod eq 'pnrPay' && $VmUtils.isBlank($order.paybank))
+					<li style="display: none;">
+						<input type="radio" name="paymethod" id="pnrOther" value="pnrPay" checked="checked"/>
+					</li>
+					#end
+				</ul>
+			</div>
+			#end
+			
+			#if($valHelp.supportAny('onetownPay,yagaoPay'))
+			<div class="title">请选择以下行业卡支付</div>
+			<div class="payObject">
+				<ul class="clear">
+					#if($valHelp.supportPaymethod('onetownPay'))<li><label style="background:url(${staticPath}img/pay/001town.jpg) 26px center no-repeat;" class="object"><input type="radio" name="paymethod" value="onetownPay" #if($paymethod eq "onetownPay") checked="checked"#end/></label></li>#end
+					#if($valHelp.supportPaymethod('yagaoPay'))<li><label style="background:url(${staticPath}img/pay/yagao.jpg) 26px center no-repeat;" class="object"><input type="radio" name="paymethod" value="yagaoPay" #if($paymethod eq "yagaoPay") checked="checked"#end/></label></li>#end
+				</ul>
+			</div>
+			#end
+		</div>
+		#*
+		#if($valHelp.supportPaymethod('ipsPay'))
+		<div class="plug_pay ckM #if($paymethod ne 'ipsPay')none #end" id="ipsPay">
+			<div class="yellow fs14">信用卡支付无需开通网银，只要拥有以下银行的信用卡即可支付。</div>
+			<div class="payObject">
+				<ul class="clear">
+					<li><label class="object" style="background:url(${staticPath}img/pay/icon_zgyh.gif) 26px center no-repeat;" title="中国银行"></label></li>
+					<li><label class="object" style="background:url(${staticPath}img/pay/icon_zggsyh_s.gif) 26px center no-repeat;" title="中国工商银行"></label></li>
+					<li><label class="object" style="background:url(${staticPath}img/pay/icon_ccb_s.gif) 26px center no-repeat;" title="中国建设银行"></label></li>
+					<li><label class="object" style="background:url(${staticPath}img/pay/icon_itic_s.gif) 26px center no-repeat;" title="中信银行"></label></li>
+					<li><label class="object" style="background:url(${staticPath}img/pay/icon_gd.gif) 26px center no-repeat;"  title="光大银行"></label></li>
+					<li style="text-align:center;width:22%;"><label class="object" style="background:url(${staticPath}img/pay/icon_zsyh_s.gif) 26px center no-repeat;" title="招商银行"></label><span class="yellow">(电话支付)</span></li>
+				</ul>
+				<div class="mt20">您的姓名：<input type="text" name="pname" id="pname" style="width:160px" class="text"/><span class="yellow ml5">*</span><span class="thisMe" lang="真实姓名不能有特殊字符">请输入您真实姓名</span></div>
+				<div class="mt5">身份证号：<input type="text" name="pidno" id="pidno" onkeyup="relaceOther(this)" style="width:160px" class="text"/><span class="yellow ml5">*</span><span class="thisMe">请输入您的15-18位身份证号码</span></div>
+				<div class="mt5">手机号码：<input type="text" name="pmobile" id="pmobile" onkeyup="replaceStr(this)" style="width:160px" class="text"/><span class="yellow ml5">*</span><span class="thisMe">请输入您手机号码</span></div>
+				<div class="mt10"><span class="yellow">提示：</span>以上信息用于发卡银行身份验证，务必与您信用卡账号的姓名和身份证号一致。</div>
+			</div>
+		</div>
+		#end
+		*#
+		#*
+		#if($valHelp.supportAny('umPay') && $order.citycode eq '310000')
+		<div class="plug_pay ckM #if($paymethod ne 'umPay')none #end" id="umPay">
+			<div class="payObject" style="position: relative;padding-bottom:100px;">
+				<div class="mt10 picdowBox"style="width:426px;margin-left:0;margin-top:30px;">#set($umFeeRate=$umPayRate.data)
+					上海移动用户，可选择通过手机话费支付，同时需要额外支付话费支付服务费。
+					<span style="width:13px;height:8px;position:absolute;top:25px;left: 10px;_top:23px;"><img src="${picPath}css/movie/picdow.gif"></span>
+				</div>#set($totalNotOtherfee=$order.totalAmount - $order.discount - $order.otherfee)
+				<ul class="clear">#set($umDue=$totalNotOtherfee + $otherfee)
+					<li style="width:100%;line-height:26px;font-size:14px;">
+						<label style="background:url(${picPath}css/buss/cost_online.jpg) 26px center no-repeat;" class="object" for="umPay_id">
+						<input type="radio" name="paymethod" id="umPay_id" value="umPay" #if($paymethod eq "umPay") checked="checked"#end onclick="choiceUmPay(this)"/></label>
+						您将通过手机<b class="brown">$order.mobile</b>话费来支付
+					</li>
+				</ul>
+				<div class="inner fs14 bold mt20">
+					实付总额：<b class="yellow fs20">$totalNotOtherfee</b>元
+					<span id="umPayFeeInfo" class="#if($paymethod ne 'umPay')none#end">&nbsp;+ &nbsp;
+					<b class="yellow fs20">$!{otherfee}</b>元(话费支付服务费)&nbsp;=&nbsp;<b class="yellow fs20">$!umDue</b>元
+					</span>
+				</div>
+				<div style="position: absolute;width:320px;padding:10px;border:1px solid #eee;background:#fff;right:-30px;_right:20px;top:12px;z-index: 99;line-height:22px;">
+					<b class="fs14">业务规则：</b>(<a href="${basePath}helpCenter/index.dhtml?diaryId=3198822&dkey=helpcenter1324351202330" target="_blank">查看详情</a>)
+					<p>1.本业务目前支持上海地区全品牌预付费及后付费用户。</p>
+					<p>2.用户次限额、日限额、月限额均为200元。</p>
+					<p>3.预付费用户交易需满足：账户余额减去所购电影票价款后帐户余额≥10元。</p>
+					<p>4.用户每两次交易间隔1分钟以上。</p>
+					<p>5.所有用户均要满足入网时间120天以上。</p>
+					<div class="fs14 mt10"><b>温馨提示：</b></div>
+					<p>如未收到短信提示，或者确认扣费后，无成功交易短信，或者有关于支付的相关问题请咨询话费支付客服热线： 400-612-5880 （只收市话费， 无长途话费）。</p>
+				</div>
+			</div>
+		</div>
+		#end
+		*#
+		<div class="plug_pay ckM #if($paymethod ne 'gewaPay') none #end" id="gewaPay">
+			<div class="clear">
+				#parse('include/pay/bankwabi.vm')
+			</div>
+		</div>
+		<div class="plugLine"><span class="gr-l"></span><span class="gr-r"></span></div>
+		#elseif($order.paymethod eq "elecardPay")
+		<input type="hidden" name="paymethod" value="elecardPay" />
+		#else
+		<input type="hidden" name="paymethod" value="gewaPay" />
+		#end
+		<div class="plug_pay">
+			<div class="payObject">
+				<label class="bigBt button" for="subBt"><input type="submit" value="确认无误，支付" id="subBt"/></label>
+				<a href="${basePath}gewapay/order.xhtml?orderId=$order.id" class="brown" style="margin-left:20px;font-size:12px;font-size:14px;text-decoration:underline;">返回上一步，重新选择</a>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+var needChoose = false;
+function setChoosePay(vchoose){
+	needChoose = vchoose;
+}
+</script>
+#if($order.due gt 0)
+<!-- 加入 弹出框 dlgpaypwd.vm -->
+#parse('include/pay/dlgpaypwd.vm')
+<script type="text/javascript">
+if($('ipsPay')) var inputs = $('ipsPay').getElements('input');
+window.addEvent('domready',function(){
+	$$('.object').addEvents({
+		'mouseenter':function(){if(this.getElement('input'))this.addClass('select')},
+		'mouseleave':function(){$$('.object').each(function(item){
+				if(item.getElement('input') && !item.getElement('input').checked)item.removeClass('select');
+			});
+		}
+	});
+	$$('.menu_ck label').each(function(item,i){
+		item.addEvent('click',function(){
+			$$('.menu_ck li').removeClass('select');
+			$$('.ckM').addClass('none');
+			if(!this.getParent().hasClass('select')){
+				this.getParent().addClass('select');
+				$(this.get('lang')).removeClass('none');
+			}
+		});
+	});
+	addCredibleCard();
+});
+function addCredibleCard(){
+	if($('ipsPay')) {
+		var inputs = $('ipsPay').getElements('input');
+		inputs.addEvent('blur',function(){
+			if(!$chk(this.value)){
+				this.getNext('.thisMe').addClass('yellow');
+			}else{
+				this.getNext('.thisMe').removeClass('yellow');
+			}
+			if(this == inputs[1]){
+				if(inputs[1].value.length > 0 && inputs[1].value.length != 15  && inputs[1].value.length != 18){gewaUtil.alert('您填写的身份证号码有误，请重新填写！');}
+			}else if(this == inputs[2]){
+				if(inputs[2].value.length > 0 && inputs[2].value.length != 11){gewaUtil.alert('您填写的手机号码有误，请重新填写！');}
+			}
+		})
+	}
+}
+function replaceStr(el){
+	$(el).value = $(el).value.replace(/[^\d]/g,'');
+}
+function relaceOther(el){
+	$(el).value = $(el).value.replace(/[\W]/g,'');
+}
+function chechF(){
+	return $('menu_ck').getElements('input').every(function(item){
+		if(item.checked && item.value == 'ipsPay'){
+			var i=0;
+			while(i<inputs.length){
+				if(!$chk(inputs[i].value)){
+					gewaUtil.alert(inputs[i].getNext('.thisMe').get('text'));
+					return false;
+				}
+				i++;
+			}
+			return true;
+		}else{
+			return true;
+		}
+	});
+}
+var curCard = #if($paymethod eq 'yagaoPay')'yagaoPay' #else 'onetownPay'#end;
+function setOtherPay(){
+	$(curCard).checked=true;
+}
+function choiceUmPay(e){
+	needChoose = false;
+	$('umPayFeeInfo').removeClass('none');
+}
+</script>
+#end

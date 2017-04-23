@@ -1,0 +1,109 @@
+<div class="mod_bd">
+	<div id="finalist_content">
+		<p class="types">
+			<em>国家/地区：</em>
+			#set($stateList = ['美国','日本','韩国','泰国','法国','英国','意大利','加拿大','巴西','德国','中国香港','中国台湾'])
+			<a href="${basePath}filmfest/sixteenMovieList.xhtml">全部</a>|
+			#foreach($state in $stateList)
+			<a href="${basePath}filmfest/sixteenMovieList.xhtml?state=$state">$state</a>#if($foreach.count ne $stateList.size())|#end
+			#end
+		</p>
+		<p class="types mt10">
+			<em>影片类型：</em>
+			#set($typeList = ['喜剧','剧情','惊悚','爱情','恐怖','犯罪','历史','传记','悬疑','动作','动画','古装','奇幻'])
+			<a href="${basePath}filmfest/sixteenMovieList.xhtml">全部</a>|
+			#foreach($type in $typeList)
+				<a href="${basePath}filmfest/sixteenMovieList.xhtml?type=$type">$type</a>#if($foreach.count ne $typeList.size())|#end
+			#end
+		</p>
+		<p class="types mt10">
+			<em>单元类型：</em>
+			<a href="${basePath}filmfest/sixteenMovieList.xhtml">全部</a>|
+			<a href="${basePath}filmfest/sixteenMovieList.xhtml?flag=金爵">金爵奖竞赛</a>|
+			<a href="${basePath}filmfest/sixteenMovieList.xhtml?flag=亚洲新人">亚洲新人奖竞赛</a>|
+			<a href="${basePath}filmfest/sixteenMovieList.xhtml?flag=希区柯克">希区柯克9大默片修复展（DCP无音轨）</a>|
+			<a href="${basePath}filmfest/sixteenMovieList.xhtml?flag=张国荣">集体回忆张国荣（向大师致敬）</a>
+		</p>
+		<div class="filmListAera">
+			<ul class="ui_media">
+				#foreach($movie in $movieList)
+				#set($movieMpiList = $movieMpiMap.get($movie.id))
+				<li class="#if($foreach.count gt 2) mt20 #end">
+					<div class="ui_pic">
+						<a title="$!movie.moviename" target="_blank" href="${basePath}movie/$!movie.id"><img height="128" width="96" src="$!VmUtils.randomPic('cw96h128',$!movie.logo)" alt="$!movie.moviename" /></a>
+					</div>
+					<div class="ui_text">
+						<p><a class="bold" title="$!movie.moviename" target="_blank" href="${basePath}movie/$!movie.id">$!VmUtils.escabbr($!movie.moviename, 24)</a>#if($movie.playdate)($!VmUtils.substring($movie.playdate, 0, 4)年)#end</p>
+						<p class="half"><span><em>国家/地区：</em>$!movie.state</span><span><em>语言：</em>$!movie.language</span></p>
+						<p class="half"><span><em>片长：</em>#if($!movie.videolen)$movie.videolen分钟#end</span><span><em>类型：</em>$!movie.type</span></p>
+						#if($VmUtils.size($movieMpiList) eq 0)
+						<p class="mt10">
+							#if($VmUtils.contains($joinMovieIdList,$!movie.id))
+							<a class="btn whiteBtn" href="${basePath}filmfest/myViewFilm.xhtml" target="_blank" style="text-align:center; width:70px;">已加入片单</a>
+							#else
+							<a class="btn" href="javascript:void(0)" onclick="saveSchedule($!movie.id,'movie',this);" style="text-align:center; width:70px;">加入片单</a>
+							#end
+						#else
+						<div class="onShow clear" id="finalist$!movie.id">
+							#if($VmUtils.gt($VmUtils.size($movieMpiList),3))<div title="向左滚动" class="even_left eventses"></div>#end
+							<div class="even_center">
+								<ul>
+									#foreach($mpi in $movieMpiList)
+									#set($cinema = $cinemaMap.get($mpi.cinemaid))
+									#set($mpiPlayDate = $DateUtil.format($mpi.playdate,'MM月dd日'))
+									#set($mpitime = $mpiPlayDate + ' ['+ $DateUtil.getCnWeek($mpi.playdate)+'] '+$mpi.playtime)
+									#set($opiDate = $mpi.playdate + ' '+$mpi.playtime)
+									#set($opi=$opiMap.get($mpi.id))
+									<li>
+										<p class="c666" title="$!cinema.briefname">$!VmUtils.escabbr($!cinema.briefname,16)</p>
+										<p>$mpiPlayDate $mpi.playtime</p>
+										#if($VmUtils.contains($opi.otherinfo, 'unopengewa') || $VmUtils.contains($opi.otherinfo, 'unshowgewa'))
+											#if($VmUtils.contains($joinMpidList,$!mpi.id))
+											<a class="addList right mr5" href="${basePath}filmfest/myViewSchedule.xhtml" target="_blank">已加入日程</a>
+											#else
+											<a class="addList right mr5" href="javascript:void(0);" onclick="saveSchedule($!mpi.id,'schedule',this);">加入日程</a>
+											#end
+										#else
+											#if($opi.booking)
+											<a href="${basePath}cinema/order/step1.shtml?mpid=$mpi.id" target="_blank" class="right mr5">$opi.seatStatus</a>
+											#elseif($opi.closed)
+											<span class="c999 right mr5">已关闭</span>
+											#else
+												#if($VmUtils.contains($joinMpidList,$!mpi.id))
+											<a class="addList right mr5" href="${basePath}filmfest/myViewSchedule.xhtml" target="_blank">已加入日程</a>
+												#else
+											<a class="addList right mr5" href="javascript:void(0);" onclick="saveSchedule($!mpi.id,'schedule',this);">加入日程</a>
+												#end
+											#end
+										#end
+										#if($!mpi.gewaprice)<span class="left cF60 ml5">¥$!mpi.gewaprice</span>#end
+									</li>
+									#end
+									#if($VmUtils.gt(3,$VmUtils.size($movieMpiList)))
+									#set($y = 3-$VmUtils.size($movieMpiList))
+									#foreach($x in [1..$y])
+									<li class="nothing"></li>
+									#end
+									#end
+								</ul>
+							</div>
+							#if($VmUtils.gt($VmUtils.size($movieMpiList),3))<div title="向右滚动" class="even_right eventses"></div>#end
+						</div>
+						#end
+					</div>
+				</li>
+				#end
+			</ul>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	#foreach($movie in $movieList)
+	#set($movieMpiList = $movieMpiMap.get($movie.id))
+	#if($VmUtils.gt($VmUtils.size($movieMpiList),3))
+	new evengo({'parent':'finalist$movie.id','times':1,'width':101,'allwidth':303});
+	#end
+	#end
+});
+</script>

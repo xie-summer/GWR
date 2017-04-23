@@ -1,0 +1,43 @@
+#set($mainMenuLen=$VmUtils.size($mainMenuList))
+<div id="menuHpList" class="menuHpList">
+	<h2><a #if(!$params.diaryId)class="select"#end href="${basePath}helpCenter/index.dhtml">帮助中心</a></h2>
+	<span class="bLine"><img src="${staticPath}css/images/blank.gif"/></span>
+	#foreach($mainMenu in $mainMenuList)
+		#set($dataMap=$VmUtils.readJsonToMap($mainMenu.data))
+		#if(!$VmUtils.isNull(${dataMap.get('relatedid')}))
+		<h2><a #if($params.diaryId eq ${dataMap.get('relatedid')})class="select"#end href="${basePath}helpCenter/index.dhtml?diaryId=${dataMap.get('relatedid')}&dkey=${dataMap.dkey}" >$dataMap.get('menutitle')</a></h2>
+		#else
+		<h2><a href="javascript:void(0)" onclick="mytoggleDisplay('ul_${foreach.count}', this);">$dataMap.get('menutitle')</a></h2>
+		#end
+		<span class="bLine"><img src="${staticPath}css/images/blank.gif"/></span>
+		#if(!$VmUtils.isEmptyList($subdataMap.get($mainMenu.dkey)))
+		<div id="ul_${foreach.count}" class="menuHpList_id">
+			<ul class="mt5">
+				#foreach($subMenu in $subdataMap.get($mainMenu.dkey))
+				#set($subMap=$VmUtils.readJsonToMap($subMenu.data))
+				<li><a #if($params.diaryId eq ${subMap.get('relatedid')})class="select"#end href="${basePath}helpCenter/index.dhtml?diaryId=${subMap.get('relatedid')}&dkey=${subMenu.dkey}">$subMap.get('menutitle')</a></li>
+				#end
+			</ul>
+			#if($foreach.count ne $mainMenuLen)
+			<span class="bLine"><img src="${staticPath}css/images/blank.gif"/></span>
+			#end
+		</div>
+		#end
+	#end
+</div>
+<script>
+	window.addEvent('domready', function(){
+		#if($params.diaryId)
+		$('menuHpList').getElements('.menuHpList_id').setStyle('display','none');
+		#end
+		if($$('#menuHpList ul .select'))$$('#menuHpList ul .select').getParent('.menuHpList_id').setStyle('display','block');
+	});
+	function mytoggleDisplay(id, obj){
+		$('menuHpList').getElements('a').removeClass('select');		
+		$('menuHpList').getElements('.menuHpList_id').filter(function(el){
+			return el.get('id') !=id && el.getStyle('display') == 'block';
+		}).setStyle('display','none');
+		$(id).toggleDisplay();
+		$(obj).addClass('select');
+	}
+</script>

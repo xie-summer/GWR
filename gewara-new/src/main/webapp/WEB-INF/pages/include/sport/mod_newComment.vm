@@ -1,0 +1,36 @@
+<!-- SUCCESS_HEAD -->
+#if(!$VmUtils.isEmptyList($commentList))
+<div class="mod_kong">
+	<div class="mod_hd">
+		<h2>#if($VmUtils.eq($type, 'item') || $VmUtils.eq($type, 'sportservice'))运动心得#else瓦友最新评论#end</h2>
+	</div>
+	<div class="mod_bd">
+		<ul>
+			#foreach($comment in $commentList)
+			<li #if($foreach.count gt 1)class="mt30"#end>
+				<dl class="ui_media">
+					<dt class="ui_pic buyTick">
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" title="$!comment.nickname" target="_blank">
+							<img src="$VmUtils.randomPic('cw50h50', $!cacheMemberMap.get($comment.memberid).headpicUrl)" alt="$!comment.nickname" width="50" height="50"/>
+						</a>
+						#if($VmUtils.contains($comment.flag,'ticket'))
+						<span class="ico_buyTicket"></span>
+						#end
+					</dt>
+					<dd class="ui_text">
+						<p class="c9">
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank" class="cSport">$!comment.nickname</a>：
+							#if($comment.relatedid)<a href="$!{basePath}sport/$!comment.relatedid/commentlist" target="_blank" class="cSport">$!comment.topic</a>#end
+							#set($lastIndex = $comment.body.lastIndexOf('#')+1)
+							$!VmUtils.getWebBody($!comment.body.substring($lastIndex),$picPath) 
+						</p>
+						<p class="mt10 cd">$DateUtil.getTimeDesc($!comment.addtime) 来自$!comment.fromFlag</p>
+					</dd>
+				</dl>
+			</li>
+			#end
+		</ul>
+	</div>
+</div>
+#end
+<!-- SUCCESS_BOTTOM -->

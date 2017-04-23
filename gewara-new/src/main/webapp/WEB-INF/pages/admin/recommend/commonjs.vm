@@ -1,0 +1,68 @@
+<div id="pointText" style="visibility:hidden; z-index:601;"></div>
+<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+<script type="text/javascript">
+	function del(gcid){
+		if(confirm('确认要删除吗?')==false)return;
+		var url = "${basePath}admin/common/ajax/removeGewaCommend.xhtml";
+		GewaraUtil.sendRequest(url, {'id':gcid}, function(result){
+			if(result.success){
+				if($('_resultSpan')){
+					GewaraUtil.successAlert('_resultSpan');
+					gewaUtil.dispose($('gcc'+gcid));
+				}else{
+					refreshPage();
+				}
+			}else{
+				alert('删除失败');
+			}
+		});
+	}
+	function orderNum(gcid, val, obj){
+		var url = "${basePath}admin/common/ajax/changeGCOrderNum.xhtml";
+		GewaraUtil.sendRequest(url, {'id':gcid, 'ordernum':val}, function(result){
+			if(result.success){
+				if($(obj)){
+					$(obj).setStyle('background-color','red');
+					(function(){
+						$(obj).setStyle('background-color','');
+					}.bind(obj)).delay(800);
+				}
+			}else{
+				alert('设置失败');
+			}
+		});
+	}
+	function toDiary(v){
+		if(v!='') {
+			window.open('${absPath}${basePath}blog/t'+v);
+		}
+	}
+	
+	function selectOtherCity(gcid){
+		var url = '${basePath}admin/common/dataShareCitys.xhtml';
+		var values = {'gcid':gcid};
+		GewaraUtil.sendLoad('showCityDialogDV', url, values, function(result){
+			GewaraUtil.showDialog('showCityDialog');
+		})
+	}
+</script>
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		$$('.aEvent').addEvent('click',function(e){
+			e.preventDefault();
+			var url = "${basePath}admin/recommend/gcDetail.xhtml";
+			var values = {};
+			var ul = this.get('href').split('?');
+			if($defined(ul[1])){
+				values = ul[1].parseQueryString();
+			}
+			gewaUtil.loadData('pointText',url, values, function(result){
+				if(result.success){
+					GewaraUtil.showDialog('pointText');
+				}else{
+					gewaUtil.alert(result.json.msg);
+				}
+			});
+		})
+	})
+</script>

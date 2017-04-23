@@ -1,0 +1,81 @@
+<div style="display:none;height:300px;overflow-y:auto;hidden; z-index:20;background-color: #EEEEEE;" id="adminApplyForm">
+<table width="100%" cellspacing="0" class="roomManageTable">
+	<input type="hidden" id="applyamount" name="applyamount"/>
+	<input type="hidden" id="applymemberid" name="applymemberid"/>
+	<tbody>
+	<tr class="td">
+		<td>订单号：</td>
+		<td><input type="text" name="orderidList" id="orderidList" class="left" onchange="checkOrderNo(this.value)" style="width:200px" /><br/>多的订单以英文","逗号</td>
+	</tr>
+	<tr class="td">
+		<td>发票项目：</td>
+		<td>
+			<select name="applyinvoicetype" class="mt5 left" id="applyinvoicetype">
+				<option value="movienote" #if($VmUtils.eq($!invoice.invoicestatus, 'movienote')) selected="selected" #end>电影票款</option>
+				<option value="dramanote" #if($VmUtils.eq($!invoice.invoicestatus, 'dramanote')) selected="selected" #end>演出票款</option>
+				<option value="sportnote" #if($VmUtils.eq($!invoice.invoicestatus, 'sportnote')) selected="selected" #end>运动票款</option>
+			</select>
+		</td>
+	</tr>
+	<tr class="td" style="display:" id="orderInformation">
+		<td>用户信息：</td>
+		<td style="height:20px;width:300px">
+			用户名：<span id="membername"></span>
+			可申请金额:<span id="totalfee" style="color:red;"></span>元</td>
+	</tr>
+	<tr class="td">
+		<td>发票抬头：</td>
+		<td><input id="applytitle" type="text" class="text left" name="applytitle" value=""/></td>
+	</tr>
+	<tr class="td">
+		<td>收件人：</td>
+		<td><input id="applycontactor" type="text" class="text left" name="applycontactor" value=""/></td>
+	</tr>
+	<tr class="td">
+		<td>联系电话：</td>
+		<td>
+			<input type="text" class="text left" name="applyphone" id="applyphone" value=""/>
+		</td>
+	</tr>
+	<tr class="td">
+		<td>邮寄城市：</td>
+		<td id="ajaxApplyLoadAddress" class="left">&nbsp;</td>
+	</tr>
+	<tr class="td">
+		<td>填写地址：</td>
+		<td><input id="applyaddress" type="text" class="text left" name="applyaddress" value=""/></td>
+	</tr>
+	<tr class="td">
+		<td>邮政编码：</td>
+		<td>
+			<input id="applypostcode" type="text" class="text left" name="applypostcode" value=""/>
+		</td>
+	</tr>
+	</tbody>
+</table>
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		updateApplyAddress();
+	})
+	function updateApplyAddress(){
+		var url = '${basePath}admin/invoice/ajaxLoadAddress.xhtml';
+		var values = {'agtag':'PCR'};
+		GewaraUtil.sendLoad('ajaxApplyLoadAddress', url, values, function(){});
+	}
+	function checkOrderNo(el){
+		var url="${basePath}admin/invoice/getInvoiceInfo.xhtml";
+		var values = {'orderno':el};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$('membername').innerHTML=result.membername;
+				$('totalfee').innerHTML=result.totalfee;
+				$('applyamount').value=result.totalfee;
+				$('applymemberid').value=result.memberid;			
+				$("orderInformation").show();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</div>

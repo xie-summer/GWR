@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>Gewara后台发票管理系统</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		.inputradio{vertical-align: middle;}
+		.OkMsg {
+			background: url(${staticPath}styles/images/standard_msg_ok.gif) #e6ffe6 no-repeat 5px 0px; color: #000;
+			border: #00be00 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.WarningMsg {
+			background: url(${staticPath}styles/images/standard_msg_warning.gif) #e2f5ff no-repeat 5px 0px; color: #000;
+			border: #00a8ff 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.ErrorMsg {
+			background: url(${staticPath}styles/images/standard_msg_error.gif) #fff2e9 no-repeat 5px 0px; color: #000;
+			border: #f60 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.menuInner_seach{
+			background-attachment: scroll;
+		   background-clip: border-box;
+		   background-color: transparent;
+		   background-origin: padding-box;
+		   background-position: 0 0;
+		   background-repeat: repeat;
+		   background-size: auto auto;
+		}
+	</style>
+</head>
+<body style="width:85%; margin:auto">
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore"></li>
+			<li class="currs"><a><span>财务发票查询</span></a></li>
+		</ul>
+	</div>
+</div>
+<br/>
+<table width="100%" cellspacing="0" class="roomManageTable">
+	<tbody>
+		<tr class="td">
+			<td align="center">发票状态：</td>
+			<td align="center">
+				#if($VmUtils.eq($invoice.invoicestatus,'N_APPLY'))申请中
+				#elseif($VmUtils.eq($invoice.invoicestatus,'N_NOTOPEN'))发票未开
+				#elseif($VmUtils.eq($invoice.invoicestatus,'Y_OPEN') || $VmUtils.eq($invoice.invoicestatus,'Y_EXP') ||
+				$VmUtils.eq($invoice.invoicestatus,'Y_POST') || $VmUtils.eq($invoice.invoicestatus,'Y_NOTPOST'))发票已开
+				#elseif($VmUtils.eq($invoice.invoicestatus, 'N_TRASH'))已废弃
+				#elseif($VmUtils.eq($invoice.invoicestatus, 'N_APPLYAGAIN'))申请补开
+				#elseif($invoice.invoicestatus.contains('Y_AGAIN'))已补开
+				#end
+			</td>
+			<td align="center">开票金额</td>
+			<td align="center">￥$!invoice.amount</td>
+			<td align="center">发票抬头</td>
+			<td align="center">$!VmUtils.escapeHtml($!invoice.title)</td>
+		</tr>
+		<tr class="td">
+			<td align="center">票据类型：</td>
+			<td align="center">#if($VmUtils.eq($!invoice.invoicetype,'movienote'))电影票款#elseif($VmUtils.eq($!invoice.invoicetype,'dramanote'))演出票款#end</td>
+			<td align="center">开票时间：</td>
+			<td align="center">$!DateUtil.format($invoice.opentime,'yyyy年M月d日')</td>
+			<td align="center">邮政编码：</td>
+			<td align="center">$!VmUtils.escapeHtml($!invoice.postcode)</td>
+		</tr>
+		<tr class="td">
+			<td align="center">申请时间：</td>
+			<td align="center">$!DateUtil.format($invoice.addtime,'yyyy年M月d日')</td>
+			<td align="center">收件人：</td>
+			<td align="center">$!VmUtils.escapeHtml($!invoice.contactor)</td>
+			<td align="center">地址：</td>
+			<td align="center">$!VmUtils.escapeHtml($!invoice.address)</td>
+		</tr>
+		<tr class="td">
+			<td align="center">电话：</td>
+			<td align="center">$!VmUtils.escapeHtml($!invoice.phone)</td>
+			<td align="center">类别：</td>
+			<td align="center" style="color:red;">$!pretypeMap.get($invoice.pretype)</td>
+			<td align="center">&nbsp;</td>
+			<td align="center">&nbsp;</td>
+		</tr>
+	</tbody>
+</table>
+<form id="invoiceForm" name="invoiceForm">
+<input type="hidden" name="invoiceid" value="$invoice.id"/>
+<table width="100%" cellspacing="0" class="roomManageTable">
+	<tr class="td">
+		<td align="center">选择：</td>
+		<td align="center">
+			<select name="invoicestatus">
+				<option value="">请选择</option>
+				<option value="Y_OPEN" #if($VmUtils.eq($invoice.invoicestatus,'Y_OPEN') || $VmUtils.eq($invoice.invoicestatus,'Y_EXP') ||
+				$VmUtils.eq($invoice.invoicestatus,'Y_POST') || $VmUtils.eq($invoice.invoicestatus,'Y_NOTPOST')) selected="selected" #end>开发票</option>
+			<option value="N_NOTOPEN" #if($VmUtils.eq($invoice.invoicestatus,'N_NOTOPEN')) selected="selected" #end>暂时不开</option>
+			</select>
+		</td>
+		<td align="center">&nbsp;备注：</td>
+		<td>&nbsp;<textarea  name="invoicecontent" id="invoicecontent" style="width:360px;">$!invoice.invoicecontent</textarea></td>
+		<td align="center" colspan="4"><input type="button" value="确&nbsp;&nbsp;定" onclick="saveInvoice();"/></td>
+	</tr>
+</table>
+</form>
+<table width="100%" cellspacing="0" class="roomManageTable">
+	#if($orderList.size() > 0)
+	<tr class="td">
+		<td align="center" colspan="8">订单信息</td>
+	</tr>
+	#foreach($order in $orderList)
+	<tr class="td">
+		<td align="center">订单号:</td>
+		<td align="left"><a href="${basePath}admin/gewapay/orderDetail.xhtml?tradeNo=$order.tradeNo">$order.tradeNo</a></td>
+		<td align="center">&nbsp;总金额：</td>
+		<td align="center">&nbsp;$order.totalfee</td>
+		<td align="center">&nbsp;抵扣:</td>
+		<td align="center">&nbsp;$order.discount</td>
+		<td align="center">应付款:</td>
+		<td align="center">$order.getDue()</td>
+	</tr>
+	#end
+	#end
+	#if(!$VmUtils.isEmpty($chargeList))
+	<tr class="td">
+		<td align="center" colspan="8">充值信息</td>
+	</tr>
+	#foreach($charge in $chargeList)
+	<tr class="td">
+		<td align="center">订单号:</td>
+		<td align="left"><a href="${basePath}admin/gewapay/orderDetail.xhtml?tradeNo=$order.tradeNo">$charge.tradeNo</a></td>
+		<td align="center">&nbsp;充值金额：</td>
+		<td align="center">&nbsp;$charge.totalfee</td>
+		<td align="center">&nbsp;支付方式：</td>
+		<td align="center">&nbsp;$charge.paymethod</td>
+		<td colspan="2">&nbsp;</td>
+	</tr>
+	#end
+	#end
+
+</table>
+<script type="text/javascript">
+	function saveInvoice(){
+		var url = "${basePath}admin/invoice/saveInvoice.xhtml";
+		GewaraUtil.sendRequest(url,GewaraUtil.getValues("invoiceForm"), function(result){
+			if(result.success){
+				alert("操作成功！");
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>专题-链接-新闻列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		.labelspan {display:inline;float:left;width:90px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		.labelfor {margin-top:3px}
+		input,textarea { width:450px; display:inline}
+		/*分页*/
+		#page {font-size: 12px; height: 22px; text-align:center; width:360px; margin:25px auto; }
+		#page a {display: block; width:20px;height: 20px; margin: 0 2px 0 2px; border:1px solid #B9B7B7; float:left; text-align: center;}
+		#page a.on {background: #FF6600; color: #FFFFFF;}
+		#page a.pre,#page a.next{width: 40px;}
+		.none{display: none;}
+	</style>
+</head>
+<body style="width:92%;margin:auto" class="yui-skin-sam" >
+<div>
+	<a href="${basePath}admin/common/newsDetail.xhtml?tag=$!params.tag&relatedid=$!params.relatedid&newstype=$!params.newstype&category=$!params.category" target="_blank">增加新闻</a>
+	<a href="${basePath}admin/recommend/baserecommend.xhtml?signtype=$!{params.tag}&signname=$!{params.tag}news_subject&tag=news_zt&hand=true&title=true&logo=true&link=true&simpleCommend=true" target="_blank">关联专题</a>
+	<form action="${basePath}admin/common/newsList.xhtml">
+	<input type='hidden' name='tag' value="${params.tag}"/>
+	<b>新闻ID:</b><input type="text" name="nid" id="nid" value="$!params.nid" style="width:80px" />&nbsp;
+	<b>新闻标题:</b><input type="text" name="title" id="title" value="$!params.title" style="width:120px" />&nbsp;
+	<b>类型:</b><select name="newstype" id="newstype">
+		<option value="" selected>全部</option>
+		<option value="2" #if($VmUtils.eq($!params.newstype, '2'))selected#end>新闻</option>
+		<option value="1" #if($VmUtils.eq($!params.newstype, '1'))selected#end>专题</option>
+		<option value="5" #if($VmUtils.eq($!params.newstype, '5'))selected#end>人物</option>
+		<option value="sportrookie" #if($VmUtils.eq($!params.newstype, 'sportrookie'))selected#end>新手入门</option>
+		<option value="sportmaster" #if($VmUtils.eq($!params.newstype, 'sportmaster'))selected#end>高手进阶</option>
+		<option value="sportequipment" #if($VmUtils.eq($!params.newstype, 'sportequipment'))selected#end>运动装备</option>
+		<option value="sporthealth" #if($VmUtils.eq($!params.newstype, 'sporthealth'))selected#end>运动保健</option>
+		<option value="sportmatch" #if($VmUtils.eq($!params.newstype, 'sportmatch'))selected#end>运动赛事</option>
+	</select>
+	<b>归属地:</b><select name="citycode" id="citycode">
+		<option value="">选择关联城市</option>
+		<option value="000000" #if($VmUtils.eq($!params.citycode, '000000'))selected#end>全国</option>
+		#foreach($syscity in $syscitylist.keySet())
+			<option value="$syscity" #if($VmUtils.eq($!params.citycode, $syscity))selected#end>$syscitylist.get($syscity)</option>
+		#end
+	</select>
+	<input type="submit" value="查询" style="width:60px" />
+	<span class="ml30"><a href="javascript:void(0);" onclick="colspanAll(this);" >展开所有关联城市</a></span>
+	<span class="ml30"><a href="javascript:refreshPage();" >刷新</a></span>	
+</form>
+</div>
+<div id="msg"></div>
+<table width="95%" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th>编号</th>
+		<th>标题</th>
+		<th>添加日期</th>
+		<th>发布日期</th>
+		<th>关联</th>
+		<th>组图</th>
+		<th>操作</th>
+		<th>浏览量</th>
+		<th>前台</th>
+	</tr>
+	</thead>
+	<tbody id="newsTable">
+	#foreach($news in $newsList)
+	#set($relate=$relatedHelper.getR1("newsList",$news.id))
+		<tr id="news_${news.id}">
+			<td>$news.id</td>
+			<td id="title_${news.id}">$!VmUtils.escabbr($!news.title,40)}</td>
+			<td id="rt_${news.id}">$!DateUtil.formatTimestamp($news.updatetime)</td>
+			<td id="rt_${news.id}">$!DateUtil.formatTimestamp($news.releasetime)</td>
+			<td id="re_${news.id}">$!relate.cname</td>
+			<td><a href="${basePath}admin/common/pictureList.xhtml?tag=news&relatedid=$news.id&uploadPath=images/news" target="_blank">上传组图</a></td>
+			<td id="bt_${news.id}">
+				<input type="button" class="button" style="width:70px" value="验证" onclick="validateNews(${news.id});"/>
+				<a href="${basePath}admin/common/newsDetail.xhtml?nid=$news.id" target="_blank">修改</a>
+				<a href="javascript:deleteNews(${news.id});">删除</a>
+				<input type="button" value="关联城市" style="width:70px" class="button" onclick="showRelateCity('news', $!news.id)"/>
+			</td>
+			<td>$!news.clickedtimes</td>
+			<td><a href="$!{absPath}${basePath}news/${news.id}" target="_blank">前台页面</a></td>
+		</tr>
+		<tr class="none notp" id="notp$!news.id">
+			<td colspan="8" style="background: #E1F3FF">
+				<span style="margin-left: 50px;">
+					<span class="gray">$!citynameMap.get($!news.id)</span>
+				</span>
+			</td>
+		</tr>
+	#end
+	</tbody>
+	<tr>
+		<td colspan="6">#parse('include/pageUtil.vm')</td>
+	</tr>
+</table>
+
+<form name="htmlForm" id="htmlForm" action="${basePath}common/contentEditor.xhtml" method="post" target="_blank">
+	<input type="hidden" name="editorContent" id="editorContent"/>
+	<input type="hidden" name="returnId" id="returnId" value="content"/>
+</form>
+<div id="showCityDialogDV" style="height: 0px;"></div>
+#parse('admin/common/selectRelateCity.vm')
+
+	<script type="text/javascript">
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg1').src='${basePath}' + picpath;
+	}
+	function updateSmallLogo(params){
+		var picpath = params['picpath'];
+		$('smallLogo').value = picpath;
+		$('logoimg2').src='${basePath}' + picpath;
+	}
+	function openEditor(i){
+		$("editorContent").value = $("content"+i).value;
+		$("returnId").value = "content"+i;
+		$("htmlForm").submit();
+	}
+	
+	function deleteNews(newsid){
+		if(confirm('确认要删除吗?')==false) return;
+		var url = "${basePath}admin/common/ajax/removeNewsById.xhtml";
+		GewaraUtil.sendRequest(url, {"newsId":newsid},function(result){
+			if(result.success){
+				$("news_"+newsid).dispose();
+				alert("删除成功！");
+			}else alert("删除失败！");
+		});
+	}
+	function validateNews(newsid){
+		var url = "${basePath}admin/common/ajax/validateNews.xhtml";
+		GewaraUtil.sendRequest(url, {"newsid":newsid},function(result){
+			$("msg").set("html",result.retval)
+		});
+	}
+	function page(i){
+		for(var j=1;j<=10;j++){
+			$('page'+j).setStyle('display','none');
+			$('a'+j).removeClass('on');
+		}
+		$('page'+i).setStyle('display','');
+		$('a'+i).addClass('on');
+	}
+	function clearContent(){
+		$('content').value="";
+		for(var j=2;j<=10;j++){
+			$('content'+j).value="";
+		}
+	}
+</script>
+	<script>
+	// 全部关联 展开/收起
+	function colspanAll(obj){
+		if($(obj).get('html') == '展开所有关联城市'){
+			$(obj).set('html', '收起所有关联城市');
+			$$('.notp').removeClass('none');
+		}else{
+			$(obj).set('html', '展开所有关联城市');
+			$$('.notp').addClass('none');
+		}
+	}
+
+	// 展开关联城市
+	function showRelateCity(tag, id){
+		var url = '${basePath}admin/common/commonRelateCitys.xhtml';
+		var values = {'tag':tag, 'relatedid': id};
+		GewaraUtil.sendLoad('showCityDialogDV', url, values, function(result){
+			GewaraUtil.showDialog('showCityDialog');
+		})
+	}
+</script>
+</body>
+</html>

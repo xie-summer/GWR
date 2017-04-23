@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Expires" content="0" />    
+	<meta http-equiv="Cache-Control" content="no-cache" />    
+	<meta http-equiv="Pragma" content="no-cache" />    
+	<title>确认订单-$partner.partnername</title>
+	<link rel="stylesheet" type="text/css" href="${basePath}css/gewara.css?n=layout,play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${basePath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${basePath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		body{background:#fff;}
+		.pay_info_box .title,.title{background:#eef9eb;border-bottom:0px;border-top:1px solid #dcf5d5}
+		.pay_info_box{border-color:#dcf5d5}
+		.ui_layout{width:970px;padding:10px}
+		
+		.cnotice{padding:10px 10px 10px 40px;background:url($VmUtils.randomPic('','css/home/ico_g.gif')) 16px 15px no-repeat;}
+		.cnotice p{margin-top:12px;line-height:22px;}
+		.buttonBox{height:32px;width:100%;overflow:hidden;}
+		.buttonBox input{float:right;font-size:12px;font-weight:normal;}
+		.buttonBox input.cancel{background-position:0 -143px;}
+		
+		.check-three label{width:160px;}
+		.check-three label input{margin:5px 0 0 5px;}
+	</style>
+</head>
+<body>#set($partnerFlag='douban')
+<div class="ui_layout">
+	<div class="title mt10">
+		<p class="more freeTag" style="background-position:0px -2670px;padding-left:20px;cursor: default;">预订过程中有任何问题请拨打客服电话：<b>4000-406-506</b>或联系<a class="ml5 yellow" onclick="javascript:window.open('${basePath}chat.html','gewara','height=473,width=703,top=200,left=200,status=yes,toolbar=no,menubar=no,resizable=no,scrollbars=no,location=no,titlebar=no');" href="javascript:void(0);"><span>在线客服</span></a></p>
+	</div>
+	<ul class="payOrder">
+		<li style="margin-right:8px;">
+			<div class="step_order_inner">1、选择影片</div>
+			<div class="order_step_info">选择影片、影院及场次</div>
+		</li>
+		<li style="margin-right:8px;">
+			<div class="step_order_inner">2、选择座位</div>
+			<div class="order_step_info">选择座位，并输入用于取票的手机号码</div>
+		</li>
+		<li style="margin-right:8px;">
+			<div class="step_order_inner select">3、在线支付<img src="${basePath}css/buss/06_ioc.png"/></div>
+			<div class="order_step_info">选择网上支付</div>
+		</li>
+		<li>
+			<div class="step_order_inner">4、自助取票</div>
+			<div class="order_step_info">$!profile.takeInfo</div>
+		</li>
+	</ul>
+	<form id="payForm" action="${basePath}partner/${partner.partnerpath}/saveOrder.xhtml" method="post" target="_top">
+		<input type="hidden" name="orderId" value="$!order.id"/>
+		<input type="hidden" name="memberId" value="$!memberId"/>
+		<div class="pay_info_box">
+			<div class="title"><h2>确认购买信息</h2>	</div>
+			<ul class="ui_abeam">
+				<li class="abeam">
+					<div class="uipic"><img src="$VmUtils.randomPic('cw96h128',${movie.limg})" alt="${opi.moviename}" class="img2"/></div>
+					<div class="uiText">
+						<p>影片：<b class="fs14">$!{opi.moviename}</b></p>
+						<p>影院：<b class="fs14">$!{opi.cinemaname}</b><span class="ml10">（$opi.roomname）</span></p>
+						<p>地址：$!{cinema.countyname}$!{cinema.address}<a href="${basePath}common/baiduMap.xhtml?id=$cinema.id&tag=cinema" class="blue" target="_blank">[地图]</a></p>
+						<p>场次：<b class="fs14 yellow">$DateUtil.format($opi.playtime,"MM-dd HH:mm")（$DateUtil.getCnWeek($opi.playtime)）</b></p>
+						<p>数量：<span class="fs14">$order.quantity张</span><span class="ml10">($!VmUtils.getJsonValueByKey($!order.description2, '影票'))</span></p>
+						<p>总额：<span class="yellow fs14">${order.totalAmount}元</span>#set($fufee=$opi.gewaprice - $opi.costprice)(含格瓦拉服务费#if($fufee gt 0)${fufee}#{else}0#{end}元)</p>
+					</div>
+				</li>
+			</ul>
+			<div class="timeNotice">
+				<p> 您选中的座位已经成功锁定，<b class="yellow">请在15分钟内完成支付</b>，否则系统将释放已选座位。</p>
+				<p class="mt10 center">剩余支付时间：<span style="font-size:2em;color:#C03B0C"><b id="CountMsg"><b id="RemainM">15</b><b>分</b><b id="RemainS">00</b><b>秒</b></b></span></p>
+			</div>
+			<div class="title"><h2>确认联系信息</h2>
+				#if($takeTopicId)<a href="${basePath}blog/t$takeTopicId" class="more mr5 brown" title="查看详细取票指南" target="_blank">查看详细取票指南</a>#end
+			</div>
+			<ul class="ul-80 mt10">
+				<li>
+					<div class="ul-80Inner">接收手机：</div>
+					#if($partner.partnerpath eq "spsdo" && $order.mobile)
+					$order.mobile
+					#else
+					<label for="mobileText"><input type="text" class="text validate['required','digit']" id="mobileText" name="mobile" style="width:150px;margin:0" value="$!order.mobile"/>
+					#end
+					<span class="yellow ml5 mr5">*</span>成功购票后，该手机将在15分钟内收到取票短信。
+				</li>
+			</ul>
+		</div>
+		<div class="pay_out mt20">
+			<div class="pay_inner">
+				<ul class="ui-160 clear">
+					<li>
+						<div class="ui-160Inner" style="text-align:right"><b class="fs14">应付总额</b>：</div>
+						<b style="font-size:2em" class="yellow">${order.due}</b>元
+					</li>
+					<li class="clear">
+						<div class="ui-160Inner" style="text-align:right">选择网上银行：</div>
+						<dl class="left">
+							<dd class="check-three clear">
+								<label style="background:url($VmUtils.randomPic('','css/buss/srcbLogo.png')) 10px center no-repeat; width:250px;"><input type="radio" name="paymethod" value="srcbPay"  checked/></label>
+								<label style="background:url($VmUtils.randomPic('','css/buss/chinaPay.jpg')) 35px center no-repeat;"><input type="radio" name="paymethod" value="china2Pay"/></label>
+							</dd>
+						</dl>
+					</li>
+					<li>确认支付后页面将进入支付页面，完成支付后页面会进入提示支付成功页面。</li>
+					<li>
+						<div class="xuzi-boxTitle"><label class="yellow" for="xiyi" style="cursor: pointer;"><input type="checkbox" id="xiyi" class="mr5"/>*<b class="xzbx" style="font-size:14px;color:#ff6200">服务条款</b></label>（重要提示：请仔细阅读服务条款，同意并勾选后付款）</div>
+						<div class="xuzi-box">
+							1、从锁定座位开始，请在15分钟内完成支付，否则您选择的座位或将被释放；<br/>
+							2、请仔细核对您的购票信息，影票一旦购买成功，不退不换；<br/>
+							3、该影票的票价中包含运营、维护、服务等费用；<br/>
+							4、在极少数情况下，由于影院设备或网络问题导致您选中的座位需要调换，请允许格瓦拉帮您换选其他最佳座位；
+						</div>
+					</li>
+					<li class="mt20">
+						<label onmouseout="$(this).removeClass('bg_hover')" onmouseover="$(this).addClass('bg_hover')" class="button bigBt"><input type="submit" id="disBtn" value="确认无误，提交"/></label>
+					</li>
+				</ul>
+				<div class="height0"></div>
+			</div>
+		</div>
+		</form>
+</div>
+<form id=submitForm name="submitForm" target="_blank" method="post"></form>
+	<script type="text/javascript">
+	function getRTime(){
+		var nM = Math.floor(remain/(1000*60)) % 60;
+		var nS = Math.floor(remain/1000) % 60;
+		$("RemainM").innerHTML=nM;
+		$("RemainS").innerHTML=nS;
+		remain -= 1000;
+		if(((remain/1000).toInt()*1000)%60000==0){
+			$clear(pfun);
+			data();
+		}
+		if(remain<=0){
+			if(pfun) $clear(pfun);
+			data();
+			return;
+		}
+	};
+	function data(){
+		var random = (Math.random()*1000000).toInt();
+		new Request({
+			url: '${basePath}cinema/order/time.xhtml?tid=$order.id&'+random,
+			method:'get',
+			onSuccess: function(responseText) {
+				remain = responseText * 1;
+				if(remain <= 0){
+					$("CountMsg").empty();
+					$("CountMsg").innerHTML = "订单已超时";
+				}else{
+					pfun = getRTime.periodical(1000);
+				}
+			}
+		}).send();
+	}
+	var remain, pfun;
+	window.addEvent('domready', function(){
+		data();
+		$('payForm').addEvent('submit', function(e) {
+			e.stop();
+			if(!$('xiyi').checked){
+				$('xiyi').focus();
+				$$('.xuzi-boxTitle').setStyles({'font-weight':'bold','background':'#ff6200','font-size':'14px','color':'#fff','border-color':'#ff6200'});
+				$$('.xuzi-box').setStyle('border-color','#ff6200');
+				return false;
+			}
+			gewa.util.mask({'element':"disBtn",'title':'正在提交，请稍等...'});
+			this.set('send', {onSuccess: function(response) {
+				eval(response);
+				if(data.success){
+					$("submitForm").action = data.url;
+					var showTip = '<div class="cnotice"><b>请确保当前浏览器不会阻止打开新页面，并在新页面上完成付款！</b><br/><p>付款完成前请不要关闭本窗口。<br/>完成付款后请根据您的情况点击下面按钮。</p></div>';
+					showTip += '<div class="buttonBox"><input type="button" class="ml20 cancel mr5" value="遇到问题，重新支付" onclick="cancelBt();"/><input type="button" value="已支付成功" onclick="sureBt();"/></div>';
+				gewa.util.maskContent('','<div class="black">'+ showTip +'</div>','',360,'gopay');
+					$("submitForm").submit();
+				}else{
+					gewaUtil.alert(data.msg);
+					gewa.util.clearMask();
+				}
+			}, onFailure:function(){
+				gewaUtil.alert("订单错误!");
+				gewa.util.clearMask();
+			}});
+			this.send();
+		});
+	});
+	function removeDiscount(did){
+		GewaraUtil.sendRequest("${basePath}ajax/trade/partnerRemoveDiscount.xhtml",{"orderId":$order.id, "discountId":did}, function(result){
+			if(result.success){
+				refreshPage();
+			}else {
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function cancelBt(){
+		gewa.util.container['gopay'].dispose('gopay');
+		refreshPage();
+	}
+	function sureBt(){
+		gewa.util.container['gopay'].dispose('gopay');
+		var index = window.history.length;
+		window.history.go((!Browser.ie)?(-index+2):(-index));
+	}
+</script>
+</body>
+</html>

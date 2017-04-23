@@ -1,0 +1,73 @@
+#set($pageFun='_ajaxGotoPage')
+<div class="mt20"><h2 style="font-size:18px;">充值记录</h2></div>
+<div class="topup_search_box">
+	<form action="javascript:_queryChargeList();" method="post" id="chargeForm">
+		<span class="left">
+		<input type="text" value="$!VmUtils.escapeHtml($params.startTime)" name="startTime" class="text ml20 mr5" style="width:77px;" onfocus="new WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'2010-01-01 00:00:00',maxDate:'2100-03-10 00:00:00'})"/>~
+		<input type="text" value="$!VmUtils.escapeHtml($params.endTime)" name="endTime" class="text ml5" style="width:77px;" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'2010-01-01 00:00:00',maxDate:'2100-03-10 00:00:00'})"/></span>
+		<label class="button redBt minBt ml5" for="disBtnaccount22"><input type="submit" value="搜索" id="disBtnaccount22"/></label>
+		<img src="${picPath}css/home/tishi.jpg" class="mr5 ml20" style="vertical-align: middle;"/>搜索结果是从2010年01月01日开始。
+	</form>
+</div>
+<table cellspacing="0" cellpadding="0" border="0" width="100%" class="table_bline mt20">
+	<tr>
+		<th width="140">交易号</th>
+		<th width="80">充值时间</th>
+		<th width="80">充值金额</th>
+		<th width="180">资金渠道</th>
+		<th width="70">状态</th>
+		<th>可执行操作</th>
+	</tr>
+	<tbody>
+		#foreach($charge in $chargeList)
+		<tr>
+			<td>$charge.tradeNo</td>
+			<td>$DateUtil.format($charge.updatetime, 'yyyy-MM-dd')</td>
+			<td>$charge.totalfee#if($VmUtils.eq($charge.chargeto,'wabi'))瓦币#else元#end</td>
+			<td><b class="fc_b mr5">$charge.paytext</td>
+			<td class="gray">$charge.statusText</td>
+			<td>
+				#if($charge.new)
+					#if(!$charge.overtime)
+					<a href="${basePath}home/charge.xhtml?cid=$charge.id" class="button whiteBt minBt" style="vertical-align: middle;"><span>立即充值</span></a>&nbsp;&nbsp;
+					#end
+					<a href="${basePath}home/cancelCharge.xhtml?cid=$charge.id" class="button whiteBt minBt ml10" style="vertical-align: middle;"><span>取消</span></a>
+				#elseif($charge.canInvoice)
+					#if($openedIdList.contains($charge.tradeNo))
+					<span>已申请发票</span>
+					#else
+					<a href="${basePath}home/invoice/receiveInvoice.xhtml" class="button whiteBt minBt ml10" style="vertical-align: middle;"><span>申请发票</span></a>
+					#end
+				#else
+					&nbsp;
+				#end
+			</td>
+		</tr>
+		#end
+	</tbody>
+</table>
+<div class="page">#parse('include/scriptPageUtil.vm')</div>
+		
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody").getElements("tr").each(function(item){
+		item.addEvents({'mouseenter':function(){this.addClass("tdHover");},'mouseleave':function(){this.removeClass("tdHover");}});
+	});
+	$$('label.button,span.button').addEvents({
+		'mouseenter':function(){if(this.hasClass('bigBt')){this.addClass('bg_hover')}else{this.addClass('hover')}},
+		'mouseleave':function(){if(this.hasClass('bigBt')){this.removeClass('bg_hover');}else{this.removeClass('hover');}}
+	});
+});
+
+_queryChargeList = function(){
+	var url = '${basePath}home/myAccountTable.xhtml?tagNo=$VmUtils.getRandom()';
+	var values = GewaraUtil.getValues('chargeForm');
+	gewaUtil.loadData('ajaxLoadOrderManageDV', url, values);
+};
+
+_ajaxGotoPage = function(pageNo, params, url){
+	var url = '${basePath}home/myAccountTable.xhtml?tagNo=$VmUtils.getRandom()';
+	var values = GewaraUtil.getValues('chargeForm');
+	gewaUtil.loadData('ajaxLoadOrderManageDV', url+'&pageNo=' + pageNo, values);
+}
+</script>

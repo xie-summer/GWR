@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>报表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+	</style>
+</head>
+<body style="width:85%; margin:auto">
+<div style="clear:both;"></div>
+<div>
+#set($byOpi=true)
+#parse('admin/gewapay/sportcommon.vm')
+</div>
+<form action="${basePath}admin/gewapay/reportSportByDate.xhtml">
+<table  border="1" style="width: 90%" cellspacing="0" class="table">
+	<tr>
+	<td height="30">
+		<select name="sportid" id="sportid">
+			<option value="">请选择场馆</option>
+			#foreach($map in $sportList)
+			<option value="$map.get('sportid')" #if($map.get('sportid') eq $sport.id) selected #end>$map.get('sportname')</option>
+			#end
+		</select>
+		开始日期:<input type="text" name="datefrom" id="datefrom" value="$!params.datefrom" style="width: 100px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>&nbsp;
+		结束日期:<input type="text" name="dateto" id="dateto" value="$!params.dateto" style="width: 100px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>&nbsp;
+		<input type="submit" value="查询" />
+	</td>
+	</tr>
+</table>
+<br/>
+</form>
+
+
+
+
+#foreach($sportkey in $sportMap.keySet())
+<table width="50%" border="1"  cellspacing="0" cellpadding="0" style="border-collapse: collapse">
+	<tr>
+		<td colspan="4" align="center"><b>$sportMap.get($sportkey).name报表[$!{params.datefrom}--$!{params.dateto}]</b></td>
+	</tr>
+	<tr>
+		<td>日期</td>
+		<td>订单数量</td>
+		<td>出票数量</td>
+		<td>订单总额</td>
+	</tr>
+	#set($M=0)#set($P=0) #set($C=0)
+#foreach($data in $cdMap.get($!sportkey))	
+	#set($dd=$data.get('ids'))
+	#set($M=$M+$dd)
+	#set($q=$data.get('qiamtity'))
+	#set($C=$C+$q)
+	#set($qq=$data.get('costprice'))
+	#set($P=$P+$qq)
+	<tr>
+		<td>$data.get('playdate')</td>
+		<td>$data.get('ids')</td>
+		<td>$data.get('qiamtity')</td>
+		<td>$data.get('costprice')</td>
+	</tr>
+#end
+	<tr>
+		<td><b>统计</b></td>
+		<td><b>$M</b></td>
+		<td><b>$C</b></td>
+		<td><b>$P</b></td>
+	</tr>
+</table>
+<br/>
+#end
+
+</body>
+</html>

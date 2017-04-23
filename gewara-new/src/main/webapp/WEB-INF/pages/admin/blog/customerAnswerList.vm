@@ -1,0 +1,25 @@
+#set($pageFun='_ajaxAutoPage')
+<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+#foreach($answer in $answerList)
+	<tr>
+		<td width="92%" style="text-align: left;border-color: #BBBBBB;">$!answer.nickname</td>
+		<td width="8%" style="text-align: right;border-color: #BBBBBB;">$!DateUtil.format($answer.addtime,'yyyy-MM-dd HH:mm')</td>
+	</tr>
+	<tr>
+		<td width="92%"><span id="$!answer.id" >$!answer.body</span></td>
+		<td width="8%" style="text-align: right;border-color: #BBBBBB;"><a href="javascript:void(0);" onclick="modifyAnswer($!answer.id, this)">【编辑】</a></td>
+	</tr>
+#end
+</table>
+#parse('include/scriptPageUtil.vm')
+<script type="text/javascript">
+_ajaxAutoPage = function(pageNo, params, url){
+	gewaUtil.loadData('tbody', url, {});
+}
+modifyAnswer = function(aid,  obj){
+	var content = $(aid+"").get("html");
+	$('body').set('value', content);
+	ckeditor.setData($('body').value);
+	$('aid').set('value', aid);
+}
+</script>

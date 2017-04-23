@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次其他信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline-block;width:100px; text-align:right; padding:1px 0 1px 0; margin-top:3px;}
+		input,textarea { width:500px; display:inline-block;}
+	</style>
+</head>
+<body style="width:750px;margin:auto" class="yui-skin-sam">
+<div id="mpiDialog" class="yui-panel" style="width:650px; margin: auto;">
+	<div class="bd">
+	<form name="mpiDialog" action="javascript:saveOther()" method="post">
+		<input type="hidden" name="id" value="${guarantee.id}"/>
+		#parse('include/pay/otherConfig.vm')
+		<fieldset>
+			<legend class="yellow">场次个性短信设置</legend>
+			<div>
+				<label>订单成功短信：</label>
+				<input name="ordermsg" value="$!guarantee.ordermsg" style="width: 400px;"/><br />
+			</div>
+		</fieldset>
+		#parse('include/pay/otherPayConfig.vm')
+		<fieldset>
+			<legend class="yellow">券适用</legend>
+			<div class="right">
+				<input type="button" value="删除" style="width: 50px;" onclick="removeCard()"/><br/>
+			</div>
+			<div>
+				<label>券选择：</label>
+				<input type="radio" name="cardoption" value="canuse" #if($VmUtils.eq($cardoption, 'canuse'))checked#end style="width:20px;"/>可用
+				<input type="radio" name="cardoption" value="notuse" #if($VmUtils.eq($cardoption, 'notuse'))checked#end style="width:20px;"/>不可用
+			</div>
+			<div>
+				<label>批次ID：</label>
+				<input type="text" name="batchidlist" value="$!batchidlist" style="width: 380px;"/>&nbsp;用英文","分开
+			</div>
+		</fieldset>
+		<div>
+			<label>&nbsp;</label>
+			<input type="submit" class="button" style="width:100px" value="确定"/>
+		</div>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+	function saveOther(){
+		var url = "${basePath}admin/guarantee/saveGuaranteeOther.xhtml";
+		var values = GewaraUtil.getValues("mpiDialog", ",");
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+				refreshPage();
+			}else{
+				alert('保存失败：' + result.msg);
+			}
+		});
+	}
+	function removePay(){
+		var url = "${basePath}admin/guarantee/removeGuaranteeOther.xhtml";
+		var values = {'id':$guarantee.id, 'payoption':'true'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert('保存失败：' + result.msg);
+			}
+		});
+	}
+	function removeCard(){
+		var url = "${basePath}admin/guarantee/removeGuaranteeOther.xhtml";
+		var values = {'id':$guarantee.id, 'cardoption':'true'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert('保存失败：' + result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!-- SUCCESS_HEAD -->
+<div class="mod_kong dramaDate">
+	<div class="mod_hd">
+		<h2>演出日历</h2>
+		<span class="c999 ml10">每天不一样的精彩</span>
+	</div>
+	<div class="mod_bd date_1">
+		<div class="date_hd">
+			<a id="d_L" href="javascript:void(0)" onclick='dramaMonthCalender("$DateUtil.formatDate($calendarUtil.getPreviousMonthDate())")'></a>
+			<a id="d_R" href="javascript:void(0)" onclick='dramaMonthCalender("$DateUtil.formatDate($calendarUtil.getNextMonthDate())")'></a>
+			<h2 id="monthCount">$!DateUtil.format($calendarUtil.date,'yyyy年M月')</h2>
+		</div>
+		<div class="date_bd" id="movie_box">
+			<div class="date_table">
+				<div class="date_table_hd clear">
+					<ul>
+						<li class="c80">日</li>
+						<li>一</li>
+						<li>二</li>
+						<li>三</li>
+						<li>四</li>
+						<li>五</li>
+						<li class="c80">六</li>
+					</ul>
+				</div>
+				<div class="date_table_bd">
+					#set($startCell=${calendarUtil.startCell})
+					#set($endCell=${calendarUtil.endCell})
+					<ul>
+						#foreach($x in [1..${calendarUtil.allCell}])
+						#set($day=$math.sub($x,$startCell))
+						#set($dateTime=$calendarUtil.getMonthDayDate($day))
+						#set($dateStr=$DateUtil.formatDate($dateTime))
+							#if($x gt $startCell && $x le $endCell)
+							<li lang="$dateStr" #if(!$dramaCountMap.get($dateStr)) class="past" #else config="drama" #end #if($VmUtils.eq($dateStr,$DateUtil.getCurDateStr())) class="select" #end>
+								<div>
+									<em>$day</em>
+									#if($dramaCountMap.get($dateStr))
+									<span>${dramaCountMap.get($dateStr)}场 </span>
+									#end
+								</div>
+							</li>
+							#else
+							<li>
+								<div></div>
+							</li>
+							#end
+						#end
+					</ul>
+				</div>
+			</div>
+			<div class="date_content" id="dramaListCalender"></div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	calenderEvent = function(){
+		var elementDrama = $('movie_box').getElements("li[config=drama]");
+		if(elementDrama && elementDrama.length>0){
+			elementDrama.addEvent('click', function(){
+				elementDrama.removeClass('select');
+				this.addClass('select');
+				loadDrama(this.get('lang'));
+			});
+			elementDrama[0].fireEvent('click');
+		}
+	}
+	loadDrama = function(ycrq){
+		var url = "${basePath}drama/ajax/dramaList.xhtml";
+		var values = {"ycrq":ycrq};
+		GewaraUtil.mask('wrapper');
+		GewaraUtil.sendLoad("dramaListCalender", url, values, function(result){
+			GewaraUtil.unmask();
+		});
+	}
+	window.addEvent('domready', function(){
+		calenderEvent();
+	});
+</script>
+<!-- SUCCESS_BOTTOM -->

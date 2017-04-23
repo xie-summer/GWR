@@ -1,0 +1,37 @@
+<!-- SUCCESS_HEAD -->
+#if($adList && !$VmUtils.isEmptyList($adList))
+<div class="even_box">
+	<div class="even_center">
+		<ul id="leftMenu_slideBox$!{tag}">
+			#foreach($ad in $adList)
+			<li>
+				<a href="$!ad.link" target="_blank" title="$!ad.title"><img width="150" height="200" alt="$!ad.title" src="$VmUtils.randomPic('cw150h200',$!ad.logo)"/></a>
+				<p class="mt5"><a href="$!ad.link" target="_blank" title="$!ad.title">$!VmUtils.escabbr($!ad.title,20)</a></p>
+			</li>
+			#end
+		</ul>
+	</div>
+	<div class="even_tips" id="leftMenu_Tag$!{tag}">
+		#foreach($x in $adList)
+		<span #if($foreach.count eq 1)class="select"#end></span>
+		#end
+	</div>
+</div>
+#end
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	new noobSlide({
+		box: $('leftMenu_slideBox$!{tag}'),
+		items:$$('#leftMenu_slideBox$!{tag} li'),
+		size:150,
+		autoPlay:true,
+		handles:$$('#leftMenu_Tag$!{tag} span'),
+		handle_event:'click',
+		onWalk: function(currentItem,currentHandle){
+			this.handles.removeClass('select');
+			currentHandle.addClass('select');
+		}
+	});
+});
+</script>
+<!-- SUCCESS_BOTTOM -->

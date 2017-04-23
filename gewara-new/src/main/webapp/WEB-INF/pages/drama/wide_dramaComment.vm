@@ -1,0 +1,176 @@
+<!Doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>演出_展会_展览_赛事_话剧_演唱会门票预订 - 格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,noobSlide&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ui_layout{background:none;}
+		.iconBt,.iconBt span{height:23px;line-height:23px;display:inline-block;}
+		.iconBt,.iconBt span{background:url("/css/drama_wide/icoBt24.gif") no-repeat 0 0;}
+		.iconBt{background-position:0 0;}
+		.iconBt span{background-position:right -24px;color:#666;}
+		.iconBt{padding:0 0 0 14px!important;}
+		.iconBt span{padding:0 10px 0 0!important;}
+		.iconBt:hover{background-position:0 -60px;}
+		.iconBt:hover span,.iconBt:hover input{background-position:right -83px;}
+		.supportOuter .right em.support{padding:0 0 0 15px; display:inline-block; line-height:23px; background:url(/css/home/hand2.gif) 0 5px no-repeat;}
+		.supportOuter .right em.oppose{padding:0 0 0 15px; display:inline-block; line-height:23px; background:url(/css/home/hand1.gif) 0 5px no-repeat;}
+	</style>
+</head>
+<body>
+#set($typeMap={'hot':'最热评论','new':'最新评论','drama':'最热剧目','weekcount':'7天内','monthcount':'30天内','allcount':'全部'})
+#set($dramaHeadFlag='isDramaIndex')#set($relatedtag='drama')
+#set($dramaLeftTag='diaryList')
+#set($isIndexBigAd = true)
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="index_wrap clear">
+	#parse('include/drama/wide_drama_menu.vm')
+		<div class="index_right">
+			<div class="comment_R">
+				<div class="mod_kong">
+					<div class="mod_hd">
+						<h2>演出评论</h2>
+					</div>
+					<form id="searchForm" action="${basePath}drama/diaryList.xhtml">
+						<input type="hidden" name="type" id="type" value="$!VmUtils.escapeHtml($type)"/>
+						<input type="hidden" name="searchKey" id="searchKey" value="$!VmUtils.escapeHtml($searchKey)"/>
+						<input type="hidden" name="timeType" id="timeType" value="$!VmUtils.escapeHtml($timeType)"/>
+					</form>
+					<div class="mod_bd">
+						<ul class="yccg_list">
+							<li>
+								<div class="condition">
+									<dl class="clear dlTy">
+										<dt>
+											<span class="typeTitle mr10">评论分类 </span>
+										</dt>
+										<dd>
+											<a href="javascript:search('type', 'drama')" #if($VmUtils.eq($type,'drama') || !$type) class="selected" #end>最热剧目</a>
+											<a href="javascript:search('type', 'hot')" #if($VmUtils.eq($type,'hot')) class="selected" #end>最热评论</a>
+											<a href="javascript:search('type', 'new')" #if($VmUtils.eq($type,'new')) class="selected" #end>最新评论</a>
+										</dd>
+									</dl>
+								</div>
+							</li>
+							<li>
+								<div class="condition">
+									<dl class="clear dlTy">
+										<dt>
+											<span class="typeTitle mr10">时间筛选</span>
+										</dt>
+										<dd>
+											<a href="javascript:search('timeType', 'weekcount')" #if($VmUtils.eq($timeType,'weekcount') || !$timeType) class="selected" #end>7天内 </a>
+											<a href="javascript:search('timeType', 'monthcount')" #if($VmUtils.eq($timeType,'monthcount')) class="selected" #end>30天内 </a>
+											<a href="javascript:search('timeType', 'allcount')" #if($VmUtils.eq($timeType,'allcount')) class="selected" #end>全部</a>
+										</dd>
+									</dl>
+								</div>
+							</li>
+							<li>
+								<div class="condition mt10">
+									<dl class="clear dlTy">
+										<dt>
+											<span class="typeTitle left">评论查询</span>
+										</dt>
+										<dd>
+											<div class="search_kuang">
+												<form>
+													<input id="searchKeyValue" class="search_text searchText yccgSerch" type="text"  alt="请输入搜索关键词"  name="searchKeyValue">
+													<label class="searchButton">
+														<input type="button" onclick="searchKey()" value="" />
+													</label>
+												</form>
+											</div>						
+										</dd>
+									</dl>
+								</div>
+							</li>
+						</ul>
+						<div class="selectedMenus clear">
+						#*	<div class="right">
+								<span>排序：</span>
+								<select>
+									<option value="默认(按购票影院)">默认(按购票影院)</option>
+									<option value="按评分(由高到低)">按评分(由高到低)</option>
+									<option value="按关注(由高到低)">按关注(由高到低)</option>
+								</select>
+							</div>	*#
+							<div class="left">
+							#if($VmUtils.isNotEmpty(${type})||$VmUtils.isNotEmpty(${timeType})||$VmUtils.isNotEmpty(${searchKey}))
+								<span class="">已选条件：</span>
+								#if($VmUtils.isNotEmpty($type))
+								<span class="selections">
+									<em>$typeMap.get($type)</em>
+									<a class="ui_x bg6_hover"  onclick="searchRemoveKey('type','$type')">×</a>
+								</span>
+								#end
+								#if($VmUtils.isNotEmpty($searchKey))
+								<span class="selections">
+									<em>$searchKey</em>
+									<a class="ui_x bg6_hover"  onclick="searchRemoveKey('searchKey','$searchKey')">×</a>
+								</span>
+								#end
+								#if($VmUtils.isNotEmpty($timeType))
+								<span class="selections">
+									<em>$typeMap.get($timeType)</em>
+									<a class="ui_x bg6_hover"  onclick="searchRemoveKey('timeType','$timeType')">×</a>
+								</span>
+								#end
+							#end
+								<span class="mr10">
+									共<b class="c80 sNum">$rowsCount</b>#if($VmUtils.eq($type,'drama'))个项目#{else}条评论#end
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				#if($VmUtils.eq($type,'drama') || !$type)
+					#parse('include/drama/mod_hotjumu.vm')
+				#else
+					#parse('include/drama/mod_commentList.vm')
+				#end
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$('submenu').addEvents({
+		'mouseover':function(){this.addClass('jm_hover')},
+		'mouseout':function(){this.removeClass('jm_hover')}
+	});
+	secrchIn();
+	(function(){
+		gewaUtil.affix($('ui_left'));
+	}).delay(500);
+	gewaUtil.textOver('.text');
+});
+function secrchIn(){
+	$('searchKeyValue').addEvents({
+	 	'focus':function(){this.getParents('div[class*="search_kuang"]').addClass('search_kuangClicked');},
+	 	'blur':function(){this.getParents('div[class*="search_kuang"]').removeClass('search_kuangClicked');}
+	}); 
+}
+function searchRemoveKey(key, value){
+	if(value != ''){
+		$(key).value = '';
+	}
+	$('searchForm').submit();
+}
+function search(field, value){
+	$(field).value = value;
+	$('searchForm').submit();
+}
+function searchKey(){
+	var sk = $('searchKeyValue').value
+	$('searchKey').value = sk;
+	$('searchForm').submit();
+}
+</script>
+</body>
+</html>

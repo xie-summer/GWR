@@ -1,0 +1,69 @@
+#if($commentList)
+#foreach($comment in $commentList)
+<li class="ui_abeam clear">
+	<div class="uipic">
+		<a class="pubpic" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50" /></a>
+		#if($moderList.contains($comment.memberid))【主持人】#end
+	</div>
+	<div class="uiText">
+		<p>$!VmUtils.getWebBody($!comment.body,$picPath)</p>
+		
+		#if($VmUtils.isNotBlank($comment.link))
+			$comment.link
+		#end
+		
+		#if($VmUtils.isNotBlank($comment.picturename))
+			<div>
+			<a href="$!VmUtils.randomPic('',$!comment.picturename)" rel="lightbox[galerie]"><img src="$!VmUtils.randomPic('',$!comment.picturename)" class="imgLazz mr5" style="vertical-align:middle;"/></a>
+			</div>
+		#end
+		
+		#if(!$VmUtils.isEmptyList($videosMap.get($comment.id)))
+			<div>
+			#foreach($embed in $videosMap.get($comment.id))
+				#if($foreach.count lt 5)
+				<embed height="240" width="340" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" src="$!embed" wmode="transparent"></embed>
+				#end
+			#end
+			</div>
+		#end
+		
+		#if($tranferCommentMap.get($comment.transferid))
+		<p class="c999">转载
+		<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!tranferCommentMap.get($comment.transferid).memberid">@$!tranferCommentMap.get($comment.transferid).nickname</a><em class="ico_ca" title="官方"></em>
+		的哇啦：$!VmUtils.getWebBody($!tranferCommentMap.get($comment.transferid).body,$picPath)
+			#if($VmUtils.isNotBlank($!tranferCommentMap.get($comment.transferid).link))
+				$!tranferCommentMap.get($comment.transferid).link
+			#end
+			#if($VmUtils.isNotBlank($!tranferCommentMap.get($comment.transferid).picturename))
+			<div>
+				<a href="$!VmUtils.randomPic('',$!tranferCommentMap.get($comment.transferid).picturename)" rel="lightbox[galerie]"><img src="$!VmUtils.randomPic('',$!tranferCommentMap.get($comment.transferid).picturename)" style="vertical-align: middle;" class="imgLazz mr5"/></a>
+			</div>
+			#end
+			#if(!$VmUtils.isEmptyList($videosMap.get($!tranferCommentMap.get($comment.transferid).id)))
+			<div>
+				#foreach($embed in $videosMap.get($!tranferCommentMap.get($comment.transferid)))
+				#if($foreach.index lt 5)
+				<embed height="240" width="340" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer" src="$!embed" wmode="transparent"/>
+				#end
+				#end
+			</div>
+			#end
+		</p>
+		#end
+		
+		<div class="title c999">
+			$DateUtil.getTimeDesc($comment.addtime) 来自<em>$!comment.fromFlag</em>
+			<!--
+			<a class="more comment" href="javascript:void(0)"  id="$comment.id">回复 #if($!comment.replycount gt 0)(<span>$!comment.replycount</span>)#else<span></span>#end</a>
+			-->
+		</div>
+		
+		<!--reply-->
+		<div class="replayNode" root="replay"></div>
+		<!--/reply-->
+		
+	</div>
+</li>
+#end
+#end

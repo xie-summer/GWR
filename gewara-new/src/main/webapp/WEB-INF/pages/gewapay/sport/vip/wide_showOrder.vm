@@ -1,0 +1,308 @@
+<!Doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>购买会员卡确认订单-格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_pay&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,tips,index_even,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.button,.button span,.button input{background-image:url(/css/sport_wide/btn_sport.gif);}		
+		.limitTimedetail{background:#f3fbfe;}
+		.cf60{color:#ff6600;}
+		.limitTime{background-position:-218px -360px;}
+		.limitTime p{color:#01648b;}
+		.yd_dateList{width:380px; float:left; display:block;}
+		.yd_date{border:1px solid #6b8890; color:#6b8890; display:block; padding:0 8px; margin:0 3px 6px; float:left;}
+		
+		.payBox_hd ul li{float:left; margin-right:3px; color:#9b9b9b;}
+		.payBox_hd ul li a{background:#f8f8f8; display:inline-block; padding:6px 40px; border:1px solid #d1d1d1; border-bottom:none; font-size:14px; font-weight:bold; font-family:"微软雅黑"; color:#000;}
+		.payBox_hd ul li a.select{background:#1885ae; border-color:#3b98ba; color:#fff;}
+		.payBox_body{border-top:2px solid #1885ae;}
+		#isConfirmDiv{border-color:#76b7d5;}
+		
+		.sh{font-size:14px; color:#f36a0c;}
+		em.changeMobile{font-size:14px; width:86px; display:inline-block; text-align:right;}
+		.payBox_body_left li.changeMobile{height:30px;line-height:30px;padding:5px 20px;background:#f3f3f3;}
+		.unselect2{background-position: -91px -200px;}
+	</style>
+</head>
+<body class="ui_sport">
+#set($issport=true)#set($isOrder3=true)
+#set($orderStr1='场馆')#set($orderStr2='会员卡')#set($orderStr3='预订')
+#set($isIndexBigAd=true)#set($cfgHeader='header')
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="inner"  id="orderForm">
+		#parse('sport/menu.vm')
+		<div class="payBox mt20">
+			<div class="payBox_header">
+				<div class="pad">
+					<h2>确认订单信息</h2>
+				</div>
+			</div>
+			<div class="payBox_body clear">
+				<div class="payBox_body_left">
+					<dl class="ui_media">
+						#set($sportOtherinfo = $!VmUtils.readJsonToMap($!sport.otherinfo))
+						#set($otherinfoMap=$!VmUtils.readJsonToMap($!order.otherinfo))
+						<ul>
+							<li><em>预定场馆：</em>$!sport.name</li>
+							<li><em>详细地址：</em>$!sport.countyname$!VmUtils.getLight($!sport.address, $queryString)</li>
+							#if($VmUtils.isNotBlank($!sport.transport))<li><em>公交信息：</em>$!sport.transport</li>#end
+							#if($VmUtils.isNotBlank($sport.stationname))<li><em>地铁信息：</em>$!sport.getLineName($subwaylineMap)&nbsp;$!{sport.stationname}站&nbsp;$!{sport.exitnumber}</li>#end
+							#if($VmUtils.isNotBlank($sportOtherinfo.get('park')))<li><em>停车信息：</em>$!sportOtherinfo.get('park')</li>#end
+						</ul>
+					</dl>
+					<ol>
+						<li><em>订单号：</em>$order.tradeNo</li>
+						<li><em>消费内容：</em>$mct.title</li>
+						<li><em>适用项目: </em>$!fitItem</li>
+						#if($mct.validTime)
+						#set($buyAftime=$mct.getBuyValidtime($order.addtime))
+						<li><em>本卡有限期至: </em>$!DateUtil.format($buyAftime,'yyyy-MM-dd')</li>
+						#else
+						<li><em>本卡有限期至: </em>不限期</li>
+						#end
+						<li style="font-size:14px;" class="mt10"><b>应付金额：</b><b class="yellow">$order.due</b> 元</li>
+						<li class="changeMobile">
+							<em>取票手机：</em>
+							<label for="mobile">
+								<b class="fs16 c333" id="mobileText">$order.mobile</b>
+								<input type="text" value="$order.mobile" style="width:100px;" name="mobile" id="mobile" class="text none">
+								<a href="javascript:getOrderMobile()" class="ml5 mr5 cSport" id="elGet">修改</a>
+								<a href="javascript:modOrderMobile()" class="ml5 mr5 cSport none" id="elSave">保存</a>
+							</label>
+							<em>(取票软件可能会被手机软件拦截，请注意！)</em>
+						</li>
+					</ol>
+				</div>
+				<div class="payBox_body_right">
+					<div class="limitTimedetail inner">
+						<p><span class="fs14 cf60">请在15分钟内完成付款</span>，超时系统将自动释放已选场次，支付中如遇到问题请致电：<b>4000-406-506</b></p>
+						<div class="limitTime">
+							<h3 class="fs14">剩余支付时间：</h3>
+							<p class="fs22" id="CountMsg"><b id="RemainM">15</b><b>分</b><b id="RemainS">00</b><b>秒</b></p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="payBox_hd mt20">
+			<ul class="nav_tabs clear">
+				<li><a href="javascript:void(0);" lang="officialActivities" class="select">优惠活动</a></li>
+			</ul>
+		</div>
+		<div class="payBox payBox_body">
+			<div class="paymentTerm" id="discountPanel">
+				<input type="hidden" value="$order.id" name="orderId"/>
+				<dl class="clear mt10" id="officialActivities">
+					<dd class="officialActivities">
+					#*#foreach($x in [1..2])
+						<div rel="$!spdiscount.bindmobile" lang="check$!spdiscount.flag" class="rCoop enableds #if($x eq 1)mr20#end #if($x eq 2)select#end">
+							<div class="box">
+								<input type="radio" style="visibility:hidden" name="discounttype" id="check$spdiscount.flag" value="$spdiscount.id" />
+								<div class="ui_media">
+									<div id="img$spdiscount.id" class="ui_pic">
+										<img width="90" height="30" src="$VmUtils.randomPic('',$!spdiscount.limg)" />
+									</div>
+									<div class="ui_text">
+										<div lang="introduce$!spdiscount.id" class="note introduce" id="detail$spdiscount.id">
+											<span>
+												<span>这天很高兴 免费看电影</span>
+											</span>
+											<em class="freeTag1 ml5"></em>
+											<div data-type="tips" class="none">
+												<p style="overflow:hidden;width:265px;"></p>
+											</div>
+										</div>	
+									</div>
+								</div>
+							</div>
+							<span class="freeTag1 rec"></span>
+							<span class="freeTag1 xz"></span>
+						</div>
+					#end*#
+					</dd>
+				</dl>
+			</div>
+			<div class="peyments">
+				<p class="fs14">
+					#if($partnerDiscount && $curSpdiscount.remark)
+						#foreach($spdiscount in $spdiscountList)
+							#if($spdiscount.id eq $curSpdiscount.id)
+								$!VmUtils.getText($!curSpdiscount.remark)<span class="unselect2" id="cancle" onclick="removeDiscount($partnerDiscount.id);"></span>
+							#end
+						#end
+					#else
+						<span id="payMoney" class="bold cSport">没有使用优惠</span>
+						<span class="unselect2"  id="sale" onclick="cancelSale();"  style="visibility: hidden;"></span>
+						<label class="button maxBt redBt" style="vertical-align: middle;">
+							<input type="button" class="bt1" value="确认订单，立即支付" onclick="gotoPay()"/>
+						</label>
+					#end					
+				</p>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+var storeList = "";
+storeList = storeList?storeList.split(','):[];
+var remain, pfun,radioList = $('discountPanel').getElements('input[type=radio][disable!=disable]');
+window.addEvent('domready',function(){
+	tabs();
+	data();
+	$$('.exeSub').addEvent('click',function(){
+		radioManager("radio2");
+		if(!$("radio2").checked) return;
+		var el = $('usepoint'),value = el.value.toInt(),bigValue = 600;
+		if(this.hasClass('sub')){
+			value = value + 100;
+			if(bigValue < value){
+				el.value = bigValue;
+			}else{
+				el.value = value.toInt();
+			}
+		}else{
+			value = value - 100;
+			if(value.toInt() > 100){
+				el.value = value.toInt();
+			}else{
+				el.value = 100;
+			}
+		}
+		setPointAmount();
+	});
+})
+//修改保存手机号码
+function getOrderMobile(){
+	$('mobile').removeClass('none');
+	$('mobileText').addClass('none');
+	$('elGet').addClass('none');
+	$('elSave').removeClass('none');
+}
+function modOrderMobile(){
+	var values = {"orderid":$order.id,"mobile":$('mobile').value};
+	GewaraUtil.sendRequest('${basePath}cinema/order/modOrderMobile.xhtml', values, function(result){
+		if(result.success){
+			$('mobile').addClass('none');
+			$('mobileText').set('html',$('mobile').value);
+			$('mobileText').removeClass('none');
+			$('elGet').removeClass('none');
+			$('elSave').addClass('none');
+		}else{
+			if(result.msg) gewaUtil.alert(result.msg);
+		}
+	});
+}
+//倒计时
+function data(){
+	var random = (Math.random()*1000000).toInt();
+	var pastTitle = '<div class="conitce"><em>对不起，订单已超时！</em><div class="mt10">订单已被系统释放，请返回重新购买<br/>如果疑问请联系客服：4000-406-506</div></div>';
+	new Request({
+		url: '${basePath}cinema/order/time.xhtml?tid=$order.id&'+random,
+		method:'get',
+		onSuccess: function(responseText){
+			remain = responseText * 1;
+			if(remain <= 0){
+				$("CountMsg").empty();
+				$("CountMsg").innerHTML = "订单已超时";
+				gewa.util.issure('','<div class="black">'+ pastTitle +'</div>','格瓦拉支付提示：',360,'orderPast',function(){
+					gewa.util.container['orderPast'].dispose('orderPast');
+					document.location.href = '${basePath}sport/$!sport.id';
+				});
+			}else{
+				pfun = getRTime.periodical(1000);
+			}
+		}
+	}).send();
+}
+
+function radioManager(useRadio){//通过单选框关联操作项
+	if(useRadio && $(useRadio)){
+		if($(useRadio).disabled)return ;
+		useRadio = $(useRadio) || ''
+	}
+	var radios = document.getElements("input[type=radio][name=discounttype]");
+	var filtRadio = radios.filter(function(radio){
+		return radio == useRadio;
+	})
+	if(filtRadio.length > 0){
+		filtRadio[0].checked = true;
+	}else{
+		radios.each(function(radio){
+			if(radio.retrieve('key') != null){
+				if(radio.retrieve('key').length > 0){
+					radio.retrieve('key').each(function(item){
+						if($(item+'_bt'))$(item+'_bt').fireEvent('click');
+					})
+				}
+				radio.store('key',null);
+			}
+			radio.checked = false;
+			radio.set("disabled", false);
+		})
+	}
+}
+function removeDiscount(did){
+	GewaraUtil.sendRequest("${basePath}ajax/trade/removeDiscount.xhtml",{"orderId":$order.id, "discountId":did}, function(result){
+		if(result.success) {
+			document.location.href="${basePath}gewapay/order.xhtml?orderId=$order.id";
+		}else{
+			gewaUtil.alert(result.msg, function(){
+				document.location.href="${basePath}gewapay/order.xhtml?orderId=$order.id";
+			});
+		}
+	});
+}
+
+function getRTime(){
+	var nM = Math.floor(remain/(1000*60)) % 60;
+	var nS = Math.floor(remain/1000) % 60;
+	$("RemainM").innerHTML = (nM < 10 ? "0" : "") + nM;
+	$("RemainS").innerHTML = (nS < 10 ? "0" : "") + nS;
+	remain -= 1000;
+	if(((remain/1000).toInt()*1000)%60000==0){
+		$clear(pfun);
+		//data();
+	}
+	if(remain<=0){
+		if(pfun) $clear(pfun);
+		//data();
+		return;
+	}
+}
+function tabs(){
+	var elements = $$('.nav_tabs a');
+	if(elements && elements.length>0){
+		elements.addEvent('click',function(){
+			elements.each(function(item){
+				item.removeClass('select');
+				if($(item.get('lang'))){
+					$(item.get('lang')).addClass('none');
+				}
+			});
+			this.addClass('select');
+			$(this.get('lang')).removeClass('none');
+		});
+	}
+}
+function gotoPay(){
+	gewa.util.mask({'element': "subBt",'title':'正在提交订单...'});
+	var values = GewaraUtil.getValues("orderForm");
+	GewaraUtil.sendRequest("${basePath}sport/order/memberCard/saveOrderDis.xhtml", values, function(result){
+		if(result.success){
+			if(result.url) document.location.href="${basePath}" + result.url;
+			else document.location.href="${basePath}gewapay/confirmOrder.xhtml?orderId=$order.id";
+		}else{
+			gewaUtil.alert(result.msg, function(){
+				document.location.href="${basePath}gewapay/order.xhtml?orderId=$order.id";
+			});
+		}
+	});
+}
+</script>
+</body>
+</html>

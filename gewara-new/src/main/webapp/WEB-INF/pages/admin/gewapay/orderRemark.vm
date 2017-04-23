@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>订单陈述</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=mootools"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width:50%; margin:auto">
+<form action="${basePath}admin/ticket/orderRemark.xhtml">
+<fieldset style="margin-top: 5px;height: auto;">
+	<legend class="yellow">输入订单号</legend>
+	<div>
+		<label for="tradeno">订单号：</label>
+		<input type="text" name="tradeno" id="tradeno" value="$!params.tradeno" />
+		<input type="submit" value="查询" /><br/>
+		#if($order)
+			<label for="remark">陈&nbsp;&nbsp;述：</label><br/>
+			<textarea name="remark" id="remark" cols="30" rows="5">$!order.remark</textarea><br/>
+			<input type="button" value="保存" onclick="saveRemark()"/>
+		#end
+	</div>
+</fieldset>
+</form>
+</body>
+<script type="text/javascript">
+function saveRemark(tradeno, val){
+	var values = {'tradeno':$('tradeno').value, "remark":$('remark').value};
+	var url = "${basePath}admin/ticket/saveOrderRemark.xhtml";
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success) alert("保存成功");
+		else alert('保存失败')	
+	});
+}
+</script>
+</html>

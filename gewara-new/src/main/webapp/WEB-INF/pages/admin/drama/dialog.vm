@@ -1,0 +1,64 @@
+<div id="troupeDialog" class="yui-panel" style="width:600px; visibility:hidden; z-index:20;">
+	<div class="hd">
+		<span id="directorDiv" class="none">选择导演<span style="color:red">(现在是导演数据)</span></span>
+		<span id="starDiv" class="none">选择明星<span style="color:red">（现在是明星数据）</span></span>
+		<span id="troupeDiv" class="none">选择剧社<span style="color:red">（现在是剧社数据）</span></span>
+	</div>
+	<div class="bd">
+	<div id="recommendForm">
+		<div>
+			<input type="hidden" name="dramaid" value="$!drama.id">
+			<input type="hidden" name="startype" value="" id="startype">
+			名称:<input type="text" name="starname" id="starname">
+			<input type="button" class="button buttonclass" value="查询" onclick="searchF()">(剧社、导演和明星之间的切换，需重新查询)
+		</div>
+	</div>
+	
+	<div id="troupeTable" class="container"></div>
+	
+	<div class="ml20 center">
+		<input type="button" class="button buttonclass" value="提 交" onclick="selecttroupe()">
+		<input type="button" class="button buttonclass" value="取 消" onclick="cancel()">
+	</div>
+	</div>
+</div>
+<script>
+	// 查找
+	function searchF(){
+		var url = '${basePath}admin/drama/ajaxloadStarTable.xhtml';
+		var values = {'starname':$('starname').value,'state':'','dramaid':$('dramaid').value,'dramatype':$('startype').value}
+		GewaraUtil.sendLoad('troupeTable', url, values, function(result){
+			if(!result.success){
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+	// 点击提交
+	function selecttroupe(){
+		var names = '', ids = '';
+		var ss = $('troupUL').getElements('input:checked');
+		$each(ss, function(i, n){
+			var star = $(i).get('value').split(',');
+			names += star[0] + ',';
+			ids += star[1] + ',';
+		})
+		var startype=$('startype').value;
+		if(startype =='star'){
+			$('actorids').value = ids.substring(0, ids.length-1);
+			$('actors').value = names.substring(0, names.length-1);
+		}else if(startype =='director'){
+			$('directorids').value = ids.substring(0, ids.length-1);
+			$('director').value = names.substring(0, names.length-1);
+		}else if(startype == 'troupe'){
+			$('troupecompanyids').value = ids.substring(0, ids.length-1);
+			$('troupecompany').value = names.substring(0, names.length-1);
+		}
+		cancel();
+	}
+	// 点击取消
+	function cancel(){
+		var type=$('startype').value;
+		$(type+'Div').addClass('none');
+		GewaraUtil.hideDialog('troupeDialog');
+	}
+</script>

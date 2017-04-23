@@ -1,0 +1,23 @@
+<div id="recentCinemaList">
+</div>
+<script type="text/javascript">
+var recentCookieName = "owner_recent_look_cinemaList"
+window.addEvent('domready',function(){
+	var cookieCinemaIds = Cookie.read(recentCookieName);
+	if(cookieCinemaIds){
+		var idArray = cookieCinemaIds.split(',');
+		var curIndex = idArray.indexOf("$!{cinema.id}");
+		if(curIndex != -1){
+			idArray.splice(curIndex,1);
+		}
+		idArray.unshift("$!{cinema.id}");
+		if(idArray.length > 6){
+			idArray = idArray.slice(0,6);
+		}
+		Cookie.write(recentCookieName,idArray.join(","),{duration: 3}); 
+	}else{
+		Cookie.write(recentCookieName,"$!{cinema.id}",{duration: 3}); 
+	}
+	GewaraUtil.sendLoad('recentCinemaList', '${basePath}ajax/cinema/recentCinemaList.xhtml', {"cinemaId":"$!{cinema.id}","randomNum":"$!math.random(1.0, 100.0)"}, function(result){},'recentCinemaList');
+});
+</script>

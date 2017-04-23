@@ -1,0 +1,76 @@
+#set($tagMap={"cinema":"影院","ktv":"KTV","bar":"酒吧","sport":"运动","gym":"健身","theatre":"剧院","activity":"活动"})
+#set($objMap={"cinema":"影片","sport":"项目","gym":"项目","theatre":"话剧"})
+<!-- SUCCESS_HEAD -->
+#if($VmUtils.isBlank($!countycode))
+<div class="show_fast_list" id="SelectModel" style="visibility:hidden;">
+	<img src="${picPath}css/home/pt_f.png" style="position:absolute;left:5%"/>
+	<img src="${picPath}css/home/del.gif" style="position:absolute;right:13px;top:13px;z-index: 9;cursor: pointer;" onclick="hideLoadd();"/>
+	<table cellpadding="0" cellspacing="0" class="gui-table" width="100%" border="0">
+		<tr><td class="gui-tplt" valign="bottom" align="right"></td><td class="gui-tpct" valign="bottom">
+		</td><td class="gui-tprt" valign="bottom" align="left"></td></tr>
+		<tr>
+			<td class="gui-ctlt"></td>
+			<td style="background:#fff" id="selectData">
+				#if($!tag)
+				<div class="fast_data">
+					<div class="fast_select" id="fastModel">
+						<a href="" style="border-left:1px solid #c8d5d7" class="select" id="" title="">#if($tag eq 'cinema')购票#elseif($tag eq 'activity')最近参加过的#else热门#end$tagMap.get($tag)<span></span></a>
+						#foreach($county in $countyList)
+						<a href="" style="border-right:1px solid #c8d5d7" id="$county.countycode" title="${county.briefname}">${county.briefname}<span></span></a>
+						#end
+					</div>
+					<div class="fast_content innerContent" id="modelContent">
+						<div class="fast_content" id="selectContent">
+							#foreach($base in $baseList)
+							<a href="" id="$base.id" title="$base.name" lang="$!base.address">$base.name</a>
+							#end
+						</div>
+						#if($!{objMap.get($tag)})
+						<dl class="country clear">
+							<dt class="sp_country" style="color:#ff9200">选择${objMap.get($tag)}：</dt>
+							<dd class="gui-left" id="selectItems">
+								#foreach($objectz in $objectzList)
+								<a href="" id="$!objectz.id" title="$!objectz.name" rel="$!category"><span>$!objectz.name</span></a><span class="left">|</span>
+								#end
+							</dd>
+						</dl>
+						#end
+					</div>
+					<div class="mt5 tar"><a href="javascript:hideLoadd();" class="button minBt whiteBt"><span>确定选择</span></a></div>
+				</div>
+				#end
+			</td>
+			<td class="gui-ctrt"></td>
+		</tr>
+		<tr><td class="gui-btlt" valign="top" align="right"></td><td class="gui-btct" valign="top"></td><td class="gui-btrt" valign="top" align="left"></td></tr>
+	</table>
+</div>
+#else
+#if($indexareacode)
+<dl class="country clear">
+	<dt class="sp_country" style="color:#ff9200">选择商圈：</dt>
+	<dd id="country" class="gui-left">
+		<a href="javascript:void(0)" rel="$!countycode:$!cityregion.indexarea.indexareacode" #if($VmUtils.isBlank($indexareacode))class="select"#end><span>所有商圈</span></a>
+		#foreach($cityregion in $indexareaList)
+		<span class="left">|</span><a href="javascript:void(0)" rel="$!countycode:$!cityregion.indexarea.indexareacode" #if($VmUtils.eq($indexareacode, $cityregion.indexarea.indexareacode))class="select"#end><span>${cityregion.indexarea.indexareaname}<em style="color:gray">($cityregion.placecount)</em></span></a>
+		#end
+	</dd>
+</dl>
+#end
+<div class="fast_content" id="selectContent">
+	#foreach($base in $baseList)
+	<a href="" id="$base.id" lang="$!base.address" title="$base.name">$base.name</a>
+	#end
+</div>
+#if($!{objMap.get($tag)})
+<dl class="country clear">
+	<dt class="sp_country" style="color:#ff9200">选择${objMap.get($tag)}：</dt>
+	<dd class="gui-left" id="selectItems">
+		#foreach($objectz in $objectzList)
+		<a href="" id="$!objectz.id" title="$!objectz.name" rel="$!category"><span>$!objectz.name</span></a><span class="left">|</span>
+		#end
+	</dd>
+</dl>
+#end
+#end
+<!-- SUCCESS_BOTTOM -->

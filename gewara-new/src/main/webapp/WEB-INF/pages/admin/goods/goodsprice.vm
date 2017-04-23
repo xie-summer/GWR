@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次价格设定</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<style type="text/css">
+		#set($maxwidth=33+30*$room.ranknum)
+		#content{ width: ${maxwidth}px; background:#fff;}
+		.stype dd, .stype dt{float: left; width: 90px; height: 30px; line-height: 30px; vertical-align: middle;}
+		.stype input, .stype span{float:left; line-height: normal; margin-top: 10px;}
+		.stype div{float:left;}
+		.stype input{width:50px;}
+		.seatpic dt, .head dt{width:30px;}
+		.match{background:#ff9200;border:0px;padding-bottom:8px}
+	</style>
+</head>
+<body>#set($isGoods=true)
+#set($theatre=$object)
+#parse('admin/theatreticket/menu.vm')
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div id="height0"></div>
+	<div class="contentInfoList">
+		<b class="m2"></b>
+		<div class="m">
+			${object.name}>>${goods.goodsname}&nbsp;
+			<input type="button" value="添加价格" onclick="addPrice()"/>
+		</div>
+		<b class="m2"></b>
+		<div class="mt5"></div>
+		<div id="content" style="width:100%;height:100%;overflow-y:hidden;overflow-x:auto;">
+			<table class="roomManageTable" cellpadding="0" width="50%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>类型</th>
+					<th>卖价</th>
+					<th>成本价</th>
+					<th>剧院价</th>
+					<th>
+					<select id="stu">
+					<option value="Y">Y</option>
+					<option value="N">N</option>
+					</select>
+					<input type="button" value="确定" onclick="setAll()"/><br />
+					状态
+					</th>
+					<th>票数</th>
+					<th>可售数量</th>
+					<th>已售数量</th>
+					<th>已售订单数量</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody class="tbody">
+				#foreach($tsp in $tspHelper.getGoodsPriceBySno3())
+				#set($disCount=$disCountMap.get($tsp.id))
+				<tr>
+					<td>$!tsp.pricelevel</td>
+					<td>$!tsp.price</td>
+					<td>$!tsp.costprice</td>
+					<td>$!tsp.oriprice</td>
+					<td>$!tsp.status</td>
+					<td>$!tsp.quantity</td>
+					<td>$!tsp.allowaddnum</td>
+					<td>$!tsp.sellquantity</td>
+					<td>$!tsp.sellordernum</td>
+					<td>
+						<select onchange="setPriceStatus('$!tsp.id',this.value)">
+							<option value="Y" #if($VmUtils.eq($tsp.status,'Y'))selected="selected" #end>可预订</option>
+							<option value="N" #if($VmUtils.eq($tsp.status,'N'))selected="selected" #end>不可预订</option>
+							<option value="D" #if($VmUtils.eq($tsp.status,'D'))selected="selected" #end>已删除</option>
+						</select>
+						|<a href="javascript:getPrice($tsp.id)">修改</a>
+						|<a href="javascript:getDiscount($tsp.id)">优惠($disCount)</a>
+					</td>
+				</tr>
+				#end
+			</tbody>
+			</table>
+		</div>
+	</div>
+	<b class="b2f"></b> <b class="b1f"></b>
+</div>
+<div id="priceDialog" style="width:370px; visibility:hidden; z-index:20;background: #000">
+	<div style="width:350px;margin:10px;background:#FFF;">
+		<div style="text-align:center;height:20px;line-height: 20px;">
+			<strong>修改价格数据</strong>
+		</div>
+		<div class="bd" style="text-align:center;">
+			<form name="priceForm" id="priceForm">
+				<input type="hidden" name="id" id="id" />
+				<input type="hidden" name="goodsid" id="goodsid" value="$!goods.id"/>
+				<div style="padding:5px 40px;text-align:left">
+					<label for="price" class="left">卖&nbsp;&nbsp;价：</label>
+					<input type="text" name="price" id="price" class="left" style="width: 100px"/>
+					<span class="req left">*</span>
+					<div class="height0"></div>
+				</div>
+				<div style="padding:5px 40px;text-align:left;">
+					<label for="costprice" class="left">成本价：</label>
+					<input type="text" name="costprice" id="costprice" class="left" style="width: 100px"/>
+					<span class="req left">*</span>
+					<div class="height0"></div>
+				</div>
+				<div style="padding:5px 40px;text-align:left;">
+					<label for="oriprice" class="left">原价：</label>
+					<input type="text" name="oriprice" id="oriprice" class="left" style="width: 100px"/>
+					<span class="req left">*</span>
+					<div class="height0"></div>
+				</div>
+				<div style="padding:5px 40px;text-align:left;">
+					<label for="section" class="left">区域：</label>
+					#set($sectionList=['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'])
+					<select name="section" id="section" style="width: 80px">
+						#foreach($section in $sectionList)
+							<option value="$section">$section</option>
+						#end
+						#foreach($i in [1..9])
+							<option value="$i">$i</option>
+						#end
+					</select>
+					<div class="height0"></div>
+				</div>
+				<div style="padding:5px 40px;text-align:left;">
+					<label for="status" class="left">状&nbsp;&nbsp;态：</label>
+					<select name="status" id="status" style="width: 80px;">
+						<option value="Y">可预订</option>
+						<option value="N">不可预订</option>
+					</select>
+				</div>
+				<div style="padding:5px 40px;text-align:left;">
+					<label for="quantity" class="left">库存数：</label>
+					<input type="text" name="quantity" id="quantity" style="width: 50px;"/>&nbsp;
+				</div>
+				<div style="padding:5px 40px;text-align:left;">
+					<label for="remark" class="left">票价说明：</label>
+					<textarea name="remark" id="remark" cols="20" rows="3"></textarea>
+				</div>
+				<div>
+					<label>&nbsp;</label>
+					<input type="button" class="cbt1"  value="保存" onclick="savePrice()"/>
+					<input type="button" class="cbt1" onclick="hiDialog();" value="取消"/>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div id="disDialog" style="width:400px; visibility:hidden; z-index:5;border: 1px solid #cdf;background-color: #cdf"></div>
+<script type="text/javascript">
+function hiDialog(){
+	GewaraUtil.hideDialog("priceDialog");
+}
+function showDialog(){
+	GewaraUtil.showDialog('priceDialog');
+}
+function addPrice(){
+	$('id').value="";
+	$('price').value="";
+	$('costprice').value="";
+	$('oriprice').value="";
+	$('status').value="";
+	$('quantity').value="";
+	$('remark').value="";
+	showDialog();
+}
+function savePrice(){
+	var values = GewaraUtil.getValues('priceForm');
+	GewaraUtil.sendRequest('${basePath}admin/goods/saveGoodsPrice.xhtml', values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function getPrice(id){
+	showDialog();
+	var values= {'id':id};
+	GewaraUtil.sendRequest('${basePath}admin/goods/getGoodsPrice.xhtml', values, function(result){
+		if(result.success){
+			GewaraUtil.setValues(result);
+			$('quantity').value = result.quantity - result.sellquantity;
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function setPriceStatus(id,status){
+	if(status == 'D' && !window.confirm('确认要删除吗?')) return;
+	var values= {'id':id, 'status':status};
+	GewaraUtil.sendRequest('${basePath}admin/goods/setPriceStatus.xhtml', values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function setAll(){
+	var url = '${basePath}admin/goods/batchPriceStatus.xhtml';
+	var status=$('stu').value;
+	var goodsid=$('goodsid').value;
+	var values= {'status':status,'goodsid':goodsid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("设置成功");
+			refreshPage();
+		}
+	});
+}
+
+function getDiscount(tspid){
+	var el = $('disDialog');
+	var url = "${basePath}admin/goods/getGoodsDiscount.xhtml";
+	var values = {'gid':tspid};
+	GewaraUtil.sendLoad('disDialog', url, values, function(result){
+		if(!result.success){
+			alert(result.json.msg);
+		}else{
+			GewaraUtil.showDialog('disDialog');
+		}
+	});
+	
+}
+</script>
+</body>
+</html>

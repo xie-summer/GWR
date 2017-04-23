@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>修改密码_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($cfgHeader='newUserHeader')
+#set($safetyCenter = true)
+#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/userInfo.vm')
+				#set($otherMap=$VmUtils.readJsonToMap($memberInfo.otherinfo))
+				<div class="title mt20"><h2>设置登录密码</h2></div>
+				<div style="margin-left: 80px; font-size:14px;">
+					<ul class="ul-150 mt10">
+						<li class="list_h"><span class="left_150 gray">昵称：</span><input type="text" name="nickname" id="nickname" class="text left fs14 validate['required','length[2,15]']" maxlength="12" value="$!logonMember.nickname"/><b class="fc_b ml10 mr5">*</b></li>
+						<li class="list_h"><span class="left_150 gray">邮箱：</span><input type="text" class="text left fs14" id="email" name="email" value=""/><b class="fc_b ml10 mr5">*</b><font class="gray">绑定常用邮箱</font></li>
+						<li class="list_h"><span class="left_150 gray">密码：</span><input type="password" class="text left fs14 validate['required','length[6,12]']" maxlength="12" name="pwd" id="pwd" value=""/><b class="fc_b ml10 mr5">*</b><font class="gray">设置登录密码</font></li>
+						<li class="list_h"><span class="left_150 gray">确认密码：</span><input type="password" class="text left fs14 validate['required','length[6,12]']" maxlength="12" name="pwd2" id="pwd2" value=""/><b class="fc_b ml10 mr5">*</b><font class="gray">重复登录密码</font></li>
+						<li class="list_h">
+							<label class="mt10 button minBt redBt"><input type="submit" value="绑 定" id="" onclick="saveOpenMemberInfo()"/></label>
+						</li>
+					</ul>
+				</div>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+##parse('home/acct/bindMemberInfo.vm')
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		$$("tbody").getElements("tr").each(function(item){
+		item.addEvents({'mouseenter':function(){this.addClass("tdHover");},'mouseleave':function(){this.removeClass("tdHover");}});
+	});
+	
+	saveOpenMemberInfo = function(){
+		var nickname = $('nkname').value;
+		var email = $('email').value;
+		var pwd = $('pwd').value;
+		var pwd2 = $('pwd2').value;
+		if(!$chk(nickname)){
+			gewaUtil.alert("昵称不能为空！");
+			return false;
+		}
+		if(!$chk(email)){
+			gewaUtil.alert("邮箱不能为空！");
+			return false;
+		}
+		if(!$chk(pwd) || !$chk(pwd2)){
+			gewaUtil.alert("密码不能为空！");
+			return false;
+		}
+		if(pwd != pwd2){
+			gewaUtil.alert("两次输入的密码不一致！");
+			return false;
+		}
+		var url = "${basePath}home/saveBindMemberInfo.xhtml";
+		var values = {'nickname':nickname,'email':email,'pwd':pwd,'pwd2':pwd2};
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){
+				gewaUtil.alert("邮箱绑定成功，你可以使用绑定邮箱和密码直接登陆格瓦拉！");
+				gewa.util.container['bindMemberInfo'].dispose('bindMemberInfo');
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+});
+</script>
+</body>
+</html>

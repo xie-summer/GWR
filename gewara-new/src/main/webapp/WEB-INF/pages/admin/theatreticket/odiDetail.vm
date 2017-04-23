@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>基础数据设置</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.contentInfoList li{line-height:26px;clear:both;}
+		.contentInfoList .bfr{font-size:14px;font-weight:bold;padding-left:138px;margin-bottom:10px;color:red;}
+		.contentInfoList li input,.contentInfoList li textarea{border:1px solid #a3a3a3;padding:2px 5px;color:#2e2e2e;font-size:12px;}
+		.contentInfoList #remark{width:450px;height:200px;overflow-x:hidden;overflow-y:auto;resize:none;}
+		.grayBg td input{width:80px;}
+		.contentInfoList li span{display:block;color:#565656;width:200px;margin-right:10px;float:left;text-align: right;}
+	</style>
+</head>
+<body>#set($isOpen=true)
+#parse('admin/theatreticket/menu.vm')
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+		<div class="contentInfoList">
+			<p class="bfr" >话剧：$drama.name</p>
+			<form  id="dataForm" method="post" >
+				<input type="hidden" name="itemid" value="$!odi.dpid" />
+				<ul>
+					<li>
+						<span>取票帖子：</span>
+						<input type="text" name="topicid" id="topicid" value="$!odi.topicid" style="width: 95px"/>
+					</li>
+					<li>
+						<span>演出时间：</span>
+						<input type="text" name="playtime" id="playtime" style="width:140px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00',minDate:'$minStr'})" value="$!DateUtil.format($odi.playtime, 'yyyy-MM-dd HH:mm:00')" readonly="readonly"/>
+					</li>
+					<li>
+						<span>生条形码：</span>
+						<input type="radio" name="barcode" value="N" #if($VmUtils.isBlank($odi.barcode) || $odi.barcode eq 'N')checked#end />否
+						<input type="radio" name="barcode" value="Y" #if($odi.barcode eq 'Y')checked#end  class="ml20"/>是
+					</li>
+					<li>
+						<span>是否打印：</span>
+						<input type="radio" name="print" value="Y" #if($VmUtils.isBlank($odi.print) || $odi.print eq 'Y')checked#end />是
+						<input type="radio" name="print" value="N" #if($odi.print eq 'N')checked#end  class="ml20"/>否
+					</li>
+					<li>
+						<span>是否设置个性化票面：</span>
+						<input type="radio" name="greetings" value="Y" #if($odi.greetings eq 'Y')checked#end />是
+						<input type="radio" name="greetings" value="N" #if($odi.greetings eq 'N')checked#end  class="ml20"/>否
+					</li>
+					<li>
+						<span>取票方式：</span>
+						电子票<input type="checkbox" name="takemethod" value="A" style="width: 50px" #if($VmUtils.contains($odi.takemethod,'A')) checked="checked" #end />
+						快递<input type="checkbox" name="takemethod" value="E" style="width: 50px" #if($VmUtils.contains($odi.takemethod,'E')) checked="checked" #end />
+					</li>
+					<li>
+						<span>默认电子票时间（小时）：</span>
+						<input type="text" name="eticketHour" value="$!odi.eticketHour" style="width: 50px" mustTxt="默认电子票时间不能为空！"/>
+						（周末）<input type="text" name="eticketWeekHour" value="$!odi.eticketWeekHour" style="width: 50px" mustTxt="默认电子票时间（周末）不能为空！"/>
+					</li>
+					<li>
+						<span>售卖周期：</span>
+						<select name="saleCycle" id="saleCycle">
+							#foreach($saleCycle in $dramaSaleCycleMap.keySet())
+							<option value="$saleCycle" #if($VmUtils.eq($saleCycle,$odi.saleCycle))selected#end>$dramaSaleCycleMap.get($saleCycle)</option>
+							#end
+						</select>
+					</li>
+					<li>
+						<span>成功短信1(电子票)&nbsp;：</span>
+						<input type="text" name="notifymsg1" id="notifymsg1" value="$!odi.notifymsg1" style="width: 600px"/>
+					</li>
+					<li>
+						<span>成功短信1(快递)&nbsp;：</span>
+						<input type="text" name="notifyRemark" id="notifyRemark" value="$!odi.notifyRemark" style="width: 600px"/>
+					</li>
+					<li>
+						<span>提前发送短信2的时间（分钟）：</span>
+						<input type="text" name="msgMinute" id="msgMinute" value="$!odi.msgMinute" style="width: 50px" mustTxt="提前发送短信2的时间不能为空！"/>
+					</li>
+					<li>
+						<span>短&nbsp;信&nbsp;2&nbsp;：</span>
+						<input type="text" name="notifymsg2" id="notifymsg2" value="$!odi.notifymsg2" style="width:600px"/>
+					</li>
+					<li>
+						<span>短&nbsp;信&nbsp;3&nbsp;：</span>
+						<input type="text" name="notifymsg3" id="notifymsg3" value="$!odi.notifymsg3" style="width: 600px"/>
+					</li>
+					<li>
+						<span>购买单次数量：</span>
+						<input type="text" name="buylimit" id="buylimit" value="$!odi.buylimit" style="width: 600px"/>
+					</li>
+					<li>
+						<span>取票说明：</span>
+						<input type="text" name="takemsg" id="takemsg" value="$!odi.takemsg" style="width: 600px"/>
+					</li>
+					<li>
+						<span>说&nbsp;&nbsp;明&nbsp;&nbsp;：</span>
+						<textarea name="remark" id="remark" >$!odi.remark</textarea>
+					</li>
+					<li><input type="button" value="保存" onclick="modOdi()" style="margin:10px 0 0 210px;font-weight:bold;color:red;"/></li>
+				</ul>
+			</form>
+		</div>
+		<b class="b2f"></b><b class="b1f"></b>
+</div>
+	<script type="text/javascript">
+	function modOdi(){
+		if(!GewaraUtil.baseValidForm('dataForm','admin')) return;
+		var values = GewaraUtil.getValues('dataForm',',');
+		if(!values.msgMinute.match(/^\d+$/)){
+			alert('提前发送短信2的时间格式不对！');
+			return;
+		}
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/modOdi.xhtml', values, function(result){
+			if(result.success){
+				alert('修改成功');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function getMethod(v){
+		$('takemethod').value=v;
+	}
+</script>
+</body>
+</html>

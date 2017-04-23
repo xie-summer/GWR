@@ -1,0 +1,42 @@
+#if(!$VmUtils.isEmptyList($curDramaList))
+<div class="mod_kong">
+	<div class="mod_hd">
+		<h2>热演剧目</h2>
+		<a class="more ffst brown" target="_blank" href="${basePath}drama/dramaList.xhtml">更多&gt;&gt;</a>
+	</div>
+	<div class="mod_bd">
+		<ul class="ui_abeam">
+			#foreach($curDrama in $curDramaList)
+			<li class="#if($foreach.count gt 1)mt20#end clear">
+				<div class="uipic">
+					<a title="$!curDrama.name" target="_blank" href="${basePath}drama/$!curDrama.id">
+					<img alt="$!curDrama.name" height="128" width="96" src="$VmUtils.randomPic('sw96h128',$!curDrama.limg)" /></a>
+				</div>
+				<div class="uiText text_right_activity">
+					<a href="${basePath}drama/$!curDrama.id" target="_blank" class="a_color fs14 bold" title="$!curDrama.name">$!VmUtils.escabbr($curDrama.name, 36)</a>
+					<p class="mt10"><em>时间：</em>
+					$!DateUtil.format($!curDrama.releasedate, 'MM月dd日')#if($curDrama.enddate)-$!DateUtil.format($!curDrama.enddate, 'MM月dd日')#end
+					</p>
+					<p><em>类型：</em><b class="ce74">$!dramaTypeMap.get($curDrama.dramatype)</b></p>
+					#if(!$VmUtils.isEmptyList($theatreMap.get($!curDrama.id)))<p><em>剧院：</em>
+						#foreach($theatre in $theatreMap.get($!curDrama.id))
+							$!theatre.name
+						#end
+					</p>#end
+					#if(!$VmUtils.isEmptyList($priceListMap.get($curDrama.id)))
+					<p>
+					<em>票价(元)：</em>
+						#set($s=$priceListMap.get($curDrama.id).size()+(-1))
+						#set($minprice=$priceListMap.get($curDrama.id).get(0))
+						#set($maxprice=$priceListMap.get($curDrama.id).get($s))
+					#if($minprice eq $maxprice)$!{minprice}#else$!{minprice} ~ $!{maxprice}#end
+					</p>
+					#end
+				</div>
+			</li>
+			#end
+		</ul>
+	</div>
+	<div class="micon mv_line"></div>
+</div>
+#end

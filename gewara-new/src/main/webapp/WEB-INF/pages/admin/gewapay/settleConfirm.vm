@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次自动开放列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$DWRUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$DWRUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.oAddPhone, .oDelPhone {
+					    cursor: pointer;
+					    display: inline-block;
+					    height: 26px;
+					    width: 26px;
+						}
+	</style>
+</head>
+<body>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="menu">
+		<div class="menuInner">
+			<ul>
+				<li class="selectMore">$cinema.name</li>
+				<li><a href="${basePath}admin/ticket/mpiManage.xhtml?cid=$cinema.id"><span>场次管理</span></a></li>
+				<li><a href="${basePath}admin/ticket/orderList.xhtml?cid=$cinema.id" class="admin"><span>订单管理</span></a></li>
+				<li><a href="${basePath}admin/ticket/baseData.xhtml?cid=$cinema.id"><span>基础数据</span></a></li>
+				<li><a><span>自动开放</span></a></li>
+				<li><a href="${basePath}admin/ticket/opiStats.xhtml?cid=$cinema.id" class="admin"><span>座位统计</span></a></li>
+				<li><a href="${basePath}admin/ticket/settleList.xhtml?cid=$!cinema.id" class="admin"><span>结算说明</span></a></li>
+				<li class="currs"><a href="${basePath}admin/ticket/settleConfirm.xhtml?cid=$!cinema.id" class="admin"><span>结算确认</span></a></li>
+			</ul>
+		</div>
+	</div>
+	<div style="width:100%;height:30px">
+		<input type="button" value="一键发送所有影院" style="float:right" onclick="sendAllCinemaEmail();"/>&nbsp;
+	</div>
+	<div class="contentInfoList"> 
+	<form id="priceForm" name="priceForm" method="post">
+		<input type="hidden" name="cid" id="cid" value="$cinema.id" />
+		<table class="roomManageTable"  cellpadding="0" width="100%" cellspacing="0" border="0">
+			  <tbody >
+			  <tr>
+			  <td>收件人</td>
+			  <td colspan="4"><input type="text" style="width:95%" name="email1" value="$!emailMap.get('email1')"/></td>
+			  <td>抄送人(多个以,号分隔开)</td>
+			  <td colspan="3"><input type="text" style="width:95%" name="email2" value="$!emailMap.get('email2')"/></td>
+			  </tr>
+			  <tr>
+			  <td>确认日期</td>
+			  <td colspan="4">
+			  	<input type="text" style="width:45%" value="$!startTime" name="startTime" id="startTime" onchange="refundOrderList()"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly"/>~
+			  	<input type="text" style="width:45%" value="$!endTime" name="endTime" id="endTime"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly"/></td>
+			  <td>确认影院</td>
+			  <td colspan="3"><input type="text" style="width:95%" name="cinameName" value="$cinema.name" /></td>
+			  </tr>
+			  <tr>
+			  <td colspan="9" style="text-align:left">一、结算价信息</td>
+			  </tr>
+			   <tr>
+			  	<td colspan='2'></td>
+			  	<td colspan="7">
+			  		<span style="float:left"><textarea name="priceContent" id="priceContent">$!emailMap.get('priceContent')</textarea></span>
+			  		<span  style="float:left; margin-left: 10px;margin-top: 200px;"><input type="button" value="保存" onclick="savePriceContent('priceContent','priceContent')"/></span>
+			  	</td>
+			  </tr>
+			  <tr>
+			  <td colspan="9" style="text-align:left">二、退票明细</td>
+			  </tr>
+			  <tr>
+			  	<td colspan="9">
+			  		<table class="roomManageTable" style="margin-top:0px" cellpadding="0" width="100%" cellspacing="0" border="0">
+			  			<tbody id="pricebody" style="width:100%">
+			  			<tr>
+							  <td>影片</td>
+							  <td>放映日期</td>
+							  <td>影厅座位</td>
+							  <td>数量*结算价</td>
+							  <td>总金额</td>
+							  <td >备注<p class="mt5 right"><span class="oAddPhone" id="addFont" onclick="addOpation()"><font color="blue">添加</font></span></p></td>
+						 </tr>
+			  			</tbody>
+			  		</table>
+			  	</td>
+			  </tr>
+			  #*
+			  <tr>
+			  <td colspan="9" style="text-align:left">三，格瓦拉瓦友意见</td>
+			  </tr>
+			  <tr>
+			  	<td colspan='2'></td>
+			  	<td colspan="7">
+			  		<span style="float:left">
+			  		<textarea name="content" id="content">$!emailMap.get('content')</textarea>
+			  		</span>
+			  		<span  style="float:left; margin-left: 10px;margin-top: 200px;"><input type="button" value="保存" onclick="savePriceContent('content','content')"/></span>
+			  	</td>
+			  	
+			  </tr>
+			  *#
+			   <tr>
+			  	<td colspan="9" style="text-align:left">三，注：联系方式等</td>
+			  	</tr>
+			  <tr>
+			  	<td colspan='2'></td>
+			  	<td colspan="7">
+			  	<span style="float:left">
+			  		<textarea name="content1" id="content1">$!emailMap.get('content1')</textarea>
+			  	</span>
+			  	<span  style="float:left; margin-left: 10px;margin-top: 200px;"><input type="button" value="保存" onclick="savePriceContent('content1','content1')"/></span>
+			  	</td>
+			  </tr>
+			  </tbody>
+		</table>
+		<div>
+		<label>&nbsp;</label>
+		<input class="button" type="button" value="发送邮件" onclick="sendEmails()" style="width:100px">
+		</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+function sendEmails(){
+	  #*
+	$("content").value=ckeditor.getData();
+	  *#
+	$("content1").value=ckeditor1.getData();
+	$("priceContent").value=priceContent.getData();
+	 var values = GewaraUtil.getValues("priceForm");
+	 var url = "${basePath}admin/ticket/sendConfirmEmail.xhtml";
+	 GewaraUtil.sendRequest(url, values, function(result){
+		 if(result.success){
+			 alert('发送成功！');
+		 }else{
+			 alert('发送失败！' + result.msg);
+		 }
+	 });
+}
+function savePriceContent(id,key){
+	if(id=='priceContent'){
+		$(id).value=priceContent.getData();
+	}else if(id=='content'){
+		$(id).value=ckeditor.getData();
+	}else if(id=='content1'){
+		$(id).value=ckeditor1.getData();
+	}
+	 var url = "${basePath}admin/ticket/saveEmailPriceContent.xhtml";
+	 var values={'priceContent':$(id).value,'key':key,'cid':'$cinema.id'}
+	 GewaraUtil.sendRequest(url, values, function(result){
+		 if(result.success){
+			 alert('保存成功！');
+		 }else{
+			 alert('保存失败！' + result.msg);
+		 }
+	 });
+}
+#if($startTime)
+	window.addEvent('domready',function(){
+		refundOrderList();
+	});
+#end
+function sendAllCinemaEmail(){
+	gewa.util.confirm("确定发送所有影院结算确认吗？",function(){
+	 var url = "${basePath}admin/ticket/sendAllConfirmEmail.xhtml";
+	 GewaraUtil.sendRequest(url, {}, function(result){
+		 if(result.success){
+			 alert('发送成功！发送'+result.retval+'家影院');
+		 }else{
+			 alert('发送失败！' + result.msg);
+		 }
+	 })});
+}
+function refundOrderList(){
+	var startTime = $('startTime').value;
+	if(startTime == ''){
+		return ;
+	}
+	GewaraUtil.sendLoad($('pricebody'), '${basePath}admin/ticket/settleRefundOrderList.xhtml',{"cid":"${cinema.id}","startTime":startTime}, function(result){});
+}
+var ckeditor;
+var ckeditor1;
+var priceContent;
+window.addEvent('domready', function(){
+	//ckeditor = CKEDITOR.replace("content");
+	ckeditor1 = CKEDITOR.replace("content1");
+	priceContent = CKEDITOR.replace("priceContent");
+});
+var vcount = 1;
+function addOpation(){
+	if(vcount == 1 && $('rowsIndex')){
+		vcount = parseInt($('rowsIndex').get("data-value")) + 1;
+	}
+	var ap = new Element('tr',{
+		'html':'<td><input type="text" name="moviename'+vcount+'" width="100%" /></td><td><input type="text" name="playdate'+vcount+'" width="100%" /></td><td><input type="text" name="cinemaseat'+vcount+'" width="100%" /></td><td><input type="text" name="allcostprice'+vcount+'" width="100%" /></td><td><input type="text" name="totalprice'+vcount+'" width="100%" /></td><td><input type="text" name="remark'+vcount+'" width="100%" /></td>'
+	}).inject('pricebody');
+	/* var aspan = ap.getElement('*[class=oDelPhone]');
+	aspan.addEvent('click',function(){
+		this.getParent('tr').dispose();
+		vcount--;
+		OverText.update();
+		if(vcount > 0)$('addFont').show();
+	}) */
+	vcount++;
+	OverText.update();
+	return ;
+}
+</script>
+</body>
+</html>

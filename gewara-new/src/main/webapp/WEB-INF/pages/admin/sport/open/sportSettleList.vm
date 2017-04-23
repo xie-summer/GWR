@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次排片管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.none{display:none;}
+		.tar{text-align:right;margin-top:10px;margin-right:10px;font-weight:bold;}
+		.tar a{color:red;}
+	</style>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="currs"><a href="${basePath}admin/sport/open/sportSettleList.xhtml?sportid=$!sport.id" class="admin"><span>结算说明</span></a></li>
+		</ul>
+	</div>
+</div>
+<div style="color:red" id="notifyWin"></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+		<div class="tar">
+			<input type="button" value="增加" onclick="getSettle()" style="cursor: pointer;color:red;font-size:16px;"/>
+			#if($VmUtils.isBlank($!params.param))
+			<a href="${basePath}admin/sport/open/sportSettleList.xhtml?sportid=$!sport.id&param=more" target="_blank">查看全部更新记录</a>
+			#end
+		</div>
+		#foreach($settle in $settleList)
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<tbody class="tbody">
+				<tr class="grayBg tdor">
+					<td width="10%" style="background:#bbb;">更新时间:</td>
+					<td width="35%">$!settle.updatetime</td>
+					<td width="10%" style="background:#bbb;">更新人:</td>
+					<td width="35%">$!settle.username</td>
+					<td>
+						<input type="button" onclick="getSettle('$!settle.id')" value="修改" style="cursor:pointer;"/>
+					</td>
+				</tr>
+				<tr class="grayBg">
+					<td colspan="5" style="padding:30px 0;text-align:left;">$!settle.content</td>
+				</tr>
+			</tbody>
+		</table>
+		#end
+		<div class="tar">#parse('include/pageUtil.vm')</div>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+	<div id="addDataForm" style="display: none;">
+		<div style="color:red;margin:10px;">新增或修改数据</div>
+		<div >
+			<form name="wsForm" id="wsForm" onsubmit="return false;">
+				<div>	
+					<input type="hidden" name="id" id="id" />	
+					<input type="hidden" name="sid" id="sid" value="$sport.id"/>
+				</div>
+				<div style="margin-left: 25px;"><textarea name="content" style="width:700px; height:300px;" id="content" mustTxt="内容不能为空!"></textarea></div>
+				<div style="margin-left: 670px;margin-top: 10px;"><input type="button" id="btnMit" value="提&nbsp;&nbsp;交" onclick="saveSettle();"/></div>
+			</form>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	var ckeditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("content");
+	});
+	window.addEvent("domready", function(){
+		$$(".tbody tr").addEvents({
+			'mouseenter':function(){
+				this.addClass("mouseBg");
+			},
+			'mouseleave':function(){
+				this.removeClass("mouseBg");
+			}
+		});
+	});
+	function getSettle(value){
+		if(!value || value == ''){
+			$('addDataForm').setStyle('display','block');
+			$('content').value = '';
+			ckeditor.setData('');
+		}else{
+			var url = "${basePath}admin/sport/open/getSportSettle.xhtml";
+			var values = {'id':value};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					GewaraUtil.setValues(result);
+					ckeditor.setData(result.content);
+					$('addDataForm').setStyle('display','block');
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+	}
+	function saveSettle(){
+		var url = "${basePath}admin/sport/open/saveSportSettle.xhtml";
+		$('content').value = ckeditor.getData();
+		var values = GewaraUtil.getValues('wsForm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("保存成功！");
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+
+</script>
+</body>
+</html>

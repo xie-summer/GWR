@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>开设设置</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.grayBg td input{width: 80px;}
+		.ck2{height:auto;padding:5px 0;}
+	</style>
+</head>
+<body>
+#set($isItem=true)
+#set($targetUrl=$VmUtils.escapeHtml("admin/drama/dramaPlayItem/itemList.xhtml?theatreid="))
+#parse('admin/theatre/menu.vm')
+<div style="color:red" id="notifyWin"></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+		<div class="checkMenu ck2 clear">
+			<ul>
+				#foreach($dateMap in $dateMapList)
+				#set($cdate=$dateMap.playdate + '-01')
+				<li #if($cdate eq $!params.date || $cdate eq $curdate)class="chooseItem"#end style="width: 70px;">
+					<div><a href="${basePath}admin/drama/dramaPlayItem/itemList.xhtml?theatreid=$!theatre.id&date=${dateMap.playdate}-01">$dateMap.playdate</a>
+					<h2>${dateMap.count}场</h2></div>
+				</li>
+				#end
+			</ul>
+		</div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>&nbsp;</th>
+					<th>话剧</th>
+					<th>放映厅</th>
+					<th>语言</th>
+					<th>演出时间</th>
+					<th>剧院价</th>
+					<th>排序排序<br /><input type="text" style="width:40px;" onchange="batchSortnum(this,this.value)" /></th>
+					<th>修改</th>
+					<th>删除</th>
+					<th>前台</th>
+					<th>复制记录</th>
+					<th>是否开放</th>
+				</tr>
+			</thead>
+			<tbody class="tbody">
+				#foreach($dpi in $dpiList)
+				#set($section=$sectionMap.get($dpi.id))
+				#set($tspHelper=$tspHelperMap.get($dpi.id))
+				<tr class="grayBg disp c$dpi.dramaid" id="tr$dpi.id">
+					<td>$foreach.count</td>
+					<td><a href="${basePath}drama/$dpi.relate2.id" target="_blank">$dpi.relate2.name</a></td>
+					<td>$!dpi.roomname</td>
+					<td>$!dpi.language&nbsp;</td>
+					<td>$DateUtil.format($dpi.playtime,'yyyy-MM-dd HH:mm')</td>
+					<td>
+						$!{section.name}&nbsp;
+						#foreach($price in $tspHelper.getPriceList('theatre'))
+							<span class="yellow">[$price]</span>
+						#end&nbsp;
+						<a href="${basePath}admin/dramaTicket/areaprice.xhtml?itemid=$!dpi.id">添加价格区域</a><br/>
+					</td>
+					<td><input type="text" class="sortnum" name="${dpi.id}" value="$!dpi.sortnum" onchange="updateSortnum(this,this.value)" style="width:40px;"/></td>
+					<td><a href="javascript:getItem('$dpi.id')">修改</a></td>
+					<td><a href="javascript:delItem($dpi.id)">删除</a></td>
+					<td><a href="$!{absPath}${basePath}drama/$dpi.dramaid" target="_blank">前台</a></td>
+					<td><a href="javascript:toCopy($dpi.id)">复制记录</a></td>
+					<td>#if($bookingMap.get($dpi.id))是#{else}-#end</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<div id="copyDialog" style="width:370px; visibility:hidden; z-index:5;background: #000;"></div>
+<script type="text/javascript">
+	function delItem(id){
+		if(confirm('确认要删除吗?')==false) return;
+		var values= {'id':id};
+		GewaraUtil.sendRequest('${basePath}admin/drama/dramaPlayItem/delItem.xhtml', values, function(result){
+			if(result.success){
+				$('tr'+id).dispose();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	var date = '';
+	var room = '';
+	function copyItem(){
+		date = '';
+		room = '';
+		$('choiceDate').getElements('input[type=checkbox]').each(function(item){
+			if(item.checked){
+				date = date + ',' + item.value;
+			}
+		});
+		$('choiceRoom').getElements('input[type=checkbox]').each(function(item){
+			if(item.checked){
+				room = room + ',' + item.value;
+			}
+		});
+		if(date == '' || room == '') return;
+		var values = {'itemid':$('itemid').value, 'playdates':date, 'rooms':room};
+		GewaraUtil.sendRequest('${basePath}admin/drama/dramaPlayItem/copyItem.xhtml', values, function(result){
+			if(result.success){
+				gewaUtil.alert('复制成功');
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	function toCopy(itemid){
+		var el = $('copyDialog');
+		el.empty();
+		el.set('load', {evalScripts: true});
+		el.load('${basePath}admin/drama/dramaPlayItem/toCopy.xhtml?itemid='+itemid);
+		copyDialog();
+	}
+	function hiCopyDialog(){
+		date = '';
+		room = '';
+		GewaraUtil.hideDialog("copyDialog");
+	}
+	function copyDialog(){
+		GewaraUtil.showDialog('copyDialog');
+	}
+	function updateSortnum(el, value){
+		el = $(el);
+		el.setStyle("background","red");
+		var values = {"itemid":el.name,"sortnum":value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/updateSortnum.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+				el.value = value;
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function batchSortnum(el, value){
+		if(!confirm('确认批量设置序号？'))return;
+		if(value == null){
+			alert('序号不能为空！');
+			return;
+		}
+		el = $(el);
+		el.setStyle("background","red");
+		$$('.disp .sortnum').each(function(item){
+			updateSortnum(item, value);
+		});
+		el.setStyle("background","");
+	}
+</script>
+</body>
+</html>

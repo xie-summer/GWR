@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>话题管理_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="/dpicker/WdatePicker.js"></script>
+</head>
+<body>
+#set($community = true)
+#set($now = $DateUtil.formatDate($DateUtil.currentTime()))
+#set($tag="home")#set($commuDiaryManage=true)#set($isShow=false)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('home/community/manage/commuM.vm')
+			<div class="ui_rightInner_left">
+				<div class="inner">
+					<div class="mt20 fs14"><strong>话题管理</strong></div>
+					<div class="mt5" id="topicDIV">
+						话题板：
+						<a id="top0" href="javascript:void(0);" class="black bold mr5 ml5" onclick="selTopic('0', this)">全部话题</a>|
+						#foreach($topic in $commuTopicList)
+						<a id="top$topic.id" href="javascript:void(0);" class="brown bold mr5 ml5" onclick="selTopic('$topic.id', this)">$topic.topicname</a>|
+						#end
+					</div>
+					<div class="horn">
+						<div class="title mt10" id="searchFrm">
+							<input type="hidden" name="commuid" value="$!VmUtils.escapeHtml($params.commuid)" />
+							<input type="hidden" name="topicid" id="topicid" />
+							按日期：
+							<input type="text" class="Wdate" name="fromDate" id="fromDate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'$now'})" style="width:140px;height:18px;margin-right:5px;" />
+							<div class="more clear">
+								<span class="left">按</span>
+								<select class="m5 left" name="flag">
+									<option value="0">---</option>
+									<option value="1">主题</option>
+									<option value="2">作者</option>
+									</select>
+								<input type="text" class="text left" name="text" id="text" style="width:140px;margin-right:5px;"/>
+								<label class="redBt button minBt left"><input type="button" class="" value="查找" onclick="doSearchFrm()"/></label>
+							</div>
+						</div>
+					</div>
+					<table cellpadding="0" cellspacing="0" class="titleTable" width="100%" style="margin-top:0px;"  id="diarytableDIV">
+						#parse('home/community/manage/diarytable.vm')
+					</table>
+				</div>
+			</div>
+			#parse('home/community/manage/commuManageRight.vm')
+		</div>
+	</div>
+</div>
+<div id="selcommutopicOUTDIV">
+#parse('home/community/manage/selcommutopic.vm')
+</div>
+#parse('include/bottom.vm')
+
+	<script>
+	function selTopic(topicID, obj){
+		changeCss(obj);
+		$('topicid').value = topicID;
+		ajaxSearchForm();
+	}
+	function ajaxSearchForm(){
+		var url = '${basePath}home/commu/commuDiaryManageTopic.xhtml';
+		var values = GewaraUtil.getValues("searchFrm");
+		$('diarytableDIV').set('load', {data: values, evalScripts: true});
+		$('diarytableDIV').load(url);
+	}
+	
+	function changeCss(obj){
+		var as = $('topicDIV').getChildren();
+		as.each(function(item, index){
+			item.className = "brown bold mr5 ml5";		
+		})
+		obj.className = "black bold mr5 ml5";
+	}
+	
+	// 表单搜索
+	function doSearchFrm(){
+		if(!GewaraUtil.isNotNull($('topicid').value)){
+			$('topicid').value = '0';
+		}
+		ajaxSearchForm();
+	}
+</script>
+</body>
+</html>

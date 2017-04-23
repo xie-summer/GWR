@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>中国银行支付首页 - 格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_movie,new_play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,tips&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		html{background:#fff;}
+		.cYellow{color:#e66218;}
+		.pay_header{height:80px; position:relative;}
+		.pay_header h1.logo{display:block; float:left; width:230px; height:60px; margin:10px 0; text-indent:-9999px; overflow:hidden; background:url(${staticPath}css/home/pay_logo.jpg) 0 0 no-repeat;}
+		.pay_header .userTag{position:absolute; right:0; top:10px;}
+		.pay_box{border:2px solid #f89470; -moz-border-radius:3px;	-webkit-border-radius:3px; border-radius:3px;}
+		.pay_orderInfo{font-size:14px; background:#fdfaf5; height:40px; line-height:40px;} 
+		.pay_orderInfo ul{width:900px; margin:0 auto;}
+		.pay_orderInfo ul li{color:#676664; width:400px; float:left;}
+		.pay_orderInfo ul li b{color:#141213;}
+		.pay_orderInfo ul li em{font-size:16px; font-weight:bold;}
+		.payway label{margin:0;}
+		
+		.payway label.icon_zgyh{background-position:30px -400px;}
+		.pay_content{padding:15px; margin-bottom:20px;}
+		.pay_tips{border:1px solid #C6D3F2; background:#F0F4FA; padding:8px 10px; width:570px;}
+		.pay_table th,.pay_table td{padding:5px 0;}
+		.pay_table th{font-size:14px; text-align:right; font-weight:normal; height:24px; line-height:24px; width:100px;}
+		.pay_table em{color:#ccc; font-family:"微软雅黑","黑体",Arial; font-size:14px;}
+		.issubmit {
+		    border: medium none;
+		    cursor: pointer;
+		    height: 28px;
+		    width: 66px;
+		}
+		.redBt{background-position:0 0;}
+		.redBt span,.redBt input{background-position:right -23px;}
+		.redBt:hover,label.hover{background-position:0 -47px;}
+		.redBt:hover span,label.hover input{background-position:right -70px;}
+		
+		.info{font-size:14px; margin:20px 0 0 20px; color:#f60}
+		.cardId{font:bold 18px/40px verdana;}
+		.cardId span{vertical-align:2px;}
+		.text{padding:8px 4px;}
+		.textCard{font:bold 18px/24px verdana,"微软雅黑","黑体",Arial; padding:4px;}
+	</style>
+</head>
+<body>
+<div class="ui_layout">
+	<div class="pay_header">
+		<h1 class="logo">格瓦拉收银台</h1>
+		<span class="userTag"><b>$!member.nickname</b>你好，欢迎来到格瓦拉生活网！</span>
+	</div>
+	<div class="pay_box pay_orderInfo clear">
+		<ul class="clear">
+			<li>商户名称：上海格瓦商务信息咨询有限公司(格瓦拉生活网)</li>
+			<li style="width:300px"><b>订单编号：</b>$!order.tradeNo</li>
+			<li style="width:200px"><b>应付金额：</b><em class="cYellow">$!{order.due}.00</em>元</li>
+		</ul>
+	</div>
+	<p class="info">订单创建时间：$!{DateUtil.format($order.addtime,'yyyy-MM-dd HH:mm:ss')}（交易将在15分钟后关闭，请及时付款！）</p>
+	<div class="pay_box pay_content mt20 clear" id="cardForm">
+		<p class="fs14 bold ml20">请选择银行卡：</p>
+		<table cellpadding="0" class="pay_table mt10" cellspacing="0" border="0" width="100%">
+			#foreach($agrmt in $agrmtList)
+			<tr>
+				<th>&nbsp;</th>
+				<td colspan="2">
+					<div class="payway">
+						<label for="icon_zgyh$foreach.count" title="中国银行" class="icon_zgyh">
+							<input type="radio" value="$agrmt.get('agrmtNo')" id="icon_zgyh$foreach.count" name="agrmtNo" />
+						</label>
+					</div>
+					<b class="cardId"><span class="fs12">卡号：</span>$agrmt.get('acctNo')</b>
+				</td>
+			</tr>
+			#end
+			#if($VmUtils.isNull($account) || $account.isIncomplete() || $account.isNopassword())
+			<tr>
+				<th>&nbsp;</th>
+				<td><div class="ui_warning"><b class="ico_g"></b>为了你的账户安全,请先设置支付密码<a href="${basePath}home/acct/mbrMobileAuthPay.xhtml?op=mobileAuthPayMdy" style="color:#0077FF;font-size:12px;font-weight:normal;margin-left:10px;" target="_blank">设置支付密码</a></div></td>
+				<td>&nbsp;</td>
+			</tr>
+			#else
+			<tr>
+				<th>支付密码：</th>
+				<td>
+					<input type="password" name="paypass" id="paypass" class="text"/><span class="yellow ffst ml5">*</span>
+					<a href="${basePath}home/acct/modifyPayPassword.xhtml" class="c07f ml20">忘记支付密码？</a>
+				</td>
+				<td>&nbsp;</td>
+			</tr>
+			#end
+			<tr>
+				<th>&nbsp;</th>
+				<td>
+					<input type="hidden" name="orderId" value="$!order.id"/>
+					<label class="button minBt redBt mt10"><input type="submit" onclick="checkDataFormSubmit();" value="确认付款" /></label></td>
+				<td></td>
+			</tr>
+		</table>
+	</div>
+	<p class="center">Copyright &copy; 2007–2013 Gewara. All Rights Reserved</p>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$('label.button,span.button').addEvents({
+		'mouseenter':function(){if(this.hasClass('bigBt')){this.addClass('bg_hover')}else{this.addClass('hover')}},
+		'mouseleave':function(){if(this.hasClass('bigBt')){this.removeClass('bg_hover');}else{this.removeClass('hover');}}
+	});
+})
+
+function checkDataFormSubmit(){
+	var values = GewaraUtil.getValues('cardForm');
+	if(values.agrmtNo == ''){
+		GewaraUtil.showValidateErr('agrmtNo','请选择要支付的银行卡！');
+		return;
+	}
+	GewaraUtil.sendRequest("${basePath}gewapay/agrmt/topay.xhtml", GewaraUtil.getValues("cardForm"), function(result){
+		if(result.success){
+			document.location.href = result.url;
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>酷6视频列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline}
+	</style>
+</head>
+<body style="width:90%;margin:auto" class="yui-skin-sam">
+<div>
+	#if($name)
+	<span>$name的视频</span>
+	#end
+</div>
+#if($error)<span style="font-weight: bold; size: 24px;">$error</span>#end
+<table width="100%" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th>标题</th>
+		<th>视频网址</th>
+		<th>缩略图</th>
+		<th>视频时长</th>
+		<th>上传时间</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="videoTable">
+	#foreach($video in $dataMap)
+		<tr id="video_${video.id}">
+			#set($url="http://player.ku6.com/refer/$!{video.vid}/v.swf")
+			<td width="20%">$!video.title</td>
+			<td width="30%">$url</td>
+			<td width="18%">
+				<a href="http://v.ku6.com/show/$!{video.vid}.html" target="_blank"><img src="http://$!video.picPath" /></a>
+				<a href="http://$!video.picPath" target="_blank">下载图片到本地</a>
+			</td>
+			<td width="8%">$!math.idiv($!video.videoTime, 60)分$!math.mod($!video.videoTime, 60)秒</td>
+			<td width="14%">$!DateUtil.formatTimestamp($!video.uploadTime)</td>
+			<td width="5%">
+				#if($urlList.contains($url))
+				<input type="button" style="width: 80px;" value="已同步" disabled="disabled"/>
+				#else
+				<input type="button" style="width: 80px;" value="同步" onclick="syncKu6(this)"/>
+				#end
+				<input type='hidden' name='tag' value="$!{params.tag}"/>
+				<input type='hidden' name='relatedid' value="$!{params.relatedid}"/>
+				<input type="hidden" name="url" value="http://player.ku6.com/refer/$!{video.vid}/v.swf"/>
+				<input type="hidden" name="videotitle" value="$!video.title"/>
+				<input type="hidden" name="hotvalue" value="0" />
+				<input type="hidden" name="logo" value="http://$!video.picPath" />
+			</td>
+		</tr>
+	#end
+	</tbody>
+</table>
+<div id='page'>
+	#set($curPage=$pageNo)
+	#set($prePage=$math.add($curPage, -1))
+	#set($nextPage=$math.add($curPage, 1))
+	当前第$curPage页
+	#if($!curPage eq 0)
+	<a href="${basePath}admin/movie/searchKu6AV.xhtml?tag=$!{params.tag}&relatedid=$!{params.relatedid}&pageNo=$curPage" class='pre'><span>第一页</span></a>
+	#else
+	<a href="${basePath}admin/movie/searchKu6AV.xhtml?tag=$!{params.tag}&relatedid=$!{params.relatedid}&pageNo=$prePage" class='pre'><span>上一页</span></a>
+	#end
+	<a href="${basePath}admin/movie/searchKu6AV.xhtml?tag=$!{params.tag}&relatedid=$!{params.relatedid}&pageNo=$nextPage" class='next'><span>下一页</span></a>
+</div>
+
+<script>
+	function syncKu6(obj){
+		var container = $(obj).getParent('tr');
+		var values = GewaraUtil.getValues(container);
+		var url = "${basePath}admin/common/ajax/saveOrUpdateVideo.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('同步成功!');
+				$(obj).set('value', '已同步');
+				$(obj).disabled = true;
+			}else{
+				alert('失败!');
+			}
+		});
+	}
+</script>
+</body>
+</html>

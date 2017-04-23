@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>找回登录密码</title>   
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		html,body{background: none;}
+		form label{display:inline-block;width:90px;text-align:right;}
+		form div{margin-top:5px;}
+		.add,.add_order{background: red; color: white;}
+		#authContent table tr td div{margin:5px;}
+	</style>
+</head>
+<body style="margin:auto;" class="yui-skin-sam">
+<div style="padding:1px;">
+	<form id="form" style="margin:3px; width:100%; float: left;">
+		邮箱:<input type="text" name="email" id="email" style="width: 100px;" value=""/>
+		<input type="button" value="查 询" class="bt1" id="search" onclick="loadAuth()"/>
+	</form>
+</div>
+<div id="authContent" style="overflow:hidden;width:100%;"></div>
+<div>
+	待绑定手机号:<input type="text" id="mobile" style="width: 100px;" value=""/>
+	<input id="sendCkPs" type="button" value="发送动态码" onclick="sendCkPs();"/>
+	手机动态码:<input type="text" id="checkpass" style="width: 100px;" value=""/>
+	<input id="sendBind" type="button" value="绑定手机" onclick="bindMobile();"/>
+</div>
+<script type="text/javascript">
+function loadAuth(){
+	if(!$('email').value){ 
+		gewaUtil.alert('请输入邮箱地址！');
+		return;
+	}
+	var url = '${basePath}admin/safety/getPass.xhtml';
+	GewaraUtil.mask('search');
+	var values = GewaraUtil.getValues("form");
+	GewaraUtil.sendLoad('authContent',url, values, function(result){
+		GewaraUtil.unmask();
+		if(!result.success){
+			gewaUtil.alert(result.json.msg);
+		}
+	});
+}
+function sendCkPs(){
+	if(!$('mobile').value){
+		gewaUtil.alert('请输入手机号码！');
+		return;
+	}
+	gewa.util.mask({'element': "sendCkPs",'title':'正在提交，请稍等...'});
+	var values = {mobile:$('mobile').value};
+	GewaraUtil.sendRequest('${basePath}admin/safety/loadCheckPass.xhtml', values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			gewaUtil.alert(result.retval);
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function bindMobile(){
+	if(!$('mobile').value){
+		gewaUtil.alert('请输入手机号码！');
+		return;
+	}
+	if(!$('email').value){ 
+		gewaUtil.alert('请输入邮箱地址！');
+		return;
+	}
+	if(!$('checkpass').value){ 
+		gewaUtil.alert('请输入手机动态码！');
+		return;
+	}
+	gewaUtil.confirm('您确定为此用户绑定手机：'+$('mobile').value+'？',function(){
+		gewa.util.mask({'element': "sendBind",'title':'正在提交，请稍等...'});
+		var values = {mobile:$('mobile').value,email:$('email').value,checkpass:$('checkpass').value};
+		GewaraUtil.sendRequest('${basePath}admin/safety/sendBindMobile.xhtml', values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				gewaUtil.alert(result.retval);
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	});
+}
+</script>
+</body>
+</html>

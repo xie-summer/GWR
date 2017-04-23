@@ -1,0 +1,116 @@
+#parse('partner/mpiRemark.vm')
+<div class="pewDemo">
+	<b class="b">选择座位</b>
+	<span><img src="${staticPath}css/images/blank.gif" class="hasSeat" align="middle"/>可选位置</span>
+	<span><img src="${staticPath}css/images/blank.gif" class="sellSeat" align="middle"/>已售位置</span>
+	<span><img src="${staticPath}css/images/blank.gif" class="checkSeat" align="middle"/>您已选的位置</span>
+	<span><b style="color:green">1、2</b>：情侣座第1、2个座位</span>
+</div>
+<div class="wrapper" id="wrapper">
+	#set($maxwidth=22+22*$room.ranknum)
+	#set($pewHeight=$room.linenum*25)
+	<div class="pewNo" style="height:${pewHeight}px">
+		#foreach($row in [1..$room.linenum])
+		<span #if($!rowMap.get($row))class="N"#end>$!rowMap.get($row)</span>
+		#end
+	</div>
+	<div id="wrapped" style="width: #if(${maxwidth} gt 640)${maxwidth}px;#else 640px #end;margin:0 auto;overflow:visible;">
+		<div class="room_screen" style="width: #if(${maxwidth} gt 600) ${maxwidth}px; #else 600px;#end;">${opi.cinemaname}$room.roomname银幕#if($!{room.screenwidth})长$!{room.screenwidth}m #end #if($!{room.screenheight})高$!{room.screenheight}m#end</div>
+		<div class="seatlist" style="margin:0 auto;width:${maxwidth}px">
+			#set($classMap={'N':'noSeat','A':'hasSeat','B':'sellSeat','C':'sellSeat','D':'sellSeat','S':'sellSeat','W':'sellSeat'})
+			#foreach($row in [1..$room.linenum])
+			<dl class="clear">
+				#foreach($rank in [1..$room.ranknum]) #set($sid='row'+${row}+'rank'+$rank)
+				#if($seatMap.get($sid))#set($seat=$seatMap.get($sid))
+				<dd id="$price"><div id="$seat.id" #if($mySeatList.contains($seat)) class="checkSeat"#elseif($hfhLockList.contains($seat.key))class="sellSeat" #elseif($seat.loveInd eq '1' || $seat.loveInd eq '2')class="sellSeat" #else class="$classMap.get($seatStatusUtil.getFullStatus($seat))"#end title="${seat.seatLabel}$price元"></div></dd>
+				#else<dd><div class="noSeat"></div></dd>#end
+				#end
+			</dl>
+			#end
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+#set($seatidList=[])
+#if($VmUtils.size($mySeatList) gt 0)#foreach($oseat in $mySeatList)#set($tmp=$seatidList.add($oseat.id))#end#end
+#if($VmUtils.size($seatidList) gt 0)#set($jsSeatList="'" +$!VmUtils.join($seatidList,"','") + "'")#end
+var selectedSeat=[$!jsSeatList];
+window.addEvent("domready", function(){
+	$$(".seatlist dd div.hasSeat").addEvent('click',function(){
+		setSeat(this);
+	});
+	$$(".seatlist dd div.checkSeat").addEvent('click',function(){
+		setSeat(this);
+	});
+	updateInfo();
+	setElement(selectedSeat);
+});
+function setSeat(el){
+	var flags = false;
+	if(el.hasClass("hasSeat")){//选择座位
+		isChooseSet();
+		if(selectedSeat.length>=5){
+			gewaUtil.alert("最多选择五个座位！");
+			return;
+		}
+		selectedSeat.push(el.id);
+		updateInfo();
+		createPew(el)
+		el.set("class","checkSeat");
+	}else if(el.hasClass("checkSeat")){//取消座位
+		if(selectedSeat.length == 1){
+			isNotChooseSet();
+		}
+		selectedSeat.erase(el.id);
+		el.set("class","hasSeat");
+		flags = true;
+		updateInfo();
+		if($("s"+el.id))$("s"+el.id).dispose();
+	}
+}
+function createPew(el){
+	var pos = $(el).getPosition(),
+	element = Element("div",{
+		"class":"pews", "html":el.title, "id":"s"+el.id,"styles":{
+		"left":pos.x,
+		"top":pos.y
+	}}).inject(document.body);
+	element.set('move', {duration: 'long',onComplete:function(){
+		if(selectedSeat.indexOf(el.id) >= 0){
+			this.element.inject('selectedSeat');
+			this.element.setStyle("position","static");
+		}else{
+			if($("s"+el.id))$("s"+el.id).dispose();
+		}
+	}}).move({
+		relativeTo:$('selectedSeat'),
+		position:"center",
+   	offset:{x:0,y:0}
+   })
+}
+function isChooseSet(){
+	$("yes").set("html","您选择的座位");
+	$("no").addClass("none");
+}
+function isNotChooseSet(){
+	$("yes").set("html","您尚未选择座位");
+	$("no").removeClass("none");
+}
+function updateInfo(){
+	$("seatNum").set('html',selectedSeat.length);
+	$("seatList").value=selectedSeat.join(",");
+}
+function setElement(selectedSeatList){
+	if(selectedSeatList.length > 0){
+		isChooseSet();
+		selectedSeatList.each(function(item){
+			if($(item)){
+				var el = $(item);
+				var pos = el.getPosition();
+				new Element("div",{'class':'pews',"html":el.title, "id":"s"+el.id,"styles":{"position":"static"}}).inject('selectedSeat');
+			}
+		})
+	}
+	return ;
+}
+</script>

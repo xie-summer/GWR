@@ -1,0 +1,450 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>#if($ott)${ott.sportname}-${ott.itemname}-$DateUtil.format($ott.playdate,"M月d日")#else ${sport.name}-${item.name}-$!DateUtil.format($playDate,"M月d日")#end在线预定场馆_格瓦拉生活网</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,slimbox,scrollerbar&v=$VmUtils.jsVersion"></script> 
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.isSite{border-color:#aaa;color:#333; height:44px; line-height:22px;width:auto;display:none;}
+		.title .blue{color:#349acb;}
+		.cursor{cursor: pointer;}
+		.ml120{margin-left:120px;}
+		.sp-60{display:block;}
+		.sp-60 dt{color:#777;line-height:28px;*line-height:32px;}
+		.sp-60 dd{padding-left:0;width:98%;}
+		.chooseText .pl{width:310px;display:inline-block;overflow:hidden;float:left;margin-right:10px;line-height:22px;}
+		.chooseText .pr{display:inline-block;overflow:hidden;float:left;width:200px;}
+		.sp_notice{height:26px; width:100%; border:1px solid #fae3b9; color:#ec4800; background:#ffffe3;}
+		.sp_notice .sp_notice_in{height:26px; line-height:26px; line-height:28px\9; overflow:hidden;position: relative;padding-right:20px;text-align:center;}
+		.sp_notice_in .more{display:block; border:1px solid #B1BDD6; padding:2px; top:6px; right:6px; cursor:pointer;position: absolute;right:6px;top:6px;}
+		.cblue b{font-size:18px;font-weight:bold;color:#2097CB; margin:0 1px; vertical-align:-2px;}
+		.blue{color:#2097CB;}
+		.tipMoreBox{overflow-y:auto; max-height:500px; _height:300px;}
+		.moreInfo{color:#2097CB;}
+	</style>
+</head>
+<body>
+#set($isChooseSeat = true)#set($movieFlag="buyticket")#set($issport=true)#set($issearchOpi=true)#set($isOrder1=true)
+#set($passengers=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout">
+	<div class="inner">
+		#parse('sport/menu.vm')
+		<div class="choose_body mt20">
+			<div class="inner">
+				<ul class="ui_abeam">
+					<li>
+						<div class="uipic">
+							<a href="${basePath}sport/$sport.id" target="_blank"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('sw96h72',$sport.firstpic)) center center no-repeat;" width="96px"height="72px"/></a>
+						</div>
+						<div class="uiText chooseText">
+							<p><em>预订场馆：</em><a href="${basePath}sport/$sport.id" target="_blank" title="$!sport.name">$!sport.name</a></p>
+							<div class="clear">
+								<span class="pl">
+									<em>详细地址：</em><span title="$!sport.address">$!VmUtils.escabbr($!sport.address, 38)#if($VmUtils.getByteLength($sport.address) gt 38)...#end</span>
+								</span>
+								<span class="pr">
+									<em>预订项目：</em><a href="${basePath}sport/item/${item.id}" target="_blank"><span title="$!item.itemname">$VmUtils.escabbr($!item.itemname, 18)#if($VmUtils.getByteLength($item.itemname) gt 18)...#end</span></a>
+								</span>
+							</div>
+							<div class="clear">
+								#if($sport.opentime)
+								<span class="pl">
+									<em>营业时间：</em><span title="$!sport.opentime">$!VmUtils.escabbr($!sport.opentime, 38)#if($VmUtils.getByteLength($sport.opentime) gt 38)...#end</span>
+								</span>
+								#end
+								#if($sport.contactphone)
+								<span class="pr">
+									<em>联系电话：</em><span title="$!sport.contactphone">$!VmUtils.escabbr($!sport.contactphone, 18)#if($VmUtils.getByteLength($sport.contactphone) gt 18)...#end</span>
+								</span>
+								#end
+							</div>
+						</div>
+					</li>
+				</ul>
+				<div class="tele"></div>
+			</div>
+		</div>
+		<div class="choose_body">
+			<div class="choose_body_left">
+				<div  class="inner">
+					<div class="title line">
+						<span class="ml10"><em class="help_logo"></em>
+						<span class="blue ml5 tips">使用帮助</span></span>
+						<div style="display:none" id="tipsInfo">
+							<div class="none">
+								<p>1、选择您要预订的畅打/培训后，点击“+”“-”可增减人数，每笔订单最多预订4人次；</p>
+								<p>2、人数上限为该畅打/培训最多可预订的人数，人数下限为活动正常举办的最少人数；</p>
+								<p>3、提交订单后请在15分钟内完成支付，超时系统将自动释放你选择的畅打/培训；</p>
+								<p>4、支付成功后你将在15分钟内接收到预订成功短信，请提前至场馆管理处验证入场。</p>
+							</div>
+						</div>
+						#if($sport.floorplan)
+						<a href="$VmUtils.randomPic('',$sport.floorplan)" class="blue more imgTips" target="_blank">查看场馆平面图<span class="sicon venues"></span></a>
+						<div style="display:none" id="imgInfo">
+							<div class="none">
+								<img src="$VmUtils.randomPic('',$sport.floorplan)" width="340"/>
+							</div>
+						</div>
+						#end
+					</div>
+				</div>
+				<div class="time_menu mt10 line"> 
+					<ul>
+						#foreach($time in $timeList)
+						<li><a #if($VmUtils.eq($time, $playDate)) class="sicon select" href="javascript:void(0);" #else class="sicon" href="${basePath}gewapay/sportGoods/step1.xhtml?sid=$sport.id&tid=$item.id&fyrq=$DateUtil.format($time,'yyyy-MM-dd')"#end>$DateUtil.format($time,'MM-dd') $DateUtil.getCnWeek($time)</a></li>
+						#end
+					</ul>
+					#if($timeCount gt 7)
+					<label class="more">选择其他日期
+						<input type="text" readonly="readonly" id="myOTTdate" class="Wdate" value="$!fyrq" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'$!{DateUtil.curDateStr}'})" onchange="searchItem(this.value);"/>
+					</label>
+					#end
+				</div>
+				<div>
+					<div class="time_title gray mt10">
+						<div class="ui_chooseTimes">
+							#if(!$VmUtils.isEmptyList($sportGoodsList))	
+						   <ul id="ui_chooseTimes">
+								#foreach($sportGoods in $sportGoodsList)
+						        <li class="select">
+						            <div class="hasEvent">
+						                <label for="radio$foreach.index">
+						                	<input name="radio" type="radio" value="$!sportGoods.id" id="radio$foreach.index" alt="$!sportGoods.goodsname" tabindex="$surplusMap.get($sportGoods.id)" lang="$!sportGoods.unitprice" #if($VmUtils.eq($myGoodsOrder.goodsid, $sportGoods.id))checked="checked"#end/>
+											<strong class="ffst">$!sportGoods.goodsname</strong>
+											<span class="date">
+												<span class="p"><span class="inl">¥</span><span class="inm">$!sportGoods.unitprice</span><span class="inr">/人</span></span>
+												<span class="cblue mr10">预订截止时间<b>$DateUtil.format($!sportGoods.totime, "HH:mm")</b></span>
+												#set($sec=$secMap.get($sportGoods.id)/60)
+												#set($reDay=$sec/(60*24))
+												#set($reHour=($sec+($reDay*60*24*(-1)))/(60))
+												#set($reMin=($sec+($reDay*60*24*(-1)+$reHour*60*(-1)))%(60))
+												<span class="cblue"><em style="background-position:-915px -1279px;" class="imsg time" lang="$!sportGoods.id"> <b>$!reDay</b>天<b>$!reHour</b>小时<b>$!reMin</b>分钟</em></span>
+												<span style="background-position:-918px -1309px;" class="imsg ml10 cblue"><em>已有<b>$!saleMap.get($sportGoods.id)</b>人预订</em></span>
+											</span>
+										</label>
+						                <div class="ui_abeam clear chooseTimeBtm">
+						                    <div class="uipic">
+											<label for="radio$foreach.index">
+						                       	<span class="toright">
+													#if($VmUtils.eq($myGoodsOrder.goodsid, $sportGoods.id))
+														#if($VmUtils.gt($surplusMap.get($sportGoods.id), 4)) #set($num=(4-$myGoodsOrder.quantity)) 
+														#else #set($num=($surplusMap.get($sportGoods.id)-$myGoodsOrder.quantity)) 
+														#end 
+													#else
+														#if($VmUtils.gt($surplusMap.get($sportGoods.id), 4)) #set($num=4) 
+														#else #set($num=$surplusMap.get($sportGoods.id)) 
+														#end
+													#end
+													<span class="clear order">
+														<span>预订人数：</span>
+														<span class="minus sub"></span>
+														<span class="input"><input type="text" class="inbox" value="#if($VmUtils.eq($myGoodsOrder.goodsid, $sportGoods.id))$!{myGoodsOrder.quantity}#else 0 #end" maxlength="#if($VmUtils.gt($surplusMap.get($sportGoods.id), 4))4#else$!surplusMap.get($sportGoods.id)#end" readonly="readonly" lang="4"/></span>
+														<span class="add sum"></span>
+														<span class="ml10 counted">(您还可预订<b id="bookNum$sportGoods.id" class="fs14">$!num</b>人)</span>
+													</span>
+													#set($hour=$!sportGoods.hours)
+													#set($hours2=$VmUtils.split($hour,'-'))
+													#set($hours3=$DateUtil.parseDate($hours2[0], "HH:mm"))
+													#set($hours4=$DateUtil.parseDate($hours2[1], "HH:mm"))
+													<span id="hours$!sportGoods.id">起止时段：<b class="c333">$!hour</b></span><span>(共$!VmUtils.substring($!DateUtil.getDiffStr($hours4,$hours3),1))</span><br />
+													<span class="itox">人数上限：</span><span class="itox gray"><b class="black">$!sportGoods.quantity人</b>(本活动低于<b>2</b>人将无法举行)</span>
+													<span class="msg" id="msgshort$foreach.index">$!VmUtils.htmlabbr($sportGoods.description, 180)<a class="moreInfo ffst ml5" style="top:8px; right:8px;" href="javascript:void(0);" lang="msgall$foreach.index" config="$!sportGoods.goodsname">查看详情</a></span>
+													<span class="msg none" id="msgall$foreach.index">$!sportGoods.description</span>
+												</span>
+											</label>
+						                    </div>
+						                    <div class="uiText right imgLabel"><label for="radio$foreach.index" style="width:150px;height:150px;background:url($VmUtils.randomPic('cw150h150', $sportGoods.limg)) center center no-repeat;display:inline-block;outline: none !important;"></label></div>
+						                </div>
+						            </div>
+						        </li>
+						      #end
+						   </ul>
+					     	#else
+					      <div class="time_title gray mt10">
+								<div style="width:350px;">
+									#if($playDate)
+									当前<span class="ml5 mr5 bold brown" style="font-size:24px;">$!DateUtil.format($playDate,"M月d日")</span>没有畅打/培训场次，请选择其它日期
+									#else
+									当前<span class="ml5 mr5 bold brown" style="font-size:24px;">$!item.itemname</span>项目没有畅打/培训场次，请选择其它项目
+									#end
+								</div>
+							</div>	
+					      #end
+						</div>
+					</div>	
+				</div>
+			</div>
+			<div class="choose_body_right">
+				<div class="box"><h3>选择套餐：</h3></div>
+				<div class="bom">
+					<div id="isShowDesc" #if($myGoodsOrder) class="none" #end>请在左侧选择畅打/培训套餐，每笔订单只能选择一份，每份最多预订4人次。</div>
+					<div style="" class="isSite" id="isSite"></div>
+					#set($countMoney=$myGoodsOrder.quantity*$myGoodsOrder.unitprice)
+					<div class="mt10" id="hasSiteBox">已选择<b id="countPreson" class="fs14">#if($myGoodsOrder)$!{myGoodsOrder.quantity}#else 0 #end</b>人次，<b id="countMoney" class="fs14">#if($myGoodsOrder)$!{countMoney}#else 0 #end</b>元</div>
+				</div>
+				<div class="box line_bot">
+					<div class="inner">
+						<h3>请输入取票的手机号码：</h3>
+						<form id ="orderForm" name="myform" method="post">
+						<input type="hidden" name="gid" id="gid" value="" mustTxt="请选择套餐！"/>
+						<input type="hidden" name="quantity" id="quantity" value="" mustTxt="请选择数量！"/>
+						<dl class="sp-60 mt10 clear">
+							<dt style="text-align:right;">接收手机：</dt>
+							<dd style="padding-left:0; *width:98%;">
+								<input type="text" class="text txt" name="mobile" id="mobile" value="$!member.mobile" maxlength="11" mustTxt="请输入您的手机号码！"/>
+								<span style="color:#f96101;">*</span>
+							</dd>
+						</dl>
+						<dl class="sp-60 mt10 clear">
+							<dt style="text-align:right;">验证码：</dt>
+							<dd style="padding-left:0; *width:98%;">
+								#set($captchaId=$VmUtils.randomCaptchaId)
+								<input type="hidden" name="captchaId" id="captcha" value="$!captchaId"/>
+								<input type="text" class="text txt" name="captcha" id="captchaInput" mustTxt="请输入验证码！"/>
+								<span style="color:#f96101;">*</span>
+							</dd>
+						</dl>
+						<dl class="sp-60 mt10 clear">
+							<dd>
+								<img id="captchaImg" src="${basePath}captcha.xhtml?captchaId=$!captchaId&r=$math.random" class="mr5" style="cursor:pointer;vertical-align:middle;width:100px;height:30px;"  onclick="GewaraUtil.refreshCaptcha('captcha');" title="看不清楚，请双击换一张图片"/>
+								<span onclick="GewaraUtil.refreshCaptcha('captcha');" class="cyan" style="cursor:pointer;color:#39c;">看不清楚</span>
+							</dd>
+						</dl>
+						<label class="mt10 redBt bigBt button" style="margin-left:70px;">
+							<input type="button" onclick="submitOrder(this);" value="提交订单"/>
+						</label>
+						</form>
+					</div>
+				</div>
+				<div class="bom">
+					<div class="bold">温馨提示：</div>
+					<p>1、订单提交后请在15分钟完成支付，超时系统将释放所选畅打/培训套餐。</p>
+					<p>2、支付成功后，您将在15分钟内收到短信通知。接收短信完全免费。</p>
+				</div>
+			</div>
+			<div class="cls"></div>
+		</div>		 
+	</div>
+</div>
+<div id="tipMoreBox" style="display:none;" class="tipMoreBox">
+	
+</div>
+<script type="text/javascript">
+var items = $$("#ui_chooseTimes li"),fx = new Fx.Elements(items, {link: 'cancel',duration:300,transition: Fx.Transitions.linear});
+window.addEvent('domready',function(){
+	gewa.util.popo($$('.tips'),'tipsInfo');
+	#if($sport.floorplan)gewa.util.popo($$('.imgTips'),'imgInfo');#end
+	#if($myGoodsOrder)
+		$('isSite').innerHTML = '$VmUtils.escabbr($myGoodsOrder.ordertitle, 32)';
+		var my = new Element('span',{'class':'cs'}).inject('isSite','top');
+		var time = new Element('p',{'html':'时段：$myGodos.hours'}).inject('isSite','bottom');
+		my.addEvent('click', cancelCs)
+		$('isSite').show();
+	#end
+	$$('span.sub,span.sum').addEvent('click',function(){
+		var parent = this.getParent('li');
+		parent.getElement('input[type=radio]').checked = true;
+		var vbox = parent.getElement('input[type=text]');
+		$('gid').value = parent.getElement('input[type=radio]').value;
+		if($('quantity').value=='')$('quantity').value = 1;
+		$('isSite').innerHTML = parent.getElement('input[type=radio]').get('alt').substring(0,16);
+		var my = new Element('span',{'class':'cs'}).inject('isSite','top');
+		var time = new Element('p',{'html':$('hours'+$('gid').value).innerHTML}).inject('isSite','bottom');
+		my.addEvent('click', cancelCs);
+		$('isSite').show();
+		if($('countPreson').innerHTML==0)$('countPreson').innerHTML = 1;
+		if($('countMoney').innerHTML==0)$('countMoney').innerHTML = parent.getElement('input[type=radio]').get('lang');
+		var maxsum = 4;
+		if($('bookNum'+$('gid').value).innerHTML.toInt()+vbox.value.toInt()<4) maxsum = $('bookNum'+$('gid').value).innerHTML.toInt()+vbox.value.toInt();
+		if(this.hasClass('sum')){
+			if(vbox.value.toInt()<maxsum){
+				vbox.value = vbox.value.toInt() + 1;
+				$('countPreson').innerHTML = 1 * vbox.value.toInt();
+				$('countMoney').innerHTML = parent.getElement('input[type=radio]').get('lang').toInt()*vbox.value.toInt();
+				$('quantity').value = vbox.value.toInt();
+				var oNum = $('bookNum'+$('gid').value).innerHTML.toInt();
+				$('bookNum'+$('gid').value).innerHTML = oNum - 1;
+			}else{
+				$('countPreson').innerHTML = 1 * vbox.value.toInt();
+				$('countMoney').innerHTML = parent.getElement('input[type=radio]').get('lang').toInt()*vbox.value.toInt();
+				$('quantity').value = vbox.value.toInt();
+				gewaUtil.alert('每笔订单最多可预订'+maxsum+'个人！')
+			}
+		}else{
+			if(vbox.value.toInt()>1){
+				vbox.value = vbox.value.toInt() - 1;
+				$('countPreson').innerHTML = 1 * vbox.value.toInt();
+				$('countMoney').innerHTML = parent.getElement('input[type=radio]').get('lang').toInt()*vbox.value.toInt();
+				$('quantity').value = vbox.value.toInt();
+				var oNum = $('bookNum'+$('gid').value).innerHTML.toInt();
+				$('bookNum'+$('gid').value).innerHTML = oNum + 1;
+			}else{
+				$('countPreson').innerHTML = 1 * vbox.value.toInt();
+				$('countMoney').innerHTML = parent.getElement('input[type=radio]').get('lang').toInt()*vbox.value.toInt();
+				$('quantity').value = vbox.value.toInt();
+				$('bookNum'+$('gid').value).innerHTML = maxsum - 1;
+			}
+		}
+		$('isShowDesc').hide();
+		if(vbox.value > vbox.get('lang').toInt()){vbox.value = vbox.get('lang');return ;}
+		if(vbox.value <= 0){vbox.value = 1;return ;}
+	});
+	#if(!$VmUtils.isEmptyList($sportGoodsList))	
+	$('ui_chooseTimes').getElements('input[type=radio]').addEvent('click',function(){
+		var parent = this.getParent('li');
+		var vbox = parent.getElement('input[type=text]');
+		$('gid').value = this.value;
+		$('isSite').innerHTML = this.get('alt').substring(0,16);
+		var my = new Element('span',{'class':'cs'}).inject('isSite','top');
+		var time = new Element('p',{'html':$('hours'+$('gid').value).innerHTML}).inject('isSite','bottom');
+		my.addEvent('click', cancelCs);
+		$('isSite').show();
+		$('quantity').value = vbox.value.toInt();
+		$('countPreson').innerHTML = vbox.value.toInt()*1;
+		$('countMoney').innerHTML = this.get('lang').toInt()*vbox.value.toInt();
+		$('isShowDesc').hide();
+		if(vbox.value == 0){
+			vbox.value = 1;
+			$('quantity').value = 1;
+			$('countPreson').innerHTML = 1;
+			$('countMoney').innerHTML = this.get('lang');
+			var oNum = $('bookNum'+$('gid').value).innerHTML.toInt();
+			$('bookNum'+$('gid').value).innerHTML = oNum - 1;
+		}
+	});
+	#end
+	//getTime();
+	//getTime.periodical(60000);
+	seeMore();
+})
+
+function seeMore(){
+	var oMore = $('ui_chooseTimes').getElements('a[class^="moreInfo"]');
+	oMore.each(function(el){
+		el.addEvent('click',function(){
+			var small=el.get('lang');
+			$('tipMoreBox').innerHTML = $(small).innerHTML;
+			$$('.tipMoreBox').each(function(item){
+				resizePicture(item.getElements('img'), 660, true);
+			});
+			gewa.util.maskContent('','tipMoreBox',el.get('config'),720,'notTitle');
+		});
+	});
+}
+
+var cancelCs = function(){
+	$('gid').value = '';
+	$('quantity').value = 0;
+	$('isSite').innerHTML = '';
+	$('isSite').hide();
+	$('countPreson').innerHTML = 0;
+	$('countMoney').innerHTML = 0;
+	$('isShowDesc').show();
+	$('ui_chooseTimes').getElements('input[type=radio]').each(function(el){
+		if(el.checked){
+			el.checked = false;
+			var vbox = el.getParent('li').getElement('input[type=text]');
+			vbox.value = 0;
+			var num = 4;
+			if(el.get('tabindex')<4) num=el.get('tabindex');
+			$('bookNum'+el.value).innerHTML = num;
+		}
+	});
+}
+
+function submitOrder(el){
+	checkLogin(true, function(){
+		if(!GewaraUtil.baseValidForm('orderForm'))return;
+		var url = '${basePath}gewapay/addGoodsOrder.xhtml';
+		var values = GewaraUtil.getValues("orderForm");
+		var err = "",val=$("mobile").value.trim();
+		if(val == ""){err += "请输入您的电话号码！"}
+		if((!isNumber(val) || val.length != 11) && val != "") err += "请输入正确的手机号码！";
+		if(err.length>0){gewaUtil.alert(err); return;}
+		gewa.util.mask({'element': el,'title':'正在提交，请稍等...'});
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				document.location.href="${basePath}gewapay/order.xhtml?orderId=" + result.retval;
+			}else{
+				GewaraUtil.refreshCaptcha('captcha');
+				gewaUtil.alert(result.msg);
+				
+			}
+		});
+	});
+}
+function isNumber(str){return /^\d+$/.test(str);}
+
+function searchItem(value){
+	document.location = '${basePath}gewapay/sportGoods/step1.xhtml?sid=$sport.id&tid=$item.id&fyrq=' + value;
+}
+function closeNotice(){
+	$('ottNotice').addClass('none');
+}
+#*
+function sitePlayItem(i){
+	var o = {};
+	items[i].addClass('select');
+	var h = items[i].getElement('.hasEvent').getDimensions().y;
+	o[i] = {height:h}
+	items.each(function(other, j) {
+		if(i != j && !other.getElement('input[type=radio]').checked) {
+			items[j].removeClass('select');
+			o[j] = {height:90};
+			showsElement(items[i],false);
+		}
+	});
+	showsElement(items[i],true);
+	fx.start(o);
+}
+*#
+function showsElement(el,flag){
+	if(flag){
+		el.getElement('.counted').show();
+		el.getElement('.iscount').hide();
+	}else{
+		el.getElement('.counted').hide();
+		el.getElement('.iscount').show();
+	}
+}
+function removeSitePlayItem(){
+	var o = {};
+	items.each(function(item, i) {
+		if(!items[i].getElement('input[type=radio]').checked){
+			items[i].removeClass('select');
+			o[i] = {height:90}
+			showsElement(items[i],false);
+		}else{
+			showsElement(items[i],true);
+			o[i] = {height:items[i].getElement('.hasEvent').getDimensions().y}
+		}
+	});
+	fx.start(o);
+}
+
+function getTime(){
+	var idListStr = "";
+	$$('.time').each(function(el){
+		idListStr = idListStr + el.get('lang') + ",";
+	});
+	var url = '${basePath}sport/sportgoods/time.xhtml';
+	var values = {'idListStr':idListStr};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			$$('.time').each(function(el){
+				var a = el.get('lang');
+				el.innerHTML = '还剩'+result[a];
+			});
+		}
+	},'get');
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

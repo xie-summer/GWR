@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>特殊折扣公式编辑</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline-block;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea {display:inline-block;}
+		input{width:200px;}
+		table td input{width:150px;}
+		a{text-decoration: none; white-space: nowrap;}
+	</style>
+</head>
+<body style="width:850px;margin:auto" class="yui-skin-sam">
+<ul>
+	<li><hr /></li>
+	<li><b style="color:red;">演出使用说明</b></li>
+	<li>引用变量:itemList表示订单BuyItem信息, unitprice 票单价， quantity数量，disid套票ID，smallitemid价格ID，disprice套票单价，disquantity套票数量</li>
+	<li>
+		<div>每张票9折,每套票减20</div>
+		<div><textarea rows="4" cols="80" readonly="readonly">Double amount = 0;   for(item in itemList){     if(item.disid !=null){amount +=item.disquantity*20;}else{amount += item.unitprice*item.quantity*0.1; } }; return amount;</textarea></div>
+	</li>
+	<li><hr /><b style="color:red;">电影使用说明</b></li>
+	<li>引用变量:order表示订单信息，opi表示场次信息, 返回负数表示不支持。举例如下(<a href="http://wk.gewara.com/pages/viewpage.action?pageId=9863387" target="_blank">详细使用见</a>)：</li>
+	<li>
+		<div>第二张1元：</div>
+		<div><textarea rows="1" cols="80" readonly="readonly">order.quantity>=2 ? order.unitprice-1 : 0</textarea></div>
+	</li>
+	<li>
+		<div>第二张减5元，第三张减10元，...，第n张减5*(n-1)元，则公式为：
+		5*(2-1) + 5*(3-1) + ...+5*(n-1)，<br />
+		化简为：5*（1+2+3+...+n-1)，即：5*(n*(n-1)/2)</div>
+		<div><textarea rows="1" cols="80" readonly="readonly">5*order.quantity*(order.quantity-1)/2</textarea></div>
+	</li>
+	<li>
+		<div>上海、北京每单减5，其他城市每单减10</div>
+		<div><textarea rows="1" cols="80" readonly="readonly">(opi.citycode=="310000" || opi.citycode=="110000") ? 5 : 10</textarea></div>
+	</li>
+	<li>
+		<form name="get" >订单号：<input type="text" name="tradeno" value=""/><input type="submit" style="width:80px;" value="开始测试"/></form>
+		<hr />
+	</li>
+	<li>
+		<div>输入公式做测试：</div>
+		<form name="expressionForm" id="expressionForm">
+		<div><textarea name="expression" id="expression" rows="3" cols="80"></textarea></div>
+		<div><input type="button" class="button" value="测试" onclick="testExpression()"/></div>
+		<div style="width:320px;float:left;">
+			<div>order(订单属性，都可以使用，常用如下)</div>
+			<table class="table">
+				<thead><tr><th>名称</th><th>描述</th><th>值</th></tr></thead>
+				<tbody>
+					<tr><td>mobile</td><td>手机号</td><td><input name="mobile" value="$!order.mobile"/></td></tr>
+					<tr><td>addtime</td><td>下单时间</td><td><input name="addtime" value="$!DateUtil.formatTimestamp($!order.addtime)"/></td></tr>
+					<tr><td>memberid</td><td>关联用户</td><td><input name="memberid" value="$!order.memberid"/></td></tr>
+					<tr><td>partnerid</td><td>关联商家</td><td><input name="partnerid" value="$!order.partnerid"/></td></tr>
+					<tr><td>membername</td><td>用户名</td><td><input name="membername" value="$!order.membername"/></td></tr>
+					<tr><td>unitprice</td><td title="下单时的场次卖价，可能与场次当前卖价不同" style="font-weight:bolder;">单价</td><td><input name="unitprice" value="$!order.unitprice"/></td></tr>
+					<tr><td>quantity</td><td>数量</td><td><input name="quantity" value="$!order.quantity"/></td></tr>
+				</tbody>
+			</table>
+		</div>
+		<div style="width:320px;float:left;margin-left:10px;">
+			<div>opi(场次属性，都可以使用，常用的如下)</div>
+			<table class="table">
+				<thead><tr><th>名称</th><th>描述</th><th>值</th></tr></thead>
+				<tbody>
+					<tr><td>mpid</td><td>场次ID</td><td><input name="mpid" value="$!opi.mpid"/></td></tr>
+					<tr><td>movieid</td><td>影片ID</td><td><input name="movieid" value="$!opi.movieid"/></td></tr>
+					<tr><td>cinemaid</td><td>影院ID</td><td><input name="cinemaid" value="$!opi.cinemaid"/></td></tr>
+					<tr><td>playtime</td><td>放映时间</td><td><input name="playtime" value="$!DateUtil.formatTimestamp($opi.playtime)"/></td></tr>
+					<tr><td>price</td><td>影院价</td><td><input name="price" value="$!opi.price"/></td></tr>
+					<tr><td>costprice</td><td>成本价</td><td><input name="costprice" value="$!opi.costprice"/></td></tr>
+					<tr><td>gewaprice</td><td>Gewa卖价</td><td><input name="gewaprice" value="$!opi.gewaprice"/></td></tr>
+					<tr><td>language</td><td>语言</td><td><input name="language" value="$!opi.language"/></td></tr>
+					<tr><td>edition</td><td>版本</td><td><input name="edition" value="$!opi.edition"/></td></tr>
+					<tr><td>citycode</td><td>城市</td><td><input name="citycode" value="$!opi.citycode"/></td></tr>
+					<tr><td>opentype</td><td>类型</td><td><input name="opentype" value="$!opi.opentype"/></td></tr>
+				</tbody>
+			</table>
+		</div>
+		</form>
+	</li>
+</ul>
+<script type="text/javascript">
+	function testExpression(){
+		var url = "${basePath}admin/gewapay/spdiscount/testExpression.xhtml";
+		var values =GewaraUtil.getValues("expressionForm");
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("折扣金额：" + result.retval);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

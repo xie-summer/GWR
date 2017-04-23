@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>售票订单处理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.showList li{width:24.9%;position:static;}
+		.logoPanel{background:url(${staticPath}css/partner/logo_doupan.png) no-repeat;position:relative;}
+		.partnerlink{position: absolute;left:290px;width:146px !important;top:0px;}
+		.eastName{position: absolute;left:470px;top:6px;}
+		.eastName strong{font-size:18px;font-weight:bold;color:#333333}
+		.eastName p{font-size:14px;font-weight:bold;color:#787878}
+		a.manager{position:absolute;height:20px;padding-left:20px;bottom:0px;right:0px;width:26px;text-indent:0px;background:url(${staticPath}css/partner/winer.png) no-repeat;line-height:24px;}
+	</style>
+</head>
+<body>
+<div class="manageItemList">#parse('include/mobile/appsource.vm')
+	<em class="b1f"></em><em class="b2f"></em>
+	<div class="contentInfoList"> 
+		<div class="checkOrder"><h2>订单统计</h2></div>
+		<div class="aboutMovie">
+			<table cellpadding="0" cellspacing="0" width="100%">
+				<tr style="height:30px;vertical-align: middle">
+					<td>
+						<form id="searchOrderForm" action="${basePath}partner/admin/appsourceList.xhtml" method="post">
+							<label class="ml5">统计时间范围：<input type="text" value="$!params.dateFrom" name="dateFrom" class="pubinput" id="dateFrom" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width:120px;" /></label>
+							<label>至<input type="text" value="$!params.dateTo" name="dateTo" id="dateTo" class="pubinput" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width:120px;" /></label>
+							#foreach($as in $partner.asList)
+							<input type="radio" name="appsource" value="$as" #if($as eq $params.appsource)checked#end/>$appSourcesMap.get($as)&nbsp;&nbsp;
+							#end
+							<input type="submit" value="统 计" class="bt1"/>
+						</form>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+			<thead><tr>
+				<th>序号</th>
+				<th>订单号</th>
+				<th>票数</th>
+				<th>金额</th>
+				<th>状态</th>
+				<th>时间</th>
+				<th>详细</th>
+			</tr></thead>
+			<tbody id="tbody">
+				#set($Q=0) #set($T=0) #set($SQ=0)#set($ST=0)
+				#foreach($order in $oriList)
+				#set($Q=$Q+$order.quantity)
+				#set($T=$T+$order.totalfee)
+				#set($status=$order.status)
+				#if($order.status eq 'paid_success')
+					#set($SQ=$SQ+$order.quantity)
+					#set($ST=$ST+$order.totalfee)
+				#end
+				<tr class="td itable">
+					<td>$foreach.count</td>
+					<td>$order.tradeNo</td>
+					<td>$order.quantity</td>
+					<td>$!order.totalfee</td>
+					<td>$!order.statusText</td>
+					<td>$!DateUtil.formatTimestamp($order.createtime)</td>
+					<td>$!order.description2</td>
+				</tr>
+				#end
+				<tr class="grayBg h">
+					<td>合计</td>
+					<td colspan="7">共计:总票数:$Q总金额:$T(元), 其中成功交易的的共计：总票数:$SQ总金额:$ST(元)</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<em class="b2f"></em><em class="b1f"></em>
+</div>
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+});
+function queryOrder(field, value){
+	$(field).value=value;
+	if(field=='minute'){
+		$("timeFrom").value='';
+		$("timeTo").value='';
+	}
+	if(field=='cid') $('mpid').value='';
+	$('searchOrderForm').submit();
+}
+function eastLogout(){
+	new Request({url:'${basePath}cas/logout.xhtml?ptn=smp',method:'get',
+		onComplete:function(){
+			refreshPage();
+		}
+	}).send();
+}
+</script>
+</body>
+</html>

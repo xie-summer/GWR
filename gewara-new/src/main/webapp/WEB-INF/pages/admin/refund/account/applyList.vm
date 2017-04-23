@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>帐户退款管理</title>
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js"></script>
+	<style type="text/css">
+		table{border-collapse: collapse;}
+		th, thread{cursor: pointer;}
+		td, th{
+			text-align: left;
+			height: 23px;
+		}
+		label {display:inline-block; width:70px;text-align:right;padding:1px 0 1px 0; }
+		textarea {width:420px;}
+		
+		.showOrder{
+			border:1px solid #639BF9;padding:2px 4px;
+		}
+		.roomManageTable tbody td table{border:0px;border-bottom:1px solid #eee;}
+		.roomManageTable tbody td td{text-align: left;text-indent:10px;border-color:#eee;width:auto !important;}
+	</style>
+</head>
+<body style="width:85%; margin:auto;background-color: #fff">
+<div class="checkOrder"><h2>帐户退款</h2></div>
+<div style="margin-top: 10px;">
+	<div style="border:2px solid #ccc;padding:2px 4px;">
+		<form action="${basePath}admin/refund/account/applyList.xhtml">
+		订单号：<input type="text" name="tradeno" value="$!{params.tradeno}" />
+		/ 手机号码：<input type="text" name="mobile" value="$!{params.mobile}" />
+		/ 用户ID:<input type="text" name="memberid" value="$!{params.memberid}" />
+		/状态:<select name="status">
+			<option value="">全部</option>
+			<option value="apply" #if($params.status eq 'apply')selected="selected"#end>新申请</option>
+			<option value="accept" #if($params.status eq 'accept')selected="selected"#end>接受</option>
+			<option value="reject" #if($params.status eq 'reject')selected="selected"#end>不接受</option>
+			<option value="debit" #if($params.status eq 'debit')selected="selected"#end>扣款成功</option>
+			<option value="success" #if($params.status eq 'success')selected="selected"#end>银行成功</option>
+			<option value="fail" #if($params.status eq 'fail')selected="selected"#end>处理失败</option>
+		</select>
+		/ 页码：<input type="text" name="pageNo" value="$!params.pageNo" style="width: 50px;"/>
+			<input type="submit" value="查询"/>
+		</form>
+	</div>
+	<div style="border:2px solid #ccc;padding:2px 4px;">
+		<a href="${basePath}admin/refund/account/modifyRefund.xhtml" target="_blank"><span style="color: blue;">新增退款</span></a>
+	</div>
+</div>
+<ul class="orderSet mt20">
+	<li id="all" #if($VmUtils.isBlank($params.status))class="seeOrder"#end><a href="${basePath}admin/refund/account/applyList.xhtml" class="blue">全部</a></li>
+	<li id="apply" #if($params.status eq 'apply')class="seeOrder"#end><a href="${basePath}admin/refund/account/applyList.xhtml?status=apply" class="blue">新申请</a></li>
+	<li id="accept" #if($params.status eq 'accept')class="seeOrder"#end><a href="${basePath}admin/refund/account/applyList.xhtml?status=accept" class="blue">接受</a></li>
+	<li id="reject" #if($params.status eq 'reject')class="seeOrder"#end><a href="${basePath}admin/refund/account/applyList.xhtml?status=reject" class="blue">不接受</a></li>
+	<li id="debit" #if($params.status eq 'debit')class="seeOrder"#end><a href="${basePath}admin/refund/account/applyList.xhtml?status=debit" class="blue">扣款成功</a></li>
+	<li id="success" #if($params.status eq 'success')class="seeOrder"#end><a href="${basePath}admin/refund/account/applyList.xhtml?status=success" class="blue">银行成功</a></li>
+	<li id="fail" #if($params.status eq 'fail')class="seeOrder"#end><a href="${basePath}admin/refund/account/applyList.xhtml?status=fail" class="blue">处理失败</a></li>
+</ul>
+<table id="roomManageTable" class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+	<thead id="thead">
+		<tr>
+			<th axis="number"><div class="thead asc_desc">&nbsp;</div></th>
+			<th axis="number"><div class="thead asc_desc">订单号</div></th>
+			<th axis="number"><div class="thead asc_desc">用户ID</div></th>
+			<th axis="number"><div class="thead asc_desc">手机号</div></th>
+			<th axis="string"><div class="thead asc_desc">支付方式</div></th>
+			<th axis="string"><div class="thead asc_desc">状态</div></th>
+			<th axis="string"><div class="thead asc_desc">原因</div></th>
+			<th axis="number"><div class="thead asc_desc">退款金额</div></th>
+			<th axis="string"><div class="thead asc_desc">申请人</div></th>
+			<th axis="string"><div class="thead asc_desc">申请时间</div></th>
+			<th axis="string"><div class="thead asc_desc">来源</div></th>
+			<th axis="string"><div class="thead asc_desc">处理人</div></th>
+			<th axis="string"><div class="thead asc_desc">退款时间</div></th>
+			<th><div class="thead asc_desc">操作</div></th>
+		</tr>
+	</thead>
+	<tbody id="tbody">
+	#set($statusMap={"apply":"新申请","accept":"接受","reject":"不接受","success":"退款到银行成功","debit":"扣款成功","fail":"退款失败"})
+	#set($originMap={"apply":"客服申请", "refund":"订单退款"})
+	#foreach($refund in $refundList)
+	<tr id="tr$refund.id">
+		<td style="width: 25px;">$foreach.count</td>
+		<td class="minwid">$!{refund.tradeno}</td>
+		<td class="minwid">$!refund.memberid</td>
+		<td class="minwid"><span id="order$refund.id" onclick="showMobile($refund.id,$refund.mobile)" title="$!VmUtils.getSmobile($!refund.mobile)">$!VmUtils.getSmobile($!refund.mobile)</span></td>
+		<td class="maxwid">$paymethodMap.get($refund.paymethod)</td>
+		<td class="minwid"><b>$!statusMap.get($!refund.status)</b></td>
+		<td class="maxwid">$!refund.reason</td>
+		<td class="minwid">$!refund.amount</td>
+		<td class="maxwid">$!usernameMap.get($refund.applyuser)</td>
+		<td class="minwid">$!DateUtil.format(${refund.addtime}, "M月d日 HH:mm")</td>
+		<td class="minwid">$originMap.get($refund.origin)</td>
+		<td class="maxwid">$!usernameMap.get($refund.dealuser)</td>
+		<td class="minwid">$!DateUtil.format(${refund.dealtime}, "M月d日 HH:mm")</td>
+		<td>
+			<a href="${basePath}admin/refund/account/modifyRefund.xhtml?rid=$!refund.id" target="_blank">修改</a>
+		#if($refund.status eq 'apply')
+			<a href="${basePath}admin/refund/account/modifyRefund.xhtml?rid=$!refund.id" target="_blank">修改</a>
+		#end
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		$('thead').addEvent('click',function(){
+			if($(document.body).retrieve('tr') != null){
+				$(document.body).retrieve('tr').node.setStyle('background-color',$(document.body).retrieve('tr').bgcolor);
+				$(document.body).retrieve('tr').tr.dispose();
+			}
+		})
+	})
+	var myTable = {};
+	window.addEvent('domready', function(){
+		myTable = new sortableTable('roomManageTable', {overCls: 'over'});
+	});
+
+
+	function changeStatus(id,status,input){
+		var str;
+		//gewa.util.mask({'element': "sportTable",'title':'正在保存...', "opacity":"0.4"});
+		if(input) str = "<div style='padding:20px;'>原因: <textarea name='reason' id='reasonText'></textarea></div>";
+		gewa.util.issure('',str,'退款处理',420,'keys',function(){//keys为动态标识可以自定义,执行函数放在回调函数内
+			var dealinfo = '';
+			if(input){
+				if($("reasonText").value == '') {
+					alert("请输入原因!");
+					return;
+				}
+				dealinfo = $("reasonText").value;
+			}
+			var url = "${basePath}admin/refund/account/changeStatus.xhtml";
+			var values = {'rid':id, 'status':status, 'reson':dealinfo};
+			GewaraUtil.sendRequest(url, values, function(result){
+				//gewa.util.clearMask();
+				if(result.success){
+					alert(result.retval);
+				}else {
+					var msg = result.msg;
+					alert(msg);			
+				}
+			});
+			
+		});
+	}
+	
+</script>
+</body>
+</html>

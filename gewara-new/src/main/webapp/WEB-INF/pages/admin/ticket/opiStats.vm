@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次实时座位情况管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.none{display:none;}
+	</style>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore">$cinema.name</li>
+			<li><a href="${basePath}admin/ticket/mpiManage.xhtml?cid=$cinema.id"><span>场次管理</span></a></li>
+			<li><a href="${basePath}admin/ticket/orderList.xhtml?cid=$cinema.id" class="admin"><span>订单管理</span></a></li>
+			<li><a href="${basePath}admin/ticket/baseData.xhtml?cid=$cinema.id" class="admin"><span>基础数据</span></a></li>
+			<li class="currs"><a><span>座位统计</span></a></li>
+			<li><a href="${basePath}admin/ticket/settleList.xhtml?cid=$!cinema.id" class="admin"><span>结算说明</span></a></li>
+			<li><a href="${basePath}admin/ticket/settleConfirm.xhtml?cid=$!cinema.id" class="admin"><span>结算确认</span></a></li>
+		</ul>
+	</div>
+</div>
+<div style="color:red" id="notifyWin"></div>
+#set($parnterMap={'HFH':'火','MTX':'满','DX':'鼎','GEWA':'格瓦拉'})
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+		<div class="checkMenu">
+			<ul>#foreach($day in $dateList)
+				<li #if($day eq $curDate)class="chooseItem"#end>
+					<div><a href="${basePath}admin/ticket/opiStats.xhtml?cid=$cinema.id&date=$day">$dateMap.get($day)</a>
+					<h2>${countMap.get($day)}场</h2>
+				</li>
+				#end
+			</ul>
+		</div>
+		<div class="selectMovie">
+			<span class="i">上映影院：</span>
+			<span class="r">#foreach($cinemaMap in $cinemaMapList)<a href="${basePath}admin/ticket/opiStats.xhtml?cid=$cinemaMap.get('cid')&date=$curDate" class="#if($cinema.id eq $cinemaMap.get('cid')) match #end mr10">${cinemaMap.get('cname')}[$cinemaMap.get('opicount')场]</a>#end</span>
+		</div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th width="50">
+						<select onchange="showThisMove(this)">
+							<option value="">请选择...</option>
+							#foreach($movieid in $movieidList)
+							<option value="c$movieid">$movienameMap.get($movieid)</option>
+							#end
+						</select>
+					</th>
+					<th>放映厅</th>
+					<th>时间</th>
+					<th>影院价</th>
+					<th>成本价</th>
+					<th>卖价</th>
+					<th>总座位数</th>
+					<th>Gewa锁定数</th>
+					<th>Gewa卖出数</th>
+					<th>影院卖出数</th>
+					<th>剩余数</th>
+					<th>更新时间</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody class="tbody">#set($curTime=$DateUtil.millTimestamp)
+				#foreach($opi in $opiList)
+				<tr class="grayBg disp c$opi.movieid">
+					<td>$opi.moviename#if(!$opi.hasGewara())[$!parnterMap.get($opi.opentype)]#end</td>
+					<td>$opi.roomname</td>
+					<td><a href="${basePath}admin/ticket/booking.xhtml?mpid=$opi.mpid" target="_blank">$DateUtil.format($opi.playtime,'MM-dd HH:mm')</a></td>
+					<td>$opi.price</td>
+					<td>$opi.costprice</td>
+					<td>$opi.gewaprice</td>
+					<td>$!opi.seatnum</td>
+					<td id="l$opi.mpid">$!opi.locknum</td>
+					<td id="g$opi.mpid">$!opi.gsellnum</td>
+					<td id="c$opi.mpid">$!opi.csellnum</td>
+					<td id="r$opi.mpid">$!opi.remainnum</td>
+					<td id="u$opi.mpid">$!{DateUtil.format($opi.updatetime,'dd HH:mm:ss')}[$DateUtil.getDiffStr($curTime,$opi.updatetime)]#if($VmUtils.contains($opi.otherinfo,'statistics'))<span style="color:red">[Finished]</span>#end</td>
+					<td>
+						<input type="button" onclick="updateOpiStats($opi.mpid,this)" value="更新"/>
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+	<script type="text/javascript">
+	window.addEvent("domready", function(){
+		$$(".tbody tr").addEvents({
+			'mouseenter':function(){
+				this.addClass("mouseBg");
+			},
+			'mouseleave':function(){
+				this.removeClass("mouseBg");
+			}
+		});
+	});
+	function updateOpiStats(mpid,bt){
+		$(bt).dispose();
+		GewaraUtil.sendRequest("${basePath}admin/ticket/updateOpiStats.xhtml",{"mpid":mpid}, function(result){
+			if(result.success){
+				$("l"+mpid).set('html', result.locknum);
+				$("g"+mpid).set('html', result.gsellnum);
+				$("c"+mpid).set('html', result.csellnum);
+				$("r"+mpid).set('html', result.remainnum);
+				$("u"+mpid).set('html', result.updatetime);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function showThisMove(el){
+		if(el.value != ''){
+			$$('.tbody').getElements('tr').each(function(item){
+				item.addClass('none'); item.removeClass("disp");
+			});
+			var cls = '.'+el.value;
+			$$(cls).removeClass('none');
+			$$(cls).addClass('disp');
+		}else{
+			$$('.tbody').getElements('tr').each(function(item){
+				item.removeClass('none');
+			});
+		}
+	}
+</script>
+</body>
+</html>

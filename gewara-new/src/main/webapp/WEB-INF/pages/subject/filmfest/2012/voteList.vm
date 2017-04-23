@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>第十五届上海国际电影节瓦友评选_最受观众欢迎影片 - 格瓦拉生活网</title>
+<meta name="keywords" content="第15届上海国际电影节_电影专题_电影节排片表下载_在线购票_格瓦拉生活网"/>
+<meta name="description" content="第15届上海国际电影节_电影专题_电影节排片表下载_在线购票_格瓦拉生活网"/>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout&v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even&v=$VmUtils.jsVersion"></script>
+#parse('subject/filmfest/2012/style.vm')	
+<style type="text/css">
+	.ui_layout{background:#fff;}
+	.inner{padding:20px 10px;}
+	.assessment{border:1px solid #ddd9da; padding:15px; border-radius:5px;}
+	.v_filmlists{border:1px solid #ddd9da; padding:15px; border-radius:0 5px 5px;}
+	.assessment h2{font-size:18px; color:#582725; line-height:18px; font-family: "微软雅黑","宋体",Arial;}
+	.redBt{background-position: 0 -4054px;}
+	.redBt input{background-position: right -4077px;color: #FFFFFF;}
+	.vote_btn{margin-top:20px;}
+	.vote_rule{margin-top:20px; background:#feeaeb; padding:15px;}
+	.vote_rule dt{font-weight:bold;}
+	.movielist{margin-top:20px;}
+	.movielist li{width:96px; float:left; margin-right:39px; text-align:center; margin-bottom:20px;}
+	.filmtext{width:76.4%;}
+	.filmtext h3 a{font-size:12px; font-weight:bold;}
+	.filmtext p em,.v_filmlists dt{color:gray;}
+	.vote_btn li{background-position: 0 -90px;cursor: pointer;display: inline;float: left;height: 33px;margin-right: 6px;padding-left: 15px;}
+	.vote_btn li span{background-position: right -90px; color: #582725;float: left;font-family: '宋体';font-size: 14px;font-weight: bold;height: 33px;line-height: 33px;padding-right: 15px;}
+	.vote_btn li.select{background-position:0 -57px;}
+	.vote_btn li.select span{background-position:right -57px; color:#fff;}
+</style>
+</head>
+<body>
+#set($hasLogo = false)
+#set($tag = 'voteselect')
+#parse('subject/filmfest/2012/header.vm')
+<div class="ui_layout">
+	<div class="inner">
+		<div class="assessment">
+			<h2>电影节@格瓦拉　最受观众欢迎的影片评选</h2>
+ 			<dl class="vote_rule">
+ 				<dt>投票规则：</dt>
+ 				<dd>1、登录用户均可参与本次活动。</dd>
+ 				<dd>2、活动期间，每个用户限对每类影片投一票。</dd>
+ 				<dd class="mt10"><b>评选时间：</b> 6月16日—6月24日（零点截止）</dd>
+ 			</dl>
+ 		</div>
+ 		<ul class="vote_btn clear">
+	 		<li id="finalist" #if($VmUtils.isBlank($params.type) && $VmUtils.isBlank($params.searchName)) class="select" #else onclick="javascript:searchname('')" #end><span>最受观众欢迎金爵奖竞赛单元影片</span></li> 
+	 		<li id="exhibitor" #if($VmUtils.eq($params.type,'xr')) class="select" #else onclick="javascript:searchname('xr')" #end><span>最受观众欢迎亚洲新人奖竞赛单元影片</span></li>
+	 		<li id="newBoy" #if($VmUtils.eq($params.type,'zy')) class="select" #else onclick="javascript:searchname('zy')" #end><span>最受观众欢迎展映单元影片</span></li>
+ 		</ul>
+ 		<div class="v_filmlists">
+ 			<label class="clear">
+	 			<span class="gray left">影片搜索：</span>
+	 			<form action="${basePath}filmfest/fifteenVoteList.xhtml" id="searchMovieName">
+	 			<input type="hidden" name="type" id="type" value="" />
+				<input type="text"name="searchName" title="请输入搜索关键词" id="searchName" value="$!VmUtils.escapeHtml($params.searchName)" class="text left" style="padding:4px;width:280px;border:1px solid #a6a6a6;height:15px;margin-left:7px;" />
+				<input type="button" onclick="searchname('no')" class="inIco left" style="height:25px;background-position:-25px -104px;width:82px" value="搜 索"/>
+				</form>
+			</label>
+			<ul class="ui_abeam movielist" id="finalist_content">
+				#foreach($movie in $movieList)
+				<li #if($foreach.count%7 eq 0)style="margin-right:0;"#end>
+					<a href="${basePath}movie/$!movie.id" target="_blank" title="$!movie.moviename"><img width="96" height="128"src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw96h128',$movie.logo)) center center no-repeat;"/></a>
+					<p class="mt10"><a href="${basePath}movie/$!movie.id" target="_blank" title="$!movie.moviename">$!VmUtils.escabbr($!movie.moviename,12)</a></p>
+					<p class="mt5"><label class="button minBt redBt"><input type="button" onclick="vote('$!movie.id');"  style="width:50px;" value="投 票"/></label></p>
+				</li>
+				#end
+			</ul>
+ 		</div>
+ 		<div class="page">
+			#parse('include/pageUtil.vm')
+		</div>
+	</div>
+</div>
+<script>
+window.addEvent('domready',function(){
+	new DefaultValue('searchName','请输入搜索关键词');
+});
+function searchname(type){
+	if(type == 'no'){
+		var searchName = $('searchName').value;
+		if(!$chk(searchName) || searchName == '请输入搜索关键词'){
+			gewaUtil.alert('请输入要查询电影的关键字！');
+			return;
+		}
+	}else{
+		$('type').value = type;
+		$('searchName').value = '';
+	}
+	$('searchMovieName').submit();
+}
+function vote(movieid){
+	checkLogin(true,function(){
+		var url = '${basePath}filmfest/fifteenMemberVote.xhtml';
+		var values = {'movieid' : movieid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert("投票成功！敬请期待投票结果！");
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	});
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

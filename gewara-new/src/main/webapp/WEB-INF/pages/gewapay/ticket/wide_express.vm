@@ -1,0 +1,233 @@
+<ul class="list_deliver" id="expressRadio">
+	#foreach($address in $addressList)
+	<li class="">
+		<label for="radios$foreach.count"><input type="radio" name="addressRadio" value="$address.id" id="radios$foreach.count" code="$!address.provincecode" #if($VmUtils.eq($orderAddress.usefulAddressId,$address.id)) checked="checked" #end />
+			<span>$!{address.provincename}&nbsp;&nbsp;$!{address.cityname}&nbsp;&nbsp;$!{address.countyname}$!address.address（$!address.realname收）$!address.mobile</span>
+		</label>
+		<span lang="oedit" class="modeEdit none">
+			<span lang="edit" id="$!address.id" rel="$!address.realname" address="$!address.address" code="$!address.provincecode" city="$!address.citycode" county="$!address.countycode" mobile="$!address.mobile">修改</span><i class="m5">|</i><span lang="del" rel="$address.id">删除</span>
+		</span>
+	</li>
+	#end
+	<li #if($VmUtils.isEmptyList($addressList))class="select"#end>
+		<label for="newRadio"><input type="radio" name="addressRadio" value="0" id="newRadio"  rel="" address="" code="" mobile=""#if($VmUtils.isEmptyList($addressList))checked="checked"#end/>使用新地址</label>
+	</li>
+</ul>
+<div class="edit_deliver" id="editData" style="display: none;">
+	<dl class="ul-66">
+		<dt>省：<span class="ml5 mr10 cF60">*</span></dt>
+		<dd>
+			<div id="ajaxLoadAddress"></div>
+		</dd>
+	</dl>
+	<input type="hidden" name="addressid" id="addressid" />
+	<dl class="ul-66" style="height:65px;">
+		<dt>街道地址：<span class="ml5 mr10 cF60">*</span></dt>
+		<dd>
+			<textarea name="address" id="mailAddress" style="width:450px;resize:none;"></textarea>
+		</dd>
+	</dl>
+	<dl class="ul-66" style="height:35px;">
+		<dt>收货人：<span class="ml5 mr10 cF60">*</span></dt>
+		<dd>
+			<input type="text" name="realname" id="mailRealname" value="" class="text" style="width:120px;"/>
+		</dd>
+	</dl>
+	<dl class="ul-66">
+		<dt>手机：<span class="ml5 mr10 cF60">*</span></dt>
+		<dd><input type="text" name="mobile" id="mailMobile" value="" class="text" style="width:120px;" onkeyup="gewara.util.replaceStr(this)"/></dd>
+	</dl>
+	<div class="clear mt15" style="padding-left:90px;">
+		<a class="button bigBt redBt mr5" href="javascript:void(0);" id="mailSave" onclick="memberUseAdress(this)"><span>确定</span></a>
+		<a class="button bigBt bigWhiteBt" href="javascript:void(0);" id="mailCancel" onclick="return $('editData').hide();"><span>取消</span></a>
+	</div>
+</div>
+
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	if($('expressRadio')){
+		//提交修改信息
+		bindMailData($('expressRadio').getElements("input[type=radio],span[lang=edit],span[lang=del]"));
+		$$('#expressRadio li').each(function(item){
+			var addressBtn = item.getElement('span[lang="oedit"]');
+			item.addEvents({
+				'mouseover':function(){
+					if(addressBtn)addressBtn.removeClass('none');
+				},
+				'mouseout':function(){
+					if(addressBtn)addressBtn.addClass('none');
+				}
+			});
+		});
+	}
+	#if($VmUtils.isEmptyList($addressList))
+		getAddress();
+	#end
+});
+function checkAddress(el){
+	el = $(el);
+	if(el.get('code')== ''){
+		gewaUtil.alert('地址不完整，请选择快递城市！');
+		return;
+	}
+	GewaraUtil.sendRequest("${basePath}ajax/trade/getExpressFee.xhtml",{"orderId":"$!order.id",'provincecode':el.get('code')},function(result){
+		if(result.success){
+			if($('expressid')){
+				$('expressid').set('html',result.retval);
+			}
+		}else{
+			gewaUtil.alert(result.msg);
+			el.checked=false;
+		}
+	});
+}
+function getAddress(code,city,county){
+	var url = '${basePath}ajaxLoadAddress.xhtml';
+	var values = {'agtag':'PCR'};
+	if(code){
+		values.provincecode = code;
+	}
+	if(city){
+		values.citycode = city;
+	}
+	if(county){
+		values.countycode = county;
+	}
+	GewaraUtil.sendLoad('ajaxLoadAddress', url, values, function(){
+		$('ajaxLoadAddress').style.display = '';
+	});
+}
+function bindMailData(elements){
+	elements.addEvent('click',function(){
+		var p = this.getParent('li');
+		$('editData').hide();
+		if(this.get('lang')=='del'){
+			var id = this.getParent('li input[type=radio]').value;
+			//删除收货地址
+			$('editData').inject('expressRadio');
+			GewaraUtil.sendRequest("${basePath}gewapay/delOldAddress.xhtml",{"orderid":id},function(result){
+				if(result.success){
+					p.dissolve({onComplete:function(){
+						this.element.dispose();
+					}})
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		}else{
+			if(this.match('input')){
+				this.checked = true;
+				if(this.id != "newRadio"){
+					checkAddress(this);
+					$('mailCancel').hide();
+				}else{
+					getAddress();
+					$('addressid').value = "";
+					$('editData').show().inject(p);
+					$('mailCancel').show();
+				}
+			}else{
+				this.getParent('li input[type=radio]').checked = true;
+				$('mailMobile').value = this.get('mobile');
+				$('mailRealname').value = this.get('rel');
+				$('mailAddress').value = this.get('address');
+				$('addressid').value = this.get('id');
+				//$('mailPostalcode').value = this.get('code').trim();
+				var code = this.get('code');
+				var city = this.get('city');
+				var county = this.get('county');
+				getAddress(code,city,county);
+				$('editData').show().inject(p);
+				$('mailCancel').show();
+			}
+			$$('#expressRadio li').removeClass('select');
+			p.addClass('select');
+		}
+	});
+}
+function memberUseAdress(el){
+	var url = '${basePath}ajax/saveAddress.xhtml';
+	var values = GewaraUtil.getValues('editData');
+	values.orderid = '$!order.id';
+	if(values.liveprovince == ''){
+		gewaUtil.alert('省份不能为空！');
+		return;
+	}
+	if(values.livecity == ''){
+		gewaUtil.alert('城市不能为空！');
+		return;
+	}
+	if(values.livecounty == ''){
+		gewaUtil.alert('区域不能为空！');
+		return;
+	}
+	if(values.mobile == ''){
+		gewaUtil.alert('收件人手机号码不能为空！');
+		return;
+	}else if(!gewara.util.isMobile(values.mobile.trim())){
+		gewaUtil.alert('手机号码有误，请重新填写！');
+		return;
+	}
+	if(values.realname == ''){
+		gewaUtil.alert('收件人不能为空！');
+		return;
+	}
+	if(values.address == ''){
+		gewaUtil.alert('街道地址不能为空！');
+		return;
+	}
+	values.liveprovinceName = $('liveprovince').text;
+	
+	values.liveprovinceName = $('liveprovince').getSelected()?$('liveprovince').getSelected().get('lang')[0]:'';
+	values.livecityName = $('livecity').getSelected()?$('livecity').getSelected().get('lang')[0]:'';
+	values.livecountyName = $('livecounty').getSelected()?$('livecounty').getSelected().get('lang')[0]:'';
+	//进行保存...
+	var p = $('expressRadio').getElements('input[type=radio]').filter(function(ipt){return ipt.checked;});
+	if(p.length <= 0)return;
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			values.newOption = (p[0].value == 0)?true:false;
+			values.value = result.retval;
+			values.li = p[0].getParent('li');
+			values.input = p[0];
+			$('editData').hide();
+			apendOptionsEl(values);
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+};
+
+function apendOptionsEl(options){
+	var spanAddress = options.liveprovinceName + ' ' + options.livecityName + ' ' + options.livecountyName+options.address+'（'+options.realname+'收）'+options.mobile;
+	if(options.newOption){
+		options.input.checked = "";
+		options.input.getParent('li').removeClass('select');
+		var num = $('expressRadio').getElements('li').length;
+		var p = new Element('li',{'class':'select'}).inject(options.li,'before');
+		var iput = new Element('input',{'type':'radio','name':'addressRadio','value':options.value,'id':'radios'+num,'code':options.liveprovince});
+		new Element('span',{'html':spanAddress}).inject(iput.inject(new Element('label',{'for':'radios'+num}).inject(p)),'after');
+		var edit = new Element('span',{'class':'modeEdit'}).inject(p);
+		new Element('span',{'lang':'edit','rel':options.realname,'address':options.address,'postalcode':options.postalcode,'mobile':options.mobile,'code':options.liveprovince,'city':options.livecity,'county':options.livecounty,'text':'修改'}).inject(edit);
+		new Element('i',{'class':'m5','text':'|'}).inject(edit);
+		new Element('span',{'lang':'del','rel':options.value,'text':'删除'}).inject(edit);
+		bindMailData(p.getElements("input[type=radio],span[lang=edit],span[lang=del]"));
+		iput.addEvent('click',function(){
+			checkAddress(this);
+		});
+		iput.fireEvent('click');
+	}else{
+		options.li.getElement('label span').set('html',spanAddress);
+		options.input.set('code',options.liveprovince);
+		var p = options.li.getElement('span[lang=edit]');
+		p.set('rel',options.realname);
+		p.set('address',options.address);
+		p.set('postalcode',options.postalcode);
+		p.set('mobile',options.mobile);
+		p.set('code',options.liveprovince);
+		p.set('city',options.livecity);
+		p.set('county',options.livecounty)
+		options.input.fireEvent('click');
+	}
+}
+</script>

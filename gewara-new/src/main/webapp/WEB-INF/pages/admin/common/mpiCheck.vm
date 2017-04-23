@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>检查排片</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/admin.css?v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<style type="text/css">
+		html,body{background: none;}
+		.table thead th, .table tbody th{background-color: gray; color:white; vertical-align: middle; text-align: center;}
+		.table tbody th{ text-align: right;}
+		td{height:22px;}
+	</style>
+</head>
+<body>
+<table style="width: 900px;" class="table mt5 ml15">
+	<thead>
+	<tr>
+		<td>&nbsp;</td>
+		#foreach($date in $dateList)
+		<td>$DateUtil.format($date,'yyyy-MM-dd')<br/>$DateUtil.getCnWeek($date)</td>
+		#end
+	</tr>
+	</thead>
+	#foreach($cinema in $cinemaList)
+	<tr>
+		<td>$cinema.realBriefname</td>
+		#foreach($date in $dateList)
+		#set($key=$cinema.id + $DateUtil.format($date, 'yyyy-MM-dd'))
+		#if($countMap.get($key))
+		<td>$countMap.get($key)</td>
+		#else
+		<td>0</td>
+		#end
+		#end
+	</tr>
+	#end
+</table>
+<script type="text/javascript">
+window.addEvent('domready', function(){
+	$$("tr").addEvents({
+		'mouseover':function(){
+			this.setStyle("background","#FFB500");
+		},
+		'mouseout':function(){
+			this.setStyle("background", "");
+		}
+	});
+});
+</script>
+</body>
+</html>

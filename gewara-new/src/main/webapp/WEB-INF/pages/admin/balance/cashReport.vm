@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>售票订单处理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.showList li{width:24.9%;position:static;}
+		.logoPanel{background:url(${staticPath}css/partner/logo_doupan.png) no-repeat;position:relative;}
+		.partnerlink{position: absolute;left:290px;width:146px !important;top:0px;}
+		.eastName{position: absolute;left:470px;top:6px;}
+		.eastName strong{font-size:18px;font-weight:bold;color:#333333}
+		.eastName p{font-size:14px;font-weight:bold;color:#787878}
+		a.manager{position:absolute;height:20px;padding-left:20px;bottom:0px;right:0px;width:26px;text-indent:0px;background:url(${staticPath}css/partner/winer.png) no-repeat;line-height:24px;}
+	</style>
+</head>
+<body>
+<div class="manageItemList">
+	<em class="b1f"></em><em class="b2f"></em>
+	<div class="contentInfoList"> 
+		<div class="checkOrder"><h2>现金对账报表</h2></div>
+		<div class="aboutMovie">
+			<table cellpadding="0" cellspacing="0" width="100%">
+				<tr style="height:30px;vertical-align: middle">
+					<td>
+						<form id="searchOrderForm" id="searchOrderForm" action="${basePath}admin/balance/cashReport.xhtml">
+							<label class="ml5">日期范围（按付款时间）：<input type="text" value="$!timeFrom" name="timeFrom" class="pubinput" id="timeFrom" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" style="width:90px;" /></label>
+							<label>至<input type="text" value="$!timeTo" name="timeTo" id="timeTo" class="pubinput" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" style="width:90px;" /></label>
+							<input type="checkbox" value="xls" name="format" />导出Excel报表
+							<input type="submit" value="查 询" class="bt1"/>
+						</form>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+			<thead>
+			<tr>
+				<th style="width:100px;" rowspan="2">支付方式<br />日期</th>
+				#foreach($paymethod in $paymethodList)
+				#if($validList.contains($paymethod))<th colspan="2">$paytextMap.get($paymethod)</th>#end
+				#end
+			</tr>
+			<tr>
+				#foreach($paymethod in $paymethodList)
+				#if($validList.contains($paymethod))
+				<th>订单</th>
+				<th>充值</th>
+				#end
+				#end
+			</tr>
+			</thead>
+			<tbody id="tbody">
+				#foreach($day in $dayList)
+				<tr class="grayBg h">
+					<td>$day</td>
+					#foreach($paymethod in $paymethodList)
+					#if($validList.contains($paymethod))
+					<td>$VmUtils.defalutValue($statsMap.get($day).get($paymethod).get("order"),"0")</td>
+					<td>$VmUtils.defalutValue($statsMap.get($day).get($paymethod).get("charge"),"0")</td>
+					#end
+					#end
+				</tr>
+				#end
+				
+			</tbody>
+		</table>
+	</div>
+	<em class="b2f"></em><em class="b1f"></em>
+</div>
+</body>
+</html>

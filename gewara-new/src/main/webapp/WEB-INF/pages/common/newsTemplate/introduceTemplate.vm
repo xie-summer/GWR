@@ -1,0 +1,27 @@
+<div class="title"><h2>$!right.title</h2><span class="linet"></span></div>
+#foreach($yingpian in $RyingpianList)
+#set($obj=$yingpian.get($yingpian.boardrelatedid))
+#if($yingpian.newsboard eq 'movie')
+#set($movie=$obj)
+#set($gmark=$VmUtils.getSingleMarkStar($movie,"general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+<dl class="ui_abeam mt15">
+	<dt class="uipic">
+		<a target="_blank" href="${basePath}movie/$!movie.id"><img width="96" height="128" src="$VmUtils.randomPic('cw96h128',$!movie.limg)"/></a>
+		#if($VmUtils.isNotEmpObj($movieBookingMap) && $movieBookingMap.get($movie.id))
+		<br/><a href="${basePath}cinema/searchOpi.xhtml?movieid=$!movie.id" class="button minBt redBt mt5" target="_blank"><span>立即购票</span></a>
+		#end
+	</dt>
+	<dd class="uiText cmt">
+		<h2>
+			<a target="_blank" href="${basePath}movie/$!movie.id" title="$!movie.moviename">$!{movie.moviename}</a><span class="gray ml10 fs12" style="font-weight: lighter;">($!movie.clickedtimes关注)</span>
+		</h2>
+		#*#if($movie.highlight)<p><em>精彩看点：</em>$movie.highlight</p>#end*#
+		#if($movie.highlight)<span style="display:inline-block;"><img class="mr5" src="/css/global/ml.png" />$!VmUtils.escabbr($!movie.highlight, 30)...<img class="ml5" src="/css/global/mr.png" /></span>#end
+		<p><em>首映：</em>$!DateUtil.format(${movie.releasedate},"yyyy年M月d日")</p>
+		<p><em>导演/主演：</em>$!{movie.director}#if($!movie.actors)/$!VmUtils.escabbr($!movie.actors,56)#end</p>
+		<p><em>语言：</em>$!{movie.language}<em class="ml100">片长：</em>$!{movie.videolen}分钟</p>
+		#if($!VmUtils.gt($!movie.avgprice, 0))<p><em>均价：</em><b class="brown fs14">$!movie.avgprice</b>元</p>#end
+	</dd>
+</dl>
+#end
+#end

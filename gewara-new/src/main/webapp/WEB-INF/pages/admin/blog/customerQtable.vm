@@ -1,0 +1,100 @@
+<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+<thead><tr>
+	<th width="20%" style="text-indent: 10px; ">内容</th>
+	<th width="10%">作者</th>
+	<th width="10%">发表时间</th>
+	<th width="10%">更新时间</th>
+	<th width="10%">来源</th>
+	<th width="10%">归属类型</th>
+	<th width="20%">操作</th>
+	#if($VmUtils.isNotBlank($params.xls) && $params.status eq 'Y_TREAT')<th width="5%">回复人</th>#end
+	#if($VmUtils.isNotBlank($params.xls) && $params.status  eq 'Y_TREAT')<th width="5%">回复内容</th>#end
+</tr></thead>
+<tbody id="tbody">
+#set($feTypeMap={'A':'一般建议咨询','B':'注册问题','C':'登陆问题','D':'购票场次问题','E':'短信问题','F':'取票观影问题','G':'活动问题','H':'拓展需求','I':'退换票问题','J':'投诉问题','K':'充值支付问题','L':'手机建议咨询','M':'产品建议咨询','other':'其他类型'})
+#set($isXls=$VmUtils.isBlank($params.xls))
+	#foreach($topic in $questionList)
+		<tr>
+			<td>
+				#if($isXls)
+				<a href="${basePath}admin/blog/customerQDetail.xhtml?qid=$!topic.id" target="_blank" class="left">$!{topictype}$!VmUtils.htmlabbr($topic.body,200)#if($topic.pic)<img src="$VmUtils.randomPic('','img/pic.jpg')" />#end</a>
+				#else
+				$!VmUtils.htmlabbr($topic.body,200)#if($topic.pic)<img src="$VmUtils.randomPic('','img/pic.jpg')" /> #end
+				#end
+			</td>
+			<td>#if($topic.memberid)$!cacheMemberMap.get($!topic.memberid).nickname (id:$!topic.memberid) #else $!topic.email (非注册用户) #end</td>
+			<td>$DateUtil.format($topic.addtime,'MM-dd HH:mm')</td>
+			<td>$DateUtil.format($topic.updatetime,'yyyy-MM-dd HH:mm')</td>
+			<td>$!{topic.type} [$!{topic.fromFlag}]</td>
+			<td>$!feTypeMap.get($topic.feedbackType)</td>
+			<td>
+				#if($VmUtils.eq($topic.status,'Y_NEW'))
+					#if($isXls)
+						<a href="${basePath}admin/blog/customerQDetail.xhtml?qid=$!topic.id" title="去解决" target="_blank">待解决</a>
+					#else 待解决
+					#end
+				<input type="button" value="关闭" onclick="delCustomerQ($!topic.id, this, 'Y_STOP')">
+				#elseif($VmUtils.eq($topic.status,'Y_TREAT'))
+					#if($isXls)
+						<a href="${basePath}admin/blog/customerQDetail.xhtml?qid=$!topic.id" title="去查看" target="_blank">已回复</a>
+					#else 已回复
+					#end
+				<input type="button" value="关闭" onclick="delCustomerQ($!topic.id, this, 'Y_STOP')">
+				#else
+					#if($isXls)
+						<a href="javascript:void(0)" onclick="delCustomerQ($!topic.id, this, 'Y_NEW')" title="设置待回复" target="_blank">已关闭</a>
+						(<a href="${basePath}admin/blog/customerQDetail.xhtml?qid=$!topic.id" title="去解决" target="_blank">待解决</a>)
+					#else 已关闭(待解决)
+					#end
+				#end
+			</td>
+			#if($VmUtils.isNotBlank($params.xls) && $params.status eq 'Y_TREAT')<td>$!answerMap.get($topic.id).nickname</td>#end
+			#if($VmUtils.isNotBlank($params.xls) && $params.status eq 'Y_TREAT')<td>$!answerMap.get($topic.id).body</td>#end	
+		</tr>
+		#end
+</tbody>
+</table>
+#set($pageFun="ajaxPage")
+#if($VmUtils.isBlank($params.xls))#parse('include/scriptPageUtil.vm')#end
+<input type="hidden" id="hTag" value="$!params.tag"/>
+<input type="hidden" id="hStatus" value="$!params.status"/>
+
+	<script>
+	changeStatus = function(qid, obj){
+		GewaraUtil.mask(obj);
+		var status = $('modStatus').value;
+		var url = '${basePath}admin/blog/updateQuestionStatus.xhtml';
+		var values = {'qid':qid, 'status':status};
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert('设置成功!');
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+	
+	delCustomerQ = function(qid, obj, status){
+		var msg = "";
+		if(status=='Y_NEW') msg = "确定要设置为待回复?";
+		else msg = "确定要关闭?";
+		if(!$chk(status))status = 'Y_STOP';
+		if(window.confirm(msg)){
+			var url = '${basePath}admin/blog/updateQuestionStatus.xhtml';
+			var values = {'qid':qid, 'status':status};
+			GewaraUtil.sendRequest(url, values, function(result){
+				GewaraUtil.unmask();
+				if(result.success){
+					$(obj).getParent().getParent().dispose();
+				}else{
+					alert(result.msg);
+				}
+			})
+		}
+	}
+	
+	ajaxPage = function(pageNo, params, url){
+		gewaUtil.loadData('loadapplyTableDIV', url, {});
+	}
+</script>

@@ -1,0 +1,54 @@
+#if($VmUtils.size($pictureList) gt 0 && $VmUtils.eq($type ,'apic'))
+<ul class="row clear mt10">
+	#foreach($picture in $!VmUtils.groupList($pictureList,3))
+	<li #if($foreach.count eq 3)style="margin-right:0;"#end>
+		#foreach($pic in $picture)
+		<div class="box" #if($foreach.count eq $picture.size())style="margin-bottom:0;"#end>
+			
+			<img width="190" src="$VmUtils.randomPic('',$!pic.logo)" alt="" />
+			
+			<p><em class="right c999">$!DateUtil.format($!pic.posttime, "yyyy-MM-dd")</em><span><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=1" class="cSport">Gewara</a>上传</span></p>
+		</div>
+		#end
+	</li>
+	#end
+</ul>
+#set($pageFun="ajaxPage")
+<div class="clear">#parse('include/scriptPageUtil.vm')</div>
+<script>
+ajaxPage = function(pageNo, params, url){
+	gewaUtil.loadData('pictureDetail', url, {});
+}
+</script>
+#elseif($VmUtils.size($memberPictureList) gt 0 && $VmUtils.eq($type ,'mpic'))
+<ul class="row clear mt10">
+	#foreach($memberPicture in $!VmUtils.groupList($memberPictureList,3)) 
+	<li #if($foreach.count eq 3)style="margin-right:0;"#end>
+		#foreach($pic in $memberPicture)
+		#set($memberName=$memberMap.get($pic.id))
+		<div class="box" #if($foreach.count eq $memberPicture.size())style="margin-bottom:0;"#end>
+			<img width="190" src="$VmUtils.randomPic('',$pic.picturename)" alt="" />
+			<p><em class="right c999">$!DateUtil.format($pic.addtime, "yyyy-MM-dd")</em><span><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$pic.memberid" class="cSport">$!{memberName}</a>上传</span></p>
+		</div>
+		#end
+	</li>
+	#end
+</ul>
+#set($pageFun="ajaxMPage")
+#if($pageUtil && $pageUtil.pageCount gt 1)
+<div class="clew clear">#parse('include/scriptPageUtil.vm')</div>
+#end
+<script type="text/javascript">
+ajaxMPage = function(pageNo, params, url){
+	gewaUtil.loadData('memberPictureDetail', url, {});
+}
+</script>
+#end
+
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$('.acDiscription').each(function(item){
+		resizePicture(item.getElements('img'), 190, true);
+	});
+})
+</script>

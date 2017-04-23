@@ -1,0 +1,289 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>话剧订单处理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		#gcForm ul li{padding: 3px;}
+		.disabled{background-color: #D4D0C8; color: #808080;}
+		.cke_skin_chris{width:700px !important;}
+		.shrink{height:40px;}
+		.showList li{height:40px; line-height:40px;}
+		.roomManageTable .aa td,.roomManageTable th .aa th{border-top:0 none;}
+		.roomManageTable .bb{border-right:0 none;}
+		.importExcle{width:500px;height:auto;padding:15px;background:#d7d7d7;color:#000;position:relative;}
+		.importExcle .closed{position:absolute;padding:2px 3px;background:#333333;color:#fff;right:10px;top:10px;cursor:pointer;text-decoration:none;}
+		.importExcle h2{font-size:14px;font-weight:bold;color:#000;margin-bottom:5px;}
+		.importExcle ul li{width:100%;}
+		.importExcle ul li span{color:#2e2e2e;}
+		.importExcle ul li p{display:block;overflow:hidden;}
+		.orderSet li{width:auto;margin-right:15px;height:30px;line-height:30px;}
+	</style>
+</head>
+<body>
+#set($isOrder=true)
+#parse('admin/theatreticket/menu.vm')
+<div class="manageItemList">
+	<em class="b1f"></em><em class="b2f"></em>
+	<div class="contentInfoList"> 
+		<form id="searchOrderForm" action="${basePath}admin/dramaTicket/orderList.xhtml">
+		<div class="checkOrder">
+			<h2 class="left">话剧订单处理</h2>
+			<p>
+				<b class="ml30">查询:</b>
+				<span id="innerTradeForm">
+					<label>订单号：<input type="text" name="tradeNo" value="$!{params.tradeNo}" class="pubinput" size="18" style="height:20px;"/></label>
+					<label class="ml10">手机号：<input type="text" name="mobile" value="$!{params.mobile}" class="pubinput" size="18" style="height:20px;"/></label>
+				</span>
+				<input type="button" onclick="onTradeSearch()" value="查  询" class="bt1"/>
+			</p>	
+		</div>
+		<div class="aboutMovie">
+			#if($msg)<div style="color:red;font-size:24px;font-weight:bolder">$msg</div>#end
+			<table cellpadding="0" cellspacing="0" width="100%">
+				<tr valign="middle" style="height:40px;">
+					<th align="right">演出场馆：	</th>
+					<td>
+						<select name="placeid" id="placeid" style="width:200px;" onchange="searchDrama(this.value)">
+							<option value="">全部场馆</option>
+							#foreach($theatre in $theatreMap.values())
+							<option value="$!theatre.id" #if($VmUtils.eq($!theatre.id,$!params.placeid)) selected #end>$!theatre.realBriefname</option>
+							#end
+						</select>
+						<label>演出项目:
+						<select name="itemid" id="itemid" style="width:200px;">
+							<option value="">全部项目</option>
+							#foreach($drama in $dramaMap.values())
+							<option value="$!drama.id" #if($VmUtils.eq($!drama.id,$!params.itemid)) selected #end>$!drama.realBriefname</option>
+							#end
+						</select>
+						</label>
+						<span class="ml10"><a href="javascript:queryAllTheatre()"  class="blue">全部场馆项目</a></span>
+					</td>
+				</tr>
+				#foreach($theatreid in $opiMap.keySet())
+				<tr>
+					<th width="12%" valign="top" class="controlPoint" align="right" style="cursor: pointer; line-height:40px;">${opiMap.get($theatreid).get(0).theatrename}<span style="color:red;">(展开)</span>：</th>
+					<td valign="top">
+						<ul class="showList shrink">
+							#foreach($opi in $opiMap.get($theatreid))
+							<li#if($VmUtils.eq($params.mpid,$opi.dpid)) id="curList"#end><a #if($VmUtils.eq($params.mpid,$opi.dpid))class="match" #else class="blue" #end href="javascript:queryOrder('mpid','$opi.dpid','dramaitem')" title="$!opi.dramaname">$!VmUtils.escabbr($!opi.dramaname,16) ${DateUtil.format($opi.playtime,'MM-dd ')}<span class="black bold">${DateUtil.format($opi.playtime,'HH:mm')}</span></a><a href='${basePath}admin/message/smsList.xhtml?relatedid=${opi.id}&smstype=now' class="ml10" target="_blank">[短信]</a></li>
+							#end
+							#foreach($goods in $goodsTheatreMap.get($theatreid))
+							<li#if($VmUtils.eq($params.mpid,$goods.id)) id="curList"#end><a #if($VmUtils.eq($params.mpid,$goods.id))class="match" #else class="blue" #end href="javascript:queryOrder('mpid','$!goods.id','goods')" title="$!goods.goodsname">$!VmUtils.escabbr($!dramaMap.get($goods.itemid).dramaname,16) $!goods.goodsname<span class="black bold">${DateUtil.format($goods.fromvalidtime,'HH:mm')}</span></a><a href='${basePath}admin/message/smsList.xhtml?relatedid=${opi.id}&smstype=now' class="ml10" target="_blank">[短信]</a></li>
+							#end
+							<li><a href="javascript:queryOrder('placeid','$theatreid')" class="bold">全部</a></li>
+						</ul>
+					</td>
+				</tr>
+				#end
+				<tr valign="middle" style="height:40px;">
+					<th align="right">时间周期：</th>
+					<td>
+						<input type="hidden" name="topos" id="topos" value="ordertopos" />
+						<input type="hidden" name="ordertype" id="ordertype" value="$!ordertype" />
+						<input type="hidden" name="mpid" id="mpid" value="$!params.mpid" />
+						<input type="hidden" name="mptype" id="mptype" value="$!params.mptype" />
+						<input type="hidden" name="expressid" id="expressid" value="$!params.expressid" />
+						<input type="hidden" name="xls" id="xls" value="" />
+						<input type="text" name="timeFrom" id="timeFrom" value="$!DateUtil.formatTimestamp($!{timeFrom})" class="pubinput" size="20" style="height:20px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/><span>至</span>
+						<input type="text" name="timeTo" value="$!DateUtil.formatTimestamp($!{timeTo})" id="timeTo" class="pubinput" size="20" style="height:20px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+						<input type="button" onclick="onSearchOrder()" value="查  询" class="bt1"/>	
+					</td>
+				</tr>
+			</table>
+		</div>
+		</form>
+		<ul class="orderSet mt20" id="ordertopos">
+			<li id="all" #if($VmUtils.isBlank($ordertype))class="seeOrder"#end><a href="javascript:queryOrderStatus('ordertype','')" class="blue">全部</li>
+			<li id="new" #if($ordertype eq 'new')class="seeOrder"#end><a href="javascript:queryOrderStatus('ordertype','new')" class="blue">待付款</a></li>
+			<li id="paid" #if($ordertype eq 'paid')class="seeOrder"#end><a href="javascript:queryOrderStatus('ordertype','paid')" class="blue">已付款</a></li>
+			<li id="paid_success" #if($ordertype eq 'paid_success')class="seeOrder"#end><a href="javascript:queryOrderStatus('ordertype','paid_success')" class="blue">交易成功</a></li>
+			<li id="paid_unconfirm" #if($ordertype eq 'paid_unconfirm')class="seeOrder"#end><a href="javascript:queryOrderStatus('ordertype','paid_unconfirm')" class="blue">付款待确认</a></li>
+			<li id="paid_failure" #if($ordertype eq 'paid_failure')class="seeOrder"#end><a href="javascript:queryOrderStatus('ordertype','paid_failure')" class="blue">交易失败</a></li>
+			<li id="cancel" #if($ordertype eq 'cancel')class="seeOrder"#end><a href="javascript:queryOrderStatus('ordertype','cancel')" class="blue">已取消</a></li>
+			<li><a href="${basePath}admin/message/smsList.xhtml?status=failure" class="blue" target="_blank"><b>失败短信</b></a></li>
+			<li><input type="button" value="刷新" onclick="refresh()"/></li>
+			<li><span>取票方式：</span>
+				<select onchange="queryOrderStatus('expressid',this.value)">
+					<option #if($VmUtils.isBlank($!params.expressid)) selected #end value="">全部</option>
+					<option #if($params.expressid eq 'Y') selected #end value="Y">快递</option>
+					<option #if($params.expressid eq 'N') selected #end value="N">电子票</option>
+				</select>
+			</li>
+			#if($VmUtils.eq($ordertype, 'paid_success') || $VmUtils.eq($ordertype, 'paid'))
+			<li><a href="javascript:getXls()">导出EXCEL</a></li>
+			<li><a href="javascript:" onclick="showImport('importExcle');">导入EXCEL</a></li>
+			#end
+			<li style="float:right"><span>订单金额：$!tTotalAmount</span></li>
+			<li style="float:right"><span>出票量：$!totalQuantity</span></li>
+			<li style="float:right"><span>订单数量：$!orderNum</span></li>
+		</ul>
+		#parse('admin/theatreticket/orders.vm')
+	</div>
+	<em class="b2f"></em><em class="b1f"></em>
+</div>
+<div id="importExcle" class="importExcle" style="display:none;">
+	<span class="closed" onclick="gewa.util.container['importExcle'].dispose('importExcle')">关闭</span>
+	<div style="color:blue; padding-bottom:15px">
+		<h2>说明:</h2>
+		<div>
+			<ul class="clear">
+				<li><p><span>1、</span>导入的数据必须是Excel2003表格文件.</p></li>
+				<li><p style="color:red;"><span>2、</span>如果导入文件是本页导出功能导的文件，则需重新另存为新EXCEL2003文件，去掉表格中存在的文本框修改后方可导入！(经过验证2003office是删除不掉文本框，建议升级到2007或更高版本！)</p></li>
+			</ul>
+		</div>
+	</div>
+	<form method="post" action="${basePath}admin/dramaTicket/handleFormUpload.xhtml" enctype="multipart/form-data" onsubmit="return validateForm(this)">
+		<p>选择Excel文件</p>
+		<input type="file" class="input" name="file" size="30" onkeyup="this.value='';"/>
+		<input type="hidden" name="tag" />
+		<input type="submit" value="导入" class="button" name="upload"/>
+	</form>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+	if($("curList")) $("curList").getParent().removeClass("shrink");
+	$$(".aboutMovie").getElements(".controlPoint").each(function(item){
+		item.addEvent("click",function(){
+			this.getNext().getElement("ul").toggleClass("shrink");
+		});
+	});
+	gewaUtil.pagePos();
+});
+
+function queryAllTheatre(){
+	$('xls').value='';
+	$('placeid').value = '';
+	$('itemid').value = '';
+	$('mpid').value = '';
+	$('mptype').value = '';
+	$('topos').value = 'ordertopos';
+	$('searchOrderForm').submit();
+}
+
+function searchDrama(id){
+	var url = '${basePath}admin/ajax/dramaTicket/dramaList.xhtml';
+	var values = {'theatreid':id};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			if(result.retval){
+				var retvalList = JSON.decode(result.retval);
+				var el = $('itemid');
+				el.empty();
+				var option = new Element('option',{'value':'','html':'全部项目','selected':true}).inject(el), b;
+				retvalList.each(function(item){
+					b = option.clone();
+					b.value =item.id;
+					b.set('html',item.realBriefname);
+					b.inject(el);
+				});
+			}
+		}else{
+			
+		}
+	});
+}
+
+function showImport(){
+	gewa.util.maskContent('','importExcle','',552,'importExcle');
+}
+function queryOrderStatus(field, value){
+	$('xls').value='';
+	$(field).value=value;
+	$('topos').value = 'ordertopos';
+	$('searchOrderForm').submit();
+}
+function queryOrder(field, value, el){
+	$('xls').value='';
+	$(field).value=value;
+	if(field == 'placeid'){
+		$('mpid').value= '';
+	}
+	if(el){
+		$('mptype').value = el;
+	}
+	clearFrom('searchOrderForm','innerTradeForm',true);
+	$('topos').value = 'ordertopos';
+	$('searchOrderForm').submit();
+}
+function onSearchOrder(){
+	$('xls').value='';
+	clearFrom('searchOrderForm','innerTradeForm',true);
+	$('topos').value = 'ordertopos';
+	$('searchOrderForm').submit();
+}
+function onTradeSearch(){
+	$('xls').value='';
+	clearFrom('searchOrderForm','innerTradeForm');
+	$('topos').value = 'ordertopos';
+	$('searchOrderForm').submit();
+}
+function clearFrom(el1,el2, el3){
+	var inputs = $(el1).getElements('input,select');
+	var tmpArray = new Array();
+	if(el2 && $(el2)){
+		tmpArray = $(el2).getElements('input,select');
+	}
+	inputs.each(function(item){
+		switch(item.tagName){
+			case 'INPUT':
+				if((el3 && el3 == true && tmpArray.contains(item)) || ((!el3 || el3 != true) && !tmpArray.contains(item))){
+					item.value = '';
+				}
+				break;
+			case 'SELECT':
+				if((el3 && el3 == true && tmpArray.contains(item)) || ((!el3 || el3 != true) && !tmpArray.contains(item))){
+					var tmpSelect = item.getElements('option');
+					tmpSelect.each(function(item){
+						item.selected = false;
+					});
+				}
+				break;
+			default :
+				if((el3 && el3 == true && tmpArray.contains(item)) || ((!el3 || el3 != true) && !tmpArray.contains(item))){
+					item.value = '';
+				}
+				break;
+		}
+	});
+}
+function getXls(){
+	$('xls').value='true';
+	$('searchOrderForm').submit();
+}
+function refresh(){
+	refreshPage();
+}
+
+sendMessage = function(id, el){
+	if(el && el == true){
+		if(!window.confirm('短信已发送成功，确定重发?')) return;
+	}
+	var url = "${basePath}admin/order/sendOrderNoteSms.xhtml";
+	var values = {"id":id};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('发送成功');
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

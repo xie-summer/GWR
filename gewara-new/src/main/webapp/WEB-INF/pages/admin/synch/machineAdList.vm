@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>一体机广告信息</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<link href="${staticPath}dpicker/skin/WdatePicker.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script src="${staticPath}dpicker/WdatePicker.js" type="text/javascript"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.mt5{margin-top:5px;}
+		.ml15{margin-left: 15px;}
+		.mb5{margin-bottom: 5px;}
+	</style>
+</head>
+<body style="width:90%; margin:auto">
+<div><form action="${basePath}admin/synch/machineAdList.xhtml" >场馆id：<input type="text" name="venueid"/><input type="submit" value="查询"/></form></div>
+<div style="clear:both;"></div>
+<table width="100%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td colspan="6">当前位置>>一体机广告信息</td>
+		<td align="right" class="td" colspan="6">
+			<a href="javascript:void(0);" onclick="showAd('')" >增加</a>|
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td">
+		<td><b>id</b></td>
+		<td><b>版本</b></td>
+		<td><b>场馆id</b></td>
+		<td><b>下载地址</b></td>
+		<td><b>描述</b></td>
+		<td><b>添加时间</b></td>
+		<td><b>开始时间</b></td>
+		<td><b>结束时间</b></td>
+		<td><b>添加人</b></td>
+		<td><b>操作</b></td>
+	</tr>
+	#foreach($ad in $adList)
+	<tr class="td">
+		<td>$!ad.id</td>
+		<td>$!ad.adversion</td>
+		<td>$!ad.venueid</td>
+		<td>$!ad.zipurl</td>
+		<td>$!ad.remark</td>
+		<td>$!ad.addtime</td>
+		<td>$!ad.startTime</td>
+		<td>$!ad.endTime</td>
+		<td>$!ad.nickName</td>
+		<td>
+			<a href="javascript:void(0);" onclick="showAd('$!ad.id')" >[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0);" onclick="delAd('$!ad.id')">[删除]</a>
+		</td>
+		</tr>
+		#end
+</table>
+<div id="upgradeDiv" style="visibility: hidden;z-index: 100;width: 480px;height: 480px;background: #ffffff;border: 1px solid black;">
+<div class="ml15 mt5">
+<div style="text-align: center;"><span id="addtype">保存</span>手机客户端升级信息</div>
+<hr/>
+<input type="hidden" name="id" id="id"/>
+<div class="mt5">
+版&nbsp;&nbsp;本：<input name="adversion" id="adversion"/><br/><br/>
+场馆类型：<input type="radio" name="type" value="sport" id="sport" />运动 &nbsp;<input id="cinema" type="radio" name="type" value="cinema" checked="checked"/> 电影<br/>
+场馆id：<input name="venueid" id="venueid" type="text" onblur="getVenueName()"/><br/><br/>
+<div id='venueName' ></div><br/>
+有效开始时间：<input name="startTime" id="startTime" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly" value=""/><br/><br/>
+有效结束时间：<input name="endTime" id="endTime" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly" value=""/><br/><br/>
+描述：<textarea name="remark" id="remark"></textarea><br/><br/>
+上传zip文件（文件不大于10M,格式为zip)：
+<iframe height="25px" width="460px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSingleZIP.xhtml?uploadPath=common/&callback=uploadZip"></iframe><br />
+下载路径：<input type="text" name="zipurl" id="zipurl" style="width:340px"/>
+</div>
+<div class="mt5 ml30">
+<input type="button" onclick="addUpGrade()" value="保存"/> <input type="button" value="取消" onclick="hideUpGrade()"/>
+</div>
+</div>		
+</div>
+<script type="text/javascript">
+function getVenueName(){
+	var venueid = $('venueid').value;
+	if(!$chk(venueid)){
+		return;
+	}
+	var type = "sport";
+	if($('cinema').checked){
+		 type = "cinema";
+	}
+	var url = "${basePath}admin/synch/searchVenues.xhtml";
+	var values = {'venueid':venueid,'type':type};
+	GewaraUtil.sendRequest(url,values,function(result){
+		if(result.success){
+			var retval = result.retval;
+			if(!$chk(retval)){
+				return;
+			}
+			$('venueName').innerHTML = retval.substring(0,100);
+			$('venueName').title = retval;
+		}
+	});
+}
+
+function showAd(uid){
+	if(uid){
+		var url = "${basePath}admin/synch/getMachineAd.xhtml";
+		var values = {'id':uid};
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){
+				$('id').value = result.id;
+				$('venueid').value = result.venueid;
+				$('adversion').value = result.adversion;
+				$('zipurl').value = result.zipurl;
+				$('remark').value = result.remark;
+				if(result.startTime){
+					$('startTime').value = result.startTime;
+				}
+				if(result.endTime){
+					$('endTime').value = result.endTime;
+				}
+				if($(result.type)){
+					$(result.type).checked="checked";
+				}
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	GewaraUtil.showDialog('upgradeDiv');
+}
+
+function hideUpGrade(){
+	GewaraUtil.hideDialog('upgradeDiv');
+}
+
+function addUpGrade(){
+	var id = $('id').value;
+	var venueid = $('venueid').value;
+	var adversion = $('adversion').value;
+	var zipurl = $('zipurl').value;
+	var remark = $('remark').value;
+	var startTime = $('startTime').value;
+	var endTime = $('endTime').value;
+	if(!$chk(adversion)){
+		gewaUtil.alert('adversion不能为空！');
+		return;
+	}
+	if(!$chk(zipurl)){
+		gewaUtil.alert('下载地址不能为空！');
+		return;
+	}
+	if(!$chk(startTime)){
+		gewaUtil.alert('startTime不能为空！');
+		return;
+	}
+	if(!$chk(endTime)){
+		gewaUtil.alert('endTime不能为空！');
+		return;
+	}
+	var type = "sport";
+	if($('cinema').checked){
+		 type = "cinema";
+	}
+	var url = "${basePath}admin/synch/saveMachineAd.xhtml";
+	var values = {'id':id,'venueid':venueid,'adversion':adversion,'zipurl':zipurl, 'remark':remark,'startTime':startTime,'endTime':endTime,'type':type};
+	GewaraUtil.sendRequest(url,values,function(result){
+		if(result.success){
+			gewaUtil.alert('保存成功！');
+			refreshPage();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function delAd(uid){
+	gewaUtil.confirm('确认删除吗？',function(){
+		var url = "${basePath}admin/synch/deleteMachineAd.xhtml";
+		var values = {'id':uid};
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success) refreshPage();
+			else gewaUtil.alert('删除失败！');
+		});		
+	});
+}
+function uploadZip(params){
+	var picpath = params['picpath'];
+	if(picpath != ''){
+		$('zipurl').value = '${picPath}'+picpath;
+	}
+}
+</script>
+</body>
+</html>

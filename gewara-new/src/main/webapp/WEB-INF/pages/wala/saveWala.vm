@@ -1,0 +1,60 @@
+#foreach($comment in $commentList)
+<dl class="ui_wala_original comment$comment.id">
+	<dt class="uipic">
+		#if($VmUtils.eq($command.isRight,'true'))
+			<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank" title="$!comment.nickname" class="picmin"><img src="$VmUtils.randomPic('cw30h30', $!cacheMemberMap.get($comment.memberid).headpicUrl)" width="30" height="30"/></a>
+		#else
+			<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank" title="$!comment.nickname" class="pubpic"><img src="$VmUtils.randomPic('cw50h50', $!cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a>
+		#end
+		#if($VmUtils.contains($comment.flag,'ticket'))<span class="ico_g ico_buyTicket" title="购票用户"></span>#end
+	</dt>
+	<dd class="ui_view_solide">
+		<div class="page_wala">
+			<div class="page_wala_talk clear">
+				<p #if($VmUtils.eq($command.isFloor,'true')) style="position:relative; padding-right:50px;" #end>
+					<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank">$!comment.nickname</a>：
+					#if($comment.generalmark)(<span title="$!comment.generalmark.0分" class="ui_grades ui_grade$!comment.generalmark">$!comment.generalmark.0</span>)#end
+					#if(!$VmUtils.isNull($command.title)) $!VmUtils.perlString($!comment.body, $basePath, $picPath) #else $!VmUtils.perlString($!VmUtils.subLastText("#",$!comment.body), $basePath, $picPath) #end
+					#if($VmUtils.eq($command.isFloor,'true'))<span class="more blue">$!{commentCount}楼</span>#end
+				</p>					
+				#if($VmUtils.eq($command.isPic,'true') && !$VmUtils.isNull($comment.picturename))
+				<p class="mt5 ui_wala_Photos"><img src="$VmUtils.randomPic('cw96h128',$comment.picturename)"/></p>
+				#end
+				#if($tranferCommentMap.get($comment.transferid))
+				#set($tranfer = $tranferCommentMap.get($comment.transferid))
+				<div class="page_wala_talkreplay">	
+					<i class="t">◆<i>◆</i></i>
+					<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$tranfer.memberid" target="_blank">$!tranfer.nickname</a>：
+					#if(!$VmUtils.isNull($command.title)) $!VmUtils.perlString($!tranfer.body, $basePath, $picPath) #else $!VmUtils.perlString($!VmUtils.subLastText("#",$!tranfer.body), $basePath, $picPath) #end </p>
+					#if($VmUtils.eq($params.isPic,'true') && !$VmUtils.isNull($tranfer.picturename))
+						<p class="mt5 ui_wala_Photos"><img src="$VmUtils.randomPic('cw96h128',$tranfer.picturename)"/></p>
+					#end
+					<div class="page_replay clear">
+						<span class="left">$DateUtil.getTimeDesc($tranfer.addtime) 来自$!tranfer.fromFlag</span>
+						<div class="page_replay_opt clear">
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$tranfer.memberid" target="_blank" class="ml10" title="转发">转发 #if($tranfer.transfercount gt 0) $tranfer.transfercount #else 0 #end</a>
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$tranfer.memberid" target="_blank" class="ml10" title="搭话">搭话 #if($tranfer.replycount gt 0)$tranfer.replycount #else 0 #end</a>
+						</div>
+					</div>
+				</div>
+				#end
+			</div>
+			<div class="page_replay page_replay_my clear">
+				<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自$!comment.fromFlag</span>
+				<div class="page_replay_opt clear" #if($VmUtils.eq($comment.memberid,$logonMember.id)) style="width:140px;" #end>
+					#*<a href="javascript:void(0)" class="page_ico editor" title="编辑">编辑</a>*#
+					#if($VmUtils.eq($comment.memberid,$logonMember.id))<a href="javascript:void(0)" onclick="gewaUtil.deleteComment($comment.id);" class="page_ico delete" title="删除">删除</a>#end
+					<a id="$comment.id" href="javascript:void(0)" class="page_ico forwards" title="转发" lang="f">$!comment.transfercount</a>
+					<a id="$comment.id" href="javascript:void(0)" class="page_ico comment" title="搭话" lang="r">$!comment.replycount</a>
+				</div>
+				</div>
+				<div class="replayNode clear none" root="replay"></div>
+			</div>
+		</dd>
+	</dl>
+#end
+<script type="text/javascript">
+moderatorTitle = function(title){
+	GewaraUtil.openwin(GewaraUtil.basePath+"home/sns/moderatorDetail.xhtml?title="+encodeURIComponent(title), "_blank");
+}
+</script>

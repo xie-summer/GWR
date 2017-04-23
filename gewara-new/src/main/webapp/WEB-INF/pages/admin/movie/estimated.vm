@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影节电影列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width:1200px; margin:auto" class="yui-skin-sam">
+<div style="width:1200px;">
+#if($isAll)
+	<a href="${basePath}admin/filmfest/estimatedAll.xhtml">所有日程</a> <a href="${basePath}admin/filmfest/estimatedAll.xhtml?type=movie">所有片单</a>
+	<table class="table">
+		<thead>
+		<tr>
+			<th>序号</th>
+			<th>用户ID</th>
+			<th>添加时间</th>
+			#if(!$VmUtils.eq($type, 'movie'))
+			<th>场次ID</th>
+			<th>放映时间</th>
+			<th>影院ID</th>
+			<th>影院名称</th>
+			#end
+			<th>电影ID</th>
+			<th>电影名称</th>
+			<th>来源</th>
+		</tr>
+		</thead>
+		<tbody id="movieTable"  class="tbody">
+		#foreach($vfs in $vfsList)
+		#if(!$VmUtils.eq($type, 'movie'))
+		#set($mpi=$mpiMap.get($vfs.mpid))
+		#set($movie=$movieMap.get($mpi.movieid))
+		#set($cinema=$cinemaMap.get($mpi.cinemaid))
+		#else
+		#set($movie=$movieMap.get($vfs.movieId))
+		#end
+		<tr>
+			<td>$foreach.count</td>
+			<td>$!vfs.memberId</td>
+			<td>$!vfs.addTime</td>
+			#if(!$VmUtils.eq($type, 'movie'))
+			<td>$mpi.id</td>
+			<td>$mpi.playdate $mpi.playtime</td>
+			<td>$cinema.id</td>
+			<td>$cinema.name</td>
+			#end
+			<td>$!movie.id</td>
+			<td>$!movie.moviename</td>
+			<td>$!vfs.source</td>
+		</tr>
+		#end
+		</tbody>
+	</table>
+#else
+	<a href="${basePath}admin/filmfest/estimated16Number.xhtml?type=movie">电影统计</a> <a href="${basePath}admin/filmfest/estimated16Number.xhtml">场次统计</a>
+	<table class="table">
+		<thead>
+		<tr>
+			<th>序号</th>
+			#if(!$VmUtils.eq($type, 'movie'))
+			<th>场次ID</th>
+			<th>放映时间</th>
+			<th>影院ID</th>
+			<th>影院名称</th>
+			#end
+			<th>电影ID</th>
+			<th>电影名称</th>
+			<th>数量</th>
+		</tr>
+		</thead>
+		<tbody id="movieTable"  class="tbody">
+		#foreach($vfs in $vfsList)
+		#if(!$VmUtils.eq($type, 'movie'))
+		#set($mpi=$mpiMap.get($vfs.mpid))
+		#set($movie=$movieMap.get($mpi.movieid))
+		#set($cinema=$cinemaMap.get($mpi.cinemaid))
+		#else
+		#set($movie=$movieMap.get($vfs.movieId))
+		#end
+		<tr>
+			<td>$foreach.count</td>
+			#if(!$VmUtils.eq($type, 'movie'))
+			<td>$mpi.id</td>
+			<td>$mpi.playdate $mpi.playtime</td>
+			<td>$cinema.id</td>
+			<td>$cinema.name</td>
+			#end
+			<td>$!movie.id</td>
+			<td>$!movie.moviename</td>
+			<td>$!vfs.total</td>
+		</tr>
+		#end
+		</tbody>
+	</table>
+#end
+</div>
+<script>
+window.addEvent("domready", function(){
+	$$(".tbody tr").addEvents({
+		'mouseenter':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseleave':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+});
+</script>
+</body>
+</html>

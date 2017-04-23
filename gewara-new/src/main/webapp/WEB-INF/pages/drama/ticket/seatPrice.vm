@@ -1,0 +1,35 @@
+<div id="wrapper_P${odi.dpid}" class="wrapper_P">
+	<div id="wrapped_P${odi.dpid}">
+	#if(!$VmUtils.isEmptyList($tspList))
+	#set($areaSize=$VmUtils.size($areaMap))
+	<ul class="clear">
+		#set($seatPriceMap=$tspHelper.getTheatreSeatPriceMap())
+		#foreach($price in $seatPriceMap.keySet())
+		<li>
+			<div #if($VmUtils.eq($seatPriceMap.get($price),'Y')) config="playBox" #end id="$!{price}" class="playPriceBox #if(!$VmUtils.eq($seatPriceMap.get($price),'Y')) disable #end" style="line-height:40px">
+				<div class="priseP">
+					<p class="bold">$!{price}元</p>
+				</div>	
+				<i class="i_on"></i>
+			</div>
+		</li>
+		#end
+		#set($discountMap=$tspHelper.getValidDiscountMap())
+		#foreach($key in $discountMap.keySet())
+		#set($valueMap=$!{discountMap.get($key)})
+			#foreach($key1 in $valueMap.keySet())
+			<li>
+				<div #if($VmUtils.eq($valueMap.get($key1),'Y')) config="playBox" #end id="$key1" class="isPack pr_1 playPriceBox #if(!$VmUtils.eq($valueMap.get($key1),'Y')) disable #end" style="line-height:40px">
+					<div class="priseP">
+						<p class="bold">$!{key1}元<em class="ml5" style="font-weight:normal; color:#999;">($key)</em></p>
+					</div>	
+					<b title="该价格为套票" class="ticket_tp"></b>
+					<i class="i_on"></i>
+				</div>
+			</li>
+			#end
+		#end
+	</ul>
+	#end
+	</div>
+</div>

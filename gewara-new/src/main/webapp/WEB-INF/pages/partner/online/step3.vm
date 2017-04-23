@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Expires" content="0" />    
+	<meta http-equiv="Cache-Control" content="no-cache" />    
+	<meta http-equiv="Pragma" content="no-cache" />    
+	<title>确认订单-格瓦拉生活网上海热线合作页面</title>
+	<!--base href="http://movie.online.sh.cn/movie/"-->
+	<link rel="shortcut icon" href="http://movie.online.sh.cn/images/movie.ico" />
+	<link rel="stylesheet" type="text/css" href="http://movie.online.sh.cn/css.css"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${basePath}formcheck/formcheck.js"></script>
+	<!--[if IE 6]>
+	<SCRIPT type="text/javascript" src="http://movie.online.sh.cn/js/DD_belatedPNG.js" ></SCRIPT>
+	<script>DD_belatedPNG.fix('li,div.main,div.flow');</script><![endif]-->
+	<style type="text/css">
+		html{background:#FFF}
+		.pub-pay-item-list{background:#fff;border-color:#f3f3f3}
+		.pay_out,.gui-title,.showList{background:#fff}
+		.pay_out{border-color:#eee}
+		.gui-title{height:24px;line-height:24px;}
+		.gui-title h2{padding-left:12px;}
+		.play-outside-box .play-inside-box{padding:0px;width:100%;border-color:#f4e7df}
+	</style>
+</head>
+<body>#set($partnerFlag='online')
+<div id=onlinehead class="white half0">
+	<div class="onlinehead">
+		<div style="display:inline; float:left;text-align:left;"><strong><a href=http://www.online.sh.cn>上海热线 www.online.sh.cn</a></strong></div>
+		<div style="display:inline; float:right;text-align:right;"><script  language=javascript charset=gb2312 src=http://adsp.online.sh.cn/simhead2.js></script>
+		</div>
+		<div class="height0"></div>
+	</div>
+</div><!--热线头部结束-->
+<div class=head0>
+	<script language="JavaScript" src="http://movie.online.sh.cn/js/tyhead.js"></script>
+	<script language="JavaScript" src="http://movie.online.sh.cn/js/head.js"></script>
+</div>
+<div class="main" id="seat">
+	<div class="box-main">
+		<div class="flow">购票流程：1.选择电影、影院及场次 &gt;&gt; 2.选择座位  <span>&gt;&gt; 3.享受优惠或跳过</span> &gt;&gt; 4.完成支付并获得取票短信			</div>
+		<div class="spline"></div>
+		<div class="boxttl"><strong>您的位置：</strong>上海热线格瓦拉在线购票专区<div class="clear"></div></div>
+		<div class="height0"></div>
+	</div>
+	<div class="main_content" style="background:#fff;padding-bottom:20px;">
+		<div class="body_box" style="padding-top:20px;">
+			<div style="width:920px;margin: 0 auto;">
+				<form id="payForm" action="${basePath}partner/${partner.partnerpath}/saveOrder.xhtml" method="post" target="_blank">
+					<input type="hidden" name="orderId" value="$!order.id"/>
+					<div class="pay_info_box">
+						<div class="title"><h2>确认购买信息</h2>	</div>
+						<ul class="ui_abeam">
+							<li class="abeam">
+								<div class="uipic"><img src="$VmUtils.randomPic('cw96h128',${movie.limg})" alt="${opi.moviename}" class="img2"/></div>
+								<div class="uiText">
+									<p>影片：<b class="fs14">$!{opi.moviename}</b></p>
+									<p>影院：<b class="fs14">$!{opi.cinemaname}</b><span class="ml10">（$opi.roomname）</span></p>
+									<p>地址：$!{cinema.countyname}$!{cinema.address}<a href="${basePath}common/baiduMap.xhtml?id=$cinema.id&tag=cinema" class="blue" target="_blank">[地图]</a></p>
+									<p>场次：<b class="fs14 yellow">$DateUtil.format($opi.playtime,"MM-dd HH:mm")（$DateUtil.getCnWeek($opi.playtime)）</b></p>
+									<p>数量：<span class="fs14">$order.quantity张</span><span class="ml10">($!VmUtils.getJsonValueByKey($!order.description2, '影票'))</span></p>
+									<p>总额：<span class="yellow fs14">${order.totalAmount}元</span>#set($fufee=$opi.gewaprice - $opi.costprice)(含格瓦拉服务费#if($fufee gt 0)${fufee}#{else}0#{end}元)</p>
+									#if(!$VmUtils.contains($opi.elecard,'M'))<p>本场次为特殊场次</p>#end
+								</div>
+							</li>
+						</ul>
+						<div class="timeNotice">
+							<p> 您选中的座位已经成功锁定，<b class="yellow">请在15分钟内完成支付</b>，否则系统将释放已选座位。</p>
+							<p class="mt10 center">剩余支付时间：<span style="font-size:2em;color:#C03B0C"><b id="CountMsg"><b id="RemainM">15</b><b>分</b><b id="RemainS">00</b><b>秒</b></b></span></p>
+						</div>
+						<div class="title"><h2>确认联系信息</h2>
+							#if($takeTopicId)<a href="${basePath}blog/t$takeTopicId" class="more mr5 brown" title="查看详细取票指南" target="_blank">查看详细取票指南</a>#end
+						</div>
+						<ul class="ul-80 mt10">
+							<li>
+								<div class="ul-80Inner">接收手机：</div>
+								#if($partner.partnerpath eq "spsdo" && $order.mobile)
+								$order.mobile
+								#else
+								<label for="mobileText"><input type="text" class="text validate['required','digit']" id="mobileText" name="mobile" style="width:150px;margin:0" value="$!order.mobile"/>
+								#end
+								<span class="yellow ml5 mr5">*</span>成功购票后，该手机将在15分钟内收到取票短信。
+							</li>
+						</ul>
+					</div>
+					<div class="pay_out mt20" style="*margin-top:50px;">
+						<div class="pay_inner">
+							<ul class="ui-160 clear">
+								<li>确认支付后页面将进入支付页面，完成支付后页面会进入提示支付成功页面。</li>
+								<li>
+									<div class="xuzi-boxTitle"><label class="yellow" for="xiyi" style="cursor: pointer;"><input type="checkbox" id="xiyi" class="mr5"/>*<b class="xzbx" style="font-size:14px;color:#000">服务条款</b></label>（重要提示：请仔细阅读服务条款，同意并勾选后付款）</div>
+									<div class="xuzi-box">
+										1、从锁定座位开始，请在15分钟内完成支付，否则您选择的座位或将被释放；<br/>
+										2、请仔细核对您的购票信息，影票一旦购买成功，不退不换；<br/>
+										3、该影票的票价中包含运营、维护、服务等费用；<br/>
+										4、在极少数情况下，由于影院设备或网络问题导致您选中的座位需要调换，请允许格瓦拉帮您换选其他最佳座位；
+									</div>
+								</li>
+								<li class="mt20">
+									<label onmouseout="$(this).removeClass('bg_hover')" onmouseover="$(this).addClass('bg_hover')" class="bigBt button"><input type="submit" id="disBtn" value="确认无误，提交"/></label>
+									<img src="${staticPath}css/buss/partner_online.jpg" class="ml20"/>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+<form id="submitForm" name="submitForm" target="_top" method="post"></form>
+<script type="text/javascript">
+	function getRTime(){
+		var nM = Math.floor(remain/(1000*60)) % 60;
+		var nS = Math.floor(remain/1000) % 60;
+		$("RemainM").innerHTML = (nM < 10 ? "0" : "") + nM;
+		$("RemainS").innerHTML = (nS < 10 ? "0" : "") + nS;
+		remain -= 1000;
+		if(((remain/1000).toInt()*1000)%60000==0){
+			$clear(pfun);
+			data();
+		}
+		if(remain<=0){
+			if(pfun) $clear(pfun);
+			data();
+			return;
+		}
+	};
+	function data(){
+		var random = (Math.random()*1000000).toInt();
+		new Request({
+			url: '${basePath}cinema/order/time.xhtml?tid=$order.id&'+random,
+			method:'get',
+			onSuccess: function(responseText) {
+				remain = responseText * 1;
+				if(remain <= 0){
+					$("CountMsg").empty();
+					$("CountMsg").innerHTML = "订单已超时";
+				}else{
+					pfun = getRTime.periodical(1000);
+				}
+			}
+		}).send();
+	}
+	var remain, pfun;
+	window.addEvent('domready', function(){
+		data();
+		$('payForm').addEvent('submit', function(e) {
+			e.stop();
+			if(!$('xiyi').checked){
+				$('xiyi').focus();
+				$$('.xuzi-boxTitle').setStyles({'font-weight':'bold','background':'#ff6200','font-size':'14px','color':'#fff','border-color':'#ff6200'});
+				$$('.xuzi-box').setStyle('border-color','#ff6200');
+				return false;
+			}
+			gewa.util.mask({'element':"disBtn",'title':'正在提交，请稍等...'});
+			this.set('send', {onSuccess: function(response) {
+				eval(response);
+				if(data.success){
+					$("submitForm").action = data.url;
+					$("submitForm").submit();
+				}else{
+					gewaUtil.alert(data.msg);
+					gewa.util.clearMask();
+				}
+			}, onFailure:function(){
+				gewaUtil.alert("订单错误!");
+				gewa.util.clearMask();
+			}});
+			this.send();
+		});
+	});
+</script>
+
+<script type="text/javascript" src="http://movie.online.sh.cn/js/bottom.js"></script>
+<script type="text/javascript" src="http://movie.online.sh.cn/js/seat.js"></script>
+<script type="text/javascript">
+var pageCode="confirm.html"
+</script>
+#parse('partner/googleGa.vm')
+</body>
+</html>

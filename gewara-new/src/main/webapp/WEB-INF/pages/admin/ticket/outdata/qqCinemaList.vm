@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>影院列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width:750px; margin:auto">
+<div><a href="javascript:synCinema()"><b>同步影院</b></a></div>
+<div style="width:740px;">
+<table class="table">
+	<thead>
+	<tr>
+		<th>格瓦拉影院ID</th>
+		<th>格瓦拉影院ID</th>
+		<th>格瓦拉影院名称</th>
+		<th>对应</th>
+		<th>QQ影院名称</th>
+		<th>QQ影院ID</th>
+		<th>QQ影院所在城市</th>
+	</tr>
+	</thead>
+	<tbody id="movieTable">
+	#foreach($pc in $cinemaList)
+	#set($cinema=$cinemaMap.get($pc.id))
+	<tr>
+		<td style="width: 110px;" title="$pc.id"><input type="text" value="$!cinema.id" id="pc$pc.id" style="width: 100px;" /></td>
+		<td>$!cinema.id</td>
+		<td>$!cinema.name</td>
+		<td><a href="javascript:toSure($pc.id)">对应</a></td>
+		<td  id="n$pc.id">$pc.pcname</td>
+		<td>$pc.pcid</td>
+		<td>$pc.cityname</td>
+	</tr>
+	#set($cinema='')
+	#end
+	</tbody>
+</table>
+</div>
+<script type="text/javascript">
+	function setUnion(pcid){
+		var url = "${basePath}admin/qq/setCinemaUnion.xhtml";
+		var values = {'id':pcid, 'cinemaid':$('pc'+pcid).value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) { 
+				refreshPage();
+			}else alert(result.msg);
+		});
+	}
+	function toSure(pcid){
+		var url = "${basePath}admin/qq/getObject.xhtml";
+		var values = {'relatedid':$('pc'+pcid).value, 'tag':'cinema'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) { 
+				var nm = $('n'+pcid).get('html');
+				var rs = confirm('确认要对应：' + result.retval + '<--->' + nm +' 吗?');
+				if(rs) {
+					setUnion(pcid);
+				}
+			}else alert(result.msg);
+		});
+	}
+	function synCinema(){
+		var url = "${basePath}admin/qq/cinemas.xhtml";
+		var values = {};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) { 
+				refreshPage();
+			}else alert(result.msg);
+		});
+	}
+</script>
+</body>
+</html>

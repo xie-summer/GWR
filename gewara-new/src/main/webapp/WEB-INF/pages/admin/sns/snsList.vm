@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>用户列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+</head>
+<body style="margin:auto;">
+<div style="padding:1px;">
+	<form action="${basePath}admin/sns/searchSnsList.xhtml" method="post" onsubmit="return searchMember()" >
+		搜索条件：用户编号：<input type="text" name="memberid" id="memberid" value="$!params.memberid" style="width:50px"/>
+					用户昵称:<input type="text" name="nickname" id="nickname" style="width: 100px;" value="$!params.nickname"/>
+					手机号:<input type="text" name="mobile" id="mobile" style="width: 100px;" value="$!params.mobile"/>
+					邮箱:<input type="text" name="email" id="email" style="width: 100px;" value="$!params.email"/>
+		<input type="submit" class="button" value="查询"/>
+	</form>
+</div>
+<div>当前共有$memberCount用户</div>
+<table class="table clear">
+	<thead>
+	<tr>
+		<th>用户编号</th>
+		<th>用户昵称</th>
+		<th>注册时间</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="pointTable">
+	#foreach($member in $listMember)
+	#set($memberinfo=$memberinfoMap.get($member.id))
+	<tr>
+		<td>$!member.id</td>
+		<td>$!member.nickname</td>
+		<td>$DateUtil.format($!memberinfo.addtime,'yyyy-MM-dd')</td>
+		<td><a href="javascript:void(0)" onclick="showMark('updatePassword',$!member.id)">修改密码</a>
+		#if($mapBlackMember.get($member.id))<a href="javascript:void(0);" onclick="removeBlack($mapBlackMember.get($member.id).id)">取消加入小黑屋</a>
+		#else|<a href="javascript:void(0);" onclick="addBlack($!member.id)">加入小黑屋</a>#end
+		#if($member.rejected eq 'N')|<a href="javascript:void(0);" onclick="setMember($member.id, 'Y')">设置不能登录</a>#else|<a href="javascript:void(0);" onclick="setMember($member.id, 'N')">恢复登录</a>#end
+		#* <a href="javascript:void(0);" onclick="deleteMember($member.id)">彻底删除</a>*# </td>
+	</tr>
+	#end
+	</tbody>
+</table>
+#parse('include/pageUtil.vm')
+<div style="display: none;background: white;" id="updatePassword">
+	<form id="updatepass">
+	<input type="hidden" name="id" id="id" />
+	<table style="text-align: center;color: blue">
+		<tr>
+			<td colspan="2" style="text-align: center;">修改密码</td>
+		</tr>
+		<tr>
+			<td>密码：</td>
+			<td><input type="text" id="password" name="password"/></td>
+			<td>(6-14位，数字，字母，下划线)</td>
+		</tr>
+		<tr>
+			<td>确认密码：</td>
+			<td align="left"><input type="text" id="passwordAgain"  name="passwordAgain"/></td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td align="left"><input class="button" type="button" onclick="updatePassword()" value="确定修改"/><input type="button" value="取消" class="button" onclick="hideMark('updatePassword')"/></td>
+		</tr>
+	</table>
+	</form>
+</div>
+	<script type="text/javascript">
+function searchMember(){
+	var memberid=$("memberid").value;
+	if(memberid.length!=0){
+		if(!parseInt(memberid)){
+			alert('用户编号只能是整数');
+			return false;
+		}
+	}
+	return true;
+}
+
+function showMark(el,data){
+	$(el).setStyle("display","block");
+	$("id").value=data;
+	GewaraUtil.showDialog(el,-1,true);
+}
+function hideMark(el){
+	GewaraUtil.hideDialog(el);
+	$("id").value="";
+	$("password").value="";
+	$("passwordAgain").value="";
+}
+
+function updatePassword(){
+	var pass=$("password").value;
+	var passAgain=$("passwordAgain").value;
+	if(pass.length==0){
+		alert("密码不能为空!");
+		return false;
+	}
+	if(pass!=passAgain){
+		alert("两次输入的密码不一致");
+		return false;
+	}
+	if(pass.length<6||pass.length>14){
+		alert("密码长度只能是6-14!");
+		return false;
+	}
+	var url="${basePath}admin/sns/savePassword.xhtml";
+	var values = GewaraUtil.getValues("updatepass");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("密码修改成功");
+			hideMark('updatePassword');
+		}else{
+			alert(result.msg);
+			hideMark('updatePassword');
+		}
+	});
+}
+function addBlack(memberId){
+		var url = '${basePath}admin/blog/addBlackMember.xhtml';
+		var values = {'memberId':memberId, 'description':''};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("成功关入小黑屋！");
+				refreshPage();
+			} else {
+				if(RemoteErrorCode.notLogon == result.errcode) alert("您没有登录！");
+				else if(RemoteErrorCode.noRights == result.errcode) alert("你没有权限加小黑屋！");
+				else if(RemoteErrorCode.repeated == result.errcode) alert("已经关入小黑屋!");
+				//else if(RemoteErrorCode.notFound == result.errcode) alert("这个版主已经不存在！");
+				else if(result.msg) alert(result.msg);
+				else alert("删除失败！");
+			}
+		});
+	} 
+	function removeBlack(bmid){
+		var url = '${basePath}admin/blog/removeBlackMember.xhtml';
+		var values = {'blackMemberId':bmid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("成功解除小黑屋！");
+				refreshPage();
+			} else {
+			if(RemoteErrorCode.notLogon == result.errcode) alert("您没有登录！");
+			else if(RemoteErrorCode.noRights == result.errcode) alert("你没有权限解除小黑屋！");
+			else if(RemoteErrorCode.notFound == result.errcode) alert("这个小黑屋已经不存在！");
+			else if(result.msg) alert(result.msg);
+			else alert("删除失败！");
+			}
+		});
+	} 
+	
+	
+	function setMember(memberid, status){
+		var url="${basePath}admin/sns/setMember.xhtml";
+		var values = {'memberid':memberid, 'memberstatus':status};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("设置成功!");
+				location.href="${basePath}admin/sns/searchSnsList.xhtml";
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function deleteMember(memberid){
+		if(confirm('确认删除吗？')){
+			var url="${basePath}admin/sns/deleteMember.xhtml";
+			var values = {'memberid':memberid};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert("删除成功!");
+					location.href="${basePath}admin/sns/searchSnsList.xhtml";
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+	}
+</script>
+</body>
+</html>

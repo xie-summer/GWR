@@ -1,0 +1,226 @@
+<!Doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>支付成功-格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_pay&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,slimbox&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	/*按钮*/
+	.ui_layout .button,.button span,.ui_layout .button input{background-image:url(/css/sport_wide/btn_sport.gif);}
+	
+	.orderSuccessLeft{width:748px; border:1px solid #bee6f2; padding:30px 50px;}
+	.orderSuccessLeft h1{font-family:"微软雅黑"; line-height:34px; font-size:30px; font-weight:100;}
+	.orderSuccessLeft em{color:#999999;}
+	.bigRed{color:#fe0000; font-size:14px;}
+	.orderResult_tab_con{background:#f3fbfe;border:1px #b9e3f3 solid;padding:20px;}
+	.orderResult_tab_con h2{font-family:"微软雅黑"; font-size:16px;}
+	.orderSuccessRight{width:310px; margin-left:}
+	.issys{color:#666668; height:14px; line-height:14px;}
+	.cshenlan{color:#3398ce;}
+	.ft_href{display:block; background:url("/css/sport_wide/ico_pub.gif") no-repeat -21px -330px; padding-left:15px; height:12px; line-height:12px; margin-top:15px;}
+	.ft_href a{color:#2196cb;}
+	
+	.packageBox{background:#fff; border-top:1px solid #D5D5D5;}
+	.packageBox dl{width:50%; float:left;}
+	.orderResult_tab_info{border:1px solid #c2c2c4; border-radius:5px; background:#fff;}
+	.orderResult_tab_info textarea{overflow-y:auto; line-height:18px; font-size:12px; width:500px; height:40px; color:#666; resize:none; border:0; padding:10px;}
+	
+	.payBox_hd h2{font-size:18px; font-family:"微软雅黑";}
+	.issys{display:block; position:relative; height:20px; line-height:20px;}
+	.issys .cshenlan{position:absolute;background:url(${staticPath}css/movie_wide/ico_share.png) no-repeat;width:25px;height:20px;line-height:20px;display:inline-block;padding-left:28px; width:50px;margin:0 3px;overflow:hidden;cursor:pointer;}
+	.bd1px{border-bottom:1px #999 dashed;}
+	.bdsiBox p{padding:5px 0;}
+	#survey{padding:0;}
+	.cardpass{margin:5px;}
+	</style>
+</head>
+<body class="ui_sport">
+#set($issport=true)#set($isOrder4=true)
+#set($orderStr1='课程')#set($orderStr2='套餐')#set($orderStr3='报名')
+#set($isIndexBigAd=true)#set($cfgHeader='header')
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="inner">
+		#parse('sport/menu.vm')
+		<div class="mt20 orderSuccess">
+			<div class="orderSuccessLeft left">
+				<div class="uipic left" style="width:180px;"><img class="ml20 mr20" src="${staticPath}css/sport_wide/succ_i.gif" alt="购买成功"/></div>
+				<div class="uiText left" style="width:565px;">
+					<h1>订单已完成支付 !</h1>
+					<div class="od_deal mt10">预计15分钟内将收到短信发至您的手机，请稍后...</div>
+					<em>短信发送可能会有延迟或被手机安全软件拦截，长时间未收到，请致电格瓦拉客服：4000-406-506</em>
+					<p style="color:#666;">订单号：<a href="${basePath}gewapay/showOrder.xhtml?orderId=$!order.id" target="_blank" class="yellow">$!order.tradeNo</a>
+					#if($order.paymethod eq 'gewaPay') #set($point=${order.due}-${order.wabi}) #else #set($point=$order.due) #end
+					#if($point gt 0)本次消费你获得<b class="fs14 yellow">$point</b>积分</p>#end
+					<p class="bigRed mt10">报名并支付成功后，我们会将您的报名信息通知培训机构，稍后可能会有培训机构工作人员与您联系核对报名信息及沟通培训具体事宜。</p>
+					<div class="orderResult_tab_con clear mt20" id="tabMessage_content">
+						<h2>网上晒订单，分享给好友</h2>
+						#set($descMap=$VmUtils.readJsonToMap($order.description2))
+						<div class="orderResult_tab_info mt10" style="position:relative;">
+							<textarea readonly="readonly" id="msgContent">爱生活，爱运动！我刚在@格瓦拉生活网 预定了 #$descMap.get('物品名称')#，健康生活正在向我招手啦，你要不要也来一起“动”一下！ http://www.gewara.com/sport/</textarea>
+						</div>
+						<div class="mt10">
+	      				<label class="issys left" for="Wb">
+								同步到：
+								<input id="Wb" type="checkbox" lang="/home/bind/sina/userApp.xhtml?source=close" title="新浪" /><span class="cshenlan ml25">新浪微博</span>
+							</label>
+							<label class="button maxBt redBt right" style="vertical-align: middle;">
+								<input onclick="sendMsg();" type="button" class="bt1" value="发送" />
+							</label>
+						</div>
+					</div>
+					<p class="ft_href mt20"><a href="http://www.gewara.com/sport/" title="格瓦拉运动">返回</a><span style="color:#000; margin-left:10px;">格瓦拉@运动继续游览</span></p>
+					<p class="ft_href"><a href="http://www.gewara.com/" title="格瓦拉生活网" target="_blank">格瓦拉首页</a></p>
+				</div>
+			</div>
+			<div class="orderSuccessRight right">
+				<div class="">
+					<a target="_blank" href="/mobile/mobileSport.xhtml">
+						<img width="260" height="120" src="/css/global/sport_002.png?v=$VmUtils.jsVersion" />
+					</a>
+				</div>
+				<div class="payBox mt20">
+					<div class="payBox_hd inner">
+						<h2>满意度投票</h2>
+					</div>
+					<div class="payBox_body bdsiBox ml20">
+						<div class="inner">
+							<p id="survey" class="fs14">您对本次消费过程是否满意？</p>
+							<p class="bd1px">
+								<input id="ino" class="mr5" type="radio" name="ismy" style="margin:3px 5px;"/>
+								<label for="ino">满意，消费过程很顺畅</label>
+							</p>
+							<p>
+								<input id="iyes" class="mr5" type="radio" name="ismy" style="margin:3px 5px;"/>
+								<label for="iyes">不满意，过程中遇到问题</label>
+							</p>
+							<p class="ml20" style="position:relative;">
+								<textarea id="markText" onblur="inputBlur(this);" onfocus="inputFocus(this)" style="height:50px; width:225px;resize:none;color:#999; font-size:12px; padding:5px;" cols=""  rows=""></textarea>
+								<label for="markText" class="cardpass">请描述遇到的问题</label>
+							</p>
+							<p class="ml10">
+								<a class="left button maxBt redBt" href="javascript:sendSurvey();">
+								<span>提交评价</span>
+								</a>
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+#set($pageTrack=${basePath} + 'sport/order/success.html')
+<script type="text/javascript">
+var isWbOpen=true;
+window.addEvent('domready', function(){
+	gewara.util.sendRequest('${basePath}ajax/member/synchroizaInfo.xhtml',{'rights':'moviecomment'},function(result){
+		if(result.success){
+			if(result.appList){
+				if(result.appList.contains('sina')){
+					$('Wb').checked=true;
+					isWbOpen = false;
+				}
+			}
+		}
+	});
+	$('Wb').addEvent('click',function(){
+		if(isWbOpen){
+			this.checked = '';
+			checkLogin(true, function(){
+				syscData(this.get('lang'),this.get('title'),'sina',this);
+			}.bind(this));
+		}
+	});
+})
+function sendSurvey(){
+	var tag;
+	var mark = "";
+	if($('ino').checked || $('iyes').checked){
+		if($('iyes').checked){
+			tag = "N";
+			mark = $('markText').value;
+		}else{
+			tag = "Y";
+			$('markText').value = "";
+			mark = "满意，购票很顺畅";
+		}
+	}else{
+		gewaUtil.alert("请选择后投票！");
+	}
+	var values = {"surveyId":110860518,"tag":tag, "mark":mark,"url":document.URL+'; 浏览器：'+Browser.name +'; 浏览器版本：'+Browser.version};
+	GewaraUtil.sendRequest('${basePath}ajax/trade/orderSurvey.xhtml', values, function(result){
+		if(result.success){
+			gewaUtil.alert("感谢向格瓦拉反馈建议！");
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function sendMsg(){
+	var url = '${basePath}ajax/member/sendShareContent.xhtml';
+	var values = {"tag":"sport","tagid":"${order.id}","content":$('msgContent').value};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.alert("分享成功！");
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function syscData(url,title,tag,el){
+	var html = "",width=600;
+	if(tag == 'sina'){
+		html = new Element('iframe',{
+			'frameborder':0,
+			'scrolling':'no',
+			'height':'368',
+			'width':'570',
+			'src':url
+		});
+	}else{
+		html = new Element('div',{
+			'styles':{
+				'width':'620px',
+				'height':window.ActiveXObject?'380px':'330px',
+				'overflow':'hidden'
+			}
+		});
+		new Element('iframe',{
+			'frameborder':0,
+			'scrolling':'no',
+			'height':'850',
+			'width':'810',
+			'src':url,
+			'styles':{
+				'margin-top':'-280px',
+				'margin-left':'-160px'
+			}
+		}).inject(html);
+		width = 650;
+	}
+	gewa.util.maskContent('',html,'正在设置'+title+'的同步',width,'syscing');
+}
+var isBind = function(el){
+	if($(el)){
+		$(el).checked = true;
+		isWbOpen = false;
+	}
+	if(gewa.util.container['syscing'])gewa.util.container['syscing'].dispose('syscing');
+}
+function inputFocus(obj){
+	var obj=$(obj);
+	obj.getParent().getElement('.cardpass').hide();
+}
+function inputBlur(obj){
+	var obj=$(obj);
+	if(obj.value == '')
+		obj.getParent().getElement('.cardpass').show();
+}
+
+</script>
+</body>
+</html>

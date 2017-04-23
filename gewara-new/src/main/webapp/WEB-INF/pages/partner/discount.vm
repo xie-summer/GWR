@@ -1,0 +1,54 @@
+#if($showDiscount && (!$VmUtils.isEmptyList($spdiscountList) || $partnerDiscount))
+<div class="pay_info_box mt10">
+	<div class="title"><h2>优惠活动</h2></div>
+	<div class="clear inner">
+		#if($partnerDiscount)
+		<div class="clew">
+			你已选择：$!curSpdiscount.remark<label class="minBt redBt button ml20"><input type="button" onclick="removeDiscount($partnerDiscount.id);" value="取消优惠"/></label>
+		</div>
+		#end
+		#foreach($spdiscount in $spdiscountList)
+		<div class="clew">
+			<div class="plugRcoop">
+				<p class="ie"></p>
+				#if($disabledSdMap.containsKey($spdiscount.id))
+				#if($partnerDiscount.relatedid ne $spdiscount.id)
+				<div class="rText">
+					<label for="checkBox$foreach.index" style="cursor: pointer;display: inline-block;">
+					#if($partnerDiscount.relatedid eq $spdiscount.id)折扣金额：$partnerDiscount.amount<br/>#end
+					$!spdiscount.remark
+					</label>
+					<br/><span style="color:red">$disabledSdMap.get($spdiscount.id)</span>
+				</div>
+				#end
+				#else
+				<div class="rText">
+					<label for="check$spdiscount.flag" style="cursor: pointer;display: inline-block;">
+					<input type="radio" class="input" value="$spdiscount.id" name="discounttype" id="check$spdiscount.flag" onclick="selSpdiscount($spdiscount.id, $discountAmountMap.get($spdiscount.id))"/>
+					#if($partnerDiscount.relatedid eq $spdiscount.id)折扣金额：$partnerDiscount.amount<br/>
+					#else $!spdiscount.getFullEnableRemark($order.totalAmount, $discountAmountMap.get($spdiscount.id))
+					#end
+					</label>
+				</div>
+				#end
+			</div>
+		</div>
+		#end
+	</div>
+</div>
+#end
+<script type="text/javascript">
+	#if($showDiscount)
+	function selSpdiscount(spid, discount){
+		var due = $order.due - discount;
+		gewa.util.mask({'element':"disBtn",'title':'订单已提交，请在$!opi.gainLockMinute()分钟内完成支付'});
+		GewaraUtil.sendRequest("${basePath}ajax/trade/partnerUseSpecialDiscount.xhtml",{"orderId":$order.id,"spid":spid,"ordertype":"$!order.ordertype"},function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	#end
+</script>

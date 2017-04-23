@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	#parse('include/constant/cityParam.vm')
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>修改圈子属性_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,Autocompleter&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($community = true)
+#set($tag="home")#set($isUpdateCommu=true)#set($isShow=false)
+#set($realtag=$VmUtils.getTag($params.tag))
+#set($adoptCommunity=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout" id="p">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('home/community/manage/commuM.vm')
+			<!--  
+			<div class="ui_rightInner_left">
+				<div class="mt30 black fs14"><strong>圈子兴趣管理</strong></div>
+				<div class="showList" style="background:#fff5e5;text-indent:10px;margin-top:5px;"><b>为这个圈子添加兴趣标签，方便更多人看到</b></div>
+				<div id="insterestTagDiv" style="margin-top: 10px;">#parse('home/community/manage/commuinsteresttag.vm')</div>
+				<div class="mt20 ml20">
+					添加兴趣：<input type="text" name="insteresttagName" id="insteresttagName" class="text" maxlength="16"/><input type="button" class="fdBt ml5" value="添 加" onclick="addInsterestTag()"/>
+				</div>
+			</div>
+			-->
+			<div class="ui_rightInner_left">
+				<div class="inner">
+					<div class="mt20 title"><h2>圈子属性</h2></div>
+					<ul class="ul-60 mt10">
+						<li>
+							<div class="ul-60Inner">圈子名称：</div>$!commu.name
+						</li>
+						<li>
+							<div class="ul-60Inner">圈子说明：</div>
+							$!commu.info
+						</li>
+						<li>
+							<div class="ul-60Inner">创建日期：</div>
+							$DateUtil.formatDate($!commu.addtime)&nbsp;$DateUtil.formatTime($!commu.addtime)
+						</li>
+						<li>
+							<div class="ul-60Inner">圈子类型：</div>
+							#if($VmUtils.eq($!commu.tag, "cinema"))电影
+							#elseif($VmUtils.eq($!commu.tag, "ktv"))KTV
+							#elseif($VmUtils.eq($!commu.tag, "bar"))酒吧
+							#elseif($VmUtils.eq($!commu.tag, "gym"))健身
+							#elseif($VmUtils.eq($!commu.tag, "sport"))运动
+							#elseif($VmUtils.eq($!commu.tag, "theatre"))演出
+							#else 其它
+							#end
+						</li>
+						<li>
+							<div class="ul-60Inner">成员数：</div>$!memberCount
+						</li>
+						<li>
+							<div class="ul-60Inner">话题数：</div>$!diaryCount
+							<span class="ml20">相册数：$!albumCount</span>
+							<span class="ml20">访问数：$!commu.clickedtimes</span>
+						</li>
+					</ul>
+					
+					<div class="horn">
+						<div class="titleB mt30"><h2>修改圈子属性</h2></div>
+					</div>
+					<form name="commuForm" method="post" id="commuForm" >
+					<input type="hidden" id="commuid" name="commuid" value="$!VmUtils.escapeHtml($params.commuid)" />
+					<ul class="ul-60" style="margin-top:10px !important">
+						<li>
+							<div class="ul-60Inner">圈子名称：</div><input maxlength="30" type="text" class="text" name="name" id="name" value="$!commu.name"/>
+						</li>
+						<li>
+							<div class="ul-60Inner">圈子说明：</div>
+							<textarea class="text" name="info"  id="info"  style="width:470px;height:80px;" >$!commu.info</textarea>
+						</li>
+						#set($activity = $commu)
+						<li id="radioTags" class="mt10 clear plug_tales">
+							<div class="ul-80Inner">圈子类型：</div>
+							<div style="height:22px;line-height:22px;float:left;width:100%;" id="toplug">
+								<div>
+									<label for="no0" class="left mr10"><input type="radio" name="tag" class="switchDis" value="" id="no0" lang="" id="no0" onclick="clearSelect()" #if(!$commu.tag)checked="checked"#end/>不关联</label>
+									<label class="mr10 left" for="no_cinema"><input name="tag" id="no_cinema" class="switchDis" lang="cinema" title="影片/影院"  type="radio" value="cinema" #if($VmUtils.eq($commu.tag, 'cinema'))checked="checked"#end/>电影</label>
+									#if($cookieCitycode eq '310000')
+									<label class="mr10 left" for="no_ktv"><input name="tag" class="switchDis" id="no_ktv" type="radio" lang="ktv" title="ktv场馆" value="ktv" #if($VmUtils.eq($commu.tag, 'ktv'))checked="checked"#end/>KTV</label>
+									<label class="mr10 left" for="no_bar"><input name="tag" class="switchDis" id="no_bar" type="radio" lang="bar" title="酒吧场馆" value="bar" #if($VmUtils.eq($commu.tag, 'bar'))checked="checked"#end/>酒吧</label>
+									<label class="mr10 left" for="no_gym"><input name="tag" class="switchDis" id="no_gym" type="radio" lang="gym" title="项目/场馆" value="gym" #if($VmUtils.eq($commu.tag, 'gym'))checked="checked"#end/>健身</label>
+									<label class="mr10 left" for="no_sport"><input name="tag" class="switchDis" id="no_sport" type="radio" lang="sport" title="项目/场馆" value="sport" #if($VmUtils.eq($commu.tag, 'sport'))checked="checked"#end/>运动</label>
+									<label for="no_theatre" class="left"><input name="tag" class="switchDis" id="no_theatre" type="radio" lang="theatre" title="演出场馆" value="theatre" #if($VmUtils.eq($commu.tag, 'theatre'))checked="checked"#end/>演出</label>
+									#end
+								</div>
+							</div>
+						</li>
+						<li class="mt10">
+							<div class="ul-60Inner">身份验证：</div>
+							<label for="x1"><input #if($commu.publicflag eq 'public') checked="checked"#end #if(!$commu.publicflag)checked="checked"#end  type="radio" name="publicflag" value="public" id="x1"/>成员加入无需审核</label><br/>
+						<label for="x2"><input #if($commu.publicflag eq 'auth_sns') checked="checked"#end type="radio" name="publicflag" value="auth_sns" id="x2"/>成员加入需要管理员审核</label><br/>
+						<!--  <label for="x3"><input #if($commu.publicflag eq 'auth_commu_member') checked="checked"#end type="radio" name="publicflag" value="auth_commu_member" id="x3"/>不允许任何人加入</label>
+						-->
+						</li>
+						<li class="mt10">
+							<div class="ul-60Inner">访问权限：</div>
+							<label for="x1"><input #if($commu.visitpermission eq 'public') checked="checked"#end #if(!$commu.visitpermission)checked="checked"#end  type="radio" name="visitpermission" value="public" id="x1"/>对外开放</label><br/>
+							<label for="x2"><input #if($commu.visitpermission eq 'commumember') checked="checked"#end type="radio" name="visitpermission" value="commumember" id="x2"/>对成员开放</label><br/>
+							<label for="x3"><input #if($commu.visitpermission eq 'commuadmin') checked="checked"#end type="radio" name="visitpermission" value="commuadmin" id="x3"/>仅对管理员开放</label><br/>
+						</li>
+						<li class="mt10 clear">
+							<div class="ul-60Inner">验证码：</div>
+							<input type="hidden" name="captchaId" id="captcha" />
+							<label class="left" style="width:80px">
+							<input type="text" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" size="18" style="width:80px" mustTxt="请输入验证码!" onfocus="GewaraUtil.refreshCaptcha('captcha');"/></label>
+							<img id="captchaImg" src="${staticPath}css/images/blank.gif" class="ml20" style="cursor: pointer;vertical-align: middle;float:left;height:30px; width:80px;" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清楚，请点击换一张图片"/>
+						</li>
+						<li class="mt10">
+							<label class="minBt redBt button ml5 " for="disBtn"><input type="button" id="disBtn" onclick="saveCommu()" value="#if($params.commuid)修&nbsp;改#else创&nbsp;建#end"/></label>
+						</li>
+						<li class="clear">&nbsp;</li>
+					</ul>
+					</form>
+				</div>
+			</div>
+			#parse('home/community/manage/commuManageRight.vm')
+		</div>
+	</div>
+</div>
+<script>
+function addInsterestTag(){
+	var tag = $('insteresttagName').value;
+	if(!GewaraUtil.isNotNull(tag)){
+		return ;
+	}
+	var url = "${basePath}home/commu/addCommuInsterestTag.xhtml?commuid=$!commu.id&tag=" + tag ;
+	$('insterestTagDiv').set('load', {evalScripts: true, onComplete: complete});
+	$('insterestTagDiv').load(url);
+}
+function complete(result){
+	$('insteresttagName').value = '';
+}
+</script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	updateModify();
+})
+function saveCommu(){
+	if(!$chk($('name').value)){ 
+		gewaUtil.alert('圈子名称不能为空！');
+		return false;
+	}
+	if($('name').value.length>30){
+		gewaUtil.alert("圈子名称长度不能超过30个字！");
+		return false;
+	}
+	if($('info').value.length==0){
+		gewaUtil.alert('圈子说明不能为空！');
+		return false;
+	}
+	if($('info').value.length>200){
+		gewaUtil.alert("圈子说明的长度不能大于200");
+		return false;
+	}
+	var url = '${basePath}home/commu/saveCommu.xhtml';
+	GewaraUtil.mask('disBtn'); 
+	var values = GewaraUtil.getValues("commuForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			gewaUtil.alert('#if($params.commuid)修改圈子成功，需要通过管理员审核后才能显示！#else圈子创建成功，需要通过管理员审核后才能显示！#end');
+		}else{
+			 gewaUtil.alert(result.msg);
+			 GewaraUtil.refreshCaptcha('captcha');
+		}
+	});
+}
+function updateModify(){
+	var defiend = new modifyDefiend('.switchDis',{'to':'toplug','cookieCitycode':'$!{cookieCitycode}'});
+	var mapList = new Hash(),relList = new Hash(),catList = new Hash();
+	var related = {'rel':'relatedid','id':'$!activity.relatedid','name':'','text':'$!relate.name','lang':'$!{activity.tag}'}
+	var category = {'rel':'categoryid','id':'$!{activity.smallcategoryid}','name':'$!{activity.smallcategory}','text':'$!{relate2.name}','lang':'#if(!$!activity.relatedid)$!{activity.tag}#end'}
+	relList.extend(related);
+	catList.extend(category);
+	mapList.set(0,relList);
+	mapList.set(1,catList);
+	mapList.each(function(item){
+		if(item.get('id'))defiend.reset(item);
+	})
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

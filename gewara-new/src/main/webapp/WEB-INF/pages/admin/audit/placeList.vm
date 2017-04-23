@@ -1,0 +1,209 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>网友添加场馆列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline}
+	</style>
+</head>
+<body style="width:75%; margin:auto" class="yui-skin-sam">
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+		    <li class="selectMore"></li>
+			<li #if($!status eq "untreated") class="currs" id="unhandle" #else  id="handled" #end ><a href="${basePath}admin/audit/placeList.xhtml?status=untreated"><span>未处理</span></a></li>
+			<li  #if($!status eq "treated") class="currs" id="unhandle" #else id="handled" #end ><a href="${basePath}admin/audit/placeList.xhtml?status=treated" ><span>已处理</span></a></li>
+		</ul>
+	</div>
+</div>
+<form action="${basePath}admin/audit/placeList.xhtml" id="ajaxDataFrm">
+<table style="width: 100%" cellspacing="0" class="roomManageTable" >
+	<tr>
+	<td height="30">
+		<input type="hidden" name="status" id="status" value="$!status"/>
+		开始日期:<input type="text" name="sdatefrom" id="datefrom" value="$!sdatefrom" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>&nbsp;
+		结束日期:<input type="text" name="sdateto" id="dateto" value="$!sdateto" style="width: 150px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>&nbsp;
+		<input type="submit" class="bt1" value="查 询" />
+	</td>
+	</tr>
+</table>
+<br/>
+</form>
+#if(!$VmUtils.isEmptyList($!placeList))
+#if($!status eq "untreated")
+<div style="text-align:center;">
+		<select name="sendPointValue" id="sendPointValue">
+			#foreach($x in [1..5])
+			#set($point=$x*10)
+			<option value="$point">$!point</option>
+			#end
+		</select> 
+		<input type="button" class="bt2" value="设置初始积分" onclick="withPoint()"/>
+	</div>
+#end
+<from id="myform">
+<table width="75%" class="table">
+	<thead>
+	<tr>
+		<th width="10%">用户名</th>
+		<th width="15%">场馆名称</th>
+		<th width="10%">版块</th>
+		<th width="10%">添加时间</th>
+		<th width="10%">查看详细</th>
+		<th width="10%">赠送积分</th>
+		<th width="35%">赠送说明</th>
+	</tr>
+	</thead>
+	<tbody id="gymTable">
+	#set($tagMap = {"cinema" : "电影", "gym" : "健身","ktv" : "KTV","bar" : "酒吧","sport" : "运动"})
+	#foreach($place in $placeList)
+	<tr>
+		<td><a href="${absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$place.userid" target="_blank">$cacheMemberMap.get($place.userid).nickname</a></td>
+		<td>$place.name</td>
+		<td>$!tagMap.get($place.tag)</td>
+		<td>$DateUtil.format($!place.addtime,'yyyy-MM-dd hh:mm')</td>
+		<td><a href="${basePath}admin/audit/copyPlace.xhtml?id=$place.id&tag=$place.tag" target="_blank">复制到正式数据</a></td>
+		 #if($VmUtils.eq($!status,"untreated")) 
+		<td align="center">
+		<select id="p$place.id" name="$place.id">
+		        <option value="-1">不处理</option>
+				<option value="0" selected="selected">不加分</option>
+				<option value="10">加10分</option>
+				<option value="20" >加20分</option>
+				<option value="30">加30分</option>
+				<option value="40">加40分</option>
+				<option value="50">加50分</option>
+		</select>
+		</td>
+		<td align="center"><input type="text" name="$place.id" style="width: 99%"/></td>
+	    #end
+	    #if($VmUtils.eq($!status,"treated"))
+	     #set($placeInfoMap=$VmUtils.readJsonToMap($place.otherinfo))
+	     <td align="center">
+				#if($placeInfoMap.get('point'))
+				  加$!placeInfoMap.get('point')分 
+				#end
+		</td>
+		<td align="center">$!placeInfoMap.get('reason')</td>
+	    #end
+	</tr>
+	#end
+	#if($!status eq "untreated")
+	<tr>
+		<td colspan="7" style="text-align: center;" id="addpointFrm">
+				<input type="button" class="bt1" value="加积分" onclick="pass();" />
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+</from>
+<div id="page">
+	#parse('include/pageUtil.vm')
+</div>
+#end
+<div id="tmDialog" class="yui-panel" style="width:600px; visibility:hidden; z-index:20;">
+<div class="hd">
+	<span>详细信息</span>
+</div>
+<div class="bd">
+	<form name="tmForm" id="tmForm">
+	<div>
+		<label for="name">场馆名称：</label>
+		<input name="name" type="text" id="name"/>
+	</div>
+	<div>
+		<label for="county">所属区域：</label>
+		<input name="county" type="text" id="county"/>
+	</div>
+	<div>
+		<label for="address">详细地址：</label>
+		<input name="address" type="text" id="address"/>
+	</div>
+	<div>
+		<label for="contactphone">联系电话：</label>
+		<input name="contactphone" type="text" id="contactphone"/>
+	</div>
+	<div>
+		<label for="feature">门店特色：</label>
+		<input name="feature" type="text" id="feature"/>
+	</div>
+	<div>
+		<label for="transport">交通信息：</label>
+		<input name="transport" type="text" id="transport"/>
+	</div>
+	<div>
+		<label for="park">停车信息：</label>
+		<input name="park" type="text" id="park"/>
+	</div>
+	
+	<div>
+		<label for="content">详细介绍：</label>
+		<textarea cols="58" rows="7" name="content" id="content"></textarea>
+	</div>
+	<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+	</form>
+</div>
+</div>
+	<script type="text/javascript">
+	withPoint = function (){
+		var sendValue = $('sendPointValue');
+		var value = sendValue.value;
+		var ss = $('myform').getElements('select');
+		$each(ss, function(i, n){
+			$(i).set('value', value);
+		})		
+
+	}
+function pass(){
+	    if(confirm("确定保存吗？")){
+			var values=GewaraUtil.getValues("myform",",");
+			 var url = "${basePath}admin/audit/ajax/passPlace.xhtml";
+			GewaraUtil.sendRequest(url, values,passCallBack);
+		}
+	}
+function getPlaceById(id){
+	var url = "${basePath}admin/audit/ajax/getPlaceById.xhtml";
+	GewaraUtil.sendRequest(url, {"placeId":id}, tmCallBack);
+}
+function passCallBack(result){
+	if(result.same){
+		alert("成功");
+	}else if(result.success){
+	    alert("成功");
+		$('ajaxDataFrm').submit();
+	}else alert("审核失败");
+}
+function removeCallBack(result){
+	if(result){
+		refreshPage();
+	}else alert("删除失败");
+}
+function tmCallBack(tm){
+	GewaraUtil.setValues(tm.place);
+	$('county').value= "";
+	if(tm.countyname){
+		$('county').value=tm.countyname;
+	}
+	GewaraUtil.showDialog("tmDialog");
+}
+function cancle(){
+	GewaraUtil.hideDialog("tmDialog");
+	refreshPage();
+}
+</script>
+</body>
+</html>

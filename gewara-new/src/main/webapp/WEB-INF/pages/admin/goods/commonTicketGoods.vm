@@ -1,0 +1,101 @@
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+		<div class="contentInfoList">
+			<form  id="dataForm" method="post" >
+				<ul>
+				<li class="mt10">
+					<input type="hidden" name="id" id="id" value="$!goods.id"/>
+					<input type="hidden" name="relatedid" id="relatedid" value="$!params.relatedid"/>
+					<input type="hidden" name="tag" id="tag" value="theatre"/>
+					<input type="hidden" name="category" id="category" value="drama"/>
+					<span>通票名称：</span><input type="text" name="goodsname" id="goodsname" value="$!goods.goodsname" mustTxt="通票名称不能为空！"/>
+				</li>
+				
+				<li class="mt10">
+					<li>
+					<span>演&nbsp;&nbsp;出&nbsp;&nbsp;厅：</span>
+					<select style="width: 100px;" name="roomid" id="roomid" mustTxt="演出厅不能为空！">
+						<option value="">请选择</option>
+						#foreach($room in $roomList)
+						<option value="$!room.id" #if($room.id eq $goods.roomid)selected#end>$!{room.roomname}</option>
+						#end
+					</select>
+				</li>
+				<li class="mt10">
+					<span>业务模式：</span>
+					<select name="feetype">
+						<option value="" #if($VmUtils.isBlank($goods.feetype))selected#end>请选择</option>
+						<option value="O" #if($VmUtils.eq($goods.feetype,'O'))selected#end>第三方卖品（我们卖收服务费）</option>
+						<option value="G" #if($VmUtils.eq($goods.feetype,'G'))selected#end>Gewara卖品（我们自己货物）</option>
+						<option value="P" #if($VmUtils.eq($goods.feetype,'P'))selected#end>代售平台（别人卖收佣金）</option>
+						<option value="C" #if($VmUtils.eq($goods.feetype,'C'))selected#end>预售(物品卖券方式实现)</option>
+					</select>
+				</li>
+				<li class="mt10">
+					<li>
+					<span>演&nbsp;&nbsp;&nbsp;&nbsp;出：</span>
+					<select style="width: 200px;" name="categoryid" id="categoryid" mustTxt="演出不能为空！">
+						<option value="">请选择</option>
+						#foreach($drama in $dramaList)
+						<option value="$!drama.id" #if($drama.id eq $goods.categoryid)selected#end>$!{drama.realBriefname}   【$!DateUtil.format($drama.releasedate, 'yyyy-MM-dd')】</option>
+						#end
+					</select>
+				</li>
+				
+				<li class="mt10">
+					<span>剧&nbsp;&nbsp;&nbsp;&nbsp;社：</span>
+					<select style="width: 100px;" name="starid" id="starid">
+						#foreach($star in $starList)
+						<option value="$!star.id" #if($star.id eq $goods.starid)selected#end>$!star.name</option>
+						#end
+					</select>
+				</li>
+				<li class="mt10">
+					<span>语&nbsp;&nbsp;&nbsp;&nbsp;言：</span>
+					<input type="text" name="language" id="language" style="width: 95px" value="$!goods.language" />
+				</li>
+				<li class="mt10">
+					<span>单次购买数：</span>
+					<input type="text" name="maxbuy" id="maxbuy" style="width:95px" value="$!goods.maxbuy" mustTxt="单次购买数不能为空！"/>
+				</li>
+				<li class="mt10">
+					<span>取票说明：</span>
+					<textarea name="summary" id="summary" cols="60" rows="3">$!goods.summary</textarea>
+				</li>
+				<li class="mt10">
+					<span>场次说明：</span>
+					<textarea name="description" cols="60" rows="2">$!goods.description</textarea>
+				</li>
+				<li class="mt10">
+					<span>入场开始时间：</span>
+					<input type="text" name="fromvalidtime" mustTxt="入场开始时间不能为空！" id="fromvalidtime" value="$!DateUtil.format($!goods.fromvalidtime, 'yyyy-MM-dd HH:mm:ss')" style="width:140px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00',minDate:'$minStr'})" readonly="readonly"/>
+				</li>
+				<li class="mt10">
+					<span>入场结束时间：</span>
+					<input type="text" name="tovalidtime" mustTxt="入场结束时间不能为空！" id="tovalidtime" value="$!DateUtil.format($!goods.tovalidtime, 'yyyy-MM-dd HH:mm:ss')" style="width:140px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00',minDate:'$minStr'})" readonly="readonly"/>
+				</li>
+				<li class="mt10">
+					<input type="button" class="cbt1" value="保存" onclick="saveItem()"/>
+					<input type="button" class="cbt1" onclick="GewaraUtil.hideDialog('dialog')" value="取消"/>
+				</li>
+				</ul>
+			</form>
+		</div>
+		<b class="b2f"></b><b class="b1f"></b>
+</div>
+<script type="text/javascript">
+	
+	saveItem = function(){
+		var url = "${basePath}admin/goods/ajax/saveTicketGoods.xhtml";
+		if(!GewaraUtil.baseValidForm('dataForm')) return;
+		var values = GewaraUtil.getValues('dataForm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+				GewaraUtil.hideDialog('dialog');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>

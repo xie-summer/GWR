@@ -1,0 +1,68 @@
+<div class="mod_kong theatreIntro ptt20">
+	<div class="mod_hd">
+		<h2>影院介绍</h2>
+	</div>
+	<div class="mod_bd">
+		<p>
+			$!VmUtils.htmlabbr($!cinema.content, 1000)
+		</p>
+	</div>
+</div>
+<div class="mod_kong favorableNotice">
+	<div class="mod_hd">
+		<h2>优惠公告</h2>
+	</div>
+	<div class="mod_bd">
+		<p>
+			$!VmUtils.htmlabbr($!cinema.discount, 1000)
+		</p>
+	</div>
+</div>
+<div class="mod_kong theatreMien">
+	<div class="mod_hd addT">
+		<h2>影院风采</h2><span>($!{picCount})</span>
+		<!-- 
+		<a class="more" href="javascript:addPicture();"><b class="jia">+</b>添加剧照</a>
+		 -->
+	</div>
+	<div class="mod_bd">
+		<ul class="clear" id="aPictureList">
+		#if(!$VmUtils.isEmptyList($pictureList))
+			#foreach($picture in $pictureList)
+			<li #if($foreach.count % 6==0) style="margin-right:0;"#end>
+				<a href="javascript:void(0)" pictureId="$picture.id" title="" >
+					<img src="$VmUtils.randomPic('cw128h96',$picture.picturename)" alt="" width="126" height="92"/>
+				</a>
+			</li>
+			#end
+		#end
+		</ul>
+	</div>
+</div>
+<script>
+window.addEvent('domready',function(){
+	$$('#aPictureList a').each(function(item){
+		item.addEvent('click',function(e){
+			e.preventDefault();
+			var options = {
+				type:"apic",
+				pictureType:"apic",
+				videoType:"avideo",
+				tag:"cinema",
+				isAjax:true,
+				isPicture:'picture',
+				esc:true,
+				menu:{
+					pictureurl:'${basePath}cinema/cinemaPictureDetail.xhtml',
+					videourl:'${basePath}movie/videoList.xhtml',
+					picturevalues:{cid:'$cinema.id','pvtype':'apic','pid':this.get('pictureId')},
+					videovalues:{cid:'$cinema.id'},
+					picturecount:'$!{pictureList.size()}',
+					videocount:'0'
+				}
+			};
+			screenPicture.createPanel(options);
+		});
+	});
+});
+</script>

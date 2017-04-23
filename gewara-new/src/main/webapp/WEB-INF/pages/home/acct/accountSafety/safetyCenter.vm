@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>账户安全中心_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	#parse('home/acct/accountSafety/style.vm')
+</head>
+<body>
+#set($safetyCenter = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			<div class="mod_tLine">
+				<div class="mod_hd"><h2>安全中心</h2></div>
+				<div class="mod_bd">
+					<div class="ui_warning">
+						<p>
+							<span class="bold fs14">安全级别：#if($!level eq 'l')<b class="red">低</b>#elseif($!level eq 'h' && $!member.mobile && $!bindmobile)<b class="green">高</b>#else<b class="red">中</b>#end</span>
+							#if($!level eq 'h' && $!member.mobile && $!bindmobile)
+							<em class="green">已开启全部安全设置！</em>
+							#else
+							<em>建议您启动全部安全设置，以保障账户及资金安全。</em>
+							#end
+						</p>
+					</div>
+					<div class="safetyList">
+						<ul>
+							<li>
+								#if($memberInfo.bindSuccess)
+									<b class="tit">登录密码：</b>
+								#else
+									<b class="tit unSafety">登录密码：</b>
+								#end
+								<em class="info">互联网账号存在被盗风险，建议您定期更改密码以保护账户安全。</em>
+								<span class="modify">
+								#if($memberInfo.bindSuccess)
+								<a href="${basePath}home/acct/goUpPass.xhtml?tagNo=$VmUtils.getRandom()">修改</a>
+								#else
+								<a href="javascript:bindBaseInfo();">设置</a>
+								#end
+								</span>
+							</li>
+							<li>
+								#set($otherMap=$VmUtils.readJsonToMap($memberInfo.otherinfo))
+								#set($bindstatus = $otherMap.get('bindstatus'))
+								#if($VmUtils.isBlank($member.email)|| !$memberInfo.bindSuccess)
+								<b class="tit unSafety">绑定邮箱：</b>
+									<em class="info">验证后，可用于快速找回登录密码，接收账户余额变动提醒。</em>
+									<span class="modify">
+										<a href="#" onclick="#if($memberInfo.bindSuccess)updateEmails();#{else}bindBaseInfo();#end" class="btn redBtn"><span>设置安全邮箱</span></a>
+									</span>
+								#else
+								<b class="tit">绑定邮箱：</b>
+									<em class="info">您绑定的邮箱：<strong class="photoNum">$!{member.email}</strong></em>
+									<span class="modify">
+									<a href="#" onclick="updateEmails();">修改</a>
+									#if(!$!sendReg)
+									<a href="#" onclick="repeatSendEmail();" id="repeatsendmail" style="margin-left:10px;">验证邮箱</a>
+									#end
+									</span>
+								#end
+							</li>
+							<li>
+								#if($!member.mobile && $!bindmobile)
+								<b class="tit">绑定手机：</b>
+								<em class="info">您验证的手机：<strong class="photoNum">$VmUtils.overlay($!member.mobile,"*****",3,8)</strong></em>
+								<span class="modify"><a href="${basePath}home/acct/changeBindMobile.xhtml?authType=oldmobile&tagNo=$VmUtils.getRandom()">修改</a></span>
+								#else
+								<b class="tit unSafety">绑定手机：</b>
+								<em class="info">绑定后，可用于快速找回登录密码，接收账户余额变动提醒。</em>
+								<span class="modify"><a href="${basePath}home/acct/bindMobile.xhtml?tagNo=$VmUtils.getRandom()" class="btn redBtn"><span>绑定手机号码</span></a></span>
+								#end
+							</li>
+							<li>
+								#if($!noPayPass)
+								<b class="tit unSafety">支付密码：</b>
+								#else
+								<b class="tit">支付密码：</b>
+								#end
+								#if(!$!noPayPass)
+								<em class="info">
+									<span class="left">安全程度：</span>
+									<span class="pawBox #if($!strong eq 'weak') pawBoxLow #else pawBoxHigh #end">
+										<span class="d">低</span>
+										<span class="z">中</span>
+										<span class="g">高</span>
+									</span>
+									#if($!strong eq 'weak')
+									<span class="left">建议你设置更高强度的密码。</span>
+									#end
+								</em>
+								#else
+								<em class="info">互联网账号存在被盗风险，建议您定期更改支付密码以保护账户安全。</em>
+								#end
+								<span class="modify">
+									#if($!noPayPass)
+									<a href="${basePath}home/acct/mbrMobileAuthPay.xhtml?op=mobileAuthPaySet&tagNo=$VmUtils.getRandom()" class="btn redBtn">
+									<span>设置支付密码</span>
+									</a>
+									#else
+									<a href="${basePath}home/acct/mbrMobileAuthPay.xhtml?op=mobileAuthPayMdy&tagNo=$VmUtils.getRandom()">修改</a>
+									<a href="${basePath}home/acct/mbrMobileAuthPay.xhtml?op=mobileAuthPayGet&tagNo=$VmUtils.getRandom()" style="margin-left:10px;color:gray">忘记密码？</a>
+									#end
+								</span>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+#parse('home/acct/bindMemberInfo.vm')
+<div style="display:none;">
+##parse('home/acct/setPayPassword.vm')
+</div>
+<script type="text/javascript">
+//基础信息设置
+bindBaseInfo = function(){
+	window.location.href = '${basePath}home/acct/bindBaseInfo.xhtml?op=bindEmail';
+}
+window.addEvent('domready',function(){
+	#if($!params.msg)gewaUtil.alert('$!params.msg');#end
+	#if(!$memberInfo.bindSuccess)
+	window.location.href = '${basePath}home/acct/bindBaseInfo.xhtml';
+	#end
+})
+function repeatSendEmail(){
+	checkLogin(true, function(){
+		GewaraUtil.mask('repeatsendmail');
+		var url = '${basePath}home/member/resendRecognition.xhtml?tagNo=$VmUtils.getRandom()';
+		GewaraUtil.sendRequest(url, {}, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				gewaUtil.alert('已成功发送验证邮件，请注意查收并完成邮箱验证！');
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	});
+}
+function updateEmails(){
+	document.location.href = "${basePath}home/acct/goUpEmail.xhtml";
+}
+</script>
+</body>
+</html>

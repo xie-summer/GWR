@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>收费项目管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline-block; width:70px;text-align:right;padding:1px 0 1px 0; }
+		input,textarea {width:450px;}
+		a{text-decoration: none; white-space: nowrap;}
+	</style>
+</head>
+<body style="width:1000px; margin:auto" class="yui-skin-sam">
+<div>
+	<form action="${basePath}admin/goods/activityGoodsList.xhtml">
+		活动ID：<input type="text" name="relatedid" value="$!params.relatedid" style="width:80px;"/>
+		<input type="submit" value="查询" style="width: 50px;"/>
+	</form>
+</div>
+<table class="table" style="width:1000px">
+	<thead>
+	<tr>
+		<th>ID</th>
+		<th>商品名称</th>
+		<th>运动场馆</th>
+		<th>卖价</th>
+		<th>成本价</th>
+		<th>排序</th>
+		<th>有效时间</th>
+		<th>支付人数</th>
+		<th>购买链接</th>
+		<th>查看订单</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="goodsTable">
+		#foreach($goods in $goodsList)
+		<tr>
+			<td>${goods.id}</td>
+			<td>${goods.goodsname}</td>
+			<td><a href="$!{absPath}${basePath}sport/$model.id" target="_blank">$!{model.name}</a></td>
+			<td>$!{goods.unitprice}#if($!{goods.unitprice} eq 0)(<font color="red">赠品</font>)#end</td>
+			<td>$!{goods.costprice}</td>
+			<td><input type="text" name="goodssort" id="goodssort" style="width:60px;" onchange="changeGoodsSort($!goods.id, this.value);" value="$!goods.goodssort"/></td>
+			<td>$DateUtil.format($!{goods.fromtime},'MM-dd HH:mm')至$DateUtil.format($!{goods.totime},'MM-dd HH:mm')</td>
+			<td><a href="$!{absPath}${basePath}activity/$goods.relatedid" target="_blank">购买链接</a></td>
+			<td>$!{goods.limitnum}</td>
+			<td><a href="${basePath}admin/goods/order/goodsOrderList.xhtml?gid=$goods.id" target="_blank">查看订单</a></td>
+			<td width="150px">
+				<a href="${basePath}admin/goods/getActivityGoods.xhtml?gid=$goods.id" target="_blank">修改</a>|
+				<a href="javascript:delGoods($goods.id)">删除</a>|
+			</td>
+		</tr>
+		#end
+	</tbody>
+</table>
+<script type="text/javascript">
+function changeGoodsSort(goodsid, value){
+	var url = '${basePath}admin/goods/ajax/changeGoodsSort.xhtml'
+	var values = {"goodsId":goodsid,"num":value};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("操作成功！");
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}			
+	});
+}
+function delGoods(gid){
+	if(confirm('确认要删除吗?')==false) return;
+	var values = {"gid":gid};
+	GewaraUtil.sendRequest('${basePath}admin/goods/ajax/delgoods.xhtml', values, function(result){
+		if(result.success){
+			alert('删除成功！');
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

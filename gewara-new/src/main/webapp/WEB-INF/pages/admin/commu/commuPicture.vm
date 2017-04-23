@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>圈子图片查询列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="margin:auto;">
+<div style="padding:1px;width: 850px">
+	<form action="${basePath}admin/common/commuPicture.xhtml" method="post" style="margin:3px; width:800px; float: left;">
+		圈子ID：<input type="text" name="commuid" id="commuid" value="$!params.commuid" style="width:80px"/> 
+		<input type="submit" class="button" value="查询"/>
+	</form>
+	<div style="width: 800px;">
+		<div style="text-align:center;">
+			<h1>#if($check) 已审核 #else 未审核 #end</h1>
+			#if($check)<div style="text-align:right;"><span>审核人：$userCheck.userName 审核时间：$DateUtil.format($userCheck.addtime,"yyyy-MM-dd HH:mm:ss")</span></div>#end
+		</div>
+		#foreach($picture in $pictureList)
+		<div style="width:130px;position: relative;float: left;padding:3px;margin:4px;margin-top:  20px;border: 2px solid gray; ">
+			属于：<a  href="${basePath}quan/$!pictureMap.get($!picture.id).id" target="_blank">$!VmUtils.escabbr($!pictureMap.get($!picture.id).name, 12)</a><br/>
+			上传者：$!cacheMemberMap.get($picture.memberid).nickname<br/>
+			上传时间：$DateUtil.format($!picture.posttime,'yyyy-MM-dd')
+			<img src="${picPath}$picture.picturename" width="120px" height="100px"/><br/>
+			<input type="button" class="button" value="删除" onclick="deletePicture($picture.id)"/>
+		</div>
+		#end
+	</div>
+</div>
+<div style="width: 800px;clear:both;margin-top:10px;">
+<div style="padding:1px;">
+		#if(!$check && $lg)
+		#if(!$VmUtils.isEmptyList($pictureList))
+			<input type="button" value="本页审核完成请点击" class="mr20 button" onclick="operatorTime('$!time')"/>
+		#end
+		#end
+		#if($checkPage && $uncheckPage)<span>已审核 $checkCount 个用户，共 $checkPage 页；</span><span>还有 $uncheckCount 个用户未审核，共 $uncheckPage 页。</span>#end
+		<span style="float:right;">#if($manageCheck || $params.memberid || $params.starttime || $params.endtime)<a href="${basePath}admin/common/commuPicture.xhtml?check=true">查看已审核用户</a>#end<a href="${basePath}admin/common/commuPicture.xhtml">查看未审核用户</a></span>
+</div>
+<div style="padding-bottom:40px;">
+	#if($check)
+	#foreach($x in [1..$checkPage])
+	#set($y=$x+(-1))
+	<a #if($pageNo eq $y)style="color:red;"#end href="${basePath}admin/common/commuPicture.xhtml?check=true&pageNo=$y">$x&nbsp;</a>	
+	#end
+	#end
+</div>
+#parse('include/pageUtil.vm')
+</div>
+	<script type="text/javascript">
+	function deletePicture(id){
+		var url="${basePath}admin/audit/deletePicture.xhtml";
+		var values = {"id":id};
+		if(confirm("确定删除吗?")){
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert("删除成功！");
+					refreshPage();
+				}else{
+					alert("操作失败！");
+				}
+			});
+		}
+	}
+	function operatorTime(timeStr){
+		if(!window.confirm('确定已操作完成？')) return false;
+		var url = "${basePath}admin/sns/operationUserHeadAndSign.xhtml";
+		var values = {"modifytime":timeStr,"tag":"$!tag"};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('操作成功！');
+				document.location.href='${basePath}admin/common/commuPicture.xhtml';
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>邮箱验证_格瓦拉生活网</title>
+	<meta name="description" content="#if($VmUtils.isBlank($activity.seodescription))$!VmUtils.escapeHtml($activity.title) #else${activity.seodescription}#end" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($tag="home")
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="gui-layout">
+	#if($VmUtils.eq($!type,'success'))
+	<div style="padding:80px;text-align:center">
+		<h3>恭喜您，邮箱验证成功！</h3><br/>
+		<p><span id="count">3</span>秒后，自动跳转到首页......</p>
+		<br/>
+		<a href="${basePath}home/sns/personIndex.xhtml" class="yellow">点此返回用户首页</a><a href="${basePath}index.xhtml" class="yellow ml20">点此返回首页</a>
+	</div>
+	#elseif($VmUtils.eq($!type,'repeat'))
+	<div style="padding:20px;">
+		<h3>您已经成功验证，请不要重复验证！</h3><br/>
+		<a href="${basePath}index.xhtml">点此返回首页</a>
+	</div>
+	#end
+</div>
+	<script type="text/javascript">
+window.addEvent('domready', function(){
+	aiwn.periodical(1000);
+})
+var aiwn = function(){
+	if($('count')){
+		var i = $('count').get('text').toInt();
+		if(i != 0){
+			i--;
+			$('count').set('text',i);
+			if(i == 1)location.href = "${absPath}${basePath}";
+		}
+	}
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

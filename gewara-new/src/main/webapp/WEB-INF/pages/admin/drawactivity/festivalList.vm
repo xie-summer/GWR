@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>节日列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.festDiv{visibility: hidden;border: 2px solid #cccccc;width: 500px;height: 300px;background: #ffffff;padding-left: 10px;};
+	</style>
+</head>
+<body style="margin:auto;background: #ffffff;">
+<div style="float: left;padding-right: 20px;padding-left: 50px;padding-bottom: 5px;"><a href="javascript:showFestDiv('festDiv');">添加</a> | <a href="javascript:refreshPage()">刷新</a></div><br/>
+<div style="padding-left: 50px;padding-top: 5px;">
+<table class="table" style="width: 80%;">
+	<thead>
+	<tr>
+		<th>节日名称</th>
+		<th>关联活动ID（抽奖）</th>
+		<th>日期</th>
+		<th>描述</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody>
+	#foreach($fest in $festivalList)
+	<tr>
+		<td>$!fest.festname</td>
+		<td><a href="${basePath}admin/draw/prizeList.xhtml?did=$!fest.drawid">$!fest.drawid</a></td>
+		<td>#set($festdate = $DateUtil.format($!fest.festdate,'yyyy-MM-dd'))$!festdate</td>
+		<td>$!fest.summary</td>
+		<td><a href="javascript:updateFestInfo($!fest.id,$!fest.drawid,'$!festdate','$!fest.festname','$!fest.summary','$!fest.logo','$!fest.link')">修改</a> | <a href="javascript:deleteFestInfo($!fest.id);">删除</a></td>
+	</tr>
+	#end
+	</tbody>
+</table>
+#parse('include/pageUtil.vm')
+</div>
+<div class="festDiv" id="festDiv">
+	<form name="festForm" id="festForm">
+	<table>
+		<tr>
+			<td colspan="2" class="center"><h3><b>添加节日信息</b></h3></td>
+			<input type="hidden" name="fid" id="fid" />
+		</tr>
+		<tr>
+			<td >节日名称：</td>
+			<td><input type="text" name="festName" id="festName" value="$!params.festName"/></td>
+		</tr>
+		<tr>
+			<td >关联活动ID：</td>
+			<td><input type="text" name="drawid" id="drawid" value="$!params.drawid"/>*（抽奖）</td>
+		</tr>
+		<tr>
+			<td >日期：</td>
+			<td><input type="text" name="festDate" id="festDate" onclick="new WdatePicker({dateFmt:'yyyy-MM-dd'})" value="$!params.festDate"/>*</td>
+		</tr>
+		<tr>
+			<td >描述：</td>
+			<td><textarea name="summary" id="summary" ></textarea></td>
+		</tr>
+		<tr>
+			<td >图片链接：</td>
+			<td><input type="text" name="link" value="" id="link"  style="width:360px" /></td>
+		</tr>
+		<tr>
+			<td >图片地址:</td>
+			<td>
+				<input type="text" name="logo" value="" id="logo"  style="width:360px"/><br/>
+			</td>
+		</tr>
+		<tr>
+			<td >图片上传:</td>
+			<td>
+				<iframe height="25px" width="430px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="/common/uploadSinglePicture.xhtml?uploadPath=images/festivalLogo&callback=updateLogo&notLimit=true"></iframe>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" class="center"><input type="button" value="保存" onclick="addFestInfo()"/> <input type="button" value="取消" onclick="hiddenFestDiv('festDiv')"/></td>
+		</tr>
+	</table>
+	</form>
+</div>
+	<script>
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		//$('bannerImg').src='/' + picpath;
+	}
+
+	function showFestDiv(el){
+		$('fid').value = '';
+		$('drawid').value = '';
+		$('festDate').value = '';
+		$('festName').value = '';
+		$('summary').value = '';
+		$('logo').value = '';
+		$('link').value = '';
+		GewaraUtil.showDialog(el,1000,true);
+	}
+	function hiddenFestDiv(el){
+		GewaraUtil.hideDialog(el);
+	}
+	
+	function addFestInfo(){
+		var drawid = $('drawid').value;
+		var festDate = $('festDate').value;
+		if(!$chk(drawid)){ alert("关联活动Id不能为空"); return;}
+		if(!$chk(festDate)){ alert("日期不能为空！"); return;}
+		var values = GewaraUtil.getValues("festForm");
+		GewaraUtil.sendRequest("${basePath}admin/draw/saveFestivalInfo.xhtml",values,function(result){
+			if(result.success){
+				alert("操作成功！");
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function updateFestInfo(fid,drawid,festDate,festName,summary,logo,link){
+		showFestDiv('festDiv');
+		$('fid').value = fid;
+		$('drawid').value = drawid;
+		$('festDate').value = festDate;
+		$('festName').value = festName;
+		$('summary').value = summary;
+		$('logo').value = logo;
+		$('link').value = link;
+	}
+	
+	function deleteFestInfo(fid){
+		if(confirm("确定删除吗？")){
+			GewaraUtil.sendRequest("${basePath}admin/draw/deletefestivalInfo.xhtml",{'fid':fid},function(result){
+				if(result.success){
+					refreshPage();
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+	}
+	
+</script>
+</body>
+</html>

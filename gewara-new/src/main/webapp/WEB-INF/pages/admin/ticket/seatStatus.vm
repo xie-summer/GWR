@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>座位初始状态设定</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#set($maxwidth=33+30*$room.ranknum)
+		#content{ width: ${maxwidth}px; background:#fff;}
+		.stype dd, .stype dt{float: left; width: 90px; height: 30px; line-height: 30px; vertical-align: middle;}
+		.stype input, .stype span{float:left; line-height: normal; margin-top: 10px;}
+		.stype div{float:left;}
+		.stype input{width:50px;}
+		.seatpic dt, .head dt{width:30px;}
+	</style>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div id="height0"></div>
+	<div class="contentInfoList">
+		<b class="m2"></b>
+		<div class="m">${cinema.name}：$room.roomname<font class="bold" color="#ff6220">${room.roomname}</font>共安排<font class="bold" color="#ff6220"></font>个座位</div>
+		<b class="m2"></b>
+		<div id="content" style="margin:auto;">
+			#set($mleft=40+18*${room.ranknum} - 360)
+			<div class="screen" style="margin-left:${mleft}px">银幕长$!{room.screenwidth}m 高$!{room.screenheight}m</div>
+			<dl class="stype" id="seatstatus">
+				<dt><span>初始状态设定：</span></dt>
+				<dd><div class="Dseat" id="1">1</div>设置情侣</dd>
+				<dd><div class="Dseat" id="0">0</div>清除情侣</dd>
+			</dl>
+			<div id="height0"></div>
+			
+			<ul class="seatlist">
+				#set($classMap={'O':'Aseat','C':'Cseat'})
+				#set($styleMap={'0':'','1':'color:red;font-weight:bolder;','2':'color:red;font-weight:bolder;'})
+				#foreach($row in [1..$room.linenum])
+				<li>
+					<dl class="seatpic">
+						<dt><label>$!rowMap.get($row)</label></dt>
+						#foreach($rank in [1..$room.ranknum]) #set($sid='row'+${row}+'rank'+$rank)
+						#if($seatMap.get($sid)) #set($seat=$seatMap.get($sid))
+						<dd><div id="$seat.id" title="$seat.seatLabel" class="Aseat" style="$styleMap.get($seat.loveInd)">$!seat.loveInd</div></dd>
+						#else<dd><div class="Nseat"></div></dd>#end
+						#end
+					</dl>
+				</li>
+				#end
+				<li class="head"><dl><dt>排编号</dt>#foreach($rank in [1..$room.ranknum])<dd>${rank}</dd>#end</dl></li>
+			</ul>
+			<div id="height0"></div>
+		</div>
+	</div>
+	<b class="b2f"></b> <b class="b1f"></b>
+</div>
+	<script type="text/javascript">
+	var initstatus = "O", classMap={'O':'Aseat','C':'Cseat'};
+	window.addEvent("domready", function(){
+		$$("#seatstatus div").addEvent("click", function(){
+			initstatus = this.id;
+		});
+		new ClassGroup($("seatstatus").getElements("div"), $("seatstatus").getElement("div"), "match");
+		$$(".seatlist dd div").addEvent('click', function(){
+			var el=this;
+			if(this.hasClass('Nseat')){//无座位, 不管
+			}else{//有座位
+				if(el.hasClass(classMap[initstatus])) return;
+				if(initstatus=="O" || initstatus=="C"){//设置初始状态
+					var url = "${basePath}admin/ticket/mpi/setSeatInitstatus.xhtml";
+					GewaraUtil.sendRequest(url, {"seatid":el.id, "initstatus":initstatus}, function(result){
+						if(result.success) el.set("class", classMap[initstatus]);
+						else alert("设置状态失败：" + result.msg);
+					});
+				}else{//设置情侣座
+					var url = "${basePath}admin/ticket/mpi/setLoveInd.xhtml";
+					GewaraUtil.sendRequest(url, {"seatid": el.id, "loveInd": initstatus}, function(result){
+						if(result.success){
+							if(initstatus=="0"){
+								el.setStyles({"color":"blue","font-weight":'normal'});
+								$(result.retval).setStyles({"color":"blue","font-weight":'normal'});
+								el.set("text", initstatus);
+								$(result.retval).set("text", initstatus);
+							}else{
+								el.setStyles({"color":"red","font-weight":'bolder'});
+								$(result.retval).setStyles({"color":"red","font-weight":'bolder'});
+								el.set("text", "1");
+								$(result.retval).set("text", "2");
+							}
+						}
+						else alert("设置状态失败：" + result.msg);
+					});
+				}
+			}
+		});
+	});
+</script>
+</body>
+</html>

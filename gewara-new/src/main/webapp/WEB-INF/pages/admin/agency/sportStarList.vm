@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>机构教练管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width:750px; margin:auto">
+<div style="width:740px;">
+<div><h2>机构教练($!agency.name)</h2><a class="p5Event" href="${basePath}noSubjectLink.xhtml?agencyId=$!agency.id">添加教练</a> <a href="${basePath}admin/drama/dramaStarList.xhtml?type=sport" target="_blank">查看所有教练</a></div>
+<table class="table">
+	<thead>
+	<tr>
+		<th>教练ID</th>
+		<th>教练名称</th>
+		<th>排序</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody>
+	#foreach($dts in $dtsList)
+	#set($star = $starMap.get($dts.starid))
+	<tr>
+		<td>$star.id</td>
+		<td>$star.name</td>
+		<td><input type="text" value="$!dts.numsort" name="numsort" style="width: 40px" onchange="changeNumsort('$!dts.id', this)"/></td>
+		<td><a href="${basePath}admin/drama/modifyStarDetail.xhtml?starid=$!dts.starid&type=sport&relatedid=$!agency.id" target="_blank">编辑</a><a href="javascript:deleteDts('$!dts.id');">删除</a></td>
+	</tr>
+	#end
+	</tbody>
+</table>
+</div>
+<div id="pointText" style="visibility:hidden; z-index:601;"></div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$('.p5Event').addEvent('click',function(e){
+		e.preventDefault();
+		var url = "${basePath}admin/agency/getSportStar.xhtml";
+		var values = {};
+		var ul = this.get('href').split('?');
+		if($defined(ul[1])){
+			values = ul[1].parseQueryString();
+		}
+		gewaUtil.loadData('pointText',url, values, function(result){
+			if(result.success){
+				GewaraUtil.showDialog('pointText');
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	});
+});
+function saveDts(){
+	var url = "${basePath}admin/agency/saveSporStar.xhtml";
+	var values = GewaraUtil.getValues("dtsDialog");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.alert("保存成功！",refreshPage);	
+		}else alert(result.msg);
+	});
+}
+function deleteDts(id){
+	if(!window.confirm('确认删除吗? 请谨慎操作！')) return;
+	if(!window.confirm('请再次确认删除，请谨慎操作！')) return;
+	var url = "${basePath}admin/agency/delDts.xhtml";
+	var values = {'id':id};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.alert("删除成功！",refreshPage);	
+		}else alert(result.msg);
+	});
+}
+function changeNumsort(id,obj){
+	var url = '${basePath}admin/agency/changeDtsNumsort.xhtml';
+	var values = {'id':id, 'numsort': $(obj).get('value')};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			$(obj).setStyle('background-color','red');
+			(function(){
+				$(obj).setStyle('background-color','');
+			}.bind(obj)).delay(800);
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function goStar(){
+	location.href="${basePath}admin/drama/modifyStarDetail.xhtml?type=sport&relatedid=$!agency.id";
+}
+</script>
+</body>
+</html>

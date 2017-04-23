@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		td, th{
+			text-align: center;
+			height: 23px;
+		}
+	</style>
+</head>
+<body>
+<div id="warn">
+	<form action="${basePath}admin/gewapay/warn/warnAmountOrderList.xhtml">
+		开始日期：<input type="text" name="startdate" value="$!params.startdate" style="width: 100px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>
+		结束日期：<input type="text" name="enddate" value="$!params.enddate" style="width: 100px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>
+		<input type="submit" value="提交"/>
+	</form>
+	<table class="table">
+	<tr>
+		<td width="20">序号</td>
+		<td>订单类型</td>
+		<td>下单日期</td>
+		<td>订单号</td>
+		<td>支付方式</td>
+		<td>订单金额</td>
+		<td>卖品费</td>
+		<td>手续费</td>
+		<td>折扣</td>
+		<td>余额支付</td>
+		<td>网络支付</td>
+		<td width="150px;">折扣原因</td>
+		<td width="400px;">订单描述</td>
+	</tr>
+	#foreach($order in $orderList)
+	<tr style="background-color: #eee;">
+		<td>${foreach.count}</td>
+		<td>${order.ordertype}</td>
+		<td>$DateUtil.formatTimestamp(${order.addtime})</td>
+		<td><a href="${basePath}admin/gewapay/orderDetail.xhtml?tradeNo=$order.tradeNo" target="_blank">${order.tradeNo}</a></td>
+		<td>${order.paymethodText}</td>
+		<td>$order.totalfee</td>
+		<td>$order.itemfee</td>
+		<td>$order.otherfee</td>
+		<td>$order.discount</td>
+		<td>$order.gewapaid</td>
+		<td>$order.alipaid</td>
+		<td>$!{order.disreason}</td>
+		<td>$!{order.description2}</td>
+	</tr>
+	#end
+	<tr>
+		<td colspan="4">#parse('include/pageUtil.vm')</td>
+	</tr>
+	</table>
+</div>
+<script type="text/javascript">
+	$$("tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+</script>
+</body>
+</html>

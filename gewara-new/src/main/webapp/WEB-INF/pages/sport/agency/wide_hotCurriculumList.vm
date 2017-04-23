@@ -1,0 +1,28 @@
+#if(!$VmUtils.isEmptyList($trainingList))
+<div class="mod_kong">
+	<div class="mod_hd">
+		<h2>热门课程培训</h2>
+		<a href="${basePath}sport/curriculumList.xhtml" class="more cSport" target="_blank">更多</a>
+	</div>
+	<div class="mod_bd">
+		<ul class="hotCourseList">
+			#foreach($training in $trainingList)
+			#set($trainingotherinfo=$VmUtils.readJsonToMap($training.otherinfo))
+			#set($sport=$sportMap.get($training.placeid))
+			#set($agency=$agencyMap.get($training.relatedid))
+			<li #if($foreach.count gt 1)class="mt30"#end>
+				<h2><a style="color:#292929;" href="${basePath}sport/curriculumDetail.xhtml?id=$!training.id" title="$!training.goodsname" target="_blank">$!VmUtils.escabbr($training.goodsname, 24)</a></h2>
+				<p class="mt5"><em>培训地点：</em>#if($!sport.name)<a href="${basePath}sport/$!sport.id" title="$!sport.name" target="_blank">$!VmUtils.escabbr($!sport.name, 24)</a>#else根据学员要求就近安排 #end</p>
+				<p><em>培训机构：</em><a class="cSport" href="${basePath}sport/agencyDetail.xhtml?id=$!agency.id" title="$!agency.name" target="_blank">$!VmUtils.escabbr($!agency.name, 24)</a></p>
+				<p><em>培训时间：</em>#if($!training.fromvalidtime && $!training.tovalidtime)$!DateUtil.format($!training.fromvalidtime, 'yyyy年M月d日') 至 $!DateUtil.format($!training.tovalidtime, 'yyyy年M月d日') #end$!trainingotherinfo.showtime</p>
+				<p><em>课程价格：</em><b class="cf60">$!training.minprice#if($!training.maxprice)-$!training.maxprice#end</b>元</p>
+				<p class="c999 mt10 acFloico" style="position:relative;height:30px;">
+					<a class="button redBt bigBt" href="${basePath}sport/curriculumDetail.xhtml?id=$!training.id" target="_blank"><span style="padding-left:0;margin-left:0;color:#fff;">在线预订</span></a>
+					<span style="line-height: 30px; position: absolute; margin-left:0;">$!training.clickedtimes&nbsp;关注<span title="$!training.sales人参加了该课程" class="join">$!training.sales</span></span>
+				</p>
+			</li>
+			#end
+		</ul>
+	</div>
+</div>
+#end

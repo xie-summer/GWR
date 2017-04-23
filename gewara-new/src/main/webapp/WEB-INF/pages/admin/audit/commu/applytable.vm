@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>俱乐部认证收费管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		.inputradio{vertical-align: middle;}
+		.OkMsg {
+			background: url(${staticPath}styles/images/standard_msg_ok.gif) #e6ffe6 no-repeat 5px 0px; color: #000;
+			border: #00be00 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.WarningMsg {
+			background: url(${staticPath}styles/images/standard_msg_warning.gif) #e2f5ff no-repeat 5px 0px; color: #000;
+			border: #00a8ff 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.ErrorMsg {
+			background: url(${staticPath}styles/images/standard_msg_error.gif) #fff2e9 no-repeat 5px 0px; color: #000;
+				border: #f60 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		
+	</style>
+</head>
+<body>
+#set($cururl='commu')
+<div class="logoPanel"></div>
+<div class="menu">
+	<div class="menuInner">
+		#parse("admin/commu/menu.vm")
+	</div>
+</div>
+<div class="manageItemList">
+	<em class="b1f"></em><em class="b2f"></em>
+	<div class="contentInfoList"> 
+		<ul class="orderSet mt20">
+			<li class="seeOrder"><a href="javascript:void(0);" onclick="queryApplyCommu('W', this)" class="blue">等待审核</a></li>
+			<li class=""><a href="javascript:void(0);" onclick="queryApplyCommu('Y', this)" class="blue">已通过</a></li>
+			<li class=""><a href="javascript:void(0);" onclick="queryApplyCommu('N', this)" class="blue">未通过</a></li>
+		</ul>
+		<div style="right:10px;top:35px;" id="alertmsg" >
+		</div>
+		<div id="loadapplyTableDIV"></div>
+	</div>
+	<em class="b2f"></em><em class="b1f"></em>
+</div>
+	<script type="text/javascript">
+window.addEvent('domready', function(){
+	newajaxLoadcontent('W');
+})
+function newajaxLoadcontent(status){
+	$('loadapplyTableDIV').set('html', "<img src='${picPath}css/images/loading2.gif'>");
+	var url = '${basePath}admin/audit/commu/checkApplyCommu.xhtml';
+	var values = {'status': status};
+	GewaraUtil.sendLoad('loadapplyTableDIV', url, values, function(result){
+		if(!result.success){
+			gewaUtil.alert(result.json.msg);
+		}
+	});
+}
+function queryApplyCommu(f, o){
+	var pp = $(o).getParent().getParent().getChildren();
+	$each(pp, function(i, n){
+		$(i).removeClass('seeOrder');
+	})
+	o.getParent().className = 'seeOrder';
+	newajaxLoadcontent(f);
+}
+
+function showMoreinfo(id){
+	if($('line'+id))$('line'+id).toggleDisplay();
+}
+// 更改状态
+function change2checkST(id, status, prestatus){
+	var reason = '';
+	if(status == 'N'){
+		createInfoDIV();
+		forotherpagevalue(id, status, prestatus);
+		return;
+	}else{
+		var conf = window.confirm("您确定要让此圈子通过审核吗?");
+		if(!conf){
+			newajaxLoadcontent(prestatus);
+			return false;
+		}
+	}
+	var url = '${basePath}admin/audit/commu/changeApplyStatus.xhtml';
+	var values = {'applyid':id, 'status':status, 'reason':reason};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			newajaxLoadcontent(prestatus);
+		}else{
+			alert(result.msg);
+		}
+	})
+}
+// 点击不通过提示框
+function createInfoDIV(){
+		var widthvalue=document.body.clientWidth;
+		var heightvalue=document.body.clientHeight;
+		$('deleteReason').set('styles',{'display':'block',
+										'position':'absolute',
+										'left':(widthvalue-500)/2,
+										'top':(heightvalue-30)/2,
+										'opacity':1
+								});
+		var divbig=new Element('div',{
+								"id":"divbig",
+								"styles":{
+									"position": "absolute",
+									"left": "0px",
+									"top": "0px",
+									"background-color":"#000"
+									}
+								});
+		divbig.setStyles({
+			"width": widthvalue+"px",
+			"height": heightvalue+"px",
+			"visibility":"visible",
+			"z-index": 8
+		});
+		divbig.setOpacity(0.5);
+		gewara.util.toCenter($('deleteReason'));
+		document.body.appendChild(divbig);
+		return;
+	}
+
+function forotherpagevalue(id, status, prestatus){
+	$('editid').value = id;
+	$('editstatus').value = status;
+	$('prestatus').value = prestatus;
+}
+function showMobile(orderid, mobile){
+	$('tbody').getElements('span[name=demobile]').each(function(item){
+		item.set('html', item.title);
+		item.removeClass('yellow');
+		$('order' + orderid).set('html', mobile);
+		$('order' + orderid).addClass('yellow');
+	});
+}
+</script>
+#parse("admin/commu/reason.vm")
+</body>
+</html>

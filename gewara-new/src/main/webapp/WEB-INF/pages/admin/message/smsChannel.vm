@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>短信通道</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width:750px;margin:auto">
+	<div id="msg"></div>
+	<div id="mpiDialog">
+		<form action="javascript:saveOther()" method="post">
+		<table class="table">
+			<tr>
+				<th>&nbsp;</th><th>MAS</th><th>GewaMail</th>
+			</tr>
+			<tr>
+				<td>非移动手机</td>
+				<td><input type="radio" name="notmobile" disabled="disabled" value="mas" #if($result.notmobile eq 'mas')checked#end style="width: 20px;"/></td>
+				<td><input type="radio" name="notmobile" value="gewamail" #if($result.notmobile eq 'gewamail')checked#end style="width: 20px;"/></td>
+			</tr>
+			<tr>
+				<td>默认通道</td>
+				<td><input type="radio" name="default" #if($result.default eq 'mas')checked#end value="mas" style="width: 20px;"/></td>
+				<td><input type="radio" name="default" #if($result.default eq 'gewamail')checked#end value="gewamail" style="width: 20px;"/></td>
+			</tr>
+			#foreach($tag in $tagMap.keySet())
+			#set($mtag=$result.get($tag))
+			<tr>
+				<td>${tag}-->$tagMap.get($tag)</td>
+				<td><input type="radio" name="$tag" value="mas" #if($mtag eq 'mas')checked#end style="width: 20px;"/></td>
+				<td><input type="radio" name="$tag" value="gewamail" #if($mtag eq 'gewamail')checked#end style="width: 20px;"/></td>
+			</tr>
+			#set($mtag='')
+			#end
+			<tr>
+				<td colspan="3"><input type="submit" class="button" style="width:100px" value="保存"/></td>
+			</tr>
+		</table>
+		</form>
+	</div>
+	<script type="text/javascript">
+		function saveOther(){
+			var url = "${basePath}admin/message/saveSmsChannel.xhtml";
+			var values = GewaraUtil.getValues("mpiDialog");
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert('保存成功！');
+					refreshPage();
+				}else{
+					alert('保存失败：' + result.msg);
+				}
+			});
+		}
+		$$("tr").addEvents({
+			'mouseover':function(){
+				this.addClass("mouseBg");
+			},
+			'mouseout':function(){
+				this.removeClass("mouseBg");
+			}
+		});
+	</script>
+</body>
+</html>

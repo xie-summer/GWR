@@ -1,0 +1,204 @@
+<!Doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>$!{cookieCityname}$!{curCounty.countyname}话剧院购票_话剧院查询 - 格瓦拉生活网</title>
+	<meta name="keywords" content="话剧院购票,话剧院查询,话剧院买票,话剧院" />
+	<meta name="description" content="格瓦拉生活网提供$!{cookieCityname}话剧院在线购票及话剧院地址,票价及最近演出信息查询.是全国最专业的话剧演出查询网站."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,noobSlide&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.2&services=true"></script>
+	<style type="text/css">
+		.ui_layout{background:none;}
+	</style>
+</head>
+<body>
+#set($dramaHeadFlag='isDramaIndex')#set($relatedtag='drama')
+#set($isIndexBigAd = true)
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="index_wrap clear">
+	#parse('include/drama/wide_drama_menu.vm')
+		<div class="index_right">
+			<div class="ui_left">
+				<div class="mod_kong">
+					<div class="mod_hd">
+						<h2>演出场馆</h2>
+					</div>
+					<div class="mod_bd">
+						<div class="mapArea" id="map_canvas">map</div>
+					</div>
+				</div>
+			</div>
+			<div class="ui_right" style="width:330px;margin-left:0;">
+				<div class="myLocal clear" id="myLocal">
+					<ul class="right">
+						<li>
+							<a class="type_list" href="${basePath}theatre/theatreList.xhtml" >列表</a>
+						</li>
+						<li class="on">
+							<a class="type_map" href="${basePath}theatre/theatreMap.xhtml" >地图</a>
+						</li>
+					</ul>
+					<a href="javascript:openMyLocal();"><span class="left">标注我的位置</span></a>
+				</div>
+				<div class="map_inner">
+					<a id="map_toggle" class="map_toggle" href="javascript:void(0);"></a>区域：<a href="${basePath}theatre/theatreMap.xhtml">$!cookieCityname</a> #if($county)<span>&gt;</span> <span class="c666">$!{county.countyname}($VmUtils.size($countyTheatreMap.get($county.countycode))家)</span>#end
+				</div>
+				<div class="map_areaList none" id="map_areaList">
+					<ul>
+						#foreach($pair in $countyGroup)
+						#set($countyTheateList=$countyTheatreMap.get($!pair.county.countycode))
+						<li><a href="${basePath}theatre/theatreMap.xhtml?countycode=$!pair.county.countycode">${pair.county.countyname}</a><em class="c666">($!VmUtils.size($countyTheateList)家)</em></li>
+						#end
+					</ul>
+				</div>
+				<div class="map_resultList" id="map_resultList">
+					<p class="sift">筛选：<input type="checkbox" onclick="booking();" id="canorder" name="canorder" #if($VmUtils.eq($!params.booking,'open')) checked="checked" #end /><label for="canorder"> 只看可购票剧院</label></p>
+					<div id="theatreListPoint" class="innerBox">
+						#foreach($theatre in $theatreListPoint)
+							##if($VmUtils.isNotBlank($theatre.bpointx) || $VmUtils.isNotBlank($theatre.bpointy))
+								<dl lang="$!theatre.id">
+									<dt><a href="${basePath}theatre/${theatre.id}" target="_blank">${theatre.name}</a></dt>
+									#if($VmUtils.isNotBlank($!params.booking))#set($booking=$!params.booking)#else#set($booking=false)#end
+									<dd>#if(!$VmUtils.isNull($!theatre.countyname))<a href="${basePath}theatre/theatreMap.xhtml?countycode=$!theatre.countycode&booking=$!booking">[$!{theatre.countyname}]</a>#end $!{theatre.address}</dd>
+								</dl>
+							##end
+						#end
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="theatreMap" style="display:none;">
+#parse('drama/widget/map_theatre.vm')
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+var map;
+var zoomLevel = 11;
+var markers = new Hash();
+var infoWindows=new Hash();
+var oLis = $$('#theatreListPoint dl');
+//创建标记
+function createMarkerMap(centerMap, theatreid, bpointx, bpointy, zoomLevel, html){
+	var point=new BMap.Point(bpointx, bpointy);
+	var marker=new BMap.Marker(point);
+	marker.disableMassClear();
+	var opts = {
+  		width : 200     // 信息窗口宽度
+	}
+	var infoWindow=new BMap.InfoWindow(html,opts);
+	marker.addEventListener("click",function(){
+		marker.openInfoWindow(infoWindow);
+	});
+	markers.set(theatreid,marker);
+	infoWindows.set(theatreid,infoWindow);
+	map.addOverlay(marker);
+	if(centerMap == true){
+		map.centerAndZoom(point, zoomLevel);
+	}
+}
+
+function openWindow(theatreid){
+	var marker = markers.get(theatreid);
+	var point=new BMap.Point(marker.getPosition().lng,marker.getPosition().lat);
+	var infoWindow=infoWindows.get(theatreid);
+	marker.openInfoWindow(infoWindow);
+	map.centerAndZoom(point,15);
+}
+
+function chooseTheatre(){
+	oLis.addEvent('click',function(){
+		oLis.removeClass('select');
+		this.addClass('select');
+		openWindow(this.get('lang'));
+	});
+}
+
+window.addEvent('domready',function(){
+	$('submenu').addEvents({
+		'mouseover':function(){this.addClass('jm_hover')},
+		'mouseout':function(){this.removeClass('jm_hover')}
+	});
+	localQh();
+	$('map_toggle').addEvent('click',function(){
+		this.toggleClass('select');
+		$('map_areaList').toggleClass('none');
+		$('map_resultList').toggleClass('none');
+	});
+	var oDls = $('map_resultList').getElements('dl');
+	oDls.each(function(el){
+		el.addEvent('click',function(){
+			oDls.removeClass('select');
+			this.addClass('select');
+		});
+	});
+	var countycode = gewaUtil.getRequestParams('countycode');
+	if(countycode && countycode != null){
+		zoomLevel = 15;
+	}else{
+		$('map_toggle').fireEvent('click');
+	}
+	map=new BMap.Map("map_canvas");
+	map.centerAndZoom(new BMap.Point($globalCurPoint[1], $globalCurPoint[0]),zoomLevel);
+	map.addControl(new BMap.NavigationControl());
+	#if($VmUtils.isNotBlank($!pointx) && $VmUtils.isNotBlank($!pointy))
+		var myIcon = new BMap.Icon("${picPath}css/gym/marker_green_sprite.png",new BMap.Size(25,39));
+		var mypoint = new BMap.Point($!pointx,$!pointy);
+		var marker = new BMap.Marker(mypoint,{icon:myIcon});
+		marker.setTitle('我的位置');
+		map.addOverlay(marker);
+		//map.centerAndZoom(mypoint, zoomLevel);
+	#end
+	#foreach($theatre in $theatreListPoint)
+	#if($VmUtils.isNotBlank($theatre.bpointx))
+		var html = "<b><span style='color: red;font-size: 15px;'><a target='_blank' href='${basePath}theatre/$theatre.id'>${theatre.name}</a></span></b><br/>$!{theatre.countyname}$!{theatre.address}<br/>"
+		+"<a style='color:#EE3399;' target='_blank' href='${basePath}common/baiduMap.xhtml?id=${theatre.id}&tag=$tag'>交通驾车查询</a>";
+		createMarkerMap($VmUtils.eq($theatre.countycode,$county.countycode),$!theatre.id,$!theatre.bpointy, $!theatre.bpointx, zoomLevel, html);
+	#end
+	#end
+	map.addControl(new BMap.NavigationControl());		//平移缩放控件
+	map.addControl(new BMap.OverviewMapControl());		//缩略地图控件
+	var opts={offset:new BMap.Size(150,5)}
+	map.addControl(new BMap.ScaleControl(opts));		//比例尺控件
+	map.addControl(new BMap.CopyrightControl());		//版权控件
+	map.addControl(new BMap.MapTypeControl());			//地图类型控件
+	map.setCurrentCity("$!{cookieCityname}"); 					// 仅当设置城市信息时，MapTypeControl的切换功能才能可用
+	map.enableScrollWheelZoom();	// 启用滚轮放大缩小
+	
+	map.enableScrollWheelZoom();  				// 开启鼠标滚轮缩放  
+	map.enableKeyboard();         				// 开启键盘控制  
+	map.enableContinuousZoom();   				// 开启连续缩放效果  
+	map.enableInertialDragging(); 				// 开启惯性拖拽效果
+	chooseTheatre();
+});
+
+function openMyLocal(){
+	gewa.util.maskContent('','theatreMap','',680,'theatreMap');
+	Map();
+}
+
+var localQh = function(){
+	if(!$('myLocal')) return;
+	else{
+		var oList = $('myLocal').getElements('li');
+		oList.each(function(el,i){
+			el.addEvent('click',function(){
+				oList.removeClass("on");
+				this.addClass("on");
+				return;
+			});
+		});
+	};
+};
+function booking(){
+	var booking = $('canorder').checked ? "open" : "close";
+ 	location.href="${basePath}theatre/theatreMap.xhtml?countycode=$!params.countycode&booking="+booking;
+}
+
+</script>
+</body>
+</html>

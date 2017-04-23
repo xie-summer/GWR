@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影院放映厅座位表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<style type="text/css">
+		#set($maxwidth=163+30*$room.ranknum+20)
+		#content{ width: ${maxwidth}px; background:#fff;}
+		.rigt{border-left:1px solid #ccc;height:30px;line-height:30px;text-align:center;width:170px;}
+		.seatno dd{line-height:25px;}
+	</style>
+</head>
+<body>
+#set($isRoomSeat=true)
+#parse('admin/theatreticket/menu.vm')
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+		<div class="contentInfoList">
+			<b class="m2"></b>
+			<div class="m">$!{theatre.name}：$room.roomname<font class="bold" color="#ff6220">${room.roomname}</font>共安排<font class="bold" color="#ff6220">$room.seatnum</font>个座位</div>
+			<b class="m2"></b>
+			<div id="content" style="margin-left:40px;width:100%;height:100%;overflow-y:hidden;overflow-x:auto;">
+				#set($mleft=170+18*${section.ranknum} - 360+20)
+				<div class="screen" style="margin-left:${mleft}px">银幕长$!{room.screenwidth}m 高$!{room.screenheight}m</div>
+				<div class="seatop"> <input type="button" value="批量添加"  onclick="bathAddSeat()"/><input type="button" value="批量删除"  onclick="bathDelSeat()"/></div>
+				<ul class="seatop" style="width:${maxwidth}px">
+					<dl class="seatno" id="setColumn">
+						<dt class="left"><label>整列设置</label></dt>
+						#foreach($rank in [${room.firstrank}..$room.ranknum])
+						<dd><input type="text" name="${rank}" rel=".R${rank}" class="pubinput" value=""/></dd>
+						#end
+					</dl>
+				</ul>
+				<ul class="seatlist" id="seatlist" style="width:${maxwidth}px">
+					#foreach($line in [$room.firstline..$room.linenum])
+					<li>
+						<dl class="seatpic" id="rows$line">
+							<dt class="left">
+								<label>排号：<input type="text" class="pai" name="$line" id="L$!{rowMap.get($line)}" value="$!rowMap.get($line)"/></label>
+								<input type="button" value="座位编号" class="bt1" onclick="toggleSeatNo('row$line');" />
+							</dt>
+							#foreach($rank in [${room.firstrank}..$room.ranknum]) #set($sid='row'+${line}+'rank'+$rank)
+							<dd><div id="L${line}R${rank}" #if($seatMap.get($sid))class="Aseat"#else class="Nseat"#end>#if($seatMap.get($sid).loveInd ne "0")$!seatMap.get($sid).loveInd#end</div></dd>
+							#end
+							<dd class="rigt" style="width:20px;">
+								<span>
+									<input type="checkbox" name="linelist" value="${line}" class="line"/>
+								</span>
+							</dd>
+						</dl>
+						<dl id="row$line" class="none seatno seatnum">
+							<dt class="left"></dt>
+							#foreach($rank in [${room.firstrank}..$room.ranknum]) #set($sid='row'+${line}+'rank'+$rank)
+							<dd><input type="text" name="L${line}R${rank}" id="IL${line}R${rank}" class="pubinput R${rank}" value="$!seatMap.get($sid).seatrank"/></dd>
+							#end
+							<dd class="rigt"></dd>
+						</dl>
+					</li>
+					#end
+					<li class="head">
+						<dl>
+						<dt>排编号</dt>
+						#foreach($rank in [${room.firstrank}..$room.ranknum])
+						<dd><input type="checkbox" name="ranklist" value="${rank}" class="rank"/></dd>
+						#end
+						</dl>
+					</li>
+					<li class="head">
+						<dl>
+						<dt>排编号</dt>
+						#foreach($rank in [${room.firstrank}..$room.ranknum])
+						<dd>${rank}</dd>
+						#end
+						</dl>
+					</li>
+				</ul>
+				<div id="height0"></div>
+				#if($editable)
+				<div class="mt5">
+					<input class="bt1" type="button" value="增加一行"  onclick="addRow()"/>
+					<input class="bt1" type="button" value="增加一列"  onclick="addRank()"/>
+					<input class="bt2" type="button" value="删除最后一行" onclick="deleteRow()"/>
+					<input class="bt2" type="button" value="删除最后一列" onclick="deleteRank()"/>
+				</div>
+				<div id="height0"></div>
+				#end
+			</div>
+		</div>
+	<b class="b2f"></b> <b class="b1f"></b>
+</div>
+	<script type="text/javascript">
+		function toggleSeatNo(rowno){
+			$(rowno).toggleClass('none');
+		}
+		function addRow(){
+			GewaraUtil.mask('content');
+			var mask = gewa.util.mask({'element': 'content','title':'正在提交，请稍等...'});
+			var values = {"roomid":"$!room.id","sno":"$sno"};
+			GewaraUtil.sendRequest('${basePath}admin/dramaTicket/addBaseRowSeat.xhtml', values, function(result){
+				if(result.success){
+					refreshPage();
+				}else{
+					alert("增加失败！")
+					GewaraUtil.unmask();
+				}
+			});
+		}
+		function addRank(){
+			GewaraUtil.mask('content');
+			var values = {"roomid":"$!room.id","sno":"$sno"};
+			GewaraUtil.sendRequest('${basePath}admin/dramaTicket/addBaseRankSeat.xhtml', values, function(result){
+				GewaraUtil.unmask();
+				if(result.success){
+					refreshPage();
+				}else{
+					alert("增加失败！")
+				}
+			});
+		}
+		function deleteRow(){
+			var conf = window.confirm("你确定要删除最后一行吗？");
+			if(!conf) return;
+			var values = {"roomid":"$!room.id","sno":"$sno"};
+			GewaraUtil.mask('content');
+			GewaraUtil.sendRequest('${basePath}admin/dramaTicket/deleteBaseRowSeat.xhtml', values, function(result){
+				GewaraUtil.unmask();
+				if(result.success){
+					refreshPage();
+					alert("成功删除最后一行！");
+				}else{
+					alert("删除失败！");
+				}
+			});
+		}
+		
+		function deleteRank(){
+			var conf = window.confirm("你确定要删除最后一列吗？");
+			if(!conf) return;
+			var values = {"roomid":"$!room.id","sno":"$sno"};
+			GewaraUtil.mask('content');
+			GewaraUtil.sendRequest('${basePath}admin/dramaTicket/deleteBaseRankSeat.xhtml', values, function(result){
+				GewaraUtil.unmask();
+				if(result.success){
+					refreshPage();
+					alert("成功删除最后一列！");
+				}else{
+					alert("删除失败！");
+				}
+			});
+		}
+		
+		window.addEvent("domready", function(){
+			$$(".seatlist dd div").addEvent('click', function(){
+				var el=this;
+				if(this.hasClass('Nseat')){//原来无座位, 现在加上
+					var pai = this.id.substr(1).split('R')[0];
+					var seatline = $("L"+pai).value;
+					var seatrank = $("I"+this.id).value;
+					GewaraUtil.mask();
+					var values = {"roomid":"$!room.id","sno":"$sno", "location":this.id, "seatline":seatline, "seatrank":seatrank};
+					GewaraUtil.sendRequest('${basePath}admin/dramaTicket/addBaseSeat.xhtml', values, function(result){
+						GewaraUtil.unmask();	
+						if(result.success){
+							el.set("class", "Aseat");
+						}
+					});
+				}else{//原来有座位，现在清除
+					GewaraUtil.mask();
+					var values = {"roomid":"$!room.id","sno":"$sno", "location":this.id};
+					GewaraUtil.sendRequest('${basePath}admin/dramaTicket/clearBaseSeat.xhtml', values, function(result){
+						GewaraUtil.unmask();	
+						if(result.success){
+							el.set('class','Nseat');
+						}
+					});
+				}
+			});
+			$$(".seatnum dd input").addEvent('change', function(){
+				this.setStyle("background", "gray");
+				var el=this;
+				var values = {"roomid":"$!room.id", "location":this.name, "rankno":this.value};
+				GewaraUtil.sendRequest('${basePath}admin/dramaTicket/setBaseSeatRankNo.xhtml', values, function(result){
+					if(result.success){el.setStyle("background","transparent");}
+				});
+			});
+			$$(".pai").addEvent('change', function(){
+				this.setStyle("background", "gray");
+				var el=this;
+				var values = {"roomid":"$!room.id", "lineno":this.name, "newline":this.value};
+				GewaraUtil.sendRequest('${basePath}admin/dramaTicket/changeBaseSeatLine.xhtml', values, function(result){
+					if(result.success){el.setStyle("background","transparent");}
+					else alert("更改失败！");
+				});
+			});
+			
+			$("setColumn").getElements("dd input").addEvent('change', function(){
+				this.setStyle("background", "gray");
+				var el=this;
+				var values = {"roomid":"$!room.id", "rankno":this.name, "newrank":this.value};
+				GewaraUtil.sendRequest('${basePath}admin/dramaTicket/changeBaseSeatRank.xhtml', values, function(result){
+					if(result.success){
+						el.setStyle("background","transparent");
+						setColumn(el.get('rel'), el.value);
+					}else alert("更改失败！");
+				});
+			});
+		});
+		
+		function bathAddSeat(){
+			var url = '${basePath}admin/dramaTicket/batchAddBaseSeat.xhtml';
+			var seatList = GewaraUtil.getValues('seatlist',',');
+			var values = {'linelist':seatList.linelist,'ranklist':seatList.ranklist,'roomid':"$!room.id"};
+			if(values.linelist == '' && values.ranklist == ''){
+				alert('请选择行列！'); return;
+			}
+			GewaraUtil.mask($(document.body));
+			GewaraUtil.sendRequest(url, values, function(result){
+				GewaraUtil.unmask();
+				if(result.success){
+					refreshPage();
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+		function bathDelSeat(){
+			var url = '${basePath}admin/dramaTicket/batchDelBaseSeat.xhtml';
+			var seatList = GewaraUtil.getValues('seatlist',',');
+			var values = {'linelist':seatList.linelist,'ranklist':seatList.ranklist,'roomid':"$!room.id"};
+			if(values.linelist == '' && values.ranklist == ''){
+				alert('请选择行列！'); return;
+			}
+			GewaraUtil.mask($(document.body));
+			GewaraUtil.sendRequest(url, values, function(result){
+				GewaraUtil.unmask();
+				if(result.success){
+					refreshPage();
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+		function setColumn(el, value){
+			if($$(el)){
+				$$(el).each(function(item){
+					var ids = item.name;
+					if($(ids).hasClass('Aseat')){
+						item.value = value;
+						item.getParent('dl').removeClass('none');
+					}
+				});
+			}
+		}
+	</script>
+</body>
+</html>

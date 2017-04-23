@@ -1,0 +1,499 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>$!VmUtils.escapeHtml($topic.subject) ——格瓦拉生活网</title>
+	<meta name="keywords" content="论坛,电影论坛,格瓦拉论坛"/>
+	<meta name="description" content="$!VmUtils.htmlabbr($!topic.body,140)"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=bbs&v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/slider.css"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}ckeditor/display.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,slimbox&v=$VmUtils.jsVersion"></script>
+	#if($logonMember)
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	#end
+	<style type="text/css">
+	body{color:#333;}
+	.fck p{padding-bottom:10px;}
+	/*面包屑*/
+	.crumbs{width:960px; clear:both; margin:-5px auto 10px; font-family:Simsun; position:relative; height:32px; line-height:32px;}
+	.crumbs a{color:#c30;}
+	.crumbs a:hover{color:#f60;}
+	.crumbs .more{top:0; right:0;}
+	#content{padding:15px; width:930px;}
+	#content .bbsLeft,#bbsContent{width:700px;}
+	#bbsContent{margin:0 auto;}
+	#bbsContent h1{font:normal 24px/28px "微软雅黑","黑体",Arial; color:#333; padding:0;}
+	
+	.bbsRight .mod_kong,.bbsRight .mod_kuang,.mod_title{margin-bottom:20px;}
+	.mod_kong,.mod_kuang,.mod_title,.mod_hd{position:relative;z-index:1;}
+	.mod_kong .mod_hd,.mod_kuang .mod_hd{padding-bottom:6px;}
+	.mod_kong .mod_hd .more,.mod_kuang .mod_hd .more{top:3px; right:0;}
+	.mod_kong .mod_hd h2,.mod_kuang .mod_hd h2{font:bold 14px/24px '微软雅黑','宋体';}
+	.mod_kong .tabs{border-bottom:2px solid #ef690d; height:28px;}
+	.mod_kong .tabs span{display:inline-block; margin-right:2px; height:28px; line-height:28px; width:112px; background-position:-197px 0; text-align:center; cursor:pointer;}
+	.mod_kong .tabs span.select{background-position:-84px 0; font-weight:bold; color:#fff;}
+	.mod_kuang{border:1px solid #ddd; padding:10px;}
+	.mod_kuang p em{color:#666;}
+	.mod_kuang .mod_hd{border-bottom:1px solid #FEB77B; margin-bottom:6px;}
+	.mod_title .mod_hd{height:32px; line-height:32px; padding:0 10px; background:#fff2e2; position:relative;}
+	.mod_title .mod_hd h2{font-family:'微软雅黑','宋体'; font-size:16px; font-weight:bold; color:#fff; display:inline-block; height:32px; line-height:32px; padding:0 50px 0 25px; position:absolute; left:-20px; top:0; background:url(/css/activity/bg_actitle_h2.gif) right 0 no-repeat #fa7;}
+	.mod_title .mod_hd h2 span{font-family:'宋体'; font-size:12px; font-weight:normal; margin-left:5px;}
+	.mod_title .mod_bd{padding:15px 15px 0;}
+	.mod_sport a{color:#39c;}
+	.mod_ktv a{color:#ad0e70;}
+	.restory{width:700px;}
+	
+	/*图文布局*/
+	.ui_media,.ui_text{overflow:hidden; *overflow:visible; zoom:1;}
+	.ui_media .ui_text{color:#999;}
+	.ui_media .ui_pic img,.ui_media .ui_picR img{display:block;}
+	.ui_media .ui_pic{float:left;}
+	.bline{border-color:#ddd;}
+	
+	.bindList{border:1px solid #ccc; background:#f9f9f9; height:18px; padding:10px; overflow:hidden;}
+	
+	.list li{height:24px; line-height:24px; border-bottom:1px dashed #ddd;}
+	</style>
+</head> 
+<body>
+#set($isbbs=true)#set($istopic=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+#set($titleMap={"cinema":"电影","movie":"电影","gym":"健身","gymcourse":"健身","sport":"运动","sportservice":"运动","ktv":"KTV","bar":"酒吧"})
+#set($position={'试用期':'img/position/rank_191.gif','员工':'img/position/rank_192.gif',
+				'高级员工':'img/position/rank_193.gif','主管':'img/position/rank_194.gif',
+				'高级主管':'img/position/rank_195.gif','经理':'img/position/rank_196.gif',
+				'高级经理':'img/position/rank_197.gif','总监':'img/position/rank_198.gif',
+				'高级总监':'img/position/rank_199.gif','副总裁':'img/position/rank_200.gif',
+				'高级副总裁':'img/position/rank_201.gif','首席运营官':'img/position/rank_202.gif',
+				'首席执行官':'img/position/rank_203.gif','董事长':'img/position/rank_204.gif',
+				'商界领袖':'img/position/rank_205.gif'})
+#set($isTreasureLen=$VmUtils.size($isTreasureMap))
+#if($VmUtils.eq($topic.type,'comment'))
+	#if($VmUtils.eq($topic.tag,'movie') || $VmUtils.eq($topic.tag,'cinema'))
+		#set($typesign='影评')
+		#set($typeid = "1")
+	#else 
+		#set($typesign='心得') 
+		#set($typeid = "1")
+	#end
+#elseif($topic.type.startsWith('topic_vote'))
+	#set($typesign='投票') 
+	#set($typeid = "6")
+#end
+<div class="crumbs"><a href="${basePath}" class="mr5">格瓦拉生活网</a>&nbsp;&gt;&nbsp;<a href="${basePath}blog/" class="ml5">论坛</a>&nbsp;&gt;&nbsp;
+	#if($titleMap.get($tag))
+		<a href="${basePath}blog/$topic.tag" class="ml5 blue">$titleMap.get($tag)论坛</a>&nbsp;&gt;&nbsp;
+		#if($!typesign)<a href="${basePath}blog/$topic.tag&type=$!{typeid}" class="ml5 blue">$!titleMap.get($tag)$!{typesign}</a>&nbsp;&gt;&nbsp;#end
+		#if($relate)<a class="ml5 blue" href="${basePath}blog/$topic.tag/$!relate.id">$relate.name</a>&nbsp;&gt;&nbsp;#end
+	#end
+	<span>正文</span>
+</div>
+<div id="content">
+	<div class="bbsLeft">
+		<div id="bbsContent">
+			<div style="border-bottom:2px solid #F2F2F2; padding-bottom:10px;">
+				<h1>$!VmUtils.getText($topic.subject)</h1>
+				<div class="clear mt10" id="ckepop">
+					<div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare">
+				        <span class="bds_more" style="padding-left: 22px;padding-top: 6px;">分享到：</span>
+				        <a class="bds_tsina"></a>
+				        <a class="bds_tqq"></a>
+				        <a class="bds_qzone"></a>
+				        <a class="bds_renren"></a>
+				    </div>
+				</div>
+			</div>
+			#if($firstRow lt 10)
+			<dl class="mt30 clear" id="member$topic.memberid">
+				<dd class="wd12 left center" style="width:14%;">
+					<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$topic.memberid"  title="$cacheMemberMap.get($!topic.memberid).nickname" class="pubpic"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($!topic.memberid).headpicUrl)) no-repeat center center"/></a>
+					<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$topic.memberid" title="$cacheMemberMap.get($!topic.memberid).nickname" target="_blank">$cacheMemberMap.get($!topic.memberid).nickname</a><br/>
+					$!topicmemberJobs.get('jobs').position<img src="$VmUtils.randomPic('',$position.get($!topicmemberJobs.get('jobs').position))" title="当前经验值：$!topicmemberJobs.get('jobs').expvalue,离下一职位：【$!topicmemberJobs.get('nextJobs').position】，还差【$!topicmemberJobs.get('nextExp')】个经验值"/><br/>
+					#if($VmUtils.size($isTreasureMap) gt 0)#if($isTreasureMap.get($topic.memberid))<span class="gray">已关注</span>#else<span><a href="javascript:void(0);" onclick="addMemberTreasure($topic.memberid,'micro',this)"  class="yellow" title="添加到哇啦关注">+关注</a></span>#end#else<span><a href="javascript:void(0);" onclick="addMemberTreasure($topic.memberid,'micro',this)"  class="yellow" title="添加到哇啦关注">+关注</a></span>#end
+					<a href="${basePath}home/message/sendMessage.xhtml?memberid=$topic.memberid" class="yellow ml10" target="_blank">短信</a>
+				</dd>
+				<dd class="wd88 left" style="width:86%;">
+					<!-- 版主权限 -->
+					<div class="userInfo blue">
+						<span class="gray left wt">发表于&nbsp;&nbsp;$DateUtil.format($topic.addtime, 'yyyy-MM-dd HH:mm:ss')</span>
+						<span class="gray left ml20 see">浏览&nbsp;&nbsp;$topic.clickedtimes次</span>
+						<span class="gray left ml20 ret">回复&nbsp;&nbsp;$topic.replycount次</span>
+						<span class="trash left ml20" onclick="showAccusation('diary',$topic.id)">举报</span>
+						<span class="right mr5 self blue">楼主</span>
+						#if($owner || $permission > 1)
+						<span class="right mr10">|</span>
+						#if(!$topic.type.startsWith('topic_vote'))<a class="right mr10 owr blue" href="${basePath}blog/modifyTopic.xhtml?did=$topic.id">编辑</a>#end
+						#end
+					</div>
+					#if($relate || $relate2 || $commu)
+					<div class="mt10 fs14 bindList">
+						#if($relate || $relate2)关联#if($relate2)#end
+						#if($topic.category eq 'movie')电影：
+						#elseif($topic.category eq 'drama')演出：
+						#elseif($topic.category eq 'gymcourse')健身项目：
+						#elseif($topic.category eq 'sportservice')运动项目：
+						#end
+						<a href="${basePath}$relate2.url" class="yellow online bold" target="_blank">$!relate2.name</a>
+						#set($vgmark=$VmUtils.getLastMarkStar($!relate2,"general",$curMarkCountMap.get($!relate2.id),$!markData))
+						#if($vgmark)#set($gmark1=$vgmark/10)#set($gmark2=$vgmark % 10)<sub>${gmark1}.</sub><sup>${gmark2}</sup>#end
+						#end
+						#if($relate)
+						#if($relate && $relate2)<span class="ml20 mr20"></span> #end
+						#if($topic.tag eq 'cinema')影院：
+						#elseif($topic.tag eq 'bar')酒吧：
+						#elseif($topic.tag eq 'gym')健身：
+						#elseif($topic.tag eq 'ktv')KTV：
+						#elseif($topic.tag eq 'sport')运动：
+						#elseif($topic.tag eq 'sport')剧院：
+						#end
+						<a href="${basePath}$relate.url" class="yellow online bold" target="_blank">$relate.name</a>
+						#set($vgmark=$VmUtils.getSingleMarkStar($relate,"general"))
+						#if($vgmark)#set($gmark1=$vgmark/10)#set($gmark2=$vgmark % 10)<sub>${gmark1}.</sub><sup>${gmark2}</sup>#end
+						#end
+						#if($commu)来自圈子：<a href="${basePath}quan/$commu.id" class="yellow" target="_blank" ><strong>$commu.name</strong></a>#end
+					</div>
+					#end
+					#if($topic.type.startsWith('topic_vote'))
+						#parse('include/voteDetail.vm')
+						<div class="mt15 fck">
+						$!diaryBody
+						</div>
+					#else
+						<div class="mt15 fck">
+						$!diaryBody
+						</div>
+					#end
+					<div class="tar">
+						<span id="flowers">$!{topic.flowernum}</span>人推荐
+						<span class="button whiteBt minBt ml10"><span><em id="disFlower$topic.id" onclick="javascript:addDiaryFlower('$topic.id', 'flowers', 'disFlower$topic.id')"   style="background:url(${picPath}css/home/hand2.gif) 0 center no-repeat;padding-left:14px;">推荐</em></span></span>
+					</div>
+					<!-- 用户签名 -->
+					<div class="sayInfo">
+						#if($diaryPoint.get('point'))
+							<span class="yellow">
+							#if(!$VmUtils.eq($diaryPoint.get('tag'), 'content'))
+								此评论获得编辑推荐
+							#else
+								$diaryPoint.get('reason')
+							#end
+							&nbsp;获得$!{diaryPoint.get('point')}积分奖励
+							</span>
+						#end
+					</div>
+					<!-- 以上是楼主 -->
+				</dd>
+			</dl>
+			<div id="height0"></div>
+			#end
+			#foreach($dc in $commentList)
+			#set($num=$firstRow + $foreach.count)
+			<!-- 回帖呈现开始 -->
+			#if($VmUtils.size($commentList) eq $num)<a name="commentLast"></a>#end
+			<dl class="mt20" id="menber$dc.memberid">
+				<dd class="wd12 left center" style="width:14%;">
+					<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$dc.memberid" id="membertip" memberid="$!dc.memberid" title="$cacheMemberMap.get($!dc.memberid).nickname" class="pubpic"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($!dc.memberid).headpicUrl)) no-repeat center center"/></a>
+					<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$dc.memberid" id="membertip" title="$cacheMemberMap.get($!dc.memberid).nickname" memberid="$!dc.memberid" target="_blank">$VmUtils.escabbr($cacheMemberMap.get($!dc.memberid).nickname, 12)</a><br/>
+					$!mapCommentMember.get($!dc.memberid).get('jobs').position<img src="$VmUtils.randomPic('',$position.get($!mapCommentMember.get($!dc.memberid).get('jobs').position))" title="当前经验值：$!mapCommentMember.get($!dc.memberid).get('jobs').expvalue,离下一职位【$!mapCommentMember.get($!dc.memberid).get('nextJobs').position】，还差【$!mapCommentMember.get($!dc.memberid).get('nextExp')】个经验值"/><br/>
+					#if($isTreasureLen gt 0)#if($isTreasureMap.get($dc.memberid))<span class="gray">已关注</span>#else<span><a href="javascript:void(0);" onclick="addMemberTreasure($!dc.memberid,'micro',this)"  class="yellow" title="添加到哇啦关注">+关注</a></span>#end#else<span><a href="javascript:void(0);" onclick="addMemberTreasure($!dc.memberid,'micro',this)"  class="yellow" title="添加到哇啦关注">+关注</a></span>#end<a href="${basePath}home/message/sendMessage.xhtml?memberid=$dc.memberid" class="yellow ml10" target="_blank">短信</a>
+				</dd>
+				<dd class="wd88 left" style="width:86%;">
+					<!-- 版主权限 -->
+					<div class="userInfo blue">
+						<span class="gray left wt">发表于&nbsp;&nbsp;$DateUtil.format($dc.addtime, 'yyyy-MM-dd HH:mm:ss')</span>
+						#if($logonMember)<a class="left ml10 copy blue" href="javascript:void(0);" rel="引用：$DateUtil.format($dc.addtime, 'yyyy-MM-dd HH:mm:ss') $cacheMemberMap.get($!dc.memberid).nickname" onclick="quoteReply('r$dc.id', this)" class="mlr3">[引用]</a>#end
+						<span class="right mr5 blue">$num楼</span>
+						#if($logonMember)<span class="trash left ml20" onclick="showAccusation('diarycomment',$dc.id)">举报</span>#end
+						#if(($permission gt 1 || $VmUtils.eq($logonMember.id, $dc.memberid)) && $dc.status ne 'N_DELETE' && $dc.status ne 'N_FILTER')
+						<span class="right mr10">|</span>
+						<a class="right mr10 del blue" href="javascript:void(0);" onclick="deleteReply($dc.id);">删除</a>
+						<span class="right mr10">|</span>
+						<a class="right mr10 owr blue" href="javascript:void(0);" onclick="modifyReply($dc.id);">编辑</a>
+						#end
+					</div>
+					<!-- 内容显示 -->
+					<div class="mt10 fck" id="r$dc.id">#if($dc.status eq 'N_DELETE' || $dc.status eq 'N_FILTER' || $dc.status eq 'N_ACCUSE')<span class="delete">该楼已被删除或屏蔽！</span>#else $!{dc.body} #end</div>
+					<!-- 用户签名 -->
+					#if($signMap.get($dc.memberid))
+					<ul class="sayInfo">
+						<li class="qm wd50"><span class="block dotted">&nbsp;</span></li>
+						<li class="gray sign">$!VmUtils.escapeHtml($!signMap.get($dc.memberid).getRsign($basePath))</li>
+					</ul>
+					#end
+				</dd>
+				<dd id="height0"></dd>
+			</dl>
+			#end
+			#parse('include/pageUtil.vm')
+		</div>
+		<div class="line"></div>
+		<!-- 回帖区显示结束 -->
+		
+		<div class="restory right mt30">
+			<p style="margin-bottom:10px; border-bottom:2px solid #F2F2F2; height:30px; line-height:30px;"><span id="dianping" style="font:bold 16px/24px '微软雅黑','宋体'; color:#333;">我的回应</span><a class="ml20" style="visibility:hidden" id="myreply" href="javascript:clearReply();">我要回应</a></p>
+			#if($logonMember)
+			<div class="mr20">回复帖子可获得5个经验值。<a href="${basePath}helpCenter/index.dhtml?diaryId=3121504&dkey=helpcenter1308110071965" class="yellow mr20" target="_blank">看看什么是经验值？</a></div>
+			<div id="replyArea" >
+				<input type="hidden" name="replyid" id="replyid" value=""/>
+				<textarea name="replycontent" id="replycontent"></textarea>
+				<div id="height0"></div>
+				<div class="smiley">
+					#foreach($v in [101..114])
+					<img src="http://www.gewara.com/images/smiley/${v}.gif" onclick="addSmiley('$v')" />
+					#end
+				</div>
+				<div class="smiley">
+					#foreach($v in [201..214])
+					<img src="http://www.gewara.com/images/smiley/${v}.gif" onclick="addSmiley('$v')" />
+					#end
+				</div>
+				<div class="smiley">
+					#foreach($v in [301..314])
+					<img src="http://www.gewara.com/images/smiley/${v}.gif" onclick="addSmiley('$v')" />
+					#end
+				</div>
+				<dl class="tales60">
+				<dt>验证码：</dt>
+					<dd>
+						<input type="hidden" name="captchaId" id="captcha" />
+						<label class="label text left" style="width:120px">
+						<input type="text" class="text captcha" name="captcha" autocomplete="off"  id="captchaInput" size="18" style="width:120px" mustTxt="请输入验证码!" onfocus="GewaraUtil.refreshCaptcha('captcha');"/></label>
+						<img id="captchaImg" src="${staticPath}css/images/blank.gif" class="ml10" style="cursor: pointer;vertical-align: middle;float:left;height:36px;" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清楚，请点击换一张图片"/>
+					</dd>
+				</dl>
+				<div class="mt10">
+					<label class="button redBt bigBt"><input type="button" value="好了，加上去" onclick="addComment(this);"/></label>
+				</div>
+				<div class="mt10"></div>
+			</div>
+			#else
+			<div class="reply_ico">
+				<div class="overv"></div>
+				<img height="463" width="713" style="background:url(${picPath}css/blog/reply_ico.png) center 0 no-repeat;" src="${staticPath}css/images/blank.gif"/>
+				<div class="un">
+					<label class="button redBt bigBt"><input type="button" onclick="showLogin(refreshPage);" value="点击登录，马上回复" /></label>
+				</div>
+			</div>
+			#end
+		</div>
+	</div>
+	<div class="bbsRight">
+		#parse('include/topicRelate.vm')
+		<div class="mod_kuang">
+			<div class="mod_hd">
+				<h2>24小时人气热帖</h2>
+			</div>
+			<div class="mod_bd">
+				<ul class="list">
+					#foreach($vtopic in $hotTopicList)
+					<li><a href="${basePath}blog/t$vtopic.id" target="_blank" title="$vtopic.subject">$!VmUtils.escabbr($vtopic.subject,28)</a></li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#if($relateTopicList)
+		<div class="mod_kuang">
+			<div class="mod_hd">
+				<h2>与<strong class="yellow">$relate.name</strong>相关的帖子</h2>
+			</div>
+			<div class="mod_bd">
+				<ul class="list">
+					#foreach($vtopic in $relateTopicList)
+					<li><a href="${basePath}blog/t$vtopic.id" target="_blank" title="$vtopic.subject">$!VmUtils.escabbr($vtopic.subject,28)</a></li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+		#if($categoryTopicList)
+		<div class="mod_kuang">
+			<div class="mod_hd">
+				<h2>与<strong class="yellow">$relate2.name</strong>相关的帖子</h2>
+			</div>
+			<div class="mod_bd">
+				<ul class="list">
+					#foreach($vtopic in $categoryTopicList)
+					<li><a href="${basePath}blog/t$vtopic.id" target="_blank" title="$vtopic.subject">$!VmUtils.escabbr($vtopic.subject,28)</a></li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+		#if($memberTopicList)
+		<div class="mod_kuang">
+			<div class="mod_hd">
+				<h2><strong class="yellow">$cacheMemberMap.get($topic.memberid).nickname</strong>发表的其他帖子</h2>
+			</div>
+			<div class="mod_bd">
+				<ul class="list">
+					#foreach($vtopic in $memberTopicList)
+					<li><a href="${basePath}blog/t$vtopic.id" target="_blank" title="$vtopic.subject">$!VmUtils.escabbr($vtopic.subject,28)</a></li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+		#parse('include/ad/ad_bbs.vm')
+		<div class="mod_kuang">
+			<div class="mod_hd">
+				<h2>一周活跃用户</h2>
+			</div>
+			<div class="mod_bd">
+				<ul class="pubCircle clear">
+					#foreach($member in $memberList)
+					<li>
+						<a class="pubpic" title="$member.nickname" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$member.id"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$member.headpicUrl)) no-repeat center center"/></a>
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$member.id" target="_blank">$!VmUtils.escabbr($member.nickname,8)</a>
+					</li>
+					#end
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div id="height0"></div>
+</div>
+#parse('include/accusation.vm')
+<script type="text/javascript">
+	var ckeditor;
+	window.addEvent('domready',function(){
+		#if($logonMember)
+		ckeditor = CKEDITOR.replace("replycontent", {customConfig : '/ckeditor/gewaConfig.js'});
+		ckeditor.on('paste',function(e){
+			if($chk(e.data.html)){
+				var data = this.getData();
+				var htm = e.data.html;
+				if(e.data.html.indexOf('data:image/') > 0){
+					gewa.util.alert('图片不能直接粘贴，请点击图像上传！',function(){
+						this.setData(data);
+					}.bind(this));
+				}else if((htm.indexOf('&lt;script&gt;') > 0 || htm.indexOf('<script>') > 0 )
+				 && (htm.indexOf('&lt;style&gt;') > 0 || htm.indexOf('<style>') > 0)){
+					gewa.util.alert('粘贴非法数据，请在文本中过滤后再进行粘贴！',function(){
+						this.setData(data);
+					}.bind(this));
+				}
+			}
+		});OverText.update();
+		(function(){
+			OverText.update();
+		}).delay(1000);
+		#end
+		$$('.fck').each(function(item){
+			resizePicture(item.getElements('img'), 560, true);
+		});
+		slidePicture();
+	});
+	var relatedid='$!params.relatedid';
+	var tag='$!tag' ;
+	function addComment(el){
+		var replyconent = ckeditor.getData();
+		if(replyconent == ''){
+			gewaUtil.alert("回复内容不能为空！"); return;
+		}
+		el.disabled=true;
+		checkLogin(true,function(){
+			gewa.util.mask({'element':el,'title':'正在提交，请稍等...'});
+			var url = '${basePath}blog/saveDiaryComment.xhtml';
+			var values = {'commentId': $('replyid').value, 'diaryId':$topic.id, 'captchaId':$('captcha').value, 'captcha':$('captchaInput').value, 'body':replyconent};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					var topURL = document.location.href;
+					if(topURL.indexOf('#commentLast') > 0){
+						topURL = topURL.replace(/#commentLast/g, '');
+					}
+					document.location.href = topURL;
+					refreshPage();
+				}else{
+					gewaUtil.alert(result.msg);
+					gewa.util.clearMask();
+					el.disabled=false;
+					GewaraUtil.refreshCaptcha('captcha');
+				}
+			});
+		}, function(){el.disabled=false;});
+	}
+	function addDiaryTop(){
+		addTopDiary(tag, relatedid, '$topic.id', 'b$topic.id');
+	}
+	
+	function quoteReply(rid, el){
+		checkLogin(true,function(){
+			var tmpDiv = new Element('div');
+			var tmp = new Element('blockquote', {
+				'html':$(rid).innerHTML
+			});
+			tmp.inject(tmpDiv);
+			var quote = tmp.getElement('blockquote');
+			var quoteTime = new Element('p', {
+				'html':$(el).get('rel')
+			});
+			if(quote){//有老引用，新引用时间插入老引用之后
+				quoteTime.inject(quote, 'after');
+			}else{//无引用
+				quoteTime.inject(tmp, 'top');
+			}
+			gotoPosition('dianping');
+			(function(){
+				ckeditor.setData(ckeditor.getData()+tmpDiv.innerHTML+"<p></p>");
+			}).delay(500)
+		});
+	}
+	function modifyReply(replyid){
+		var url = '${basePath}blog/getDiaryComment.xhtml';
+		var values = {'replyid':replyid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			ckeditor.setData(result.replycontent);
+			$('replyid').value = result.replyid;
+			$('dianping').set('html', '修改' + result.replymember + "的回应");
+			$('myreply').setStyle('visibility', 'visible');
+			gotoPosition('dianping');
+		});
+	}
+	function deleteReply(replyid){
+		var url = '${basePath}blog/removeDiaryComment.xhtml';
+		var values = {'tag':tag, 'replyid':replyid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$('r'+replyid).innerHTML = '<span class="delete">该楼已被删除或屏蔽！</span>';
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	function clearReply(){
+		if($('replyid').value != ''){
+			$('dianping').set('html', "我的回应");
+			$('myreply').setStyle('visibility', 'hidden');
+			$('replyid').value = '';
+			ckeditor.setData('');
+		}
+	}
+	function addSmiley(imgid){
+		var tmpElement = new Element('div',{
+			'html':ckeditor.getData()
+		});
+		
+		var smileyList = tmpElement.getElements('img[src*=/smiley/]');//只能用tempElement，否则导致IE下有bug
+		if(smileyList.length>=4){
+			gewaUtil.alert('你添加的表情已经很丰富了…');
+			tmpElement.dispose();
+			return;
+		}
+		tmpElement.dispose();
+		var imgurl='http://www.gewara.com/images/smiley/' + imgid +'.gif';
+		ckeditor.insertHtml("<img src='" + imgurl + "' />");
+	}
+</script>
+#parse('include/bottom.vm')
+
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=560708" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+	var bds_config = {'bdText':'我在格瓦拉看见一个非常有意思的帖子“$!VmUtils.escapeHtml($topic.subject)”，分享给大家！——来自@格瓦拉生活网 链接：','snsKey':{'tsina':'2536251945','tqq':'801037658'}};
+	document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + new Date().getHours();
+</script>
+
+</body>
+</html>

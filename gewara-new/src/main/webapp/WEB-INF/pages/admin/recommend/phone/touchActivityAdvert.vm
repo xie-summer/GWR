@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>手机触屏版首页活动列表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: center;
+			font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.mt5{margin-top:5px;}
+		.ml15{margin-left: 15px;}
+		.mb5{margin-bottom: 5px;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td colspan="4" align="left" class="td">手机触屏版首页活动列表</td>
+		<td align="right" class="td">
+			<a href="javascript:void(0);" onclick="showTouchAdvert()" >增加</a>|
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td" style="text-align: center;">
+		<td align="left" class="wd200"><b>活动图片</b></td>
+		<td align="left" class="wd200"><b>标题</b></td>
+		<td align="left" class="wd60"><b>链接</b></td>
+		<td align="left" class="wd60"><b>是否推荐</b></td>
+		<td align="left" class="wd120"><b>操作</b></td>
+	</tr>
+	#foreach($touchAdvert in $touchAdvertList)
+	<tr class="td">
+		<td align="center" class="wd200">
+			<img src="${picPath}$!touchAdvert.logo" onerror="this.src='${basePath}img/default_head.png'"  width="100" height="100" />
+		</td>
+		<td class="wd200">
+			$!touchAdvert.title
+		</td>
+		<td class="wd200">
+			$!touchAdvert.link
+		</td>
+		<td class="wd200">
+			<input style="width: 20px;" value="$!touchAdvert.ordernum" onblur="orderNum($!touchAdvert.id,this.value,this)" />
+		</td>
+		<td align="left" class="wd120">
+			<a href="javascript:void(0);" onclick="updateTouchAdvert($!touchAdvert.id,'$!touchAdvert.title','$!touchAdvert.link','$!touchAdvert.logo','$!touchAdvert.citycode')" >[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0);" onclick="delTouchAdvert('$!touchAdvert.id')">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+<div id="TouchAdvertDiv" style="visibility: hidden;z-index: 100;width: 600px;height: 250px auto;background: #ffffff;border: 1px solid black;padding:10px 10px 10px 10px;">
+<div class="ml15 mt5">
+<div style="text-align: center;font-size: 15px;font-weight: bold;"><span id="addtype">保存</span>手机触屏广告活动信息</div>
+<hr/>
+<input type="hidden" name="id" id="id"/>
+<div class="mt5">
+	<label for="title">标题：</label>
+	<input name="title" id="title" />
+</div>
+<div class="mt5">
+	<label for="url">链接：</label>
+	<input name="link" id="link" />
+</div>
+#parse("admin/common/adminInnerCityList.vm")
+<div class="mt5">
+	<label for="uploadIFrame">图片：</label>
+	<iframe class="center" height="25px" width="500px" frameborder="0" scrolling="no" style="vertical-align: middle" id="uploadIFrame" 
+	src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updateLogo"></iframe>
+	<div style="margin-left: 40px;"><input type="text" name="logo" id="logo" style="width: 300px;"/></div>
+	<img style="height:100px; margin-left:80px;" id='showimg' onerror="this.src='${basePath}img/default_head.png'"/>
+</div>
+<div class="mt5">
+	<img id="TouchAdvertPath" src="${staticPath}css/images/blank.gif" />
+</div>
+<div class="mt5 ml30">
+<input type="button" onclick="addTouchAdvert()" value="生成"/><input type="button" value="关闭" onclick="hideTouchAdvert()"/>
+</div>
+</div>		
+</div>
+<script type="text/javascript">
+	
+	function orderNum(gcid, val, obj){
+		var url = "${basePath}admin/common/ajax/changeGCOrderNum.xhtml";
+		GewaraUtil.sendRequest(url, {'id':gcid, 'ordernum':val}, function(result){
+			if(result.success){
+				if($(obj)){
+					$(obj).setStyle('background-color','red');
+					(function(){
+						$(obj).setStyle('background-color','');
+					}.bind(obj)).delay(800);
+				}
+			}else{
+				alert('设置失败');
+			}
+		});
+	}
+	
+	// 全选
+	checkSelAll = function(obj){
+		$each($('subCitys').getElements('input'), function(n, i){
+			n.checked = obj.checked;
+		})
+	}
+	// 单选
+	checkSelSingle = function(obj){
+		if(!obj.checked){
+			$('relatecityAll').checked = false;
+		}else{
+			if($('subCitys').getElements('input').length == $('subCitys').getElements('input[checked]').length){
+				$('relatecityAll').checked = true;
+			}
+		}
+	}
+	
+	updateLogo = function(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('showimg').src='${picPath}' + picpath;
+	}
+
+	function updateTouchAdvert(id,title,link,logo,citycode){
+		$('id').value = id;
+		$('title').value = title;
+		$('logo').value = logo;
+		$('showimg').src = '${picPath}'+logo;
+		$('link').value = link;
+		var citycodes = citycode.split(',');
+		var citys = $$("input[type=checkbox]");
+		for(var i = 0;i<citys.length;i++){
+			console.info(citys[i].value);
+			if(citycodes.contains(citys[i].value) && citys[i].value != "on"){
+				citys[i].checked = true;
+			}else citys[i].checked = false;
+			if(citycode == '000000') citys[i].checked = true;
+		}
+		GewaraUtil.showDialog('TouchAdvertDiv');
+	}
+	
+	function hideTouchAdvert(){
+		clearDefault();
+		GewaraUtil.hideDialog('TouchAdvertDiv');
+	}
+	
+	function clearDefault(){
+		$('id').value = '';
+		$('title').value = '';
+		$('link').value = '';
+		$('logo').value = '';
+		$('showimg').src = '';
+	}
+	
+	function showTouchAdvert(){
+		clearDefault();
+		GewaraUtil.showDialog('TouchAdvertDiv');
+	}
+	
+	function addTouchAdvert(){
+		var id = $('id').value;
+		var title = $('title').value;
+		var link = $('link').value;
+		var logo = $('logo').value;
+		if(!$chk(title.trim())){
+			gewaUtil.alert('请输入标题！');
+			return;
+		}
+		if(!$chk(link.trim())){
+			gewaUtil.alert('请输入链接地址!');
+			return;
+		}
+		if(!$chk(logo)){
+			gewaUtil.alert('请上传广告活动图片！');
+			return;
+		}
+		var cityArray = new Array();
+		var allCitys = $$("input[name=selectcitycodes]");
+		var citys = $$("input[name=selectcitycode]");
+		if (allCitys[0].checked) {
+			cityArray.push('000000');
+		} else {
+			for(var i = 0;i<citys.length;i++){
+				if(citys[i].checked){
+					cityArray.push(citys[i].value);
+				}
+			}
+		}
+		var citycode = cityArray.toString();
+		var ajaxUrl = "${basePath}admin/mobile/saveTouchAdvert.xhtml";
+		var values = {'id':id,'title':title,'link':link,'logo':logo,'citycode':citycode};
+		GewaraUtil.sendRequest(ajaxUrl,values,function(result){
+			if(result.success){
+				gewaUtil.alert('保存成功！',refreshPage);
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	function delTouchAdvert(id){
+		gewaUtil.confirm('确认删除吗？',function(){
+			var url = "${basePath}admin/mobile/delTouchAdvert.xhtml";
+			var values = {'id':id};
+			GewaraUtil.sendRequest(url,values,function(result){
+				if(result.success) refreshPage();
+				else gewaUtil.alert('删除失败！');
+			});		
+		});
+	}
+</script>
+</body>
+</html>

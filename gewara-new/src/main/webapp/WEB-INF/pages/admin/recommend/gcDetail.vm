@@ -1,0 +1,195 @@
+<div class="table" style="width:500px;height:auto;position:relative;top:30px;left:-10px;">
+<ul>
+#set($tagMap={'activity':'活动','diary':'论坛','gewaquestion':'知道','news':'新闻','news_zt':'专题','news_zf':'专访',
+					'commu':'圈子','movie':'电影','cinema':'影院','bar':'酒吧','ktv':'KTV','gym':'健身','training':'培训课程',
+					'sport':'运动','sportservice':'运动项目','sportitemvenue':'项目场馆','gymcourse':'健身项目','ticket':'购票',
+					'member':'用户','other':'其他','goods':'积分物品','video':'预告片','moderator':'哇啦话题','diary_vote':'专题模板调查','diary_vote_tmp':'专题模板调查(临时)','examlib':'专题模板问答',
+					'diary_commu':'圈子热门贴', 'drama':'话剧', 'theatre':'话剧院', 'diary_drama':'话剧帖', 'gymcoach':'健身教练', 'barsinger':'歌手、DJ、乐队', 'dramastar':'话剧明星',
+					'news_picture':'图组（临时）','gwadvert':'广告（临时）','news_schedule':'日程（临时）','movie_today':'今日影片推荐','opentableinfo':'电影节头部信息', 'partner':'合作商',
+					'gymcarditem':'健身卡','gymvideo':'健身视频','gymcourse':'健身课程','sportvideo':'运动视频','comment':'哇啦','mpi':'电影节排片','membercard':'运动会员卡','opentimeitem':'运动场地'})
+<form id="gcForm">
+	<input type="hidden" name="id" id="id" value="$!gc.id"/>
+	<input type="hidden" name="comment" id="comment" value="$!params.comment"/>
+	<input type="hidden" name="signname" id="signname" #if($!params.signname)value="$!params.signname"#else value="$!gc.signname"#end/>
+	<input type="hidden" name="parentid" id="parentid" #if($!params.parentid)value="$!params.parentid"#else value="$!gc.parentid"#end/>
+	<input type="hidden" name="logo" id="logo" value="$!gc.logo"/><br/>
+	<input type="hidden" name="smalllogo" id="smalllogo" value="$!gc.smalllogo"/><br/>
+	<li>#if($!params.tag)标识：
+	<select name="tag" id="tag">
+		<option value="">请选择</option>
+		#foreach($map in $tagMap.entrySet())
+		<option value="$map.key" #if($VmUtils.eq($!gc.tag,$map.key)||$VmUtils.eq($map.key,$!params.tag))selected#end>$map.value</option>
+		#end
+	</select></li>
+	#end
+	<li>#if($!params.relatedid)ID：&nbsp;&nbsp;&nbsp;<input type="text" name="relatedid" id="relatedid" value="$!gc.relatedid" style="width: 200px"/>#end</li>
+	
+	#if($!gc.signname ne 'ceping' && $!params.signname ne 'ceping')
+	<li>#if($!params.title)
+			#if($VmUtils.eq($!params.signname, 'index_guanzhu_weibo'))
+			微博id：
+			#elseif($VmUtils.eq($!params.signname, 'index_sport_info_new'))
+			项目：
+			#else
+			标题：
+			#end
+			&nbsp;<input type="text" name="title" id="title" value="$!gc.title" style="width: 300px;"/>
+		#end
+	#if($VmUtils.eq($params.signname,'drama_recruit_diarysp'))<br/><font color="blue">例:SP第一期，《末日24小时》</font>#end
+	#if($VmUtils.eq($params.signname,'drama_recruit_diary'))<br/><font color="blue">例:第一期，《末日24小时》</font>#end
+	</li>
+	#if($!params.signname ne 'index_new_sportlist')
+	<li>#if($!params.link)链接：&nbsp;<input type="text" name="link" id="link" value="$!gc.link" style="width: 300px;"/>#end</li>
+	#end
+	#else
+	<input type="hidden" name="spparentid" id="spparentid" value="$!spparentid"/>
+	#end
+	<li>#if($!params.logo)
+		#if($!gc.signname ne 'ceping' && $!params.signname ne 'ceping')
+			Logo：
+		#else
+			评测图（262*75）
+		#end
+	#if($VmUtils.eq($!params.signname, 'dramaindex_news'))670*230
+	#elseif($VmUtils.eq($!params.signname, 'dramaindex_subject'))260*70
+	#elseif($VmUtils.eq($!params.signname, 'dramaindex_activity'))240*100
+	#elseif($VmUtils.eq($!params.signname, 'dramaindex_partner'))225*60
+	#elseif($VmUtils.eq($!params.signname, 'dramaindex_star'))第1张：155*200，2~7张：100*100
+	#end
+	<iframe class="center" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame" 
+			src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updateLogo&notLimit=$!params.notLimit"></iframe>
+			<img style="height:100px; margin-left:80px;" id='logoimg1' src="${picPath}$gc.logo" onerror="this.src='${basePath}img/default_head.png'"/>#end</li>
+	#if($!gc.signname ne 'ceping' && $!params.signname ne 'ceping')		
+	<li>#if($!params.smalllogo)smallLogo：<iframe class="center" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame2" 
+			src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updateLogo2"></iframe>
+			<img style="height:45px; margin-left:80px;" id='smalllogoimg1' src="${picPath}$gc.smalllogo" onerror="this.src='${basePath}img/default_head.png'"/>#end</li>
+			
+	<li>
+		#if($!params.summary)
+			#if($VmUtils.eq($!params.signname, 'index_movie_activity') || $VmUtils.eq($!params.signname, 'index_movie_activity_new') || $VmUtils.eq($!params.isSummaryActivitySelect, 'true'))
+			摘要：&nbsp;
+			<select name="summary" id="summary">
+				<option value="">请选择</option>
+				<option value="见面会" #if($VmUtils.eq($!gc.summary,'见面会'))selected='selected'#end>见面会</option>
+				<option value="零点场" #if($VmUtils.eq($!gc.summary,'零点场'))selected='selected'#end>零点场</option>
+				<option value="立减" #if($VmUtils.eq($!gc.summary,'立减'))selected='selected'#end>立减</option>
+				<option value="立返" #if($VmUtils.eq($!gc.summary,'立返'))selected='selected'#end>立返</option>
+				<option value="抢票" #if($VmUtils.eq($!gc.summary,'抢票'))selected='selected'#end>抢票</option>
+				<option value="新馆上线" #if($VmUtils.eq($!gc.summary,'新馆上线'))selected='selected'#end>新馆上线</option>
+				<option value="特价" #if($VmUtils.eq($!gc.summary,'特价'))selected='selected'#end>特价</option>
+				<option value="互动" #if($VmUtils.eq($!gc.summary,'互动'))selected='selected'#end>互动</option>
+				<option value="奖励" #if($VmUtils.eq($!gc.summary,'奖励'))selected='selected'#end>奖励</option>
+				<option value="优惠" #if($VmUtils.eq($!gc.summary,'优惠'))selected='selected'#end>优惠</option>
+			</select>
+			#elseif($VmUtils.eq($!params.signname,'futuremovie'))
+			摘要：&nbsp;
+			<select name="summary" id="summary">
+				<option value="">请选择</option>
+				<option value="预售" #if($VmUtils.eq($!gc.summary,'预售'))selected='selected'#end>预售</option>
+				<option value="见面会" #if($VmUtils.eq($!gc.summary,'见面会'))selected='selected'#end>见面会</option>
+				<option value="特价" #if($VmUtils.eq($!gc.summary,'特价'))selected='selected'#end>特价</option>
+				<option value="零点场" #if($VmUtils.eq($!gc.summary,'零点场'))selected='selected'#end>零点场</option>
+			</select>
+			#else
+			#if($VmUtils.eq($!params.signname, 'index_sport_info_new'))
+				特色：
+			#else
+				摘要：
+			#end
+			&nbsp;<textarea name="summary" id="summary" style="width: 340px; height: 70px;">$!gc.summary</textarea>
+			#end
+		#end
+	#if($VmUtils.startsWith($!params.signname, 'drama_recruit_diary'))<font color="blue">最多42字</font>#end
+	</li>
+	#if($!params.starttime)<li>开始时间：&nbsp;<input name="starttime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" type="text" value="$!gc.starttime" /></li>#end
+	#if($!params.endtime)<li>结束时间：&nbsp;<input name="endtime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" type="text" value="$!gc.endtime" /></li>#end
+	<li>#if($!params.acitivityDate)有效时间：&nbsp;<input name="stoptime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" type="text" value="$!gc.stoptime"/>#end</li>
+	#end
+	#if($!params.citycode)
+	<li>选择城市：
+	<select name="citycode" id="citycode" style="width:80px;">
+		<option #if($VmUtils.eq($gc.citycode,"000000")) selected="selected" #end value="000000">全国</option>
+		#foreach($key in $cityMap.keySet())
+			<option #if($VmUtils.eq($gc.citycode,$key)) selected="selected" #end value="$key">$cityMap.get($key)</option>
+		#end
+	</select>
+	</li>
+	#end
+	#if($params.relatedActivity && $params.relatedActivity eq 'true')
+	<li>
+		<input type="hidden" name="tag" value="$!gc.tag" id="tag"/>
+		关联活动Id：&nbsp;<input type="text" name="relatedid" id="relatedid" value="$!gc.relatedid" style="width: 200px" onblur="setTagValue()"/>
+		说明：推荐的是相关联的活动时填写相关的活动ID	
+	</li>
+	#end
+	<li>&nbsp;&nbsp;<input type="button" onclick="save()" value="保存" style="width: 50px;"/>
+	<input type="button" onclick="javascript:GewaraUtil.hideDialog('pointText');" value="取消" style="width: 50px;"/></li>
+</form>
+</ul>
+</div>
+<script>
+	setTagValue = function(){
+		if($('relatedid').value != ''){
+			$('tag').value = 'activity';
+		}else{
+			$('tag').value = '';
+		}		
+	}
+	save = function(){
+	#if($!params.tag)
+		if($('tag').value=='') {
+			alert('请选择标识！');
+			return;
+		}
+	#end
+	#if($VmUtils.isNotBlank($!params.relatedid))
+		if($('relatedid').value=='') {
+			alert('请填写ID！');
+			return;
+		}
+		var patrn=/^[0-9]*[1-9][0-9]*$/;   
+		if(!patrn.exec($('relatedid').value)) {
+				alert('请输入数字');
+			return;
+			} 
+	#end
+	//推荐网站首页的BARKTV,GYMSPORT活动时（index_barktv_activity,index_gymsport_item），标题可以为空
+	#if($VmUtils.isNotBlank($!params.title) && $!params.signname ne 'index_barktv_activity' && $!params.signname ne 'index_gymsport_item' && $!params.signname ne 'index_movielist')
+		if($('title').value=='') {
+			alert('请填写标题！');
+			return;
+		}
+		if($('title').value.length>50){
+			alert('标题太长,请填写50字以内!');
+			return;
+		}
+	#end
+	#if($VmUtils.isNotBlank($!params.link) && $!params.signname ne 'wapindex' && ($!params.signname ne 'index_new_sportlist'))
+		if($('link').value=='') {
+			alert('请填写链接！');
+			return;
+		}
+	#end
+	var values = GewaraUtil.getValues("gcForm");
+	var url = "${basePath}admin/common/ajax/saveGewaCommend.xhtml";
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("信息添加成功！");
+			refreshPage();
+		}else {
+			alert(result.msg);
+		}
+	});
+}
+
+updateLogo = function(params){
+	var picpath1 = params['picpath'];
+	$('logo').value = picpath1;
+	$('logoimg1').src='${picPath}' + picpath1;
+}
+updateLogo2 = function(params){
+	var picpath2 = params['picpath'];
+	$('smalllogo').value = picpath2;
+	$('smalllogoimg1').src='${picPath}' + picpath2;
+}
+</script>

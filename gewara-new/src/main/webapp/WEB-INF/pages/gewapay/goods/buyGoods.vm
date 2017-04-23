@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Expires" content="0" />    
+	<meta http-equiv="Cache-Control" content="no-cache" />    
+	<meta http-equiv="Pragma" content="no-cache" />    
+	<title>确认订购数量 - 格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=new_play,ui_layout&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.payBox{border:1px solid #fff0e0;}
+		.payBox_body_left{width:860px;}
+		.payBox_body_right{width:318px;}
+		.payBox_body_left .inner{padding:20px 40px;}
+		.payBox_body_left h1{font:normal 24px/40px verdana,'微软雅黑','宋体';}
+		.b_process{width:50%; float:left;}
+		.b_process dt{font-size:14px; font-weight:bold; margin-bottom:10px;}
+		.b_process dd{line-height:24px;}
+		.b_process b{color:#f00;}
+		.limitTimeNotice{padding:20px; color:#666; background:#fffaf4; font-family:Arial;}
+		.limitTimeNotice p{clear:both; margin-bottom:15px; height:30px; line-height:30px;}
+		.limitTimeNotice p em{display:inline-block; width:80px; text-align:right; float:left;}
+		.g_price{width:268px; position:relative;}
+		.g_price p{background:url(${staticPath}css/buss/middle_btn.jpg) repeat-x; color:#fff; height:42px; line-height:42px; font-size:20px; padding:0 18px; text-align:center; font-family:'微软雅黑','宋体';}
+		.g_price p b{font-size:24px;}
+		.g_price .left_btn{background:url(${staticPath}css/buss/left_btn.jpg) no-repeat; display:inline-block; width:18px; height:42px; position:absolute; left:0; top:0;}
+		.g_price .right_btn{background:url(${staticPath}css/buss/right_btn.jpg) no-repeat; display:inline-block; width:18px; height:42px; position:absolute; right:0; top:0;}
+		.confirm_msg{padding:20px;}
+		.cost{float:left; width:60px; padding:10px 10px 10px 40px; text-align:center;}
+		.cost span,.cost del{margin:0 5px;}
+		.b_line{border-bottom:1px solid #fce3c4; padding:20px 0;}
+		.service{width:212px; height:70px; border:1px solid #e1ddd1; background:#f0eade; border-radius:5px; text-align:center; color:#f56606; margin-top:20px;}
+		.service b{font-size:20px;}
+		.service .phone{background:url(${staticPath}css/buss/phone.jpg) center center no-repeat; display:inline-block; width:20px; height:46px; float:left; margin:15px 0 0 20px;}
+		.service p{float:left; width:150px; margin-top:16px;}
+		.cinema_pic{width:116px; height:56px; border:1px solid #ccc; margin-bottom:10px;}
+		.setmeal{background:#f79613; padding:3px 0 2px; *padding:4px 0 0; color:#fff; text-align:center; border-radius:8px; margin-top:10px;}
+		.tales60{padding-left:50px; +padding-left:55px;}
+		.tales60 dt{width:80px; font-size:12px; color:gray;}
+		.tales60 dd{width:80%; margin-top:5px;}
+		.text60{padding:8px 0 8px 70px;}
+		.text60 dt{float:left; margin-left:-80px; width:80px; _margin-left:-40px; margin-top:8px; text-align:right; color:gray;}
+		.text60 dd{float:left;}
+		.minBt{padding-left:5px;}
+		.minBt input{padding-right:5px;}
+		#map_canvas,.mapInner{width:220px!important;}
+		.uiText{width:66.3% !important;}
+		.payStep02 .step4{background-image:none;}
+		.qaList{border-top:1px solid #fff0e0;}
+		.qaList h2{background:none; padding:0; font-weight:bold; font-size:14px;}
+		#map_canvas,.mapInner{width:276px!important;}
+	</style>
+</head>
+<body>
+#set($isSubject=true)
+#set($cfgHeader='header')#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="inner">
+		<div class="payStep02">
+			<ul class="payOrderSteps clear">
+				<li class="step1">1.选择商品</li>
+				<li class="step2">2.确认订购数量</li>
+				<li class="step3">3.在线支付</li>
+				<li class="step4">4.完成购买</li>
+			</ul>
+		</div>
+		<div class="payBox mt20">
+			<div class="payBox_body clear">
+				<div class="clear">
+					<div class="payBox_body_left">
+						<div class="inner">
+							<h1>$!goods.goodsname</h1>
+							<p class="mt20 center"><img #if($goods.biglogo) src="$VmUtils.randomPic('',$!{goods.biglogo})" #else src="$VmUtils.randomPic('',$!{goods.limg})" #end alt="$goods.goodsname" title="$goods.goodsname" width="562" height="232"/></p>
+							#if($VmUtils.eq($relate.class.simpleName.toLowerCase(), 'cinema'))
+							<div class="clear">
+								<dl class="b_process mt30">
+									<dt>套餐内容：</dt>
+									<dd><b>$!VmUtils.escabbr($!goods.summary,200)</b></dd>
+									<dd>有效期至：$!DateUtil.format($!goods.totime,'yyyy年MM月dd日')</dd>
+									<dd>请提前30分钟至影院卖品部兑换套餐。</dd>
+								</dl>
+								<dl class="b_process mt30">
+									<dt>使用流程：</dt>
+									<dd>1、支付成功后将接收一条8位取票密码短信；</dd>
+									<dd>2、凭密码至影院格瓦拉取票机打印卖品券；</dd>
+									<dd>3、凭卖品券至影院卖品部兑换套餐；</dd>
+								</dl>
+							</div>
+							#end
+							#if($relate.name)
+							<p class="mt20 ffst"><a href="${basePath}$relate.url" target="_blank">查看$!relate.name信息&gt;&gt;</a></p>
+							#end
+						</div>
+						<div class="qaList">
+							<div class="inner">
+								<h2>常见问题</h2>
+								<dl class="mt10">
+									<dt>Q：在购买影票时同时购买卖品，会收到几条短信？</dt>
+									<dd>A：这是属于一个订单的内容，您购买成功后，会收到两条短信：一条为取影票的短信，一条为取卖品的短信。两条短信中含有不同的取票密码；</dd>
+								</dl>
+								<dl class="mt20">
+									<dt>Q：卖品票和影票是在哪里打印？</dt>
+									<dd>A：两者都是在影院格瓦拉自助取票机上打印，在取票机上选择不同的选项进入打印，分别输入购票时手机号码和8位数字密码即可；</dd>
+								</dl>
+								<dl class="mt20">
+									<dt>Q：是否可以更换其他等值的卖品？</dt>
+									<dd>A： 不可以。</dd>
+								</dl>
+							</div>
+						</div>
+					</div>
+					<div class="payBox_body_right" style="background:#fffaf4;">
+						<form name="payForm" id="payForm" method="post">
+							<input type="hidden" name="gid" value="$goods.id"/>
+							<div class="limitTimeNotice clear">
+								<p><em>格瓦拉价：</em><b style="font-size:18px; color:#f60;">¥$goods.unitprice</b></p>
+								<p><em>原价：</em>¥$goods.oriprice</p>
+								<p><em>选择数量：</em>
+									<select name="quantity" id="quantity" style="width:60px; height:30px; line-height:30px; padding:5px; float:left;">
+										#foreach($i in [1..$goods.maxbuy])
+										<option value="$i">$i</option>
+										#end
+									</select>
+									<span class="left ml5">份#if($gb && $gb.maxbuynum)(最多$gb.maxbuynum个)#end</span>
+								</p>
+								<p><em>手机号：</em>
+									<input type="text" name="mobile" id="mobile" onkeyup="replaceStr(this)" class="text fs14 bold" mustTxt="请输入手机号！" value="$!logonMember.mobile" style="height:18px; width:160px; color:#333; font:bold 18px/18px arial;" />
+								</p>
+								<p><em>验证码：</em>
+									<input type="hidden" name="captchaId" id="goodscaptcha" />
+									<input type="text" class="text captcha left mr5" name="captcha" alt="点击获取" autocomplete="off"  id="goodscaptchaInput" mustTxt="请输入验证码！" size="18" style="width:60px; height:18px; color:#333; font:bold 18px/18px arial;" onfocus="GewaraUtil.refreshCaptcha('goodscaptcha');"/>
+									<img id="goodscaptchaImg" src="${staticPath}css/images/blank.gif" style="cursor:pointer; height:30px; float:left;" onclick="GewaraUtil.refreshCaptcha('goodscaptcha')" title="看不清楚，请点击换一张图片"/>
+								</p>
+								<p class="mt30"><em>&nbsp;</em><label class="button maxBt redBt"><input type="button" value="立即购买" id="subBt" onclick="submitOrder(this);"/></label></p>
+							</div>
+						</form>
+					</div>
+				</div>
+				<div class="clear">
+					<div class="payBox_body_left" style="border-top:1px solid #fff0e0;">
+						<div class="inner">
+							$!goods.description
+						</div>
+					</div>
+					<div class="payBox_body_right" style="background:#fff; border-top:1px solid #fff0e0;">
+						#if($relate)
+						<div style="padding:20px;">
+							<p class="cinema_pic"><a href="${basePath}$relate.url" target="_blank"><img width="114" height="54" title="$!relate.name" alt="$!relate.name" src="$VmUtils.randomPic('sw120h60',$relate.Limg)"/></a></p>
+							<h3><a href="${basePath}$relate.url" target="_blank">$!relate.name</a></h3>
+							#set($gmark=$VmUtils.getSingleMarkStar($relate, "general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+							<span>
+								<sub>$gmark1.</sub>
+								<sup>$gmark2</sup>
+							</span>
+							<p><em class="gray">详细地址：</em>$!relate.address</p>
+							<div class="clear mt10" style="overflow:hidden;">
+								#set($map_tag=${relate.class.simpleName.toLowerCase()})
+								#set($map_place=$relate)
+								#parse('include/global/map.vm')
+							</div>
+							#if($VmUtils.eq($relate.class.simpleName.toLowerCase(), 'cinema') && $otherGoods)
+							<div class="clear mt20">
+								<h3>影院其他套餐：</h3>
+								<p class="setmeal" title="$!otherGoods.summary">$VmUtils.escabbr($!otherGoods.summary,36)</p>
+								<ul class="ui_media mt10">
+									<li>
+										<div class="ui_pic"><a title="$!otherGoods.goodsname" href="${basePath}goods/buyGoods.xhtml?gid=$!otherGoods.id"><img width="120" height="90" style="background:url($VmUtils.randomPic('sw120h90',$!{otherGoods.limg})) center center no-repeat #fff;" src="${staticPath}css/images/blank.gif" alt="$!otherGoods.goodsname"/></a></div>
+										<div class="ui_text" style="width:40% !important;">
+											#set($sum2 = $otherGoods.oriprice - $otherGoods.unitprice)#if($otherGoods.oriprice && $sum2 ne 0)<p class="fs14 bold">立省<b class="yellow">$sum2</b> 元</p>#end
+											<p>格瓦拉价：<b class="fs14 bold yellow">$otherGoods.unitprice</b>元</p>
+											<p class="mt5"><a href="${basePath}goods/buyGoods.xhtml?gid=$!otherGoods.id" class="button whiteBt minBt iconBt" target="_blank"><span><em style="padding:0 5px 0 12px;background:url(/css/global/rpt.png) 3px 2px no-repeat;">立即购买</em></span></a></p>
+											<p class="gray mt5">($!math.mul($!{otherGoods.sales},10)人购买)</p>
+										</div>
+									</li>
+								</ul>
+							</div>
+							#end
+						</div>
+						#end
+					</div>
+				</div>
+			</div>
+		</div>
+		#*
+		<div class="payBox mt20">
+			<div class="payBox_body clear">
+				<div class="payBox_body_left">
+					<div class="inner" style="padding:20px;">
+						$!goods.description
+					</div>
+				</div>
+				#if($relate)
+				<div class="payBox_body_right">
+					<div style="padding:20px;">
+						<p class="cinema_pic"><a href="${basePath}$relate.url" target="_blank"><img width="114" height="54" title="$!relate.name" alt="$!relate.name" src="$VmUtils.randomPic('sw120h60',$relate.Limg)"/></a></p>
+						<h3><a href="${basePath}$relate.url" target="_blank">$!relate.name</a></h3>
+						#set($gmark=$VmUtils.getSingleMarkStar($relate, "general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+						<span>
+							<sub>$gmark1.</sub>
+							<sup>$gmark2</sup>
+						</span>
+						<p><em class="gray">详细地址：</em>$!relate.address</p>
+						<div class="clear mt10" style="overflow:hidden;">
+							#set($map_tag=${relate.class.simpleName.toLowerCase()})
+							#set($map_place=$relate)
+							#parse('include/global/map.vm')
+						</div>
+						#if($VmUtils.eq($relate.class.simpleName.toLowerCase(), 'cinema') && $otherGoods)
+						<div class="clear mt20">
+							<h3>影院其他套餐：</h3>
+							<p class="setmeal" title="$!otherGoods.summary">$VmUtils.escabbr($!otherGoods.summary,36)</p>
+							<ul class="ui_media mt10">
+								<li>
+									<div class="ui_pic"><a title="$!otherGoods.goodsname" href="${basePath}goods/buyGoods.xhtml?gid=$!otherGoods.id"><img width="120" height="90" style="background:url($VmUtils.randomPic('sw120h90',$!{otherGoods.limg})) center center no-repeat #fff;" src="${staticPath}css/images/blank.gif" alt="$!otherGoods.goodsname"/></a></div>
+									<div class="ui_text" style="width:40% !important;">
+										#set($sum2 = $otherGoods.oriprice - $otherGoods.unitprice)#if($otherGoods.oriprice && $sum2 ne 0)<p class="fs14 bold">立省<b class="yellow">$sum2</b> 元</p>#end
+										<p>格瓦拉价：<b class="fs14 bold yellow">$otherGoods.unitprice</b>元</p>
+										<p class="mt5"><a href="${basePath}goods/buyGoods.xhtml?gid=$!otherGoods.id" class="button whiteBt minBt iconBt" target="_blank"><span><em style="padding:0 5px 0 12px;background:url(/css/global/rpt.png) 3px 2px no-repeat;">立即购买</em></span></a></p>
+										<p class="gray mt5">($!math.mul($!{otherGoods.sales},10)人购买)</p>
+									</div>
+								</li>
+							</ul>
+						</div>
+						#end
+					</div>
+				</div>
+				#end
+			</div>
+		</div>
+		*#
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	gewaUtil.textOver('.text');
+});
+
+function replaceStr(el){
+	$(el).value = $(el).value.replace(/[^\d]/g,'');
+}
+function submitOrder(obj){
+	checkLogin(true, function(){
+		if(!GewaraUtil.baseValidForm('payForm')) return;
+		if(!/^1[3,4,5,8]\d{9}$/.test($('mobile').value)){
+			gewaUtil.alert("手机号码格式不正确！");return false;
+		}
+		if(!/^[1-9]\d*$/.test($('quantity').value)){
+			gewaUtil.alert("购买数字不正确！");return false;
+		}
+		#if($gb)
+		if($('quantity').value>$gb.maxbuynum) {
+			gewaUtil.alert('最大购买数量不能超过：'+$gb.maxbuynum);
+			return false;
+		}
+		#end
+		var url = '${basePath}gewapay/addGoodsOrder.xhtml';
+		var values = GewaraUtil.getValues('payForm');
+		GewaraUtil.mask(obj);
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				document.location.href="${basePath}gewapay/order.xhtml?orderId=" + result.retval;
+			}else{
+				gewaUtil.alert(result.msg);
+				GewaraUtil.refreshCaptcha('goodscaptcha');
+			}
+		});
+	});
+}
+</script>
+#parse('include/wide_footer.vm')
+</body>
+</html>

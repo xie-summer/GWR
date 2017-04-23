@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>格瓦拉影院自助终端系统 - 格瓦拉生活网</title>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/partner/juxiang/new_layout.css"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+</head>
+
+<body>
+<div class="ui_layout">
+	<div class="ui_header"><h1>格瓦拉影院自助终端系统</h1></div>
+    <div class="ui_content">
+        <div class="ui_step ui_step4"></div>   
+        <div class="cheakOrder">
+        	<div class="mod_kong">
+            	<div class="mod_hd">
+                	<h2>确认订单信息</h2>
+                </div>
+                <div class="mod_bd">                	
+                    <h3>$!movie.name</h3>
+                    <p>影院：$!cinema.name</p>
+                    <p>场次：$!{DateUtil.format($opi.playtime,'yyyy-MM-dd')}($!{DateUtil.getCnWeek($opi.playtime)}) $!{DateUtil.format($opi.playtime,'HH:mm')}</p>
+                    <p>放映厅：$!opi.roomname</p>
+                    <p>票价：<em>${priceHelper.getPrice($opi)}</em>元(原价$!{opi.price},立省#set($freePrice=$opi.price - ${priceHelper.getPrice($opi)})$!freePrice元)</p>
+                    <div class="ui_line"></div>
+                    <p>您选择的座位：</p>
+                    <p class="chooseSeatResult">
+                    	#foreach($seatD in $seatDescription)
+                    	<span>$!{seatD}</span>
+                    	#end
+                    </p>
+                    <p>共<em>$order.quantity</em>张电影票</p>
+                    <p>需支付：<b class="cFf0 fs20">¥$!{order.due}</b>元</p>
+                    <div class="ui_line"></div>
+                    <p>接收手机：<em>$!{order.mobile}</em></p>                   
+                </div>
+            </div>
+			<span class="mask"></span>          
+        </div>
+        <p class="center clear"><a class="bigBt commit" href="javascript:payForm()">确认支付</a></p>             
+    </div>
+    <div class="ui_footer">    	
+        <a class="goBack" href="${basePath}partner/juxiang/chooseSeat.xhtml?mpid=$!opi.mpid&width=$!{width}">返回</a>
+        <a class="logOut" href="javascript:window.external.FromExit();">退出</a>
+    </div>
+    <form id="payForm" action="${basePath}partner/juxiang/saveOrder.xhtml" method="post">
+	<input type="hidden" name="orderId" value="$!order.id"/>
+	<input type="hidden" name="mobile" value="$!order.mobile"/>
+	</form>   
+</div>
+<script type="text/javascript">
+function payForm(){
+	gewa.util.mask({'element': "payForm",'title':'正在提交，请稍等...'});
+	var values = GewaraUtil.getValues($("payForm"));
+	var url = '${basePath}partner/juxiang/saveOrder.xhtml';
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			window.external.PaymentConfirmation(result.tradeno, result.ordertitle, result.amount, result.mobile, result.description, result.addtime, result.checkvalue, result.notifyUrl);
+		}else {
+			alert(result.msg);
+		}
+	},"post");	
+}
+</script>
+<script type="text/javascript">
+var pageCode="confirm.html"
+</script>
+#parse('partner/googleGa.vm')
+</body>
+</html>

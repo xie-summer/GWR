@@ -1,0 +1,55 @@
+<data>
+	<order>
+#set($descMap=$!VmUtils.readJsonToMap($!order.description2))
+		<mpid>$!order.mpid</mpid>
+		<movieid>$!opi.movieid</movieid>
+		<cinemaid>$!opi.cinemaid</cinemaid>
+		<tradeno>$!order.tradeNo</tradeno>
+		<mobile>$!order.mobile</mobile>
+		<unitprice>$!order.unitprice</unitprice>
+		<quantity>$!order.quantity</quantity>
+		<discount>$!order.discount</discount>
+#if($!order.discount gt 0)
+		<disreason>$!order.disreason</disreason>
+#end
+		<amount>$!order.due</amount>
+		<addtime>$!DateUtil.format($!order.createtime,'yyyy-MM-dd HH:mm:ss')</addtime>
+		<validtime>$!DateUtil.format($!order.validtime,'yyyy-MM-dd HH:mm:ss')</validtime>
+		<moviename>$!opi.moviename</moviename>
+		<cinemaname>$!opi.cinemaname</cinemaname>
+		<playtime>$!DateUtil.format($!opi.playtime,'yyyy-MM-dd HH:mm:ss')</playtime>
+		<roomname>$!opi.roomname</roomname>
+		<seat>$!descMap.get('影票')</seat>
+		#if($!orderStatus)<status>$!orderStatus</status>#end
+		#set($ukey=$order.gainUkey())
+		#if($!VmUtils.isNotBlank($ukey))<ukey>$ukey</ukey>#end
+#if($!order.allPaid)
+		<paidtime>$!DateUtil.format($!order.paidtime,'yyyy-MM-dd HH:mm:ss')</paidtime>
+		<paidAmount>$!order.alipaid</paidAmount>
+		<payseqno>$!order.payseqno</payseqno>
+#end
+#if($!order.status eq 'paid_return')
+		<refundtime>$!DateUtil.formatTimestamp($!order.updatetime)</refundtime>
+#end
+#if($!order.new)
+		<payurl>$!partner.getRealPayurl($!order)</payurl>
+#end
+#if($!curDiscount)
+		<curDiscountAmount>$!curDiscount.amount</curDiscountAmount>
+		<curDisreason>$!curDiscount.description</curDisreason>
+#end
+#if($!order.itemfee gt 0)
+		<itemfee>$!order.itemfee</itemfee>
+#end
+	</order>
+#if($!resv)<resv><![CDATA[resv]]></resv>#end
+#if($!goods)
+	<goods>
+		<goodsname><![CDATA[$!goods.goodsname]]></goodsname>
+		<shortname><![CDATA[$!goods.shortname]]></shortname>
+		<description><![CDATA[$!VmUtils.getHtmlText($!goods.description,100000)]]></description>
+		<unitprice>$!goods.unitprice</unitprice>
+		<rateinfo>$!gift.rateinfo</rateinfo>
+	</goods>
+#end
+</data>

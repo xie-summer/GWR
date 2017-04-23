@@ -1,0 +1,25 @@
+#if($VmUtils.size($pictureList) gt 0 && $VmUtils.eq($type ,'apic'))
+#foreach($picture in $pictureList)
+#if($foreach.index%4 eq 0)
+<ul class="percent_25 color6 still_mt20 clear">
+#end
+	#set($replyCount=$repleyCountMap.get($picture.id))
+	<li>
+		<a href="${basePath}sport/agencyPictureDetail.xhtml?pid=$picture.id&pvtype=apic&agencyId=$agency.id" target="_blank">
+			<img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw128h96',$picture.picturename)) center center no-repeat;" width="128" height="96"/>
+		</a>
+		<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=1">Gewara</a>上传</p>
+		#if($replyCount && $replyCount gt 0)<p><span class="gray">$replyCount回复</span></p>#end
+	</li>
+#if($foreach.count%4 eq 0 || $foreach.count eq $pictureList.size())
+</ul>
+#end
+#end
+#set($pageFun="ajaxPage")
+<div class="clear">#parse('include/scriptPageUtil.vm')</div>
+<script>
+ajaxPage = function(pageNo, params, url){
+	gewaUtil.loadData('pictureDetail', url, {});
+}
+</script>
+#end

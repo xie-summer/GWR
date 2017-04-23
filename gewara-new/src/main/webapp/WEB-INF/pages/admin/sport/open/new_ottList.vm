@@ -1,0 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>开放场次列表管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/admin.css?v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body>
+#set($isSport=true)
+#set($opTypeMap={'period':'按人数','field':'按场地','inning':'按局数'})
+#parse('admin/sport/open/new_menu.vm')
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+
+	<div class="contentInfoList">
+		<div class="checkMenu">
+			<ul>
+				<li #if(!$params.itemid)class="chooseItem"#end>
+					<div><a href="${basePath}admin/sport/open/newOttList.xhtml?sportid=$cursport.id">全部</a>
+					<h2>$sum场</h2>
+				</li>
+				#foreach($item in $itemList)
+				<li #if($params.itemid eq $item.id)class="chooseItem"#end>
+					<div><a href="${basePath}admin/sport/open/newOttList.xhtml?sportid=$cursport.id&itemid=$!item.id">$item.itemname</a>
+					<h2>$countMap.get($item.id)场</h2>
+				</li>
+				#end
+				
+				<form action="${basePath}admin/sport/open/synchOttList.xhtml">
+				<div class="right" style="vertical-align: text-bottom">
+					<input type="button" value="同步远程项目" onclick="synItem($cursport.id)"/>
+				</div>
+				</form>
+				
+				<form action="${basePath}admin/sport/open/newOttList.xhtml">
+				<div class="right" style="vertical-align: text-bottom">
+					日期：<input type="text" name="qryDate" id="playdate" style="width: 100px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>
+					<input type="hidden" name="sportid" value="$cursport.id" />
+					<input type="submit" value="查询"/>
+				</div>
+				</form>
+			</ul>
+		</div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>项目名称</th>
+					<th>预订方式</th>
+					<th>查看订单</th>
+					<th>时间</th>
+					<th>支付选项</th>
+					<th>场次/价格</th>
+					<th>开放时间</th>
+					<th>优惠券</th>
+					<th>状态(场馆/本地)</th>
+					<th>前台</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				<tr class="grayBg">
+					<td>批量操作</td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td>
+						<label>开放：<input type="text" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" value="" style="width: 140px;" id="alltime" onchange="openAll()"/></label>
+						<label>关闭：<input type="text" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" value="" style="width: 140px;" id="allclosetime" onchange="closeAll()"/></label>
+					</td>
+					<td>
+						<input type="text" value="" id="allElecard" style="width: 40px;" onblur="setAllElecard()"/>
+					</td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+				#foreach($ott in $ottList)
+				#set($item=$itemMap.get($ott.itemid))
+				<tr class="grayBg">
+					<td><a href="$!{absPath}${basePath}sport/item/$ott.itemid" target="_blank">$item.itemname</a></td>
+					<td>$!opTypeMap.get($ott.openType)</td>
+					<td>
+						<a href="${basePath}admin/sport/open/orderList.xhtml?ottid=$ott.id" target="_blank">查看订单</a>
+					</td>
+					<td>$DateUtil.format($ott.playdate, 'yyyy-MM-dd')&nbsp;$DateUtil.getCnWeek($ott.playdate)&nbsp;</td>
+					<td><a href="${basePath}admin/sport/open/ottForm.xhtml?ottid=$ott.id" target="_blank">修改</a></td>
+					<td><a href="${basePath}admin/sport/open/newOttDetail.xhtml?ottid=$ott.id" target="_blank">详细</a></td>
+					<td>
+						<label>开放：<input type="text" style="width:140px;" class="optime" id="$ott.id" onchange="setOpentime($ott.id,this)" value="$!DateUtil.format($ott.opentime,'yyyy-MM-dd HH:mm:ss')" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" /></label>
+						<label>关闭：<input type="text" style="width:140px;" class="cltime" lang="$ott.id" onchange="setClosetime($ott.id,this)" value="$!DateUtil.format($ott.closetime,'yyyy-MM-dd HH:mm:ss')" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" /></label>
+					</td>
+					<td><input type="text" value="$!ott.elecard" style="width: 40px;" onchange="setElecard($ott.id, this)"/></td>
+					<td>$!ott.rstatus/#if($ott.booking)Y#{else}N#end</td>
+					<td><a href="$!{absPath}${basePath}sport/order/step1.xhtml?ottid=$ott.id" target="_blank">前台</a></td>
+					<td>
+						<select id="book$ott.id" onchange="setStatus($ott.id,this)">
+							<option value="Y" #if($VmUtils.eq($ott.status,'Y'))selected#end>接受预定</option>
+							<option value="N" #if($VmUtils.eq($ott.status,'N'))selected#end>不接受预定</option>
+							<option value="D" #if($VmUtils.eq($ott.status,'D'))selected#end>人工废弃</option>
+							<option value="R" #if($VmUtils.eq($ott.status,'R'))selected#end>删除并重新同步</option>
+						</select>
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+	<script type="text/javascript">
+	function openTimeTable(sttid, el){
+		gewa.util.mask({'element': el,'title':'正在提交，请稍等...'});
+		var values = {"sttid":sttid,"costprice":$('costprice'+sttid).value,"gewaprice":$('gewaprice'+sttid).value};
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/openTimeTable.xhtml', values, function(result){
+			if(result.success){
+				refreshPage();
+			}else {
+				gewa.util.clearMask();
+				alert(result.msg);
+			}
+		});
+	}
+	function setStatus(ottid, el){
+		el.style.backgroundColor = 'red';
+		var values = {"ottid":ottid,"status":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/setOTTStatus.xhtml', values, function(result){
+			if(result.success){
+				if(el.value=='R'){
+					refreshPage();
+				}else {
+					el.style.backgroundColor = '#fff';
+				}
+			}else alert(result.msg);
+		});
+	}
+	function setCostprice(ottid, el){
+		el.setStyle("background","red");
+		var values = {"ottid":ottid,"costprice":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/setOTTCostprice.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else alert(result.msg);
+		});
+	}
+	function setGewaprice(ottid, el){
+		el.setStyle("background","red");
+		var values = {"ottid":ottid,"gewaprice":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/setOTIprice.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else alert(result.msg);
+		});
+	}
+	function setOpentime(ottid, el){
+		el.setStyle("background","red");
+		var values = {"ottid":ottid,"opentime":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/setOTTOpentime.xhtml', values, function(result){
+			if(result.success) el.setStyle("background","");
+			else alert(result.msg);
+		});
+	}
+	function setClosetime(ottid, el){
+		el.setStyle("background","red");
+		var values = {"ottid":ottid,"closetime":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/setOTTCloseime.xhtml', values, function(result){
+			if(result.success) el.setStyle("background","");
+			else alert(result.msg);
+		});
+	}
+	function dropOTT(ottid){
+		if(confirm('确实要废弃吗？')==false) return;
+		var values = {"ottid":ottid};
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/dropOTT.xhtml', values, function(result){
+			if(result.success) refreshPage();
+			else alert(result.msg);
+		});
+	}
+	function synItem(sportid){
+		var values = {"sportid":sportid};
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/synchItem.xhtml', values, function(result){
+			if(result.success) alert('同步成功');
+			else alert(result.msg);
+		});
+	}
+	function setElecard(ottid, el){
+		el.setStyle("background","red");
+		var values = {"ottid":ottid,"elecard":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/setElecard.xhtml', values, function(result){
+			if(result.success) el.setStyle("background","");
+			else alert(result.msg);
+		});
+	}
+	function openAll(){
+		var time = $("alltime").value;
+		if(time=='') {
+			alert("先设置时间！");
+			return;
+		}
+		$$(".grayBg .optime").each(function(item){
+			if(item.value!=time){
+				item.value=time;
+				setOpentime(item.id, item);
+			}
+		});
+		
+	}
+	function closeAll(){
+		var time = $("allclosetime").value;
+		if(time=='') {
+			alert("先设置时间！");
+			return;
+		}
+		$$(".grayBg .cltime").each(function(item){
+			if(item.value!=time){
+				item.value=time;
+				setClosetime(item.lang, item);
+			}
+		});
+		
+	}
+	function setAllElecard(){
+		var ids = "";
+		$$(".grayBg .optime").each(function(item){
+			ids = ids + item.id+",";
+		});
+		var values = {"ids":ids,"elecard":$('allElecard').value}
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/setAllElecard.xhtml', values, function(result){
+			if(result.success){
+				alert("设置成功！");
+				refreshPage();
+			}else alert(result.msg);
+		});
+	} 
+</script>
+</body>
+</html>

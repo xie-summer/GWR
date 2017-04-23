@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>报表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+<body style="width:85%; margin:auto">
+<div style="clear:both;"></div>
+<table width="100%" border="0"  cellspacing="0" class="table">
+	<tr>
+		<th>订单号</th>
+		<th>联系手机</th>
+		<th>成本价</th>
+		<th>数量</th>
+		<th>金额</th>
+		<th>订单描述</th>
+		<th>成交时间</th>
+	</tr>
+	#set($M=0)#set($T=0)
+	#foreach($order in $orderList)
+	<tr>
+		<td>${order.tradeNo}</td>
+		<td>${order.mobile}</td>
+		<td>${order.costprice}</td>
+		<td>$!order.quantity</td>
+		<td>$!order.totalAmount</td>
+		<td>$!VmUtils.readJsonToMap($order.description2).values()</td>
+		<td>$!DateUtil.format(${order.paidtime}, "yyyy-MM-dd HH:MM")</td>
+	</tr>
+	#set($T=$T+$!order.quantity)
+	#set($M=$M+$!order.totalAmount)
+	#end
+	<tr>
+		<th colspan="6">总票数:$T, 总金额:$M</th>
+	</tr>
+</table>
+</body>
+</html>

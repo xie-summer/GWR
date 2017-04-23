@@ -1,0 +1,88 @@
+#if($cinema.id)#set($map_tag='cinema')#set($map_place=$cinema)
+#elseif($bar.id)#set($map_tag='bar')#set($map_place=$bar)
+#elseif($ktv.id)#set($map_tag='ktv')#set($map_place=$ktv)
+#elseif($sport.id)#set($map_tag='sport')#set($map_place=$sport)
+#elseif($gym.id)#set($map_tag='gym')#set($map_place=$gym)
+#elseif($theatre.id)#set($map_tag='theatre')#set($map_place=$theatre)
+#elseif($activity.id)#set($map_tag=$activity.tag)#set($map_place=$!relate)
+#end
+#parse('include/constant/cityPoint.vm')
+#set($globalCurPoint=$globalCityPoint.get($cookieCitycode))
+#if(!$redirectUrl) #set($redirectUrl='common/baiduMap.xhtml') #end
+<script type="text/javascript">
+window.addEvent('load',function(){
+	gewa.util.getMap();
+	gewaUtil.textOver('.text');
+});
+gewa.util.getMap = function(){
+	gewa.util.getMap.loading = new Element('div',{'styles':{'position':'absolute','width':'100%','height':'100%','left':0,'top':0,'background':'#fefefe url(${staticPath}css/images/loading.gif) center center no-repeat'}}).inject('loadMap');
+	(function(){
+		Asset.javascript('http://api.map.baidu.com/getscript?v=1.2&t='+gewara.util.rtime(), {
+		    id: 'baiduScript',
+		    onLoad: function(){
+		    	var map =new BMap.Map("map_canvas"); //创建Map实例
+				#if(!$VmUtils.isNull($map_place.bpointy) && !$VmUtils.isNull($map_place.bpointx))
+					var pointy = '$!map_place.bpointy';
+					var pointx = '$!map_place.bpointx';
+					if(!(pointx > -90 && pointx < 90) || !(pointy > -180 && pointy < 180)){
+						var point =new BMap.Point($!globalCurPoint[1] ,$!globalCurPoint[0]);	
+					}else{
+						var point =new BMap.Point($map_place.bpointy ,$map_place.bpointx); //创建点坐标
+					}
+				#else
+					var point =new BMap.Point($!globalCurPoint[1] ,$!globalCurPoint[0]);
+				#end
+				map.centerAndZoom(point,15); //初始化地图,设置中心点坐标和地图级别。
+				//创建标记
+				var marker=new BMap.Marker(point);
+				map.addOverlay(marker);
+				gewa.util.getMap.loading.dispose();
+		    }
+		});
+	}).delay(2000);
+	tabs();
+}
+function searchLine(){
+	var url = '${basePath}common/baiduMap.xhtml?id=$!map_place.id&tag=$!map_tag&from='+encodeURI($('fromAddress').value)+'&end='+encodeURI($('endAddress').value)+'&title='+encodeURI($('addressTitle').value);
+	GewaraUtil.openwin(url,'_blank');
+};
+function tabs(){
+	var elements = $$('.search_icon_tab a');
+	elements.addEvent('click',function(){
+		elements.each(function(item){
+			item.removeClass('select');
+		})
+		this.addClass('select');
+		$('addressTitle').value = this.get('title');
+	})
+}
+</script>
+<div class="mapInfo">
+	<div id="loadMap" style="position:relative;overflow:hidden;">
+		<form action="${basePath}$redirectUrl" target="_blank">
+			<input type="hidden" name="tag" id="tag" value="$!map_tag"/>
+			<input type="hidden" name="id" id="id" value="$map_place.id"/>
+			<div id="map_canvas" style="width:100%;height:185px;"></div>
+		</form>
+	</div>
+</div>
+<div class="mapModify">
+	<div class="search_icon_tab clear">
+		<a class="select" href="javascript:void(0);" title="驾车"><img class="car" src="$VmUtils.randomPic('','css/images/blank.gif')"></a>
+		<a href="javascript:void(0);" title="公共交通"><img class="bus" src="$VmUtils.randomPic('','css/images/blank.gif')"></a>
+		<a href="javascript:void(0);" title="步行" ><img class="men" src="$VmUtils.randomPic('','css/images/blank.gif')"></a>
+	</div>
+	<input type="hidden" name="title" value="" id="addressTitle"/>
+	<div class="search_form">
+		<ul>
+			<li>
+				<span class="map_ico_a" title="起点"></span>
+				<input id="fromAddress" style="width:174px;" class="text" type="text" alt="请输入起点">
+			<li>
+				<span class="map_ico_b" title="终点"></span>
+				<input id="endAddress" style="width:174px;" class="text" type="text" value="$!map_place.name">
+			</li>
+		</ul>
+		<p class="mt10"><a class="button minBt redBt" href="javascript:void(0);" onclick="searchLine();return false;"><span>查询路线</span></a></p>
+	</div>
+</div>

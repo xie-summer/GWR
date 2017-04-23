@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>基础数据设置</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.contentInfoList li{margin-top:5px;}
+		.grayBg td input{width: 80px;}
+	</style>
+</head>
+<body>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore">$cinema.name</li>
+			<li><a href="${basePath}admin/ticket/mpiManage.xhtml?cid=$cinema.id"><span>场次管理</span></a></li>
+			<li><a href="${basePath}admin/ticket/orderList.xhtml?cid=$cinema.id" class="admin"><span>订单管理</span></a></li>
+			<li class="currs"><a><span>基础数据</span></a></li>
+			<li><a href="${basePath}admin/ticket/auto/setterList.xhtml?cinemaid=$cinema.id"><span>自动开放</span></a></li>
+			<li><a href="${basePath}admin/ticket/opiStats.xhtml?cid=$cinema.id" class="admin"><span>座位统计</span></a></li>
+			<li><a href="${basePath}admin/ticket/settleList.xhtml?cid=$!cinema.id" class="admin"><span>结算说明</span></a></li>
+			<li><a href="${basePath}admin/ticket/settleConfirm.xhtml?cid=$!cinema.id" class="admin"><span>结算确认</span></a></li>
+		</ul>
+	</div>
+</div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		#if($params.msg)<div style="color:green">$params.msg</div>#end
+		<form action="${basePath}admin/ticket/saveBaseData.xhtml" method="post">
+			<input type="hidden" name="cid" value="${cinema.id}" />
+			<div style="color:red">替换说明：movie：影片简称，date：日期[如2月14日]，time：时间[如19：30]，week:星期，如：周一，seat：座位，gewapass：取票密码，hfhpass：火凤凰取票密码，lorder：订单号，sorder：订单号后六位，endMobile：手机号后四位，containGoods：包含卖品时替换成--含卖品</div>
+			<div style="color:green">示例1：datetimeweekXXX影院movieseat已确定，凭密码gewapass到售票机取票</div>
+			<div style="color:green">示例2：温馨提示：今天time您要在XX影院（定西路路1310弄）看movie，祝观影愉快。客服热线4000-406-506</div>
+			<ul>
+			<li><span>取票短信：</span><input type="text" name="notifymsg1" value="$!profile.notifymsg1" style="width:600px;"/>（发送取票密码）</li>
+			<li><span>提醒短信：</span><input type="text" name="notifymsg2" value="$!profile.notifymsg2" style="width:600px;"/>（提前3小时发送）</li>
+			<li><span>取票帖子ID：</span><input type="text" name="topicid" value="$!profile.topicid" style="width:600px;"/></li>
+			<li>
+				<span>&nbsp;取票位置：</span><input type="text" name="takeAddress" value="$!profile.takeAddress" style="width:300px"/>
+				<span>&nbsp;取票方式：</span><select name="takemethod" id="o$cinema.id">
+					#foreach($takemethod in $takemethodMap.keySet())
+						<option value="$takemethod" #if($VmUtils.eq($!{profile.takemethod},$takemethod))selected#end>$takemethodMap.get($takemethod)</option>
+					#end
+					## <option value="P" #if($VmUtils.eq($!{profile.takemethod},'P'))selected#end>现场派送</option>
+					## <option value="W" #if($VmUtils.eq($!{profile.takemethod},'W'))selected#end>影院售票窗口</option>
+					## <option value="A" #if($VmUtils.eq($!{profile.takemethod},'A'))selected#end>格瓦拉取票机</option>
+					## <option value="U" #if($VmUtils.eq($!{profile.takemethod},'U'))selected#end>联和院线自助取票机</option>
+					## <option value="L" #if($VmUtils.eq($!{profile.takemethod},'L'))selected#end>卢米埃影院自助取票机</option>
+					## <option value="D" #if($VmUtils.eq($!{profile.takemethod},'D'))selected#end>万达院线自助取票机</option>
+					## <option value="J" #if($VmUtils.eq($!{profile.takemethod},'J'))selected#end>金逸院线自助取票机</option>
+					## <option value="M" #if($VmUtils.eq($!{profile.takemethod},'M'))selected#end>影院会员自助取票机</option>
+				</select>
+				<span>&nbsp;是否开放：</span><select name="status" id="status">
+					<option value="open" #if($VmUtils.eq($!{profile.status},'open'))selected#end>开放</option>
+					<option value="close" #if($VmUtils.eq($!{profile.status},'close'))selected#end>关闭</option>
+				</select>
+				<span>&nbsp;套餐：</span><select name="popcorn" id="popcorn">
+					<option value="">选择</option>
+					<option value="Y" #if($VmUtils.eq($!{profile.popcorn},'Y'))selected#end>有</option>
+					<option value="N" #if($VmUtils.eq($!{profile.popcorn},'N'))selected#end>无</option>
+				</select>
+				<span>&nbsp;服务费：</span><select name="servicefee" id="servicefee">
+					<option value="">选择</option>
+					<option value="Y" #if($VmUtils.eq($!{profile.servicefee},'Y'))selected#end>有</option>
+					<option value="N" #if($VmUtils.eq($!{profile.servicefee},'N'))selected#end>无</option>
+				</select>
+				服务金额：<input type="text" name="fee" value="$!profile.fee" style="width:50px"/>
+			</li>
+			<li><span>每日开放时间：</span><input type="text" name="opentime" value="$!profile.opentime"/>
+				<span>每日关闭时间：</span><input type="text" name="closetime" value="$!profile.closetime"/>
+				<span style="color:red;">默认为全天(00:00~24:00)， 如6:00开放写成0600</span>
+			</li>
+			<li><span>套餐营业时间：</span>
+				从<input type="text" name="startsale" id="startsale" value="$!profile.startsale" style="width: 100px" />
+				到：<input type="text" name="endsale" id="endsale" value="$!profile.endsale" style="width: 100px" />
+				<span style="color:red;">格式:0800</span>
+				是否支持退票：<select name="isRefund">
+						<option value="N" #if($VmUtils.eq($!{profile.isRefund},'N'))selected#end>否</option>
+						<option value="Y" #if($VmUtils.eq($!{profile.isRefund},'Y'))selected#end>是</option>
+					</select>
+			</li>
+			<li><span>提前多长时间关闭场次（分钟）：</span><input type="text" name="cminute" id="cminute" value="$!profile.cminute" style="width: 100px" />
+			<span>提前开放时间(例如：提前1天填写1)：</span><input type="text" name="openDay" id="openDay" value="$!profile.openDay" style="width: 20px" />天
+			<input type="text" name="openDayTime" id="openDayTime" value="$!profile.openDayTime" style="width: 100px" /><span style="color:red;">默认为全天(00:00~24:00)， 如6:00开放写成0600</span>
+			</li>
+			<li><span>第三方影院类型：</span>
+				<select name="opentype" #if($VmUtils.isNotBlank($profile.opentype)) disabled="disabled" #end>
+					<option value="" >请选择影院类型</option>
+					#foreach($parnterKey in $partnerTextMap.keySet())
+					<option value="$parnterKey" #if($VmUtils.eq($profile.opentype,$parnterKey)) selected="selected" #end >$partnerTextMap.get($parnterKey)</option>
+					#end
+				</select>
+			</li>
+			<li><span>是否直连影院：</span><select name="direct">
+					<option value="N" #if($VmUtils.eq($!{profile.direct},'N'))selected#end>否</option>
+					<option value="Y" #if($VmUtils.eq($!{profile.direct},'Y'))selected#end>是</option>
+				</select><span class="ml20">服务说明：</span><input type="text" name="prompting" id="prompting" value="$!profile.prompting" style="width: 500px" />
+			</li>
+			<li><input type="submit" value="保存修改" /></li>
+			</ul>
+		</form>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>类型</th>
+					<th>影厅次序</th>
+					<th>影厅名</th>
+					<th>放映类型</th>
+					<th>排数</th>
+					<th>列数</th>
+					<th>座位数</th>
+					<th>可卖座位限制</th>
+					<th>默认版本名称</th>
+					<th>保存</th>
+					<th title="如果是手工更改了座位，请刷新预览图">安排座位</th>
+					<th title="安排座位外围的过道，实体墙位置">安排外围座位</th>
+					<th>情侣座设置</th>
+					<th>初始状态</th>
+					<th>取票短信及提醒</th>
+					<th title="如果是手工更改了座位，请刷新预览图">预览图</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				#foreach($room in $roomList)
+				<tr class="grayBg" id="r$room.id">
+					<td>$!partnerFlagMap.get($room.roomtype)</td>
+					<td><input type="text" value="${room.num}" name="num"#if($room.hasRemoteRoom())${room.linenum} readonly="readonly"#end/><input type="hidden" name="roomid" value="${room.id}"/></td>
+					<td><input type="text" value="${room.roomname}" name="roomname"/></td>
+					<td><select name="playtype">
+						<option value="">不限</option>
+						<option value="2D" #if($room.playtype eq '2D')selected="selected"#end>只放映2D</option>
+						<option value="3D" #if($room.playtype eq '3D')selected="selected"#end>只放映3D</option>
+						<option value="IMAX" #if($room.playtype eq 'IMAX')selected="selected"#end>只放映IMAX</option>
+					</select></td>
+					<td><input type="text" value="${room.linenum}" name="linenum"#if($room.hasRemoteRoom())${room.linenum} readonly="readonly"#end/></td>
+					<td><input type="text" value="${room.ranknum}" name="ranknum"#if($room.hasRemoteRoom())${room.linenum} readonly="readonly"#end/></td>
+					<td><input type="text" value="${room.seatnum}" name="seatnum"#if($room.hasRemoteRoom())${room.linenum} readonly="readonly"#end/></td>
+					<td><input type="text" value="${room.allowsellnum}" name="allowsellnum"/></td>
+					<td><input type="text" value="$!{room.defaultEdition}" name="defaultEdition"/></td>
+					<td><input type="button" value="保存" onclick="saveRoom('r$room.id');"/></td>
+					<td><a href="${basePath}admin/cinema/roomseat.xhtml?rid=$room.id" target="_blank">安排座位</a></td>
+					<td><a href="${basePath}admin/cinema/outerRingSeat.xhtml?rid=$room.id" target="_blank">安排外围座位</a></td>
+					<td><a href="${basePath}admin/ticket/seatInitstatus.xhtml?rid=$room.id" target="_blank">情侣座设置</a></td>
+					<td><a href="${basePath}admin/ticket/seatTempInitstatus.xhtml?roomId=$room.id" target="_blank">座位模板设置</a></td>
+					<td><a href="${basePath}admin/cinema/setRoomMsg.xhtml?rid=$room.id" target="_blank">取票短信及提醒</a></td>
+					<td><a href="${basePath}admin/ticket/updateRoomSeatMapStr.xhtml?roomid=$room.id" target="_blank">更新</a></td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<script type="text/javascript">
+	window.addEvent("domready", function(){
+		$("tbody").getElements("tr").each(function(item){
+			item.addEvents({
+				'mouseenter':function(){
+					item.addClass("mouseBg");
+				},
+				'mouseleave':function(){
+					item.removeClass("mouseBg");
+				}
+			});
+		});
+	})
+	function saveRoom(elid){
+		GewaraUtil.mask();
+		var url = '${basePath}admin/ticket/updateRoom.xhtml';
+		var values = GewaraUtil.getValues(elid);
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			alert(result.retval);
+		});
+	}
+</script>
+</body>
+</html>

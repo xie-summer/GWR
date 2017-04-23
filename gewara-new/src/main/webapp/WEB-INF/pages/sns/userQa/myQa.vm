@@ -1,0 +1,61 @@
+#set($isShow=false)
+#if($!rights.get(6) eq 'qa_public')
+#set($isShow=true)
+#elseif($!rights.get(6) eq 'qa_friend' && $isMyFriend)
+#set($isShow=true)
+#end
+#if(!$!rights)
+	#set($isShow=true)
+#end
+#set($tag={'cinema':'电影','gym':'健身','sport':'运动','bar':'酒吧','ktv':'KTV','activity':'活动','theatre':'话剧','':'其他'})
+#if($isShow)
+#if(!$VmUtils.isEmptyList($listQuestion))
+#foreach($question in $listQuestion)
+#set($dayCount=$dayMap.get($question.id))
+#set($member = $memberMap.get($question.id))
+#set($dayCount=$dayMap.get($question.id))
+<dl>
+	<dt class="uipic">
+		<a target="_blank" class="pubpic" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!question.memberid">
+			<img width="50" height="50" src="$VmUtils.randomPic('cw50h50',$!cacheMemberMap.get($!question.memberid).headpicUrl)" />
+		</a>
+	</dt>
+	<dd class="uiText">
+			#if($question.questionstatus eq 'Y' || $question.questionstatus eq 'noproper')<b class="right iGold">+$!question.reward分</b>#end<i>[
+			#if($VmUtils.eq($!question.tag,null))$tag.get('')#else<a href="${basePath}#if($question.tag eq 'cinema')movie#elseif($question.tag eq 'theatre')drama #else$question.tag#end" target="_blank">$!tag.get($question.tag)</a>#end
+			#if($mapQuestionTag.get($question.id) eq 'movie')- <a href="${basePath}movie/${mapQuestion.get($question.id).id}">$mapQuestion.get($question.id).moviename</a>#end
+			#if($mapQuestionTag.get($question.id) eq 'gymcourse')- <a href="${basePath}gym/course/$mapQuestion.get($question.id).id">$mapQuestion.get($question.id).coursename</a>#end 
+			#if($mapQuestionTag.get($question.id) eq 'sportservice')- <a href="${basePath}sport/item/$mapQuestion.get($question.id).id">$mapQuestion.get($question.id).itemname</a>#end
+			#if($mapQuestionTag.get($question.id) eq 'drama')- <a href="${basePath}drama/$mapQuestion.get($question.id).id">$mapQuestion.get($question.id).dramaname</a>#end
+			]</i><a href="${basePath}qa/q${question.id}" title="$!question.title" target="_blank"><b>$VmUtils.escabbr($!question.title,30)</b></a><i>$DateUtil.format($!question.updatetime,'yyyy-MM-dd HH:mm')</i><br/>
+		#if($mapQuestionTag.get($question.id) eq 'movie')
+		<span>关联：<a href="${basePath}movie/${mapQuestion.get($question.id).id}" title="$mapQuestion.get($question.id).moviename" target="_blank">$mapQuestion.get($question.id).moviename</a></span><br/>
+		#elseif($mapQuestionTag.get($question.id) eq 'sportservice')
+		<span>关联：<a href="${basePath}sport/item/${mapQuestion.get($question.id).id}" title="$mapQuestion.get($question.id).itemname" target="_blank">$mapQuestion.get($question.id).itemname</a></span><br/>
+		#elseif($mapQuestionTag.get($question.id) eq 'gymcourse')
+		<span>关联：<a href="${basePath}gym/course/${mapQuestion.get($question.id).id}" title="$mapQuestion.get($question.id).coursename" target="_blank">$mapQuestion.get($question.id).coursename</a></span><br/>
+		#elseif($mapQuestionTag.get($question.id) eq 'drama')
+		<span>关联：<a href="${basePath}drama/${mapQuestion.get($question.id).id}" title="$mapQuestion.get($question.id).dramaname" target="_blank">$mapQuestion.get($question.id).dramaname</a></span><br/>
+		#end
+		#if(!$VmUtils.isNull($member))<span>最后回复：<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!member.id" title="$!member.nickname" target="_blank">$!member.nickname</a></span><br/>#end
+		<p>
+			<span class="left"><em class="iGold">悬赏$!question.reward分</em><i>$!question.clickedtimes在人关注</i>|<i>$!question.replycount回复</i></span>
+			<span class="right iTime #if($!dayCount eq '已结束')iEnd #end">$!dayCount</span>
+		</p>
+	</dd>
+</dl>
+#end
+#set($pageFun="ajaxPage")
+#parse('include/scriptPageUtil.vm')
+#else
+<div class="ui_warning">你从未帮助瓦友解决过问题，<a href="${basePath}qa" target="_blank">马上去看看瓦友们的问题</a></div>
+#end
+#else
+<div class="clew mt20">
+	#if($!rights.get(6) eq 'qa_private')
+		【$!member.nickname】的知道设置了权限为【全体不可见】
+	#elseif($!rights.get(6) eq 'qa_friend')
+		【$!member.nickname】的知道设置了权限为【仅好友可见】
+	#end
+</div>
+#end

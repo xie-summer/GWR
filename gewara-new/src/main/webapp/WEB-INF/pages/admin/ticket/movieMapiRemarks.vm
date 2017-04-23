@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>电影场次说明</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+	<td colspan="4" align="left" class="td">当前位置>>电影场次说明
+	</td>
+		<td align="right" class="td">
+			<a class="aEvent" href="${basePath}admin/ticket/remarksDetail.xhtml">[增加]</a>&nbsp;&nbsp;
+				<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td">
+		<td align="left" class="wd120"><b>场次说明</b></td>
+		<td align="left" class="wd60"><b>有效时间</b></td>
+		<td align="left" class="wd60"><b>电影id</b></td>
+		<td align="left" class="wd60"><b>关联城市</b></td>
+		<td align="left" class="wd120"><b>操作</b></td>
+	</tr>
+	#foreach($remark in $remarks)
+	<tr class="td">
+		<td align="left" class="wd120">$!remark.remark</td>
+		<td align="left" class="wd60">
+		$!remark.validTime
+		</td>
+		<td align="left" class="wd60">
+		$!remark.movieId
+		</td>
+		<td align="left" class="wd60">
+		$!cityMap.get($remark.cityCode) : $remark.cityCode
+		</td>
+		<td align="left" class="wd120">
+			<a class="aEvent" href="${basePath}admin/ticket/remarksDetail.xhtml?id=$!remark.get_id()">[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" onclick="javascript:del('$!remark.get_id()')">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+<div id="pointText" style="visibility:hidden; z-index:601;"></div>
+<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+<script type="text/javascript">
+	function del(gcid){
+		if(confirm('确认要删除吗?')==false)return;
+		var url = "${basePath}admin/ticket/ajax/delteMoiveMpiRemark.xhtml";
+		GewaraUtil.sendRequest(url, {'id':gcid}, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert('删除失败');
+			}
+		});
+	}
+</script>
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		$$('.aEvent').addEvent('click',function(e){
+			e.preventDefault();
+			var url = "${basePath}admin/ticket/remarksDetail.xhtml";
+			var values = {};
+			var ul = this.get('href').split('?');
+			if($defined(ul[1])){
+				values = ul[1].parseQueryString();
+			}
+			gewaUtil.loadData('pointText',url, values, function(result){
+				if(result.success){
+					GewaraUtil.showDialog('pointText');
+				}else{
+					gewaUtil.alert(result.json.msg);
+				}
+			});
+		})
+	})
+	
+function comefrom(loca,locacity) { this.loca = loca; this.locacity = locacity; }
+var where = new Array($province2CityList.size());
+where[0]= new comefrom("请选择..","请选择..");
+var citys2 = "";
+#foreach($province in $province2CityList)
+	citys2 = "";
+	#foreach($city in $province.gewaCityList)
+		citys2 += "$city.citycode:$city.cityname|";
+	#end
+	if (citys2.length > 0) {
+		citys2 = citys2.substr(0, citys2.length - 1);
+	}
+	where[$foreach.count] = new comefrom("$province.provincename",citys2);
+#end
+function provinceChange(city) {
+	with(document.getElementById("province")) { var loca2 = options[selectedIndex].value; }
+	for(i = 0; i < where.length; i++) {
+		if (where[i].loca == loca2) {
+			var loca3 = (where[i].locacity).split("|");
+			for(j = 0;j < loca3.length;j++) {
+				with(document.getElementById("citycode")) {
+					length = loca3.length; 
+					options[j].text = loca3[j].split(":")[1]; 
+					options[j].value = loca3[j].split(":")[0]; 
+					if (city != "" && city == loca3[j].split(":")[0]) {
+						options[j].selected=true;
+					}
+					var loca4=options[selectedIndex].value;
+				}
+			}
+			break;
+		}
+	}
+}
+</script>
+</body>
+</html>

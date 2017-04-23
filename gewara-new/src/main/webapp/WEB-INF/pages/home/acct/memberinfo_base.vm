@@ -1,0 +1,220 @@
+<form name="memberForm" id="memberForm"  method="post">
+	<ul class="ul-150">
+		<li class="list_h">
+			<div class="left_150">昵称：</div>
+			<div class="full_percent"><input id="nickname" onblur="checkGewaMember(this.value)" name="nickname" maxlength="15"   type="text" class="text" value="$!{member.nickname}" />&nbsp;<span id="errorName" class="brown"></span></div>
+		</li>
+		#if($VmUtils.isNotBlank($member.email))
+		<li class="list_h clear">
+			<div class="left_150">登录邮箱：</div>
+			<div class="full_percent">
+					<span class="gray mr5">$!{member.email}</span>
+					<a href="javascript:void(0);" onclick="updateEmails();"><span style="font-size:12px;">修改</span></a>
+			</div>
+		</li>
+		#end
+		<li class="list_h clear">
+			<div class="left_150">真实姓名：</div>
+			<div class="full_percent">
+				<input type="text" id="realname" name="realname" class="text" value="$!{memberInfo.realname}" />
+			</div>
+		</li>
+		<li class="list_h clear">
+			<div class="left_150">出生日期：</div>
+			<div class="full_percent">
+				<select name="year" id="year" onchange="monthChange()">
+					<option value="1985">请选择</option>
+					#foreach($i in [2011..1950])
+					<option value="$i">$i</option>
+					#end
+				</select>
+				<span class="mr10">年</span>
+				<select name="month" id="month" onchange="dayChange()">
+					<option value = "01">请选择</option>
+				</select>
+				<span class="mr10">月</span>
+				<select name="day" id="day" >
+					<option value = "01">请选择</option>
+				</select>
+				<span class="mr10">日</span>
+			</div>
+		</li>
+		<li class="list_mh clear">
+			<div class="left_150">性别：</div>
+			<div class="full_percent">
+				<label><input type="radio" name="sex" value="男" #if($!{memberInfo.sex} eq "男") checked="checked" #end /><span class="ml5">男</span></label>
+				<label class="ml20"><input type="radio" name="sex" #if(!$!{memberInfo.sex} || $!{memberInfo.sex} eq "女") checked="checked" #end value="女" /><span class="ml5">女</span></label>
+			</div>
+		</li>
+		#if($!member.mobile)
+		<li class="list_h clear">
+			<div class="left_150">手机：</div>
+			<div class="full_percent">
+				$VmUtils.getSmobile($!member.mobile)
+				<span style="font-size:12px;" class="gray ml20 mr10">
+				<a class="30" href="${basePath}home/acct/changeBindMobile.xhtml?authType=oldmobile&tagNo=$VmUtils.getRandom()">修改</a></span>
+			</div>
+		</li>
+		#end
+		<li class="list_bigh clear">
+			<div class="left_150">签名：</div>
+			<div class="full_percent">
+				<textarea rows="3" name="sign" id="sign" class="text" cols="60">$!{memberInfo.sign}</textarea>
+			</div>
+		</li>
+		<li class="list_mh clear">
+			<div class="left_150">居住地：</div>
+			<div class="full_percent">
+				<span id="oriAddress">#if(!$VmUtils.isNull($liveplace))$liveplace<span style="font-size:12px;" class="gray ml20 mr10"><a class="brown" href="javascript:updateAddress()">修改</a></span>#end</span>
+				<div id="ajaxLoadAddress" #if(!$VmUtils.isNull($liveplace))style="display:none;"#end></div>
+			</div>
+		</li>
+		<li class="list_h clear">
+			<label class="button redBt minBt" for="disBtn"><input type="button" id="disBtn" onclick="updateMember()" value="保存设置" style="padding:0 15px 0 0;"/></label>
+		</li>
+	</ul>
+</form>
+##parse('home/acct/bindMemberInfo.vm')
+<div style="display:none;">
+##parse('home/acct/setPayPassword.vm')
+</div>
+<script>
+updateMember = function(){
+	var url="${basePath}home/acct/updateMemberinfo.xhtml";
+	GewaraUtil.mask('disBtn');
+	var values = GewaraUtil.getValues("memberForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			gewaUtil.alert('保存成功！');
+			if($chk(result.retval)){
+				$('oriAddress').style.display = '';
+				$('ajaxLoadAddress').style.display = 'none';
+				$('oriAddress').set('html', result.retval+'<span style="font-size:12px;" class="gray ml20 mr10"><a class="brown" href="javascript:updateAddress()">修改</a></span>')			
+			}
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	})
+}
+window.addEvent('domready',function(){
+	dateInit();
+})
+function dateInit(){
+	var y = new Date().getFullYear();
+	MonHead = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+	for (var i=y;i>=1900 ;i-- ) //开始年份 ->结束年份
+	{
+		$('year').options.add(new Option(i,i));
+	}
+	$('year').value = '$!dates.get(0)';
+	var obj=$('month');
+	optionclean(obj);
+	optionclean($('day'));
+	if (!$('year').value){
+		optionclean(obj);
+	}else	{
+		for (var i=1;i<=12;i++ )
+		{
+			value = (i>=10?i:'0'+i);
+			$('month').options.add(new Option(value,value));
+		}
+	}
+	$('month').value = '$!dates.get(1)';
+	var d=$('month').options[$('month').selectedIndex==-1?0:$('month').selectedIndex].value;
+	var dd=MonHead[d-1];
+	optionclean($('day'));
+	if (ispinyear($('year').options[$('year').selectedIndex == -1?0:$('year').selectedIndex].value)&&d==2){
+		dd++;
+	}
+	for (var i=1;i<=dd;i++ ){
+		var value = (i>=10?i:'0'+i);
+		$('day').options.add(new Option(value,value));
+	}
+	$('day').value = '$!dates.get(2)';
+}
+
+//设置月份
+monthChange = function(){
+	var obj=$('month');
+	optionclean(obj);
+	optionclean($('day'));
+	if (!$('year').value){
+		optionclean(obj);
+	}else	{
+		for (var i=1;i<=12;i++ )
+		{
+			value = (i>=10?i:'0'+i);
+			$('month').options.add(new Option(value,value));
+		}
+	}
+}
+dayChange = function(){
+	var d=$('month').options[$('month').selectedIndex==-1?0:$('month').selectedIndex].value;
+	var dd=MonHead[d-1];
+	optionclean($('day'));
+	if (ispinyear($('year').options[$('year').selectedIndex == -1?0:$('year').selectedIndex].value)&&d==2){
+		dd++;
+	}
+	for (var i=1;i<=dd;i++ ){
+		var value = (i>=10?i:'0'+i);
+		$('day').options.add(new Option(value,value));
+	}
+}
+////润年
+function ispinyear(y){
+	return (y%4==0);
+}
+function optionclean(obj){
+	obj.options.length=1;
+}
+checkGewaMember = function (el){
+	var url = '${basePath}checkMember.xhtml';
+	var values={'tag':'nickname','itemvalue':el};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(!result.success){
+			$('errorName').removeClass('none');
+			if(result.errorMap){
+				$('errorName').innerHTML = '用户昵称'+ result.errorMap.msg;
+			}else{
+				$('errorName').innerHTML = result.msg;
+			}
+		}else{
+			$('errorName').addClass('none');
+		}	
+	}, 'get');
+}
+</script>
+<script type="text/javascript">
+window.addEvent('domready', function(){
+	var number = Number.random(100000,999999);
+	var cur = gewara.util.rtime();
+	if($('ajaxLoadAddress').style.display == ''){
+		var url = '${basePath}ajaxLoadAddress.xhtml?tagNo='+cur+number;
+		var values = {'agtag':'PCRI'};
+		GewaraUtil.sendLoad('ajaxLoadAddress', url, values);
+	}
+})
+
+updateAddress = function(){
+	var url = '${basePath}ajaxLoadAddress.xhtml';
+	var values = {'agtag':'PCRI'};
+	GewaraUtil.sendLoad('ajaxLoadAddress', url, values, function(){
+		$('oriAddress').style.display = 'none';
+		$('ajaxLoadAddress').style.display = '';
+	});
+}
+updateEmails = function(){
+	var url="${basePath}ajax/member/checkpaypassword.xhtml";
+	var values = {'v':Date.now()};
+	GewaraUtil.sendRequest(url,values,function(result){
+		if(result.success){
+			document.location.href = "${basePath}home/acct/goUpEmail.xhtml";
+		}else if(result.requirePayPass){
+			gewaUtil.alert('请先设置支付密码！');
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>

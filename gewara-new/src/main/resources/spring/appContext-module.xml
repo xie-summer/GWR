@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+	<!-- 上海项目先用特殊 -->
+	<bean id="mongoService" class="com.gewara.mongo.impl.MongoServiceImpl">
+		<property name="mongo" ref="mongo" />
+		<property name="mongoTemplate" ref="mongoTemplate"/>
+	</bean>
+	<bean id="configCenter" class="com.gewara.untrans.monitor.impl.ConfigCenterImpl"/>
+	<bean id="monitorService" class="com.gewara.untrans.monitor.impl.HbaseMonitorServiceImpl" />
+	<bean id="keeperService" class="com.gewara.untrans.monitor.impl.ZookeeperServiceImpl">
+		<property name="zookeeperQuorum" value="${zookeeper.quorum}"/>
+	</bean>
+	<bean id="hbaseService" class="com.gewara.untrans.hbase.impl.HBaseServiceImpl">
+		<property name="zookeeperQuorum" value="${zookeeper.hbase}"/>
+	</bean>
+	<bean id="changeLogService" class="com.gewara.untrans.hbase.impl.ChangeLogServiceImpl">
+		<property name="hbaseService" ref="hbaseService"/>
+	</bean>
+	<bean id="cacheService" class="com.gewara.untrans.impl.MemcachedCacheServiceImpl">
+		<property name="cacheConfigure" ref="gewaConfigService" />
+		<property name="regionTimeMap">
+			<map>
+				<entry key="halfMin" value="30"/>
+				<entry key="oneMin" value="60"/>
+				<entry key="tenMin" value="600"/>
+				<entry key="twentyMin" value="1200"/>
+				<entry key="halfHour" value="1800"/>
+				<entry key="oneHour" value="3600"/>
+				<entry key="twoHour" value="7200"/>
+				<entry key="halfDay" value="43200"/>
+				<entry key="oneDay" value="86400"/>
+				<entry key="apiLoginAuth" value="7200"/>
+			</map>
+		</property>
+	</bean>
+</beans>

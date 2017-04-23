@@ -1,0 +1,38 @@
+#if(!$VmUtils.isEmptyList($listCommuActivity))
+<div class="gewa_act">
+	<ul class="ui_abeam btLine">
+		#foreach($commuactivity in $listCommuActivity)
+		<li class="abeam">
+			<div class="uipic"><a href="${basePath}activity/${commuactivity.id}" target="_blank"><img src="${staticPath}css/images/blank.gif" style="background: url($VmUtils.randomPic('cw96h128',${commuactivity.limg})) center 0 no-repeat;" height="128" width="96" alt=""/></a></div>
+			<div class="uiText">
+				<h2><a href="${basePath}activity/${commuactivity.id}" target="_blank">$!commuactivity.title</a>&nbsp;
+				#if($!VmUtils.eq($!commuactivity.needprepay, '1') && $!VmUtils.eq($!commuactivity.status, 'Y_TREAT'))
+					<span class="">(正在审核中...)</span> 
+				#end
+				#if($!VmUtils.eq($!commuactivity.needprepay, '1') && $!VmUtils.eq($!commuactivity.status, 'Y_PROCESS'))
+					<span class="">(审核通过...)</span> 
+				#end
+				</h2>
+				<p>#if($mapCommu.get($commuactivity.communityid).name&&!$commu)所属圈子：$!mapCommu.get($commuactivity.communityid).name #end</p>
+				<p>#if($!commuactivity.address)活动场所：$!commuactivity.address #end</p>
+				<p>活动日期：$DateUtil.format($!commuactivity.startdate,'yyyy年M月d日')#if($!commuactivity.enddate)-$!DateUtil.format($!commuactivity.enddate,'yyyy年M月d日')#end</p>
+				<p>#if($!commuactivity.contactway)联系方式：$!VmUtils.escabbr($!commuactivity.contactway,11)#end</p>
+				<p>#if($!commuactivity.priceinfo)活动费用：$!commuactivity.priceinfo#end</p>
+				<p>#if($!commuactivity.membername)发起人：$!VmUtils.escabbr($!commuactivity.membername,20)#end</p>
+				<p>#if($!commuactivity.isPlaying())<a href="${basePath}activity/$!commuactivity.id" target="_blank"><span>参加活动</span></a>#else已过期#end<span class="ml20 gray">$!commuactivity.clickedtimes人关注</span><span class="ml20 gray">$!commuactivity.membercount人参加</span></p>
+			</div>
+		</li>
+		#end
+	</ul>
+</div>
+#else
+<div class="clew mt20 cneter">
+	#if($params.activityTag eq 'adviseActivity')
+		暂无#if($logonMember.id eq $member.id)您#else$!member.nickname#end发起的活动！
+	#elseif($params.activityTag eq 'joinActivity')
+		暂无#if($logonMember.id eq $member.id)您#else$!member.nickname#end参与的活动！
+	#else
+		圈内暂无活动!
+	#end
+</div>
+#end

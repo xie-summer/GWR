@@ -1,0 +1,393 @@
+<!Doctype html>
+<html>
+<head>
+	<!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>$!agency.seotitle</title>
+	<meta name="keywords" content="$!agency.seotitle"/>
+	<meta name="description" content="$!agency.seodescription"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,noobSlide&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.detail_body_left{width:850px;padding:20px 10px 15px;float:left;}
+		.detail_body_right{width:310px;padding:20px 10px 15px;float:left; overflow:hidden;}
+		
+		.detail_head {position:relative;padding:20px 10px;}
+		.detail_head h1{font:30px/45px "微软雅黑","宋体";}
+		.movieCountList {top:30px;right:10px;}
+		/*人气教练*/
+		.hotCoach .mod_bd{background-color:#f9f9f9;padding:25px 25px 15px;overflow:hidden;}
+		.hotCoach .ipic {width:96px;border:1px solid #f9f9f9;cursor:pointer;text-align:center;float:left;position:relative;}
+		.hotCoach .ipic .mask {height:128px;}
+		.hotCoach .iText {width:506px; height:130px;float:left;overflow:hidden;position:relative;}
+		.hotCoach .iText p {padding:0 10px;}
+		.hotCoach ul {overflow:hidden;height:130px;width:800px;}
+		.hotCoach ul li {float:left;overflow:hidden;}
+		.hotCoach ul li .select .mask{display:none;}
+		.hotCoach .even_tips{width:100%;height:9px;line-height:9px;overflow:hidden;text-align:center}
+		.hotCoach .even_tips span{cursor:pointer;display:inline-block;width:9px;height:9px;margin:0 1px;overflow:hidden;font-size:0;line-height:0;background-position:right -128px;}
+		.hotCoach .even_tips span.select{background-position:0 -128px;}
+		.hotCoach ul li .ipic b{position:absolute;bottom:0;left:0;font-size:14px;text-align:center;width:100%; line-height:24px; height:24px; overflow:hidden; display:block;}
+		.hotCoach ul li .select b{display:none;}
+		/*tab切换*/
+		.mod_tabs .mod_hd ul.nav_tabs{border-bottom:2px solid #1885ae; height:40px; background:none; overflow:hidden;}
+		.mod_tabs .mod_hd ul.nav_tabs li{height:40px; background:#eee; margin-right:1px;}
+		.mod_tabs .mod_hd ul.nav_tabs li a{border-top:0; color:#333; float:left;}
+		.mod_tabs .mod_hd ul.nav_tabs li a em{color:#999; font-size:12px; font-weight:normal; margin-left:5px;}
+		.mod_tabs .mod_hd ul.nav_tabs li.select a{background:#1885ae; color:#fff; border-top:none;}
+		.mod_tabs .mod_hd ul.nav_tabs li.select a em{color:#fff;}
+		
+		.chooseOpi .opitime {width:270px;}
+		.chooseOpi .opiEdition {width:120px;}
+		.chooseOpi .opiRoom {width:100px;padding-right:10px !important}
+		.chooseOpi .opiPrice {width:134px;}
+		.chooseOpi .opitime b,.chooseOpi .opitime a {height:20px;overflow:hidden;width:270px;overflow:hidden;display:block;}
+		.chooseOpi .chooseOpi_body .opitime b {font-weight:normal;font-size:14px;}
+		
+		.ui_warning {height:auto;line-height:20px;padding:15px;}
+		.ui_warning span{font-family:'微软雅黑','宋体';font-size:18px;color:#9c6a00;font-weight:bold;}
+		.ui_warning .ui_pic {margin-right:0;}
+	</style>
+</head>
+<body>
+#set($issport=true)
+#set($isIndexBigAd = true)
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="detail_head">
+		<dl class="ui_media">
+			<dt class="ui_pic"><img width="120" height="60" style="background:url($!VmUtils.randomPic('sw120h60',$!agency.limg)) center center no-repeat #fff; border:1px solid #eee; padding:2px;" src="${staticPath}css/images/blank.gif" class="imgOutside"></dt>
+			<dd class="ui_text mt10">
+				<h1 class="left">$!agency.name</h1>
+				<div class="left clear mt10 ml15">
+					#set($gmark=$VmUtils.getSingleMarkStar($agency, "general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+					#set($isBigStaticRating=true)
+					#parse('include/global/staticRating.vm')
+					<span class="bigSubp"><sub id="mark_integer">$gmark1</sub><sup id="mark_decimal">.$gmark2</sup></span>
+				</div>
+				<div class="ratingsCount left">
+					<ul>
+						<li><a class="cou" href="javascript:showMovieMark();">我要评分</a></li>
+						#*
+						<li>
+							<span><a href="javascript:addCollection();" class="ad" id="nCollect">感兴趣</a></span>
+							<span><a href="javascript:cancelTreasure();" class="ad se none" id="hCollect">取消感兴趣</a></span>
+						</li>
+						*#
+					</ul>
+				</div>
+			</dd>
+		</dl>
+		<div class="movieCountList">
+			<ul class="ui_inline">
+				<li class="first">
+					<b>$agency.clickedtimes</b>
+					<span>关注</span>
+				</li>
+				<li>
+					<b>$walaCount</b>
+					<span>点评</span>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="detail_body_left">
+		<div class="mod_kong">
+			<div class="mod_hd">
+				<h2>机构简介</h2>
+			</div>
+			<div class="mod_bd">
+				#set($remarkText = $VmUtils.getText($!agency.remark))
+				<div id="showDown_content" style="display:block;">
+					#if($VmUtils.gt($VmUtils.getByteLength($remarkText), 250)) $!VmUtils.escabbr($remarkText, 250)... #else $!remarkText#end
+					<a id="showDown" href="javascript:void(0)" class="ffst ml5">展开</a>
+				</div>
+				<div style="display: none;" id="showUp_content">
+					$!remarkText
+					<span class="right"><a href="javascript:void(0)" id="showUp" class="ffst brown ml5 mr5">&lt;&lt;收起</a></span>
+				</div>
+			</div>
+		</div>
+		#if(!$VmUtils.isEmptyList($!dtsList))
+		<div class="mod_kong hotCoach">
+			<div class="mod_hd">
+				<h2>人气教练</h2>
+			</div>
+			<div class="mod_bd">
+				<ul>
+					#foreach($dts in $!dtsList)
+					#set($star = $starMap.get($dts.starid))
+					<li>
+						<div lang="Coach_$foreach.count" onclick="tabsCoach(this,1);" class="ipic #if($foreach.count eq 1)select#end" title="$!star.name">
+							<span class="mask"></span>
+							<b>$!star.name</b>
+							<img width="96" height="128" alt="$!star.name" src="$!VmUtils.randomPic('cw96h128',$star.limg)">
+						</div>
+						<div class="iText" #if($foreach.count ne 1)style="width:0px;"#end id="Coach_$foreach.count">
+							<p><b class="fs14">$!star.name</b><em class="ml30 c999">擅长项目：</em>$!VmUtils.replaceSeparator($!star.representative,',',' ')</p>
+							<p class="mt10">$!VmUtils.getText($!star.content)</p>
+						</div>
+					</li>
+					#end
+				</ul>
+				<div class="even_tips mt10">
+					#if($VmUtils.size($dtsList) gt 1)
+					#foreach($x in $!dtsList)
+					<span #if($foreach.count eq 1)class="select"#end onclick="tabsCoach(this,2);" lang="Coach_$foreach.count"></span>
+					#end
+					#end
+				</div>
+			</div>
+		</div>
+		#end
+		#if(!$VmUtils.isEmptyList($!sportItemIdList))
+		<div class="mod_tabs mod_tabs_drama">
+			<div class="mod_hd">
+				<ul class="nav_tabs">
+					#foreach($sportItemId in $sportItemIdList)
+					#set($sportItem=$sportItemMap.get($sportItemId))
+					<li class="select" lang="ottDiv_$foreach.count"><a href="javascript:void(0);">$sportItem.name</a></li>
+					#end
+				</ul>
+			</div>
+			#foreach($sportItemId in $sportItemIdList)
+			#set($sportItem=$sportItemMap.get($sportItemId))
+			#set($tcoursesList=$tcoursesListMap.get($sportItemId))
+			<div class="mod_bd clear">
+				<div class="chooseOpi" id="ottDiv_1">
+					<div class="detail_ticket_chooseBg">
+						$!sportItem.seodescription
+					</div>
+					<div>
+						<div lang="chooseOpi_head" class="chooseOpi_head">
+							<span class="opitime"><em>课程名称</em></span>
+							<span class="opiEdition"><em>教练</em></span>
+							<span class="opiRoom"><em>招生名额</em></span>
+							<span class="opiPrice">价格(元)</span>
+							
+							<span class="opiurl">选座购票</span>
+						</div>
+						<div class="chooseOpi_body" style="padding-right:0px; height:auto;">
+							<ul class="clear" style="height:$!{height}px;">
+								#foreach($trainingCourses in $tcoursesList)
+								#set($tsport=$sportMap.get($trainingCourses.placeid))
+								#set($tcDtsList = $tcDtsListMap.get($trainingCourses.id))
+								<li config="morning">
+									<span class="opitime">
+										<b title="$!trainingCourses.goodsname">$!trainingCourses.goodsname</b>
+										#if($tsport)
+				 						<a href="${basePath}sport/$!tsport.id" target="_blank" title="$tsport.name">$tsport.name</a>
+				 						#else
+				 						<em>根据学员要求就近安排</em>
+				 						#end
+									</span>
+									<span class="opiEdition" title="#foreach($tcDts in $tcDtsList)#set($tcStar=$starMap.get($tcDts.starid))$tcStar.name #end">#foreach($tcDts in $tcDtsList)#set($tcStar=$starMap.get($tcDts.starid))$tcStar.name #end</span>
+									<span class="opiRoom">$!trainingCourses.quantity</span>
+									<span class="opiPrice"><b>$!trainingCourses.minprice#if($!trainingCourses.maxprice)-$!trainingCourses.maxprice#end</b></span>
+									<span class="opiurl">
+										#if($agency.openBooking())
+										<a target="_blank" class="button bigBt  redBt " href="${basePath}sport/curriculumDetail.xhtml?id=$!trainingCourses.id"><span><em>在线预订</em></span></a>
+										#end
+									</span>
+								</li>
+								#end
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+			#end
+		</div>
+		#end
+		#if(!$VmUtils.isEmptyList($atvList))
+		<div class="mod_kong trainVenue">
+			<div class="mod_hd">
+				<h2>常驻场馆</h2>
+			</div>
+			<div class="mod_bd">
+				<ul>
+					#foreach($atv in $atvList)
+					#set($sport=$sportMap.get($atv.venueId))
+					#set($siList=$itemListMap.get($atv.venueId))
+					<li class="#if($foreach.count eq 1)select#end">
+						<div class="hd" lang="trainVenue_$foreach.count"><em>[#if($VmUtils.eq($atv.agencytype, 'own'))自有场馆#else租借场馆#end]</em><span>$!sport.name</span>$!sport.address<i class="freeTag1"></i></div>
+						<div class="bd #if($foreach.count ne 1)none#end" id="trainVenue_$foreach.count">
+							<span class="npl">
+								<em>◆</em>
+								<span>◆</span>
+							</span>
+							<dl class="ui_media">
+								<dt style="width:126px;" class="ui_pic">
+									<a title="" target="_blank" href="${basePath}sport/$!sport.id">
+										<img width="120" height="60" style="background:url($!VmUtils.randomPic('sw96h128',$sport.limg)) center center no-repeat #fff; border:1px solid #eee; padding:2px;" src="${staticPath}css/images/blank.gif" />
+									</a>
+								</dt>
+								<dd class="ui_text">
+									<p>$VmUtils.getHtmlText($!sport.content, 160)...</p>
+									<p><em>联系电话：</em>$!sport.contactphone</p>
+									<p><em>营业时间：</em>$!sport.opentime</p>
+									<p><em>运动项目：</em>#foreach($item in $siList)$item.name #end</p>
+									<a class="button bigBt" target="_blank" href="${basePath}sport/$!sport.id">
+										<span>查看场馆</span>
+									</a>
+								</dd>
+							</dl>
+						</div>
+					</li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+		<div class="mod_tabs mod_tabs_movie" id="walaContent">
+			<div class="mod_hd">
+				<ul class="nav_tabs">
+					<li class="walaCur select"><a href="javascript:void(0);" style="padding:0 40px;">哇啦</a></li>
+				</ul>
+			</div>
+			<div class="mod_bd">
+				<div id="WalaDetail" class="mt20"></div>
+			</div>
+		</div>	
+	</div>
+	<div class="detail_body_right">
+		#if(!$VmUtils.isEmptyList($discountInfoList))
+		<div class="ui_warning">
+			<b class="ico_g"></b><span>公告栏</span>
+			#foreach($discount in $discountInfoList)
+			<dl class="ui_media">
+				<dt class="ui_pic">$foreach.count、</dt>
+				<dd class="ui_text">$!VmUtils.getText($discount.content)</dd>
+			</dl>
+				#end
+		</div>
+		#end
+		#if(!$VmUtils.isEmptyList($videoList))
+		<div class="mod_kong picShow">
+			<div class="mod_hd">
+				<h2>视频秀</h2>
+				<a target="_blank" class="more" href="${basePath}sport/agencyVideoDetail.xhtml?agencyId=$agency.id">更多</a>
+			</div>
+			<div class="mod_bd">
+				<ul class="clear">
+					#foreach($video in $videoList)
+					<li>
+						<a class="img" target="_blank" href="${basePath}sport/agencyVideoDetail.xhtml?agencyId=$agency.id&vid=$video.id" title="$video.videotitle">
+							<img width="128" height="96" style="background:url($!VmUtils.randomPic('sw260h180',$video.logo)) no-repeat center center" src="${staticPath}css/images/blank.gif">
+							<em></em>
+						</a>
+						<p>
+							<a href="${basePath}sport/agencyVideoDetail.xhtml?agencyId=$agency.id&vid=$video.id" target="_blank" title="$video.videotitle">$video.videotitle</a>
+						</p>
+					</li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+		#if(!$VmUtils.isEmptyList($pictureList))
+		<div class="mod_kong picShow">
+			<div class="mod_hd">
+				<h2>图片秀</h2>
+				<a target="_blank" class="more" href="${basePath}sport/agencyPictureList.xhtml?agencyId=$agency.id">更多</a>
+			</div>
+			<div class="mod_bd">
+				<ul class="clear">
+					#foreach($picture in $pictureList)
+					<li>
+						<a target="_blank" href="${basePath}sport/agencyPictureDetail.xhtml?agencyId=$agency.id&pid=$!picture.id&pvtype=apic" title="$!picture.description">
+							<img width="128" height="96" style="background:url($!VmUtils.randomPic('cw128h96',$!picture.picturename)) no-repeat center center" src="${staticPath}css/images/blank.gif">
+						</a>
+					</li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+		#parse('sport/agency/wide_hotAgencyList.vm')
+	</div>
+</div>
+#parse('include/newMarkDialog.vm')
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	showAll();
+	tabs();
+	myTreasure('agency','$agency.id');
+})
+function tabsCoach(el,n){
+	if(n==1){
+		var elements =$$(".hotCoach .ipic");
+	}else{
+		var elements =$$(".even_tips span");
+	}
+	elements.each(function(item){
+		document.getElements("*[lang="+item.get('lang')+"]").removeClass('select');
+		$(item.get('lang')).morph({'opacity':'0','width':'0px'});
+	})
+	document.getElements("*[lang="+el.get('lang')+"]").addClass('select');
+	$(el.get('lang')).morph({'opacity':'1','width':'506px'});
+}
+function showAll(){
+	$('showDown').addEvent('click',function(e){
+	   //if($('me'))$('me').style.display='none';
+		e.stop();
+		gewa.util.hide('showDown_content');
+		gewa.util.show('showUp_content');
+	});
+	$('showUp').addEvent('click',function(e){
+		e.stop();
+		gewa.util.hide('showUp_content');
+		gewa.util.show('showDown_content');
+	});
+}
+function tabs(){
+	var elements = $$('.trainVenue div.hd');
+	elements.addEvent('mouseover',function(){
+		elements.each(function(item){
+			item.getParent('li').removeClass('select');
+			$(item.get('lang')).addClass('none');
+		})
+		this.getParent('li').addClass('select');
+		$(this.get('lang')).removeClass('none');
+	})
+}
+</script>
+<script type="text/javascript">
+var isScroll = true;
+var marks = {};
+window.addEvent('domready',function(){
+	$('WalaDetail').innerHTML = '';
+	Asset.javascript("${basePath}scripts/gewara.js?n=wide_wala,slimbox&v=$!{VmUtils.jsVersion}", {
+		'id':'walaDynaScript',
+		'isScroll':false,//用于控制是否支持鼠标滚动事件
+		//'isTicket':true,
+		'bindWala':'WalaDetail',//把加载的哇啦放在什么位置
+		onLoad:function(){
+			Asset.css('${staticPath}css/wide_wala.css?v=$VmUtils.jsVersion',{'id':'walasCss'});
+			gewa.util.pageNumber = 0;
+	    	var _body = $(document.body);
+	    	gewa.util.requestUrl = 'ajax/common/qryComment.xhtml';
+	    	gewa.util.values = {
+    			pageNumber:gewa.util.pageNumber,//自动加载时的分页数
+    			relatedid:'$!agency.id',//关联对象的ID
+    			title:'',//话题的标题
+    			issue:true,//是否有发表框
+    			hasMarks:true,//是否支持评分
+    			tag:'agency',//关联那个板块的内容
+    			isPic:true,//是否支持传图片
+    			isVideo:false,//是否支持传视频
+	    		maxCount:6,//如果设置，即是单页显示N条
+				userLogo:gewara.util.member.headUrl,//用户的头像
+				//order:'flowernum',
+				isCount:true
+	    	};
+	    	gewa.util.init();
+		}
+	});
+});
+</script>
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

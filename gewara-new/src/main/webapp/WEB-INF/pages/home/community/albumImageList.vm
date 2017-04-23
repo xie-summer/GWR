@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>圈子相册_$!VmUtils.escapeHtml($!album.subject)_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,commnu&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.vary{
+			width:120px;
+			position: absolute;
+			z-index: 3;
+			background:#fff;
+			top:0px;
+			height:18px;
+			color:#666;
+			font-size:14px;
+			line-height: 20px;
+			overflow: hidden;
+			left:0px;
+			right:0px;
+			margin:0 auto;
+			line-height:24px;
+		}
+		.untext{border:0px;background:#fff}
+	</style>
+	#parse('home/community/commnu_style.vm')
+</head>
+<body>
+#set($communityPhoto=true)#set($isFlase=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+#parse('include/home/communityHeadMenu.vm')
+<h1>圈子相册_$!VmUtils.escapeHtml($!album.subject)</h1>
+<div class="commnu_layout">
+	<div class="commnu_left">
+		<div class="showList" style="margin-top:0px;">
+			#if($purview eq 'public')
+			<ul class="ul-box clear" >
+			<li style="border-bottom-color:1px solid #cccccc;">
+				<span class="pubpic"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('sw60h60',$album.limg)) center center no-repeat;"/></span>
+				<p>
+				<span class="brown" style="font-weight: bold;font-size: 14px;" >$!VmUtils.escapeHtml($album.subject)</span>
+				</p>
+				<p>
+					创建者：<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$album.memberid" class="brown">$albumMember.nickname</a>
+					#if($!album.description)<br/>
+						描述：$!VmUtils.escapeHtml($!album.description)
+					#end
+				</p>
+			</li>
+			</ul>
+			<div style="border-bottom: 1px solid #cccccc;">
+				#set($ta = 'TA')
+				#if($isCommuMember)
+				<a href="${basePath}home/new/uploadPicture.xhtml?tag=commu&relatedid=$album.commuid" style="color: #C03B0C;margin-left: 10px;"><span>上传图片</span></a>
+				<input type="hidden" name="curAlbumImage" id="curAlbumImage" value="$!curAlbumImage.limg"/>
+				#end
+				#if($isShowCommuAlbum)
+					<a href="javascript:void(0)" onclick="javascript:getAlbum($album.id)" style="color: #C03B0C;margin-left: 10px;">编辑相册</a>
+					<a href="javascript:void(0)" onclick="javascript:delAlbum($album.id)" class="yellow ml10" style="color: #C03B0C;">删除相册</a>
+				#end
+				<span class="mr20" ><a href="${basePath}quan/albumList.xhtml?commuid=$!commu.id" style="color: #C03B0C;" class="ml10">返回圈子相册列表</a></span>
+			</div>		
+			#parse('include/home/photoDetail.vm')
+			#elseif($purview eq 'member')
+			圈子成员才能访问，你还没有加入这个圈子!
+			#elseif($purview eq 'admin')
+			圈子管理员才能访问!
+			#end
+		</div>
+	</div>
+	<div class="commnu_right">
+		#parse('include/home/commuRightMenu.vm')
+		#parse('include/home/commuRightList.vm')
+	</div>
+	<div class="height0"></div>
+</div>
+#parse('include/home/adoptAlbum.vm')
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+	function setCover(){
+		var albumId = $album.id;
+		var values = {'albumId':albumId,'imageUrl':$('curAlbumImage').value};
+		var url = "${basePath}home/album/setAlbumCover.xhtml";
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){ gewaUtil.alert("设置成功！"); refreshPage();}
+			else gewaUtil.alert(result.msg);
+		});
+	}
+</script>
+</body>
+</html>

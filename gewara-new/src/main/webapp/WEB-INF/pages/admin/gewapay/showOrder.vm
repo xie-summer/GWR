@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>查看订单</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=template&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	
+	<style type="text/css">
+		.itemsList dl dt{margin-left: 30px;}
+		.itemsList dl dd{margin-left: 60px;}
+	</style>
+</head>
+<body>
+#set($tag="movie") #set($ismovie=true) 
+#set($parnterMap={'HFH':'火凤凰','MTX':'满天星','DX':'鼎新','GEWA':'格瓦拉'})
+<div class="panel">
+	#if($msg)<div style="color:red; font-weight:bolder;">$msg</div>#end
+	<div>
+		<form action="${basePath}admin/gewapay/orderDetail.xhtml">
+			输入订单号[tradeNo]：<input type="text" name="tradeNo" value="$!params.tradeNo"/><input type="submit" value="查询" />
+		</form>
+	</div>
+	<hr />
+	#if($order)
+	<h2><strong class="black ml30">订单号：${order.tradeNo}[内部ID:$order.id]#if($VmUtils.isNotBlank($order.payseqno))[外部支付:$!order.payseqno]#end</strong>
+		<strong class="black ml30">（${order.statusText}，原始状态：$order.status）</strong>
+	</h2>
+	<h3><span class="ml30">创建时间：$DateUtil.formatTimestamp($order.createtime)</span></h3>
+	<h3><span class="ml30">下单时间：$DateUtil.formatTimestamp($order.addtime)</span></h3>
+	<h3><span class="ml30">有效时间：$DateUtil.formatTimestamp($order.validtime)</span></h3>
+	<h3><span class="ml30">付款时间：$!DateUtil.formatTimestamp($order.paidtime)</span></h3>
+	<h3><span class="ml30">成本价：$!order.costprice</span></h3>
+	<h3><span class="ml30">卖出单价：$!order.unitprice</span></h3>
+	<h3><span class="ml30">Gewa付款：$!order.gewapaid</span></h3>
+	<h3><span class="ml30">网络付款：$!order.alipaid</span></h3>
+	<h3><span class="ml30">用户ID：<a style="color:blue;" href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$!order.memberid" target="_blank">$order.memberid</a></span></h3>
+	<h3><span class="ml30">用户名：$!order.membername</span></h3>
+	<h3><span class="ml30">商家ID：$!order.partnerid</span></h3>
+	<h3><a style="color:blue;" href="${basePath}admin/ticket/orderLoghis.xhtml?tradeNo=$order.tradeNo&post=true">订单操作历史</a>&nbsp;|&nbsp;
+		<a style="color:blue;" href="${monitorPath}admin/ticket/getRemoteOrderLog.xhtml?orderid=$order.id&timefrom=$DateUtil.formatTimestamp($order.createtime)&timeto=$!DateUtil.formatTimestamp($order.playtime)">订单远程错误</a>
+	</h3>
+	<div class="itemsList mt30">
+		<dl>
+			<dt class="black bold">商品信息</dt>
+			<dd><span class="bold">商品名称：</span>
+			#if($order.ordertype eq 'goods')<a href="${basePath}gewapay/showGoods.xhtml?gid=$order.goodsid" class="blue" target="_blank">${order.ordertitle}</a>
+			#else ${order.ordertitle} #end
+			</dd>
+			#if($order.ordertype eq 'ticket')
+			<dd><span class="bold">影院ID：$order.cinemaid</span></dd>
+			<dd><span class="bold">场次ID：<a href="${basePath}admin/ticket/booking.xhtml?mpid=$order.mpid">$order.mpid</a></span></dd>
+			#end
+			<dd>
+				#if($order.description2)
+					<table class="roomManageTable" id="all_content" cellpadding="0" width="40%" cellspacing="0" border="1" style="margin:0">
+						#set($descMap=$VmUtils.readJsonToMap($order.description2))
+						#foreach($m in $descMap.keySet())
+						<tr>
+							<td class="bold">$m</td><td>$!descMap.get($m)</td>
+						</tr>
+						#end
+					</table>
+				#end
+				#foreach($item in $itemList)
+				,同时购买：$item.goodsname数量$item.quantity单价$item.unitprice总价$item.totalfee
+				#end
+			</dd>
+		</dl>
+		<hr style="margin:10px 20px;border:1px solid #EFE1DA;height:1px"/>
+		<dl>
+			<dt class="black bold">订单结算</dt>
+			<dd><span class="bold">数量：$order.quantity</span></dd>
+			<dd><span class="bold">订单总额：<strong class="yellow">${order.totalAmount}</strong>元</span></dd>
+			#if($VmUtils.size($discountList) gt 0)
+			#foreach($discount in $discountList)
+			<dd>$discount.description,<strong class="yellow">${discount.amount}元</strong></dd>
+			#end
+			#end
+			<dd><span class="bold">应&nbsp;&nbsp;付&nbsp;&nbsp;款：</span><strong class="yellow">${order.due}</strong>元</dd>
+			<dd><span class="bold">使用瓦币：</span><strong class="yellow">${order.wabi}</strong>元</dd>
+			<dd><span class="bold">付款方式：</span>$!order.paymethodText</dd>
+			<dd><span class="bold">手机号码：</span>$order.mobile</dd>
+			<dd>
+				#if(!$order.allPaid())
+				<a href="${basePath}admin/gewapay/checkOrderPayStatus.xhtml?tradeNo=$order.tradeNo" target="_blank" style="color:red">检查付款状态</a>
+				#end
+				#if($order.paymethod eq 'ccbposPay')
+				&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="${basePath}admin/balance/ccbpos/ccbposQuickyQry.xhtml?tradeNo=$order.tradeNo" target="_blank" style="color:red">检查建行信用卡付款信息</a>
+				#end
+				&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="${basePath}admin/orderqry/getPayProjectOrder.xhtml?tradeNo=$order.tradeNo" target="_blank" style="color:red">检查支付项目信息</a>
+				&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="${basePath}admin/common/qryOrderResult.xhtml?tradeno=$order.tradeNo" target="_blank" style="color:red">取票信息</a>
+				&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="${basePath}admin/common/callbackOrder.xhtml?tradeno=$order.tradeNo" target="_blank" style="color:red">推送信息</a>
+			</dd>
+			
+		</dl>
+		#if($VmUtils.isNotBlank($order.remark))
+		<hr style="margin:10px 20px;border:1px solid #EFE1DA;height:1px"/>
+		<dl>
+			<dt class="black bold">备注：</dt>
+			<dd>$!order.text('remark')</dd>
+		</dl>
+		#end
+		#if($VmUtils.isNotBlank($order.otherinfo))
+		<hr style="margin:10px 20px;border:1px solid #EFE1DA;height:1px"/>
+		<dl>
+			<dt class="black bold">其他信息：</dt>
+			<dd>$!VmUtils.readJsonToMap($order.otherinfo)</dd>
+		</dl>
+		#end
+		#if($order.paidFailure)
+		<dl>
+			<dt class="black bold">处理方法</dt>
+			<dd></dd>
+			<dd><span class="bold">商品描述：</span>${order.description2}</dd>
+		</dl>
+		#end
+	</div>
+	#end
+</div>
+</body>
+</html>

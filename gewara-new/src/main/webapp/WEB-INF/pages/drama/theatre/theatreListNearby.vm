@@ -1,0 +1,269 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	#parse('include/constant/cityParam.vm')
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>$!{cookieCityname}$!{curCounty.countyname}话剧院购票_话剧院查询 - 格瓦拉生活网</title>
+	<meta name="keywords" content="话剧院购票,话剧院查询,话剧院买票,话剧院" />
+	<meta name="description" content="格瓦拉生活网提供$!{cookieCityname}话剧院在线购票及话剧院地址,票价及最近演出信息查询.是全国最专业的话剧演出查询网站."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.2&services=true"></script>
+	<style type="text/css">
+		.gewa_outer_text{width:550px;}
+		.switch_ui_inside{overflow:visible;}
+		.switch_plugs{padding-left:0;}
+		.switch_ui_inside .pl{left:-8px;}
+		.effectWala a.blue{color:#36c!important;}
+		.wmore{position:static;}
+		.ui_right{width:260px;}
+	</style>
+</head>
+<body>
+#set($relatedtag='drama')
+#set($dramaHeadFlag='isDramatheatre')
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<form id="searchForm" action="${basePath}theatre/searchNearTheatre.xhtml">
+	<input type="hidden" name="order" id="order" value="$!VmUtils.escapeHtml($params.order)"/>
+	<input type="hidden" name="myRange" id="myRange" value="$!VmUtils.escapeHtml($params.myRange)"/>
+	#if($VmUtils.isBlank($!params.booking))#set($booking=false)#else#set($booking=$!params.booking)#end
+	<input type="hidden" name="booking" id="booking" value="$!booking"/>
+</form>
+<div class="ui_layout detail_body">
+	<div class="inner">
+		<div class="yh_title"><h2>剧院</h2></div>
+		<div class="mod_tabs">
+			<div class="mod_hd clear">
+				<ul>
+					<li class="ico_search_list"><a href="${basePath}theatre/theatreList.xhtml"><span><em>列表模式</em></span></a></li>
+					<li class="ico_search_map"><a href="${basePath}theatre/theatreMap.xhtml"><span><em>地图模式</em><b class="ico_drama ui_hot">hot</b></span></a></li>
+					<li class="ico_search_nearby"><a class="select" href="${basePath}theatre/searchNearTheatre.xhtml"><span>我附近的剧院<b class="ico_drama ui_hot">hot</b></span></a></li>
+				</ul>
+			</div>
+			<div class="ui_panel ui_panel_search mod_bd">
+				<div class="b_bg clear" style="padding:30px;">
+					<input type="hidden" name="myRange" id="myRange"/>
+					<a class="buttonMap left ml5" href="javascript:openMyLocal();"></a>
+					<span class="left ml30">设置距离：</span>
+					<div class="left sliderWrap">
+						<div class="sliderBox left" id="sliderBox"><div class="sliderBoxInner" id="sliderBoxInner"></div><div class="sliderBoxTips"></div></div>
+						<span class="left" style="line-height:24px;"><em id="sliderRange">1000</em>米</span>
+					</div>
+					<a href="javascript:getNearTheatre();" class="button minBt whiteBt left ml10"><span>确&nbsp;&nbsp;定</span></a>
+				</div>
+				<div class="selectedMenus inner clear">
+					<div class="right">
+						<span class="left">排序：</span>
+						<select onchange="javascript:search('order', this.value)">
+							<option value="" #if($VmUtils.isBlank($params.order))selected #end>默认排序(按购票)</option>
+							<option value="avggeneral" #if($VmUtils.eq('avggeneral',$!params.order))selected#end>按评分(由高到低)</option>
+							<option value="clickedtimes" #if($VmUtils.eq('clickedtimes',$!params.order))selected#end>按关注(由多到少)</option>
+						</select>
+					</div>
+					<div class="left">
+						<span class="menuNav">共<b class="cGym">$!count</b>个剧院</span> <a href="javascript:booking();"><span id="booking"  #if($VmUtils.eq($!params.booking,'open')) class="chooseTag ml20 select" #else class="chooseTag ml20 " #end>只看可购票剧院</span></a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="ui_left clear">
+			<div class="ui_itemsList">
+				#if(!$VmUtils.isEmptyList($theatreListPoint))
+				<ul class="ui_abeam">
+					#foreach($theatre in $theatreListPoint)
+					#set($key2=$theatre.id+"theatre")
+					#set($gmark=$VmUtils.getSingleMarkStar($theatre,"general"))
+					#set($gmark1=$gmark/10)
+					#set($gmark2=$gmark%10)
+					<li class="abeam effectWala">
+						<div class="uipic">
+							<a href="${basePath}theatre/${theatre.id}" target="_blank" title="$!theatre.name"><img width="120" height="60" style="background:url($VmUtils.randomPic('sw120h60',$theatre.limg)) center center no-repeat #fff;" src="${staticPath}css/images/blank.gif" class="imgOutside"/></a>
+							<p class="mt10 center">
+								#if($theatreidList && $theatreidList.contains($theatre.id))<a href="${basePath}theatre/$theatre.id" class="button minBt redBt" target="_blank"><span>在线购票</span></a>#end
+							</p>
+						</div>
+						<div class="uiText">
+							<div class="ui_panel">
+								<div class="panel_inner">
+									<div class="title">
+										<h2><a href="${basePath}theatre/${theatre.id}" class="fs14 bold c333" target="_blank">$!theatre.name</a></h2>
+										<span class="gray">($!theatre.clickedtimes关注)</span>
+										<span class="more tar">
+											<sub>$!gmark1</sub>
+											<sup>.$gmark2</sup>
+											<br/>
+										</span>
+									</div>
+									<p><em>详细地址：</em><a href="${basePath}theatre/theatreList.xhtml?countycode=$!{theatre.countycode}">$!{theatre.countyname}</a>$!VmUtils.escabbr($!{theatre.address},44)
+									<span class="ffst">[<a href="${basePath}common/baiduMap.xhtml?id=$theatre.id&tag=theatre" class="blue" target="_blank">地图</a>]</span>
+									</p>
+									#if($theatre.contactphone)<p><em>联系电话：</em>$!theatre.contactphone</p>#end
+									#if($theatre.feature)<p class="mt10"><em>剧院特色：</em>$!theatre.feature</p>#end
+									#if(!$VmUtils.isEmptyList($curPlayDramaMap.get($theatre.id)))
+									<ul class="ul-60 pl60 mt5">
+										<li>
+											<span class="ul-60Inner" style="_margin-left:-68px;"><em>正在上演：</em></span>
+											#foreach($curPlayDrama in $curPlayDramaMap.get($theatre.id))
+											<span class="mr15">$!curPlayDrama.dramaname</span>
+											#end
+											<a target="_blank" href="${basePath}theatre/$theatre.id">共$!curPlayDramaCountMap.get($theatre.id)个剧目</a>
+										</li>
+									</ul>
+									#end
+									<div class="mt10 title">
+										#if($theatre.otherinfo.contains("park"))<span class="freeTag0 mr10 cursor_auto" style="background-position:0 -193px;"><span class="ml5">停车位</span></span>#end
+										#if($theatre.otherinfo.contains("visacard"))<span class="freeTag0 mr10 cursor_auto" style="background-position:0 -165px;"><span class="ml5">刷卡</span></span>#end
+										#if($isSeatMap.get($theatre.id))<span class="ico_drama onSeat" title="支持在线选座">在线选座</span>#end
+									</div>
+									#if($RangeMap.get($theatre.id))<p class="mt15 fs14">距离：<b class="cf60">$!RangeMap.get($theatre.id)米</b></p>#end
+									<div class="right_wala">
+										<a href="${basePath}theatre/$!theatre.id/commentlist" class="wmore" target="_blank">
+											共<span>#if(!$VmUtils.isNull($commentMap.get($key2)) && $commentMap.get($key2) gt 0) $!commentMap.get($!key2) #else 0 #end</span>条哇啦！</a>
+									</div>
+								</div>
+								#if(!$VmUtils.isEmptyList($commentListMap.get($theatre.id)))
+								<div class="objTips" style="display:none;">
+									<div class="objInTips">
+										<div class="title"><h2>$!theatre.name的最新哇啦！</h2></div>
+										<div class="plugsIn">
+											<ul class="ui_abeam clear">
+												#foreach($comment in $!commentListMap.get($!theatre.id))
+												<li class="abeam">
+													<div class="uipic">
+														<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" class="picmin" target="_blank" title="$cacheMemberMap.get($!comment.memberid).nickname"><img style="background:url($VmUtils.randomPic('cw30h30',$cacheMemberMap.get($comment.memberid).headpicUrl)) center center no-repeat;" src="${staticPath}css/images/blank.gif"/></a>
+													</div>
+													<div class="uiText" style="width:82%;">
+														<div class="switch_ui_inside left">
+															<div class="switch_plugs"><span class="pl"></span>
+																<div class="switch_uis_t"><div class="switch_uis_t"></div></div>
+																<div class="switch_uis_c">
+																	<div class="switch_uis_c">
+																		<div style="padding:0 10px;">
+																			<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank" title="$!comment.nickname">$VmUtils.escabbr($!comment.nickname, 8)</a>：$!VmUtils.getWebBody($!comment.body,$picPath)</p>
+																			<em>$DateUtil.getTimeDesc($!comment.addtime) 来自$!comment.fromFlag</em><br />
+																			<div class="tar">
+																				<a class="cite a_color3" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.transfercount</a>
+																				<a class="reply a_color3" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.replycount</a>
+																			</div>
+																		</div>
+																	</div>
+																</div>
+																<div class="switch_uis_b"><div class="switch_uis_b"></div></div>
+															</div>
+														</div>
+													</div>
+												</li>
+												#end
+											</ul>
+											<a href="${basePath}theatre/$theatre.id/commentlist" class="inmore" target="_blank">查看所有哇啦！</a>
+										</div>
+									</div>
+								</div>
+								#end
+							</div>
+							<span class="npl">
+								<em>◆</em>
+								<span>◆</span>
+							</span>
+						</div>
+					</li>
+					#end
+				</ul>
+				#else
+				<div class="ui_warning center">你标注的地点附近没有找到关联剧院</div>
+				#end
+				#parse('include/pageUtil.vm')
+			</div>
+		</div>
+		<div class="ui_right mt20 clear">
+			#parse('drama/items/hotDrama.vm')<!-- 热映剧目 -->
+			#parse('drama/items/activity.vm')<!-- 活动 -->
+		</div>
+	</div>
+</div>
+<div id="theatreMap" style="display:none;">
+#parse('drama/widget/map_theatre.vm')
+</div>
+#parse('include/treasure.vm')
+#parse('include/newMarkDialog.vm')
+#parse('include/global/new_scorelevel.vm')
+#parse('include/bottom.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	#if(!$VmUtils.isEmptyList($theatreListPoint))
+	var autoTips = document.body.autoTips({width:290,bgColor:'#fce5d5',clazz:'wmore_hover'});
+	$$('.effectWala').addEvents({
+		'mouseenter':function(){this.getElement('.wmore').addClass('wmore_hover');},
+		'mouseleave':function(){this.getElement('.wmore').removeClass('wmore_hover');}
+	})
+	$$('.wmore').addEvents({
+		'mouseenter':function(){
+			var el = this.getParent('.effectWala').getElement('.objTips');
+			if(el){
+				autoTips.property.content(el,this);
+				autoTips.show();
+			}
+		},
+		'mouseleave':function(){
+			autoTips.isAttach = false;
+			autoTips.hide.delay(200);
+		}
+	});
+	#end
+	var slider = $('sliderBox');
+	new Slider(slider, slider.getElement('.sliderBoxTips'), {
+		range:[500, 5000],
+		offset:5,
+		snap:true,
+		wheel:true,
+		steps:9,
+		#if($VmUtils.isNotBlank($!params.myRange))
+			initialStep:$!params.myRange,
+		#else
+			initialStep:3000,
+		#end
+		onChange: function(value){
+			$('sliderBoxInner').setStyle('width',(value/500)*(150/9)-16);
+			$('sliderRange').set('text', value);
+			$('myRange').value = value;
+		}
+	 });
+});
+function openMyLocal(){
+	gewa.util.maskContent('','theatreMap','',680,'theatreMap');
+	Map();
+}
+
+function search(field, value){
+	$(field).value = value;
+	$('searchForm').submit();
+}
+
+function getNearTheatre(){
+	var booking;
+	#if($VmUtils.eq($!params.booking,'open'))
+		booking = "open";
+	#else
+		booking = "close";	
+	#end
+	#if($VmUtils.isBlank($!pointx)||$VmUtils.isBlank($!pointy))
+		gewa.util.maskContent('','theatreMap','',680,'theatreMap');
+		Map();
+	#else
+		location.href="${basePath}theatre/searchNearTheatre.xhtml?myRange="+$('myRange').value+"&booking="+booking;
+	#end
+}
+function booking(){
+	var booking;
+	#if($VmUtils.eq($!params.booking,'open'))
+		booking = "close";
+	#else
+		booking = "open";	
+	#end
+ 	location.href="${basePath}theatre/searchNearTheatre.xhtml?myRange="+$('myRange').value+"&booking="+booking;
+}
+
+</script>
+</body>
+</html>

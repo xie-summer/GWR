@@ -1,0 +1,203 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影节场次列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.GEWA td{background-color:#f4f4f4;}
+		.PNX td{background-color:#fd9;}
+	</style>
+</head>
+<body style="width:1200px; margin:auto" class="yui-skin-sam">
+<div id="data" style="width:1200px;">
+	<form action="${basePath}admin/filmfest/mpiViewList.xhtml" id = "searchForm" style="margin:3px">
+		<input type="hidden" name="tag" value="$!params.tag"/>
+		日期：<select name="playDate">
+					#foreach($i in [15..23])
+					#set($curSelectDate = '2013-06-'+$i)
+					<option value="$curSelectDate" #if($VmUtils.eq($params.playDate, $curSelectDate)) selected #end>$curSelectDate</option>
+					#end
+				</select>
+		排序：<select name="order">
+					<option value="playdate" #if($VmUtils.eq($params.order, 'playdate')) selected #end>放映日期</option>
+					<option value="cinemaid" #if($VmUtils.eq($params.order, 'cinemaid')) selected #end>影院</option>
+					<option value="movieid" #if($VmUtils.eq($params.order, 'movieid')) selected #end>电影</option>
+					<option value="edition" #if($VmUtils.eq($params.order, 'edition')) selected #end>版本</option>
+					<option value="gewaprice" #if($VmUtils.eq($params.order, 'gewaprice')) selected #end>gewa卖价</option>
+					<option value="opentype" #if($VmUtils.eq($params.order, 'opentype')) selected #end>开放类型</option>
+					<option value="openStatus" #if($VmUtils.eq($params.order, 'openStatus')) selected #end>开放状态</option>
+				</select>
+				<input type="submit" class="button" value="查询"/>
+				<a href="javascript:addNone('add')">隐藏已匹配的</a><a href="javascript:addNone('remove')">显示已匹配的</a>
+	</form>
+	<table class="table">
+		<thead>
+		<tr>
+			<th>序号</th>
+			<th>影院名称</th>
+			<th>电影名称</th>
+			<th>放映时间</th>
+			<th>影厅序号</th>
+			<th>排片ID</th>
+			<th>版本</th>
+			<th>影院价</th>
+			<th>格瓦卖价</th>
+			<th>开放类型</th>
+			<th>开放状态</th>
+			<th width="50px"><a href="javascript:showDiv()">设置</a></th>
+			<th width="50px">操作</th>
+		</tr>
+		</thead>
+		<tbody id="movieTable" class="tbody">
+		#foreach($pair in $pairList)
+		#set($mpi=$pair.first)
+		#set($opi=$opiMap.get($mpi.id))
+		#set($movie=$movieMap.get($mpi.movieid))
+		#set($cinema=$cinemaMap.get($mpi.cinemaid))
+		<tr class="$mpi.opentype $pair.count">
+			<td rowspan="$pair.count">$foreach.count</td>
+			<td rowspan="$pair.count">$!cinema.name</td>
+			<td rowspan="$pair.count">$!movie.name</td>
+			<td rowspan="$pair.count">$!mpi.playdate $!mpi.playtime</td>
+			<td>$!mpi.roomnum</td>
+			<td>$!mpi.id</td>
+			<td>$!mpi.edition</td>
+			<td>$!mpi.price</td>
+			<td>$!mpi.gewaprice</td>
+			<td>$!mpi.opentype</td>
+			<td>
+				#if($VmUtils.contains($mpi.otherinfo, 'unopengewa'))
+					不对格瓦拉开放
+				#elseif($VmUtils.contains($mpi.otherinfo, 'unshowgewa'))
+					不对格瓦拉显示
+				#elseif($opi.booking)
+					可售票
+				#elseif($opi.closed)
+					已关闭
+				#else
+					等待开放
+				#end
+			</td>
+			<td><input type="checkbox" name="mpids" value="$mpi.id"/></td>
+			<td><input type="button" value="移出" onclick="removeFilmFest($!mpi.id);"/></td>
+		</tr>
+		#if($pair.second)
+			#set($mpi=$pair.second)
+			#set($opi=$opiMap.get($mpi.id))
+			#set($movie=$movieMap.get($mpi.movieid))
+			#set($cinema=$cinemaMap.get($mpi.cinemaid))
+		<tr class="$mpi.opentype">
+			<td>$!mpi.roomnum</td>
+			<td>$!mpi.id</td>
+			<td>$!mpi.edition</td>
+			<td>$!mpi.price</td>
+			<td>$!mpi.gewaprice</td>
+			<td>$!mpi.opentype</td>
+			<td>
+				#if($VmUtils.contains($mpi.otherinfo, 'unopengewa'))
+					不对格瓦拉开放
+				#elseif($VmUtils.contains($mpi.otherinfo, 'unshowgewa'))
+					不对格瓦拉显示
+				#elseif($opi.booking)
+					可售票
+				#elseif($opi.closed)
+					已关闭
+				#else
+					等待开放
+				#end
+			</td>
+			<td><input type="checkbox" name="mpids" value="$mpi.id"/></td>
+			<td><input type="button" value="移出" onclick="removeFilmFest($!mpi.id);"/></td>
+		</tr>
+			#end
+		#end
+		</tbody>
+	</table>
+	<div id="showDiv" style="display:none">
+			开放类型
+			<div style="margin-left: 50px;">
+				<label>不对格瓦拉开放：</label>
+				<input type="checkbox" name="unopengewa" id="unopengewa" value="Y" style="width: 20px;" #if($VmUtils.isNotBlank($unopengewa))checked#end/>
+			</div>
+			
+			<div style="margin-left: 50px;">
+				<label>不对格瓦拉显示：</label>
+				<input type="checkbox" name="unshowgewa" id="unshowgewa" value="Y" style="width: 20px;" #if($VmUtils.isNotBlank($unshowgewa))checked#end/>
+			</div>
+	</div>
+</div>
+<script>
+window.addEvent("domready", function(){
+	$$(".tbody tr").addEvents({
+		'mouseenter':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseleave':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+});
+function addNone(type){
+	$$(".2").each(function(item){
+		if(type == 'add'){
+			item.addClass("none");	
+		}else{
+			item.removeClass("none");
+		}
+	})
+}
+function showDiv(){
+	gewa.util.issure('','showDiv','',420,'keys',function(){
+		var values = GewaraUtil.getValues('data', ',');
+		values.unopengewa = $('unopengewa').checked;
+		values.unshowgewa = $('unshowgewa').checked;
+		url = "${basePath}admin/filmfest/updateMpiOtherinfo.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert("设置成功！", refreshPage);
+				
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	});	
+}
+function joinFilmFest(id){
+	var url = '${basePath}admin/filmfest/joinMpiList.xhtml';
+	var values = {'mpid':id,'tag':'$!params.tag'};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function removeFilmFest(id){
+	var url = '${basePath}admin/filmfest/removeMpiList.xhtml';
+	var values = {'mpid':id,'tag':'$!params.tag'};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+//全选
+function selAll(obj){
+	var cbs = document.getElementsByName('mpids');
+	$each(cbs, function(i, n){
+		i.checked=obj.checked;
+	})
+}
+</script>
+</body>
+</html>

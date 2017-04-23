@@ -1,0 +1,18 @@
+#parse('include/constant/paybank.vm')
+#set($bankPayList=[])
+#foreach($confPay in $confPayList)
+	#set($bankicon=$PAYBANK_MAP.get($confPay.name))
+	#if($VmUtils.isNotBlank($bankicon))
+		#set($bicoll=$VmUtils.split($bankicon, ","))
+		#set($tmp=$bankPayList.add("$bicoll[0],$bicoll[1],$confPay.paymethod,$bicoll[1]"))
+	#end
+#end
+#set($otherMap=$VmUtils.readJsonToMap($!otherinfo))
+#set($payoption=$otherMap.get('payoption'))
+#set($mealoption=$otherMap.get('mealoption'))
+#set($defaultpaymethod=$otherMap.get('defaultpaymethod'))
+#set($paymethodlist=$otherMap.get('paymethodlist'))
+#set($cardoption=$otherMap.get('cardoption'))
+#set($batchidlist=$otherMap.get('batchidlist'))
+#set($yinlianMap={'0001':'上海农商行','8607':'快捷支付'})
+#set($paymethodLen=$VmUtils.size($payTextMap))

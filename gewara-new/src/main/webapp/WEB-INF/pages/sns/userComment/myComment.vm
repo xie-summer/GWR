@@ -1,0 +1,52 @@
+#if(${params.type} eq 'diarytopic')
+	#set($newBlog=true)
+#end
+#set($isShow=false)
+#if($!rights.get(4) eq 'topic_public')
+#set($isShow=true)
+#elseif($!rights.get(4) eq 'topic_friend' && $isMyFriend)
+#set($isShow=true)
+#end
+#if(!$!rights)
+	#set($isShow=true)
+#end
+#if($isShow)
+<ul class="postList">
+#if(!$VmUtils.isEmptyList($list))
+	#foreach($diary in $list)
+	<li class="abeam clear #if($foreach.index eq 9) nobord #end">
+		<div class="uipic circle">
+			<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!diary.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$!cacheMemberMap.get($!diary.memberid).headpicUrl)" width="50" height="50" /></a>
+			#*<p><a href="#" target="_blank">$!cacheMemberMap.get($diary.memberid).nickname</a></p>*#
+		</div>
+		<div class="uiText textInfo">
+			<div class="title">
+			   <h2><a target="_blank" title="$!diary.subject" href="${basePath}blog/t$diary.id">$VmUtils.escabbr($!diary.subject,50)</a></h2><em>$DateUtil.format($!diary.addtime,'yyyy-MM-dd')</em>
+			</div>
+			<p>$!VmUtils.htmlabbr($!bodyMap.get($!diary.id), 200)</p>
+			<p class="lastreplay">最后回复：<span><a target="_blank" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!diary.replyid">$!VmUtils.escabbr($!diary.replyname,10)</a></span></p>
+			<p class="gray replyTotal"><em>${diary.clickedtimes} 浏览</em>|<em>${diary.replycount} 回复</em></p>					
+		</div>
+	</li>
+	#end
+	#set($pageFun="ajaxPage")
+	#parse('include/scriptPageUtil.vm')
+#else
+<div class="ui_warning">
+	#if($newBlog)
+	【$!member.nickname】暂时还没有发表任何帖子！<a href="${basePath}blog" target="_blank"><span>逛论坛发帖</span></a>
+	#else
+	【$!member.nickname】暂时还没有回复任何帖子！<a href="${basePath}blog" target="_blank"><span>逛论坛回精帖</span></a>
+	#end
+</div>
+#end
+</ul>
+#else
+<div class="clew mt20">
+	#if($!rights.get(4) eq 'topic_private')
+		【$!member.nickname】的帖子设置了权限为【全体不可见】
+	#elseif($!rights.get(4) eq 'topic_friend')
+		【$!member.nickname】的帖子设置了权限为【仅好友可见】
+	#end
+</div>
+#end

@@ -1,0 +1,392 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>开放场次编辑-$sport.name</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		html,body{background: none;}
+		select{width:120px;_width:117px;}
+		.myinput{
+			width: 38px;margin-top: 4px;
+		}
+		.new{
+			width: 50px;
+		}
+		.wait{
+			width: 50px;
+			color: #FFA238;
+		}
+		.lock{
+			width: 50px;
+			color: blue;
+		}
+		.locklf{
+			width: 50px;
+			color: blue;
+		}
+		.sole{
+			width: 50px;
+			color: red;
+		}
+		.del{
+			width: 50px;
+			color: #FEC5A1;
+		}
+		label{
+			text-align: left;
+		}
+		.match{
+			border: 1px solid green;
+		}
+		.btn{
+			border: 1px solid #cdf;
+		}
+		.match2{
+			border: 1px solid red;
+		}
+		.zero{
+			background-color: #EAF6FD
+		}
+		.tc{background:#fff;padding:30px 60px;position:relative;}
+		.tc p{line-height:18px;}
+		.tc .ca{position:absolute; right:10px; top:10px;}
+	</style>
+</head>
+<body>
+#set($width=62*$playHourList.size()+82)
+<div class="manageItemList">
+	<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+		<thead>
+			<tr>
+				<th>序号</th>
+				<th>结算比率</th>
+				<th>说明</th>
+			</tr>
+		</thead>
+		<tbody>
+			#foreach($settle in $settleList)
+			<tr>
+				<td>$foreach.count</td>
+				<td>$settle.discount</td>
+				<td>$!settle.remark</td>
+			</tr>
+			#end
+		</tbody>
+	</table>
+	<br/>
+	<br/>
+	<b class="b1f"></b><b class="b2f"></b>
+	<form action="${basePath}admin/sport/open/ottDetail.xhtml" id="form" method="post">
+	<input type="hidden" name="ordertype" id="ordertype" value="$!ordertype" />
+	<input type="hidden" name="ottid" id="ottid" value="$!ottid" />
+		<div class="contentInfoList" style="width:${width}px;overflow-y:hidden;overflow-x:auto;">
+			<b class="m2"></b>#set($week=$DateUtil.getCnWeek($ott.playdate))
+			<div class="m">$sport.name>>$item.itemname $DateUtil.format($ott.playdate,'MM月dd日')&nbsp;$DateUtil.getCnWeek($ott.playdate)
+			<input type="button" value="添加结算比率" onclick="showMark();" class="right"/>
+			<input type="button" value="同步远程" onclick="copySingle()" class="right"/>
+			<input type="button" value="同步价格" onclick="copyPrice()" class="right"/>
+			<input type="text" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" value="" style="width: 140px;" id="playdate" class="right"/>
+			</div>
+			<b class="m2"></b>
+			<div id="locknew" class="mt20">
+				<a href='http://cus.gewala.com/sportpro/gewasport/otiList.xhtml?checkValue=$!checkValue&sportid=$!ott.sportid&itemid=$!ott.itemid&ottid=$!ott.remoteid'style="font-size:14px;font-weight:bold;color:#000;float:right">商家后台</a>
+				<input type="button" style="width: 60px;" class="match" onclick="setStatus(this, 'L')" id="lock" value="G锁" />
+				<input type="button" onclick="setStatus(this, 'A')"" style="width: 60px;" class="match" id="new" value="新" />
+				
+				<input type="button" onclick="setStatus(this, 'LF')"" style="width: 60px;" class="match" id="locklf" value="强制锁" />
+				
+				<input type="button" style="width: 60px;" onclick="changeAllStatus('L')" id="batchLock" value="批量G锁" />
+				<input type="button" style="width: 60px;" onclick="changeAllStatus('LF')" id="batchLock" value="批量强制锁" />
+				<input type="button" style="width: 60px;" onclick="changeAllStatus('A')" id="batchLock" value="批量解锁" />
+				<a href="${basePath}admin/sport/open/refreshOpenTimeSale.xhtml?ottid=$!ott.id" target="_blank">刷新竞拍场次</a>
+				<a href="${basePath}admin/sport/order/choosefield.xhtml?ottid=$ott.id" target="_blank">更换订单</a>
+			</div>
+			<div class="mt10">
+				卖价：<input type="text" name="price" id="price" style="width: 80px;"/>
+				成本：<input type="text" name="costprice" id="costprice"  style="width: 80px;"/>
+				保底价：<input type="text" name="upsetprice" id="upsetprice"  style="width: 80px;"/>
+				结算比率:<select style="width: 80px;" id="settleid">
+								<option></option>
+								#foreach($settle in $settleList)
+								<option value="$settle.settleid">$settle.discount</option>
+								#end
+							</select>
+				<input type="button" value="批量设置" onclick="saveBatchOtiPrice()"/>
+			</div>
+			<div id="content" style="margin-left:2px;">
+				<div style="margin-left:300px;margin-top: 20px;"></div>
+				<ul class="seatlist" style="width:${width}px;overflow-y:hidden;overflow-x:auto;">
+					#set($otiMap=$itemHelper.getOtiMap())
+					<li>
+						<dl class="seatpic">
+							<dt class="left" style="width: 80px;">&nbsp;</dt>
+							#foreach($hour in $playHourList)
+							<dd style="width: 62px;"><input type="checkbox" value="$hour" class="middleAlign mr3"/>$hour</dd>
+							#end
+						</dl>
+					</li>
+					#foreach($field in $fieldList)
+					<li>
+						<dl class="seatpic" style="width:${width}px;overflow-y:hidden;overflow-x:auto;">
+							<dt class="left" style="width: 80px;">
+								<a><input type="checkbox" value="$field.id" class="middleClos mr3" /><label onclick="togglePrice($field.id);">$field.name</label></a>
+							</dt>
+							#foreach($hour in $playHourList)
+							#set($key=$field.id + $hour)
+							#set($oti=$!otiMap.get($key))
+							#if($oti)
+							#if($oti.hasAvailable()) #set($st='新')#set($cls='new')
+							#elseif($oti.hasWait()) #set($st='待')#set($cls='wait')
+							#elseif($oti.hasStatus('R')) #set($st='A锁')#set($cls='lock')
+							#elseif($oti.hasLock()) #set($st='G锁')#set($cls='lock')
+							#elseif($oti.hasStatus('LF')) #set($st='强制锁')#set($cls='locklf')
+							#elseif($oti.hasStatus('S_GW')) #set($st='售出')#set($cls='sole')
+							#elseif($oti.hasStatus('delete')) #set($st='删除')#set($cls='del')
+							#else #set($st='异常')#set($cls='sole')
+							#end
+							<dd style="width: 62px;"><input type="button" value="$!st" name="$oti.id" class="btn $cls #if($oti.hasZeroPrice())zero#end" alt="$cls"/></dd>
+							#set($oti='')
+							#end
+							#end
+						</dl>
+						<dl id="th$field.id" class="none seatpic" style="height: auto;">
+							<dd class="left" style="width: 80px;text-align: right;">
+							1.卖&nbsp;&nbsp;价<br/><br/>
+							2.成本价<br/><br/>
+							3.原&nbsp;&nbsp;价<br/><br/>
+							4.保底价<br/><br/>
+							5.结算比率<br/>
+							</dd>
+							#foreach($hour in $playHourList)
+							#set($key=$field.id + $hour)
+							#set($oti=$!otiMap.get($key))
+							<dd style="width: 62px;">
+								<input type="text" class="myinput" value="$!oti.price" id="price$oti.id" onchange="saveOtiPrice($oti.id, this)"/><br/>
+								<input type="text" class="myinput" value="$!oti.costprice" id="costprice$oti.id" onchange="saveOtiPrice($oti.id, this)"/><br/>
+								<input type="text" class="myinput" value="$!oti.norprice" id="norprice$oti.id" onchange="saveOtiPrice($oti.id, this)"/><br/>
+								<input type="text" class="myinput" value="$!oti.upsetprice" id="upsetprice$oti.id" onchange="saveOtiPrice($oti.id, this)"/><br/><br/>
+								<select style="width: 60px;" id="settleid$oti.id" onchange="saveOtiPrice($oti.id, this)">
+									<option></option>
+									#foreach($settle in $settleList)
+									<option #if($VmUtils.eq($oti.settleid, $settle.settleid)) selected="selected" #end value="$settle.settleid">$settle.discount</option>	
+									#end
+								</select><br/>
+								<span>$!oti.status</span><br/>
+							</dd>
+							#set($oti='')
+							#end
+						</dl>
+					</li>
+					#end
+				</ul>
+				<div id="height0"></div>
+			</div><br/>
+		</div>
+	<b class="b2f"></b> <b class="b1f"></b>
+	<br/>
+	</form>
+	<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>起始价</th>
+				<th>当前价</th>
+				<th>提升价</th>
+				<th>一口价</th>
+				<th>开始时间（场地）</th>
+				<th>结束时间（场地）</th>
+				<th>开放时间</th>
+				<th>结束时间</th>
+				<th>保证金</th>
+				<th>状态</th>
+				<th>锁定状态</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			#foreach($openTimeSale in $saleList)
+			<tr class="grayBg" id="r$openTimeSale.id">
+				<td>$!openTimeSale.id</td>
+				<td>$!openTimeSale.lowerprice</td>
+				<td>$!openTimeSale.curprice</td>
+				<td>$!openTimeSale.dupprice</td>
+				<td>$!openTimeSale.auctionprice</td>
+				<td>$!openTimeSale.starttime</td>
+				<td>$!openTimeSale.endtime</td>
+				<td>$DateUtil.formatTimestamp($!openTimeSale.opentime)</td>
+				<td>$DateUtil.formatTimestamp($!openTimeSale.closetime)</td>
+				<td><input type="text" value="$!openTimeSale.guaranteeid" style="width:100px;" onchange="setOtsByGuaranteeid($!openTimeSale.id, this.value)"/></td>
+				<td>$!openTimeSale.status</td>
+				<td>$!openTimeSale.lockStatus</td>
+				<td></td>
+			</tr>				
+			#end
+		</tbody>
+	</table>
+</div>
+<div id="tc5" class="tc" style="display:none;">
+	<span>结算比率：</span><input type="text" name="discount" id="discount"/>
+	<br/>
+	<span>说明：</span><textarea name="remark" id="remark" rows="3" cols="19"></textarea>
+	<br/>
+	<input type="button" value="保存" onclick="saveSettle();"/><input type="button" onclick="gewara.util.hideDialog('tc5');" value="取消" />
+</div>
+<script type="text/javascript">
+var status="",statusEl = "";
+window.addEvent("domready", function(){
+	$$(".seatlist input").addEvent("click",function(){
+		if(this.hasClass('new') || this.hasClass('lock') || this.hasClass('locklf')){
+			changeStatus(this,this.alt);	
+		}
+	});
+});
+function setPrice(otiid, el){
+	el.setStyle("background","red");
+	var values = {"otiid":otiid,"price":el.value};
+	GewaraUtil.sendRequest('${basePath}admin/sport/open/setOTIPrice.xhtml', values, function(result){
+		if(result.success) el.setStyle("background","");
+		else alert(result.msg);
+	});
+}
+function togglePrice(id){
+	var e = $('th' + id);
+	$(e).toggleClass('none');
+}
+function saveOtiPrice(id, el){
+	el.setStyle("background","red");
+	var price = $('price' + id).value;
+	var costprice = $('costprice' + id).value;
+	var norprice = $('norprice' + id).value;
+	var settleid = $('settleid' + id).value;
+	var upsetprice = $('upsetprice' + id).value;
+	if(price=='' || costprice=='' || norprice=='' || upsetprice=='') return;
+	if(price*costprice*upsetprice==0) return;
+	var values = {"id":id, "price":price, 'costprice':costprice, 'norprice':norprice, 'settleid':settleid, 'upsetprice':upsetprice};
+	GewaraUtil.sendRequest('${basePath}admin/sport/open/saveOtiPrice.xhtml', values, function(result){
+		if(result.success) el.setStyle("background","");
+		else alert(result.msg);
+	});
+}
+function saveBatchOtiPrice(){
+	var price = $('price').value;
+	var costprice = $('costprice').value;
+	var settleid = $('settleid').value;
+	var upsetprice = $('upsetprice').value;
+	if(price=='' && costprice=='' && settleid=='' && upsetprice=='') return;
+	/* if(price*costprice*upsetprice==0) return; */
+	GewaraUtil.mask();
+	var times = $$('.middleAlign');
+	var hours = new Array();
+	times.each(function(item){
+		if(item.checked) hours.push(item.value+"");
+	});
+	var fields = "";
+	$$('.middleClos').each(function(el){
+		if(el.checked){
+			fields += el.value + ",";
+		}
+	});
+	var values = {"id":$ott.id,'hours':hours.toString(), 'fields':fields,"price":price, 'costprice':costprice, 'settleid':settleid, 'upsetprice':upsetprice};
+	GewaraUtil.sendRequest('${basePath}admin/sport/open/saveBatchOtiPrice.xhtml', values, function(result){
+		GewaraUtil.unmask();
+		if(result.success) {
+			alert(result.retval);
+			refreshPage();
+		}else alert(result.msg);
+	});
+}
+function setStatus(e, value){
+	statusEl = e;
+	$('locknew').getElements('input').each(function(item){
+		item.removeClass('match2');
+	});
+	e.addClass("match2");
+	status = value;
+}
+function changeStatus(e,cls){
+	if(status=='' || statusEl=='') return;
+	var values = {"id":e.name, "status":status};
+	var url = "${basePath}admin/sport/open/changeStatus.xhtml";
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success) {
+			e.removeClass(cls);
+			statusEl = $(statusEl);
+			e.addClass(statusEl.id);
+			e.value = statusEl.value;
+		}else {
+			if(result.msg!='repeat') {
+				alert(result.msg);
+			}
+		}
+	});
+}
+function copyPrice(){
+	var url = "${basePath}admin/sport/open/copyPrice.xhtml";
+	GewaraUtil.sendRequest(url, {"ottid":$ott.id,"playdate":$('playdate').value},function(result){
+		if(result.success) {
+			alert(result.retval);
+			refreshPage();
+		}else alert(result.msg);
+	});
+}
+function copySingle(){
+	var url = "${basePath}admin/sport/open/synchSingle.xhtml";
+	GewaraUtil.sendRequest(url, {"id":$ott.id},function(result){
+		if(result.success) {
+			alert(result.retval);
+			refreshPage();
+		}else alert(result.msg);
+	});
+}
+function changeAllStatus(status){
+	var hours = '';
+	var fields = '';
+	$$('.middleAlign').each(function(el){
+		if(el.checked)hours = hours + "," + el.value;
+	});
+	
+	$$('.middleClos').each(function(el){
+		if(el.checked)fields = fields + "," + el.value;
+	});
+	var values = {'ottid':$!ott.id,'fields':fields,'hours':hours,'status':status};
+	GewaraUtil.sendRequest('${basePath}admin/sport/open/changeAllStatus.xhtml', values, function(result){
+		if(result.success) refreshPage();
+		else alert(result.msg);
+	});
+}
+
+function setOtsByGuaranteeid(id, guaranteeid){
+	var url = "${basePath}admin/sport/open/setOtsByGuaranteeid.xhtml";
+	var values = {'id':id, "guaranteeid": guaranteeid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			
+		}else{
+			
+		}
+	});
+}
+function showMark(){
+	GewaraUtil.showDialog("tc5",200);
+}
+function saveSettle(){
+	var discount = $('discount').value;
+	if(discount == ""){
+		alert("结算比率不能为空！");
+		return;
+	}
+	var values = {"sportid":$!sport.id, "itemid":$!item.id, "discount":discount, "remark":$('remark').value};
+	GewaraUtil.sendRequest('${basePath}admin/sport/open/saveSettle.xhtml', values, function(result){
+		if(result.success) gewaUtil.alert("添加成功！", refreshPage);
+		else alert(result.msg);
+	});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>帖子审核</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body>   
+#set($tmp='diary')
+#set($tagMap={'movie':'电影','drama':'话剧','gymcourse':'健身项目','sportservice':'运动项目','cinema':'影院','bar':'酒吧','gym':'健身','ktv':'KTV','sport':'运动','theatre':'剧院','commu':'圈子'})
+<div id="content">
+<div class="bc1"></div>
+<div id="content_left" style="width:98%;margin:auto;">
+	<div class="panelTop"><em></em></div>
+	<div class="panelMid">
+	#parse('admin/audit/common.vm')
+	<div>
+		<form action="${basePath}admin/audit/diaryList.xhtml">
+			<label>用户ID：</label><input type="text" value="$!params.memberid" name="memberid" id="memberid" size="20"/> 
+			<label>搜索时间：</label>
+			<input id="starttime" type="text" style="width: 150px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" name="starttime" value="$!params.starttime"/>
+			至<input id="endtime" type="text" style="width: 150px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" name="endtime" value="$!params.endtime"/>
+			类型:<select name="tag" id="tag" style="width:100px;">
+				<option value="" #if($VmUtils.isBlank($params.tag)) selected #end>默认</option>
+				#foreach($key in $tagMap.keySet())
+				<option value="$key" #if($VmUtils.eq($params.tag,$key)) selected #end>$tagMap.get($key)</option>
+				#end
+			</select>
+			<br />
+			<label>请输入关键词：</label><input type="text" value="$!params.keyname" name="keyname" size="40"/>
+			<input type="radio" name="status" value="" #if(!$!params.status||$VmUtils.isBlank($!params.status))checked #end/>默认
+			<input type="radio" name="status" value="N_FILTER" #if($VmUtils.eq($!params.status,'N_FILTER'))checked #end/>被过滤
+			<input type="radio" name="status" value="N_ACCUSE" #if($VmUtils.eq($!params.status,'N_ACCUSE'))checked #end/>举报属实
+			<input type="radio" name="status" value="N_DELETE" #if($VmUtils.eq($!params.status,'N_DELETE'))checked #end/>被删除
+			<input type="submit" value="确定" />
+		</form>
+	</div>
+	#parse('include/pageUtil.vm')
+	<table id="checktable" style="width:100%;" class="blogtable">
+		<thead><tr><th>&nbsp;</th><th>主题</th><th>发帖人</th><th>回复</th><th>时间</th><th>贴子类型</th><th>审核</th><th>历史记录</th></tr></thead>
+			#foreach($diary in $diaryList)
+			#set($relate=$relatedHelper.getR1("diaryList",$diary.id))
+			#set($relate2=$relatedHelper.getR2("diaryList",$diary.id))
+			<tr>
+				<td>${foreach.count}&nbsp;<input type="checkbox" name="cbox" id="cb$diary.id" lang="$diary.memberid" value="$diary.id"/></td>
+				<td>
+					#if(!($VmUtils.eq($diary.status, 'N_FILTER')||$VmUtils.eq($diary.status, 'N_DELETE')||$VmUtils.eq($diary.status,'N_ACCUSE')))
+						<a id="dt$diary.id" title="${diary.subject}：$!VmUtils.escabbr($diary.summary,30)" style="font-size: 14px;" href='$!{absPath}${basePath}blog/t$diary.id' target="_blank" title="${diary.subject}">$!VmUtils.escabbr($!diary.subject,40)</a>
+					#else 
+						<a id="dt$diary.id" title="${diary.subject}：$!VmUtils.escabbr($diary.summary,30)" style="font-size: 14px;" href='${basePath}admin/audit/diaryDetail.xhtml?diaryid=$diary.id' target="_blank" title="${diary.subject}">$!VmUtils.escabbr($!diary.subject,40)</a>
+					#end
+				</td>
+				<td>$!diary.membername</td>
+				<td>
+					<a href="${basePath}admin/audit/diaryCommentList.xhtml?did=$diary.id" target="_blank">回复审核($diary.replycount)</a>
+				</td>
+				<td>
+					$!DateUtil.formatTimestamp($!diary.addtime)
+				</td>
+				<td width="15%">
+						#if($relate || $relate2)关联#if($relate2)#end
+						#if($diary.category eq 'movie')电影：
+						#elseif($diary.category eq 'drama')话剧：
+						#elseif($diary.category eq 'gymcourse')健身项目：
+						#elseif($diary.category eq 'sportservice')运动项目：
+						#end
+						$!diary.relate2.name
+						<br />
+						#end
+						#if($relate)
+						#if($relate && $relate2)<span class="ml20 mr20"></span> #end
+						#if($diary.tag eq 'cinema')影院：
+						#elseif($diary.tag eq 'bar')酒吧：
+						#elseif($diary.tag eq 'gym')健身：
+						#elseif($diary.tag eq 'ktv')KTV：
+						#elseif($diary.tag eq 'sport')运动：
+						#elseif($diary.tag eq 'theatre')剧院：
+						#end
+						$relate.name
+						<br />
+						#end
+						#if($commuMap.get($diary.id))来自圈子：$commuMap.get($diary.id).name #end
+				</td>
+				<td>
+					#if($diary.status.indexOf('Y') ge 0)
+					<input type="button" value="删除" onclick="audit($diary.id,'N_DELETE')"/>
+					#elseif($VmUtils.eq($diary.status,'N_FILTER') || $VmUtils.eq($diary.status,'N_ACCUSE'))
+					<input type="button" value="显示" onclick="audit($diary.id,'Y_NEW')"/>
+					<input type="button" value="删除" onclick="audit($diary.id,'N_DELETE')"/>
+					#elseif($VmUtils.eq($!diary.status,'N_DELETE'))
+					<input type="button" value="恢复" onclick="audit($diary.id,'Y_NEW')"/>
+					#end
+				</td>
+				<td>
+					<a target="_blank" href="${basePath}admin/common/getChangeHis.xhtml?tag=Diary&relatedid=$!diary.id">历史</a>
+				</td>
+			</tr>	
+			#end
+	</table>
+	<div style="height: 30px;">
+	#if(!$VmUtils.eq($!params.status,'N_DELETE'))
+	<input type="checkbox" id="addblack"/>加入黑名单
+	<input type="checkbox" id="cbAll" onclick="selAll(this)"/>
+	<input type="button" id="delAll" value="批量删除" onclick="delMulti()"/>
+	#end
+	</div>
+	#parse('include/pageUtil.vm')
+	</div><!-- end panelMid-->
+	<div class="panelBot"><em></em></div>
+</div><!-- end content_left -->
+<div id="height0"></div>
+</div><!--end content-->
+<div id="panel_bottom"></div>
+<div id="height0"></div>
+</body>
+</html>

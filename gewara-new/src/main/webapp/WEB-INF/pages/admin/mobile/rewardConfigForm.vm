@@ -1,0 +1,212 @@
+#if($type eq 'registrant')
+#set($title="注册")
+#end
+#if($type eq 'inviter')
+#set($title="邀请")
+#end
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>编辑$title奖励配置</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		label{width:120px;text-align:right;padding:1px 0 1px 0;margin-top:3px;}
+		#subjectForm input, textarea, span {width:550px;}
+		#subjectForm div{padding:4px;}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:750px;margin:auto">
+<form id="reward-config-form">
+<div id="movieDialog" class="yui-panel" style="width:750px;margin:auto">
+	<div class="hd">[编辑$title奖励配置]</div>
+	<div class="bd">
+	<div id="subjectForm">
+		<input type="hidden" name="activityid" value="$!config.activityid" />
+		<input type="hidden" name="type" value="$type" />
+		<div>
+		<label for="remark">活动名称<span class="req">*</span>：</label>
+		<input name="remark" value="$!config.remark" style="width:220px;" type="text"  />
+		</div>
+		
+		<div>
+			<label for="starttime">活动时间<span class="req">*</span>：</label>
+			<input type="text" style="width:180px;" size="14" value="$!config.starttime" class="Wdate" name="starttime" onclick="WdatePicker({minDate:'${DateUtil.curDateStr}',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+			<label for="endtime">至</label>
+			<input type="text" style="width:180px;"  size="14" value="$!config.endtime" class="Wdate" name="endtime" onclick="WdatePicker({minDate:'${DateUtil.curDateStr}',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+		</div>
+		
+		#if($type eq 'registrant')
+		<div>
+			<div>
+			<label for="citycode">活动城市<span class="req">*</span>：</label>
+			<ul>
+			<li style="width:70px;float:left"><input type="checkbox" style="width:20px;" id="city-check-all-btn" />全国</li>
+			#foreach($city in $cityMap.keySet())
+				<li style="width:70px;float:left"><input type="checkbox" name="citycode" style="width:20px;"  value="$city" />$cityMap.get($city)</li>
+			#end
+			</ul>
+			</div>
+			<div style="clear:both"></div>
+		</div>
+		#end
+		
+		<div>
+			<label for="coverapp">产品覆盖<span class="req">*</span>：</label>
+			<ul>
+			#foreach($type in $appType.keySet())
+				<li style="width:70px;float:left"><input type="checkbox" name="coverapp" style="width:20px;"  value="$type" />$appType.get($type)</li>
+			#end
+			</ul>
+			<div style="clear:both"></div>
+		</div>
+		
+		<div>
+			<label for="ostype">平台<span class="req">*</span>：</label>
+			<ul>
+				<li style="width:70px;float:left"><input type="radio" id="ostype_iphone" name="ostype" style="width:20px;" #if(!$config)checked="checked"#end  #if($!config.ostype eq 'IPHONE')checked="checked"#end  value="IPHONE" />IPHONE</li>
+				<li style="width:70px;float:left"><input type="radio" id="ostype_android" name="ostype" style="width:20px;"  value="ANDROID" #if($!config.ostype eq 'ANDROID')checked="checked"#end />ANDROID</li>
+			</ul>
+			<div style="clear:both"></div>
+		</div>
+		
+		#if($type eq 'inviter')
+		<div>
+			<div>
+			<label for="rules">活动规则：</label>
+				<textarea name="rules" id="rules">$!config.rules</textarea>
+			</div>
+			<div style="clear:both"></div>
+		</div>
+		#end
+		
+		<div>
+			<label>&nbsp;</label><input type="button" id="save-form-btn" class="button" style="width:100px" value="保存数据"/>
+		</div>
+		
+	</div>
+	</div>
+</div>
+</form>
+
+#if($type eq 'inviter')
+<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+#end
+
+<script>
+
+#if($type eq 'inviter')
+var ckeditor;
+window.addEvent('domready',function(){
+	ckeditor = CKEDITOR.replace("rules");
+});
+#end
+
+window.addEvent('domready', function(){
+	
+	//城市全选
+	var cityCheckAllBtn=$("city-check-all-btn");
+	if(cityCheckAllBtn){
+		var citycodes=$$("input[name='citycode']");
+		citycodes.set("checked",false);
+		cityCheckAllBtn.addEvent('click', function(){
+				citycodes.set("checked",this.checked);
+		});
+		citycodes.addEvent('click', function(){
+			if(this.checked==false){
+				cityCheckAllBtn.set("checked",false);
+			}
+		});
+	}
+	
+	
+	#if($!config)
+		#if($type eq 'registrant')
+		//选中城市
+		var selectCitys=$!config.citycodeList;
+		$$("input[name='citycode']").each(function(item){
+			selectCitys.each(function(v){
+				if(v==item.value){
+					item.set("checked",true);
+				}
+			});
+		});
+		#end
+		
+		//选中产品
+		var coverappList=$!config.coverappList;
+		$$("input[name='coverapp']").each(function(item){
+				coverappList.each(function(v){
+				if(v==item.value){
+					item.set("checked",true);
+				}
+			});
+		});
+	#end
+	
+	
+	//表单提交
+	$("save-form-btn").addEvent('click', function(){
+		var form=$("reward-config-form");
+		var activityid=form.activityid.value.trim();
+		var type=form.type.value.trim();
+		var remark=form.remark.value.trim();
+		var starttime=form.starttime.value.trim();
+		var endtime=form.endtime.value.trim();
+		
+		var rules="";
+		if(form.rules){
+			rules=ckeditor.getData();
+		}
+		
+		var ostype="IPHONE";
+		if($("ostype_iphone").checked==true){
+			ostype="IPHONE";
+		}else if($("ostype_android").checked==true){
+			ostype="ANDROID";
+		}
+		
+		var citycode="";
+		$$("input[name='citycode']").each(function(item){
+			if(item.checked==true){
+				citycode+=item.value+";"
+			}
+		});
+		
+		var coverapp="";
+		$$("input[name='coverapp']").each(function(item){
+			if(item.checked==true){
+				coverapp+=item.value+";"
+			}
+		});
+		
+		
+		var params="activityid="+activityid+"&type="+type+"&remark="+remark+"&starttime="+starttime+"&endtime="+endtime+"&citycode="+citycode+"&coverapp="+coverapp+"&ostype="+ostype+"&rules="+encodeURIComponent(rules);
+			 
+	    var postRQ = new Request({
+			    url: '${basePath}admin/mobile/saveRewardConfig.xhtml',
+			    method: 'post',
+			    onRequest: function(){
+			        GewaraUtil.mask();
+			    },
+			    onSuccess: function(responseHTML){
+			    	eval(responseHTML);
+			    	GewaraUtil.unmask();
+			    	alert(data.retval);
+			    }
+		});
+		postRQ.send({'data':params});
+	
+	
+	});
+	
+
+});
+</script>
+</body>
+</html>

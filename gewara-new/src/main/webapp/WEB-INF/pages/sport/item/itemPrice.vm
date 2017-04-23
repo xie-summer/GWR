@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title>#if($VmUtils.isBlank($sportItem.seotitle))${sportItem.name}场馆价格查询#else${sportItem.seotitle}#{end}_${sportItem.name}价格查询_格瓦拉生活网</title>
+	<meta name="keywords" content="${sportItem.name}价格表,${sportItem.name}价格查询,${sportItem.name}场馆,${sportItem.name}场馆价格"/>
+	<meta name="description" content="格瓦拉生活网提供市各大${sportItem.name}场馆价格查询及${sportItem.name}场馆预订服务，是国内最大的在线${sportItem.name}场馆预订服务商。"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,new_sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,pagesNavigation,base_home&v=$VmUtils.jsVersion"></script> 
+</head>
+<body>
+#set($tag="sport") #set($isDiaryList=true)
+#set($issports = true)#set($isItemPrice = true) #set($issport=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="gui-layout">
+	#parse('include/sport/itemMenu.vm')
+	<div class="gui-global-panel">
+		<div class="gui-globalLeft">
+			<div class="gui-title mt20">
+				<h2>$sportItem.itemname项目价格表</h2>
+			</div>
+			<div class="gui-wd50-inner ml15">
+				<ul class="ul-80 mt10">
+					<li id="coun_code">
+						<div class="ul-80Inner"><span style="background-position: 0pt -189px;">关联地区：</span></div>
+						#foreach($pair in $countyList)
+						<a id="${pair.county.countycode}" class="cyan" href="javascript:void(0)" onclick="javascript:manageSport('$!{pair.county.countycode}')" rel="">${countyMap.get($pair.county.countycode)}($pair.get("num"))</a>
+						#end
+					</li>
+					<li>
+						<div class="ul-80Inner"><span style="background-position: 0pt -189px;">${sportItem.itemname}场馆：</span></div>
+						<!-- 显示运动场馆 start-->
+						<div id="show_sport"></div>
+						<!-- 显示运动场馆 end -->
+					</li>
+				</ul>
+				<div class="height0"></div>
+				<div class="mt10" style="border-bottom:1px solid #aaa;"></div>
+				
+				<div class="mt5"><strong class="cyan mr10">$!sportItem.itemname</strong><b class="mr10">价格表</b>(计价单位：$!sportPriceTable.unit)</div>
+				<!-- 显示运动场馆的价格 start -->
+				<div id="show_sport_price"></div>
+				<!-- 显示运动场馆的价格 end -->
+			</div>
+		</div>
+		
+		#parse('include/sport/sportitem_right.vm')
+		
+		<div class="height0"></div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	new ClassGroup($('coun_code').getElements('a'),$('coun_code').getFirst('a'),'select');
+	manageSport($('coun_code').getFirst('a').get('id'));
+})
+function manageSport(countycode){
+	var url= '${basePath}sport/getSportVenueList.xhtml?itemid=$!sportItem.id&countycode='+countycode+"&maths="+Math.random()*100;
+	gewara.util.sendLoad('show_sport',url,'',function(){
+		new ClassGroup($('show_sport').getElements('a'),$('show_sport').getFirst('a'),'select');
+		manageSportPrice($sportItem.id,$('show_sport').getFirst('a').get('id'));
+		GewaraUtil.unmask();
+	})
+}
+function manageSportPrice(itemid, sid){
+	gewa.util.mask({'title':"正在提交，请稍等..."});
+	var url = '${basePath}sport/getSportItemPrice.xhtml?itemid='+itemid+'&sid='+sid+"&maths="+Math.random()*100;
+	gewara.util.sendLoad('show_sport_price',url,'',function(){
+		GewaraUtil.unmask();
+	});
+}
+</script>
+</body>
+</html>

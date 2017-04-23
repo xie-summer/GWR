@@ -1,0 +1,155 @@
+#set($sportDataMap = $!VmUtils.readJsonToMap($sport2Item.description))
+#if($VmUtils.gt($VmUtils.size($openTypeList), 1))
+<div class="detail_ticket_chooseBg">
+	<span class="reser-tab">
+		<b>选择消费模式：</b>
+		<a config="edition" class="select" href="#">全部</a>
+		#foreach($ot in $openTypeList)
+		<a config="edition" id="$ot" href="#">#if($VmUtils.eq($ot,'field'))按场地#elseif($VmUtils.eq($ot,'period'))按人数#else按局数#end</a>
+		#end
+	</span>
+</div>
+#end
+#if($VmUtils.gt($VmUtils.size($sportDataMap), 0) || !$VmUtils.isBlank($sport2Item.sporttype))
+<div class="detail_ticket_chooseBg">
+	#if(!$VmUtils.isBlank($sport2Item.sporttype))
+	<span> 场地位置：#if($VmUtils.eq($sport2Item.sporttype, 'indoor'))室内#elseif($VmUtils.eq($sport2Item.sporttype, 'outdoor'))室外#else室内和室外#end</span>
+	#end
+	#foreach($dataKey in $sportDataMap.keySet())
+	<span>$!dataKey：$!VmUtils.escabbr($!sportDataMap.get($dataKey),10)</span>
+	#end
+</div>
+#end
+#if(!$VmUtils.isEmptyList($ottList))
+<div style="height:auto" class="chooseOpi mt10">
+	#if($sp.hasPretype('E'))
+	<div class="ui_warning">
+		<b class="ico_g"></b>
+		#if($VmUtils.isNotBlank($sp.premessage))
+			$!sp.premessage
+		#else
+			代售场馆发票仅由场馆提供，且不可享受格瓦拉提供的积分、优惠券、活动、瓦币支付等各类会员特权。
+		#end
+	</div>
+	#end
+	<div class="chooseOpi_head">
+		<span class="opitime"><b>预订日期</b></span>
+		<span class="opiPrice"><b>价格(元)</b></span>
+		<span class="opiInfo"><b>说明</b></span>
+		<span class="opiurl"><b>预订</b></span>
+	</div>
+	<div class="chooseOpi_body" style="overflow:hidden;padding-right:0;height:auto;">
+		<ul style="margin-top:0px;" class="clear">
+			#foreach($ott in $ottList)
+			#set($priceMap=$ottPriceMap.get($ott.id))
+ 			<li #if($foreach.count%2 eq 0)class="ove"#end lang="$ott.openType">
+				<span class="opitime"><b>$!DateUtil.format($ott.playdate, 'MM-dd')&nbsp;$!DateUtil.getCnWeek($ott.playdate)</b></span>
+				<span class="opiPrice">
+					#if($priceMap.get('norpricemin') && $priceMap.get('norpricemax'))
+					<em>(
+						#if($VmUtils.eq($priceMap.get('norpricemin'), $priceMap.get('norpricemax')))
+							$!priceMap.get('norpricemin')
+						#else
+							$!priceMap.get('norpricemin')-$priceMap.get('norpricemax')
+						#end
+					)</em>
+					#end
+					#if($ott.isBooking())
+					<b>
+						#if($VmUtils.eq($priceMap.get('pricemin'), $priceMap.get('pricemax')))
+							$!priceMap.get('pricemin')
+						#else
+							$!priceMap.get('pricemin')-$priceMap.get('pricemax')
+						#end
+					</b>
+					#end
+				</span>
+				<span class="opiInfo">
+					#if($ott.isOpenPointPay())<em title="支持积分抵值" class="j">积</em>#end
+					#if($ott.isOpenCardPay())<em title="支持票券抵值" class="q">券</em>#end
+					#if($ott.isDisCountPay())<em title="支持支付优惠" class="y">惠</em>#end
+				</span>
+				<span class="opiurl sport_btn">
+					#if($ott.isBooking() && $sport.isEnableBook())
+					<a target="_blank" class="button minBt redBt " href="${basePath}sport/order/step1.xhtml?ottid=$ott.id"><span><em style="padding:0 5px 0 12px;background:url( http://img.gewara.cn/css/global/wpt.png ) 3px 2px no-repeat;">立即预订</em></span></a>
+					#else
+					暂不支持预订
+					#end
+				</span>
+			</li>
+			#end
+		</ul>
+	</div>
+	<div class="chooseOpi_footer">
+		<span>*该场馆提前#if($sport2Item.limitminutes)$!{sport2Item.limitminutes}#{else}60#end分钟关闭预订。</span>
+	</div>
+</div>
+#elseif(!$VmUtils.isEmptyList($sipList))
+#set($weekMap={1:'一',2:'二',3:'三',4:'四',5:'五',6:'六',7:'日'})
+<div style="height:auto" class="chooseOpi mt10">
+	<div class="chooseOpi_head">
+		<span class="opitime"><b>预订日期</b></span>
+		<span class="opiPrice"><b>价格(元)</b></span>
+		<span class="opiInfo"><b>说明</b></span>
+		<span class="opiurl"><b>预订</b></span>
+	</div>
+	<div class="chooseOpi_body" style="overflow:hidden;padding-right:0;height:auto;">
+		<ul style="margin-top:0px;" class="clear">
+			#foreach($sip in $sipList)
+			<li #if($foreach.count%2 eq 0)class="ove"#end>
+				<span class="opitime"><b>周$!weekMap.get($sip.week)</b></span>
+				<span class="opiPrice">
+					<b>
+						#if($VmUtils.eq($sip.minprice, $sip.maxprice))
+							$!sip.minprice
+						#else
+							$!{sip.minprice}-$!{sip.maxprice}
+						#end
+					</b>
+				</span>
+				<span class="opiInfo">/</span>
+				<span class="opiurl sport_btn">暂不支持预订</span>
+			</li>
+			#end
+		</ul>
+	</div>
+</div>
+#else
+<div class="ui_warning">很抱歉，暂无场次信息</div>
+#end
+#if($VmUtils.gt($VmUtils.size($openTypeList), 1))
+<script>
+var cacheList = new Hash();
+window.addEvent('domready',function(){
+	filterEdition();
+});
+var opi = $$('div.chooseOpi_body');
+var opiList = opi.getElements('li')[0];
+function filterEdition(){
+	var pe = document.getElements('a[config=edition]');
+	if(pe.length > 0){
+		pe.addEvent('click',function(e){
+			e.preventDefault();
+			pe.removeClass('select');
+			this.addClass('select');
+			curId = this.id.toString();
+			if(this.id == ""){
+				opiList.removeClass('filter');
+			}else{
+				if(opi.length > 0){
+					opiList.each(function(o){
+						var lang = o.get('lang').toString();
+						o.removeClass('filter');
+						if(curId != lang){
+							o.addClass('filter');
+						}
+					});
+				}else{
+					
+				}
+			}
+		});
+	}
+}
+</script>
+#end

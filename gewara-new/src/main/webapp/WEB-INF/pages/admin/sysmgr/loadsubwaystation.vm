@@ -1,0 +1,52 @@
+<table  width="100%" border="0" class="table">
+	<thead valign="top">
+	<tr>
+		<th style="width:100px">站点名称</th>
+		<th style="width:80px">站点序号</th>
+		<th style="width:100px">操作[<span style="color:blue; cursor: pointer" onclick="newLine2('$!lid');" title='增加路线站点'>增加</span>]</th>
+	</tr>
+	</thead>
+	<tbody>
+		#foreach($line2Station in $line2StationList)
+			<tr>
+				<td style="width:100px">$!line2Station.station.stationname</td>
+				<td style="width:80px"><input type="text" value="$!line2Station.stationorder" onchange="updateLine2Order('$!line2Station.id',this.value);" style="width: 50px"/></td>
+				<td style="width:100px"><span style="color:blue; cursor: pointer" onclick="updateLine2('$!line2Station.id');" title='修改站点'>修改</span></td>
+			</tr>
+		#end
+	</tbody>
+</table>
+<script type="text/javascript">
+	updateLine2Order = function(lid,order){
+		var url = "${basePath}admin/common/ajax/updateLine2StationOrder.xhtml";
+		var values = {'lid':lid,'order':order};
+		GewaraUtil.sendRequest(url, values, function(result){});
+	}
+	
+	updateLine2 = function(lid){
+		var url = "${basePath}admin/common/ajax/getLine2Station.xhtml";
+		var values = {'lid':lid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				GewaraUtil.setValues(result);
+				show('line2Dialog');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	saveLine2 = function (){
+		var url = "${basePath}admin/common/ajax/addLine2Station.xhtml";
+		var values = GewaraUtil.getValues('line2Form');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+				hide('line2Dialog');
+				gewaUtil.loadData('table_station','${basePath}admin/common/ajax/getLine2StationByLineId.xhtml',{'lid':result.lineid});
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>

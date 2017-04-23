@@ -1,0 +1,86 @@
+#set($pageFun='_ajaxAutoPage')
+<div class="contentInfoList" > 
+	<form name="myform" id="myform">
+	<input type="hidden" name="tag" value="$!tag" />
+	<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+		<thead>
+			<tr>
+				<th width="70px;" style="text-align: center;">用户ID</th>
+				<th width="100px;" style="text-align: center;">用户昵称</th>
+				<th width="140px;" style="text-align: center;">回复时间</th>
+				<th style="text-align: center;">回复内容</th>
+				<th>赠送积分</th>
+				<th>赠送说明</th>
+			</tr>
+		</thead>
+		<tbody id="contentbody">
+			#foreach($comment in $commentList)
+			#set($otherinfoMap=$VmUtils.readJsonToMap($comment.otherinfo))
+			<tr>
+				<td>$comment.memberid</td>
+				<td>$comment.nickname</td>
+				<td>$DateUtil.formatTimestamp($comment.addtime)</td>
+				<td>$!comment.body</td>
+				<td>#if($!handle eq 'N')
+				<select name="$comment.id" id="$comment.id">
+					#foreach($x in [0..10])
+					#set($point=$x*5)
+					<option value="$point">$!point</option>
+					#end
+				</select>
+				#else<label>$!otherinfoMap.get('point')</label>#end</td>
+				<td>#if($!handle eq 'N')<input type="text" name="$!comment.id" value=""/>#else<label>$!otherinfoMap.get('reason')</label>#end</td>
+			</tr>
+			#end
+			#if($!handle eq 'N')
+			<tr>
+				<td colspan="6" style="text-align: center;" id="addpointFrm">
+				</td>
+			</tr>
+			#end
+		</tbody>
+	</table>
+	</form>
+	#parse('include/scriptPageUtil.vm')
+</div>
+<script>
+	_ajaxAutoPage = function(pageNo, params, url){
+		gewaUtil.loadData('ajaxLoadTable', url);
+	}
+	withPoint = function (){
+		var sendValue = $('sendPointValue');
+		var value = sendValue.value;
+		/*if(isNaN(value)){
+			alert("请输入数字！");
+			sendValue.value = '';
+			sendValue.focus();
+			return;
+		}*/
+		var ss = $('contentbody').getElements('select');
+		$each(ss, function(i, n){
+			$(i).set('value', value);
+		})		
+
+	}
+	pass = function(obj){
+		if(confirm("确定保存吗？")){
+			var values=GewaraUtil.getValues("myform",",");
+			var url = "${basePath}admin/wap/addExPointInfo.xhtml";
+			GewaraUtil.mask('obj');
+			GewaraUtil.sendRequest(url, values, function(result){
+				GewaraUtil.unmask();
+				if(result.success){
+					alert('成功');
+					refreshPage();
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+	}
+	function goPageNo(){
+		var pageNo = $('pageNo').value;
+		if(pageNo == "")return alert("请输入页数！");
+		document.location.href = "${basePath}admin/point/freebackdiary.xhtml?pageNo=" + (pageNo - 1) + "&tag=$params.tag";
+	}
+</script>

@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>格瓦拉-订票影院地图</title>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,map&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.2&services=true"></script>
+</head>
+<body onload="initialize()">
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout">
+	<div class="inner">
+		<div class="ui_panel">
+			<div class="panel_inner">
+				<div class="searchTabs">
+					<div class="searchTabsInner clear">
+						<span class="right">
+							<input type="button" value="列表" onclick="listHref();"/><input type="button" value="地图" onclick="mapHref();"/>
+						</span>
+						<span class="left">
+							选择区域：
+							<select id="select" onchange="mapHref();">
+								#foreach($county in $countyList)
+						    	<option value="$county.countycode" #if($VmUtils.eq($!county.countycode,$!params.countycode)) selected="selected" #end>$!{county.countyname}</option>
+						    	#end
+							</select>
+						</span>
+					</div>
+				</div>
+				<div class="inner_left mt20">
+					<div class="cinemaList" id="cinemaList">
+						<ul>
+						#foreach($cinema in $cinemaList)
+							#if($VmUtils.isNotBlank($cinema.bpointx))
+							
+								<li lang="$!cinema.id">
+									<h3>${cinema.name}</h3>
+									<p><span class="ffst">[$!{cinema.countyname}]</span>$!{cinema.address}</p>
+								</li>
+							#end
+						#end
+						</ul>
+					</div>
+				</div>
+				<div class="inner_right mt20">
+					<div class="map">
+						<div class="map_canvas" id="map_canvas"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+var map;
+var markers = new Hash();
+var infoWindows=new Hash();
+var circles=new Hash();
+var oLis = $$('#cinemaList li');
+window.addEvent('domready',function(){
+	chooseCinema();
+});
+function chooseCinema(){
+	oLis.addEvent('click',function(){
+		oLis.removeClass('select');
+		this.addClass('select');
+		openWindow(this.get('lang'));
+	});
+}
+//创建标记
+function createMarker(cinemaid,bpointx, bpointy, html){
+	var point=new BMap.Point(bpointx, bpointy);
+	var marker=new BMap.Marker(point);
+	marker.disableMassClear();
+	var circle = new BMap.Circle(point,2500,{fillColor:"blue", strokeWeight: 1 ,fillOpacity: 0.3, strokeOpacity: 0.3});
+	var opts = {
+  		width : 200     // 信息窗口宽度
+	}
+	var infoWindow=new BMap.InfoWindow(html,opts);
+	marker.addEventListener("click",function(){
+		marker.openInfoWindow(infoWindow);
+		map.centerAndZoom(point,15);
+	});
+	markers.set(cinemaid,marker);
+	infoWindows.set(cinemaid,infoWindow);
+	circles.set(cinemaid,circle);
+	map.addOverlay(marker);
+}
+//显示周边半径2500米范围
+function circle(cinemaid){
+	map.clearOverlays();
+	var circle=circles.get(cinemaid);
+	map.addOverlay(circle);
+}
+function initialize() {
+	map=new BMap.Map("map_canvas");
+	map.centerAndZoom(new BMap.Point($cityData.getCenter($citycode).get(1), $cityData.getCenter($citycode).get(0)), 15);
+	#foreach($cinema in $cinemaList)
+	#if($VmUtils.isNotBlank($cinema.bpointx))
+		var point=new BMap.Point($!cinema.bpointy, $!cinema.bpointx);
+		map.centerAndZoom(point,15);
+		var html = "<b><span style='color: red;font-size: 15px;'>${cinema.name}</span></b><br/>$!{cinema.countyname}$!{cinema.address}<br/>"
+		+"<a style='color:#EE3399;' href='${basePath}common/baiduMap.xhtml?id=${cinema.id}&tag=$!{tag}'>交通驾车查询</a>"
+		+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a style='color:#EE3399;' onclick='circle($!cinema.id)'>周边场馆</a>";
+		createMarker($!cinema.id, $!cinema.bpointy, $!cinema.bpointx, html);
+	#end
+	#end
+	map.addControl(new BMap.NavigationControl());		//平移缩放控件
+	map.addControl(new BMap.OverviewMapControl());		//缩略地图控件
+	var opts={offset:new BMap.Size(150,5)}
+	map.addControl(new BMap.ScaleControl(opts));		//比例尺控件
+	map.addControl(new BMap.CopyrightControl());		//版权控件
+	map.addControl(new BMap.MapTypeControl());			//地图类型控件
+}
+
+function openWindow(cinemaid){
+	var marker = markers.get(cinemaid);
+	var point=new BMap.Point(marker.getPosition().lng,marker.getPosition().lat);
+	var infoWindow=infoWindows.get(cinemaid);
+	marker.openInfoWindow(infoWindow);
+	map.centerAndZoom(point,15);
+}
+
+function mapHref(){
+	var value=$("select").value;
+	location.href="${basePath}common/relateMap.xhtml?countycode="+value;
+}
+function listHref(){
+	var value=$("select").value;
+	location.href="${basePath}movie/searchCinema.xhtml?countycode="+value;
+}
+</script>
+</body>
+</html>

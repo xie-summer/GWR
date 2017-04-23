@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影节电影列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width:1200px; margin:auto" class="yui-skin-sam">
+<div style="width:1200px;">
+	<form action="${basePath}admin/filmfest/movieList.xhtml" id = "searchForm" style="margin:3px">
+		<input type="hidden" name="tag" value="$!params.tag"/>
+		电影ID：<input name="movieid" type="text" style="width:80px" value="$!params.movieid"/>
+		电影名称：<input name="moviename" type="text" style="width:80px" value="$!params.moviename"/>
+		电影类型：<input name="type" type="text" style="width:80px" value="$!params.type"/>
+		国家地区：<input name="state" type="text" style="width:80px" value="$!params.state"/>
+		特殊单元：<input name="flag" type="text" style="width:80px" value="$!params.flag"/>
+		<input type="submit" class="button" value="查询"/>
+		<a href='${basePath}admin/movie/modifyMovieDetail.xhtml' target="_blank" style="height:20px !important">增加新电影</a>&nbsp;&nbsp;
+	</form>
+	<table class="table">
+		<thead>
+		<tr>
+			<th>序号</th>
+			<th>电影ID</th>
+			<th>电影名称</th>
+			<th>电影类型</th>
+			<th>国家地区</th>
+			<th>特殊单元</th>
+			<th>编辑</th>
+			<th>前台页面</th>
+			<th>热门等级</th>
+			<th>操作</th>
+			<th>历史记录</th>
+		</tr>
+		</thead>
+		<tbody id="movieTable"  class="tbody">
+		#foreach($movie in $movieList)
+		<tr>
+			<td>$foreach.count</td>
+			<td>$!movie.id</td>
+			<td>$!movie.moviename</td>
+			<td>$!movie.type</td>
+			<td>$!movie.state</td>
+			<td>$!movie.flag</td>
+			<td><a href="${basePath}admin/movie/modifyMovieDetail.xhtml?mid=$movie.id" target="_blank">编辑详细</a></td>
+			<td><a target="_blank" href="$!{absPath}${basePath}movie/$movie.id">前台页面</a></td>
+			<td nowrap="nowrap" id="b$movie.id">
+				<select name='hotvalue' id='$movie.id' onchange='setHotValue("$movie.id")'>
+					<option value="70000" #if($movie.hotvalue eq 70000) selected="selected" #end>搜索推荐</option>
+					<option value="50000" #if($movie.hotvalue eq 50000) selected="selected" #end>推荐</option>
+					<option value="30000" #if($movie.hotvalue eq 30000) selected="selected" #end>热门</option>
+					<option value="10000" #if($movie.hotvalue eq 10000) selected="selected" #end>经典</option>
+					<option value="0" #if($VmUtils.isBlank($movie.hotvalue) || $movie.hotvalue eq 0) selected="selected" #end>一般</option>
+					<option value="-30000" #if($movie.hotvalue eq -30000) selected="selected" #end>冷门</option>
+					<option value="-50000" #if($movie.hotvalue eq -50000) selected="selected" #end>非常冷门</option>
+				</select>
+			</td>
+			<td><a href="javascript:loadDiv($movie.id)">修改单元类型</a></td>
+			<td>
+				<a href="${basePath}admin/common/getChangeHis.xhtml?tag=Movie&relatedid=$movie.id" target="_blank">历史</a>
+			</td>
+			</tr>
+		#end
+		</tbody>
+	</table>
+</div>
+<div id="pointText" style="visibility:hidden; z-index:601;"></div>
+<script type="text/javascript">
+window.addEvent("domready", function(){
+	$$(".tbody tr").addEvents({
+		'mouseenter':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseleave':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+});
+function setHotValue(vid){
+	var url = "${basePath}admin/movie/setMovieHotValue.xhtml";
+	var values = {'movieId':vid, "value":$(vid).value};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success) alert('成功设置！');
+	});
+}
+function loadDiv(id){
+	var url = "${basePath}admin/filmfest/getMovie.xhtml";
+	var values = {'id':id, 'tag':'$!tag'};
+	gewaUtil.loadData('pointText',url, values, function(result){
+		if(result.success){
+			GewaraUtil.showDialog('pointText');
+		}else{
+			gewaUtil.alert(result.json.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

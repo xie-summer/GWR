@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>邀请好友加入圈子_格瓦拉生活网</title>
+	<meta name="keywords" content="" />
+	<meta name="description" content="" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,user,commnu&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page,slimbox&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ul-60 li{padding-left:80px;clear: both;}
+		.ul-60 li .ul-60Inner{margin-left:-80px;_margin-left:-40px;width:80px;}
+		.ul-60 li{padding-left:80px;clear: both;}
+		.ul-60 li .ul-60Inner{margin-left:-80px;_margin-left:-40px;width:80px;}
+		.msninfbg_box{position:relative;}
+		.msninfbg{height:131px;background:url(${staticPath}css/home/msninfbg.gif) no-repeat;width:283px;position:absolute;top:-10px;left:370px}
+		.msninfbg .text2010{margin-left:20px;line-height:20px;margin-top:60px;}
+	</style>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.gewaUtil.alert.js"></script>
+	#parse('home/community/commnu_style.vm')
+</head>
+<body>
+#set($type={'gym':'健身','cinema':'电影','sport':'运动','qita':'其他','bar':'酒吧','ktv':'KTV'}) 
+#set($tag="home")#set($communityMenber=true)#set($inWebSide=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+#parse('include/home/communityHeadMenu.vm')
+<div class="commnu_layout">
+	<div class="commnu_left">
+		<div class="showList" style="margin-top:0px;">
+			<div class="userActionMenu" style="margin:0px;">
+				<ul>
+					<li style="width:80px;"><a href="${basePath}home/commu/inviteAddCommu.xhtml?commuid=$!commuid" #if($inWebSide) class="nav" #end><span>站内邀请</span></a></li>
+				</ul>
+			</div>
+			<div class="height0"></div>
+			<div class="gui-title mt10" style="text-indent:8px;"><h2>邀请站内好友加入圈子</h2></div>
+			<form id="inviteForm" action="" method="post">
+				<input type="hidden" name="commuid" id="commuid" value="$commuid"/>
+				<ul class="ul-25" id="selectmenber">
+					#foreach($friendid in $friendidList)
+					##set($memberFriend=$membersMap.get($friendid))
+					<li>
+						<label for="friendid$friendid" class="hdBox">
+							<span class="pubpic"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($friendid).headpicUrl)) center center no-repeat;"/></span>
+							<input type="checkbox" name="friendid" id="friendid$!friendid" value="$!friendid"/>
+							<span class="brown">$cacheMemberMap.get($friendid).nickname</span>
+							<span class="height0"></span>
+						</label>
+					</li>
+					#end
+				</ul>
+				<div class="height0"></div>
+				<div class="page">#parse('include/pageUtil.vm')</div>
+				<div class="height0"></div>
+				<div class="mt10 clear" style="background:#eee;padding:5px;">
+					<label for="allelect" class="left mr20"><input type="checkbox" name="allselect" id="allelect" onclick="selectAll(this)" class="mr5"/>全选</label>
+					<label class="minBt redBt button left" for="submit"><input type="button" id="submit" value="发送邀请" onclick="saveInvite();"/></label>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div class="commnu_right">
+		#parse('include/home/commuRightMenu.vm')
+		#parse('include/home/commuRightList.vm')
+	</div>
+	<div class="height0"></div>
+</div>
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	$('selectmenber').getElements('label').addEvents({
+		'mouseover':function(){this.addClass('select');},
+		'mouseleave':function(){if(!this.getElement('input').checked)this.removeClass('select')}
+	});
+});
+function saveInvite(){
+	var obj = document.getElementsByName('friendid');
+	var len = obj.length;
+	var checked = false; 
+	for(i=0;i<len;i++){
+		if (obj[i].checked == true){
+			checked = true;
+			break;
+		}
+	}
+	if (!checked){
+		gewaUtil.alert("请至少选择一个用户！");
+		return;
+	}
+	var url = "${basePath}home/commu/saveInviteAddCommu.xhtml";
+	GewaraUtil.mask("submit");
+	var values = GewaraUtil.getValues("inviteForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			var message ="发送成功，请等候对方的确认，请继续站外邀请！"; 
+			gewaUtil.alert(message, function(){
+				var rediectUrl = "${basePath}home/commu/inviteAddCommu.xhtml?commuid="+$!params.commuid;
+				document.location.href= rediectUrl;
+			});
+		}else{
+			gewaUtil.alert('发送失败！');
+		}
+	});
+}
+function selectAll(obj){
+	var allInput = document.getElementsByTagName("input");
+	var loopTime = allInput.length;
+	for(i = 0;i < loopTime;i++){
+		if(allInput[i].type == "checkbox"){
+			allInput[i].checked = obj.checked;
+		}
+	}
+}
+</script>		
+#parse('include/bottom.vm')
+</body>
+</html>

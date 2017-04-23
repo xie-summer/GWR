@@ -1,0 +1,36 @@
+#set($discountLen=$VmUtils.size($discountList))
+#if($VmUtils.gt($discountLen,0))
+<table>
+   	<tbody>
+   		<tr class="trbg">
+    		<td rowspan="$math.add($!discountLen,1)" style="color:red;" class="desc">优惠信息</td>
+		    <td>折扣类型</td>
+		    <td>关联对象(如卡号,用户ID,商家ID)</td>
+		    <td>抵消的物品</td>
+		    <td>折扣卡类</td>
+		    <td>折扣金额</td>
+		    <td>批次ID</td>
+		    <td>说明</td>
+		    <td>状态</td>
+		 </tr>
+		 #foreach($discount in $discountList)
+   		<tr class="trbg">
+    		<td>$!discount.tag</td>
+		    <td>$!discount.relatedid</td>
+    		<td>$!discount.goodsid</td>
+		    <td>$!discount.cardtype</td>
+    		<td>$!discount.amount</td>
+		    <td>$!discount.batchid</td>
+		    <td>
+		    	#if($VmUtils.eq($discount.relatedid,$sd.id))
+		    		$sd.enableRemark
+		    	#else
+		    		$!discount.description
+		    	#end
+		    </td>
+		    <td>$!discount.status</td>
+		</tr>
+		#end
+   	</tbody>
+</table>
+#end

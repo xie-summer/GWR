@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js"></script>
+	<style type="text/css">
+		table{border-collapse: collapse;}
+		td, th{text-align: left;height: 23px;}
+		.thead span{display:inline-block;margin-left:4px;width:10px; height:10px; overflow:hidden; text-indent:-999px; vertical-align:top;}
+		.sortedASC span,.sortedDESC span{background:url(${staticPath}css/global/sorta_icon.png) no-repeat;}
+		.sortedASC span{background-position:-19px 0;}
+		.sortedDESC span{background-position:0 0;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+<div style="color:red; line-height:20px;overflow:hidden;padding:5px;"">注：报表数据仅供参考，不能作为对账结算依据</div>
+<table class="table">
+	<thead>
+	<tr>
+		<th><div class="thead asc_desc">&nbsp;</div></th>
+		<th axis="string" style="cursor:pointer;"><div class="thead asc_desc">城市</div></th>
+		<th><div class="thead asc_desc">影院名称</div></th>
+		<th><div class="thead asc_desc">开始时间</div></th>
+		<th><div class="thead asc_desc">结束时间</div></th>
+		<th axis="number" style="cursor:pointer;"><div class="thead asc_desc">订单数</div></th>
+		<th axis="number" style="cursor:pointer;"><div class="thead asc_desc">套数</div></th>
+		<th axis="number" style="cursor:pointer;"><div class="thead asc_desc">金额</div></th>
+	</tr>
+	</thead>
+	<tbody class="tbody">
+	#foreach($data in $dataList)
+		<tr>
+			<td>$foreach.count</td>
+			<td align="center">$!cityMap.get($data.cinema.citycode)</td>
+			<td><a target="_blank" href="${basePath}merchant/report/goodsReport.xhtml?timefrom=$!params.timefrom&timeto=$!params.timeto&cinemaId=$data.cinema.id&timetype=$!params.timetype" target="_blank">$!data.cinema.name</a></td>
+			<td>$!params.timefrom</td>
+			<td>$!params.timeto</td>
+			<td align="center">$!data.totalcount</td>
+			<td align="center">$!data.totalquantity</td>
+			<td align="center">$!data.totalcost</td>
+		</tr>
+	#end
+	</tbody>
+	<tbody>
+		<tr>
+			<td>合计</td>
+			<td colspan="4" align="center" class="td">日期范围：[${params.timefrom}--${params.timeto}]</td>
+			<td>$ReportUtil.getIntSum($dataList, "totalcount", "0")</td>
+			<td>$ReportUtil.getIntSum($dataList, "totalquantity", "0")</td>
+			<td>$ReportUtil.getIntSum($dataList, "totalcost", "0")</td>
+		</tr>
+	</tbody>
+</table>
+<br /><br /><br />
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		$$(".tbody tr").addEvents({
+			'mouseenter':function(){
+				this.addClass("over");
+			},
+			'mouseleave':function(){
+				this.removeClass("over");
+			}
+		});
+		var myTable = {};
+		myTable = new sortableTable('refundTable', {overCls: 'over'});
+	})
+</script>
+
+</body>
+</html>

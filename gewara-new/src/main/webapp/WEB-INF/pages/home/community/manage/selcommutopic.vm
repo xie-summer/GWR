@@ -1,0 +1,47 @@
+<div class="dialog_z_index" id="selcommutopicDIV"  style="width:324px;height:270px;z-index:1;visibility: hidden;overflow:hidden;">
+	<table cellpadding="0" cellspacing="0" width="100%">
+		<tr><td class="dialog_tl"></td><td class="dialog_c"></td><td class="dialog_tr"></td></tr>
+		<tr>
+			<td class="dialog_c"></td>
+			<td bgcolor="#ffffff">
+				<div class="tips-title" style="width:304px"><h2>选择话题分类</h2><img onclick="hideMark('selcommutopicDIV')" src="${staticPath}css/pub/exit.png" alt="关闭"/></div>
+				<ul class="ul-60" style="padding:0 10px 10px;width:240px;">
+					<li style="position: relative;height:200px;">
+						<div class="" id="moveToSelTopic"><b>请选择要转移到的话题分类</b><br />
+							<input type="hidden" name="commuid" value="$!commu.id" />
+							<input type="hidden" name="did" id="prepare2movid" value="$!commu.id" />
+							#foreach($topic in $commuTopicList)
+							<input type="radio" name="topicid" value="$topic.id" id="top_$topic.id"><label for="top_$topic.id">$topic.topicname</label><br />
+							#end
+						</div>
+						<input type="button" value="确&nbsp;定" class="fdBt" style="position: absolute;bottom:10px;left:110px;" onclick="changeCommu()"/>
+					</li>
+				</ul>
+			</td>
+			<td class="dialog_c"></td>
+		</tr>
+		<tr><td class="dialog_bl"></td><td class="dialog_c"></td><td class="dialog_br"></td></tr>
+	</table>
+</div>
+	<script type="text/javascript">
+showMark = function(el){
+	GewaraUtil.showDialog(el,null,true);
+}
+hideMark = function(el){
+	GewaraUtil.hideDialog(el);
+}
+
+changeCommu = function(){
+	var url = '${basePath}home/commu/diary2otherTopic.xhtml';
+	var values = GewaraUtil.getValues('moveToSelTopic');
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			hideMark('selcommutopicDIV');
+			$('t' + values.did).dispose();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	})
+}
+</script>
+					

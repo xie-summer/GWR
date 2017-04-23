@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>我感兴趣的_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,pagesNavigation,slimbox,scrollSpy,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($snsInterest=true) 
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner clear">
+			<div class="horn">
+			</div>
+			<div class="inner">
+				<div class="tab_menu">
+					<ul>
+					#if($VmUtils.eq($logonMember.id, $member.id))
+					<li><a href="javascript:void(0)" onclick="changeData('all', '', '',this)" id="interestThis"><span>全部</span></a></li>
+					<li><a href="javascript:void(0)" onclick="changeData('xingqu', 'md', '', this)"><span>感兴趣</span></a></li>
+					<li><a href="javascript:void(0)" onclick="changeData('xiangqu', '', '', this)"><span>想去</span></a></li>
+					<li><a href="javascript:void(0)" onclick="changeData('quguo', '', '', this)"><span>去过</span></a></li>
+					<li><a href="javascript:void(0)" onclick="changeData('together', '', '', this)"><span>想练</span></a></li>
+					<li><a href="javascript:void(0)" onclick="changeData('played', '', '', this)"><span>练过</span></a></li>
+					#else
+					<li><a href="javascript:void(0)" onclick="changeData('all', '', '',this)" id="interestThis"><span>全部</span></a></li>
+					<li><a href="javascript:void(0)" onclick="changeData('xingqu', 'md', '', this)"><span>感兴趣</span></a></li>
+					<li><a href="javascript:void(0)" onclick="changeData('xiangqu', '', '$!member.id', this)"><span>想去</span></a></li>
+					<li><a href="javascript:void(0)" onclick="changeData('quguo', '', '$!member.id', this)"><span>去过</span></a></li>
+					<li><a href="javascript:void(0)" onclick="changeData('together', '', '$!member.id', this)"><span>想练</span></a></li>
+					<li><a href="javascript:void(0)" onclick="changeData('played', '', '$!member.id', this)"><span>练过</span></a></li>
+					</ul>
+					#end
+				</div>
+				<div id="loadInterestTable"></div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="interestLabel"  style="display:none;height:90px;">
+	<div style="padding:8px 0px;">
+		标签：<input type="text" name="labelvalue" id="labelvalue" value="" class="text"/>
+		<input type="hidden" name="treasureid" id="treasureid"/>
+	</div>
+	<div class="height0"></div>
+	<div class="line">
+		我的标签：<span id="myLabel"></span>
+	</div>
+	<div class="height0"></div>
+	<div class="mt" style="padding:8px 0;text-align:center;position: relative;">
+		<span onclick="saveLabel()" class="minBt redBt button" id="dispan"><span><em style="padding-left:20px;background:url(${staticPath}css/home/right.png) 0 center no-repeat;">提交</em></span></span>
+		<span class="minBt ml10 whiteBt button" onclick="delInterest('')" id="dTreasure"><span>删除</span></span>
+		<span class="minBt ml10 whiteBt button" onclick="hideTreasure()"><span>关闭</span></span>
+	</div>
+</div>
+#parse('include/bottom.vm')
+<script>
+	window.addEvent('domready', function(){
+		changeData('all', '', '$!member.id', 'interestThis')
+	})
+	function changeData(action, type, memberid, obj){
+		var oth = $$(".tab_menu").getElements('a');
+		$each(oth, function(n){
+			n.removeClass('select');	
+		})
+		if(obj=='interestThis')$('interestThis').addClass('select');
+		else obj.addClass('select');
+		var url = '${basePath}home/interestInfo.xhtml';
+		var values = {'action':action, 'type':type, 'memberid':'$!member.id'};
+		gewaUtil.loadData('loadInterestTable', url, values);
+	}
+	function delInterest(el){
+		gewaUtil.confirm('确认删除吗?', function(){
+			if(el == '')
+				el =$('treasureid').value;
+			var url = '${basePath}home/delInterestInfo.xhtml';
+			var values = {'interestid':el};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					if($('interest'+el)){
+						gewaUtil.dispose($('interest'+el));
+					}
+					hideTreasure();
+				}else {
+					gewaUtil.alert(result.msg);
+				}	
+			});
+		})
+	}
+	
+	function modifyLabel(el){
+		var url ="${basePath}home/modifyInterestLabel.xhtml"
+		var values={'treasureid':el};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$('labelvalue').value = result.aLabel;
+				var aValue= '';
+				result.aList.each(function(item){
+					var tmp = [];
+					tmp = item.split(",");
+					aValue+=' <a href="javascript:void(0)" class="brown" onclick="updateLabel('+"'"+tmp+"'"+')">'+tmp+'</a>';
+				})
+				$('myLabel').innerHTML=aValue;
+			}else 
+				gewaUtil.alert(result.msg);
+		});
+		$('treasureid').value = el;
+		gewa.util.maskContent('','interestLabel','修改标签',420,'interestLabel');
+	}
+	
+	function saveLabel(){
+		var el =$('treasureid').value;
+		var url ="${basePath}home/saveInterestLabel.xhtml"
+		var values={'treasureid':el,'actionlabel':$('labelvalue').value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				if(result.retval != undefined)
+					$('actionlabel'+el).innerHTML = result.retval;
+				else $('actionlabel'+el).innerHTML = "";
+				gewa.util.container['interestLabel'].hide('interestLabel');
+			}else 
+				gewaUtil.alert(result.msg);
+		});
+	}
+	function ajaxPage(pageNo, params, url){
+		gewaUtil.loadData('loadInterestTable', url, {});
+	}
+	function updateLabel(el){
+		$('labelvalue').value+=' '+el;
+	}
+	function hideTreasure(){
+		if(gewa.util.container['interestLabel']){
+			gewa.util.container['interestLabel'].hide('interestLabel');
+		}
+	}
+</script>
+</body>
+</html>

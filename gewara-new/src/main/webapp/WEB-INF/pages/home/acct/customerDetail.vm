@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>我的的反馈_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+</head>
+<body>
+#set($is2011Beta=true)
+#set($advise=true)
+#set($customerTag={'advise':'网站建议','evaluate':'服务反馈','mobile':'手机客户端','other':'其它问题'})
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			<div class="clew">
+				<p>如果你在使用格瓦拉的过程中遇到了问题，或者你希望给格瓦拉提出一些意见或建议，非常欢迎你在这里提交给我们。我们每天都在倾听来自用户的声音，你的支持是我们前进的动力！</p>
+			</div>
+			<div class="title mt20 line">
+				<h2>我的反馈</h2>
+				<span class="more">
+					<a class="button minBt redBt" href="${basePath}home/acct/advise.xhtml"><span>反馈建议</span></a>
+					<a class="button minBt redBt ml10" href="${basePath}home/acct/customerQuestion.xhtml"><span>我的反馈</span></a>
+				</span>
+			</div>
+			<ul class="ui_abeam mt20">
+				<li>
+					<div class="uipic">
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!customerQuestion.memberid" class="pubpic" target="_blank">
+							<img style="background:url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($!customerQuestion.memberid).headpicUrl)) center center no-repeat;" src="${staticPath}css/images/blank.gif"/>
+						</a>
+					</div>
+					<div class="uiText wl_outer_text">
+						<div class="title">
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!customerQuestion.memberid" target="_blank">$!customerQuestion.membername：</a>
+							<span class="gray">$!DateUtil.format($customerQuestion.addtime,'yyyy-MM-dd HH:mm')</span>
+						</div>
+						<p><span class="brown m5">【$!customerTag.get($!customerQuestion.tag)】</span>$!{customerQuestion.body}</p>
+						<div class="loaddingWrite fLoad" style="width:660px;">
+							<img class="uiTag uiPt" src="${staticPath}css/images/blank.gif" style="left:20px;"/>
+							<em class="m1"></em><em class="m2"></em>
+							<div class="m" style="width:99.4%">
+								<div class="inner">
+									<div id="answerList">等待回复...</div>
+									#if($VmUtils.eq($customerQuestion.status,'Y_STOP'))
+									<div class="brown center">该反馈建议已经被关闭！</div>
+									#else
+									<form id="anform" name="anform" onsubmit="return false;">
+										<ul class="ul-60 mt10">
+											<li>
+												<input type="hidden" id="qid" name="qid" mustTxt="关联的反馈信息ID不能为空！" value="${customerQuestion.id}"/>
+												<div class="ul-60Inner">我要回复：</div>
+												<div class="full_percent">
+													<div style="height:260px;">
+														<textarea class="text" name="body" id="body" mustTxt="回复内容不能为空!"></textarea>
+													</div>
+												</div>
+											</li>
+											<li>
+												<div class="ul-60Inner mt10">验证码：</div>
+												<div class="full_percent">
+													
+													<input type="hidden" name="captchaId" id="captcha" />
+													<input type="text" mustTxt="验证码必填!" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" style="width:100px;" size="18" onfocus="GewaraUtil.refreshCaptcha('captcha');"/>
+													<img id="captchaImg" src="${staticPath}css/images/blank.gif" style="cursor: pointer;height:42px;width:100px;" align="top" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清楚，请点击换一张图片"/>
+												</div>
+											</li>
+											<li class="mt20">
+												<label class="button redBt bigBt"><input type="button" id="subMit" onclick="saveAnswer();" value="确认提交" /></label>
+											</li>
+										</ul>
+									</form>
+									#end
+								</div>
+							</div>
+							<em class="m2"></em><em class="m1"></em>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	var ckeditor;
+	window.addEvent('domready', function(){
+		loadAnswer();
+		ckeditor = CKEDITOR.replace("body", {customConfig : '${staticPath}ckeditor/gewaConfig.js',width:580});
+		ckeditor.on('paste',function(e){
+			if($chk(e.data.html)){
+				var data = this.getData();
+				var htm = e.data.html;
+				if(e.data.html.indexOf('data:image/') > 0){
+					gewa.util.alert('图片不能直接粘贴，请点击图像上传！',function(){
+						this.setData(data);
+					}.bind(this));
+				}else if((htm.indexOf('&lt;script&gt;') > 0 || htm.indexOf('<script>') > 0 )
+				 && (htm.indexOf('&lt;style&gt;') > 0 || htm.indexOf('<style>') > 0)){
+					gewa.util.alert('粘贴非法数据，请在文本中过滤后再进行粘贴！',function(){
+						this.setData(data);
+					}.bind(this));
+				}
+			}
+		})
+	});
+	function loadAnswer(){
+		gewaUtil.loadData('answerList','${basePath}home/blog/customerAnswerList.xhtml',{'qid':'$customerQuestion.id'},function(){OverText.update();});
+	}
+	function saveAnswer(){
+		$('body').value = ckeditor.getData();
+		if(!GewaraUtil.baseValidForm('anform')) return false;
+		var url ="${basePath}home/blog/saveCustomerAnswer.xhtml";
+		var values = GewaraUtil.getValues("anform");
+		GewaraUtil.mask("subMit");
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			GewaraUtil.refreshCaptcha('captcha');
+			if(result.success){
+				loadAnswer();
+				$('body').value = '';
+				ckeditor.setData('');
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

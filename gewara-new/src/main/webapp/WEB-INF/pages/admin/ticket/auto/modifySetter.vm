@@ -1,0 +1,244 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>自动开放信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline-block;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea {display:inline-block;}
+		input{width:200px;}
+		a{text-decoration: none; white-space: nowrap;}
+	</style>
+</head>
+<body style="width:850px;margin:auto;" class="yui-skin-sam">
+<div id="priceDialog" class="yui-panel" style="width:720px;z-index:0">
+	<div class="hd" id="title">编辑自动开放[$cinema.name]</div>
+	<div class="bd">
+	<form name="setterForm" id="setterForm" method="post">
+		<input type="hidden" name="sid" id="sid" value="$!setter.id"/>
+		<input type="hidden" name="cinemaid" id="cinemaid" value="$!cinemaid"/>
+		<div>
+			<label for="name">名称：</label>
+			<input name="name" value="$!setter.name" type="text" style="width:140px;" mustTxt="名称不能为空！"/>
+			<span class="req">*</span>
+			<label for="checkStatus">审核状态：</label>
+			<input type="hidden" name="checkStatus" value="F" />
+			待审核
+			#*
+			<select name="checkStatus">
+				<option value="F">待审核</option>
+				<option value="T">通过</option>
+				<option value="D">不通过</option>
+			</select>
+			*#
+			<label for="status">状态：</label>
+			<select name="status">
+				<option value="open_a">自动</option>
+				<option value="open" #if($setter.status eq 'open') selected="selected" #end>手动</option>
+				<option value="close" #if($setter.status eq 'close') selected="selected" #end>废弃</option>
+			</select>
+			<label for="description">备注：</label>
+			<input name="description" type="text" value="$!setter.description" style="width:100px;"/>
+		</div>
+		<div>
+			<label for="playtime1">生效时间：</label>
+			<input name="playtime1" type="text" readonly="readonly" value="$!DateUtil.formatTimestamp($setter.playtime1)" 
+				onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" mustTxt="生效时间不能为空！" style="width:140px"/>
+			<span class="req">*</span>
+			<label for="playtime2">结束时间：</label>
+			<input name="playtime2" type="text" readonly="readonly" value="$!DateUtil.formatTimestamp($setter.playtime2)" 
+				onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" mustTxt="结束时间不能为空！" style="width:140px"/>
+			<span class="req">*</span>		
+			<label for="nameDescription">名称说明：</label>
+			<input name="nameDescription" type="text" value="$!setter.nameDescription" style="width:144px;"/>
+		</div>
+		<div>
+			<div style="color:red; display: inline-block; width: 700px;"><hr/></div>
+		</div>
+		<div>
+			<label for="price1" style="font-weight: bolder;cursor: pointer;width:140px;">售价范围(影院标价)：</label>
+			<input name="price1" type="text" value="$!setter.price1" style="width:50px;" mustTxt="卖价范围不能为空！"/><span>～</span>
+			<input name="price2" type="text" value="$!setter.price2" style="width:50px;" mustTxt="卖价范围不能为空！"/>
+			<span class="req">*</span>
+			<label for="weektype">场次星期：</label>
+			<input name="weektype" type="text" value="$!setter.weektype" mustTxt="场次星期不能为空！"/>
+			<span class="req">*</span>
+			<span>1234567</span>
+		</div><div>
+			<label for="timescope">场次时段：</label>
+			<input name="timescope" type="text" value="$!setter.timescope" style="width:425px;" mustTxt="场次时段不能为空！"/>
+			<span class="req">*</span>
+			<span>0000~1800,2200~2400</span>
+		</div><div>
+			<label for="roomnum">影厅序号：</label>
+			<input name="roomnum" type="text" value="$!setter.roomnum" mustTxt="影厅序号不能为空！"/>
+			<span class="req">*</span>
+			<span>1,2,3,4,5,6,7,8,9,10 :影厅的序号：1号厅...</span>
+		</div><div>
+			<label for="edition" style="font-weight: bolder;cursor: pointer;" title="逐个列出所有版本">影片版本：</label>
+			<input name="edition" value="$!setter.edition" type="text" style="width:300px;" mustTxt="版本不能为空！"/>
+			<span class="req">*</span><span>2D,3D,IMAX2D,IMAX3D,双机3D,巨幕2D,巨幕3D,4D</span>
+		</div>
+		<div>
+			<label for="movies" style="font-weight: bolder;cursor: pointer;">适用影片：</label>
+			<input type="radio" name="useMovie" value="all"  style="width:10px;" #if($setterMovies eq '')checked='checked'#end />不限
+			<input type="radio" name="useMovie" value="select" style="width:10px;" onclick="checkMovie('select')" #if($setterMovies eq '')#else checked='checked'#end/>已选影片
+			<input type="radio" name="useMovie" value="unSelect" id="unSelect" style="width:10px;" onclick="checkMovie('unSelect')"/>未选影片
+			<input type="hidden" name="movies"  id="selectMovies" value="$!setterMovies"/>
+			#if($setterMovies eq '')#else 
+			<br/><br/>已选择的影片：	#foreach($movie in $movies) $!{movie.name}&nbsp;#end
+			#end
+		</div>
+		<div #if(!$isLowest) style="display:none" #end>
+			<label for="lowest1" style="font-weight: bolder;cursor: pointer;width:80px;">结算价范围：</label>
+			<input name="lowest1" id="lowest1" type="text"  style="width:50px;" onblur="createLimitFunction()"/><span>～</span>
+			<input name="lowest2" id="lowest2" type="text"  style="width:50px;" onblur="createLimitFunction()"/>
+		</div>
+		<div>
+			<label for="limitFunciton">
+				限制函数：
+			</label>
+			<textarea rows="3" cols="60" name="limitScript" id="limitScriptEngine">$!setter.limitScript</textarea>
+			<span class="req">说明：满足此函数的表达式的场次会根据此设置器进行场次开放。函数使用如下：<br/>
+					mpi.lowest > 1 && mpi.lowest < 34; //填写满足条件的表达式.次表达式表示 结算价范围在1到34之间；
+				<br/>}
+			</span>
+		</div>
+		<div>
+			<div style="color:red; display: inline-block; width: 700px;"><hr/></div>
+		</div>
+		<div #if($isLowest) style="display:none" #end>
+			<label for="costprice" style="font-weight: bolder;cursor: pointer;">结算价格：</label>
+			<input name="costprice" #if($isLowest) value="0" #else value="$!setter.costprice" #end type="text" style="width:100px;" mustTxt="结算价格不能为空！"/>
+			<span class="req">*</span>
+			<label for="gewaprice">格瓦售价：</label>
+			<input name="gewaprice" #if($isLowest) value="0" #else value="$!setter.gewaprice" #end type="text" style="width:100px;" mustTxt="卖价不能为空！"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="seatmap" style="font-weight: bolder;cursor: pointer;">座位模板：</label>
+			<input name="seatmap" type="text" value="$!setter.seatmap" style="width:100px;"/>
+			<span class="req">&nbsp;</span>
+			<label for="elecard">使用券种：</label>
+			<input name="elecard" value="$!setter.elecard" type="text" style="width:100px;"/>
+			<span>BADM</span>
+		</div>
+		<div>
+			<label for="remark" style="font-weight: bolder;cursor: pointer;" >场次说明：</label>
+			<input name="remark" type="text" value="$!VmUtils.escapeHtml($setter.remark)" style="width:540px;"/>
+		</div>
+		<div #if(!$isLowest) style="display:none" #end>
+			<label for="fee" style="font-weight: bolder;cursor: pointer;" >服务费：</label>
+			<input name="fee" type="text" id="fee" value="" onblur="createSetFunction()"/>
+		</div>
+		<div>
+			<label for="limitFunciton">
+				设置函数：
+			</label>
+			<textarea rows="3" cols="60" name="priceScript" id="setScriptEngine">$!setter.priceScript</textarea>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" style="width:100px" onclick="saveSetter()" value="保存"/>
+		</div>
+		<div>
+			<label for="limitFunciton">
+				函数说明：
+			</label>
+				<span style="color:red">
+					限制函数用来限制同步过来的场次是否符合此设置器。函数名应为limit，返回值应为布尔类型即true或fase。 函数体表达式可操作的对象为mpi
+					<br/>设置函数用来对符合的同步的场次进行自动开放时，填充设置的值。函数名应为set。无需返回值。函数体表达式可操作的对象为mpi和opi;
+				</span>
+		</div>
+	</form>
+	</div>
+</div>
+<div id="showMovie" style="visibility:hidden; z-index:601;">
+</div>
+<script type="text/javascript">
+	function createSetFunction(){
+		var fee = $('fee').value;
+		if(fee != ''){
+			$("setScriptEngine").value = "costprice=mpi.getLowest();\r\ngewaprice=mpi.getLowest()+" + fee + ";"
+		}
+	}
+	function createLimitFunction(){
+		var lowest1 = $('lowest1').value;
+		var lowest2 = $('lowest2').value;
+		var exp = "";
+		if(lowest1 != "" && lowest2 != ""){
+			exp = "mpi.lowest >= " + lowest1 + " && mpi.lowest <= " + lowest2;
+		}else if(lowest1 != ""){
+			exp = "mpi.lowest >= " + lowest1;
+		}else if(lowest2 != ""){
+			exp = "mpi.lowest <= " + lowest2;
+		}
+		if(exp != ""){
+			$("limitScriptEngine").value = exp;
+		}
+	}
+	function saveSetter(){
+		if(!GewaraUtil.baseValidForm('setterForm','member')) return;
+		var values = GewaraUtil.getValues("setterForm");
+		var url = "${basePath}admin/ticket/auto/saveSetter.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('成功保存！');
+				$('sid').value=result.retval;
+			}else{
+				alert("保存失败！" + result.msg);
+			}
+			gewa.util.clearMask();
+		});
+	}
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('banner').value = picpath;
+		$('bannerImg').src='${basePath}' + picpath;
+	}
+	function checkMovie(type){
+		var url = "${basePath}admin/ticket/auto/checkMovieId.xhtml";
+		GewaraUtil.sendLoad('showMovie', url, {'selectType':type,'cinemaId':'$!cinemaid','sid':'$!setter.id'}, function(result){
+			if(result.success){
+				GewaraUtil.showDialog('showMovie');
+				var movieIds = $('selectMovies').value;
+				$('movieListBody').getElements('input').each(function(item){
+					if(movieIds.indexOf(item.value) != -1){
+						item.checked = "checked";
+					}
+				});
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+	
+	function chooseMovies(){
+		var movieIds = "";
+		$('movieListBody').getElements('input').each(function(item){
+			if(item.checked){
+				movieIds += item.value + ",";
+			}
+		});
+		var oldMovieIds = '$!setterMovies';
+		if($("unSelect").checked && oldMovieIds != "" && movieIds != ""){
+			$('selectMovies').value = oldMovieIds + "," + movieIds.substring(0,movieIds.length - 1);
+		}else if($("unSelect").checked && oldMovieIds != "" && movieIds == ""){
+			$('selectMovies').value = oldMovieIds;
+		}else{
+			$('selectMovies').value = movieIds.substring(0,movieIds.length - 1);
+		}
+		GewaraUtil.hideDialog('showMovie');
+	}
+	
+</script>
+</body>
+</html>

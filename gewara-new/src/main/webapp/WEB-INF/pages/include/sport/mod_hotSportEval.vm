@@ -1,0 +1,46 @@
+#if(!$VmUtils.isEmptyList($!cepingList))
+<div class="mod_kong hotSportEval">
+	<div class="mod_hd">
+		<h2>热门场馆测评</h2>
+	</div>
+	<div class="mod_bd">
+		<div class="box">
+			<ul id="sportEvalua">
+				#foreach($ceping in $cepingList)
+				#set($news = $cepingNewsMap.get($ceping.relatedid))
+				<li>
+					<a href="${basePath}news/$news.id" title="$!news.title" target="_blank"><img width="260" height="260" alt="$!news.title" src="$VmUtils.randomPic('cw300h300',$!ceping.logo)"/></a>
+					<h3><a href="${basePath}news/$news.id" title="$!news.title" target="_blank">$VmUtils.escabbr($!news.title, 24)</a></h3>
+					<p>$!VmUtils.escabbr($!news.summary, 46)..<a href="${basePath}news/$news.id" target="_blank" class="ui_readMore">全文&gt;&gt;</a></p>
+					<p class="spe"><a href="${basePath}news/$news.id" target="_blank" class="mr5">$!news.clickedtimes</a>浏览<a href="${basePath}news/$news.id" target="_blank" class="ml20 mr5">$!newsCountMap.get($news.id)</a>评论</p>
+				</li>
+				#end
+			</ul>
+		</div>
+		<span class="mask"></span>
+		<div class="tabs">
+			<ul id="sportEvaluaTab">
+				#foreach($news in $cepingList)
+				<li><img width="40" height="40" src="$VmUtils.randomPic('cw40h40',$!news.logo)" /></li>
+				#end
+			</ul>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	//场馆评测
+	new noobSlide({
+		box: $('sportEvalua'),
+		items:$$('#sportEvalua li'),
+		size:260,
+		handles:$$('#sportEvaluaTab li'),
+		handle_event:'mouseover',
+		onWalk: function(currentItem,currentHandle){
+			this.handles.removeClass('select');
+			currentHandle.addClass('select');
+		}
+	});
+})
+</script>
+#end

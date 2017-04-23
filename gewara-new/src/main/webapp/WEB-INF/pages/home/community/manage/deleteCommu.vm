@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>解散圈子_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,user,commnu&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($tag="home")#set($isDeleteCommu=true)#set($isShow=false)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui-layout">
+	#parse('include/home/userMenu.vm')
+	<div class="ui-right">
+		#parse('home/community/manage/commuM.vm')
+		<div class="ui_rightInner_left">
+			<div class="mt30 black fs14"><strong>解散圈子</strong></div>
+			<p class="fs14 mt20">
+				<b class="brown">温馨提示：</b>
+				如果解散“$!commu.name”圈子，此圈子下所建立的相册、留言、帖子、活动等信息将被清除，并不能恢复，请谨慎操作！
+			如果确定解散此圈子请输入登录密码确认</p>
+			<ul class="ul-80 mt20">
+				<li>
+					<div class="ul-80Inner">输入密码：</div>
+					<input type="password" name="password" id="password" class="text"/>
+				</li>
+				<li>
+					<div class="ul-80Inner">确认密码：</div>
+					<input type="password" name="passwordagain"  id="passwordagain" class="text"/>
+				</li>
+				<li>
+					<input type="button" onclick="delCommu($!commu.id)" class="fdBt" value="确定解散"/>
+				</li>
+			</ul>
+		</div>	
+		#parse('home/community/manage/commuManageRight.vm')
+	</div>
+	<div class="height0"></div>
+</div>
+	<script type="text/javascript">
+	function delCommu(commuid){
+		if(!$chk($('password').value)){
+			gewaUtil.alert('密码不能为空！');
+			$('password').focus();
+			return;
+		}
+		if($('password').value != $('passwordagain').value){
+			gewaUtil.alert('两次输入的密码不一致！');
+			return;
+		}
+		gewaUtil.confirm("确认解散圈子，所有数据将被清除并不能恢复？", function(){
+			var url = "${basePath}home/commu/delCommu.xhtml";
+			var values = {'commuid':commuid,'password':$('password').value};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewaUtil.alert("圈子已解散！");
+					location.href="${basePath}home/commu/commuList.xhtml";
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		})
+	}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

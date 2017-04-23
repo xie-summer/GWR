@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>相册审核列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline}
+	</style>
+</head>
+<body style="width:90%; margin:auto" class="yui-skin-sam">
+<form id="attachForm" action="${basePath}admin/audit/albumList.xhtml">
+	用户ID:<input name="memberid" id="memberid" value="$!params.memberid" type="text" style="width:60px;"/> 
+	圈子ID:<input name="commuid" id="commuid" value="$!params.commuid" type="text" style="width:60px;"/> 
+	关键字：<input name="searchKey" id="searchKey" value="$!params.searchKey" type="text" style="width:200px;"/>
+<input type="submit" value="查询" style="width:45px"/>
+可通过用户填写相册的名称或内容进行检索！
+</form>
+<table width="75%" class="table">
+	<thead>
+	<tr>
+		<th width="40"><input onclick="selectedAll();" type="button" value="全选" style="width:40px;"/></th>
+		<th>相册ID</th>
+		<th>相册名</th>
+		<th>相册简介</th>
+		<th>封面图片</th>
+		<th>添加时间</th>
+		<th>创建人(用户ID)</th>
+		<th>所属圈子ID</th>
+		<th>删除</th>
+	</tr>
+	</thead>
+	<tbody id="gymTable">
+	#foreach($album in $albumList)
+	#set($albumMember=$cacheMemberMap.get($album.memberid))
+	<tr>
+		<td width="40"><input type="checkbox" value="$album.id" name="album" style="width:40px"/></td>
+		<td>$!album.id</td>
+		<td>$!album.subject</td>
+		<td>$!album.description</td>
+		<td><img src="$VmUtils.randomPic('sw120h120',$!album.logo)"/></td>
+		<td>$!DateUtil.format($album.addtime,'yyyy-MM-dd hh:mm')</td>
+		<td>$albumMember.nickname  ($!album.memberid)</td>
+		<td>#if(!$VmUtils.eq($!album.commuid, 0))$!album.commuid#end</td>
+		<td align="center"><input type="button" value="删除" onclick="deleteAlbum('$album.id')" style="width: 80px"/></td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<div id="page">
+	<input type="button" value="删除已选" onclick="removeSelectedAlbum()" style="width: 80px;float:left;margin-right:20px;"/>
+	#parse('include/pageUtil.vm')
+</div>
+<script type="text/javascript">
+function removeAlbum(id){
+	var url = "${basePath}admin/audit/deleteAlbumById.xhtml";
+	var values = {'id':id};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			$$('input[type=checkbox][value='+id+']').getParent('tr').dispose();
+		}else alert(result.msg);
+	});
+}
+function deleteAlbum(id){
+	gewaUtil.confirm("数据删除不可恢复，请确认？", function(){
+		removeAlbum(id);
+	});
+}
+function selectedAll(){
+	document.getElements('input[name=album]').each(function(item){
+		item.checked = !item.checked;
+	})
+}
+function removeSelectedAlbum(){
+	gewaUtil.confirm("数据删除不可恢复，请确认？", function(){
+		GewaraUtil.getValues('gymTable').album.each(function(item){
+			removeAlbum(item);
+		})
+	});
+}
+</script>
+</body>
+</html>

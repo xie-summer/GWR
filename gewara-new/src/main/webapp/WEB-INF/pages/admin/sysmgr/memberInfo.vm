@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>用户手机绑定查询</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}component/utilities.js"></script>
+	<script type="text/javascript" src="${staticPath}component/container-min.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width:750px; margin:auto" class="yui-skin-sam">
+<div align="center">
+<div>
+<form id="mf" action="${basePath}admin/sns/getMemberInfo.xhtml">
+<table style="width:100%;margin-top: 20px;" class="table">
+	<thead class="th">
+		<tr>
+			<th>
+				用户ID:<input type="text" name="memberid" id="memberif" value="$!params.memberid"/>
+				<input type="submit" value="查询"/>
+				#if($msg)<span style="color:red">$msg</span>#end
+			</th>
+			<th>
+				手机号码或IP:<input type="text" name="mobileOrIp" id="mobileOrIp" value="$!params.mobileOrIp"/>
+				<input type="button" onclick="resetOpertion()" value="清除"/>
+			</th>
+		</tr>
+	</thead>
+</table>
+</form>
+</div>
+<div>
+#if($member)
+<table width="100%" class="table">
+	<tbody>
+		<tr>
+			<td>用户ID</td><td>$!member.id</td>
+		</tr>
+		<tr>
+			<td>用户名称</td><td>$!member.nickname</td>
+		</tr>
+		<tr>
+			<td>Email</td><td>$!member.email</td>
+		</tr>
+		#if($VmUtils.isNotBlank($member.mobile))
+		<tr>
+			<td>手机号</td><td>$!member.mobile</td>
+		</tr>
+		#end
+		<tr>
+			#if($VmUtils.isNotBlank($member.mobile))
+			<td>操作</td>
+			<td>
+				<input type="button" onclick="removeMobile('$member.id');" value="解除绑定手机"/>
+				<input type="button" onclick="resetCount('$member.mobile');" value="重置短信发送次数"/>
+			</td>
+			#end
+		</tr>
+	</tbody>
+</table>
+#end
+#parse("admin/safety/authContent.vm")
+</div>
+</div>
+<script type="text/javascript">
+function removeMobile(memberid){
+	if(window.confirm('确定要解除绑手机？')){
+		var url ="${basePath}admin/sns/removeMobileByMember.xhtml";
+		var values = {'memberid':memberid}
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('解除绑定成功');
+				window.location.href='${basePath}admin/sns/getMemberInfo.xhtml?memberid=$!params.memberid';
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+}
+function resetCount(mobile){
+	if(window.confirm('确定要重置 该用户 短信发送次数？')){
+		var url ="${basePath}admin/safety/resetSendCount.xhtml";
+		var values = {'mobile':mobile}
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('成功重置 该用户 短信发送次数！');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+}
+function resetOpertion(){
+	var mobileOrIp = $('mobileOrIp').value;
+	if(mobileOrIp == ''){
+		alert('手机号码或IP不能为空！');
+		return ;
+	}
+	if(window.confirm('确定要重置 该手机号码或IP的 短信发送次数？')){
+		var url ="${basePath}admin/safety/resetMobileOperation.xhtml";
+		var values = {'mobileOrIp':mobileOrIp}
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('成功重置短信发送次数！');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+}
+</script>
+</body>
+</html>

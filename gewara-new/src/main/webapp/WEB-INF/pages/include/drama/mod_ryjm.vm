@@ -1,0 +1,49 @@
+#if(!$VmUtils.isEmptyList($hotDramaList))
+<div class="mod_kong ryjm">
+	<div class="mod_hd">
+		<h2>热演剧目</h2>
+		<a class="more" target="_blank" href="${basePath}drama/dramaList.xhtml">更多&gt;&gt;</a>
+	</div>
+	<div class="mod_bd">
+		<ul class="clear">
+			#foreach($hotDrama in $hotDramaList)
+			<li>
+				<dl class="ui_media drBt">
+					<dt class="ui_pic">
+						<a href="${basePath}drama/$!hotDrama.id" title="$!hotDrama.name" target="_blank">
+							<img src="$VmUtils.randomPic('sw96h128',$!hotDrama.limg)" alt="$!hotDrama.name" width="96" height="128"/>
+						</a>
+					</dt>
+					<dd class="ui_text">
+						<p><em class="c999 mr5">[$!{dramaTypeMap.get($hotDrama.dramatype)}]</em><a href="${basePath}drama/$!hotDrama.id" title="$!hotDrama.name" target="_blank" class="bold">$!VmUtils.escabbr($hotDrama.name, 36)</a></p>
+						#if($drama.highlight)
+						<p class="mt5 ryjm_t"><span class="q"></span>$!VmUtils.htmlabbr($!drama.highlight,40)<span class="h"></span></p>
+						#end
+						#if(!$VmUtils.isEmptyList($theatreMap.get($!hotDrama.id)))
+						<p  class="mt5 c666">
+							#foreach($theatre in $theatreMap.get($!hotDrama.id))
+								$!theatre.name
+							#end
+						</p>
+						#end
+						#if(!$VmUtils.isEmptyList($priceListMap.get($hotDrama.id)))
+						<p class="mt5">
+							#set($s=$priceListMap.get($hotDrama.id).size()+(-1))
+							#set($minprice=$priceListMap.get($hotDrama.id).get(0))
+							#set($maxprice=$priceListMap.get($hotDrama.id).get($s))
+							<span class="mark_price">¥<b>#if($minprice eq $maxprice)$!{minprice}#else$!{minprice} ~ $!{maxprice}#end</b></span>
+						</p>
+						#end
+						<p class="mt10">
+							<a class="button bigBt #if($bookingList.contains($hotDrama.id))redBt #else bigWhiteBt #end" target="_blank" href="${basePath}drama/$!hotDrama.id">
+							<span>#if($openseatList.contains($hotDrama.id))<em class="bt_seat">选座购票 </em>#elseif($bookingList.contains($hotDrama.id))立即购票 #{else}查看评论 #end</span>
+							</a>
+						</p>
+					</dd>
+				</dl>
+			</li>
+			#end
+		</ul>
+	</div>
+</div>
+#end

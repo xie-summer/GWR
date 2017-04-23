@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>编辑黄牛信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline-block;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea {display:inline-block;}
+		input{width:200px;}
+		a{text-decoration: none; white-space: nowrap;}
+	</style>
+</head>
+<body style="width:850px;margin:auto" class="yui-skin-sam">
+<div id="priceDialog" class="yui-panel" style="width:720px;">
+	<div class="hd" id="title">编辑黄牛信息</div>
+	<div class="bd">
+	<form name="scalperForm" id="scalperForm">
+		<input type="hidden" name="id" id="id" value="$!scalper.id"/>		
+		<div class="mt10">
+			黄牛名称：
+			<input name="name" id="name" value="$!scalper.name" style="width:180px;"/>
+		</div>
+		<div>
+			<label for="remark">描述：</label>
+			<textarea name="description" id="description" rows="3" style="width:530px;">$!scalper.description</textarea>
+		</div>
+		<div>
+			<label for="remark">用户id或手机号（以","分隔）：</label>
+			<textarea name="mobiles" id="mobiles" rows="8" style="width:530px;">$!scalper.mobiles</textarea>
+		</div>
+		
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" style="width:100px" onclick="saveScalper()" value="保存"/>
+		</div>
+	</form>
+	</div>
+</div>
+<ul>
+	<li>
+		<label>限制规则：</label>
+		<div style="width:570px; display: inline-block;">
+			<span style="color:blue;">可以根据绑定手机号或用户id进行限制，先判断用户id再判断手机号码，两个条件都不成立则不认为是黄牛</span><br />
+		</div>
+	</li>
+</ul>
+<script type="text/javascript">
+	function saveScalper(){
+		if($('name').value == ''){
+			alert('名称不能为空');
+			return;
+		}
+		var url = '${basePath}admin/gewapay/saveScalper.xhtml';
+		var values = GewaraUtil.getValues('scalperForm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("保存成功");
+				document.location.href='${basePath}admin/gewapay/toEditScalper.xhtml?scalperId=' + result.retval;
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+
+</script>
+</body>
+</html>

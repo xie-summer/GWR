@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>微信活动列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;maradn-top:3px}
+		input,textarea { width:450px; display:inline}
+		a{text-decoration: none;}
+		.ua{text-decoration: none;color: red }
+		.bk{background:rgb(255, 246, 200)}
+	</style>
+</head>
+<body style="width:800px; maradn:auto" class="yui-skin-sam">
+<div>
+<input type="button" class="button" style="width:110px" value="增加微信" onclick="javascript:addWx()"/>
+</div>
+<table width="100%" class="table">
+	<thead>
+	<tr>
+		<th>id</th>
+		<th>回复数字</th>
+		<th>关联活动</th>
+		<th>排序</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="gymTable">
+	#foreach($weixin in $weixinActivityList)
+	#set($activityList=$activityMap.get($weixin.id))
+	<tr>
+		<td>$!{weixin.activityid}</td>
+		<td><input type="text" value="$!{weixin.replynum}" style="width: 50px;" onchange="setText($weixin.id,'reply',this.value)"/></td>
+		<td>
+			#foreach($activity in $activityList)
+			<span>${foreach.count}.</span>$!activity.title<br/>
+			#end
+		</td>
+		<td><input type="text" value="$!{weixin.rank}" style="width: 50px;" onchange="setText($weixin.id,'rank',this.value)"/></td>
+		<td><input type="button" value="删除" onclick="delWeixin('$!{weixin.id}')" style="width: 80px"/></td>
+	</tr>
+	#end
+	</tbody>
+</table><br/>
+<div class="none" id="addwx" style="background-color: #cdf;width: 600px;margin-left: 5px;"><br/><br/>
+	回复数字：<input type="text" value="" style="width: 50px;" id="replynum" />
+	排序：<input type="text" value="" style="width: 50px;" id="rank"/>
+	活动id：<input type="text" value="" style="width: 150px;" id="activityid"/>
+	<input type="button" value="保存" onclick="saveWeixin()" style="width: 80px"/><br/><br/>
+</div><br/>
+
+<div style="background-color: #cdf;width: 400px;margin-left: 5px;"><br/>
+	回复模板：<br/>
+	<textarea style="width: 98%;height: 400px;" id="content">$!content</textarea>
+	<input type="button" value="保存" onclick="saveTemplate()" style="width: 80px"/><br/><br/>
+</div>
+
+<script type="text/javascript">
+	function setText(id,type, num){
+		if(num==''){
+			alert('数字不能为空');
+			return false;
+		}
+		var values = {'id':id,'type':type,'num':num};
+		var url = "${basePath}admin/mobile/setWeixinText.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else {
+				alert(result.msg);
+			}
+		});
+	}
+	function addWx(){
+		$('addwx').removeClass('none');
+	}
+	function delWeixin(id){
+		var values = {'id':id};
+		var url = "${basePath}admin/mobile/delWeixin.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else {
+				alert(result.msg);
+			}
+		});
+	}
+	function saveWeixin(){
+		var values = {'rank':$('rank').value,'replynum':$('replynum').value,'activityid':$('activityid').value};
+		var url = "${basePath}admin/mobile/saveWeixin.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else {
+				alert(result.msg);
+			}
+		});
+	}
+	function saveTemplate(){
+		var values = {'content':$('content').value};
+		var url = "${basePath}admin/mobile/weixinTemplate.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else {
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>批量同步管理</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=mootools"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width:90%; margin:auto">
+<fieldset style="margin-top: 5px;height: 35px;">
+	<legend class="yellow">查询订单</legend>
+	<div>
+	场次ID:<input type="text" name="idListStr" id="idListStr" value="$!idListStr" style="width: 560px;"/>
+	<input type="button" value="查询" onclick="getOrderList()"/><span class="yellow">多个场次用英文","分开</span>
+	</div>
+</fieldset>
+<div id="orderList"></div>
+<script type="text/javascript">
+function getOrderList(){
+	var idListStr = $('idListStr').value;
+	if(idListStr=='') {
+		alert('请输入场次ID'); 
+		return;
+	}
+	var url = '${basePath}admin/synch/getBatchOrderList.xhtml';
+	var values = {'idListStr':idListStr};
+	gewaUtil.loadData('orderList', url, values);
+}
+function selAll(obj){
+	var cbs = document.getElementsByName('cbox');
+	$each(cbs, function(i, n){
+		i.checked=obj.checked;
+	})
+}
+function synch(){
+	var val = '';
+	$("todo").getElements("input[type=radio]").each(function(item){
+		if(item.checked) val = item.value;
+	});
+	var cbs = document.getElementsByName('cbox');
+	$each(cbs, function(i, n){
+		if(i.checked) {
+			synchResult(i.value, val);
+		}
+	})
+}
+function synchResult(tradeno, val){
+	var values = {'tradeno':tradeno, "value":val};
+	var result = "操作失败";
+	var url = "${basePath}admin/synch/ajax/updateOrderResultValue.xhtml";
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			result = "操作成功";	
+		}
+		$('order'+tradeno).set('html', "<font color='red'>"+result+"</font>");
+	});
+}
+
+</script>
+</body>
+</html>

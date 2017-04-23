@@ -1,0 +1,289 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>手机客户端应用列表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.mt5{margin-top:5px;}
+		.ml15{margin-left: 15px;}
+		.mb5{margin-bottom: 5px;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+#parse('include/mobile/appsource.vm')
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td colspan="5" align="left" class="td">当前位置>>更多应用列表</td>
+		<td align="right" class="td" colspan="5">
+			<a href="javascript:void(0);" onclick="showAddApp()" >增加</a>|
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td">
+		<td align="left" class="wd200"><b>手机类型</b></td>
+		<td align="left" class="wd200"><b>推荐产品</b></td>
+		<td align="left" class="wd200"><b>应用下载路径</b></td>
+		<td align="left" class="wd200"><b>应用名称</b></td>
+		<td align="left" class="wd60"><b>应用大小</b></td>
+		<td align="left" class="wd200"><b>应用说明</b></td>
+		<td align="left" class="wd120"><b>版本号</b></td>
+		<td align="left" class="wd120"><b>是否显示</b></td>
+		<td align="left" class="wd120"><b>添加时间</b></td>
+		<td align="left" class="wd120"><b>操作</b></td>
+	</tr>
+	#foreach($mobileApp in $mobileAppList)
+	<tr class="td">
+		<td align="left" class="wd200">
+			$!mobileApp.ostype
+		</td>
+		
+		<td align="left" class="wd200">
+		#foreach($app in $!mobileApp.coverapp)
+			#if($app eq 'bar')酒吧;#elseif($app eq 'gym')健身;#elseif($app eq 'sport')运动;#elseif($app eq 'cinema')影院;#elseif($app eq 'cinema_cmcc')移动android客户端;#end
+		#end
+		</td>
+		
+		<td align="left" class="wd60">
+			$!mobileApp.appurl
+		</td>
+		<td>
+			$!mobileApp.name
+		</td>
+		<td>
+			$!mobileApp.appsize
+		</td>
+		<td>
+			$!mobileApp.appdesc
+		</td>
+		<td>
+			$!mobileApp.appversion
+		</td>
+		<td>
+			#if($!mobileApp.status eq 'Y')显示#else隐藏#end
+		</td>
+		<td>
+			$!DateUtil.format($!mobileApp.addtime,'yyyy-MM-dd HH:mm:ss')
+		</td>
+		<td align="left" class="wd120">
+			<a href="javascript:void(0);" data-json='$VmUtils.getScriptObject($!mobileApp)' onclick='showAddApp(this)' >[修改]</a>
+			<a href="javascript:void(0);" onclick="delApp('$!mobileApp.id')">[删除]</a>
+		</td>
+		</tr>
+		#end
+</table>
+<div id="upgradeDiv" style="visibility: hidden;z-index: 100;width: 460px;height: 400px;background: #ffffff;border: 1px solid black;">
+<div class="ml15 mt5">
+	<div style="text-align: center;">手机客户端应用列表</div>
+	<hr/>
+	<input type="hidden" value="" name="uid" id="uid" />
+	<div class="mt10">
+	手机类型:<select name="ostype" id="ostype"><option value="IPHONE">iphone</option><option value="ANDROID">android</option></select>
+	</div>
+	
+	<div class="mt5" id="coverapp-ct">
+	推荐产品：
+		<input type="checkbox" value="cinema"  /><span>影院</span>
+		<input type="checkbox" value="bar"  /><span>酒吧</span>
+		<input type="checkbox" value="sport"  /><span>运动</span>
+		<input type="checkbox" value="gym"  /><span>健身</span>
+		<input type="checkbox" value="cinema_cmcc"  /><span>移动android客户端</span>
+	</div>
+	
+	
+	<div class="mt5">
+	下载路径：<input type="text" name="appurl" id="appurl"/>
+	</div>
+	<div class="mt5">
+	应用名称：<input type="text" name="name" id="name"/>
+	</div>
+	<div class="mt5">
+	应用大小：<input type="text" name="appsize" id="appsize"/>
+	</div>
+	<div class="mt5">
+	应用说明：<textarea name="appdesc" id="appdesc"></textarea>
+	</div>
+	<div class="mt5">
+	版本号：<input type="text" name="appversion" id="appversion"/>
+	</div>
+	<div class="mt5">
+	显示：
+	<select name="status" id="status">
+		<option value="N">否</option>
+		<option value="Y">是</option>
+	</select>
+	</div>
+	<div class="mt5">
+	排 序：<input type="text" name="sortFlag" id="sortFlag"/>请输入正确的数字，数字越小就排在越前面
+	</div>
+	<div class="mt5">
+		<div class="title mt10"><span class="left">logo：</span>
+			<iframe name="uploadwarapic" id="uploadwarapic" style="display:none"></iframe>
+			<form id="uploadmicroForm" target="uploadwarapic" onsubmit="return this.file.value.length > 0" enctype="multipart/form-data" action="${basePath}common/uploadPicture.xhtml" style="margin: 0px; padding: 0px;" method="post" name="fileUpload">
+				<input id="callbackUrl" type="hidden" value="${basePath}common/afterUploadPicture.xhtml?callbackf=_afterupdatePic" name="callbackUrl" />
+					<input type="hidden" name="uploadtag" id="uploadtag" value="mobile"/>
+					<input type="hidden" name="callback" id="callback" value="updateLogo"/>
+					<input type="file" name="file" id="file" onkeyup="this.value='';" size="28" />
+					<input type="submit" name="upload" value="上传文件" />
+			</form>
+			<input type="text" name="logo" id="logo" style="width:400px" />
+		</div>
+	
+	</div>
+	<div class="mt5 ml30">
+		<input type="button" onclick="saveApp()" value="保存"/> <input type="button" value="取消" onclick="hideAddApp()"/>
+	</div>
+</div>
+</div>
+<script type="text/javascript">
+function showAddApp(o){
+
+	$("coverapp-ct").getElements("input").set("checked",false);
+	
+	if(o!=null){
+		var o=JSON.decode(o.get("data-json"));
+		$('uid').value = o.id;
+		$('ostype').value = o.ostype;
+		$('appurl').value = o.appurl;
+		$('name').value = o.name;
+		$('appsize').value = o.appsize;
+		$('appversion').value = o.appversion;
+		$('status').value = o.status;
+		$('logo').value = o.logo;
+		$('file').value='';
+		$('sortFlag').value= o.sortFlag;
+		$('appdesc').value= o.appdesc;
+		Array.each(o.coverapp, function(item){
+			$("coverapp-ct").getElements("input[value='"+item+"']").set("checked",true);
+		}); 
+	}else{
+		$('uid').value ="";
+		$('ostype').value ="";
+		$('appurl').value = "";
+		$('name').value = "";
+		$('appsize').value = "";
+		$('appversion').value = "";
+		$('status').value = "";
+		$('logo').value = "";
+		$('file').value='';
+		$('sortFlag').value= "";
+		$('appdesc').value= "";
+	}
+	GewaraUtil.showDialog('upgradeDiv');
+}
+function hideAddApp(){
+	$('uid').value = '';
+	GewaraUtil.hideDialog('upgradeDiv');
+}
+function saveApp(){
+	var uid = $('uid').value;
+	var logo = $('logo').value;
+	var ostype = $('ostype').value;
+	var appurl = $('appurl').value;
+	var name = $('name').value;
+	var appsize = $('appsize').value;
+	var appversion = $('appversion').value;
+	var status = $('status').value;
+	var sortFlag = $('sortFlag').value;
+	var otherAppName ="";
+	var appdesc = $('appdesc').value;
+	
+	var coverapps="";
+	Array.each($("coverapp-ct").getElements("input"), function(item){
+		if(item.checked==true){
+			coverapps+=item.value+";";
+		}
+	}); 
+	
+	if(name == ''){
+		alert("应用名称不能为空");
+		return;
+	}
+	if(appurl == ''){
+		alert("下载路径不能为空");
+		return;
+	}
+	if(logo == ''){
+		alert("logo不能为空");
+		return;
+	}
+	
+	if(coverapps==""){
+		alert("请选择推荐产品");
+		return;
+	}
+	
+	if(isNaN(sortFlag)){
+		alert("排序必须是数字");
+		return;
+	}
+	
+	var url = '${basePath}admin/mobile/addApp.xhtml';
+	var values = {"uid":uid,"logo":logo,"sortFlag":sortFlag,"otherAppName":otherAppName,"ostype":ostype,"appurl":appurl,"name":name,"appsize":appsize,"appversion":appversion,"status":status,"appdesc":appdesc,"coverapps":coverapps};
+	GewaraUtil.sendRequest(url,values,function(result){
+		if(result.success){
+			gewaUtil.alert('保存成功！');
+			$('logo').value='';
+			$('file').value='';
+			refreshPage();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function delApp(uid){
+	if(!confirm('确定删除？'))return;
+	var url = '${basePath}admin/mobile/delApp.xhtml';
+	var values = {'uid':uid}
+	GewaraUtil.sendRequest(url,values,function(result){
+		if(result.success){
+			gewaUtil.alert('删除成功！');
+			refreshPage();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function _afterupdatePic(paramsMap){
+	if(paramsMap == null){
+		gewaUtil.alert("上传文件出错! 请检查文件格式! ");
+		recover();
+		return false;
+	}
+	var imgpath = paramsMap["picpath"]; 
+	if(paramsMap["msg"] != 'ok'){
+		recover();
+		return false;
+	}
+	$('logo').value=paramsMap.picpath;
+}
+function updateLogo(params){
+	var picpath = params['picpath'];
+	$('logo').value = picpath;
+}
+</script>
+</body>
+</html>

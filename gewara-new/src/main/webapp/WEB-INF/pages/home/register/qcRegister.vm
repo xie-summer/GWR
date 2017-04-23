@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>用户注册_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,slimbox,page&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($tag="home")
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="gui-layout">
+	<div class="gui-h1"><h1>注册加入庆春电影院圈子</h1></div>
+	<ul class="gui-register-step">
+		<li class="gui-stepIng">填写注册信息</li>
+		<li>完善用户信息</li>
+		<li class="end">注册完成</li>
+	</ul>
+	<div class="register-h2 bgcolor"><h2>欢迎注册<strong class="yellow mr5">庆春格瓦拉会员</strong><strong class="yellow">多彩</strong>生活从此开始！</h2></div>
+	<div style="padding:20px;">
+		<div class="registerBox">
+			<form action="" method="post" id="miForm">
+				<input type="hidden" name="encode" value="$!encode" id="encode"/>
+				<ul class="registerItem" id="Index_show">
+					<li><span class="tdes">电子邮箱：</span><input type="text" name="email" id="email" class="text" onchange="nameLower(this)"/><span class="ml5">输入您的常用的邮箱</span></li>
+					<li><span class="tdes">用户名：</span><input type="text" name="nickname" id="nickname" class="text"/><span class="ml5">为自己取个个性的名字</span></li>
+					<li><span class="tdes">登录密码：</span><input type="password" name="password" id="password" class="text"/><span class="ml5">密码长度6-14个字符</span></li>
+					<li><span class="tdes">确认密码：</span><input type="password" class="text" name="repassword" id="repassword"/><span class="ml5"></span></li>
+					<li>
+						<span class="tdes">验证码：</span>
+						
+						<input type="hidden" name="captchaId" id="captcha" />
+						<input type="text" name="captcha" alt="点击获取" autocomplete="off"  style="width:80px;" class="text captcha" id="captchaInput" onfocus="GewaraUtil.refreshCaptcha('captcha');"/>
+						<img id="captchaImg" src="${staticPath}css/images/blank.gif" style="cursor: pointer;" height="28" onclick="GewaraUtil.refreshCaptcha('captcha');" title="看不清楚，请点击换一张图片"/>
+						<span class="ml5"></span>
+					</li>
+					<li style="margin-top:20px;"><span class="tdes">服务协议：</span><input type="checkbox" name="service" checked="checked" id="service"/>我接受服务协议表明您已经阅读并同意接受格瓦拉的<a href="${basePath}service/treaty.dhtml" class="ml5 blue" style="text-decoration: underline" target="_blank">服务协议</a></li>
+					<li style="margin-top:20px;"><input type="button" value="提交注册" class="subBt" onclick="return saveReg()"/><span class="ml100">已经有格瓦拉账号，<a href="${basePath}login.xhtml" class="blue">请登录</a>！</span></li>
+				</ul>
+			</form>
+			<img src="${staticPath}css/images/qcLogo.jpg"/>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+var flag=false,validMember;
+window.addEvent('domready',function(){
+	$$(".registerItem").getElements("input:not([type='button'])").each(function(item,i){
+		item.addEvents({
+			'focus':function(){
+				this.addClass("textABd");
+				this.getParent().addClass("bgcolor");
+			},
+			'blur':function(){
+				this.getParent().removeClass("bgcolor");
+				this.removeClass("textABd");
+				this.getNext('span').empty();
+				if(!$chk(this.value)){
+					this.getNext('span').set('text','此项不能为空！');
+					this.getNext('span').addClass("yellow");
+				}else if(this.id == 'password' && !/^[\w+$]{6,14}$/.test(this.value)){
+					this.getNext('span').set("text","必须是6-14数字或字母及组合！");
+					this.getNext('span').addClass("yellow");
+				}else if(this.id == 'repassword' && this.value != $('password').value){
+					this.value="";$('password').value="";
+					$('password').getNext('span').set("text","两次输入密码不一致！");
+					$('password').getNext('span').addClass("yellow");
+				}else if(this.id == 'email' || this.id=='nickname'){
+					var tis;
+					if(this.id == 'email'){tis="邮件地址";}else{tis="昵称";}
+					var el = this.getNext('span');
+					if(this.id == 'email' && !/^[A-Z_a-z0-9-\.]+@([A-Z_a-z0-9-]+\.)+[a-z0-9A-Z]{2,4}$/.test(this.value)){
+						this.getNext('span').set("text","邮件地址格式不正确！");
+					}else if(this.id=='nickname' && !/^[\w+$\u4e00-\u9fa5]+$/.test(this.value)){
+						this.getNext('span').set("text","昵称不能为特殊字符！");
+					}else{
+						var url = '${basePath}checkMember.xhtml';
+						var values = {'itemvalue':this.value};
+						GewaraUtil.sendRequest(url, values, function(result){
+							if(result.success){
+								new Element("img",{'src':'${staticPath}css/home/right.png'}).inject(el);
+							}else{
+								if(result.errorMap){
+									el.set("text",tis+ result.errorMap.msg);
+								}else{
+									el.set("text",tis+ result.msg);
+								}
+							}
+						}, 'get');
+					}
+					this.getNext('span').addClass("yellow");
+				}else{
+					if(this.id != 'repassword')
+					new Element("img",{'src':'${staticPath}css/home/right.png'}).inject(this.getNext('span'));
+				}
+			}
+		});
+	});
+});
+function saveReg(){
+	if(!/^[\w+$\u4e00-\u9fa5]+$/.test($('nickname').value)){
+		$('nickname').getNext().empty();
+		$chk($('nickname').value)?$('nickname').getNext().set("text","昵称不能为特殊字符！"):$('nickname').getNext().set("text","昵称不能为空！");
+		$('nickname').getNext().addClass("yellow");
+		$('nickname').focus();
+		return false;
+	}else if(!/^[\w+$]{6,14}$/.test($('password').value)){
+		$('password').getNext().empty();
+		$chk($('password').value)?$('password').getNext().set("text","必须是6-14数字或字母及组合！"):$('password').getNext().set("text","密码不能为空！");
+		$('password').getNext().addClass("yellow");
+		$('password').focus();
+		return false;
+	}else if($('password').value != $('repassword').value){
+		$('password').value ="";$('repassword').value="";
+		$('password').getNext().empty();
+		$('password').getNext().addClass("yellow");
+		$('password').getNext().set("text","您输入的密码不一致，请重新输入！")
+		$('password').focus();
+		return false;
+	}else if(!/^[A-Z_a-z0-9-\.]+@([A-Z_a-z0-9-]+\.)+[a-z0-9A-Z]{2,4}$/.test($('email').value) || !$chk($('email').value)){
+		$('email').getNext().empty();
+		$chk($('email').value)?$('email').getNext().set("text","您的邮箱地址有误，请重新输入！"):$('email').getNext().set("text","邮件地址不能为空！");
+		$('email').getNext().addClass("yellow");
+		$('email').focus();
+		return false;
+	}else if(!$chk($('captcha').value)){
+		$('captcha').getNext("span").addClass("yellow");
+		$('captcha').getNext("span").set("text","验证码不能为空！")
+		return false;
+	}
+	var svr = $("service");
+	if (svr.checked == false){
+		gewaUtil.alert("您必须同意服务协议");
+		return false;
+	}
+	var url = '${basePath}savereg.xhtml';
+	GewaraUtil.mask("Index_show");
+	var values = GewaraUtil.getValues("Index_show");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			document.location='${basePath}quan/7924870';
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

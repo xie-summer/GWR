@@ -1,0 +1,83 @@
+<div class="vote">
+<form action="javascript:saveVoteChoose()" name="vcForm" id="vcForm">
+<input type="hidden" name="did" id="did" value="$!VmUtils.escapeHtml($params.did)"/>
+<table cellpadding="0" cellspacing="0" border="0" width="100%">
+	#if($VmUtils.eq($!topic.type,'topic_vote_radio'))
+	#set($dx=true)
+	#else
+	#set($dx=false)
+	#end
+	#foreach($vo in $voList)
+	<tr>
+		<th width="5%" align="center">
+			#if($dx)
+			<input type="radio" name="optionid" id="ai$vo.id" value="$vo.id" style="width:20px;"/>
+			#else
+			<input type="checkbox" name="optionid" id="ai$vo.id" value="$vo.id" style="width:20px;"/>
+			#end
+		</th>
+		<th width="40%" align="left">$vo.option</th>
+		<th width="40%" align="left">
+			<div style="width:85%;float:left;">#if($perMap.get($vo.id) gt 0)<img src="${staticPath}css/images/bar.gif" height="8" class="mt10" width="$perMap.get($vo.id)%" border="0"/>#end</div>
+			<div style="width:15%;float:left">$perMap.get($vo.id)%</div>
+			<div id="height0"></div>
+		</th>
+		<th align="center">$vo.selectednum票</th>
+	</tr>
+	#end
+	<tr>
+		<th colspan="3" align="right" style="color:red">总票数：</th>
+		<th align="center" style="color:red" >$!votecount票</th>
+	</tr>
+	<tfoot>
+		<tr>
+			#if($DateUtil.isAfter($!topic.overdate))
+			<td align="right" id="jsq"><input type="submit" value="投票" class="blank4Bt"/></td>
+			#else
+			<td align="right" id="jsq"><input type="button" value="投票已结束" class="blank4Bt"/></td>
+			#end
+			<td align="left" class="gray">(#if($dx) 单选 #else 多选 #end&nbsp;&nbsp;&nbsp;截止日期：$DateUtil.format($!topic.overdate,'yyyy-MM-dd'))</td>
+			<td colspan="2" class="br">&nbsp;</td>
+		</tr>
+	</tfoot>
+</table>
+</form>
+	<script type="text/javascript">
+window.addEvent('domready', function(){
+	// 取URL参数, 默认选值
+	try{
+		var selid = $params.selid;
+		$(selid).checked = true;
+	}catch(e){}
+})
+
+function saveVoteChoose(){
+	var optionList = $('vcForm').getElements('input[name=optionid]');
+	var count = 0;
+		optionList.each(function(item){
+			if(item.checked) count ++;
+		});
+		if(count==0){
+			gewaUtil.alert("请选择你要投票的选项！");
+			return;
+		}
+	el = $('jsq').getElement('input');
+	checkLogin(true,function(){
+		GewaraUtil.mask(el);
+		var values = GewaraUtil.getValues("vcForm",",");
+		
+		var url = '${basePath}blog/saveVoteChoose.xhtml';
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert("投票成功");
+				refreshPage();
+			}else{
+				if(result.msg) gewaUtil.alert(result.msg);
+				else gewaUtil.alert("投票失败！");
+				GewaraUtil.unmask();
+			}
+		});
+	});
+}	
+</script>
+</div>

@@ -1,0 +1,42 @@
+<data>
+	#set($statusMap={"new":"new","new_unlock":"new","new_confirm":"new","paid":"paid","paid_failure":"paid","paid_failure_unfix":"paid","paid_success":"success","paid_return":"refund"})
+	#set($descMap = $VmUtils.readJsonToMap($order.description2))
+	<order>
+		<orderid>$!order.id</orderid>
+		<tradeno>$!order.tradeNo</tradeno>
+		<mpid>$!order.mpid</mpid>
+		<addtime>$!DateUtil.format($order.addtime,'yyyy-MM-dd HH:mm:ss')</addtime>
+		<validtime>$!DateUtil.format($order.validtime,'yyyy-MM-dd HH:mm:ss')</validtime>
+		<mobile>$order.mobile</mobile>
+		<cinemaname><![CDATA[$!cinema.name]]></cinemaname>
+		<moviename><![CDATA[$!descMap.get('影片')]]></moviename>
+		<opentime><![CDATA[$!descMap.get('场次')]]></opentime>
+		<opendate>$!DateUtil.formatTimestamp($opi.playtime)</opendate>
+		<seat><![CDATA[$!descMap.get('影票')]]></seat>
+		<amount>$!order.totalAmount</amount>
+		<status>$!statusMap.get($order.status)</status>
+		<cinemaid>$!order.cinemaid</cinemaid>
+		<movieid>$!order.movieid</movieid>
+		<quantity>$!order.quantity</quantity>
+		<due>$!order.getDue()</due>
+		<checkpass></checkpass>
+		<passmsg>$!passmsg</passmsg>
+		<movielogo>${mobilePath}$!movie.limg</movielogo>
+		<diaryid>$!diaryid</diaryid>
+		<address><![CDATA[$!cinema.address]]></address>
+		<pointx>$!cinema.pointx</pointx>
+		<pointy>$!cinema.pointy</pointy>
+		<transport><![CDATA[$!cinema.rTransport]]></transport>
+		<linename><![CDATA[$!cinema.getLineName($!subwaylineMap)]]></linename>
+		<stationname><![CDATA[$!cinema.stationname]]></stationname>
+		<exitnumber><![CDATA[$!cinema.exitnumber]]></exitnumber>
+		#if($!buyItem)
+		<goods>
+			<goodsname><![CDATA[$!buyItem.goodsname]]></goodsname>
+			<summary><![CDATA[$!VmUtils.getHtmlText($!buyItem.summary,100)]]></summary>
+			<unitprice>$!buyItem.unitprice</unitprice>
+			<quantity>$!buyItem.quantity</quantity>
+		</goods>
+		#end
+	</order>
+</data>

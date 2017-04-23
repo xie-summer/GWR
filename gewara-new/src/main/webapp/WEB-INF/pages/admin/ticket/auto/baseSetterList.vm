@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次自动开放列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="menu">
+		<div class="menuInner">
+			<ul>
+				<li class="selectMore">$cinema.name</li>
+				<li><a href="${basePath}admin/ticket/mpiManage.xhtml?cid=$cinema.id"><span>场次管理</span></a></li>
+				<li><a href="${basePath}admin/ticket/orderList.xhtml?cid=$cinema.id" class="admin"><span>订单管理</span></a></li>
+				<li><a href="${basePath}admin/ticket/baseData.xhtml?cid=$cinema.id"><span>基础数据</span></a></li>
+				<li><a href="${basePath}admin/ticket/auto/setterList.xhtml?cinemaid=$cinema.id"><span>自动设置器</span></a></li>
+				<li class="currs"><a><span>自动设置器审核列表</span></a></li>
+				<li><a href="${basePath}admin/ticket/opiStats.xhtml?cid=$cinema.id" class="admin"><span>座位统计</span></a></li>
+				<li><a href="${basePath}admin/ticket/settleList.xhtml?cid=$!cinema.id" class="admin"><span>结算说明</span></a></li>
+				<li><a href="${basePath}admin/ticket/settleConfirm.xhtml?cid=$!cinema.id" class="admin"><span>结算确认</span></a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="contentInfoList">
+		<div>
+			<a href="${basePath}admin/ticket/auto/baseSetterList.xhtml?cinemaId=$!cinema.id&isBefore=false" #if(!$params.isBefore) style="color:red" #end>查看未过期</a> ]
+			<a href="${basePath}admin/ticket/auto/baseSetterList.xhtml?cinemaId=$!cinema.id&isBefore=true" #if($params.isBefore) style="color:red" #end>查看已过期</a>
+		</div>
+		<br/>
+		<div>
+			<input type="button" value="待审核"  onclick="javascript:document.location.href='${basePath}admin/ticket/auto/mpiList.xhtml?cid=$cinema.id'"/> &nbsp;&nbsp;<input type="button" value="基础数据" disabled="disabled" />
+		</div>
+		<div>
+			<br/>
+			有效时段：<input type="text" name="timescope" id="timescope" value="$!timescope" onblur="saveLimit('timescope')"/>（场次播放的时段，例如：00:00~18:00,23:00~24:00）&nbsp;
+			排除日期：<input type="text" name="playDate" id="playDate" value="$!playDate" onblur="saveLimit('playDate')" style="width:400px"/>（排除不能自动设置开放的日期,例如：2013-04-30）
+		</div>
+		<br/>
+		<div>
+		#foreach($c in $countyMap.keySet())
+		 #if($cinemas.get($c))
+			<span class="i">$!{countyMap.get($c)}：</span>
+			<span class="r">
+				#foreach($cinema in $cinemas.get($c))
+				<a href="${basePath}admin/ticket/auto/baseSetterList.xhtml?cinemaId=$cinema.id&isBefore=$!params.isBefore" >
+					$cinema.name
+				</a>
+				#end
+			</span>
+		#end
+		#end
+		</div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>名称</th>
+					<th>开始时间</th>
+					<th>截止时间</th>
+					<th>星期</th>
+					<th>时段</th>
+					<th>版本</th>
+					<th>结算价</th>
+					<th>格瓦售价</th>
+					<th>优惠标识</th>
+					<th>场次说明</th>
+					<th>审核状态</th>
+					<th>使用状态</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				#foreach($setter in $setterList)
+				<tr class="grayBg">
+					<td>$!setter.id</td>
+					<td>$!setter.name</td>
+					<td>$!setter.playtime1</td>
+					<td>$!setter.playtime2</td>
+					<td>$!setter.weektype</td>
+					<td>$!setter.timescope</td>
+					<td>$!setter.edition</td>
+					<td>$!setter.costprice</td>
+					<td>$!setter.gewaprice</td>
+					<td>$!setter.elecard</td>
+					<td title="$!VmUtils.getHtmlText($setter.remark, 100)">$!VmUtils.getHtmlText($setter.remark, 20)</td>
+					<td>#if($setter.checkStatus eq 'F')未审核#elseif($setter.checkStatus eq 'T')审核通过#else 不通过#end</td>
+					<td>#if($setter.status eq 'open_a')自动#elseif($setter.status eq 'open')手动#else 废弃#end</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<script type="text/javascript">
+	function saveLimit(name){
+		var value = $(name).value;
+		if(value == ""){
+			return;
+		}
+		var url = "${basePath}admin/ticket/auto/saveAutoSetterLimit.xhtml";
+		GewaraUtil.sendRequest(url, {'name':name,"value":value}, function(result){
+			if(result.success){
+				gewaUtil.alert("保存成功");
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

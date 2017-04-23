@@ -1,0 +1,65 @@
+<div class="selectMovie">
+	收集场次信息：<span ><input value="$!{idListStr}" id="idListStr" readonly="readonly" style="width: 300px;"/></span>
+	&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:deleteAll()">一键删除</a>
+</div>
+<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+	<thead>
+		<tr>
+			<th>场次ID</th>
+			<th width="50">影片</th>
+			<th>影院</th>
+			<th>影厅</th>
+			<th>时间</th>
+			<th>版本</th>
+			<th>影院价</th>
+			<th>成本价</th>
+			<th>卖价</th>
+			#if(!$isRead)<th width="20">操作</th>#end
+		</tr>
+	</thead>
+	<tbody class="tbody" id="mpidTable">
+		#foreach($mpi in $playItemList)
+		<tr class="grayBg disp" id='tr$mpi.id' >
+			<td>$!mpi.id</td>
+			<td>$!movieMap.get($mpi.movieid).moviename</td>
+			<td>$!cinemaMap.get($mpi.cinemaid).name</td>
+			<td>$!mpi.playroom</td>
+			<td>
+				$!DateUtil.format($mpi.playdate,'MM-dd') $!mpi.playtime<br />
+			</td>
+			<td>$!{mpi.language}/$!mpi.edition</td>
+			<td>$!mpi.price</td>
+			<td>$!opiMap.get($mpi.id).costprice</td>
+			<td>$!opiMap.get($mpi.id).gewaprice</td>
+			#if(!$isRead)<td><input type="button" onclick="delMpi($mpi.id, this);" style="width: 40px;" value="删除"/></td>#end
+		</tr>
+		#end
+	</tbody>
+</table>
+<script type="text/javascript">
+	delMpi = function(mpid, bt){
+		var url = '${basePath}admin/ticket/mpi/delMpidGather.xhtml';
+		var values = {'mpid': mpid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$(bt).getParent('tr').dispose();
+				$('idListStr').value = result.retval;
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	deleteAll = function(){
+		if(confirm("确定删除所有收集吗?")){
+			var url = '${basePath}admin/ticket/mpi/delAllMpidGather.xhtml';
+			var mpids = $('idListStr').value;
+			GewaraUtil.sendRequest(url, {'mpids': mpids}, function(result){
+				if(result.success){
+					$('idListStr').value = result.retval;
+				}
+			});
+			$('mpidTable').dispose();
+		}
+	}
+</script>

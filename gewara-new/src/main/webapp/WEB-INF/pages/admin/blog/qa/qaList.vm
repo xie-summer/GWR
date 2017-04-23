@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>问答列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width: 750px; margin:auto" class="yui-skin-sam">
+<div class="left">
+	<form action="${basePath}admin/blog/qaList.xhtml" method="post">
+		<input name="keyname" id="keyname" type="text"/><input type="submit" value="搜索"/>
+	</form>
+</div>
+#parse('admin/blog/qa/common.vm')
+<div id="height0"></div>
+<table class="table" width="100%">
+	<thead>
+	<tr>
+		<th>全选</th>
+		<th>标题</th>
+		<th>发起者</th>
+		<th>版块</th>
+		<th>更新时间</th>
+		<th>发布时间</th>
+		<th>回答</th>
+		<th>状态</th>
+		<th>热度</th>
+		<th>删除</th>
+	</tr>
+	</thead>
+	#foreach($question in $questionList)
+		#set($member=$lmMap.get($question.id))
+		<tr>
+			<td><input type="checkbox" name="cbox" id="cb$question.id" value="$question.id"/></td>
+			<td><a href="$!{absPath}${basePath}qa/qaDetail.xhtml?qid=${question.id}" target="_blank">$!VmUtils.escabbr($question.title,30)</a></td>
+			<td><a href="${absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!member.id">$member.nickname</a></td>
+			<td>$!question.tagname&nbsp;</td>
+			<td>$DateUtil.format($!{question.updatetime},'yyyy-MM-dd HH:mm')&nbsp;</td>
+			<td>$DateUtil.format(${question.addtime},'yyyy-MM-dd HH:mm')</td>
+			<td><a href="${basePath}admin/blog/qaDetail.xhtml?qid=$question.id">回答</a>(<label style="color: red">$question.replycount</label>)</td>
+			<td>#if($VmUtils.eq($question.questionstatus,'Y')) <strong> √ </strong>#elseif($VmUtils.eq($question.questionstatus,'noproper'))<strong> × </strong>#else <strong>? </strong>#end</td>
+			<td>
+				<select name="hotvalue" id='$question.id' onchange="setHotValue('$question.id');">
+					<option value="0" #if($question.hotvalue eq 0) selected #end>一般</option>
+					<option value="30000" #if($question.hotvalue eq 30000) selected #end>热门</option>
+					<option value="50000" #if($question.hotvalue eq 50000) selected #end>推荐</option>
+				</select> 
+			</td>
+			<td><input type="button" value="删除" onclick="removeQuestion('$question.id')" /></td>
+		</tr>
+	#end
+</table>
+<div id="height0"></div>
+	<div style="height: 30px;">
+	<input type="checkbox" id="cbAll" onclick="selAll(this)"/>
+	<input type="button" id="delAll" value="批量删除" onclick="delMulti()"/>
+	</div>
+#parse('include/pageUtil.vm')
+	<script type="text/javascript">
+function get$(id){
+	return document.getElementById(id);
+}
+// 全选
+function selAll(obj){
+	var cbs = document.getElementsByName('cbox');
+	$each(cbs, function(i, n){
+		i.checked=obj.checked;
+	})
+}
+// 检查选中的
+function checkedArrs(cbs){
+	var checkedArr = new Array();
+	var a = 0;
+	$each(cbs, function(i, n){
+		if(i.checked){
+			checkedArr[a] = i.value;
+			a++;
+		}
+	})
+	return checkedArr;
+}
+// 批量删除
+function delMulti(){
+	var cbs = document.getElementsByName('cbox');
+	var checkedArr = checkedArrs(cbs);
+	if(checkedArr.length == 0){
+		alert("请至少选择一个!");
+		return false;
+	}
+	$('isDelMulti').value = 'true';
+	removeQuestion(checkedArr);
+}
+function delMulti_process(){
+	var cbs = document.getElementsByName('cbox');
+	var checkedArr = checkedArrs(cbs);
+
+	var rea=$('reason').value;
+	var handReason=$('handReason').value;
+	if(rea==5&&handReason.length==0){
+		alert("请输入删除此贴的原因");
+		return false;
+	}
+	var url = "${basePath}admin/blog/ajax/batchRemoveQuestionById.xhtml";
+	var values = {'idList':checkedArr, 'reason':rea,'reasonDetail':handReason};
+	GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+					alert("删除成功！");
+					get$('reason_ok').disabled = false;
+				get$('reason_cancel').disabled = false;
+				hiddenDiv();
+				refreshPage();
+			}else{
+					alert('删除失败!');
+				hiddenDiv();
+			}
+	});
+}
+</script>
+	<script type="text/javascript">
+	function removeQuestion(id){
+			$('editid').value=id;
+		var widthvalue=document.body.clientWidth;
+		var heightvalue=document.body.clientHeight;
+		$('deleteReason').set('styles',{'display':'block',
+										'position':' absolute',
+										'left':(widthvalue-500)/2,
+										'top':(heightvalue-30)/2,
+										'opacity':1,
+								});
+		var divbig=new Element('div',{
+								"id":"divbig",
+								"styles":{
+									"position": "absolute",
+									"left": "0px",
+									"top": "0px",
+									"background-color":"#000"
+									}
+								});
+		divbig.setStyles({
+			"width": widthvalue+"px",
+			"height": heightvalue+"px",
+			"visibility":"visible",
+			"z-index": 8
+		});
+		divbig.setOpacity(0.5);
+		gewara.util.toCenter($('deleteReason'));
+		document.body.appendChild(divbig)
+		return;
+	}
+	function setHotValue(vid){
+		var url = "${basePath}admin/blog/ajax/setQAHotValue.xhtml";
+		var values = {'id':vid, 'hotvalue':$(vid).value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) alert('成功设置！');
+			else alert("设置失败！");
+		});
+	} 
+	window.addEvent('domready',function(){
+			var myDrag = new Drag.Move('deleteReason', {
+				container:$('content'),
+				onDrop: function(element, droppable){
+						myDrag.detach();
+				},
+		});
+		$('deleteReason').addEvent('click', function(){
+			myDrag.attach();//元素将重新获得拖动功能
+		});
+	});
+
+	function hiddenDiv(){
+		$('handReason').value='';
+		$('deleteReason').set('styles',{'display':'none'});
+		$('divbig').dispose();
+	}
+	
+	function deleteInfo(){
+		get$('reason_ok').disabled = true;
+		get$('reason_cancel').disabled = true;
+		
+		var isDelMulti = $('isDelMulti').value;
+		if(isDelMulti == 'true'){
+			delMulti_process();
+		}else{
+			deleteInfoSingle();
+		}
+	}
+	
+	function deleteInfoSingle(){
+		var rea=$('reason').value;
+		var handReason=$('handReason').value;
+		if(rea==5&&handReason.length==0){
+			alert("请输入删除此贴的原因");
+			return false;
+		}
+		var id=$('editid').value;
+		var url = "${basePath}admin/blog/ajax/removeQuestionById.xhtml";
+		var values = {'qid':id, 'reason':rea, "reasonDetail":handReason};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("删除成功！");
+				refreshPage();
+			}else alert("删除失败！");
+		});
+	}
+</script>
+#parse("admin/blog/reason.vm")
+</body>
+</html>

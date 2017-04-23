@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>瓦丝  格瓦拉社区</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/default.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,Autocompleter,page,noobSlide&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div id="snsHeader"></div>
+<div class="ui_layout">
+	#parse('sns/common/left.vm')
+	<div class="body_right">
+	
+	#set($wasi=true)
+	#parse("sns/message/menu.vm")
+	<div class="bodys" id="_body">
+	
+		<div class="body_nav_second">
+			<div class="navs">
+				<a href="${basePath}home/wala/fans.xhtml#if($params.memberid)?memberid=$!params.memberid#end" class="hover">瓦丝($!myFansCount)</a>
+				<a href="${basePath}home/wala/follow.xhtml#if($params.memberid)?memberid=$!params.memberid#end">关注($!attentionCount)</a>
+			</div>
+		</div>
+		
+		<ul class="mymessage">
+			#foreach($fansid in $microFansList)
+			<li class="ui_abeam clear">
+			
+				<div class="uipic">
+					<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!fansid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($fansid).headpicUrl)" width="50" height="50" title="$cacheMemberMap.get($!fansid).nickname"/></a>
+				</div>
+				
+				<div class="uiText wasiText">
+				
+					<div class="title">
+					   <h2 class="mr10">
+					   <a target="_blank" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!fansid" title="$cacheMemberMap.get($!fansid).nickname">$cacheMemberMap.get($!fansid).nickname</a>
+					   </h2>
+					   <span class="mr10">
+					   #if($VmUtils.isNotBlank($microMemberAreaMap.get($!fansid)))
+					   	$microMemberAreaMap.get($!fansid)
+					   #end
+					   </span>
+					    #if($sexMap.get($fansid) eq '男')
+							 <span class="ico_male"></span>
+						#else
+							<span class="ico_famale"></span>
+						#end	
+					</div>
+					
+					<p class="wasiTotal">关注 <a href="${basePath}home/wala/fans.xhtml?memberid=$fansid">$!modertorFollowMap.get($fansid)</a>	  |  粉丝 <a href="${basePath}home/wala/fans.xhtml?memberid=$fansid">$!moderatorFansMap.get($fansid)</a>	|	哇啦 <a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$fansid">$!modertorWalaMap.get($fansid)</a></p>
+					
+					#if($modertorMemberInfoMap.get($!fansid).introduce)
+					<p>简介：$modertorMemberInfoMap.get($!fansid).introduce</p>
+					#end
+					
+					#if($treasureMemberNewCommentMap.get($!fansid))
+						<p class="wasiTalk">$!VmUtils.getWebBody($!{treasureMemberNewCommentMap.get($fansid).body},$picPath)
+						<span>$DateUtil.getTimeDesc($!{treasureMemberNewCommentMap.get($fansid).addtime})</span></p>
+						<p class="title c999">通过<em>$!{treasureMemberNewCommentMap.get($fansid).fromFlag}</em></p>
+					#end
+					
+				</div>
+				#if($!logonMember eq $member)
+				<div class="wasiOpt isMember">
+					#if(!$isTreasureMember.get($fansid))
+						<span><a class="apend_alink" href="javascript:;" onclick="addMemberTreasure($!fansid,this,false);return false;"><b>+</b>加关注</a></span>
+					#else
+						<span class="cancelBox">已关注</span>
+						<br>
+						<span><a href="javascript:cancelFans($fansid);">删除瓦丝</a></span>
+					#end
+					<!--<span class="mutual"></span>-->
+				</div>
+				#end
+			</li>
+			#end
+		</ul>
+		
+		#parse('include/pageUtil.vm')
+		<script type="text/javascript">
+		//移除粉丝
+		function cancelFans(fansid){
+			gewaUtil.confirm("移除粉丝后对方将看不到你更新的内容，确认移除吗？", function(){
+				var values = {'fansid':fansid};
+				GewaraUtil.sendRequest('${basePath}wala/cancelFans.xhtml',values,function(result){
+					if(result.success){
+						gewaUtil.alert('移除成功！',refreshPage);
+					}else
+						gewaUtil.alert(result.msg);
+				});
+			})
+		}
+		
+		/**
+		**哇啦，添加关注
+		***/
+		function addMemberTreasure(memberid,obj,isRefresh){
+			checkLogin(true, function(){
+				var url = GewaraUtil.basePath + "wala/addMicroAttention.xhtml";
+				new Request({
+					url:url,
+					method:'get',
+					onSuccess:function(resText){
+						eval(resText);
+						if(data.success){
+							if(isRefresh){
+								refreshPage();
+							}else{
+								if($chk($(obj))&&$chk($(obj).getParent('span')))
+									$(obj).getParent('span').set('text','已关注').addClass('cancelBox');			
+							}
+						}else{
+				 			gewaUtil.alert(data.msg);
+						}
+						
+					}
+				}).send({'data':{'memberid':memberid}});
+			});
+		}
+		
+		</script>
+</div>
+</div>
+</div>
+<div class="ui_view_menu"></div>
+<div class="footer_warp">
+	<div class="isFooter"></div>
+</div>
+#parse('include/innerLogin.vm')
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=snsUtil,index_even&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	if($('publicize'))new adSoild('publicize','navControl',{'position':{'x':#if($!params.memberid)280#{else}180#end,'y':#if($!params.memberid)80#{else}70#end},'width':14});
+	if($('slidePanel'))new noobSlide({
+		box: $('slidePanel'),
+		size:180,
+		items: $$('#slidePanel li'),
+		handle_event:'click',
+		addButtons: {
+			previous:$('eventL'),
+			next:$('eventR')
+		}
+	});
+});
+</script>
+#parse('sns/common/ga.vm')
+</body>
+</html>
+
+
+
+
+
+

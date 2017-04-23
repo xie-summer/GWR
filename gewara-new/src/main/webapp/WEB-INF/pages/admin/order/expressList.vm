@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>快递单录入</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/layout.css"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/bms.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<style type="text/css">
+		.tcNumber{text-align:center;height:550px;overflow:auto;margin-top:10px;}
+		.tcNumber ul li{margin-bottom:10px;}
+		.tcNumber span.num{float:left;line-height:28px;height:30px;width:60px;}
+		.tcNumber .selt .text{width:250px;border-radius:4px;font-size:14px;}
+		.tcNumber .w_button{margin:0 auto;}
+		.tcNumber .selt{float:left;margin-right:50px;}
+		.forms .selt label{display:block;width:80px;float:left;height:32px;line-height:32px;color:#666;}
+		.dc {text-align:center;margin-top:50px;}
+		.dc h2{font:30px/45px "微软雅黑","宋体";color:#000;display:inline-block;margin-bottom:20px;}
+	</style>
+</head>
+<body>
+<div class="dc">
+	<h2>输入快递单号</h2>
+</div>
+<div class="forms tcNumber" id="tcNumberLay">
+	<ul id ="oeul" style="margin-left:550px;">
+		#foreach($x in[1..11])
+			<li class="clear" id="li${foreach.count}" >
+				<div class="selt" style="margin-right:0;">
+					<label>快递单号：</label>
+					<input type="text" name="expressNo" id="expressNo${foreach.count}" seq="${foreach.count}" class="text" />
+				</div>
+			</li>
+		#end
+	</ul>
+</div>
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		oeKeyDown();
+	});
+	
+	function appendOrderExpreessEle(index) {
+		var newEle = "<li class=\"clear\" id=\"li"+index+"\" ><div class=\"selt\" style=\"margin-right:0;\"><label>快递单号：</label><input type=\"text\" name=\"expressNo\" id=\"expressNo"+index+"\" seq=\""+index+"\" class=\"text\"/></div></li>"
+		var div = document.createElement("div");
+		div.innerHTML = newEle;
+        var ele = div.childNodes;
+		document.getElementById("oeul").appendChild(ele[0]);
+		$("expressNo"+index).addEvent('keyup',function(ev){
+			if(ev.key == 'enter'){
+				oekeyDownEven(this);
+			}
+		});
+	}
+
+	function oeKeyDown() {
+		$$("input[name='expressNo']").addEvent('keyup',function(ev){
+			if(ev.key == 'enter'){
+				oekeyDownEven(this);
+			}
+		});
+	}
+	
+	function oekeyDownEven(el) {
+		if (el.value.trim().length == 0) {
+			alert("快递单号不得为空！");
+			return;
+		}
+		var url = '${basePath}admin/drama/agent/checkAndUpdateExpress.xhtml';
+		var values = {'expressNo':el.value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				var eindex = parseInt(el.get("seq"));
+				if ($("expressNo" + (eindex + 1))) {
+					$("expressNo" + (eindex + 1)).focus();
+				} else {
+					appendOrderExpreessEle(eindex+1);
+					$("expressNo" + (eindex + 1)).focus();
+				}
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+</script>
+</body>
+</html>

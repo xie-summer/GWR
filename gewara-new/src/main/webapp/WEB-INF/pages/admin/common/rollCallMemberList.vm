@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>购票用户限制列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+</head>
+<body style="margin:auto;">
+<div style="padding:1px;">
+	<form action="${basePath}admin/rollcall/getTicketRollCallMemberList.xhtml">
+		搜索条件：用户ID或手机号：<input type="text" name="mobile" value="$!params.mobile" style="width:100px"/>
+					状态:<select name="status" style="width: 100px;">
+							<option value="" #if($VmUtils.isBlank($!params.status)) selected #end>请选择状态</option>
+							<option value="D" #if($VmUtils.eq($!params.status,'D')) selected #end>黑名单</option>
+							<option value="Y" #if($VmUtils.eq($!params.status,'Y')) selected #end>白名单</option>
+						</select>
+					时间段:<input type="text" name="startdate" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" value="$!params.startdate" style="width: 100px;" />
+						至<input type="text" name="enddate" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" value="$!params.enddate" style="width: 100px;" />
+		<input type="submit" class="button" value="查询"/>
+		<input type="button" class="button" value="添加购票用户限制" onclick="showSaveCallMember();" style="float: right;"/>
+	</form>
+</div>
+<table class="table clear">
+	<thead>
+	<tr>
+		<th>用户ID或手机号</th>
+		<th>添加时间</th>
+		<th>状态</th>
+		<th>操作人</th>
+		<th>原因</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="pointTable">
+	#foreach($rollCallMember in $rollCallMemberList)
+	<tr>
+		<td>$!rollCallMember.mobile</td>
+		<td>$!DateUtil.format($!rollCallMember.addDate,'yyyy-MM-dd HH:mm:ss')</td>
+		<td>#if($VmUtils.eq($rollCallMember.status,'D'))黑名单#elseif($VmUtils.eq($rollCallMember.status,'Y'))白名单#end</td>
+		<td>#if(!$rollCallMember.userid)系统#else$tickMemberMap.get($rollCallMember.id) #end</td>
+		<td>#if(!$rollCallMember.userid)受限制的原因#else$!rollCallMember.reason#end</td>
+		<td><a href="javascript:void(0)" onclick="delCallMember('$!rollCallMember.id',this)">删除</a></td>
+	</tr>
+	#end
+	</tbody>
+</table>
+#parse('include/pageUtil.vm')
+<div style="display: none;background: white;" id="saveCallMember">
+	<form id="callMemberForm">
+		<table style="margin: 0 20px 0 20px; color: blue;">
+			<tr>
+				<td style="text-align: right;">用户ID或手机号：</td>
+				<td><input type="text" id="mobile" name="mobile" mustTxt="用户ID或手机号不能为空！"/></td>
+			</tr>
+			<tr style="margin-top: 5px;">
+				<td style="text-align: right;">状态：</td>
+				<td>
+					<select name="status" id="status" style="width: 100px;" mustTxt="请选择状态！">
+						<option value="">请选择状态</option>
+						<option value="D">黑名单</option>
+						<option value="Y">白名单</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td style="text-align: right;">原因：</td>
+				<td><input type="text" id="reason" name="reason"/></td>
+			</tr>
+		</table>
+	</form>
+</div>
+<script type="text/javascript">
+	function showSaveCallMember(){
+		gewa.util.issure('','saveCallMember','添加或修改数据',350,'saveCallMember',function(){
+			saveCallMember();
+		});
+	}
+	
+	function delCallMember(mobile, bt){
+		var url = '${basePath}admin/rollcall/delTicketRollCallMember.xhtml';
+		var values = {'id':mobile};
+		GewaraUtil.mask(bt);
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				$(bt).getParent('tr').dispose();
+			}else{
+				alert(result.msg);
+			}	
+		});
+	}
+	
+	function saveCallMember(){
+		var url = '${basePath}admin/rollcall/saveTicketRollCallMember.xhtml';
+		if(!GewaraUtil.baseValidForm('callMemberForm')) return false;
+		var values = GewaraUtil.getValues('callMemberForm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

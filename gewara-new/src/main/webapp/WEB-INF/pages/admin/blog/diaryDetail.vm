@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>评论、帖子管理</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+</head>
+<body>   
+<div id="content">
+<div class="bc1"></div>
+<div id="content_left" style="width:98%;margin:auto;">
+	<div class="panelTop"><em></em></div>
+	<div class="panelMid">
+	<table id="blogtable" style="width:100%;" class="blogtable">
+		<thead>
+		<tr>
+		<th>主题</th>
+		<th>$diary.subject</th>
+		</tr>
+		</thead>
+		<tbody class="top">
+		<tr><td>发布者</td><td><a href="$!{absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.memberid" target="_blank">$!diary.membername</a></td></tr>
+		<tr><td>帖子状态</td><td>
+		<input type="radio" value="Y_NEW" name="status" #if($VmUtils.eq($diary.status,'Y_NEW'))checked#end onclick="changeStatus(this)"/>默认
+		<input type="radio" value="Y_LOCK" name="status" #if($VmUtils.eq($diary.status,'Y_LOCK'))checked#end onclick="changeStatus(this)"/>锁帖
+		<input type="radio" value="Y_DOWN" name="status" #if($VmUtils.eq($diary.status,'Y_DOWN'))checked#end onclick="changeStatus(this)"/>下沉
+		<input type="radio" value="Y_LD" name="status" #if($VmUtils.eq($diary.status,'Y_LD'))checked#end onclick="changeStatus(this)"/>锁帖并下沉
+		</td>
+		</tr>
+		</tbody>
+	</table>
+	</div>
+	</div><!-- end panelMid-->
+	<div class="panelBot"><em></em></div>
+</div><!-- end content_left -->
+<div id="height0"></div>
+<div id="panel_bottom"></div>
+	<script type="text/javascript">
+	var tag='$!{tag}' ;
+	var relatedid='$!{relatedid}';
+	function changeType(diaryId, vtype){
+		var url = '${basePath}admin/blog/updateDiaryType.xhtml';
+		var values = {'diaryId':diaryId, 'type':vtype};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) alert('更改成功！');
+			else alert('更改失败！');
+		});
+	}
+	function changeStatus(e){
+		var url = '${basePath}admin/blog/updateDiaryStatus.xhtml';
+		var values = {'did':$diary.id,'value':e.value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('更改成功！');
+			}else{
+				alert('更改失败！');
+			}
+		});
+	}
+</script>
+<div id="height0"></div>
+</body>
+</html>

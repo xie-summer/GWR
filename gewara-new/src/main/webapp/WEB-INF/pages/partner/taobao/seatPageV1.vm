@@ -1,0 +1,103 @@
+#set($maxwidth=20+20*$room.ranknum)
+#set($pewHeight=$room.linenum*20+66)
+#set($classMap={'N':'noSeat','A':'hasSeat','B':'sellSeat','C':'sellSeat','D':'sellSeat','S':'sellSeat','W':'sellSeat'})
+<div style="margin:0 auto;#if(${maxwidth} gt 580)width:${maxwidth}px;#else width:580px#end;height:${pewHeight}px;overflow:hidden;">
+	<div class="screen">银幕</div>
+	<div class="str" id="selectedSeat">
+		<span>您选择的座位是：</span>
+	</div>
+	<div style="width:${maxwidth}px;height:100%;margin:0 auto;">
+		#foreach($row in [1..$room.linenum])
+		<dl class="pseat clear">
+			<dt>$!rowMap.get($row)</dt>
+			<dd>
+			#foreach($rank in [1..$room.ranknum])
+			#set($sid='row'+${row}+'rank'+$rank)
+			#if($seatMap.get($sid))
+			#set($seat=$seatMap.get($sid))
+			<span lang="$price" id="$seat.id" #if($mySeatList.contains($seat))class="sellSeat"#elseif($hfhLockList.contains($seat.key))class="sellSeat" #elseif($seat.loveInd eq '1' || $seat.loveInd eq '2')class="sellSeat" #else class="$classMap.get($seatStatusUtil.getFullStatus($seat))"#end title="${seat.seatLabel}$price元"></span>
+			#else
+			<span></span>
+			#end
+			#end
+			</dd>
+		</dl>
+		#end
+	</div>
+</div>
+<script type="text/javascript">
+#set($seatidList=[]);
+var selectedSeat=[$!jsSeatList];
+window.addEvent("domready", function(){
+	$$(".pseat span.hasSeat").addEvent('click',function(){
+		setSeat(this);
+	});
+	$$(".pseat span.checkSeat").addEvent('click',function(){
+		setSeat(this);
+	});
+	updateInfo();
+	setElement(selectedSeat);
+});
+function setSeat(el){
+	var flags = false;
+	if(el.hasClass("hasSeat")){
+		//选择座位
+		if(selectedSeat.length>=5){
+			alert('最多只能选择5个座位哦！');
+			return;
+		}
+		selectedSeat.push(el.id);
+		updateInfo();
+		createPew(el)
+		el.set("class","checkSeat");
+	}else if(el.hasClass("checkSeat")){
+		//取消座位
+		selectedSeat.erase(el.id);
+		el.set("class","hasSeat");
+		flags = true;
+		updateInfo();
+		var ls = $(document.body).getElements('*[id=s'+el.id+']');
+		if(ls.length>0)ls.dispose();
+	}
+}
+function createPew(el){
+	var pos = $(el).getPosition(),
+	element = Element("span",{
+		'class':'powS',"html":el.title, "id":"s"+el.id,"styles":{
+		"left":pos.x,
+		"top":pos.y
+	}}).inject(document.body);
+	var elbox = $('selectedSeat'),xx = Browser.Engine.trident?180:50;
+	if(elbox.getElements('span').length > 0){elbox = elbox.getLast();xx = 100}
+	element.move({
+		relativeTo:elbox,
+		position:"center",
+   	offset:{x:xx,y:0}
+   });
+   element.get('move').addEvent('complete',function(){
+   	var ls = $(document.body).getElements('*[id=s'+el.id+']');
+		if(selectedSeat.indexOf(el.id) >= 0){
+			if(!$('selectedSeat').contains($('s'+el.id)))this.element.inject('selectedSeat');
+			else element.dispose();
+			this.element.setStyle("position","static");
+		}else{
+			if(ls.length>0)ls.dispose();
+		}
+   });
+}
+function updateInfo(){
+	$("seatList").value=selectedSeat.join(",");
+}
+function setElement(selectedSeatList){
+	if(selectedSeatList.length > 0){
+		isChooseSet();
+		selectedSeatList.each(function(item){
+			if($(item)){
+				var el = $(item)
+				new Element("span",{'class':'powS',"html":el.title, "id":"s"+el.id}).inject('selectedSeat');
+			}
+		})
+	}
+	return ;
+}
+</script>

@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>编辑配送方式数据</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label{display:inline-block;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:550px; display:inline}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:720px;margin:auto">
+<div style="color: red;margin-top: 20px">$!errorMsgs</div>
+<div id="expressDialog" class="yui-panel" style="width:710px;margin:auto">
+	<div class="hd"><a href="${basePath}admin/express/configList.xhtml" style="margin-right: 20px;">配送方式</a>&gt;&gt;#if($expressConfig)编辑#{else}新增#{end}配送方式数据</div>
+	<div class="bd">
+	<form name="expressForm" id="expressForm" method="post">
+		<input type="hidden" name="update" value="#if($expressConfig)true#end" />
+		<div>
+			<label for="id">编号：</label>
+			<input name="id" id="id"  type="text" value="$!{expressConfig.id}" #if($expressConfig) readonly="readonly" #end mustTxt="编号不能为空！" style="width:80px;"/><span class="req">*</span>
+		</div>
+		<div>
+			<label for="name">配送方式名称：</label>
+			<input name="name" id="name"  type="text" value="$!{expressConfig.name}" mustTxt="配送方式名称不能为空！" style="width:200px;"/><span class="req">*</span>
+		</div>
+		<div>
+			<label for="expresstype">配送物流：</label>
+			<select name="expresstype" id="expresstype" #if($expressConfig) readonly="readonly" #end mustTxt="配送物流不能为空！">
+				<option value="">请选择配送物流</option>
+				#foreach($key in $expressTypeMap.keySet())
+				<option #if($VmUtils.eq($!{expressConfig.expresstype},$key)) selected #end value="$key">$expressTypeMap.get($key)</option>
+				#end
+			</select>
+		</div>
+		<div>
+			<label for="remark">配送方式描述：</label>
+			<textarea name="remark" cols="80" rows="2">$!{expressConfig.remark}</textarea>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="saveExpress()"  style="width:100px" value="保存"/>
+		</div>
+		</form>
+	</div><!-- end of bd -->
+</div>
+<script type="text/javascript">
+	function saveExpress(){
+		var url = "${basePath}admin/express/saveExpressConfig.xhtml";
+		var values = GewaraUtil.getValues('expressForm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

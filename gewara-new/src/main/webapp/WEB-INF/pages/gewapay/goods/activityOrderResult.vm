@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>订单支付成功</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,play,new_play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.g_success{border:1px solid #d1d1d1; background:#fff6ed; padding:40px; width:580px;}
+		.c666{color:#555;}
+		.payBox .inner{padding:20px 15px;}
+		/*20121025*/
+		.od_share .inn img,.od_share .inn .button,.od_deal,.od_share .inn .save{background:url(${staticPath}css/buss/steps.gif) no-repeat;}
+		.od_deal{height:30px;line-height:30px;padding:0 0 0 30px;background-position:-275px -1636px;font-weight:bold;font-size:14px;}
+		.orderResult_tab_info textarea{background:#fffaf6; overflow-y:auto; line-height:18px; font-size:12px; width:375px; height:40px; color:#666; resize:none; border:0;}
+	</style>
+</head>
+<body>
+#set($isPay = true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout">
+	<div class="inner">
+		<div class="payStep04">
+			<ul class="payOrderSteps clear">
+				<li class="step1">1.选择商品</li>
+				<li class="step2">2.确认订购数量</li>
+				<li class="step3">3.在线支付</li>
+				<li class="step4">4.完成购买</li>
+			</ul>
+		</div>
+		<div class="payBox_body_left">
+			#*<dl class="ui_abeam mt20 g_success">
+				<dt class="uipic"><img src="${staticPath}css/buss/succ_i.png" alt="购买成功"/></dt>
+				<dd class="uiText ml20 mt5">
+					<h1 class="fs28">订单已完成支付!</h1>
+					<p class="brown">订单处理中，成功后15分钟内你将收到取票短信</p>
+					<p class="mt5 c666">订单号：<a href="${basePath}gewapay/showOrder.xhtml?orderId=$order.id" target="_blank" class="brown">$order.tradeNo</a></p>
+					<p class="mt5">$order.ordertitle $order.quantity份 <span class="yellow fs14"><strong>$order.due</strong>元</span>，请凭短信密码去活动现场兑换相应卖品</p>
+					#if($order.paymethod eq 'gewaPay') #set($point=${order.due}-${order.wabi}) #else #set($point=$order.due) #end
+					<p class="c666 mt20">如有问题请拨打客服电话：<b class="fs14">4000-406-506</b></p>
+				</dd>
+			</dl>*#
+			<div class="orderResult_info clear mt20">
+				<div class="inner mt20">
+					<div class="uipic"><img class="ml20 mr20" src="${staticPath}css/buss/succ_i.png" alt="购买成功"/></div>
+					<div class="uiText" style="width:460px;">
+						<h1>订单已完成支付 !</h1>
+						<div class="od_deal yellow mt10">订单处理中，成功后15分钟内你将收到取票短信</div>
+						<p>请凭短信密码去活动现场参加活动</p>
+						<p style="color:#666;">订单号：<a href="${basePath}gewapay/showOrder.xhtml?orderId=$order.id" target="_blank" class="yellow">$order.tradeNo</a></p>
+						<div class="orderResult_tab_con clear mt10" id="tabMessage_content">
+							<h2>免费短信邀请你的朋友一起参加活动</h2>
+							<div class="orderResult_tab_info mt10">
+								<em class="m1"></em>
+								<em class="m2"></em>
+								<p class="m">
+									<textarea readonly="readonly" id="msgContent">参加了:$!{activity.name}活动，你也一起来参加吧！</textarea>
+								</p>
+								<em class="m2"></em>
+								<em class="m1"></em>
+							</div>
+							<div class="ui_abeam mt5">
+								<div class="uipic">
+									<p  class="mt5"><label>我的姓名：</label><input type="text" class="text" id="myname" name="myname" onblur="updateContent(this);" maxlength="10" style="width:60px;"/></p>
+								</div>
+								<div class="uiText" style="width:260px;" id="voptions">
+									<div>
+										<p class="mt5 left"><label class="ml10">好友手机：</label><input class="text" type="text" name="phonenum" maxlength="11" style="width:150px;"/></p>
+										<p class="mt5 right"><span class="oAddPhone" id="addFont"></span></p>
+									</div>
+								</div>
+							</div>
+							<a class="button redBt minBt right mt10" onclick="sendMsg($!order.id);" ><span style="width:40px; font-size:14px">发送</span></a>
+						</div>
+						<p class="mt10" style="color:#666;">如有疑问请拨打客服电话：<span class="fs14">4000-406-506</span></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="payBox_body_right">
+			<div class="payBox mt20">
+				<div class="payBox_header"><h2 class="usePhone">手机玩转格瓦拉</h2></div>
+				<div class="inner">
+					<p class="c666">手机浏览器访问</p>
+					<p class="fs22 yellow">M.gewara.com</p>
+					<p class="mt20 c666">或登录智能手机客户端</p>
+					<p class="mt10"><a title="跳转至下载页面" class="phonePic" href="/mobile/index.xhtml" target="_blank"></a></p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#set($pageTrack=${basePath} + 'goods/' + ${goods.tag} + '/success.html')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$('addFont').addEvent('click',function(){
+		addOpation();
+	})
+})
+var vcount = 0;
+function addOpation(){
+	if(vcount == 5){
+		$('addFont').hide();
+		return;
+	}
+	var ap = new Element('div',{
+		'html':'<p class="mt5 left"><label class="ml10">好友手机：</label><input class="text" type="text" name="phonenum" maxlength="11" style="width:150px;"/></p><p class="mt5 right"><span class="oDelPhone"></span></p>'
+	}).inject('voptions');
+	var aspan = ap.getElement('*[class=oDelPhone]');
+	aspan.addEvent('click',function(){
+		this.getParent('div').dispose();
+		vcount--;
+		if(vcount > 0)$('addFont').show();
+	})
+	vcount++;
+}
+function updateContent(el){
+	if(el.value == "") return ;
+	$('msgContent').value = $('msgContent').get('text').replace('$!member.nickname',el.value);
+}
+function isNumber(str){return /^\d+$/.test(str);}
+function sendMsg(orderId){
+	var mobile = "",err = "",content="";
+	var phonelist = $('voptions').getElements('input[name=phonenum]');
+	Array.each(phonelist,function(item,index){
+		if(index > 0){
+			mobile += "," + item.value;
+			if((!isNumber(item.value) || item.value.length != 11) && item.value != "") err = "请输入正确的电话号码！";
+		}else{
+			mobile += item.value;
+			if((!isNumber(item.value) || item.value.length != 11) && item.value != "") err = "请输入正确的电话号码！";
+		}
+	});
+	if(mobile == ""){
+		err = "好友手机号码不能为空";
+	}
+	if($('myname').value != ""){
+		content = $('msgContent').value + "http://t.cn/Sb2z2G";
+	}else{
+		err = "请输入你的真实名字!";
+	}
+	if(err.length>0){gewaUtil.alert(err); return;}
+	var values = {"orderId":orderId, "mobile":mobile, "msgContent":content.trim()};
+	GewaraUtil.sendRequest('${basePath}ajax/trade/acOrderResultSendMsg.xhtml', values, function(result){
+		if(result.success){
+			gewaUtil.alert("发送成功！");
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width:750px;margin:auto">
+	<div id="msg"></div>
+	<table class="table">
+	<tr>
+		<td>
+			输入：<input type="text" id="classname" style="width: 400px;"/>多个“,”隔开<br />
+			类型：<select id="clearType" name="clearType" style="width: 100px;">
+				<option value=""></option>
+				<option value="disable">临时禁用2级缓存</option>
+				<option value="enable">重新启用2级缓存</option>
+			</select>
+		</td>
+		<td><input type="button" value="清除" onclick="clearCache();" /></td>
+	</tr>
+	<tr>
+		<td>缓存区域：
+			<select id="region">
+				<option value="">请选择...</option>
+				<option value="oneHour">oneHour</option>
+				<option value="halfHour">halfHour</option>
+				<option value="tenMin">tenMin</option>
+				<option value="fiveMin">fiveMin</option>
+				<option value="openSeat">openSeat</option>
+				<option value="halfDay">halfDay</option>
+				<option value="eternal">eternal</option>
+				<option value="testError">testError</option>
+			</select>
+		</td>
+		<td><input type="button" value="清除" onclick="clearCacheRegion();" /></td>
+	</tr>
+	</table><br/>
+	
+	<table class="table">
+		<tr>
+			<td>
+				页面地址：<input type="text" name="page" id="page" style="width: 300px;"/>&nbsp;&nbsp;
+				城市：<select name="province" id="province" onchange="provinceChange()">
+						<option value="">选择省份</option>
+						#foreach($province in $province2CityList)
+							<option value="$province.provincename" #if($!VmUtils.eq($provincename,$province.provincename)) selected="selected" #end>$province.provincename</option>
+						#end
+					</select>
+					<select name="citycode" id="citycode">
+						<option value="">选择城市</option>
+					</select>
+			</td>
+			<td><input type="button" value="清除" onclick="clearPage()" /></td>
+		</tr>
+	</table>
+	<script type="text/javascript">
+		function clearCache(){
+			var cname = $("classname").value;
+			if(cname.length==0){
+				alert("请输入类名！");
+			}else{
+				var url = "${basePath}admin/sysmgr/ajax/clearCache.xhtml";
+				GewaraUtil.sendRequest(url, {"classOrRegionName":cname, "type":"class", "clearType":$("clearType").value}, function(result){
+					if(result.success) alert("成功清除！");
+					else alert(result.msg);
+				});
+			}
+		}
+		function clearCacheRegion(){
+			var rname = $("region").value;
+			if(rname.length==0){
+				alert("请选择区域！");
+			}else{
+				var url = "${basePath}admin/sysmgr/ajax/clearCache.xhtml";
+				GewaraUtil.sendRequest(url, {"classOrRegionName":rname, "type":"region"}, function(result){
+					if(result.success) alert("成功清除！");
+					else alert(result.msg);
+				});
+			}
+		}
+		function clearPage(){
+			var page = $("page").value;
+			if(page==''){
+				alert("请输入页面地址！");
+			}else{
+				var url = "${basePath}admin/sysmgr/ajax/clearPage.xhtml";
+				GewaraUtil.sendRequest(url, {"page":page, "citycode":$('citycode').value}, function(result){
+					alert(result.retval);
+					if(result.msg) alert(result.msg);
+				});
+			}
+		}
+		
+		function comefrom(loca,locacity) { this.loca = loca; this.locacity = locacity; }
+		var where = new Array($province2CityList.size());
+		where[0]= new comefrom("请选择..","请选择..");
+		var citys2 = "";
+		#foreach($province in $province2CityList)
+			citys2 = "";
+			#foreach($city in $province.gewaCityList)
+				citys2 += "$city.citycode:$city.cityname|";
+			#end
+			if (citys2.length > 0) {
+				citys2 = citys2.substr(0, citys2.length - 1);
+			}
+			where[$foreach.count] = new comefrom("$province.provincename",citys2);
+		#end
+		function provinceChange() {
+			with(document.getElementById("province")) { var loca2 = options[selectedIndex].value; }
+			for(i = 0; i < where.length; i++) {
+				if (where[i].loca == loca2) {
+					var loca3 = (where[i].locacity).split("|");
+					for(j = 0;j < loca3.length;j++) {
+						with(document.getElementById("citycode")) {
+							length = loca3.length; 
+							options[j].text = loca3[j].split(":")[1]; 
+							options[j].value = loca3[j].split(":")[0]; 
+							var loca4=options[selectedIndex].value;
+						}
+					}
+					break;
+				}
+			}
+		}
+	</script>
+</body>
+</html>

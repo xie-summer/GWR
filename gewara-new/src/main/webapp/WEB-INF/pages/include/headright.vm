@@ -1,0 +1,83 @@
+<style type="text/css">
+.ui_top_nav{position:relative; z-index:2; _position:static;}
+.ui_logins{position:relative; z-index:0; float:right;}
+.ui_cityChoose{z-index:10px;}
+.ui_warning_header{position:absolute; overflow:visible; width:200px; right:115px; height:auto; line-height:20px; top:15px; text-align:left; color:#666;}
+.ui_warning_header .inner{position:relative; padding:5px 0;}
+.ui_warning_header i{display:inline-block; font-family:'SimSun'; font-size:16px; font-style:normal; height:22px; line-height:26px; overflow:hidden; position:absolute;}
+.ui_warning_header .t{color:#FFE3BB; right:10px;top:-13px;}
+.ui_warning_header i.t i{color:#FFFFDD; left:0; top:1px;}
+.ui_warning_header a{color:#c30; padding:0;}
+.ui_warning_header a:hover{color:#c30; text-decoration:underline!important;}
+.ui_userBox{float:left}
+.ui_getRd{float:right;}
+
+</style>
+#parse('include/constant/cityParam.vm')
+#if($logonMember)
+<div class="ui_userBox" id="global_user_infobox">
+	<img class="ui_dHead" width="30" height="30" alt="" style="display:none; background:url($VmUtils.randomPic('cw30h30',$headUrl)) center center no-repeat;" src="${staticPath}css/images/blank.gif"/>
+	<a class="ismessge" title="$!logonMember.nickname" href="${basePath}home/sns/personIndex.xhtml?tagNo=$VmUtils.getRandom()" target="_blank"><b>#if($VmUtils.gt($VmUtils.length($!logonMember.nickname),5)) $!VmUtils.escabbr($!logonMember.nickname, 6). #else $!logonMember.nickname #end#if($notReadCount && $notReadCount gt 0)<i>$!notReadCount</i>#end</b></a>
+</div>
+<a href="${basePath}everday/acct/mygift.xhtml" target="_blank" class="ui_getRd">领红包</a>
+<div class="ui_userBoxBtn" id="global_user_detail">
+	<div class="ulist">
+		<a id="global_userOrder" class="global_userOrder" href="${basePath}home/myOrderManage.xhtml?tagNo=$VmUtils.getRandom()" target="_blank">我的订单</a>
+		<a href="${basePath}home/message/new/sysMsgList.xhtml?tagNo=$VmUtils.getRandom()" class="ismessge" target="_blank">我的消息#if($notReadCount && $notReadCount gt 0)<i>$!notReadCount</i>#end</a>
+		<a href="${basePath}home/charge.xhtml?tagNo=$VmUtils.getRandom()" target="_blank">我的账户</a>
+		<a href="javascript:logout();">退出</a>
+		<div class="cls"></div>
+	</div>
+	<div id="golbal_orderDetail" class="ui_nav_orderDetail">
+		<div id="ajaxOrderListDetail" style="background:#fff;">
+			<div class="ainner">
+				<em class="sline"></em>
+				<div class="nav_loading">加载中，请稍后...</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="ui_warning ui_warning_header none" id="speNotice">
+	<div class="inner">
+		<i class="t">◆<i>◆</i></i>
+		<p><b class="ico_g"></b>您的账户存在安全风险，为保障您的账户安全，请及时更改您的密码！</p>
+		<p class="tar mt5"><a class="ffst" href="${basePath}home/acct/goUpPass.xhtml?tagNo=$VmUtils.getRandom()&danger=true">马上更改&gt;&gt;</a></p>
+	</div>
+</div>
+
+<div id="ui_tips_newTips" style="display:none;">
+	<a href="javascript:void(0);" title="关闭"></a>
+</div>
+
+<script type="text/javascript">
+	gewara.util.member.login = true;
+	gewara.util.member.memberid=$logonMember.id;
+	gewara.util.member.nickname='$logonMember.nickname';
+	gewara.util.member.notReadCount='$!notReadCount';
+	gewara.util.member.headUrl='$headUrl';
+	#if($VmUtils.isNotBlank($logonMember.mobile))
+	gewara.util.member.isMobile = true;
+	#end
+	#if($danger)
+		(function(){
+			if(!satefy)$('speNotice').removeClass('none');
+		}).delay(5000);
+	#end
+	nav.userInfo();
+	var maskArea = Cookie.read('newIndexTips');
+	if(!maskArea && maskArea != "true"){
+		$('ui_tips_newTips').show();
+	}
+	$('ui_tips_newTips').addEvent('click',function(){
+		this.hide();
+		Cookie.write('newIndexTips',"true",{duration:365});
+	})
+</script>
+#else
+<div class="ui_userBox">
+	<img class="ui_dHead" width="30" height="30" alt="" style="display:none;" src="http://img6.gewara.com/cw30h30/img/default_head.png"/>
+	<a href="javascript:showLogin(refreshPage);">登录</a>|<a href="${basePath}register.xhtml?tagNo=$VmUtils.getRandom()" target="_blank">注册</a>
+</div>
+<a href="${basePath}everday/acct/mygift.xhtml" target="_blank" class="ui_getRd">领红包</a>
+#parse('include/innerLogin.vm')
+#end

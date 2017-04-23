@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>用户账号</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	
+</head>
+<body style="width:900px; margin:auto;">
+	<div>
+		<form action="${basePath}admin/gewapay/queryMemberAccount.xhtml">
+			用户ID：<input type="text" name="mid" />
+			<input type="submit" value="查询" />
+		</form>
+	</div>
+	<div>账号：$!{cacheMemberMap.get($!account.memberid).nickname}[$!{account.memberid}]</div>
+	<div>余额：<big>$!{account.banlance}</big>元 <input type="button" class="right" onclick="adminApplyInvoice()" value="申请发票"/></div>
+	<div><strong class="black ml10">充值记录</strong></div>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>付款时间</th>
+				<th>订单号</th>
+				<th>充值金额</th>
+				<th>联系电话</th>
+				<th>充值方式</th>
+				<th>支付序号</th>
+				<th>类型</th>
+				<th>交易状态</th>
+				<th><input type="checkbox" onclick="chargeListClick(this)"/></th>
+			</tr>
+		</thead>
+		<tbody id="chareinvoice">
+			#foreach($charge in $chargeList)
+			<tr #if($charge.paid)style="background-color: green; color: white;"#end>
+				<td title="下单时间:$DateUtil.format($charge.addtime, 'yy-MM-dd HH:mm:ss')">$DateUtil.format($charge.updatetime, 'yy-MM-dd HH:mm:ss')</td>
+				<td>$charge.tradeNo</td>
+				<td>$charge.totalfee</td>
+				<td>$!charge.mobile</td>
+				<td>$!charge.paytext</td>
+				<td>$!charge.payseqno</td>
+				<td>
+				#if($!charge.chargetype eq 'order')消费[订单号：$!chargeOrderMap.get($charge.id).tradeNo]#else 充值#end
+				#if($!charge.chargeto eq 'bank')账户金额#else 瓦币#end	
+				</td>
+				<td>$charge.statusText</td>
+				<td>
+					#if($charge.isCanInvoice())
+					#set($invoiceRelate=$invoiceRelateMap.get($chare.tradeNo))
+					<input type="checkbox" value="$!chare.tradeNo" lang="$!chare.fee" #if($invoiceRelate) disabled="disabled" checked="checked" title="已申请过发票" #else class="chareinvoice" #end/>
+					#end
+				</td>
+			</tr>
+			#end
+		</tbody>
+	</table>
+	<div><strong class="black ml10">交易记录</strong></div>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>订单号</th>
+				<th>下单时间</th>
+				<th>有效时间</th>
+				<th>付款时间</th>
+				<th>物品名称</th>
+				<th>总价格</th>
+				<th>支付金额</th>
+				<th>Gewa支付</th>
+				<th>支付方式</th>
+				<th>折扣金额</th>
+				<th>交易状态</th>
+				<th>其他</th>
+				<th><input type="checkbox" onclick="orderListClick(this)"/></th>
+			</tr>
+		</thead>
+		<tbody id="orderinvoice">
+			#foreach($order in $orderList)
+			#set($orderExtra=$extraMap.get($order.id))
+			<tr class="$order.status" #if($order.paid)style="background-color: green; color: white;"#end>
+				<td><a href="${basePath}admin/gewapay/orderDetail.xhtml?tradeNo=$order.tradeNo" target="_blank" >$order.tradeNo</a></td>
+				<td>$DateUtil.format($order.addtime, 'MM-dd HH:mm:ss')</td>
+				<td>$!DateUtil.format($order.validtime, 'MM-dd HH:mm:ss')</td>
+				<td>$!DateUtil.format($order.paidtime, 'MM-dd HH:mm:ss')</td>
+				<td>$order.ordertitle</td>
+				<td>$order.totalAmount</td>
+				<td>$order.alipaid</td>
+				<td>$order.gewapaid</td>
+				<td>$order.paymethodText</td>
+				<td>$order.discount</td>
+				<td>$order.statusText</td>
+				<td>$!VmUtils.getJsonValueByKey($!order.description2, '场次')</td>
+				<td>
+					#if($order.isPaidSuccess() && $VmUtils.gt($order.gainInvoiceDue(),0) && $orderExtra && !$VmUtils.eq($orderExtra.invoice,'F'))
+					<input type="checkbox" value="$!order.tradeNo" lang="$!order.gainInvoiceDue()" #if($VmUtils.eq($orderExtra.invoice,'Y'))disabled="disabled" checked="checked" title="已申请过发票" #else class="orderinvoice" #end/>
+					#end
+				</td>
+			</tr>
+			#end
+		</tbody>
+	</table>
+	<div><strong class="black ml10">调整记录[正值为从余额中扣除，负值为增加到余额中]</strong></div>
+	<table class="table">
+		<thead>
+		<tr>
+			<th>退款金额</th>
+			<th>退款时间</th>
+			<th>经办人</th>
+			<th>备注</th>
+		</tr>
+		</thead>
+		<tbody id="refund">
+		#foreach($refund in $adjustmentList)
+		<tr>
+			<td>#if($VmUtils.startsWith($refund.correcttype, 'sub'))-#end$refund.amount</td>
+			<td>$!DateUtil.format(${refund.updatetime}, "yyyy-MM-dd HH:mm:ss")</td>
+			<td>$!refund.clerkid</td>
+			<td>$!refund.content</td>
+		</tr>
+		#end
+		</tbody>
+	</table>
+	<div id="height0"></div>
+	#parse('admin/invoice/adminApplyInvoice.vm')
+<script type="text/javascript">
+	var pretypeArray = new Array();
+	window.addEvent('domready',function(){
+		invoiceClick();
+	});
+	function chargeListClick(e){
+		chareinvoiceList(e.checked);
+	}
+	function orderListClick(e){
+		orderinvoiceList(e.checked);
+	}
+	function invoiceClick(){
+		var chareinvoice = $('chareinvoice').getElements('input[class=chareinvoice]');
+		if(chareinvoice && chareinvoice.length>0){
+			chareinvoice.addEvent('click',function(){
+				if(this.checked){
+					pretypeArray.include(this.value);
+				}else{
+					pretypeArray.erase(this.value);
+				}
+			});
+		}
+		var orderinvoice = $('orderinvoice').getElements('input[class=orderinvoice]');
+		if(orderinvoice && orderinvoice.length>0){
+			orderinvoice.addEvent('click',function(){
+				if(this.checked){
+					pretypeArray.include(this.value);
+				}else{
+					pretypeArray.erase(this.value);
+				}
+			});
+		}
+	}
+	function chareinvoiceList(checked){
+		var chareinvoice = $('chareinvoice').getElements('input[class=chareinvoice]');
+		chareinvoice.each(function(item){
+			if(checked){
+				item.checked=true;
+				pretypeArray.include(item.value);
+			}else{
+				item.checked=false;
+				pretypeArray.erase(item.value);
+			}
+		});
+	}
+	function orderinvoiceList(checked){
+		var orderinvoice = $('orderinvoice').getElements('input[class=orderinvoice]');
+		orderinvoice.each(function(item){
+			if(checked){
+				item.checked=true;
+				pretypeArray.include(item.value);
+			}else{
+				item.checked=false;
+				pretypeArray.erase(item.value);
+			}
+		});
+	}
+	function adminApplyInvoice(){
+		$('orderidList').value = pretypeArray.toString();
+		if(!$chk($('orderidList').value)){
+			alert('请选择申请发票的订单号！');
+			return;
+		}else{
+			checkOrderNo($('orderidList').value);
+		}
+		gewaUtil.issure('', 'adminApplyForm', '后台客服申请发票' , 420, 'adminApplyForm',function(calls,id){
+			saveAdminApplyInovice();
+		},'', function(){
+			gewa.util.container['adminApplyForm'].dispose('adminApplyForm');
+			$('orderidList').value = "";
+		});
+	}
+	function saveAdminApplyInovice(){
+		var applytitle=$('applytitle').value;
+		var applycontactor=$('applycontactor').value;
+		var applyphone=$('applyphone').value;
+		var applyaddress=$('applyaddress').value;
+		var applypostcode=$('applypostcode').value;
+		var applyinvoicetype=$('applyinvoicetype').value;
+		var citycode=$('citycode').value;
+		var applyamount=$('applyamount').value;
+		var applymemberid=$('applymemberid').value;
+		var applyorderid=$('orderidList').value;
+		if(!$chk(applytitle)){
+			gewaUtil.alert('发票抬头不能为空!');
+			return;
+		}
+		if(!$chk(applycontactor)){
+			gewaUtil.alert('收件人不能为空!');
+			return;
+		}
+		if(!$chk(applyphone)){
+			gewaUtil.alert('电话不能为空!');
+			return;
+		}
+		if(!$chk(applyaddress)){
+			gewaUtil.alert('邮寄地址不能为空!');
+			return;
+		}
+		if(!$chk(citycode)){
+			gewaUtil.alert('邮寄地址不能为空!');
+			return;
+		}
+		var url ="${basePath}admin/invoice/saveApplyInvoice.xhtml";
+		var values={'title':applytitle,'contactor':applycontactor,'phone':applyphone,'address':applyaddress,'postcode':applypostcode,
+		'invoicetype':applyinvoicetype,'orderidList':applyorderid,'memberid':applymemberid,'amount':applyamount,'citycode':citycode};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert('申请成功！', function(){
+					gewa.util.container['adminApplyForm'].dispose('adminApplyForm');
+					document.location.href='${basePath}admin/invoice/getInvoiceList.xhtml';
+				});
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+</script>	
+</body>
+</html>

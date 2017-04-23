@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>竞拍参与者</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}formcheck/formcheck.css?v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}formcheck/formcheck.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.contentInfoList li{margin-top:5px;}
+		.grayBg td input{width: 80px;}
+		tr{text-align: left;}
+		td{text-align: left;}
+	</style>
+</head>
+<body>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li #if(!$params.tag)class="currs"#end><a class="admin" href="${basePath}admin/pubsale/saleList.xhtml"><span>竞拍</span></a></li>
+			<li #if($params.tag)class="currs"#end><a href="${basePath}admin/pubsale/salePubMember.xhtml?tag=true" class="admin"><span>统计</span></a></li>
+		</ul>
+	</div>
+</div>
+<div style="color:red" id="notifyWin"></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>序号</th>
+					<th>竞拍人</th>
+					<th>竞拍人ID</th>
+					<th>竞拍价</th>
+					<th>竞拍时间</th>
+					<th>注册时间</th>
+					<th>竞拍后积分</th>
+					<th>参与竞拍次数</th>
+					<th>用户总积分</th>
+					<th>状态</th>
+				</tr>
+			</thead>
+			<tbody class="tbody">
+				#foreach($pm in $pmList)
+				#set($memberInfo=$memberInfoMap.get($pm.memberid))
+				<tr class="grayBg disp c$opi.movieid">
+					<td>$foreach.count</td>
+					<td>$memberInfo.nickname</td>
+					<td>$pm.memberid</td>
+					<td>$pm.rprice</td>
+					<td>$DateUtil.format($!pm.addtime,'yyyy-MM-dd HH:mm:ss')</td>
+					<td>$DateUtil.format($memberInfo.addtime,'yyyy-MM-dd HH:mm')</td>
+					<td>$!pm.pointvalue</td>
+					<td>$!memberCount.get($pm.memberid)</td>
+					<td>$memberInfo.pointvalue</td>
+					<td style="text-align: left;">
+						#if($sale.memberid eq $memberInfo.id && $sale.status eq 'Y' && $sale.curprice eq $pm.price)竞拍成功&nbsp;
+						#if($order)
+						订单状态：<font color='red'>$order.getStatusText()</font>
+						<a href="${basePath}admin/common/orderDetail.xhtml?tradeNo=$order.tradeNo" target="_blank">[查看订单]</a>
+						#if($order.status eq 'paid_success')
+						<a href="javascript:showDialog($order.id)">签收商品短信</a>
+						#end
+						#end
+						#end
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<div id="priceDialog" style="width:370px; visibility:hidden; z-index:20;background: #000">
+	<div style="width:350px;margin:10px;background:#FFF;">
+		<div style="text-align:center;height:20px;line-height: 20px;">
+			<strong>发送短信</strong>
+		</div>
+		<div class="bd" style="text-align:center;">
+			<form name="priceForm" id="priceForm">
+				<input type="hidden" name="orderid" id="orderid" />
+				<div style="padding:5px 40px;text-align:left">
+					<label for="company" class="left">公司名称：</label>
+					<input type="text" name="company" id="company" class="left" style="width: 200px"/>
+					<span class="req left">*</span>
+					<div class="height0"></div>
+				</div>
+				<div style="padding:5px 40px;text-align:left;">
+					<label for="sno" class="left">邮寄单号：</label>
+					<input type="text" name="sno" id="sno" class="left" style="width: 200px"/>
+					<span class="req left">*</span>
+					<div class="height0"></div>
+				</div>
+				<div>
+					<label>&nbsp;</label>
+					<input type="button" class="cbt1"  value="发送" onclick="postMsg()"/>
+					<input type="button" class="cbt1" onclick="hiDialog();" value="取消"/>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	function hiDialog(){
+		GewaraUtil.hideDialog("priceDialog");
+	}
+	function showDialog(orderid){
+		GewaraUtil.showDialog('priceDialog');
+		$('orderid').value=orderid;
+	}
+	function postMsg(){
+		if($('company').value=='' || $('sno').value=='' || $('orderid').value=='') {
+			alert('信息填写不完整！');
+			return;
+		}
+		var values = GewaraUtil.getValues('priceForm');
+		GewaraUtil.sendRequest('${basePath}admin/pubsale/postMsg.xhtml', values, function(result){
+			if(result.success){
+				alert('发送成功！');
+				hiDialog();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

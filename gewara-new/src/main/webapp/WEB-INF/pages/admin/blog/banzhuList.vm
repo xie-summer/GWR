@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>版主管理</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page"></script>
+</head>
+<body>
+#set($isBz=true)
+<div id="content">
+<div class="bc1"></div>
+<div id="content_left" style="width:98%;margin:auto;">
+	<div class="panelTop"><em></em></div>
+	<div class="panelMid">
+	#parse('admin/blog/diaryMenu.vm')
+	<table id="blogtable" style="width:100%;" class="blogtable">
+	<tr><th>用户</th><th>版块</th><th>关联</th><th>身份</th><th>操作</th></tr>
+	#foreach($bkmember in $bkmemberList)
+	#set($relate=$relatedHelper.getR1("bkmemberList",$bkmember.id))
+	<tr id="bz$bkmember.id">
+		<td><a href="${absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$bkmember.memberid" target="_blank">$cacheMemberMap.get($bkmember.memberid).nickname</a>
+		<td>$!bkmember.tag&nbsp;</td>
+		<td><a href="${basePath}$!relate.url" target="_blank">$!bkmember.relate.name</a></td>
+		<td>$bkmember.rolename#if($bkmember.applyrole gt $bkmember.role)<span style="color:red; font-size: 9px;">申请</span>#end#if($bkmember.applyrole eq 3)<span style="color:red; font-size: 9px;">申请管理</span>#end</td>
+		<td>
+		<input type="button" class="button left" value="删除" onclick="setNormal($bkmember.id)"/>
+		#if($bkmember.role ne 2)<input type="button" class="button left ml5" value="设置成版主" onclick="setBanzhu($bkmember.id)"/>#end
+		#if($bkmember.role ne 4)<input type="button" class="button left ml5" style="color: red" value="设置成管理员" onclick="setManager($bkmember.id)"/>#end
+		</td>
+	</tr>
+	#end
+	</table>
+	</div>
+	<div class="panelBot"><em></em></div>
+</div><!-- end of content_left -->
+<div id="height0"></div>
+</div>
+<div id="panel_bottom"></div>
+	<script type="text/javascript">
+	function setNormal(bzid){
+		removeBanzhu('$!params.tag', '$!params.relatedid', bzid);
+	}
+	function setBanzhu(bzid){
+		setToBanzhu('$!params.tag', '$!params.relatedid', bzid);
+	}
+	function setManager(bzid){
+		setToManager('$!params.tag', '$!params.relatedid', bzid);
+	}
+	//设置成版主
+	function setToBanzhu(tag, relatedid, banzhuId){
+		GewaraUtil.sendRequest("${basePath}admin/blog/setToBanzhu.xhtml",{"tag":tag,"relatedid":relatedid,"banzhuId":banzhuId}, function(result){
+			if(result.success){
+					alert("成功设置！");
+			} else {
+				alert(result.msg);
+			}
+		});
+	}
+	//设置成管理员
+	
+	function setToManager(tag, relatedid, banzhuId){
+		GewaraUtil.sendRequest("${basePath}admin/blog/setToManager.xhtml",{"tag":tag,"relatedid":relatedid,"banzhuId":banzhuId}, function(result){
+			if(result.success){
+					alert("成功设置！");
+			} else {
+				alert(result.msg);
+			}
+		});
+	}
+	//删除版主
+	function removeBanzhu(tag, relatedid, banzhuId){
+		GewaraUtil.sendRequest("${basePath}admin/blog/removeBanzhu.xhtml",{"tag":tag,"relatedid":relatedid,"banzhuId":banzhuId}, function(result){
+			if(result.success){
+					alert("成功删除版主！");
+					$('bz'+banzhuId).dispose();
+			} else {
+				alert(result.msg);
+			}
+		});
+	}
+	
+</script>
+</body>
+</html>

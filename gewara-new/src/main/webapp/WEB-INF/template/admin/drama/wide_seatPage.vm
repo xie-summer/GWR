@@ -1,0 +1,52 @@
+<div class="#if($VmUtils.gt($VmUtils.size($seatAreaList),1))seatTitleBox #else inner #end clear">
+	<div class="seatTitle clear" style="height:101px;">
+		<div id="flagSeat" class="flagSeat" #if($VmUtils.gt($VmUtils.size($seatAreaList),1)) style="width:848px;" #end>
+			<div class="screenBox clear" >
+				<div class="seatInfo">
+					<em>说明：</em>
+						#set($priceMap={})
+						#foreach($price in $tspHelper.getTspList())
+						#if($VmUtils.gt($price.price,0))
+						<span><img src="${staticPath}css/images/blank.gif" class="hasSeat $!{price.seattype}seat" align="middle"/>$price.price元</span>
+						#set($tmp=$priceMap.put($price.seattype,"$!{price.seattype}seat"))
+						#end
+						#end
+					<span><img src="${staticPath}css/images/blank.gif" class="sellSeat" align="middle"/>不可选座位</span>
+					<span><img src="${staticPath}css/images/blank.gif" class="checkSeat" align="middle"/>已选座位</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="room_screen"></div>
+	#if($VmUtils.gt($VmUtils.size($seatAreaList),1))<div class="roomName">$!seatArea.name</div>#end
+</div>
+<div class="inner">
+	<div class="wrapper" id="wrapper">
+		#set($maxwidth=44+30*$!math.add($!math.sub($!{seatArea.ranknum},$!{seatArea.firstrank}),1))
+		#set($pewHeight=$!math.add($!math.sub($!{seatArea.linenum},$!seatArea.firstline),1)*26)
+		<div style="height:${pewHeight}px" class="pewNo">
+			#foreach($row in [$!{seatArea.firstline}..$!{seatArea.linenum}])
+			<span #if($!rowMap.get($row))class="N"#end>$!rowMap.get($row)</span>
+			#end
+		</div>
+		#set($sum = $!math.add($!math.sub($!{seatArea.ranknum},$!{seatArea.firstrank}),1)*22)
+		#set($classMap={'N':'noSeat','A':'hasSeat','B':'sellSeat','C':'sellSeat','D':'sellSeat','S':'sellSeat','W':'sellSeat','ZL':'noSeat','LK':'sellSeat'})
+		<div style="width: #if(${maxwidth} gt 848)${maxwidth}px;#else 848px #end; margin:0 auto; overflow:visible;" id="wrapped">
+			<div class="showSeat" style="margin:10px auto 0; width:${maxwidth}px;">
+				<div class="seatlist" style="margin:0 auto; width:${maxwidth}px">
+					#foreach($row in [$!{seatArea.firstline}..$!{seatArea.linenum}])
+					<dl class="clear">
+						#foreach($rank in [$!{seatArea.firstrank}..$!{seatArea.ranknum}]) #set($sid='row'+${row}+'rank'+$rank)
+						#if($seatMap.get($sid))#set($seat=$seatMap.get($sid))
+						<dd id="$seat.price">
+							<div id="$seat.id" role="$seat.price"  data-combo="$priceMap.get($seat.seattype)" class="$priceMap.get($seat.seattype) #if($mySeatList.contains($seat))checkSeat#elseif($rLockList.contains($seat.key))sellSeat#else $classMap.get($seatStatusUtil.getFullStatus($seat))#end" lang="${seat.seatLabel}$seat.price元" tips="${seat.seatLabel}$seat.price元">#if($seat.loveInd ne "0")$!seat.loveInd#end</div></dd>
+						#else
+						<dd><div class="noSeat"></div></dd>#end
+						#end
+					</dl>
+					#end
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

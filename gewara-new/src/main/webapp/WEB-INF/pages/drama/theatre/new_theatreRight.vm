@@ -1,0 +1,77 @@
+	#if(!$VmUtils.isEmptyList($newsList))
+	<div class="title mt20">
+		<a class="right ffst cDrama" href="${basePath}theatre/$theatre.id/newslist" title="" target="_blank">更多&gt;&gt;</a>
+		<h2>剧院资讯</h2>
+	</div>
+	<p class="mt10"><a href="${basePath}news/$newsList.get(0).id" title="$newsList.get(0).title" target="_blank"><img width="260" height="115" src="$VmUtils.randomPic('cw260h120' ,$newsList.get(0).logo)"alt="" /></a></p>
+	<ul class="mt5 new_list">
+		<li><b>$!VmUtils.htmlabbr($newsList.get(0).title, 34)</b></li>
+		#foreach($new in $newsList)
+		#if($foreach.count gt 1)
+		<li>·<a href="${basePath}news/$!new.id" title="$!new.title" target="_blank">$!VmUtils.htmlabbr($!new.title, 40)</a></li>
+		#end
+		#end
+	</ul>
+	<div class="micon mv_line mt5"></div>
+	#end
+	#if(!$VmUtils.isEmptyList($activityList))
+	<div class="title mt20">
+		<a class="right ffst cDrama" href="${basePath}activity/activityList.xhtml" title="" target="_blank">更多&gt;&gt;</a>
+		<h2>相关活动</h2>
+	</div>
+	<ul class="ui_abeam">
+		#foreach($activity in $activityList)
+		<li class="mt10 clear">
+			<div class="uipic">
+				<a href="${basePath}activity/$activity.id" target="_blank" title="$activity.title">
+				<img class="bp" width="96" height="128" src="$!VmUtils.randomPic(cw150h200, $activity.logo)" alt="" /></a>
+			</div>
+			<div class="uiText drama_activity">
+				<span class="official mr5"></span><a title="$activity.title" class="a_color" target="_blank" href="${basePath}activity/$activity.id">$activity.title</a>
+				<p class="mt5"><em class="gray">时间：$DateUtil.format($activity.startdate, 'yyyy年MM月dd日')</em></p>
+				<p><em class="gray">地点：$activity.address</em></p>
+				<p>已有<span class="a_color">$activity.clickedtimes</span>人关注</p>
+			</div>
+		</li>
+		#end
+	</ul>
+	<div class="micon mv_line mt5"></div>
+	#end
+	#if(!$VmUtils.isNull($zbsport) || !$VmUtils.isNull($zbgym) || !$VmUtils.isNull($zbdrama) || !$VmUtils.isNull($zbmovie))
+	<div class="title mt20">
+		<h2>周边娱乐场所</h2>
+	</div>
+	<ul class="drama_circum">
+		#if(!$VmUtils.isNull($zbsport))
+		#set($gmark=$VmUtils.getLastMarkStar($zbsport, "general",$curMarkCountMap.get($zbsport.id),$!markData)) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+		<li>
+			<p><em class="c999 right">$!walaSportCount条评论</em><em class="cDrama">[运动]</em><a href="${basePath}sport/$!zbsport.id" title="$!zbsport.name" target="_blank">$!VmUtils.escabbr($zbsport.name, 20)</a><span><sub>$!gmark1</sub><sup>.$!gmark2</sup></span></p>
+			<p class="c999">$!zbsport.countyname $!VmUtils.escabbr($!zbsport.address, 30)</p>
+		</li>
+		#end
+		
+		#if(!$VmUtils.isNull($zbgym))
+		#set($gmark=$VmUtils.getLastMarkStar($zbgym, "general",$curMarkCountMap.get($zbgym.id),$!markData)) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+		<li>
+			<p><em class="c999 right">$!walaGymCount条评论</em><em class="cDrama">[健身]</em><a href="${basePath}gym/$!zbgym.id" title="$!zbgym.name" target="_blank">$!VmUtils.escabbr($zbgym.name, 20)</a><span><sub>$!gmark1</sub><sup>.$!gmark2</sup></span></p>
+			<p class="c999">$!zbgym.countyname $!VmUtils.escabbr($!zbgym.address, 30)</p>
+		</li>
+		#end
+		
+		#if(!$VmUtils.isNull($zbdrama))
+		#set($gmark=$VmUtils.getLastMarkStar($zbdrama, "general",$curMarkCountMap.get($zbdrama.id),$!markData)) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+		<li>
+			<p><em class="c999 right">$!walaTheatreCount条评论</em><em class="cDrama">[话剧]</em><a href="${basePath}theatre/$!zbdrama.id" title="$!zbdrama.name" target="_blank">$!VmUtils.escabbr($zbdrama.name, 20)</a><span><sub>$!gmark1</sub><sup>.$!gmark2</sup></span></p>
+			<p class="c999">$!zbdrama.countyname $!VmUtils.escabbr($!zbdrama.address, 30)</p>
+		</li>
+		#end
+		
+		#if(!$VmUtils.isNull($zbmovie))
+		#set($gmark=$VmUtils.getLastMarkStar($zbmovie, "general",$curMarkCountMap.get($zbmovie.id),$!markData)) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+		<li>
+			<p><em class="c999 right">$!walaCinemaCount条评论</em><em class="cDrama">[影院]</em><a href="${basePath}cinema/$!zbmovie.id" title="$!zbmovie.name" target="_blank">$!VmUtils.escabbr($zbmovie.name, 20)</a><span><sub>$!gmark1</sub><sup>.$!gmark2</sup></span></p>
+			<p class="c999">$!zbmovie.countyname $!VmUtils.escabbr($!zbmovie.address, 30)</p>
+		</li>
+		#end
+	</ul>
+	#end	

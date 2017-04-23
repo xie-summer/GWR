@@ -1,0 +1,26 @@
+#foreach($date in $playDates)	
+<div class="ui_media #if($foreach.count eq 2)mt30 #else mt0 #end">
+	<div class="ui_pic mr0">
+		#if($DateUtil.getDiffDay($date,$DateUtil.curDate) eq 0)
+		今日
+		#elseif($DateUtil.getDiffDay($date,$DateUtil.addDay($DateUtil.curDate,1)) eq 0)
+		明日
+		#else
+		$DateUtil.formatDate($date)
+		#end
+		场次：
+	</div>
+	<div class="ui_text">
+		#foreach($playHour in $playHourListMap.get($date))
+		#set($otiPrice=$otiMap.get($date).get($playHour))
+			#if($DateUtil.getDiffDay($date,$DateUtil.curDate) eq 0)
+				#if($playHour.compareTo($curHour) ge 0)
+				<a href="$!{basePath}sport/order/step1.xhtml?ottid=$otiPrice.ottid" target="_blank">$playHour<span>$otiPrice.price元</span></a>
+				#end
+			#else
+				<a href="$!{basePath}sport/order/step1.xhtml?ottid=$otiPrice.ottid" target="_blank">$playHour<span>$otiPrice.price元</span></a>
+			#end
+		#end
+	</div>
+</div>
+#end

@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>报表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+	</style>
+</head>
+<body style="width:85%; margin:auto">
+<div style="clear:both;"></div>
+<div>
+#set($byOpi=true)
+#parse('admin/gewapay/common.vm')
+</div>
+<form action="${basePath}admin/gewapay/reportByOpi.xhtml">
+<table  border="1" style="width: 90%" cellspacing="0" class="table">
+	<tr>
+	<td height="30">
+		<select name="cinemaid" id="cinemaid">
+			<option value="">请选择影院</option>
+			#foreach($map in $cinemaList)
+			<option value="$map.get('cinemaid')" #if($map.get('cinemaid') eq $cinema.id) selected #end>$map.get('cinemaname')</option>
+			#end
+		</select>
+		开始日期:<input type="text" name="datefrom" id="datefrom" value="$!params.datefrom" style="width: 100px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>&nbsp;
+		结束日期:<input type="text" name="dateto" id="dateto" value="$!params.dateto" style="width: 100px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>&nbsp;
+		场次类型:<select name="opentype">
+			<option value="">全部</option>
+			<option value="GEWA"#if($VmUtils.eq($!params.opentype,'GEWA')) selected="selected"#end>格瓦拉</option>
+			<option value="HFH"#if($VmUtils.eq($!params.opentype,'HFH')) selected="selected"#end>火凤凰</option>
+		</select>
+		订单类型：<select name="flag">
+			<option value="success">成功订单</option>
+			<option value="settle"#if($VmUtils.eq($!params.flag,'settle')) selected="selected"#end>结算订单</option>
+		</select>
+		<input type="submit" value="查询" />
+	</td>
+	</tr>
+</table>
+<br/>
+</form>
+#if($VmUtils.isNotEmpObj($cinemaMap))
+#foreach($cid in $cinemaMap.keySet())
+#set($cinema=$cinemaMap.get($cid))
+<table width="50%" border="1"  cellspacing="0" cellpadding="0" style="border-collapse: collapse">
+	<tr>
+		<td colspan="4" align="center"><b>$cinema.name报表[$!{params.datefrom}--$!{params.dateto}]</b></td>
+	</tr>
+	<tr>
+		<td>日期</td>
+		<td>订单数量</td>
+		<td>出票数量</td>
+		<td>订单总额</td>
+	</tr>
+	#set($M=0)#set($Q=0) #set($C=0)
+	#foreach($data in $cdMap.get($cid))
+	#set($cq=$data.totalamount)
+	#set($M=$M+$cq)
+	#set($Q=$Q+$data.totalquantity)
+	#set($C=$C+$data.count)
+	<tr>
+		<td>$data.playdate</td>
+		<td>$!data.count</td>
+		<td>$!data.totalquantity</td>
+		<td>$!data.totalamount</td>
+	</tr>
+	#end
+	<tr>
+		<td><b>统计</b></td>
+		<td><b>$C</b></td>
+		<td><b>$Q</b></td>
+		<td><b>$M</b></td>
+	</tr>
+</table><br/>
+#end
+#end
+</body>
+</html>

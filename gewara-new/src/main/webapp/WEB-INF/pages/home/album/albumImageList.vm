@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>我的相册</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.vary{
+			width:120px;
+			position: absolute;
+			z-index: 3;
+			background:#fff;
+			top:0px;
+			height:18px;
+			color:#666;
+			font-size:14px;
+			line-height: 20px;
+			overflow: hidden;
+			left:0px;
+			right:0px;
+			margin:0 auto;
+			line-height:24px;
+		}
+		.untext{border:0px;background:#fff}
+	</style>
+</head>
+<body>
+#set($photo=true)
+#set($isShow=false)
+#if($!rights.get(1) eq 'album_public')
+#set($isShow=true)
+#elseif($!rights.get(1) eq 'album_friend'&& $isMyFriend)
+#set($isShow=true)
+#end
+#if(!$!rights)
+	#set($isShow=true)
+#end
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#if($isShow)
+			#if($isCanShow)
+			<ul class="ui_abeam" >
+				<li>
+					<div class="uipic"><img src="${staticPath}css/images/blank.gif" width="60" height="60" style="background:url($VmUtils.randomPic('sw60h60',$album.limg)) center center no-repeat;"/></div>
+					<div class="uiText gewa_outer_text">
+						<b>$album.subject</b>
+						<p>创建者：<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$member.id">$!member.nickname</a>
+							#if($!album.description)<br/>
+								描述：$!album.description
+							#end
+						</p>
+					</div>
+				</li>
+			</ul>
+			<div class="title mt20 line">
+				#set($ta = 'TA')
+				#if(!$isFriend)
+					<a href="${basePath}home/new/uploadPicture.xhtml?tag=member&relatedid=$!logonMember.id&albumid=$!albumid" class="mr10">上传图片</a>
+					<a href="javascript:void(0)" onclick="javascript:getAlbum($album.id)" class="mr10">编辑相册</a>
+					<a href="javascript:void(0)" onclick="javascript:delAlbum($album.id)" class="mr10">删除相册</a>
+				#end
+				<a href="${basePath}home/album/albumList.xhtml?memberid=$!member.id">返回#if($!logonMember.id eq $member.id)我#else$ta#end的相册</a>
+			</div>
+			<div class="inner">#parse('include/home/photoDetail.vm')</div>
+			#else
+			<div class="clew mt20">
+				#if($!album.rights eq 'private')
+					[$member.nickname]的相册【$!album.subject】设置了权限为【全体不可见】
+				#elseif($!album.rights eq 'friend')
+					[$member.nickname]的相册【$!album.subject】设置了权限为【仅好友可见】,<a href="${basePath}home/friend/addFriend.xhtml?memberid=$member.id" class="brown">加为好友</a>即可一睹为快!
+				#end
+			</div>
+			#end
+			#else
+			<div class="clew mt20">
+				#if($!rights.get(1) eq 'album_private')
+					【$member.nickname】的相册设置了权限为【全体不可见】
+				#elseif($!rights.get(1) eq 'album_friend')
+					【$member.nickname】的相册设置了权限为【仅好友可见】,<a href="${basePath}home/friend/addFriend.xhtml?memberid=$member.id" class="brown">加为好友</a>即可一睹为快!
+				#end
+			</div>
+			#end
+		</div>
+	</div>
+</div>
+#parse('include/home/adoptAlbum.vm')
+#parse('include/bottom.vm')
+</body>
+</html>

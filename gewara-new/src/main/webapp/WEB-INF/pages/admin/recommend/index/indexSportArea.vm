@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>推荐</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+	<td align="left" class="td">当前位置>><a href="${basePath}admin/recommend/indexCommend.xhtml">首页推荐</a>>>
+	<span>运动相关</span></td>
+		<td colspan="3">
+			<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signnamesport&tag=news&relatedid=true&logo=true">[推荐评测]</a>&nbsp;&nbsp;
+			<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signnamesearch&title=true&link=true">[热门项目搜索]</a>&nbsp;&nbsp;
+			<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signnameplace&tag=sportservice&relatedid=true">[推荐项目]</a>&nbsp;&nbsp;
+			<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signnameactivity&title=true&tag=activity&relatedid=true&logo=true&acitivityDate=true">[推荐活动]</a>&nbsp;&nbsp;
+			<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signnamemember&link=true&title=true&summary=true&logo=true">[运动达人]</a>&nbsp;&nbsp;
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td">
+		<td align="left" class="wd120"><b>推荐评测</b></td>
+		<td align="left" class="wd60"><b>评测ID</b></td>
+		<td align="left" class="wd60"><b>排序</b></td>
+		<td align="left" class="wd120" colspan="2"><b>操作</b></td>
+	</tr>
+	#foreach($gcs in $gcSportNews)
+	#set($relate=$relatedHelper.getR1("gcSportNews",$gcs.id))
+	<tr class="td">
+		<td align="left" class="wd120">$relate.title</td>
+		<td align="left" class="wd120">$gcs.relatedid</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$gcs.ordernum" id="gc$gcm.id" style="width: 50px" onblur="orderNum($gcs.id, this.value)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="aEvent" href="${basePath}noLink.xhtml?id=$!gcs.id&signname=$!signnamesport&tag=news&relatedid=true&logo=true">[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" onclick="javascript:del($gcs.id)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+
+<table border="0" width="95%"  cellspacing="0" class="itable">
+	<tr class="td">
+			<td align="left" class="wd120"><b>推荐项目</b></td>
+			<td align="left" class="wd60"><b>项目ID</b></td>
+		<td align="left" class="wd60"><b>排序</b></td>
+		<td align="left" class="wd120" colspan="2"><b>操作</b></td>
+	</tr>
+	#foreach($gcp in $gcItemInfo)
+	#set($relate=$relatedHelper.getR1("gcItemInfo",$gcp.id))
+	<tr class="td">
+		<td align="left" class="wd120">$relate.name</td>
+		<td align="left" class="wd120">$gcp.relatedid</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$!{gcp.ordernum}" id="gc$gcp.id" style="width: 50px" onblur="orderNum($gcp.id, this.value)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="aEvent" href="${basePath}noLink.xhtml?id=$gcp.id&signname=$!signnameplace&tag=sportservice&relatedid=true">[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" onclick="javascript:del($gcp.id)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+
+<table border="0" width="95%"  cellspacing="0" class="itable">
+	<tr class="td">
+			<td align="left" class="wd120"><b>热门搜索</b></td>
+			<td align="left" class="wd60"><b>链接</b></td>
+		<td align="left" class="wd60"><b>排序</b></td>
+		<td align="left" class="wd120" colspan="2"><b>操作</b></td>
+	</tr>
+	#foreach($gcs in $gcSportSearch)
+	<tr class="td">
+		<td align="left" class="wd120">$gcs.title</td>
+		<td align="left" class="wd120">$gcs.link</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$!{gcs.ordernum}" id="gc$gcs.id" style="width: 50px" onblur="orderNum($gcs.id, this.value)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="aEvent" href="${basePath}noLink.xhtml?id=$gcs.id&signname=$!signnamesearch&title=true&link=true">[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" onclick="javascript:del($gcs.id)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+
+<table border="0" width="95%"  cellspacing="0" class="itable">
+	<tr class="td">
+			<td align="left" class="wd120"><b>推荐活动</b></td>
+			<td align="left" class="wd60"><b>活动ID</b></td>
+		<td align="left" class="wd60"><b>排序</b></td>
+		<td align="left" class="wd120" colspan="2"><b>操作</b></td>
+	</tr>
+	#foreach($gca in $gcActivityList)
+	#set($relate=$relatedHelper.getR1("gcActivityList",$gca.id))
+	<tr class="td">
+		<td align="left" class="wd120">$gca.title</td>
+		<td align="left" class="wd120">$gca.relatedid</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$!{gca.ordernum}" id="gc$gca.id" style="width: 50px" onblur="orderNum($gca.id, this.value)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="aEvent" href="${basePath}noLink.xhtml?id=$gca.id&signname=$!signnameactivity&tag=activity&title=true&relatedid=true&logo=true&acitivityDate=true">[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" onclick="javascript:del($gca.id)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+
+<table border="0" width="95%"  cellspacing="0" class="itable">
+	<tr class="td">
+			<td align="left" class="wd120"><b>运动达人</b></td>
+			<td align="left" class="wd60"><b>活动链接</b></td>
+		<td align="left" class="wd60"><b>排序</b></td>
+		<td align="left" class="wd120" colspan="2"><b>操作</b></td>
+	</tr>
+	#foreach($gcs in $gcSportMember)
+	<tr class="td">
+		<td align="left" class="wd120">$gcs.title</td>
+		<td align="left" class="wd120">$gcs.link</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$!{gcs.ordernum}" id="gc$gcm.id" style="width: 50px" onblur="orderNum($gcs.id, this.value)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="aEvent" href="${basePath}noLink.xhtml?id=$gcs.id&signname=$!signnamemember&link=true&title=true&summary=true&logo=true">[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" onclick="javascript:del($gcs.id)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+
+#parse('admin/recommend/commonjs.vm')
+</body>
+</html>

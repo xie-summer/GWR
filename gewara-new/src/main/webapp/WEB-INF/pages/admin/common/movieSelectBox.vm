@@ -1,0 +1,51 @@
+<!--  选择城市 弹出框begin 
+1. 城市列表
+2. 文本搜索框
+3. 搜索按钮
+4. ajax分页列表
+5. 确定 + 取消按钮
+-->
+<div id="showCityDialog" class="yui-panel" style="width:640px; visibility:hidden; background: #DFE8F6">
+	<div class="hd" id="title">关联显示城市</div>
+	<form id="searchFrm" name="searchFrm">
+	<div class="bd" id="bd">
+		城市:<select name="citycode">
+				<option>请选择</option>
+				#foreach($city in $cityMap.keySet())
+					<option value="$city">$cityMap.get($city)</option>
+				#end
+			</select>
+			<select name="tag" >
+				<option value="movie" #if($tag eq 'movie')selected="selected"#end>影片</option><option value="cinema" #if($tag eq 'cinema')selected="selected"#end>影院</option>
+			</select>
+			匹配名称：<input type="text" style="width: 150px;"  name="queryname" />
+			展示类型：<input type="radio" name="flag" value="0" style="width: 10px;" checked="checked"/>单选
+			<input type="radio" name="flag" value="1" style="width: 10px;"/>复选
+			
+			<input type="button" style="width: 50px;" value="搜 索" onclick="searchF();" />
+	</div>
+	<div id="ajaxcontent" style="margin-top: 10px;"></div>
+	<div>
+		<br />
+		<label>&nbsp;</label>
+		<input type="button" class="button" onclick="" style="width:100px" value="确定"/>
+		<input type="button" class="button" onclick="GewaraUtil.hideDialog('showCityDialog');" style="width:100px" value="取消"/>
+	</div>
+	</form>
+	<div id="tmpcontent" style="display: none;">
+	#foreach($c in $cinemaMap)
+		#if($flag eq '0')
+		<input type="radio" name="cid" value="$c.get('id')" style="width: 10px;"/>$c.get('name')
+		#else
+		<input type="checkbox" name="cid" value="$c.get('id')" style="width: 10px;"/>$c.get('name')
+		#end
+	#end
+	</div>
+</div>
+<script>
+	searchF = function(){
+		var url = '${basePath}admin/common/movieSelectBox.xhtml#tmpcontent';
+		var values = GewaraUtil.getValues('bd');
+		GewaraUtil.sendLoad('ajaxcontent', url, values, function(){});
+	}
+</script>

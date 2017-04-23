@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="robots" content="noindex" />
+	<title>添加电影_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_movie&v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${basePath}formcheck/formcheck.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${basePath}formcheck/formcheck.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script> 
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		.ui_left{padding:30px 0 30px 30px; width:650px;}
+		.ui_right{padding:30px; width:220px;}
+		/*控件*/
+		.acText{width:140px; height:28px!important; line-height:28px!important; padding:0 4px; color:#494949; border:1px solid #dfdfdf!important; font-size:14px; outline:none; border-radius:3px; -webkit-border-radius:3px; background:url(/css/activity/bg_acText.gif) 0 0 repeat-x #fff;}
+		.acTypeRadio{display:inline-block; margin-right:3px; font-size:12px;}
+		.acTypeRadio input{vertical-align:-2px; margin-right:2px;}
+		label {white-space: nowrap;}
+		.tales100 dt{margin-top:5px;}
+		.movieTypes label{margin-right:10px; font-size:12px;}
+		.movieTypes label input{margin-right:3px;}
+		
+		.mod_orgC{background:#fff6ee; border:1px solid #ffddbb; padding:10px;}
+		.mod_orgC .mod_hd{padding-bottom:6px; height:24px;}
+		.mod_orgC .mod_hd h2{font-size:14px;}
+		.mod_orgC .mod_bd p{padding-bottom:20px;}
+	</style>
+</head>
+<body>
+#set($ismovie=true) 
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout">
+	<div class="ui_left">
+		<div class="mod_kong add_movie">
+			<div class="mod_hd">
+				<h2>添加电影</h2>
+			</div>
+			<div class="mod_bd">
+				<form id="movieForm" name="movieForm" action="javascript:saveMovie()">
+					<input type="hidden" id="id" name="id"/>
+					<dl class="tales100">
+						<dt><span class="cMovie mr5 ffst">*</span>电影名称：</dt>
+						<dd>
+							<input type="text" alt="30字以内" id="moviename" name="moviename" mustTxt="电影名称不能为空！" style="width:350px;" class="acText" />
+							<a class="button whiteBt minBt" href="javascript:checkMovieName()"><span>检查影片是否已经存在</span></a>
+						</dd>
+					</dl>
+					<dl class="tales100">
+						<dt><span class="cMovie mr5 ffst">*</span>国家/地区：</dt>
+						<dd>
+							<select name="state" id="state" class="ipt mt5 validate['required']" mustTxt="请选择地区！">
+								<option value="">请选择...</option>
+								<option #if($VmUtils.eq($params.state, '中国')) selected #end value="中国">中国</option>
+								<option #if($VmUtils.eq($params.state, '美国')) selected #end  value="美国">美国</option>
+								<option #if($VmUtils.eq($params.state, '日本')) selected #end value="日本">日本</option>
+								<option #if($VmUtils.eq($params.state, '英国')) selected #end  value="英国">英国</option>
+								<option #if($VmUtils.eq($params.state, '法国')) selected #end  value="法国">法国</option>
+								<option #if($VmUtils.eq($params.state, '香港')) selected #end  value="香港">香港</option>
+								<option #if($VmUtils.eq($params.state, '台湾')) selected #end  value="台湾">台湾</option>
+								<option #if($VmUtils.eq($params.state, '印度')) selected #end  value="印度">印度</option>
+								<option #if($VmUtils.eq($params.state, '意大利')) selected #end  value="意大利">意大利</option>
+								<option #if($VmUtils.eq($params.state, '德国')) selected #end  value="德国">德国</option>
+								<option #if($VmUtils.eq($params.state, '韩国')) selected #end  value="韩国">韩国</option>
+								<option #if($VmUtils.eq($params.state, '西班牙')) selected #end  value="西班牙">西班牙</option>
+								<option #if($VmUtils.eq($params.state, '俄罗斯')) selected #end  value="俄罗斯">俄罗斯</option>
+							</select>
+						</dd>
+					</dl>
+					<dl class="tales100">
+						<dt>电影类型：</dt>
+						<dd>
+							<div class="movieTypes">
+								<label><input type="checkbox" name="type" value="动作" />动作</label>
+								<label><input type="checkbox" name="type" value="喜剧" />喜剧</label>
+								<label><input type="checkbox" name="type" value="爱情" />爱情</label>
+								<label><input type="checkbox" name="type" value="科幻" />科幻</label>
+								<label><input type="checkbox" name="type" value="奇幻" />奇幻</label>
+								<label><input type="checkbox" name="type" value="灾难" />灾难</label>
+								<label><input type="checkbox" #if($VmUtils.eq($params.type, '恐怖')) checked #end name="type" value="恐怖" />恐怖</label>
+								<label><input type="checkbox" name="type" value="纪录" />纪录</label>
+								<label><input type="checkbox" name="type" value="犯罪" />犯罪</label>
+								<label><input type="checkbox" name="type" value="战争" />战争</label>
+								<label><input type="checkbox" name="type" value="冒险" />冒险</label>
+								<label><input type="checkbox" name="type" value="动画" />动画</label>
+								<label><input type="checkbox" name="type" value="剧情" />剧情</label>
+								<label><input type="checkbox" name="type" value="其他" />其他</label>
+							</div>
+						</dd>
+					</dl>
+					<dl class="tales100">
+						<dt>上映日期：</dt>
+						<dd>
+							<input class="Wdate mt5" data-type="savedata" name="releaseDate" value="" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" style="width:138px;" type="text" alt="上映时间"/>
+						</dd>
+					</dl>
+					<dl class="tales100">
+						<dt>导　　演：</dt>
+						<dd>
+							<input type="text" id="director" name="director" maxlength='50' class="acText" />
+						</dd>
+					</dl>
+					<dl class="tales100">
+						<dt>主　　演：</dt>
+						<dd>
+							<input type="text" id="actors"  name="actors" maxlength='100' style="width:350px;" class="acText" />
+						</dd>
+					</dl>
+					<dl class="tales100">
+						<dt>海　　报：</dt>
+						<dd>
+							<iframe width="450px;" height="26" class="mt5" frameborder="0" scrolling="no" id="uploadIFrame" src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/movie&callback=updateLogo"></iframe>
+							<p class="cMovie mt5 fs12">注：图片格式为JPG PNG GIF 大小不要超过2M (建议150 × 200px)</p>
+							<input type="hidden" name="logo" id="logo" value=""/>
+							<div id="img_div" class="none"><img style="width:150px;"  id='logoimg' src="" /></div>
+						</dd>
+					</dl>
+					<dl class="tales100">
+						<dt>剧情介绍：</dt>
+						<dd>
+							<textarea  name="content" id="detailContent" mustTxt="剧情介绍不能为空！"></textarea>
+						</dd>
+					</dl>
+					<dl class="tales100">
+						<dt>验证码：</dt>
+						<dd>
+							<input type="hidden" name="captchaId"  id="tempMovieCaptcha"/>
+							<input type="text" mustTxt="请输入验证码！" id="tempMovieCaptchaInput" name="captcha" style="width:80px;" class="acText" onfocus="GewaraUtil.refreshCaptcha('tempMovieCaptcha');"/>
+							<img id="tempMovieCaptchaImg" width="80" height="30" class="ml10 mt5" src="${staticPath}css/images/blank.gif" style="cursor: pointer;" onclick="GewaraUtil.refreshCaptcha('tempMovieCaptcha')" title="看不清楚，请点击换一张图片"/>
+							<p class="mt20"><label class="button redBt bigBt" for="saveBt"><input type="submit" id="saveBt" value='写好了，提交'/></label>	</p>
+						</dd>
+					</dl>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div class="ui_right">
+		<div class="mod_orgC">
+			<div class="mod_hd">
+				<h2>电影添加说明</h2>
+			</div>
+			<div class="mod_bd">
+				<p>1、请尽量填写准确、完整的电影信息，在审核通过后将会获得10-50积分奖励。信息越详细，获得的积分越高。</p>
+				<p>2、无效、错误的信息，审核不会通过，将会被删除。</p>
+				<p>3、可添加网站内不存在的任何电影的信息。添加网站已存在的电影信息，我们可视资料的准确、完整性来决定是否给予积分奖励。</p>
+				<p style="padding-bottom:0;">4、若要补充网站已存在的电影详细信息，可以发送邮件到gewara#gewara.com(发送邮件请将"#"修改为"@")工作时间：周一至周五 9:00至18:00。</p>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	var ckeditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("detailContent", {customConfig : '/ckeditor/gewaConfig.js', 'width':'540','height':'180'});
+		ckeditor.on('paste',function(e){
+			if($chk(e.data.html)){
+				var data = this.getData();
+				var htm = e.data.html;
+				if(e.data.html.indexOf('data:image/') > 0){
+					gewa.util.alert('图片不能直接粘贴，请点击图像上传！',function(){
+						this.setData(data);
+					}.bind(this));
+				}else if((htm.indexOf('&lt;script&gt;') > 0 || htm.indexOf('<script>') > 0 )
+				 && (htm.indexOf('&lt;style&gt;') > 0 || htm.indexOf('<style>') > 0)){
+					gewa.util.alert('粘贴非法数据，请在文本中过滤后再进行粘贴！',function(){
+						this.setData(data);
+					}.bind(this));
+				}
+			}
+		})
+	});
+	gewa.util.textOver('.acText');
+});
+
+function saveMovie(){
+	checkLogin(true, function(){
+		if(!GewaraUtil.baseValidForm("movieForm"))return false;
+		var values = GewaraUtil.getValues("movieForm", '/');
+		gewa.util.mask({'element': 'saveBt','title':'正在提交，请稍等...'});
+		var url = '${basePath}ajax/movie/saveTempMovie.xhtml';
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				gewaUtil.alert('提交成功，请等待管理员审核！', function(){
+					#if($!referer)document.location="$!referer";#end
+				});
+			}else{
+				gewaUtil.alert(result.msg);
+				GewaraUtil.refreshCaptcha('tempMovieCaptcha');
+			}
+		});
+	});
+}
+function checkMovieName(){
+	var movieName = $('moviename').value;
+	if(movieName.trim() == ''){
+		gewaUtil.alert('电影名称不能为空');
+	}
+	gewara.util.sendRequest(GewaraUtil.basePath+"ajax/movie/checkTempMovieName.xhtml",{"movieName":movieName}, function(result){
+		if(result.success){
+			gewaUtil.alert(result.retval);
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+
+function updateLogo(params){
+	var picpath = params['picpath'];
+	$('img_div').removeClass("none");
+	$('logo').value = picpath;
+	$('logoimg').src='${basePath}'+picpath;
+	$('logoimg').show();
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

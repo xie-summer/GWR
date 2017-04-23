@@ -1,0 +1,31 @@
+#set($isCityParam=true)
+#parse('include/constant/cityParam.vm')
+<div class="gocitypanel clear" id="areaBar" style="width:380px;">
+	<div class="inner">
+		<p>选择你所在的城市：</p>
+		#foreach($bigcity in $partnerCityMap.keySet())
+		<dl class="scity clear">
+			<dt class="scityT">$bigcity</dt>
+			<dd class="scitC">
+				#if($cityname)
+				#set($cookieCityname_ = $cityname)
+				#else
+				#set($cookieCityname_ = $cookieCityname)
+				#end
+				#foreach($minCity in $partnerCityMap.get($bigcity).keySet())
+				#set($curCityname=$partnerCityMap.get($bigcity).get($minCity))
+				#if($curCityname)
+				<a href="${basePath}partner/verycd/changeCity.xhtml?cityname=$minCity$paramsstr" #if($VmUtils.eq($curCityname, $cookieCityname_))class="select"#end>$!curCityname</a>
+				#end
+				#end
+			</dd>
+		</dl>
+		#end
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$('areaBar').toPos('areaTrigger','bottomLeft',0,-1);
+	$('areaTrigger').hover('areaBar');
+})
+</script>

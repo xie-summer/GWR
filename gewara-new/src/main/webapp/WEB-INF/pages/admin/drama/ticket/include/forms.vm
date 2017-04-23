@@ -1,0 +1,90 @@
+<div class="forms clear">
+	#if ($showSearch)
+		<div class="selt">
+			<label>项目名称：</label>
+			<input type="text" name="dramaname" id="dramaname" onkeydown="" class="text"/>
+		</div>
+		<div class="selt">
+			<a class="button bigBt redBt" href="javascript:void(0)" onclick="getDramaList($('dramaname').value)"><span>确认查询</span></a>
+		</div>
+	#else
+		<div class="selt">
+			<a href="${basePath}admin/drama/agent/dramaDetail.xhtml?dramaid=$!{dramaid}&mobile=${mobile}">返回查询页面</a>
+		</div>
+	#end
+	<div class="phone" id="phone">
+		<span>客户电话：<em>$!mobile</em></span>
+	</div>
+</div>
+<div class="layer" id="matchlayer" style="display:none;"></div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	searchStr();
+});
+var matchMember = new Hash();
+function initMatch() {
+	var url = '${basePath}admin/drama/agent/matchMember.xhtml';
+	var values = {'mobile':'$mobile'};
+	GewaraUtil.sendLoad('matchlayer', url, values, function(result){
+		if(result.success){
+			var el;
+			if($('matcher')){
+				el = new Element('a').addClass('match').set('html','已匹配').inject('phone');
+			}else{
+				el = new Element('a').addClass('no-macth').set('html','未匹配').inject('phone');
+			}
+			el.addEvent('click',function(){
+				$('matchlayer').setStyle('display','block');
+				gewaUtil.maskContent('','matchlayer','格瓦拉提示',510,'matchlayer');
+			});
+		}
+	});
+}
+function bindMember(bind){
+	matchMember.include('match', true);
+	matchMember.set("bind","true");
+	if(bind == 'bind'){
+		$('msgMobile').hide();
+		matchMember.erase('bindmobile');
+		gewa.util.container['matchlayer'].dispose('matchlayer');
+	}else{
+		$('msgMobile').show();
+	}
+}
+function nobindMember(){
+	matchMember.empty();
+	matchMember.include('match', true);
+	gewa.util.container['matchlayer'].dispose('matchlayer');
+}
+function sendMobile(){
+	var url = '${basePath}admin/drama/agent/sendMobile.xhtml';
+	var values = {'mobile': $('bindmobile').value};
+	if(values.mobile == ''){
+		gewaUtil.alert('请输入手机号！');
+		return;
+	}
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			if($("dynMa")){
+				$("dynMa").show();
+			}
+			matchMember.set('bindmobile',values.mobile);
+			gewaUtil.alert('发送成功！',function(){
+				gewa.util.container['matchlayer'].dispose('matchlayer');
+			});
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+
+function searchStr(){
+	if($("dramaname")){
+		$("dramaname").addEvent('keyup',function(ev){
+			if(ev.key == 'enter'){
+		 		getDramaList(this.value);
+			}
+		});
+	}
+}
+</script>

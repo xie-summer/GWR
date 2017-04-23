@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+</head>
+<body style="width:95%; margin:auto">
+<div>开放场次统计</div>
+<table class="table">
+	<thead>
+	<tr>
+		<th>场次数</th>
+		#foreach($dateStr in $dateList)
+		<th>$dateStr</th>
+		#end
+	</tr>
+	</thead>
+	<tbody>
+	#foreach($citycode in $cinemaMap.keySet())
+		<tr><td colspan="$dateList.size()">$cityMap.get($citycode)</td><td>&nbsp;</td></tr>
+		#foreach($cinema in $cinemaMap.get($citycode))
+		<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;$cinema.name</td>
+			#set($opiCount=$opiCountMap.get($cinema.id))
+			#foreach($dateStr in $dateList)
+			<td>#if($!opiCount.get($dateStr))<a href="${basePath}merchant/mpi/searchOpi.xhtml?cinemaId=$cinema.id&playdate=$dateStr" target="_blank">$!opiCount.get($dateStr)</a>#else&nbsp;#end</td>
+			#end
+		</tr>
+		#end
+	#end
+	</tbody>
+</table>
+</body>
+</html>

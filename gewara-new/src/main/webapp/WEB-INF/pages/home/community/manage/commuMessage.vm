@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>发送圈内通知_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($community = true)
+#set($tag="home")#set($isCommuMessage=true)#set($isShow=false)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('home/community/manage/commuM.vm')
+			<div class="ui_rightInner_left">
+				<div class="inner">
+					<div class="mt20 title"><h2>发送站内通知</h2></div>
+					<div class="tab_menu mt10" id="pk-color">
+						<ul>
+							<li><a id="allNotice" class="select"><span>发送站内信</span></a></li>
+						</ul>
+					</div>
+					<div id="allNotice_content">
+						<div class="clew mt10"><strong>群发通知	</strong></div>
+						<!-- <select name="" class="mt5">
+							<option>全部成员</option>
+							<option>管理员</option>
+							<option>活动发起人</option>
+							<option>最新访问成员</option>
+						</select> -->
+						<form action="" method="post" id="sysMessageForm" name="sysMessageForm">
+						<input type="hidden" name="commuid" value="$!commu.id" id="commuid"/>
+						<table cellpadding="0" cellspacing="0" class="titleTable" width="100%">
+							<thead>
+								<tr class="even">
+									<th width="46" style="text-align:right"><label for="allNotice1">全选<input type="checkbox" value="" id="allNotice1" style="vertical-align: middle;" onclick="selectSysMessageForm(this)"/></label></th>
+									<th width="270">成员</th>
+									<th width="90">访问次数</th>
+									<th>上次访问时间</th>
+								</tr>
+							</thead>
+							<tbody>
+								#foreach($commuMember in $commuMemberList)
+								#set($visitCommuMember=$visitCommuRecordMap.get($commuMember.id))
+								<tr>
+									<td style="text-align:right"><input type="checkbox" name="memberid" id="memberid" value="$!commuMember.memberid"/></td>
+									<td><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!commuMember.memberid" class="blue" target="_blank">$cacheMemberMap.get($!commuMember.memberid).nickname</a></td>
+									<td>#if($!visitCommuMember.visitnum)$!visitCommuMember.visitnum#else 0 #end</td>
+									<td title='$!DateUtil.format($!{visitCommuMember.lasttime},"yyyy-MM-dd HH:mm")'>$!DateUtil.format($!{visitCommuMember.lasttime},"yy-MM-dd HH:mm")</td>
+								</tr>
+								#end
+							</tbody>
+							<thead>
+								<tr class="even">
+									<th style="text-align:right"><input type="checkbox" id="allNotice2" value="" onclick="selectSysMessageForm(this)"/></th>
+									<th colspan="3"><label for="allNotice2">全选</label></th>
+								</tr>
+							</thead>
+							<thead>
+								<tr>
+									<td style="text-align:right;border-bottom:1px solid #FFFFFF;" colspan="4">#parse('include/pageUtil.vm')</td>
+								</tr>
+							</thead>
+						</table>
+						<div class="clew"><strong>撰写通知</strong></div>
+						<ul class="ul-80">
+							<li>
+								<div class="ul-80Inner">标题：</div>
+								<input class="text" name="systitle" id="systitle" value=""/>
+							</li>
+							<li>
+								<div class="ul-80Inner">内容：</div>
+								<textarea class="text" name="syscontent" id="syscontent" style="height:60px;width:460px;overflow-y:hidden"></textarea>
+							</li>
+							<li>
+								<div class="ul-80Inner"><label for="captcha" class="ml10">验证码：</label><input type="hidden" name="captchaId" id="captcha" /></div>
+								<input id="captchaInput" class="text captcha" type="text" style="width:60px;font-size:12px" size="18" name="captcha" alt="点击获取" autocomplete="off"  onfocus="GewaraUtil.refreshCaptcha('captcha');"/>
+								<span style="overflow:hidden;"class="ml10 mr5">
+									<img class="ml5 mr5" id="captchaImg" title="看不清楚，请点击换一张图片" onclick="GewaraUtil.refreshCaptcha('captcha');" style="cursor: pointer;" src="${staticPath}css/images/blank.gif" height="30" width="80"/>
+								</span>
+							</li>
+							<li class="mt10">
+								<label class="redBt button minBt" for="messageButton"><input type="button" id="messageButton" onclick="sysMessage();" value="发送通知"/></label>
+							</li>
+							<li class="clear"></li>
+						</ul>
+						</form>
+					</div>
+				</div>
+			</div>	
+			#parse('home/community/manage/commuManageRight.vm')
+		</div>
+	</div>
+</div>
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	new PanelGroup(['allNotice', 'allMail'], 'allNotice', "select", "none", "click");
+})
+function selectSysMessageForm(obj){
+	var allInput = document.sysMessageForm.getElementsByTagName("input");
+	var loopTime = allInput.length;
+	for(i = 0;i < loopTime;i++){
+		if(allInput[i].type == "checkbox"){
+			allInput[i].checked = obj.checked;
+		}
+	}
+}
+function selectMailMessageForm(obj){
+	var allInput = document.mailMessageForm.getElementsByTagName("input");
+	var loopTime = allInput.length;
+	for(i = 0;i < loopTime;i++){
+		if(allInput[i].type == "checkbox"){
+			allInput[i].checked = obj.checked;
+		}
+	}
+}
+function sysMessage(){
+	var obj = document.getElementsByName('memberid');
+	var len = obj.length;
+	var checked = false; 
+	for(i=0;i<len;i++){
+		if (obj[i].checked == true){
+			checked = true;
+			break;
+		}
+	}
+	if (!checked){
+		gewaUtil.alert("请至少选择一个用户！");
+		return;
+	}
+	if($('systitle').value=='') {
+		gewaUtil.alert('请填写标题！');
+		return;
+	}
+	if($('syscontent').value=='') {
+		gewaUtil.alert('请填写内容！');
+		return;
+	} 
+	var url = '${basePath}home/commu/sendSysMessage.xhtml';
+	GewaraUtil.mask('messageButton');
+	var values = GewaraUtil.getValues("sysMessageForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			gewaUtil.alert('发送成功!', refreshPage);
+		}else{
+			gewaUtil.alert(result.msg);
+			GewaraUtil.refreshCaptcha('captcha');
+		}
+	});
+	$('sysMessageForm').reset();
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>推荐</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable" id="gcTable">
+	<tr class="td">
+		<td align="left" class="td">当前位置>>演出首页>>演出弹出框排序(<span class='brown'>将热门的场馆设置高排序, 冷门场馆设置为0</span>)</td>
+		<td align="left" class="wd80"><b><a href="javascript:refreshPage();">刷  新</a></b></td>
+		<td align="left" class="wd80"><b><a href="javascript:;" onclick="addItem();">增加</a></b></td>
+	</tr>
+	<tr class="td">
+		<td align="left" class="wd120"><b>标题</b></td>
+		<td align="left" class="wd80" colspan="2"><b>排序</b></td>
+	</tr>
+	#if($VmUtils.size($gcList) gt 0)
+	#foreach($gc in $gcList)
+	<tr class="td" id="gcc$gc.id">
+		<td align="left" class="wd120">$gc.title </td>
+		<td align="left" class="wd80" colspan="2">
+			<input type="text" value="$gc.ordernum" onchange="saveOrdernum($gc.id, this)" style="width: 50px"/>
+			<span id="gc$gc.id"></span>
+		</td>
+	</tr>
+	#end
+	#else
+	#foreach($county in $countyMap.keySet())
+	<tr class="td" id="c$county.id">
+		<td align="left" class="wd120">$countyMap.get($county) </td>
+		<td align="left" class="wd80" colspan="2">
+			<input type="hidden" name="relatedids" value="$county" />
+			<input type="hidden" name="titles" value="$countyMap.get($county)" />
+			<input type="text" value="0" name="ordernums" style="width: 50px"/>
+		</td>
+	</tr>
+	#end
+	<tr class="td">
+		<td colspan="2"><input type="button" value="保 存" onclick="countySave()" />
+		<input type="hidden" name="signname" value="$!signname" />
+		
+		</td>
+	</tr>
+	#end
+</table>
+<div id="infos" style="display:none">
+<input type="hidden" name="signname" value="$!signname" />
+        <dl class="tales60 clear">
+			<dt class="left">城区:</dt>
+			<dd class="left" style="width:80%"><label for="i_2">
+			<select style="width:100%" name="countycode" id="countycode">
+			 <option value=""></option>
+			 #foreach($county in $countyList)
+			 <option value="$county.countycode">$county.countyname</option>
+			 #end
+			</select>
+			</label></dd>
+		</dl>
+</div>
+<script type="text/javascript">
+function addItem(){
+	gewa.util.issure('','infos','增加城区：',300,'keys',function(){
+		var url = '/admin/theatre/saveTheatreCounty.xhtml';
+		var values = GewaraUtil.getValues("infos");
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	});
+}
+$$("tr").addEvents({
+	'mouseover':function(){
+		this.addClass("mouseBg");
+	},
+	'mouseout':function(){
+		this.removeClass("mouseBg");
+	}
+});
+</script>
+<script>
+	function countySave(){
+		var url = '${basePath}admin/theatre/saveTheatreOrder.xhtml';
+		var values = GewaraUtil.getValues('gcTable', ',');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert('设置成功!', refreshPage);
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+	
+	function saveOrdernum(id, obj){
+		var url = '${basePath}admin/theatre/saveTheatreOrderNum.xhtml';
+		var values = {'id':id, 'ordernum': $(obj).value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				GewaraUtil.successAlert('gc'+id);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

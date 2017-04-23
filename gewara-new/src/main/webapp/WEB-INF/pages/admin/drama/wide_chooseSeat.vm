@@ -1,0 +1,844 @@
+<!Doctype html>
+<html>
+<head>#set($isDetail=true)
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=7" />
+<title>$!{drama.name}在线购票-话剧、演出在线购票_格瓦拉生活网</title>
+<meta name="keywords" content="话剧、话剧在线购票_格瓦拉生活网"/>
+<meta name="description" content="话剧、话剧在线购票_格瓦拉生活网"/>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_pay&v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,tips,scrollerbar,raphael,svg&v=$VmUtils.jsVersion"></script>
+<style type="text/css">
+.hasSeat,.sellSeat,.checkSeat,.hAislet,.vAislet,.hWall,.hWallt,.vWall,.vWallt,.inoutBox span,.loverSeat,.pewNo .N,.spNoticeBox a.more,.combo li label.select em,.comboList .togCombo{background:url(${staticPath}css/movie_wide/ico_seat.gif?v=$VmUtils.jsVersion815) no-repeat;}
+.seatGroup{overflow:hidden; position:relative;}
+.right_box{position:absolute; right:0; top:0; z-index:6;}
+.ui_left,.ui_right{float:left;}
+.ui_left{width:870px;}
+.ui_right{width:310px; background:#fffaf4; margin-bottom:-30000px; padding-bottom:30000px;}
+.ui_right .inner{padding:20px 15px;}
+.seatView{position:relative; min-height:950px;_height:950px; border:1px solid #ffefdf;}
+.seatInfo{padding:10px; text-align:right;}
+.seatInfo span{margin:0 2px 0 0;display:inline-block;white-space:nowrap;}
+.seatInfo span img{vertical-align:-8px; cursor:default;}
+.changeScreen{position:relative;}
+.changeScreen .cs{position:absolute; padding-right:10px; right:0; top:0; font-size:12px; font-weight:normal; background:url(${staticPath}css/movie_wide/ico_pub.gif) right -346px no-repeat #fffaf4; cursor:pointer;}
+.changeScreen .select{background-position:right -370px;}
+.flagSeat{position:absolute; right:0; top:0; z-index:6; width:640px; background:#fff; _top:0!important; _position:absolute!important;}
+.priceChoose{border-top:1px solid #FFEFDF; border-bottom:1px solid #FFEFDF;}
+.priceChoose label{cursor:pointer;}
+.pewNo{position:absolute; z-index:5; width:22px; text-align:center; height:100%; bottom:40px; left:0px;}
+.pewNo span{display:block;width:22px;height:26px;line-height:26px;color:#fff; font-size:11px; background-color:#fff;}
+.pewNo .N{background-position:-40px 4px; background-color:#fff;}
+.room_screen{width:100%; height:50px; background:url(${staticPath}css/drama_wide/bg_screen.gif) center 0 no-repeat; margin:5px auto 0 auto;}
+.room_screen_left{background-position:center -161px; height:70px; margin-top:0;}
+.room_screen_right{background-position:center -71px; height:70px; margin-top:0;}
+.room_screen span{color:#999; margin-left:10px;}
+.wrapper{position:relative;padding-bottom:20px;width:100%;overflow:hidden;}
+.showSeat{padding:0 0 20px 22px; margin:20px auto 0; position:relative;}
+.inoutBox span{display:block; width:24px; height:49px; line-height:49px; color:#ccc; position:absolute; text-align:center;}
+.inoutBox span.lDoor01,.inoutBox span.lDoor02,.inoutBox span.lDoor03,.inoutBox span.lDoor04{background-position:0 -182px; left:30px;}
+.inoutBox span.rDoor01,.inoutBox span.rDoor02,.inoutBox span.rDoor03,.inoutBox span.rDoor04{background-position:0 -244px; right:30px;}
+.inoutBox span.bDoor01,.inoutBox span.bDoor02,.inoutBox span.bDoor03{background-position:0 -306px; bottom:0; width:60px; height:23px; line-height:23px;}
+.inoutBox span.lDoor01,.inoutBox span.rDoor01{top:0;}
+.inoutBox span.lDoor04,.inoutBox span.rDoor04{bottom:40px;}
+.inoutBox span.bDoor01{left:62px;}
+.inoutBox span.bDoor03{right:40px;}
+.seatlist dl{overflow:hidden;}
+.seatlist dd{float:left;width:30px;text-align: center;}
+.seatlist dd.select{background:#eee;}
+.hasSeat,.sellSeat,.checkSeat,.hAisle,.hAislet,.vAisle,.vAislet,.hWall,.hWallt,.vWall,.vWallt{width:30px; height:26px; line-height:20px; cursor:pointer; font-size:14px; _font-size:8px; font-weight:bold; color:green; text-align:center;}
+.seatlist dl{overflow:hidden;}
+.hasSeat{background-position:4px 4px;}
+.loverSeat{width:59px; height:26px; background-position:4px -86px;}
+.lover_l .hasSeat{background-position:4px -86px;}
+.lover_r .hasSeat{background-position:-26px -86px;}
+.lover_l .sellSeat{background-position:4px -146px;}
+.lover_r .sellSeat{background-position:-26px -146px;}
+.lover_l .checkSeat{background-position:4px -116px;}
+.lover_r .checkSeat{background-position:-26px -116px;}
+.hWall{background-position:0 -332px;}
+.hWallt{background-position:0 -357px;}
+.vWall{background-position:-39px -346px;}
+.vWallt{background-position:-39px -427px;}
+.hAislet{background-position:0 -386px;}
+.vAislet{background-position:-42px -385px;}
+.noSeat{width:30px; height:26px;}
+.hAisle,.hAislet,.vAisle,.vAislet,.hWall,.hWallt,.vWall,.vWallt{color:#ddd; font-size:12px; font-weight:normal; cursor:default;}
+.hAisle,.hAislet{border-top:1px dashed #ddd; border-bottom:1px dashed #ddd; height:22px; line-height:22px; margin:1px 0;}
+.vAisle,.vAislet{border-left:1px dashed #ddd; border-right:1px dashed #ddd; width:22px; line-height:22px; margin:0 3px;}
+.Aseat{background-position:4px -495px;}
+.Bseat{background-position:4px -551px;}
+.Cseat{background-position:-34px -495px;}
+.Dseat{background-position:-34px -551px;}
+.Eseat{background-position:-34px -523px;}
+.Fseat{background-position:4px -523px;}
+.Gseat{background-position:4px -579px;}
+.Hseat{background-position:-34px -579px;}
+.Iseat{background-position:4px -607px;}
+.Jseat{background-position:-34px -607px;}
+.Kseat{background-position:4px -635px;}
+.Lseat{background-position:-34px -635px;}
+.checkSeat{background-position:4px -24px}
+.sellSeat{background-position:4px -54px;}
+.spNoticeBox{background:#ffd; border:1px solid #ffcb99; padding:10px; margin-bottom:10px; position:relative;}
+.spNoticeBox a.more{display:block; width:21px; height:21px; top:5px; right:5px; background-position:3px -471px; cursor:pointer;}
+.spNoticeBox a.more:hover{background-position:-42px -471px; background-color:#ffddc6;}
+
+.leftBox{padding:15px; border:1px solid #ffefdf; border-top:0; line-height:24px;}
+.rightBox{border-top:1px solid #fed; padding:15px 0;}
+.ui_layout h2{font-size:14px; font-weight:bold; padding-bottom:5px; display:inline-block;}
+p em,.ui_media .ui_pic{color:#666;}
+.pewSeat{padding-bottom:15px;}
+.pewSeat .innerCont p{line-height:24px}
+.pewSeat .innerCont p em{font-size:12px; font-weight:normal;}
+.mobileInfo{margin:15px 0 5px;}
+.mobileInfo .text{width:150px; font-size:16px; font-weight:bold; color:#333; font-family:verdana;}
+.packageBox{color:#666; padding-right:60px; position:relative;}
+.packageBox h2{color:#333; display:inline; background:#fdb; font-weight:normal; font-size:12px; padding:5px; overflow:hidden; height:18px;
+		-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+			  border-radius:5px;
+}
+.packageBox .more{position:absolute; top:2px; text-align:right; background:#fffaf4; _right:10px;}
+.pews{border:1px solid #fc9; color:#f60; background:#fff; float:left; width:96px; height:26px; line-height:26px; text-align:center; margin:0 5px 5px 0;}
+.ui_tips_tishi{position:absolute; left:-49px; cursor:pointer; top:65px; width:60px; height:46px; background-position:0 -526px; text-indent:-9999px; overflow:hidden;}
+.ui_right .ui_addInfo{float:left; margin:7px 0 0 20px;}
+
+.seatAreaBox{width:150px;overflow:hidden; position:absolute; left:0; top:0; zoom:1; z-index:10;}
+.seatAreaBox p{font-size:12px; font-weight:bold; text-align:center; background:#ffc965; color:#B47300;padding:3px 0;margin-bottom:2px;}
+.seatAreaBox p span,.seatAreaBox p em{display:inline-block;cursor:pointer;}
+.seatAreaBox h2{font:bold 14px/24px '微软雅黑','宋体'; display:block; text-align:center; padding:5px 0}
+.screenBox{width:100%;}
+.right_inner_box{position:relative;}
+.toggleOrderOpen,.toggleOrderClose{ background:#fff; color:#ff9966; text-align:center;position:absolute; cursor:pointer;}
+.toggleOrderOpen{right:1px; top:0; width:24px; background:url(${staticPath}css/drama_wide/openTag.gif) center center no-repeat #fffaf4; height:100%; _padding-bottom:3000px; _margin-bottom:-3000px; _background-position:center 250px;}
+.toggleOrderClose{height:160px; width:14px; padding:5px; border:1px solid #FFEFDF; border-right:none; left:-25px; top:208px; }
+.mapBox{width:150px; height:150px; overflow:hidden;}
+.seatTitleBox{border-bottom:1px solid #FFEFDF;}
+.roomName{font-size:14px; font-weight:bold; color:#666; margin:15px; text-align:center;}
+.glassIco{background:url(${staticPath}css/drama_wide/glass.jpg) no-repeat 0 0;width:16px;height:16px;vertical-align:-3px;*vertical-align:-1px;margin-left:5px;}
+.glassIco_B{background-position:0 0;}
+.glassIco_S{background-position:-16px 0;}
+.maskSeatArea{width:600px;height:600px;padding:15px;}
+/*套餐*/
+.combo p{color:#999;}
+.comboList{border:1px solid #dedfe1; padding:5px; position:relative; width:211px;}
+.comboList .togCombo{position:absolute; overflow:hidden; font-size:0; cursor:pointer; right:5px; bottom:5px; display:block; width:11px; height:11px; }
+.comboList .togOn{background-position:-36px -62px;}
+.comboList .togOff{background-position:-49px -62px;}
+.combo li{margin-top:3px;}
+.combo li label{display:block; width:187px; height:30px; line-height:30px; cursor:pointer; background:#fff; overflow:hidden; white-space:nowrap; color:#333; position:relative; padding:0 6px; border:1px solid #fc9; font-size:12px;} 
+.combo li label.disabled{border:1px solid #ccc; color:#999; background:#f2f2f2;}
+.combo .comboList li label{width:173px;}
+.combo li label input{position:absolute; margin-left:-200px;}
+.combo li label span{font-weight:normal; color:#999; text-decoration:line-through; margin-left:10px;}
+.combo li label em{display:none;}
+.combo li label.select,.combo li label:hover{border-color:#f60;}
+.combo li label.select em{display:block; position:absolute; right:0; _right:-1px; bottom:0; overflow:hidden; width:28px; height:28px; background-position:-32px -27px;}
+.combo li label.disabled:hover{border:1px solid #ccc; cursor:not-allowed;}
+
+.txtInfo{padding:15px 15px 5px;}
+.txtInfo h2{font:bold 16px/24px '微软雅黑','宋体'; display:block;}
+.txtInfo p{font-size:12px; margin-top:10px; color:#999; font-family:'宋体';}
+</style>
+</head>
+<body>
+<div id="showShadowbg" style="display:none;"></div>
+#set($relatedtag='drama')
+#set($googleSpeedPageTag='/admin/drama/chooseSeat.xhtml')
+#if($adspdiscount.banner)
+<div class="banner"><img src="$VmUtils.randomPic('',$adspdiscount.banner)"/></div>
+#else
+<div class="banner none" id="ticketBanner">#parse('include/ad/ad_ticketorder.vm')</div>
+#end
+#set($maxwidth=44+30*$!math.add($!math.sub($!{seatArea.ranknum},$!{seatArea.firstrank}),1)) 
+<div class="ui_layout clear">
+	<div class="inner">
+		<div class="seatGroup mt20 clear" id="container">
+			<div class="ui_left left_box" id="left_box" #if(${maxwidth} gt 848)style="width:1155px;"#end>
+				#if($VmUtils.isNotBlank($!odi.remark))
+				<div class="spNoticeBox">
+					<a class="more" title="关闭" id="clsoeSpecNotice" href="javascript:void(0);"></a>
+					$!odi.remark
+				</div>
+				#end
+				#if($VmUtils.gt($VmUtils.size($seatAreaList),1))
+					<div>
+						<h2>区域列表:</h2>
+						<table style="border:solid thin #FFEFDF;margin-bottom:5px;">
+							<tr>
+								<td style="text-align:center;width:100px;border:solid thin #FFEFDF;">区域ID</td>
+								<td style="text-align:center;width:500px;border:solid thin #FFEFDF;">区域名称</td>
+							</tr>
+							#foreach($area in $seatAreaList)
+								<tr class="areatr" onmouseover="javascript:changeSelect(this);" style="cursor:pointer;#if($seatArea.id == $area.id) background-color:#99ffff; #end" onclick="javascript:changeArea($area.id);">
+									<td style="text-align:center;width:100px;height:30px;border:solid thin #FFEFDF;">
+										$area.id
+									</td>
+									<td style="text-align:center;width:500px;height:30px;border:solid thin #FFEFDF;">
+										$!area.areaname
+									</td>
+								</tr>
+							#end
+						</table>
+					</div>
+				#end
+				<div class="seatView clear">
+					<!-- <div id="seatAreaBox" class="seatAreaBox"></div> -->
+					<div class="seatTable" id="seatTable">
+						<div class="#if($VmUtils.gt($VmUtils.size($seatAreaList),1))seatTitleBox #else inner #end clear" >
+							<div class="seatTitle clear" style="height:101px;">
+								<div id="flagSeat" class="flagSeat">
+									<div class="screenBox clear">
+										<div class="seatInfo">
+											<em>说明：</em>
+											#set($priceMap={})
+											#foreach($price in $tspHelper.getTspList())
+											#if($VmUtils.gt($price.price,0))
+											<span><img src="${staticPath}css/images/blank.gif" class="hasSeat $!{price.seattype}seat" align="middle"/>$price.price元</span>
+											#set($tmp=$priceMap.put($price.seattype,"$!{price.seattype}seat"))
+											#end
+											#end
+											<span><img src="${staticPath}css/images/blank.gif" class="sellSeat" align="middle"/>不可选座位</span>
+											<span><img src="${staticPath}css/images/blank.gif" class="checkSeat" align="middle"/>已选座位</span>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="room_screen"></div>
+							#if($VmUtils.gt($VmUtils.size($seatAreaList),1))<div class="roomName">$!seatArea.name</div>#end
+						</div>
+						<div class="inner">
+							<div class="wrapper" id="wrapper">
+								#set($pewHeight=$!math.add($!math.sub($!{seatArea.linenum},$!seatArea.firstline),1)*26)
+								<div style="height:${pewHeight}px" class="pewNo">
+									#foreach($row in [$!{seatArea.firstline}..$!{seatArea.linenum}])
+									<span #if($!rowMap.get($row))class="N"#end>$!rowMap.get($row)</span>
+									#end
+								</div>
+								#set($sum = ${seatArea.linenum}*22)
+								#set($classMap={'N':'noSeat','A':'hasSeat','B':'sellSeat','C':'sellSeat','D':'sellSeat','S':'sellSeat','W':'sellSeat','ZL':'noSeat','LK':'sellSeat'})
+								<div style="width: #if(${maxwidth} gt 848)${maxwidth}px;#else 848px #end; margin:0 auto; overflow:visible;" id="wrapped">
+									<div class="showSeat" style="margin:10px auto 0; width:${maxwidth}px">
+										<div class="seatlist" style="margin:0 auto; width:${maxwidth}px">
+											#set($rowList=$VmUtils.split($seatMap,"@@"))
+											#foreach($row in $rowList)
+											<dl class="clear">
+												#foreach($rank in $VmUtils.split($row, ","))
+												<dd id="$seat.price">
+													<div class="#if(!$classMap.get($rank)) noSeat#{else} $classMap.get($rank) #end">#if($seat.loveInd ne "0")$!seat.loveInd#end</div>
+												</dd>
+												#end
+											</dl>
+											#end
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<span id="toggleOrderOpen" class="toggleOrderOpen none"></span>
+			<div class="ui_right right_box" id="toggleOrderBox">
+				<span class="toggleOrderClose none" id="toggleOrderClose">全屏显示座位图</span>
+				<div style="width:310px;height:100%;overflow:hidden;">
+					<div class="right_inner_box">
+						<div class="inner">
+							<div class="pewSeat">
+								<div class="ui_media">
+									<div class="ui_pic">
+										<a href="${basePath}drama/$!drama.id" target="_blank" title="$!drama.name"><img width="60" height="80" alt="$!drama.name" src="$VmUtils.randomPic('cw60h80',$!drama.limg)"/></a>
+									</div>
+									<div class="ui_text innerCont" style="font-size:12px;">
+										<h2><a href="${basePath}drama/$!drama.id" class="c333" target="_blank" title="$!drama.name">$!drama.realBriefname</a></h2>
+										<p><em>场馆：</em>$!theatre.realBriefname</p>
+										<p><em>剧场：</em>$!field.name</p>					 
+									</div>
+								</div>
+								<div class="innerCont mt15">
+									<p><em>场次：</em><span class="cred">$DateUtil.format($!item.playtime,'M月d日') $DateUtil.getCnWeek($!item.playtime) $DateUtil.format($!item.playtime,'HH:mm')</span></p>
+								</div>
+								#if(!$VmUtils.isEmptyList($tspHelper.getValidDiscountList()))								
+								<dl class="ui_media mt10">
+									<dt class="ui_pic mr0">套票：</dt><dd class="ui_text combo" id="combo">
+										<p>每笔订单只能选择一种套票</p>
+										<div id="suit">
+											<ul>
+												<li class="mt0"><label for="suit0"><input name="suit" value="" type="radio" id="suit0"/>不选择套票<em></em></label></li>
+												#set($count=0)
+												#foreach($seatPrice in $tspHelper.getTspListBySno())
+													#foreach($disQuantity in $tspHelper.getDiscountList($seatPrice))
+													#set($count=$count+1)
+													#if($disQuantity.hasBooking())
+													<li>
+														<label retail="$seatPrice.hasRetail()" for="suit$count" id="$disQuantity.price" title="${disQuantity.price}(${seatPrice.price}×${disQuantity.quantity}张)">
+														<input name="suit" value="$seatPrice.price" rel="$disQuantity.id" type="radio" id="suit$count" alt="$!{seatPrice.seattype}seat" lang="${disQuantity.quantity}" title="$seatPrice.price"/>
+														<b>${disQuantity.price}</b> 元 (${seatPrice.price} × ${disQuantity.quantity})<span>$disQuantity.theatreprice元</span><em></em>
+														</label>
+													</li>
+													#else
+													<li>
+														<label class="disabled" retail="$seatPrice.hasRetail()" for="suit$count" id="$disQuantity.price" title="${disQuantity.price}(${seatPrice.price}×${disQuantity.quantity}张),套票时间为$!{DateUtil.formatTimestamp($disQuantity.starttime)} - $!{DateUtil.formatTimestamp($disQuantity.endtime)}">
+														<input name="suit" value="$seatPrice.price" rel="$disQuantity.id" type="radio" id="suit$count" alt="$!{seatPrice.seattype}seat" lang="${disQuantity.quantity}" title="$seatPrice.price" disabled="disabled"/>
+														<b>${disQuantity.price}</b> 元 (${seatPrice.price} × ${disQuantity.quantity})<span>$disQuantity.theatreprice元</span><em></em>
+														</label>
+													</li>
+													#end
+													#end
+												#end
+											</ul>
+										</div>
+									</dd>
+								</dl>
+								#end
+								<dl class="ui_media mt10">
+									<dt class="ui_pic mr0">座位：</dt>
+									<dd class="ui_text">
+										<div id="panelSeat">
+											#set($seatidList=[])
+											#set($seatPrice=0)
+											#if($VmUtils.gt($seatCount,0))
+											#foreach($oseat in $mySeatList)#set($tmp=$seatidList.add($oseat.id))#set($seatPrice=$math.add($seatPrice,$oseat.price))
+												<div id="s$oseat.id" class="pews" style="left: 1024px; top: 450px; position: static;">${oseat.seatLabel}$oseat.price元</div>
+											#end
+											#end
+										</div>
+										<div class="cls"></div>
+										<p id="cManage" style="display:none;font-size:12px;">你已选择<b id="countSeat" class="cf60 ml5 mr5">0</b>个座位，再次单击座位取消选择</p>
+										#set($seatCount=$VmUtils.size($mySeatList))
+										<div id="cNotice" #if($seatCount gt 0) style="display:none;" #end>
+											<p class="cF60">还未选择座位</p>
+										</div>
+									</dd>
+								</dl>
+								<div class="innerCont mt10">
+									<p><em>总计：</em> <span class="ui_price">¥<b id="cssinge">0</b></span></p>
+								</div>
+							</div>
+							<form id="orderForm">
+							<input type="hidden" name="itemid" id="itemid" value="$!{odi.dpid}"/>
+							<input type="hidden" name="areaid" id="areaid" value="$!{seatArea.id}"/>
+							<input type="hidden" name="disid" id="disid" />
+							<input type="hidden" name="seatid" id="seatList" value="$!VmUtils.join($seatidList,',')" mustTxt="请选择座位！"/>
+								<!-- <div class="rightBox">
+									<p>输入取票的手机号码</p>
+									<div class="mobileInfo">
+										<p><em>手机号：</em><input type="text" value="$!{logonMember.mobile}" mustTxt="请输入手机号！" class="text" maxlength="11" onkeyup="GewaraUtil.replaceStr(this);" id="mobile" name="mobile"/><span class="cred ffst ml5">*</span></p>
+										#set($captchaId=$VmUtils.randomCaptchaId)
+										<input type="hidden" name="captchaId" id="orderCaptcha" value="$!captchaId"/>
+										<p class="mt10">
+											<em>验证码：</em><input style="width:70px;" type="text" class="text" id="orderCaptchaInput" mustTxt="请输入验证码！" name="captcha" /><span class="cred ffst ml5">*</span>
+											<img id="orderCaptchaImg" src="${basePath}captcha.xhtml?captchaId=$!captchaId&r=$math.random" style="cursor: pointer;" onclick="GewaraUtil.refreshCaptcha('orderCaptcha')" title="看不清楚，请双击换一张图片"/>
+										</p>
+									</div>
+								</div>
+								<p style="padding-left:49px;">
+									<a class="button redBt maxBt left" onclick="submitOrder(this);"><span>完成选座</span></a>
+								</p> -->
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="txtInfo" class="txtInfo" style="display:none;">
+	<h2>你当前选择的座位区域有套票优惠！</h2>
+	<p>点“<span class="cDrama">提交订单</span>”不选择套票优惠继续购票，点“取消”在右侧重新选择套票优惠，并根据套票规则选择相应数量的座位。<p>
+</div>
+<script type="text/javascript">
+#if($VmUtils.size($seatidList) gt 0)#set($jsSeatList="'" +$!VmUtils.join($seatidList,"','") + "'")#end
+var seatMaxwidth = $maxwidth;
+var selectedSeat=[$!jsSeatList], maxbuy=6, isCombo = gewa.util.getRequestParams('disid'), hasCombe = $('suit');
+#if(${odi.maxbuy})
+maxbuy = $!{odi.maxbuy};
+#end
+var flag = true;
+window.addEvent('domready',function(){
+	refreshSeat();
+	toggleOrderBox();
+	/* #if($VmUtils.gt($VmUtils.size($seatAreaList),1))
+		var data = $!{areaZoneMap} || {};
+		#if($VmUtils.isNotBlank($!field.limg))
+		SVG.init({'that':"img",'defualtImg':"$!VmUtils.randomPic('',$!field.limg)","curId":$!seatArea.id,'defualtData':data,isDrow:true,width:150,height:150,'link':"${basePath}drama/order/step1.xhtml?itemid=$!{item.id}&areaid="});
+		upArea();
+		#end
+	#end */
+	if($('clsoeSpecNotice')){
+		$('clsoeSpecNotice').addEvent('click',function(){
+			this.getParent('div.spNoticeBox').addClass('none');
+		});
+	};
+	if($('maxSVG'))$('maxSVG').toPos('seatAreaBox','topLeft',0,0);
+	if(hasCombe)hasCombe.getElements('input').addEvent('click',function(){
+		if(this.value != ""){
+			bindSeat(this)
+		}else{
+			callbackMoney(true);
+		}
+	});
+	(function(){
+		var areaid = gewaUtil.getRequestParams('areaid');
+		if(!$chk(areaid) && $('areaBtn')){
+			$('areaBtn').fireEvent('click');
+		}
+	}).delay(1000);
+});
+
+function refreshSeat(){
+	var url = '${basePath}admin/drama/getSeatPage.shtml';
+	gewa.util.mask({'element': "seatTable",'title':'正在查询数据...', "opacity":"0.4"});
+	GewaraUtil.sendRequest(url, {'itemid':$item.id,'areaid':$!seatArea.id, 'r':Date.now()}, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			$("seatTable").innerHTML = result.seatPage;
+			if($('wrapper') && $('wrapped') && $('wrapped').getStyle('width').toInt() > 848){
+				new ScrollerBar('wrapper',{mode:'horizontal',wrapped:'wrapped',flag:true});
+			}
+			if(result.seatList){
+				Object.each(result.seatList,function(item){
+					var seat = document.getElement('div[id='+item.id+']').removeClass('sellSeat').addClass('hasSeat');
+					setSeat(seat);
+				})
+			}
+			$$('#wrapped .hasSeat,#wrapped .sellSeat').each(function(ps){
+				ps.amTips({position:'top',content:function(){return ps.get('tips')}});
+			})
+			$$("#wrapped .hasSeat,#wrapped .checkSeat").addEvent('click',function(){
+				if($('toggleOrderBox') && !$('toggleOrderOpen').hasClass('none')){
+					$('toggleOrderOpen').fireEvent('click');
+				}
+				setSeat(this);
+				if(hasCombe)var sCombo = hasCombe.getElements('label[class*="select"]')[0];
+				if(sCombo){
+					sCombo.getElement('input').fireEvent('click');
+				}
+			});
+			if(hasCombe){
+				var comboList = hasCombe.getElements('input');
+				#*
+				if(isCombo){
+					comboList.each(function(item){
+						if(item.get('rel') == isCombo){
+							item.fireEvent('click');
+						}
+					});
+				}else{
+					comboList[0].fireEvent('click');
+				}
+				*#
+				comboList[0].fireEvent('click');
+			}
+		}else{
+			if(result.msg.indexOf("请先登录")>=0) {
+				$$('.seatlist .clear div').addEvent('click',function(){
+					if($('logins')){
+						showLogin(refreshPage);
+					}
+				});
+				if($('wrapper') && $('wrapped') && $('wrapped').getStyle('width').toInt() > 848){
+					new ScrollerBar('wrapper',{mode:'horizontal',wrapped:'wrapped',flag:true});
+				}
+			}else{
+				gewa.util.maskContent("seatTable", '<span style="cursor:pointer">'+result.msg+'</span>');
+			}
+		}
+		if($('flagSeat')){
+			(function(){
+				affix($('flagSeat'));
+			}).delay(1000);
+		}
+	}, "get");
+}
+
+function setSeat(el){
+	if($('logins')){
+		showLogin(refreshPage);
+	}else if(el.hasClass("checkSeat")){
+		var ls = $(document.body).getElements('*[id=s'+el.id+']');
+		if(hasCombe)var list = hasCombe.retrieve('key');
+		#* 
+		if(hasCombe && hasCombe.retrieve('key') != null){
+			var list = hasCombe.retrieve('key'),pri = selectedSeat.filter(function(item){
+				return $(item).get('role') == list.price && $(item).get('data-combo') == list.combo;
+			});
+			if(list.price == el.get('role') && pri.length <= list.count){
+				gewaUtil.confirm('当前操作将会取消你已选择的套票条件，确定？', function(){
+					selectedSeat.erase(el.id);
+					isChooseSet(el,false);
+					el.removeClass("checkSeat");
+					callbackMoney(true);
+					if(ls.length>0)ls.dispose();
+				}.bind(this),'',450);
+				return ;
+			}
+		}
+		*#
+		selectedSeat.erase(el.id);
+		isChooseSet(el,false);
+		el.removeClass("checkSeat");
+		if(!el.hasClass('hasSeat')) el.addClass('hasSeat');
+		if(ls.length>0)ls.dispose();
+	}else if(el.hasClass("hasSeat")){
+		if(hasCombe && hasCombe.getElement('label[class="select"]')){
+			var oCombe = hasCombe.getElement('label[class="select"]').getElement('input');
+			if(oCombe.value != ''){
+				if(oCombe.get('alt') != el.get('data-combo') && selectedSeat.length <= oCombe.get('lang').toInt()-1){
+					gewaUtil.alert('请选择带绿点的座位！');return;
+				};
+			}
+		};
+		if(selectedSeat.length >= maxbuy){
+			gewaUtil.alert("最多选择"+ maxbuy +"个座位！");
+			return;
+		}
+		selectedSeat.push(el.id);
+		isChooseSet(el,true);
+		createPew(el);
+		el.addClass("checkSeat");
+	}
+	updateInfo(el);
+}
+
+function isChooseSet(el,isLoop){
+	var m = $('cssinge'),money = m.get('text').toInt();
+	if(selectedSeat.length > 0){
+		$("cManage").show();
+		$("cNotice").hide();
+	}else{
+		$("cManage").hide();
+		$("cNotice").show();
+	}
+	if(isLoop)money = money + el.get("role").toInt();
+	else money = money - el.get("role");
+	m.set("html",money);
+	m.store('key',money);//绑定总价
+}
+
+function createPew(el){
+	var pos = $(el).getPosition(),
+	element = Element("div",{
+		"class":"pews", "html":el.lang, "id":"s"+el.id,"styles":{
+		"left":pos.x,
+		"top":pos.y,
+		"z-Index":"10"
+	}}).inject(document.body);
+	var  posel = $('panelSeat');
+	element.move({
+		relativeTo:posel.getLast()?posel.getLast():posel,
+		position:"center",
+	duration: '100'
+	})
+	element.get('move').addEvent('complete',function(){
+		var ls = $(document.body).getElements('*[id=s'+el.id+']');
+		if(selectedSeat.indexOf(el.id) >= 0){
+			if(!posel.contains($('s'+el.id)))this.element.inject(posel);
+			else element.dispose();
+			this.element.setStyle("position","static");
+		}else{
+			if(ls.length>0)ls.dispose();
+		}
+  	});
+}
+
+function updateInfo(el){
+	$("countSeat").set('html',selectedSeat.length);
+	$("seatList").value=selectedSeat.join(",");
+}
+
+function bindSeat(who){
+	var m = $('cssinge');
+	var group = selectedSeat.filter(function(item){
+		return $(item).get('role') == who.value && $(item).get('data-combo') == who.get('alt');
+	});
+	var notGroup = selectedSeat.filter(function(item){
+		return $(item).get('data-combo') != who.get('alt');
+	})
+	callbackMoney(false);
+	var list = {'price':who.title,'count':who.get("lang"),'combo':who.get("alt")};
+	hasCombe.store('key',list);//绑定套票单价及数量
+	hasCombe.getElements('label').removeClass('select');
+	who.getParent().addClass('select');
+	var Times = Math.floor(group.length / who.get("lang").toInt());
+	var money = who.get("lang").toInt() * who.title.toInt() * Times;
+	money = m.retrieve('key') - money;
+	money = money + who.getParent().title.toInt() * Times;
+	m.set('html',money);//套票优惠结果
+	m.store('key',money);
+	$('disid').value = who.get('rel');
+	var dataCombo = who.get('alt');
+	$$(".seatlist dd div").each(function(item){
+		selectCombo(item,who.value,dataCombo);
+	});
+}
+
+function callbackMoney(isChange){
+	var money = 0;
+	selectedSeat.each(function(item){
+		money = $(item).get('role').toInt() + money;
+	})
+	$('cssinge').set('html',money);
+	$('cssinge').store('key',money);
+	$('disid').value = '';
+	$$(".seatlist dd div").each(function(item){
+		item.innerHTML = "";
+		item.getParent('dd').removeClass('select');
+	});
+	if(hasCombe && isChange){
+		hasCombe.store('key',null);
+		hasCombe.getElements('label').removeClass('select')
+		hasCombe.getElement('input').checked = true;
+		hasCombe.getElement('label').addClass('select');
+	}
+}
+
+function selectCombo(item, price, combo){
+	var oDd = item.getParent('dd');
+	if(oDd.id == price && item.get('data-combo') == combo){
+		if(item.hasClass('hasSeat')){
+			item.innerHTML="●";
+		}else{
+			item.innerHTML="";
+		}
+		oDd.addClass('select')
+	}else{
+		oDd.removeClass('select');
+	}
+}
+
+function submitOrder(obj){
+	checkLogin(true, function(){
+		if(hasCombe){
+			#*判断座位是否可购买套餐*#
+			var checkSeats = $('seatTable').getElements('div[class*="checkSeat"]').get('data-combo');
+			var combos = $('suit').getElements('input').get('alt');
+			var isComboSeat = checkSeats.filter(function(item){
+					return combos.contains(item);
+			});
+			if(hasCombe && isComboSeat.length != 0 && $('suit').getElements('label')[0].hasClass('select')){
+				gewa.util.issure('',txtInfo,'格瓦拉提示',450,'txtInfo',function(){
+					goSubmit(obj);
+					gewa.util.container['txtInfo'].dispose('txtInfo')
+				},'提交订单');
+			}else{
+				goSubmit(obj);
+			}
+		}else{
+			goSubmit(obj);
+		}
+	});
+}
+
+function goSubmit(obj){
+	if(hasCombe){
+		var who = hasCombe.getElements('label[class*="select"]')[0];
+		if(who){
+			var l = who.getElement('input').get('lang')? who.getElement('input').get('lang').toInt() : 0;
+			var group = selectedSeat.filter(function(item){
+				return $(item).get('role') == who.getElement('input').value && $(item).get('data-combo') == who.getElement('input').get('alt');
+			})
+			if(selectedSeat.length == 0){
+				gewaUtil.alert('请先选择座位！'); return;
+			}else if(l != 0){
+				if(group.length == 0){
+					gewaUtil.alert('所选座位不支持套票，请选择带绿点的座位！','','',450); return;
+				}else{
+					if(who.get('retail') == 'true'){
+						if(group.length / l.toInt() < 1){
+							gewaUtil.alert('请至少选择'+ l +'个带绿点的座位！');  return;
+						}
+					}else{
+						if(group.length % l != 0){
+							gewaUtil.alert('带绿点的座位须等于'+ l +'的整数倍！'); return;
+						}
+					}
+				}
+			}
+		}
+	}
+	if(!GewaraUtil.baseValidForm('orderForm')) return;
+	var url = '${basePath}admin/drama/chooseSeat.xhtml';
+	var values = GewaraUtil.getValues('orderForm');
+	GewaraUtil.mask(obj);
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			document.location.href="${basePath}gewapay/order.xhtml?orderId=" + result.retval;
+		}else{
+			gewaUtil.alert(result.msg);
+			GewaraUtil.refreshCaptcha('orderCaptcha');
+		}
+	});
+}
+
+function toggleOrderBox(){
+	var left_box = $('left_box'),flag = true,_that = null;
+	var toggleOrder = $$('#toggleOrderClose,#toggleOrderOpen');
+	if(toggleOrder && toggleOrder.length>0){
+		var myFx = doFxs($('toggleOrderBox'),function(){
+			if(_that){
+				toggleOrder.removeClass('none');
+				_that.addClass('none');
+				$$('.scroller').dispose();
+				new ScrollerBar('wrapper',{mode:'horizontal',wrapped:'wrapped'});
+				if($('wrapped'))$('wrapped').setStyle('margin-left','0');
+				flag = !flag;
+			}
+		})
+		var maxFx = doFxs(left_box,$empty);
+		var maxWidth = left_box.getStyle('width').toInt();
+		if(seatMaxwidth > 848){
+			toggleOrder.addEvent('click',function(){
+				_that = this;
+				if(flag){
+					myFx.start(310,0);
+					maxFx.start(870,maxWidth);
+					$("flagSeat").tween('width','1003px');
+				}else{
+					$('toggleOrderBox').removeClass('none');
+					myFx.start(0,310);
+					maxFx.start(maxWidth,870);
+					$("flagSeat").tween('width','640px');
+				}
+			});
+			(function(){
+				$('toggleOrderClose').fireEvent('click');
+			}).delay(2000);
+		}
+	}
+}
+
+function doFxs(el,callback){
+	return new Fx.Tween(el, {duration: 800,link:'cancel',property:'width',onComplete:function(){
+		callback.run();
+	}});
+}
+function doFxSGV(el,callback){
+	return new Fx.Morph(el, {duration: 800,link:'cancel',onComplete:function(){
+		//callback.run();
+		if(flag)showShadow('maxSVG',50);
+	}});
+}
+function showShadow(el,zIndex,isShow){
+		if(!zIndex) zIndex = $(el).getStyle("z-index");
+		var winSize = $(document.body).getScrollSize();
+	 	$('showShadowbg').setStyles({
+			"position":"absolute",
+			"background-color":"#000",
+			"opacity":"0.7",
+			"z-index":zIndex-2,
+			"width":winSize.x,
+			"height":winSize.y
+		}) 
+		if(isShow){
+			$(el).setStyles({
+				"position":"absolute",
+				"display":"",
+				"z-index":zIndex,
+				"visibility":"visible"
+			}).show();
+			$('showShadowbg').show();
+		}else{
+			$('showShadowbg').hide();
+		}
+	}
+function upArea(){
+	if($('areaBtn')){
+		var mx = doFxSGV($('maxSVG'));
+		var mg = doFxSGV($('img'));
+		var winSize = $(document.body).getScrollSize();
+		$('areaBtn').addEvent('click', function(){
+			var w = SVG.width;
+			var h = SVG.height;
+			if(flag){
+				showShadow('maxSVG',50,flag);
+				this.getElement('em').addClass('glassIco_S');
+				this.getElement('span').set('html','点击切换为小图');
+				SVG.showBigSvg(w,h,function(){
+					mx.start({
+						'height':[208,h+60],
+						'width':[150,w]
+					})
+					mg.start({
+						'height':[150,h],
+						'width':[150,w]
+					});
+				},true);
+			}else{
+				var minW = SVG.width/SVG.options.sale;
+				var minH = SVG.height/SVG.options.sale;
+				this.getElement('em').removeClass('glassIco_S');
+				this.getElement('span').set('html','点击切换为大图');
+				SVG.showBigSvg(minW,minH,function(){
+					mx.start({
+						'height':[h+60,208],
+						'width':[w,150]
+					})
+					mg.start({
+						'height':[h,150],
+						'width':[w,150]
+					});
+				},false);
+			}
+			flag = !flag;
+		});
+	}
+}
+
+function cearteIfream(id){
+	var html = "<iframe width=\"100%\" height=\"100%\" src=\"saasasaas+"+id+"\"></iframe>";
+}
+var affix = function(elements) {
+    var position = function(element) {
+        var top = element.getPosition().y, pos = element.getStyle("position");
+        window.addEvent("scroll", function() {
+            var scrolls = this.getScroll().y;
+            if (scrolls > top) {
+                if (window.XMLHttpRequest) {
+                    element.setStyles({
+                        position: "fixed",
+                        top: 0,
+                        right:"450px",
+                        "z-index":"11"
+                    });    
+                } else {
+                    element.setStyles({
+                        top: scrolls
+                    });    
+                }
+            }else {
+                element.setStyles({
+                   position: "absolute",
+                    top:0,
+                    right:0,
+                    "z-index":"6"
+                });    
+            }                       
+        });
+    };
+    if ($type(elements) === "array") {
+        return elements.each(function(items) {
+            position(items);                         
+        });
+    } else if ($type(elements) === "element") {
+        position(elements);    
+    }
+};
+
+function changeSelect(trObj) {
+	$$('.areatr').each(function(tr) {
+		tr.style.backgroundColor="white";
+	})
+	trObj.style.backgroundColor="#99ffff";
+}
+
+function changeArea(areaId) {
+	window.location = "/admin/drama/chooseSeat.shtml?itemid=${item.id}&areaid="+areaId;
+}
+</script>
+#set($pageTrack=${basePath} + 'admin/drama/chooseSeat.xhtml')
+</body>
+</html>

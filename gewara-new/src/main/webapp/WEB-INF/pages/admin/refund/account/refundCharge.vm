@@ -1,0 +1,29 @@
+<div class="hd">充值订单基本信息</div>
+<div class="bd">
+	<table cellpadding="0" cellspacing="0" width="100%" class="table" >
+		<tr>
+			<td>订单号：<span class="yellow">$charge.tradeNo</span></td>
+			<td>类型：充值</td>
+			<td>付票方式：$!paymethodMap.get($charge.paymethod)</td>
+			<td>状态：<span class="yellow">$!{charge.statusText}</span></td>
+		</tr>
+		<tr>
+			<td><a href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$!charge.memberid" target="_blank">用户ID：$charge.memberid</a></td>
+			<td>用户名：$!charge.membername</td>
+			<td>充值类型:#if($VmUtils.eq($charge.chargetype,'order'))订单支付中转#elseif($VmUtils.eq($charge.chargetype,'charge'))充值#end</td>
+			<td>关联订单id: #if(!$VmUtils.isNull($charge.outorderid))${charge.outorderid}#{else}&nbsp;#end</td>
+		</tr>
+		<tr>
+			<td>增加时间：$DateUtil.formatTimestamp($charge.addtime)</td>
+			<td>有效时间：$DateUtil.formatTimestamp($charge.validtime)</td>
+			<td>修改时间：$!DateUtil.formatTimestamp($charge.updatetime)</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>充值金额：${charge.totalfee}</td>
+			<td>外部交易号：$!charge.payseqno</td>
+			<td>充值方式:#if($VmUtils.eq($charge.chargeto,'bank'))帐户#elseif($VmUtils.eq($charge.chargeto,'wabi'))瓦币 #{else}未知#end</td>
+			<td>#* 支付银行：${charge.paybank} *#</td>
+		</tr>
+	</table>
+</div>

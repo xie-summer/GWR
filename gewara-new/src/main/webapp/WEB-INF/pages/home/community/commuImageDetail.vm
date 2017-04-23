@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>${curAlbum.subject}_圈内相册_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,commnu&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.vary{
+			width:120px;
+			position: absolute;
+			z-index: 3;
+			background:#fff;
+			top:0px;
+			height:18px;
+			color:#666;
+			font-size:14px;
+			line-height: 20px;
+			overflow: hidden;
+			left:0px;
+			right:0px;
+			margin:0 auto;
+			line-height:24px;
+		}
+		.untext{border:0px;background:#fff}
+	</style>
+	#parse('home/community/commnu_style.vm')
+</head>
+<body>
+#set($communityPhoto=true)#set($community=true)
+#set($relatetag = 'commu')#set($isFlase=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+#parse('include/home/communityHeadMenu.vm')
+<div class="commnu_layout">
+	<div style="padding:10px 50px;height:100%;background:#fff">
+		<ul class="ul-box clear" >
+			<li style="border-bottom-color:1px solid #cccccc;">
+				<span class="pubpic"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('sw60h60',$curAlbum.limg)) center center no-repeat;"/></span>
+				<p >
+				<span class="brown" style="font-weight: bold;font-size: 14px;" >$curAlbum.subject</span>
+				</p>
+				<p >
+					创建者:<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$curAlbumMember.id" class="brown">$!curAlbumMember.nickname</a>
+					#if($!curAlbum.description)<br/>
+						描述：$!curAlbum.description
+					#end
+				</p>
+			</li>
+			</ul>
+			<div style="border-bottom: 1px solid #cccccc;">
+			#set($ta = 'TA')
+			#if($isCommuMember)
+				<a href="${basePath}home/new/uploadPicture.xhtml?tag=commu&relatedid=$!curAlbum.commuid&albumid=$!curAlbum.id" style="color: #C03B0C;margin-left: 10px;">上传图片</a>
+				#set($logonMember = $member)
+				#if($albumMember.id eq $!logonMember.id || $!logonMember.id eq $!commu.adminid || $!logonMember.id eq $!commu.subadminid)<a href="javascript:setCover();" style="color: #C03B0C;margin-left: 10px;" title="把当前图片设置成相册封面">设置封面</a>#end
+				<input type="hidden" name="curAlbumImage" id="curAlbumImage" value="$curAlbumImage.limg"/>
+			#end
+				<span class="mr20" ><a href="${basePath}quan/commu/albumImageList.xhtml?commuid=$commu.id&albumid=$!curAlbum.id" style="color: #C03B0C;" class="ml10">返回相册</a></span>
+			</div>	
+		#parse('include/global/groupPicture.vm')
+		<div class="height0"></div>
+	</div>
+	<div class="height0"></div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+	function setCover(){
+		var albumId = $curAlbum.id;
+		var values = {'albumId':albumId,'imageUrl':$('curAlbumImage').value};
+		var url = "${basePath}home/album/setAlbumCover.xhtml";
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){ gewaUtil.alert("设置成功！"); refreshPage();}
+			else gewaUtil.alert(result.msg);
+		});
+	}
+</script>
+</body>
+</html>

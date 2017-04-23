@@ -1,0 +1,128 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>积分查询列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	</head>
+#set($tag={'invite':'成功邀请','confirm':'高级确认','exchange':'兑换物品','corr':'页面纠错','charge':'账户充值',
+		'trade':'订单成交','content':'手动输入原因','diarymovie':'发表影评','commentcinema':'影院点评','commentdrama':'话剧点评','commentsport':'运动点评',
+		'add_place':'添加场所信息','update_place':'更新场馆信息','perfect_place':'完善场馆信息','corr_place':'场馆信息纠错',
+		'add_item':'添加项目信息','update_item':'更新项目信息','perfect_item':'完善项目信息','corr_item':'项目信息纠错',
+		'newtask':'新手任务','login':'用户注册','pay':'充值','loginactivity':'每日积分领取','add_movie':'添加电影','add_coach':'添加教练',
+		'ext':'漂流积分','invitefriend_ticket':'邀请好友订票','invitefriend_goods':'邀请好友买商品','addinfo':'添加信息(影片、场馆等）',
+		'correct':'纠错(影片、场馆、项目等）','order_share':'购票分享微博','replymessagemovie':'电影短信回复','replymessagedrama':'话剧短信回复','replymessagesport':'运动短信回复',
+		'headpic':'新手任务更新头像','buyticket':'新手任务成功购票','moviecomment':'新手任务发影评','confirmreg':'新手任务高级邮箱验证',
+		'fivefriend':'新手任务加5个关注','bindmobile':'新手任务绑手机','sendwala':'新手任务发哇啦','joincommu':'新手任务加圈子'})	
+<body style="margin:auto;">
+	<form action="${basePath}admin/point/searchPointInfo.xhtml" method="post" style="margin:3px; float: left;" onsubmit="return validateForm()">
+		搜索条件：开始时间：<input type="text" name="startTime" value="$!mrParams.startTime"  id="startTime" onfocus="new WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'2006-01-01 00:00:00',maxDate:'2100-03-10 00:00:00'})" style="width:140px"/> — 结束时间：<input name="endTime" value="$!mrParams.endTime" id="endTime" type="text" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'2006-01-01 00:00:00',maxDate:'2100-03-10 00:00:00'})" style="width:140px" /><br/> 
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;积分获取方式：<select name="tag" style="width: 120px;">
+						<option value=''>积分获取方式</option>
+						#foreach($tagValue in $listTag)
+						#if($!tag.get($!tagValue))
+						<option #if($!mrParams.tag eq $!tagValue )selected="selected"#end value="$!tagValue">$!tag.get($!tagValue)</option>
+						#end
+						#end
+					</select><br/>
+					<input type="hidden" name="type" value="para"/>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;总积分值：<input name="valueStart" onkeyup="validateInt(event,this)" maxlength="9" id="valueStart" value="$!mrParams.valueStart" style="width: 45px;"/>-<input maxlength="9" value="$!mrParams.valueEnd" name="valueEnd" id="valueEnd" onkeyup="validateInt(event,this)" style="width: 45px;" />
+		<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" style="width: 100px;" class="button" value="查询"/><br/>
+		总积分：$!sumPoint;用户数量：$!pageUtil.rowsCount;消耗的积分值：<a href="javascript:void(0);" onclick="searchExpend('$!param.startTime','$!param.endTime','$!param.tag')">$!pointMap.get("paypoint")</a>;当前条件下送出的积分值：$!pointMap.get("gainpoint");积分沉淀率：$!sleepLv
+	</form>
+<br/>
+<table class="table clear">
+	<thead>
+	<tr>
+		<th>用户ID</th>
+		<th>用户昵称</th>
+		<th>获取积分值</th>
+		<th>消耗积分值</th>
+		<th>总积分</th>
+	</tr>
+	</thead>
+	<tbody id="pointTable">
+	#foreach($point in $variableList)
+	<tr>
+		<td>$!point.get('memberid')</td>
+		<td>$cacheMemberMap.get($!point.get('memberid')).nickname</td>
+		<td><a target="_blank" href="${basePath}admin/point/pointSearchDetailList.xhtml?memberid=$!point.get('memberid')&&startTime=$!param.startTime&&endTime=$!param.endTime&&tag=$!param.tag&&type=huoqu">$!point.get('gainpoint')</a></td>
+		<td><a target="_blank" href="${basePath}admin/point/pointSearchDetailList.xhtml?memberid=$!point.get('memberid')&&startTime=$!param.startTime&&endTime=$!param.endTime&&tag=$!param.tag&&type=expend">$!point.get('paypoint')</a></td>
+		<td>#set($sumPoint1=$!point.get('memberid'))$!{memberPointMap.get($!sumPoint1)}</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<div style="border: 2px solid gray;width:220px;height:250px;display:none;background: #D7E9F5;font-size: 14px;" id="expendPoint">
+
+</div>
+#parse('include/pageUtil.vm')
+	<script type="text/javascript">
+	function validateInt(e,obj){
+		if((e.keyCode>=48&&e.keyCode<=57)||(e.keyCode>=96&&e.keyCode<=105)){
+		}else{ obj.value='';}
+	}
+	function validateForm(){
+		if($("startTime").value.length==0&&$("endTime").value.length!=0){
+			alert("请选择开始时间！");
+			return false;
+		}
+		if($("endTime").value.length==0&&$("startTime").value.length!=0){
+			alert("请选择结束时间!");
+			return false;
+		}
+		if($("startTime").value.length!=0&&$("endTime").value.length!=0){
+			var d1=new Date($("startTime").value.replace(/-/g,'/'));
+			var d2=new Date($("endTime").value.replace(/-/g,'/'));
+			if(d2<d1){
+				alert("结束时间必须大于开始时间");
+				return false;
+			}
+		}
+		if(!parseInteger($("valueStart").value)&&$("valueStart").value.length!=0){
+			alert("积分值只能输入数字");
+			return false;
+		}
+		if(!parseInteger($("valueEnd").value)&&$("valueEnd").value.length!=0){
+			alert("积分值只能输入数字");
+			return false;
+		}
+		
+		return true;
+	}
+	function searchExpend(start,end,tag){
+			var hash = new Hash({invite:'成功邀请',confirm:'高级确认',exchange:'兑换物品',corr:'页面纠错',charge:'账户充值',
+								trade:'订单成交',content:'手动输入原因',diarymovie:'发表影评',commentcinema:'点评场所',
+								add_place:'添加场所信息',update_place:'更新场馆信息',perfect_place:'完善场馆信息',corr_place:'场馆信息纠错',
+								add_item:'添加项目信息',update_item:'更新项目信息',perfect_item:'完善项目信息',corr_item:'项目信息纠错',
+								newtask:'新手任务',login:'用户注册',pay:'充值',loginactivity:'每日积分领取',add_movie:'添加电影',add_coach:'添加教练','addinfo':'添加信息(影片、场馆等）','correct':'纠错(影片、场馆、项目等）'});
+			var url="${basePath}admin/point/searchexpendpoint.xhtml";
+			var values = {'startTime':start,'endTime':end,'tag':tag};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					var html="<a align='right' href='javascript:void(0);' onclick='closeExpend()'>关闭</a><p align='center'>消耗积分列表</p><hr style='border-color:gray;'/>";
+					for(var i=0;i<result.list.length;i++){
+						var value=result.list[i][1];
+						var value1=result.list[i][0];
+						html=html+"【"+hash.get(value)+"】："+value1+"<br/><hr style='border-color: gray'/>";
+					}
+					$('expendPoint').set('html',html);
+					$('expendPoint').setStyle("display","block");
+					GewaraUtil.showDialog($('expendPoint'),-1,true);
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+		function closeExpend(){
+			GewaraUtil.hideDialog('expendPoint');
+		}
+</script>
+</body>
+</html>

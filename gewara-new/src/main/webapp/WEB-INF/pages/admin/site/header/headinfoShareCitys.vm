@@ -1,0 +1,58 @@
+<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+<!--  选择城市 弹出框begin -->
+<div id="showCityDialog" class="yui-panel" style="width:560px; visibility:hidden;">
+	<div class="hd" id="title">关联显示城市</div>
+	<div class="bd">
+	<form name="showCityForm" id="showCityForm">
+		<input type="hidden" name="hid" value="$!hid" />
+		<div>
+			<label class="labelspan">操作：</label>
+			<input type="radio" name="relatecityAll" id="relatecityAll" style="width: 20px;" value="000000" onclick="checkSelAll(this)" #if(!$VmUtils.isEmptyList($selcitycode)) checked #end>
+			<label class="labelfor" for="relatecityAll">增加(默认全部)</label>
+			<input type="radio" name="relatecityAll" id="delcityAll" style="width: 20px;" value="$!{citycode}" onclick="checkSelAll(this)" />
+			<label class="labelspan" for="delcityAll">删除(默认全部)</label>
+			<br />
+		</div>
+		<div style="margin-top: 20px;" id="subCitys">
+			<label class="labelspan">开放城市：</label>
+			#foreach($city in $cityMap.keySet())
+				<input type="checkbox" name="relatecity" style="width: 15px;" id="ct$city" value="$city" #if($VmUtils.contains($selcitycode, $city)) checked #end>
+				<label class="labelfor" for="ct$city">$cityMap.get($city)</label>
+			#end
+		</div>
+		<div style="margin-top: 20px;">
+			<label class="labelspan">结束时间: </label>
+			<input type="text" name="stoptime" style="width:150px;" value="" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/> 
+		</div>
+		<div>
+			<br />
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="saveRelateCity();" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="GewaraUtil.hideDialog('showCityDialog');" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+<!-- 选择城市 弹出框end -->
+	<script>
+	// 全选
+	checkSelAll = function(obj){
+		$each($('subCitys').getElements('input'), function(n, i){
+			n.checked = obj.checked;
+		})
+	}
+	// 保存关联城市
+	saveRelateCity = function(){
+		var url = '${basePath}admin/site/header/saveheadinfoShareCitys.xhtml';
+		var values = GewaraUtil.getValues('showCityForm', ',');
+		values.board = '$board';
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				GewaraUtil.hideDialog('showCityDialog');
+				alert('设置成功!');
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+</script>

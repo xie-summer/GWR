@@ -1,0 +1,30 @@
+#if(!$VmUtils.isEmptyList($topNewsList))
+#if($VmUtils.size($topNewsList) gt 8)
+<span class="evenLeft" id="even"><b class="orientation"></b></span>
+<span class="evenRight"><b class="orientation"></b></span>
+#end
+<div class="evenCenter clear">
+	<ul id="hotSceneInner">
+		#set($num=$VmUtils.size($topNewsList)/8)
+		#if($VmUtils.size($topNewsList)%8 ne 0)#set($num=$num+1)#end
+		#foreach($x in [1..$num])
+		#set($maxCount = $x*8)
+		#set($minCount = $maxCount - 8)
+		<li>
+			#foreach($news in $topNewsList)
+			#if(($foreach.count gt $minCount) && ($foreach.count le $maxCount))
+			#set($styleCount=$minCount+4)
+			<div class="box" #if($foreach.count gt $styleCount)style="margin-top:30px;"#end>
+				<a href="${basePath}news/$news.id" target="_blank">
+					<span class="iMark">$!DateUtil.format($news.releasetime,"yyyy年MM月dd HH:mm")</span>
+					<img alt="$news.title" width="200" height="150" src="$VmUtils.randomPic('cw200h150',$!news.logo)"/>
+				</a>
+				<p class="mt10"><a class="fs14 cMovie" href="${basePath}news/$news.id" target="_blank" title="$news.title">$!VmUtils.escabbr($news.title,30)</a></p>
+			</div>
+			#end
+			#end
+		</li>
+		#end
+	</ul>
+</div>
+#end

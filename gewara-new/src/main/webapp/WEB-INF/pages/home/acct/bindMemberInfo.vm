@@ -1,0 +1,63 @@
+<!-- 登录 -->
+<div id="bindMemberInfo"style="display:none">
+	<div class="inner">
+		<div class="brown fs14 center">绑定常用邮箱后可使用邮箱和密码登录格瓦拉！</div>
+		<dl class="tales100 mt10">
+			<dt>昵称：</dt>
+			<dd><label for="nkname" class="text label"><input type="text" name="nickname" id="nkname" class="text fs14 validate['required','length[2,15]']" maxlength="12" value="$!logonMember.nickname"/></label><b class="fc_b ml10" style="line-height:38px;">*</b></dd>
+		</dl>
+		<dl class="tales100">
+			<dt>邮箱：</dt>
+			<dd><label for="email" class="text label"><input type="text" class="text fs14" id="email" name="email" value=""/></label><b class="fc_b ml10" style="line-height:38px;">*</b></dd>
+		</dl>
+		<dl class="tales100">
+			<dt>密码：</dt>
+			<dd><label for="pwd" class="text label"><input type="password" class="text fs14 validate['required','length[6,12]']" maxlength="12" name="pwd" id="pwd" value=""/></label><b class="fc_b ml10" style="line-height:38px;">*</b></dd>
+		</dl>
+		<dl class="tales100">
+			<dt>确认密码：</dt>
+			<dd><label for="pwd2" class="text label"><input type="password" class="text fs14 validate['required','length[6,12]']" maxlength="12" name="pwd2" id="pwd2" value=""/></label><b class="fc_b ml10" style="line-height:38px;">*</b></dd>
+		</dl>
+	</div>
+</div>
+<script type="text/javascript">
+saveOpenMemberInfo = function(){
+	var nickname = $('nkname').value;
+	var email = $('email').value;
+	var pwd = $('pwd').value;
+	var pwd2 = $('pwd2').value;
+	if(!$chk(nickname)){
+		gewaUtil.alert("昵称不能为空！");
+		return false;
+	}
+	if(!$chk(email)){
+		gewaUtil.alert("邮箱不能为空！");
+		return false;
+	}
+	if(!$chk(pwd) || !$chk(pwd2)){
+		gewaUtil.alert("密码不能为空！");
+		return false;
+	}
+	if(pwd != pwd2){
+		gewaUtil.alert("两次输入的密码不一致！");
+		return false;
+	}
+	var url = "${basePath}home/saveBindMemberInfo.xhtml";
+	var values = {'nickname':nickname,'email':email,'pwd':pwd,'pwd2':pwd2};
+	GewaraUtil.sendRequest(url,values,function(result){
+		if(result.success){
+			gewaUtil.alert("邮箱绑定成功，你可以使用绑定邮箱和密码直接登陆格瓦拉！");
+			gewa.util.container['bindMemberInfo'].dispose('bindMemberInfo');
+			refreshPage();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+	//绑定登录邮箱
+bindEmails = function(){
+	gewa.util.issure('','bindMemberInfo','设置邮箱与登录密码',460,'bindMemberInfo',function(){
+		saveOpenMemberInfo();
+	})
+}
+</script>

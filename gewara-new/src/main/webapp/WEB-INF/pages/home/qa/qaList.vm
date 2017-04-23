@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>#if($!logonMember.id eq $member.id)我#else$!member.nickname#end的知道_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.titleTable td{text-align:center;}
+		.titleTable .qus{text-align:left;}
+	</style>
+</head>
+<body>
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+	 		#if(!$isFriend)
+			#parse('include/home/qaMenu.vm')
+			#end
+			<div id="topic_qa"></div>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody").getElements("tr").each(function(item){
+		item.addEvents({'mouseenter':function(){this.addClass("tdHover");},'mouseleave':function(){this.removeClass("tdHover");}});
+	});
+	getQuestionOrAnswer('question','question');
+});
+
+function getQuestionOrAnswer(type,obj){
+	var url = '${basePath}home/qa/questionAndAnswerList.xhtml';
+	var values={'memberid':'$logonMember.id','type':type};
+	gewaUtil.loadData('topic_qa', url, values, function(result){
+		if(result.success){
+			if(type == 'question'){
+				$('question').addClass('select');
+				$('answer').removeClass('select');
+			}else{
+				$('question').removeClass('select');
+				$('answer').addClass('select');
+			}
+		}else{
+			gewaUtil.alert(result.json.msg);
+		}
+	}, obj, 'get');
+}
+function ajaxPage(pageNo, params, url){
+	gewaUtil.loadData('topic_qa', url, {});
+}
+</script>
+</body>
+</html>

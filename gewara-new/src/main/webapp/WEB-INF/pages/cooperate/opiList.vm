@@ -1,0 +1,125 @@
+#if(!$VmUtils.isEmptyList($dateList))
+<div class="banner mt20">
+	<em class="m1"></em><em class="m2"></em>
+	<div class="m">
+		<strong class="fs14" style="color:#ff5902">移动手机支付优惠场次</strong>
+		<form id="searchForm">
+			<input type="hidden" name="movieid" id="movieid" value="$!movieid"/>
+			<input type="hidden" name="fyrq" id="fyrq" value="$!fyrq"/>
+			<input type="hidden" name="sort" id="sort" value="$!VmUtils.escapeHtml($params.sort)"/>
+		</form>
+		<dl class="choices clear">
+			<dt>放映影片：</dt>
+			<dd>
+				#foreach($movie in $movieList)
+				<a #if($VmUtils.eq($movie.id,$movieid)) class="select" #else href="javascript:searchMovie('movieid',$movie.id)" #end>$movie.name</a>
+				#end
+			</dd>
+		</dl>
+		<dl class="choices clear mt5">
+			<dt>购票区域：</dt>
+			<dd>
+				<a id="allCountyLabel" href="javascript:void(0);" onclick="filterCounty('',this)" class="select countyLabel" style="position: relative;">全部$VmUtils.size($!cinemaList)<em id="curCountySelect" class="spt"></em></a>
+				#foreach($county in $countyList)
+				<a href="javascript:void(0);" onclick="filterCounty('$county.countycode', this)" class="countyLabel" style="position: relative;">$county.countyname<span>($VmUtils.size($!cinemaMap.get($county.countycode)))</span></a>
+				#end
+			</dd>
+			<dd>
+				<div class="choiceDialog clear mt5">
+					#foreach($cinema in $cinemaList)
+					<a class="cinemaLabel" id="f$cinema.id" rel="$!cinema.countycode" href="javascript:void(0);" onclick="filterCinema('$cinema.id',this);">$cinema.name</a>
+					#end
+				</div>
+			</dd>
+		</dl>
+		<ul class="site_menu mt20 mb20" style="position: relative">
+			#foreach($pdate in $dateList)#set($pdateStr=$DateUtil.formatDate($pdate))
+			<li><a #if($VmUtils.eq($pdateStr, $fyrq)) class="select" #end href="javascript:search('fyrq', '$pdateStr')"><span>${DateUtil.format($pdate, 'M月d日')}[$DateUtil.getCnWeek($pdate)]</span></a></li>
+			#end
+		</ul>
+		#foreach($cinema in $cinemaList)
+		<div class="play-outside-box countyContent" id="A${cinema.id}OF$cinema.countycode">
+			<div class="title">
+				<h2><span class="brown ml10">$!cinema.name</span></h2>
+				<span class="gray">地址：$cinema.address</span>
+			</div>
+			<div class="wrapper" id="href$cinema.id">
+				<div class="wrapperTitle">
+					<b>放映时间</b>
+					<b>语言/版本</b>
+					<b>放映厅$VmUtils.size($opiMap.get($cinema.id))</b>
+					<b>票价(元)</b>
+					<b class="yellow">现价(元)</b>
+					<b class="yellow">购票</b>
+				</div>
+				#set($width=71 * $VmUtils.size($opiMap.get($cinema.id)))
+				<ul class="ptableList" id="wrapped$cinema.id" style="width:${width}px;">
+					#foreach($pItem in $opiMap.get($cinema.id))
+					<li #if($foreach.index%2 eq 1) class="playBg" #end>
+						<b id="$pItem.id">$DateUtil.format($!{pItem.playtime},'HH:mm')</b>
+						<span class="gray" id="$pItem.id">$!pItem.language#if($!pItem.edition)/$!pItem.edition#end</span>
+						<span class="gray" id="$pItem.id">$!{pItem.roomname}</span>
+						<span class="gray" id="$pItem.id">$!pItem.price</span>
+						<b id="$pItem.id">$!priceHelper.getPrice($pItem)</b>
+						<span>
+							<a href="${basePath}cooperate/chooseSeat.xhtml?mpid=${pItem.mpid}&pid=$partner.id" class="button redBt minBt"><span>购票</span></a>
+						</span>
+					</li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+	</div>
+	<em class="m2"></em><em class="m1"></em>
+</div>
+<script type="text/javascript" src="${staticPath}scripts/scrollerbar.js"></script>
+<script type="text/javascript">
+function searchOpi(field,value){
+	$(field).value = value;
+	$('searchForm').submit();
+}
+function searchFyrq(field,value){
+	$('searchForm').getElements('input').each(function(item){item.value=""});
+	searchOpi(field,value);
+}
+function searchMovie(field,value){
+	$('searchForm').getElements('input').each(function(item){item.value=""});
+	searchOpi(field,value);
+}
+var countyGroup={};
+countyGroup.curCountyLabel=$("allCountyLabel");
+function filterCounty(countycode, el){
+	countyGroup.curCountyLabel.removeClass("select");
+	$(el).addClass("select");
+	$("curCountySelect").inject(el);
+	countyGroup.curCountyLabel=el;
+	$$(".cinemaLabel").each(function(item){
+		item.removeClass("select");
+		if(countycode=='' || item.get('rel')==countycode) item.removeClass("none");
+		else item.addClass("none");
+	});
+	$$(".countyContent").each(function(item){
+		if(countycode=='' || item.id.indexOf(countycode)>0) item.removeClass("none");
+		else item.addClass("none");
+	});
+}
+function filterCinema(cinemaid, el){
+	$$(".countyContent").each(function(item){
+		if(item.id.indexOf("A"+cinemaid+"OF")>=0) item.removeClass("none");
+		else item.addClass("none");
+	});
+	$(el).addClass("select");
+	if(countyGroup.curCinema) countyGroup.curCinema.removeClass("select");
+	countyGroup.curCinema=el;
+}
+window.addEvent('domready',function(){
+	if($('f$!{params.cinemaid}'))filterCinema('$!{params.cinemaid}',$('f$!params.cinemaid'))
+	#foreach($cinema in $cinemaList)
+	#if($VmUtils.size($opiMap.get($cinema.id)) gt 12)
+	new ScrollerBar('href$cinema.id',{mode:'horizontal',wrapped:'wrapped$cinema.id'});
+	#end
+	#end
+})
+</script>
+#end

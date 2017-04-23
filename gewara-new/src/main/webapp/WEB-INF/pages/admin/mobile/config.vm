@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body>
+<div id="warn" style="margin: 10px 0px 0px 50px">
+	<form action="${basePath}admin/mobile/configList.xhtml">
+	请输入ID: <input type="text" name="cid" id="cid" value="$!params.cid"/>
+	<input type="submit" value="查询" />
+	</form>
+	#if($config)
+	<fieldset style="width: 400px;">
+		<legend class="yellow">查询结果：</legend>
+		<div>
+			<div>描述：$!{config.description}</div><br/>
+			<div>内容：<textarea rows="4" id="content" style="width: 300px;">$!config.content</textarea></div><br/>
+			<input type="button" value="保存" onclick="save()"/>
+		</div>
+	</fieldset>
+	#end
+</div>
+<script>
+	function save(){
+		var url = "${basePath}admin/mobile/setConfigContent.xhtml";
+		GewaraUtil.sendRequest(url, {"cid":$('cid').value, "content":$('content').value},function(result){
+			refreshPage();
+		});
+	}
+</script>
+</body>
+</html>

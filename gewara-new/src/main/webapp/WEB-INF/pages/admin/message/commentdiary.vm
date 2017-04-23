@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>点评列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width:75%;margin:auto" class="yui-skin-sam">
+<form action="" name="myform" id="myform">
+<input type="hidden" name="pointtype" value="$params.tag" />
+#parse('include/pageUtil.vm')
+<table width="80%" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th>标题</th>
+		<th>作者</th>
+		<th style="width: 120px;">场馆</th>
+		<th>点评日期</th>
+		<th>赠送积分</th>
+		<th>前台</th>
+	</tr>
+	</thead>
+	<tbody id="newsTable">
+	#foreach($diary in $commentList)
+	#set($relate=$relatedHelper.getR1("commentList",$diary.id))
+	#set($mpi=$mpiMap.get($diary.id))
+		<tr>
+			<td>$!diary.body</td>
+			<td>$!diary.nickname</td>
+			<td>$!relate.name</td>
+			<td>$DateUtil.format($!{diary.addtime},'yyyy-MM-dd')</td>
+			<td><select name="$diary.id" id="$diary.id">
+						<option value=0>0</option>
+						<option value=5>5</option>
+						<option value=10>10</option>
+						<option value=15>15</option>
+						<option value=20>20</option>
+						<option value=25>25</option>
+						<option value=30>30</option>
+						<option value=35>35</option>
+						<option value=40>40</option>
+						<option value=45>45</option>
+						<option value=50>50</option>
+						<option value=100>100</option>
+				</select></td>
+			<td><a href="$!{absPath}${basePath}$diary.tag/${diary.relatedid}/commentlist" target="_blank">前台页面</a></td>
+		</tr>
+	#end
+	<tr>
+			<td colspan="6"  style="text-align: center"><input value="保存" type="button" onclick="pass()"></td>
+	</tr>
+	</tbody>
+</table>
+</form>
+#parse('include/pageUtil.vm')
+	<script type="text/javascript">
+	function pass(){
+	if(confirm("确认保存吗？")){
+			var value=GewaraUtil.getValues("myform");
+			var url = "${basePath}admin/common/ajax/addExPointByComment.xhtml";
+			GewaraUtil.sendRequest(url, value, function(result){
+				if(result.success){
+					refreshPage();
+				}else{
+					alert('失败');
+				}
+			});
+		}
+	}
+</script>
+</body>
+</html>

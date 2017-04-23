@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>申请发票_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,pagesNavigation,slimbox,scrollSpy,base_home&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body>
+#set($ishome=true)#set($isInvoice = true)#set($myAccount = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/myAccount.vm')
+			<form id="searchOrderForm" action="${basePath}home/invoice/invoiceList.xhtml">
+			<div class="mt20 title">
+				<h2>申请发票记录</h2>
+				<span class="more">
+					日期范围
+					<input type="text" class="Wdate" value="$!VmUtils.escapeHtml($params.fromDate)" name="fromDate" id="fromDate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" style="width:95px; height:16px;" />
+					至&nbsp;<input type="text" class="Wdate" value="$!VmUtils.escapeHtml($params.toDate)" name="toDate" id="toDate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" style="width:95px; height:16px;" />
+					<label class="button redBt minBt ml5"><input type="submit" value="查询" id="invoiceSubmit"/></label>
+				</span>
+			</div>
+			</form>
+			<table cellpadding="0" class="table mt5" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th>流水号</th>
+						<th>发票金额</th>
+						<th>提交时间</th>
+						<th>开票时间</th>
+						<th>当前状态</th>
+						<th>邮寄日期</th>
+						<th>邮寄状态</th>
+						<th>邮寄号</th>
+						<th>备注</th>
+					</tr>
+				</thead>
+				<tbody>
+				#if(!$VmUtils.isEmptyList($invoiceList))
+					#foreach($invoice in $invoiceList)
+						<tr>
+							<td><a href="${basePath}home/invoice/invoiceInfo.xhtml?invoiceid=$!invoice.id">$!invoice.id</a></td>
+							<td>￥<span style="color:red;">$!invoice.amount</span> &nbsp;</td>
+							<td>$!DateUtil.format($invoice.addtime,'yyyy年M月d日') &nbsp;</td>
+							<td>$!DateUtil.format($invoice.opentime,'yyyy年M月d日')&nbsp;</td>
+							<td style="color:red;">#if($VmUtils.eq($invoice.invoicestatus,'N_APPLY'))申请中#elseif($VmUtils.eq($invoice.invoicestatus,'Y_OPEN') || $VmUtils.eq($invoice.invoicestatus,'Y_POST')
+							|| $VmUtils.eq($invoice.invoicestatus,'Y_NOTPOST') || $VmUtils.eq($invoice.invoicestatus,'Y_EXP'))发票已开#end &nbsp;</td>
+							<td>$!DateUtil.format($invoice.posttime,'yyyy年M月d日')&nbsp;</td>
+							<td style="color:red;">#if($VmUtils.eq($invoice.invoicestatus,'Y_NOTPOST'))未邮寄#elseif($VmUtils.eq($invoice.invoicestatus,'Y_POST'))平邮#elseif($VmUtils.eq($invoice.invoicestatus,'Y_EXP'))快递#end &nbsp;</td>
+							<td>$!invoice.postnumber &nbsp;</td>
+							<td>$!VmUtils.htmlabbr($!invoice.invoicecontent,30) &nbsp;</td>
+						</tr>
+					#end
+				#else
+					<tr>
+						<td colspan="8">没有信息...</td>
+					</tr>
+				#end
+				</tbody>
+			</table>
+			#parse('include/pageUtil.vm')
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+	function submitInvoice(){
+		if(!$('title').value){
+			gewaUtil.alert('发票抬头不能为空!');
+			return;
+		}
+		if(!$('contactor').value){
+			gewaUtil.alert('收件人不能为空!');
+			return;
+		}
+		if(!$('phone').value){
+			gewaUtil.alert('电话不能为空!');
+			return;
+		}
+		if(!$('email').value){
+			gewaUtil.alert('邮件地址不能为空!');
+			return;
+		}
+		if(!$('address').value){
+			gewaUtil.alert('邮寄地址不能为空!');
+			return;
+		}
+		if(!$('postcode').value){
+			gewaUtil.alert('邮寄地址不能为空!');
+			return;
+		}
+		var url = '${basePath}home/acct/saveReceiveInvoice.xhtml';
+		GewaraUtil.mask("invoiceForm");
+		var values = GewaraUtil.getValues("invoiceForm");
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				gewaUtil.alert('提交申请成功！');
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

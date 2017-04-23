@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>MemCache 清除</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	
+</head>
+<body style="margin: 20px;">
+<div id="memFrm">
+RegionName：
+<select name="regionName">
+	<option value="">---------</option>
+	<option value="openSeat">REGION_OPENSEAT</option>
+	<option value="oneSecond">REGION_ONESECOND</option>
+	<option value="halfMin">REGION_HALFMIN</option>
+	<option value="oneMin">REGION_ONEMIN</option>
+	<option value="tenMin">REGION_TENMIN</option>
+	<option value="halfHour">REGION_HALFHOUR</option>
+	<option value="oneHour">REGION_ONEHOUR</option>
+	<option value="twoHour">REGION_TWOHOUR</option>
+	<option value="halfDay">REGION_HALFDAY</option>
+	<option value="oneDay">REGION_ONEDAY</option>
+	<option value="twentyMin">REGION_TWENTYMIN</option>
+	<option value="loginKey">REGION_LOGINKEY</option>
+	<option value="loginAuth">REGION_LOGINAUTH</option>
+</select>
+KEY：<input type="text" name="key" />
+<input type="button" value="清 除" onclick="cleanMemCache()" />
+<br />
+<div id="result" style="word-wrap: break-word;"></div>
+</div>
+
+<script>
+	function cleanMemCache(){
+		var url = '${basePath}clearMemcacheKey.xhtml';
+		var values = GewaraUtil.getValues('memFrm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$('result').innerHTML = result.retval;
+				$('result').addClass('OkMsg');
+			}else{
+				alert(result.msg);
+			}
+		}, 'get');
+	}
+</script>
+</body>
+</html>

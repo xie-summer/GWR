@@ -1,0 +1,275 @@
+<!Doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>支付成功-格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_pay&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,slimbox&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	/*按钮*/
+	.button,.button span,.button input{background-image:url(/css/sport_wide/btn_sport.gif);}
+	
+	.orderSuccessLeft{width:808px; border:1px solid #bee6f2; padding:30px 20px;}
+	.orderSuccessLeft h1{font-family:"微软雅黑"; line-height:34px; font-size:30px; font-weight:100;}
+	.orderSuccessLeft em{color:#999999;}
+	.bigRed{color:#fe0000; font-size:14px;}
+	.orderResult_tab_con{background:#f3fbfe;border:1px #b9e3f3 solid;padding:20px;}
+	.orderResult_tab_con h2{font-family:"微软雅黑"; font-size:16px;}
+	.orderSuccessRight{width:310px; margin-left:}
+	.ft_href{display:block; background:url("/css/sport_wide/ico_pub.gif") no-repeat -21px -330px; padding-left:15px; height:12px; line-height:12px; margin-top:15px;}
+	.ft_href a{color:#2196cb;}
+	
+	.packageBox{background:#fff; border-top:1px solid #D5D5D5;}
+	.packageBox dl{width:50%; float:left;}
+	.orderResult_tab_info{border:1px solid #c2c2c4; border-radius:5px; background:#fff;}
+	.orderResult_tab_info textarea{overflow-y:auto; line-height:18px; font-size:12px; width:500px; height:40px; color:#666; resize:none; border:0; padding:10px;}
+	
+	.payBox_hd h2{font-size:18px; font-family:"微软雅黑";}
+	.bd1px{border-bottom:1px #999 dashed;}
+	.bdsiBox p{padding:5px 0;}
+	#survey{padding:0;}
+	.oAddPhone ,.oDelPhone{float:left;}
+	#voptions div{margin-bottom:10px; height:30px;}
+	.cardpass{margin:5px;}
+	/*ma*/
+	.shaomaBox{padding:2px;}
+	</style>
+</head>
+<body class="ui_sport">
+#set($issport=true)#set($isOrder4=true)
+#set($orderStr1='场馆')#if($!ott.hasField())#set($orderStr2='场次')#else#set($orderStr2='人次')#end#set($orderStr3='预订')
+#set($isIndexBigAd=true)#set($cfgHeader='header')
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="inner">
+		#parse('sport/menu.vm')
+		<div class="mt20 orderSuccess">
+			<div class="orderSuccessLeft left">
+				<div class="uipic left" style="width:180px;"><img class="ml20 mr20" src="${staticPath}css/sport_wide/succ_i.gif" alt="购买成功"/></div>
+				<div class="uiText left" style="width:610px;">
+					<h1>支付成功 !</h1>
+					<div class="od_deal mt10">订单正在处理中，成功后15分钟内将收到短信通知...</div>
+					<em>短信发送可能会有延迟或被手机安全软件拦截，长时间未收到，<br/>请致电格瓦拉客服：<b style="color:#000;">4000-406-506</b></em>
+					<p style="font-size:14px;">订单号：<a href="${basePath}gewapay/showOrder.xhtml?orderId=$!sportorder.id" target="_blank" class="yellow">$!sportorder.tradeNo</a>
+					<div class="shaomaBox mt10">
+						<img src="${staticPath}css/global/succ_2wm_drama.gif" width="595" height="121" alt="扫描二维码下载格瓦拉@电影"/>
+					</div>
+					#if($order.paymethod eq 'gewaPay') #set($point=${order.due}-${order.wabi}) #else #set($point=$order.due) #end #if($point gt 0) 本次消费你获得<b class="fs14 yellow">$!point</b>积分 #end</p>
+					
+					#set($rel_tag='sport')
+					#parse('include/orderResult/drawCard.vm')
+					#*
+					<div class="orderResult_tab_con clear mt20">
+						#set($description=$!VmUtils.getJsonValueByKey($!order.description2, '详细'))
+						#set($des=$VmUtils.split($description, ';'))
+						#set($d=$VmUtils.split($des[0], ' '))
+						<h2>免费短信通知好友</h2>
+						<div class="clear">
+							<div class="orderResult_tab_info mt10 left">
+								<textarea id="msgContent">我在$!{sport.realBriefname}预定了$!DateUtil.format($!ott.playdate,'MM月dd日')$!VmUtils.substring($description, 0, 2)点#if($VmUtils.size($!d) ge 2)$!d[1]#{end}的$!{item.name}，邀请您一起参加，不要迟到哦！</textarea>
+							</div>
+						</div>
+						<dl class="clear mt10">
+							<dt class="mr5 left" style="width:115px">
+								<p style="position:relative;">
+								<input type="text" class="text" onblur="inputBlur(this);" onfocus="inputFocus(this)" id="myname" name="myname" onfocus="inputFocus(this)" onblur="inputBlur(this);updateContent(this);" maxlength="5" style="width:105px;"/>
+								<label class="cardpass" for="myname" style="margin:0;">我的名字</label>
+								</p>
+							</dt>
+							<dd style="width:197px;" id="voptions" class="left">
+								<div>
+									<p class="left" style="position:relative;">
+										<input class="text" id="phone" onfocus="inputFocus(this)" onblur="inputBlur(this);" onkeyup="GewaraUtil.replaceStr(this)" type="text" name="phonenum" maxlength="11" style="width:157px;"/>
+										<label class="cardpass" for="phone" style="margin:0;">好友手机</label>
+									</p>
+									<p class="right"><span class="oAddPhone" id="addFont"></span></p>
+								</div>
+							</dd>								
+							<dd class="ml10 left" style="width:66px;margin-top:2px;">
+								
+								<a class="button minBt redBt" onclick="sendMsg($!order.id);" ><span style="width:30px;">发送</span></a>
+							</dd>
+						</dl>
+						<dl>
+							<dd>
+								<div class="mt10 clear">
+										<label class="left">　验证码：</label>
+										<input type="hidden" name="captchaId" id="captcha" />
+										<label class="left" style="width:60px">
+										<input type="text" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" size="18" style="width:60px" mustTxt="请输入验证码!" onfocus="GewaraUtil.refreshCaptcha('captcha');"/></label>
+										<img id="captchaImg" src="${staticPath}css/images/blank.gif" class="ml20" style="cursor: pointer;vertical-align: middle;float:left;height:30px; width:80px;" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清楚，请点击换一张图片"/>
+								</div>
+							</dd>
+						</dl>
+					</div>
+					*#
+					<p class="ft_href mt20"><a href="http://www.gewara.com/" title="我的格瓦拉" target="_blank">进入我的格瓦拉</a></p>
+					<p class="ft_href"><a href="http://www.gewara.com/sport/" title="格瓦拉运动">返回</a><span style="color:#000; margin-left:10px;">格瓦拉@运动继续游览</span></p>
+					<p class="ft_href"><a href="http://www.gewara.com/" title="格瓦拉生活网" target="_blank">格瓦拉首页</a></p>
+				</div>
+			</div>
+			<div class="orderSuccessRight right">
+				#if(!$VmUtils.isEmptyList($gcPictureList))
+				<div class="">
+					#foreach($gcPicture in $gcPictureList)
+					<a target="_blank" href="$gcPicture.link" title="$!gcPicture.title">
+						<img width="260" height="120" src="$VmUtils.randomPic('cw260h180',$!gcPicture.limg)" date_href="$VmUtils.randomPic('cw260h180',$!gcPicture.limg)" alt="$gcPicture.title" />
+					</a>
+					#end
+				</div>
+				#end
+				<div class="payBox mt20">
+					<div class="payBox_hd inner">
+						<h2>满意度投票</h2>
+					</div>
+					<div class="payBox_body bdsiBox ml20">
+						<div class="inner">
+							<p id="survey" class="fs14">您对本次消费过程是否满意？</p>
+							<p class="bd1px">
+								<input id="iyes" class="mr5" type="radio" name="ismy" style="margin:3px 5px;"/>
+								<label for="iyes">满意，消费过程很顺畅</label>
+							</p>
+							<p>
+								<input id="ino" class="mr5" type="radio" name="ismy" style="margin:3px 5px;"/>
+								<label for="ino">不满意，过程中遇到问题</label>
+							</p>
+							<p class="ml20" style="position:relative;">
+								<textarea id="markText" onblur="inputBlur(this);" onfocus="inputFocus(this)" style="height:50px; width:225px;resize:none;color:#999; font-size:12px; padding:5px;" cols=""  rows=""></textarea>
+								<label for="markText" class="cardpass">请描述遇到的问题</label>
+							</p>
+							<p class="ml10">
+								<a class="left button maxBt redBt" href="javascript:sendSurvey();">
+								<span>提交评价</span>
+								</a>
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+#set($pageTrack=${basePath} + 'sport/order/success.html')
+<script type="text/javascript">
+var isWbOpen=true;
+window.addEvent('domready', function(){
+	/* $('addFont').addEvent('click',function(){
+		addOpation();
+	}) */
+})
+
+var vcount=0;
+function addOpation(){
+	var ap = new Element('div',{
+		'html':'<p class="left"><input class="text" id="phone'+vcount+'" onfocus="inputFocus(this)" onblur="inputBlur(this);" type="text" name="phonenum" maxlength="11" style="width:157px;"/><label class="cardpass" for="phone'+vcount+'" style="display:block;">好友手机</label></p><p class="right"><span class="oDelPhone"></span></p>'
+	}).inject('voptions');
+	var aspan = ap.getElement('*[class=oDelPhone]');
+	aspan.addEvent('click',function(){
+		this.getParent('div').dispose();
+		vcount--;
+		OverText.update();
+		if(vcount > 0)$('addFont').show();
+	})
+	vcount++;
+	OverText.update();
+	if(vcount == 1){
+		$('addFont').hide();
+		return;
+	}
+}
+var modifyTextArea = new Class({
+	initialize:function(textbody,count,unm) {
+		if($(textbody) && $(count)){
+				var curNum = unm - $(textbody).value.length;
+				$(count).innerHTML = curNum;
+				if(curNum < 0){
+					$(count).setStyle('color','#ff0000');
+				}
+				else{
+					$(count).setStyle('color','');
+				}
+		}
+	}
+});
+function inputFocus(obj){
+	var obj=$(obj);
+	obj.getParent().getElement('.cardpass').hide();
+}
+function inputBlur(obj){
+	var obj=$(obj);
+	if(obj.value == '')
+		obj.getParent().getElement('.cardpass').show();
+}
+function updateContent(el){
+	if(el.value == "") return ;
+	$('msgContent').value = $('msgContent').get('text').replace('$!member.nickname',el.value);
+	new modifyTextArea('msgContent','isMsg',60);
+}
+function sendMsg(orderId){
+	var mobile = '';
+	var err = '';
+	if($('myname').value == ''){gewaUtil.alert("请输入您的名字！");}
+	var mobileDiv = $('voptions').getElements('input').each(function(el){
+		var val = el.value;
+		if((!GewaraUtil.isMobile(val) || val.length != 11) || val == ""){
+			el.value == '';
+			err = '部分手机号码格式错误，短信未发送！';
+		}else{
+			mobile = mobile + ',' + el.value;
+		}
+	});
+	if(err.length > 0){
+		gewaUtil.alert(err);
+		return false;
+	}
+	if(mobile == ''){
+		gewaUtil.alert("好友手机号码不能为空");
+		return false;
+	}
+	if($('captchaInput').value == ''){
+		gewaUtil.alert("请输入验证码！");
+		return false;
+	}
+	var msgContent = $('msgContent').innerHTML;
+	msgContent = msgContent.replace('我', $('myname').value);
+	gewa.util.mask({'title':'正在提交，请稍等...'});
+	var values = {"orderId":orderId, "mobile":mobile, "msgContent":msgContent, "captcha":$('captchaInput').value,'captchaId':$('captcha').value};
+	GewaraUtil.sendRequest('${basePath}sport/ajax/newsportSendMsg.xhtml?math='+GewaraUtil.rtime(), values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			gewaUtil.alert("发送成功！");
+		}else{
+			$('captcha').value='';
+			GewaraUtil.refreshCaptcha('captcha');
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function sendSurvey(){
+	var optionid = 0;
+	var mark = '';
+	if($('iyes').checked){
+		optionid = 1;
+	}else	if($('ino').checked){
+		optionid = 2;
+		if($('markText').value != '请写你不满意的原因、建议！') mark = $('markText').value;
+	}else{
+		gewaUtil.alert('请选择用户调查选项！');
+		return;
+	}
+	var url = '${basePath}survey/ajax/addSurveyResult.xhtml';
+	var values = {"surveyid":2,"itemid":1,"optionid":optionid,"memberid":$sportorder.memberid,"mark":mark};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.alert("提交成功！");
+			$('survey').addClass('none');
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>格瓦拉电影、影院搜索-$partner.partnername</title>
+	<meta name="keywords" content="电影排片表查询,电影放映时间查询" />
+	<meta name="description" content="近期各大影院上映电影的排片表、放映时间查询。" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.partner_douban{height:50px;width:100%;overflow:hidden;background:url(${picPath}css/buss/partner_srcb.jpg?a=00) 20px center no-repeat;}
+		.tbgss{background:#4c7db6;margin-top:16px;text-indent:10px;color:#fff;}
+		.horn .m1,.horn .m2,.horn .m{border-color:#b1d4ef}
+		.horn .m1{background:#b1d4ef}
+		.m{background:#fafbfd;}
+		html{background:#ffffff}
+	</style>
+</head>
+<body>
+<div class="ui_layout" id="g-top" style="width:100%">
+	<div class="inner">
+		<div class="partner_douban"><a href="http://www.srcb.com/html/" target="_blank" style="width:15%;display: block;height:100%;margin-left:20px;"></a></div>
+		<div class="title tbgss">
+			你的位置：<span class="mr5">上海对外信息服务热线962288</span>&gt;<b class="ml5 black">上海对外信息服务热线962288-格瓦拉合作在线购票专区</b>
+			<p class="more freeTag" style="background-position:0px -2670px;padding-left:20px;cursor: default;">预订过程中有任何问题请拨打客服电话：<b>4000-406-506</b></p>
+		</div>
+		<ul class="payOrder">
+			<li style="margin-right:8px;">
+				<div class="step_order_inner select">1、选择影片<img src="${picPath}css/buss/06_ioc.png"/></div>
+				<div class="order_step_info">选择影片、影院及场次</div>
+			</li>
+			<li style="margin-right:8px;">
+				<div class="step_order_inner">2、选择座位</div>
+				<div class="order_step_info">选择座位，并输入用于取票的手机号码</div>
+			</li>
+			<li style="margin-right:8px;">
+				<div class="step_order_inner">3、在线支付</div>
+				<div class="order_step_info">选择网上支付</div>
+			</li>
+			<li>
+				<div class="step_order_inner">4、自助取票</div>
+				<div class="order_step_info">在位于影院的格瓦拉自助取票机取票</div>
+			</li>
+		</ul>
+		<div class="ui-layout">
+			<form id="searchForm">
+				<input type="hidden" name="movieid" id="movieid" value="$!movieid"/>
+				<input type="hidden" name="fyrq" id="fyrq" value="$!fyrq"/>
+				<input type="hidden" name="encQryStr" value="$!encQryStr" />
+			</form>
+			<dl class="choices clear">
+				<dt>放映影片：</dt>
+				<dd>
+					#foreach($movie in $movieList)
+					<a #if($VmUtils.eq($movie.id,$movieid)) class="select" #else href="javascript:searchMovie('movieid',$movie.id)" #end>$movie.name</a>
+					#end
+				</dd>
+			</dl>
+			<dl class="choices clear mt5" style="border:0px;">
+				<dt>购票区域：</dt>
+				<dd>
+					<a id="allCountyLabel" href="javascript:void(0);" onclick="filterCounty('',this)" class="select countyLabel" style="position: relative;">全部$VmUtils.size($!cinemaList)<em id="curCountySelect" class="spt"></em></a>
+					#foreach($county in $countyList)
+					<a href="javascript:void(0);" onclick="filterCounty('$county.countycode', this)" class="countyLabel" style="position: relative;">$county.countyname<span>($VmUtils.size($!cinemaMap.get($county.countycode)))</span></a>
+					#end
+				</dd>
+				<dd>
+					<div class="choiceDialog clear mt5">
+						#foreach($cinema in $cinemaList)
+						<a class="cinemaLabel" id="f$cinema.id" rel="$!cinema.countycode" href="javascript:void(0);" onclick="filterCinema('$cinema.id',this);">$cinema.name</a>
+						#end
+					</div>
+				</dd>
+			</dl>
+			<ul class="site_menu mt20 mb20" style="position: relative">
+				#foreach($pdate in $dateList)#set($pdateStr=$DateUtil.formatDate($pdate))
+				<li><a #if($VmUtils.eq($pdateStr, $fyrq)) class="select" #end href="javascript:search('fyrq', '$pdateStr')"><span>${DateUtil.format($pdate, 'M月d日')}[$DateUtil.getCnWeek($pdate)]</span></a></li>
+				#end
+			</ul>
+			#foreach($county in $countyList)
+			#foreach($cinema in $cinemaMap.get($county.countycode))
+			<div class="play-outside-box countyContent" id="A${cinema.id}OF$cinema.countycode">
+				<div class="title">
+					<h2><span class="brown ml10">$!cinema.name</span></h2>
+					<span class="gray">地址：$!{cinema.countyname}$!{cinema.address}</span>
+				</div>
+				<div class="wrapper" id="href$cinema.id">
+					<div class="wrapperTitle">
+						<b>放映时间</b>
+						<b>语言/版本</b>
+						<b>放映厅</b>
+						<b>票价(元)</b>
+						<b class="yellow">现价(元)</b>
+						<b class="yellow">购票</b>
+					</div>
+					#set($width=71 * $VmUtils.size($opiMap.get($cinema.id)))
+					<ul class="ptableList" id="wrapped$cinema.id" style="width:${width}px;">
+						#foreach($pItem in $opiMap.get($cinema.id))
+						<li #if($foreach.index%2 eq 1) class="playBg" #end>
+							<b class="getvlue" id="$pItem.id">$DateUtil.format($!{pItem.playtime},'HH:mm')</b>
+							<span class="gray getvlue" id="$pItem.id">$!pItem.language#if($!pItem.edition)/$!pItem.edition#end</span>
+							<span class="gray getvlue" id="$pItem.id">$!{pItem.roomname}</span>
+							<span class="gray getvlue" id="$pItem.id">$!pItem.price</span>
+							<b id="$pItem.id" class="getvlue">$!priceHelper.getPrice($pItem)</b>
+							<span>
+								<a href="${basePath}partner/${partner.partnerpath}/chooseSeat.xhtml?mpid=${pItem.mpid}&encQryStr=$!encQryStr" class="button redBt minBt"><span>购票</span></a>
+							</span>
+						</li>
+						#end
+					</ul>
+				</div>
+			</div>
+			#end
+			#end
+		</div>
+	</div>
+</div>
+<script type="text/javascript" src="${staticPath}scripts/scrollerbar.js"></script>
+<script type="text/javascript">
+function search(field,value){
+	$(field).value = value;
+	$('searchForm').submit();
+}
+function searchFyrq(field,value){
+	search(field,value);
+}
+function searchMovie(field,value){
+	$("fyrq").value='';
+	search(field,value);
+}
+var countyGroup={};
+countyGroup.curCountyLabel=$("allCountyLabel");
+function filterCounty(countycode, el){
+	countyGroup.curCountyLabel.removeClass("select");
+	$(el).addClass("select");
+	$("curCountySelect").inject(el);
+	countyGroup.curCountyLabel=el;
+	$$(".cinemaLabel").each(function(item){
+		item.removeClass("select");
+		if(countycode=='' || item.get('rel')==countycode) item.removeClass("none");
+		else item.addClass("none");
+	});
+	$$(".countyContent").each(function(item){
+		if(countycode=='' || item.id.indexOf(countycode)>0) item.removeClass("none");
+		else item.addClass("none");
+	});
+}
+function filterCinema(cinemaid, el){
+	$$(".countyContent").each(function(item){
+		if(item.id.indexOf("A"+cinemaid+"OF")>=0) item.removeClass("none");
+		else item.addClass("none");
+	});
+	$(el).addClass("select");
+	if(countyGroup.curCinema) countyGroup.curCinema.removeClass("select");
+	countyGroup.curCinema=el;
+}
+window.addEvent('domready',function(){
+	#foreach($county in $countyList)
+	#foreach($cinema in $cinemaMap.get($county.countycode))
+	#if($VmUtils.size($opiMap.get($cinema.id)) gt 12)
+	new ScrollerBar('href$cinema.id',{mode:'horizontal',wrapped:'wrapped$cinema.id'});
+	#end
+	#end
+	#end
+})
+</script>
+<script type="text/javascript">
+var pageCode="Showtimelist"
+</script>
+#parse('partner/googleGa.vm')
+</body>
+</html>

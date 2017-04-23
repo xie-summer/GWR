@@ -1,0 +1,464 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>编辑电影院数据</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label{display:inline-block;width:90px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:430px; display:inline}
+		.overTxtLabel{text-align:left; margin-top:-2px!important;}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:720px;margin:auto">
+<script type="text/javascript">
+var exitnumber = [1];
+</script>
+#parse('admin/cinema/cinemaFormHead.vm')
+<div style="color: red;" id="msg">$!errorMsgs</div>
+<div id="cinemaDialog" class="yui-panel" style="width:710px;margin:auto">
+	<div class="hd">编辑电影院服务设施</div>
+	<div class="bd">
+	<form name="cinemaForm" id="cinemaForm" method="post">
+		<input type="hidden" name="cinemaId" id="cinemaId" value="$!{params.cinemaId}"/>
+		<input type="hidden" name="transportLength" value="" id="transportLength" />
+		#if($subwayTransportMap && !$subwayTransportMap.isEmpty())
+			#foreach($stationId in $subwayTransportMap.keySet())
+			<div>
+				#set($staNum = $foreach.count)
+				#set($exitNIndex = $staNum - 1)
+				<div>
+					<label for="subwaylineid">#if($staNum == 1)地铁线路：#end</label>
+					<select onchange="selectStations(this)">
+						<option value="">
+							地铁线路
+						</option>
+						#foreach($line in $lineList)
+						<option value='$!stationMap.get($line.id)'>$line.linename</option>
+						#end
+					</select>
+					<select name="stationid">
+						<option value=""></option>
+						#foreach($station in $stationList)
+						<option value="$station.id" #if($stationId eq $station.id)selected ='selected' #end>$!station.stationname</option>
+						#end
+					</select>
+					站
+					#if($staNum == 1)
+					<input type="button" onclick="addSubwayStation()" value="+增加站点" style="width:80px"/>
+					&nbsp;<input type="button"  onclick="removeSubwayStation(this)" value="-删除站点" style="width:80px"/>
+					&nbsp;&nbsp;<a target="_blank" href="${basePath}admin/common/subwayList.xhtml?isSetTime=true">站点手末班车时间设置</a>
+					#end
+				</div>
+				#if($subwayTransportMap.get($stationId) && !$subwayTransportMap.get($stationId).isEmpty())
+					#foreach($exitnums in $subwayTransportMap.get($stationId))
+					#set($exitnumsCount = $foreach.count)
+					<div>
+						<label></label>
+						<input type="text" name="subwayLines$!{staNum}" style="width:40px" value="$!exitnums.get('lines')"/>&nbsp;号线
+						<input type="text" name="subwayExitnumber$!{staNum}" style="width:80px" value="$!exitnums.get('exitnumber')"/>&nbsp;号出口
+						<input name="subwayDetail$!{staNum}" type="text" style="width:290px" value="$!exitnums.get('detail')" alt="出来后如何到影院？" class="titleinput"/>
+						#if($foreach.count == 1)
+						<input type="button" onclick="addSubwayExitnumber($!{staNum},'auto$!{staNum}')" value="+增加出口" style="width:80px"/>
+						#end
+					</div>
+					#end
+					<script type="text/javascript">
+						exitnumber[$!exitNIndex] = $!exitnumsCount;
+					</script>
+				#else
+					<script type="text/javascript">
+						exitnumber[$!exitNIndex] = 1;
+					</script>
+					<div>
+						<label></label>
+						<input type="text" name="subwayLines$!{staNum}" style="width:40px" value=""/>&nbsp;号线
+						<input type="text" name="subwayExitnumber$!{staNum}" style="width:80px" value=""/>&nbsp;号出口
+						<input name="subwayDetail$!{staNum}" type="text" style="width:290px" value="" alt="出来后如何到影院？" class="titleinput"/>
+						<input type="button" onclick="addSubwayExitnumber($!{staNum},'auto$!{staNum}')" value="+增加出口" style="width:80px"/>
+					</div>
+				#end
+				<div id="subwayExitnumberDivauto$!{staNum}" style="display:none"></div>
+			</div>
+			#end
+		#else
+			#set($staNum = 1)
+			<div>
+				<label for="subwaylineid">地铁线路：</label>
+				<select onchange="selectStations(this)">
+					<option value="">
+						地铁线路
+					</option>
+					#foreach($line in $lineList)
+					<option value='$!stationMap.get($line.id)'>$line.linename</option>
+					#end
+				</select>
+				<select name="stationid">
+					<option value=""></option>
+					#foreach($station in $stationList)
+					<option value="$station.id" #if($cinema.stationid eq $station.id)selected ='selected' #end>$!station.stationname</option>
+					#end
+				</select>
+				站
+				<input type="button" onclick="addSubwayStation()" value="+增加站点" style="width:80px"/>
+				&nbsp;<input type="button"  onclick="removeSubwayStation(this)" value="-删除站点" style="width:80px"/>
+				&nbsp;&nbsp;<a target="_blank" href="${basePath}admin/common/subwayList.xhtml?isSetTime=true">站点手末班车时间设置</a>
+			</div>
+			<div>
+				<label></label>
+				<input type="text" name="subwayLines$!{staNum}" style="width:40px" value=""/>&nbsp;号线
+				<input type="text" name="subwayExitnumber$!{staNum}" style="width:80px" value=""/>&nbsp;号出口
+				<input name="subwayDetail$!{staNum}" type="text" style="width:290px" value="" alt="出来后如何到影院？" class="titleinput"/>
+				<input type="button" onclick="addSubwayExitnumber($!{staNum},'')" value="+增加出口" style="width:80px"/>
+			</div>
+		#end
+		<div id="subwayExitnumberDiv" style="display:none">
+			
+		</div>
+		<div id="subwayStationDiv" style="display:none">
+			
+		</div>
+		#set($transportList = $!cinema.transport.split('@'))
+		#if($VmUtils.isEmptyList($transportList))
+		<div>
+			<label for="transport">公交：</label>
+			<input type="text" name="transportLine" style="width:40px" value=""/>&nbsp;路
+			<input type="text" name="transportSta" style="width:80px" value=""/>&nbsp;站下车
+			<input name="transport" type="text" style="width:290px" value="" alt="如何到达影院" class="titleinput"/>
+			<input type="button" onclick="addTransport()" value="+公交线路" style="width:80px"/>
+		</div>
+		#else
+			#foreach($transport in $transportList)
+				<div>
+				#if($foreach.count gt 1)
+				<label for="transport"></label>
+				#else
+				<label for="transport">公交：</label>
+				#end
+				#set($lineIndex = $transport.indexOf('路'))
+				#set($transportLine = '')
+				#set($transportSta = '')
+				#if($lineIndex != -1)
+					#set($transportLine = $transport.substring(0,$lineIndex))
+					#set($lineIndex = $lineIndex + 1)
+					#set($transport = $transport.substring($lineIndex))
+				#end
+				#if($transport.indexOf('站下车') != -1)
+					#set($transportSub = $transport.split('站下车'))
+					#set($transportSta = $transportSub.get(0))
+					#if($transportSub.size() ge 2)
+						#set($transport = $transportSub.get(1))
+					#else
+						#set($transport = '')
+					#end
+				#end
+				<input type="text" name="transportLine" value="$!transportLine" style="width:40px"/>&nbsp;路
+				<input name="transportSta" type="text" value="$!transportSta" style="width:80px"/>&nbsp;站下车
+				<input type="text" name="transport" value="$!transport" style="width:290px" alt="如何到达影院" class="titleinput"/>
+				#if($foreach.count eq $transportList.size())
+					<input type="button" onclick="addTransport()" value="+公交线路" style="width:80px"/>
+				#end
+				</div>
+			#end
+		#end
+		<div id="addTransport" style="display:hidden">
+		</div>
+		#set($otherinfo=$VmUtils.readJsonToMap($cinema.otherinfo))
+		<div>
+			<label for="park">停车场：</label>
+			#if($VmUtils.isBlank($otherinfo.get('park')))
+			#set($park=$!cinema.park)
+			#else
+			#set($park=$otherinfo.get('park'))
+			#end
+			<input type="text" name="park" value="$!park" style="width:320px;"  alt="停车场位置及收费标准，凭票根是否有优惠？" class="titleinput"/>
+			#set($parkFree = 'false')
+			#set($parkRecommendB = 'false')
+			#if($otherinfo.get('parkRecommend'))
+				#set($parkRec =$otherinfo.get('parkRecommend').split(','))
+				#if($parkRec.size() ge 2)
+					#set($parkFree = $parkRec.get(0))
+					#set($parkRecommendB = $parkRec.get(1))
+				#else
+					#set($parkFree = $parkRec.get(0))
+					#set($parkRecommendB = $parkRec.get(0))
+				#end
+			#end
+			&nbsp;是否免费&nbsp;
+			<select name="parkFree" id="parkFree">
+				<option value="">否</option>
+				<option value="free" #if($parkFree eq 'free')selected = 'selected' #end>是</option>
+			</select>
+			&nbsp;&nbsp;是否推荐&nbsp;
+			<select name="parkRecommend" id="parkRecommend" class="recommend">
+				<option value="">否</option>
+				<option value="yes"  #if($parkRecommendB eq 'yes')selected = 'selected' #end>是</option>
+			</select>
+		</div>
+		<div>
+			<label for="parkRemark"></label>
+			<input type="text" name="parkRecommendRemark" value="$!otherinfo.get('parkRecommendRemark')"  alt="停车场推荐停车区" class="titleinput" />
+		</div>
+		<div>
+			<label for="otherPark">附近其它停车场</label>
+			<input type="text" name="otherPark" value="$!otherinfo.get('otherPark')"  alt="附近其它停车场,位置，价格，是否优惠？" class="titleinput" />
+		</div>
+		<div>
+			<label for="earlyOrEndMpi">早晚场散场通道</label>
+			<input type="text" name="earlyOrEndMpi" value="$!otherinfo.get('earlyOrEndMpi')"  />
+		</div>
+		<div>
+			<label for="shoppingTime">商场营业时间：</label>
+			<input type="text" name="shoppingTime" value="$!otherinfo.get('shoppingTime')" />
+			&nbsp;&nbsp;是否推荐&nbsp;
+			<select name="shoppingTimeRecommend" class="recommend">
+				<option value="" >否</option>
+				<option value="yes" #if($!otherinfo.get('shoppingTimeRecommend') eq 'yes')selected="selected" #end>是</option>
+			</select>
+		</div>
+		<div>
+			<label for="shoppingTime">情侣座：</label>
+			<input type="text" name="pairseat" value="$!otherinfo.get('pairseat')" />
+			&nbsp;&nbsp;是否推荐&nbsp;
+			<select name="pairseatRecommend" class="recommend">
+				<option value="" >否</option>
+				<option value="yes" #if($!otherinfo.get('pairseatRecommend') eq 'yes')selected="selected" #end>是</option>
+			</select>
+		</div>
+		<div>
+			<label for="restregion">休息区：</label>
+			<input type="text" name="restregion" value="$!otherinfo.get('restregion')" />
+			&nbsp;&nbsp;是否推荐&nbsp;
+			<select name="restregionRecommend" class="recommend">
+				<option value="">否</option>
+				<option value="yes" #if($!otherinfo.get('restregionRecommend') eq 'yes')selected="selected" #end>是</option>
+			</select>
+		</div>
+		<div>
+			<label for="child">儿童票优惠：</label>
+			<input type="text" name="child" value="$!otherinfo.get('child')" />
+			&nbsp;&nbsp;是否推荐&nbsp;
+			<select name="childRecommend" class="recommend">
+				<option value="" >否</option>
+				<option value="yes" #if($!otherinfo.get('childRecommend') eq 'yes')selected="selected" #end>是</option>
+			</select>
+		</div>
+		<div>
+			<label for="sale">影院卖品：</label>
+			<input type="text" name="sale" value="$!otherinfo.get('sale')" />
+			&nbsp;&nbsp;是否推荐&nbsp;
+			<select name="saleRecommend" class="recommend">
+				<option value="" >否</option>
+				<option value="yes" #if($!otherinfo.get('saleRecommend') eq 'yes')selected="selected" #end>是</option>
+			</select>
+		</div>
+		<div>
+			<label for="3D">3D眼镜：</label>
+			<input type="text" name="3D" value="$!otherinfo.get('3D')" />
+			&nbsp;&nbsp;是否推荐&nbsp;
+			<select name="3DRecommend" class="recommend">
+				<option value="" >否</option>
+				<option value="yes" #if($!otherinfo.get('3DRecommend') eq 'yes')selected="selected" #end>是</option>
+			</select>
+		</div>
+		<div>
+			<label for="IMAX">IMAX：</label>
+			<input type="text" name="imax" value="$!otherinfo.get('imax')" />
+			&nbsp;&nbsp;是否推荐&nbsp;
+			<select name="imaxRecommend" class="recommend">
+				<option value="" >否</option>
+				<option value="yes" #if($!otherinfo.get('imaxRecommend') eq 'yes')selected="selected" #end>是</option>
+			</select>
+		</div>
+		<div>
+			<label for="food">美食：</label>
+			<input type="text" name="food" value="$!otherinfo.get('food')" />
+			&nbsp;&nbsp;是否推荐&nbsp;
+			<select name="foodRecommend" class="recommend">
+				<option value="" >否</option>
+				<option value="yes" #if($!otherinfo.get('foodRecommend') eq 'yes')selected="selected" #end>是</option>
+			</select>
+		</div>
+		<div>
+			<label for="recreation">娱乐：</label>
+			<input type="text" name="recreation" value="$!otherinfo.get('recreation')" />
+			&nbsp;&nbsp;是否推荐&nbsp;
+			<select name="recreationRecommend" class="recommend">
+				<option value="" >否</option>
+				<option value="yes" #if($!otherinfo.get('recreationRecommend') eq 'yes')selected="selected" #end>是</option>
+			</select>
+		</div>
+		<div>
+			<label for="shopping">购物：</label>
+			<input type="text" name="shopping" value="$!otherinfo.get('shopping')" />
+			&nbsp;&nbsp;是否推荐&nbsp;
+			<select name="shoppingRecommend" class="recommend">
+				<option value="" >否</option>
+				<option value="yes" #if($!otherinfo.get('shoppingRecommend') eq 'yes')selected="selected" #end>是</option>
+			</select>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="saveCinema()"  style="width:100px" value="保存"/>
+		</div>
+		<div id="msg" style="color:red;margin-left: 4px;"></div>
+		<div style="color:blue;margin-left: 4px;">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+		</form>
+	</div><!-- end of bd -->
+</div>
+<div style="display:none">
+<select onchange="selectStations(this)" id="subwayLineList">
+	<option value="">
+		地铁线路
+	</option>
+	#foreach($line in $lineList)
+	<option value='$!stationMap.get($line.id)'>$line.linename</option>
+	#end
+</select>
+<select name="stationid" id="stationidList">
+	<option value=""></option>
+	#foreach($station in $stationList)
+	<option value="$station.id">$!station.stationname</option>
+	#end
+</select>
+</div>
+<script type="text/javascript">
+	function selectStations(el){
+		if(el.value==''){
+			el.getNext().getElements('option').show();
+		}else{
+			var stations = ',' + el.value + ',';
+			el.getNext().getElements('option').each(function(item){
+				item.hide();
+				item.set('selected','');
+				if(item.value == '' || stations.indexOf(',' + item.value + ',') != -1){
+					item.show();
+				}
+			});
+		}
+	}
+	var subwaystation = $!staNum;
+	var subwayExitnumDiv = '';
+	function addSubwayStation(subwayNo){
+		subwayExitnumDiv += '1';
+		subwaystation++;
+		var stationidList = $('stationidList').get('html');
+		var content = '<div id=subwaystationArea' + subwaystation + '><div><label></label>&nbsp;<select onchange="selectStations(this)">' + $('subwayLineList').get('html') + '</select>&nbsp;<select name="stationid" >' + stationidList + '</select>&nbsp;站</div><div><label></label>';
+		content += '&nbsp;<input type="text" name="subwayLines'+ subwaystation + '" style="width:40px" value=""/>&nbsp;号线';
+		content += '&nbsp;<input type="text" name="subwayExitnumber'+ subwaystation + '" style="width:80px" value=""/>&nbsp;号出口';
+		content += '&nbsp;<input name="subwayDetail'+ subwaystation + '" type="text" style="width:290px" value="" alt="出来后如何到影院？" class="titleinput"/>';
+		content += '&nbsp;<input type="button" onclick="addSubwayExitnumber(' + subwaystation + ',\'' + subwayExitnumDiv + '\')" value="+增加出口" style="width:80px"/><div>';
+		content += '<div id="subwayExitnumberDiv' + subwayExitnumDiv + '" style="display:none"></div></div>';
+		new Element("div").set("html",content).inject($('subwayStationDiv'))
+		$('subwayStationDiv').show();
+		exitnumber[subwaystation-1] = 1;
+		gewaUtil.textOver('.titleinput');
+	}
+	
+	function removeSubwayStation(el){
+		if($('subwaystationArea' + subwaystation)){
+			$('subwaystationArea' + subwaystation).destroy();
+			subwaystation--;
+			gewaUtil.textOver('.titleinput');
+		}
+	}
+	function addSubwayExitnumber(stationNo,div){
+		exitnumber[stationNo-1]++;
+		var content = '<label></label>';
+		content += '&nbsp;<input type="text" name="subwayLines'+ stationNo + '" style="width:40px" value=""/>&nbsp;号线';
+		content += '&nbsp;<input type="text" name="subwayExitnumber'+ stationNo + '" style="width:80px" value=""/>&nbsp;号出口';
+		content += '&nbsp;<input name="subwayDetail'+ stationNo + '" type="text" style="width:290px" value="" alt="出来后如何到影院？" class="titleinput"/>';
+		content += '&nbsp;<input type="button"  onclick="removeSubwayExitnumber(this,' + (stationNo-1) + ')" value="-" style="width:40px"/>';
+		new Element("div").set("html",content).inject($('subwayExitnumberDiv' + div))
+		$('subwayExitnumberDiv' + div).show();
+		gewaUtil.textOver('.titleinput');
+	}
+	
+	function removeSubwayExitnumber(el,index){
+		el.parentNode.destroy();
+		exitnumber[index]--;
+		gewaUtil.textOver('.titleinput');
+	}
+
+	#if($VmUtils.isEmptyList($transportList))
+		var transportLength = 1;
+	#else
+		var transportLength = $transportList.size();
+	#end
+	function addTransport(){
+		var content = '<label for="transport"></label>';
+		content += '&nbsp;<input name="transportLine" type="text" style="width:40px" value=""/>&nbsp;路';
+		content += '&nbsp;<input name="transportSta" type="text" style="width:80px" value=""/>&nbsp;站下车';
+		content += '&nbsp;<input name="transport" type="text" style="width:290px" value="" alt="如何到达影院" class="titleinput"/>';
+		content += '&nbsp;<input type="button"  onclick="removeTransport(this)" value="-" style="width:40px"/>';
+		new Element("div").set("html",content).inject($('addTransport'))
+		$('addTransport').show();
+		transportLength++;
+		gewaUtil.textOver('.titleinput');
+	}
+	
+	function removeTransport(el){
+		el.parentNode.destroy();
+		transportLength--;
+		gewaUtil.textOver('.titleinput');
+	}
+	var defaultOption=new Array(1);
+	defaultOption[0] = new Object();
+	defaultOption[0].value="";
+	defaultOption[0].text="请选择...";
+	function queryIndexarea(){
+		var countyCode = $('county').value;
+		GewaraUtil.removeAllOptions("indexarea");
+		GewaraUtil.addOptions("indexarea",defaultOption,"value","text");
+		var url = "${basePath}admin/common/ajax/getIndexareaByCountyCode.xhtml";
+		GewaraUtil.sendRequest(url, {"countycode":countyCode}, function(result){
+			GewaraUtil.addOptions("indexarea",result.indexareaList,'indexareacode','indexareaname');
+		});
+	}
+	window.addEvent('domready',function(){
+		gewaUtil.textOver('.titleinput');
+	});
+	
+	function saveCinema(){
+		gewa.util.mask({'title':"正在保存数据..."});
+		var count = 0;
+		$$(".recommend").filter(function(item){
+			if(item.value!='') count++;
+		});
+		if(count > 3){
+			gewaUtil.alert('只能推荐3个特色');
+			gewa.util.clearMask();
+			return;
+		}
+		$('transportLength').value = transportLength;
+		var values = GewaraUtil.getValues("cinemaForm");
+		if(values.parkFree.trim() != "" && values.parkRecommend.trim() != ""){
+			values.parkRecommend = values.parkFree + "," + values.parkRecommend;
+		}else if(values.parkFree.trim() != "" && values.parkRecommend.trim() == ""){
+			values.parkRecommend = values.parkFree;
+		}
+		values.subwaystationLength = subwaystation;
+		values.exitnumberLength = exitnumber.join(',');
+		var url = "${basePath}admin/cinema/ajax/saveAroundCinema.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('成功保存！');
+				$('cinemaId').value=result.retval;
+				$("msg").set("html", '');
+				refreshPage();
+			}else{
+				alert("保存失败！");
+				$("msg").set("html", result.msg);
+			}
+			gewa.util.clearMask();
+		});
+	}
+</script>
+</body>
+</html>

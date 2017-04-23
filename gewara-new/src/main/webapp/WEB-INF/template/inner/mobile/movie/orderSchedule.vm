@@ -1,0 +1,136 @@
+<data>
+	<orderScheduleList>#set($curtime=$DateUtil.getCurFullTimestamp())
+		#foreach($order in $orderList)
+		#set($opi=$opiMap.get($order.mpid))
+		#set($cinema=$cinemaMap.get($order.cinemaid))
+		#set($profile=$profileMap.get($order.tradeNo))
+		#set($movie=$movieMap.get($order.movieid))
+		#set($resMapList=$commentMap.get($order.tradeNo))
+		#set($playtime=$order.playtime)
+		#set($leavetime=$leavetimeMap.get($order.tradeNo))
+		#set($endtime=$endtimeMap.get($order.tradeNo))
+		#set($showlink=$showlinkMap.get($order.tradeNo))
+		#set($findCheck=$findCheckMap.get($order.tradeNo))
+		#set($b30=$DateUtil.addMinute($playtime,-30))
+		#set($b15=$DateUtil.addMinute($playtime,-15))
+		<orderSchedule>
+			<movie>#set($mns=$order.membername.split('@'))
+				<title><![CDATA[Hi，$!mns[0]！你的《$opi.moviename》订好了！]]></title>
+				<movieid>$!opi.movieid</movieid><moviename>$!opi.moviename</moviename>
+				<movielogo>${picPath}$movie.logo</movielogo>
+				<status>-1</status>
+				<showtime>$DateUtil.format($order.addtime,'HH:mm')</showtime>
+				<highlight><![CDATA[$!movie.highlight]]></highlight>
+				#set($vtime=$DateUtil.addHour($playtime,6))
+				<validtime>$DateUtil.formatTimestamp($vtime)</validtime>
+				#set($vtime=$DateUtil.addHour($playtime,-3))
+				<startpop>$DateUtil.formatTimestamp($vtime)</startpop>
+				#if($VmUtils.isNotBlank($movie.colorEggs))
+				<coloreggs><![CDATA[${movie.colorEggs}。]]></coloreggs>
+				#end
+				<cinemaid>$!order.cinemaid</cinemaid>
+				<sharelink><![CDATA[${absWap}touch/share/orderScheduleShare.xhtml?tradeNo=$order.tradeNo&findCheck=$!findCheck]]></sharelink>
+			</movie>
+			<leave><!-- 出发之后 为0  开场前30分钟之前-->
+				<title>嘿！差不多该出发了</title>
+				<bpointx>$!cinema.bpointy</bpointx><bpointy>$!cinema.bpointx</bpointy>
+				<pointx>$cinema.pointx</pointx><pointy>$cinema.pointy</pointy>
+				<glogo>${picPath}images/map/cinema${cinema.id}.gif?v=$!DateUtil.format($curtime,'yyyyMMddHHmmss')</glogo>
+				<cinemaname>$!cinema.name</cinemaname>
+				<address>$!cinema.address</address>
+				<transtool>$!transtoolMap.get($order.tradeNo)</transtool>
+				<transdes>$!transdesMap.get($order.tradeNo)</transdes>
+				<showtime>$DateUtil.format($leavetime,'HH:mm')</showtime>
+				<description>电影$!DateUtil.format($playtime,'HH:mm')开始放映，不要让小伙伴等太久。</description>
+				#set($leave=-1)
+				#if($curtime.before($leavetime))
+					#set($leave=1)
+				#else
+					#if($curtime.before($b30))
+					#set($leave=0)
+					#end
+				#end
+				<status>$leave</status>
+			</leave>
+			
+			<takeInfo><!-- 放映前30分钟到放映前15分钟 -->
+				<title>你的取票密码在这里</title>
+				#if(!$isshare)
+				#set($checkpass=$checkpassMap.get($order.tradeNo))
+				<mobile>#if($opi.opentype eq 'GEWA' || $profile.takemethod eq 'A')$order.mobile#end</mobile>
+				#if($checkpass.length() eq 8)
+				<checkpass>$checkpass.substring(0,4) $checkpass.substring(4,8)</checkpass>
+				#elseif($checkpass.length() eq 12)
+				<checkpass>$checkpass.substring(0,4) $checkpass.substring(4,8) $checkpass.substring(8,12)</checkpass>
+				#elseif($checkpass.length() eq 16)
+				<checkpass>$checkpass.substring(0,4) $checkpass.substring(4,8) $checkpass.substring(8,12) $checkpass.substring(12,16)</checkpass>
+				#else
+				<checkpass>$!checkpass</checkpass>
+				#end
+				#end
+				<showtime>$DateUtil.format($b30,'HH:mm')</showtime>
+				<diaryid>$!diaryidMap.get($order.tradeNo)</diaryid>
+				#set($takeInfo=-1)
+				#if($leave ge 0)
+					#set($takeInfo=1)
+				#else
+					#if($curtime.after($b30) && $curtime.before($b15))
+					#set($takeInfo=0)
+					#end
+				#end
+				<status>$takeInfo</status>
+			</takeInfo>
+			<seatMap><!-- 开场前15分钟 到观影结束后15分钟-->
+				#set($descMap=$VmUtils.readJsonToMap($order.description2))
+				#set($seats=$descMap.get('影票'))
+				#set($seats=$seats.replaceAll('\d+元',''))
+				<title>影票拿好，看看座位对号入座</title>
+				<seat>$!seats</seat>
+				<tradeNo>$order.tradeNo</tradeNo>
+				<showtime>$DateUtil.format($b15,'HH:mm')</showtime>
+				<seatlogo></seatlogo>
+				#if($showlink)
+				<seatlink><![CDATA[${absWap}touch/orderRoomNavigation.xhtml?tradeNo=$order.tradeNo&memberid=$!order.memberid&memberEncode=$!memberEncode&mpid=$order.mpid]]></seatlink>
+				#end
+				<description>格瓦拉伙伴帮你快速打开手电筒，指明最佳路线！</description>
+				#set($seatMap=-1)
+				#if($takeInfo ge 0)
+					#set($seatMap=1)
+				#else
+					#set($t4=$DateUtil.addMinute($endtime,15))
+					#if($curtime.after($b30) && $curtime.before($t4))
+						#set($seatMap=0)
+					#end
+				#end
+				<status>$seatMap</status>
+			</seatMap>
+			#set($t5=$DateUtil.addMinute($endtime,15))
+			#if($VmUtils.size($resMapList) gt 0)
+			<wala>
+				<!-- 观影结束15分钟至后3小时-->
+				#set($wala=-1)
+				#if($seatMap ge 0)
+					#set($wala=1)
+				#else
+					#if($curtime.after($endtime) && $curtime.before($t5))
+					#set($wala=0)
+					#end
+				#end
+				<status>$wala</status>
+				<title>快来看看！小伙伴已经发表自己的影评了！他们写的都弱爆了？</title>
+				$!VmUtils.xmlOutputList('commentList','comment', $resMapList, $hasField, $fieldList)
+			</wala>
+			#end
+			<scheduleEnd>
+				<title>结束啦！别玩儿的太嗨！格瓦拉期待和你的下次约会！</title>
+				#if($curtime.after($t5))
+				<status>0</status>
+				#else
+				<status>1</status>
+				#end
+				<showtime>$DateUtil.format($endtime,'HH:mm')</showtime>
+			</scheduleEnd>
+		</orderSchedule>
+		#end
+	</orderScheduleList>
+</data>

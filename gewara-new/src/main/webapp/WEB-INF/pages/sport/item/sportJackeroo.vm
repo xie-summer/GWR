@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title>#if($VmUtils.isBlank($sportItem.seotitle))${sportItem.itemname}#else${sportItem.seotitle}场馆查询预订#{end}_运动入门知识_格瓦拉生活网</title>
+	<meta name="keywords" content="${sportItem.itemname}知识,${sportItem.itemname}资讯"/>
+	<meta name="description" content="${sportItem.itemname}场馆查询预订，${sportItem.itemname}资讯，${sportItem.itemname}装备介绍，${sportItem.itemname}知识"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,new_sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script> 
+</head>
+<body>
+#set($tag="sport") #set($isVideo=true)
+#set($issite = true)#set($isSportJackeroo = true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="gui-layout">
+	#parse('include/sport/itemMenu.vm')
+	<div class="gui-global-panel">
+		<div class="gui-globalLeft">
+			<div class="gui-title mt20">
+				<h2>$sportItem.itemname</h2>
+			</div>
+			#if(!$VmUtils.isEmptyList($newsList))
+			#foreach($news in $newsList)
+			#set($relate=$relatedHelper.getR1("newsList",$news.id))
+			#set($relate2=$relatedHelper.getR2("newsList",$news.id))
+			<div class="bg"></div>
+			<h3 class="fs14 mt10"><a href="${basePath}news/$news.id" class="cyan" target="_blank">$!news.title</a></h3>
+			<div class="mt5"><span class="mr20 gray">作者：$!news.author</span><span class="gray">发表时间：$!DateUtil.format($!news.addtime, 'yyyy-MM-dd')</span></div>
+			<div class="clear">
+				<a href="$!news.getLink($basePath)" target="_blank"><img src="${staticPath}css/images/blank.gif"style="background:url($VmUtils.randomPic('cw160h120',$!news.getLogo())) center center no-repeat;"width="160"height="120" alt="$news.title" title="$news.title" class="left mr15"/></a>
+				<div class="mt5 clear">
+					<a href="${basePath}news/$news.id" target="_blank"><img class="left mr15" alt="$!news.getlogo()" src="$VmUtils.randomPic('news/sw160h120',$!news.getlogo())"/></a>
+					<p>$!VmUtils.htmlabbr($!news.content,120)<a href="${basePath}news/$news.id" class="cyan" target="_blank">（全文）</a>
+					</p>
+				</div>
+			</div>
+			#if($relate && ($VmUtils.eq($news.tag, 'cinema')))关联：<a href="${basePath}cinema/$relate.id" class="brown" target="_blank">$relate.name</a><br/>#end
+			#if($relate2 && ($VmUtils.eq($news.category, 'movie')))关联：<a href="${basePath}movie/$relate2.id" class="brown" target="_blank">$relate2.name</a><br/>#end
+			#if($relate && ($VmUtils.eq($news.tag, 'sport')))关联场馆：<a href="${basePath}sport/${relate.id}" class="brown" target="_blank">$relate.name</a><br/>#end
+			#if($relate2 && ($VmUtils.eq($news.category, 'sportservice')))关联项目：<a href="${basePath}sport/item/$relate2.id" class="brown" target="_blank">$relate2.name</a><br/>#end
+			#if($relate && ($VmUtils.eq($news.tag, 'gym')))关联场馆：<a href="${basePath}gym/${relate.id}" class="brown" target="_blank">$relate.name</a><br/>#end
+			#if($relate2 && ($VmUtils.eq($news.tag, 'gymcourse')))关联项目：<a href="${basePath}gym/course/$relate2.id" class="brown" target="_blank">$relate2.name</a><br/>#end
+			#end
+			#else
+			<div>暂时没有数据！</div>
+			#end
+			#parse('include/pageUtil.vm')
+		</div>
+		
+		#parse('include/sport/sportitem_right.vm')
+		
+		<div class="height0"></div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+</body>
+</html>

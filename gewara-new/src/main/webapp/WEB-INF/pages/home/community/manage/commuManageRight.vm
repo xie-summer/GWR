@@ -1,0 +1,47 @@
+<div class="ui_rightInner_right">
+	<div class="mt30 ml15"><b class="fs14">圈子管理</b></div>
+	<ul class="commuManageMenu">
+		#if($!commu.adminid eq $!member.id || $!commu.subadminid eq $!member.id)
+		<li #if($isCommuNotice) class="select" #end><a href="${basePath}home/commu/managernotice.xhtml?commuid=$!commu.id">圈子公告</a></li>
+		<li #if($isMenberManage) class="select" #end><a href="${basePath}home/commu/manageCommuMemberList.xhtml?commuid=$!commu.id">成员管理</a></li>
+		<li #if($commuDiaryManage) class="select" #end><a href="${basePath}home/commu/commuDiaryManage.xhtml?commuid=$!commu.id">话题管理</a></li>
+		<li #if($isPhotoManage) class="select" #end><a href="${basePath}home/commu/photoManage.xhtml?commuid=$!commu.id">相册管理</a></li>
+		<li #if($isCommuMessage) class="select" #end><a href="${basePath}home/commu/commuMessage.xhtml?commuid=$!commu.id">群发通知</a></li>
+		#end
+		#if($!commu.adminid eq $!member.id)
+		<li style="border:0px;">&nbsp;</li>
+		<li #if($isUpdateCommu) class="select" #end><a href="${basePath}home/commu/updateCommu.xhtml?commuid=$!commu.id">圈子属性</a></li>
+		<li #if($isCommuModelManage)class="select"#end><a href="${basePath}home/commu/manage.xhtml?commuid=$!commu.id">美化圈子</a></li>
+		<li #if($isDiaryModelManage) class="select" #end><a href="${basePath}home/commu/commuTopicsList.xhtml?commuid=$!commu.id">话题分类</a></li>
+		<li style="border:0px;">&nbsp;</li>
+		#*<li #if($isDeleteCommu) class="select" #end><a href="${basePath}home/commu/deleteCommu.xhtml?commuid=$!commu.id">解散圈子</a></li>*#
+		<!--  
+		<li #if($isExtendCommuManage) class="select" #end><a href="${basePath}home/commu/assignCommuShow.xhtml?commuid=$commu.id">转让圈子</a></li>
+		-->
+			#if($!commu.checkstatus eq 'Y')
+			<li #if($isBindAlipay) class="select" #end><a href="${basePath}home/commu/commuBindAlipay.xhtml?commuid=$!commu.id">绑定支付宝</a></li>
+			<li #if($isApplyMoney) class="select" #end><a href="${basePath}home/commu/applyMoney.xhtml?commuid=$!commu.id">申请提款</a></li>
+			#end
+		#end
+		<li #if($isMessageLog) class="select" #end><a href="${basePath}home/commu/messageLog.xhtml?commuid=$!commu.id">设置名片</a></li>
+		<li><a href="javascript:void(0);" onclick="logoutCommu($!commu.id)">退出圈子</a></li>
+	</ul>
+</div>
+	<script type="text/javascript">
+	function logoutCommu(commuid){
+		var commuid = commuid;
+		
+		gewaUtil.confirm("你确定退出此圈子吗？", function(){
+			var url = "${basePath}home/commu/logoutCommu.xhtml";
+			var values = {'commuid':commuid};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewaUtil.alert('你已成功退出【$!commu.name】圈子！');
+					location.href="${basePath}quan/$commu.id";
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		})
+	}
+</script>

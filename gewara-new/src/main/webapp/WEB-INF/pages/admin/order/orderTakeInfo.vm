@@ -1,0 +1,37 @@
+<table>#if($order.ordertype eq 'drama')#set($rowsize=$takeInfoList.size() + 2)#else#set($rowsize=3)#end
+   		<tr class="trbg">
+     		<td class="desc" rowspan="$rowsize">取票信息<br/>
+     		<a href="${basePath}admin/ticket/orderLoghis.xhtml?tradeNo=$!params.tradeNo" target="_blank">操作历史</a>
+     		</td>
+   		</tr>
+   		<tr>
+   			<td>取票方式</td>
+   			<td>是否同步</td>
+   			<td>次数同步</td>
+   			<td>同步时间</td>
+   			<td>是否取票</td>
+		    <td>取票时间</td>
+		    <td>更新时间</td>
+		    <td>操作</td>
+   		</tr>
+   			#foreach($ti in $takeInfoList)
+			<tr>
+				<td>$!takemethodMap.get($profile.takemethod)</td>
+				<td>#if($ti.callbacktime || $!ti.taketime)已同步#else未同步#end</td>
+				<td>$!ti.synchNum</td>
+				<td>$!DateUtil.formatTimestamp($ti.synchtime)</td>
+				<td>#if($ti.taketime)已取#else 未取#end</td>
+				<td>$!DateUtil.formatTimestamp($ti.taketime)</td>
+				<td>$!DateUtil.formatTimestamp($ti.updatetime)</td>
+				<td>
+					<input type="text"  class="mobile" value="$order.mobile" onchange="updateMobile($ti.tradeno,this.value)"/>&nbsp;
+					<select onchange="setResultValue('$!ti.serialno',this.value)">
+						<option value="" selected="selected">请选择</option>
+						<option value="Y">同步</option>
+						<option value="D">删除</option>
+						<option value="U">强制同步</option>
+					</select>
+				</td>
+			</tr>
+			#end
+</table>

@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>统一固定模板列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline;float:left;width:80px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:400px; display:inline}
+		tr{height: 25px;}
+		.red{color: red;}
+	</style>
+</head>
+#set($typeMap={'movie':'电影专题', 'drama':'话剧专题', 'sport':'运动专题', 'ktv':'KTV专题', 'bar':'酒吧专题', 'gym':'健身专题'})
+<body style="width:850px;margin:auto;padding: 10px;" class="yui-skin-sam">
+<div style="width:750px; height: 20px;">
+	<span style="width: 60px; margin-left:60px;"></span>
+	<a href="${basePath}admin/newsubject/addUnionSubject.xhtml#if($!params.tag)?tag=$!params.tag#end#if($!params.signname)&signname=$!params.signname#end" target="_blank">增加专题</a>
+	<span style="width: 60px; margin-left:60px;"></span>
+	<a href="javascript:refreshPage()">刷新</a>
+	<span style="width: 60px; margin-left:60px;"></span>
+	<span id="callbackMsg"></span>
+</div>
+<table width="780px" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th style="width:15%;">专题名称</th>
+		<th style="width:12%;">添加日期</th>
+		<th style="width:12%;">模块配置</th>
+		<th style="width:12%;">操作</th>
+	</tr>
+	</thead>
+	<tbody id="roomTable">
+		#foreach($data in $list)
+		<tr>
+			<td><span class='red'>【$!typeMap.get($data.subjecttype)】</span><a href="${absPath}${basePath}subject/u/$data.id" target="_blank">$data.title</a></td>
+			<td>$DateUtil.format($data.addtime, 'yyyy-MM-dd HH:mm')</td>
+			<td><a href="${basePath}admin/newsubject/subUnionSubjectList.xhtml?parentid=$data.id" target="_blank">模块配置</a></td>
+			<td>
+				<a href="${basePath}admin/newsubject/addUnionSubject.xhtml?id=$data.id" target="_blank">[修改]</a>|
+				<a href="javascript:void(0);" onclick="opeDelete('$data.id', this)">[删除]</a>
+				<a href="javascript:void(0);" onclick="recommendation('$data.id')">[前台推荐]</a>
+			</td>
+		</tr>
+		#end
+	</tbody>
+</table>
+<script>
+function recommendation(id){
+	if(!window.confirm('确认推荐到前台资讯吗?')) return false;
+		var url = '${basePath}admin/newsubject/recommendationSubject.xhtml';
+		var values = {'id': id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("推荐成功!");				
+			}else{
+				alert(result.msg);
+			}
+		});
+	
+}
+</script>
+#parse('admin/newsubject/commonjs.vm')
+</body>
+</html>

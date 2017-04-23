@@ -1,0 +1,486 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>$!{question.title} - 知道_格瓦拉生活网</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="keywords" content="$!{question.title}"/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_qa&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,index_even&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	#ajaxLoadAD {margin-bottom:20px;}
+	.publicize{width:660px;height:100px;overflow:hidden;position: relative;z-index:0}
+	.publicize .navControl{position: absolute;right:0px;bottom:5px;height:16px;z-index: 9}
+	.publicize img{width:660px;height:100px;position: absolute;left:0px;top:0px;z-index: 1}
+	.publicize .nav,.publicize .choice{display:inline-block;height:16px;width:16px;}
+	.publicize .nav{background:#666;opacity:0.5;filter: alpha(opacity = 50);float:left;margin-right:5px;color:#fff !important;text-align:center;line-height:16px;font-weight:bold;text-decoration: none !important;}
+	.publicize .choice{background:#FF4000;position: absolute;bottom:5px;z-index:7;}
+	</style>
+</head>
+<body>
+#set($tag="qa") #set($isqa=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+#set($position={'试用期':'img/position/rank_191.gif','员工':'img/position/rank_192.gif',
+				'高级员工':'img/position/rank_193.gif','主管':'img/position/rank_194.gif',
+				'高级主管':'img/position/rank_195.gif','经理':'img/position/rank_196.gif',
+				'高级经理':'img/position/rank_197.gif','总监':'img/position/rank_198.gif',
+				'高级总监':'img/position/rank_199.gif','副总裁':'img/position/rank_200.gif',
+				'高级副总裁':'img/position/rank_201.gif','首席运行官':'img/position/rank_202.gif',
+				'首席执行官':'img/position/rank_203.gif','董事长':'img/position/rank_204.gif',
+				'商界领袖':'img/position/rank_205.gif'})
+<div class="crumbs">
+<a href="${basePath}">格瓦拉生活网</a> &gt;
+<a href="${basePath}qa/">知道首页</a> &gt;
+#if($VmUtils.isNotBlank($question.tagname))
+<a href="${basePath}qa/questionList.xhtml?tag=$question.tag">$question.tagname知道</a> &gt;
+#else
+<a href="${basePath}qa/questionList.xhtml?tag=other">其他</a> &gt;
+#end 
+#if($relate)<a href="${basePath}qa/questionList.xhtml?tag=$question.tag&relatedid=${relate.id}">$!{relate.name}</a> &gt; #end
+#if($relate2)<a href="${basePath}qa/questionList.xhtml?category=$question.category&categoryid=${relate2.id}&tag=$question.tag" >$!{relate2.name}</a> &gt;#end
+#if($VmUtils.eq($question.questionstatus,'N') || $VmUtils.eq($question.questionstatus,'Z')) 待解决的问题#elseif($VmUtils.eq($question.questionstatus,'Y')) 已解决的问题  #elseif($VmUtils.eq($question.questionstatus,'noproper'))无满意答案 #end
+</div>
+<div class="ui_layout">
+	<div class="inner">
+		<div class="ui_left">
+			<div class="qa_main">
+				
+				<div class="mod_hd">
+					<h1>$!VmUtils.escapeHtml($!{question.title})</h1>
+				</div>
+				
+				<div class="mod_bd">
+					<div class="ui_abeam userBox">
+					
+						<!--会员信息-->
+						<div class="uipic">
+							<a class="pubpic" target="_blank" title="$cacheMemberMap.get($question.memberid).nickname" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$question.memberid">
+								<img width="50" height="50" title="$cacheMemberMap.get($question.memberid).nickname" src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($question.memberid).headpicUrl)"/>
+							</a>
+							<p><a class="c666" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$question.memberid" target="_blank" title="$cacheMemberMap.get($question.memberid).nickname">
+							$!VmUtils.escabbr($cacheMemberMap.get($question.memberid).nickname,12)</a></p>
+							<p>$!questionMemberPosition.get('jobs').position<img src="$VmUtils.randomPic('',$position.get($!questionMemberPosition.get('jobs').position))" title="当前经验值：$!questionMemberPosition.get('jobs').expvalue,离下一职位:【$!questionMemberPosition.get('nextJobs').position】,还差【$!questionMemberPosition.get('nextExp')】个积分"/></p>
+							#if(!$VmUtils.isEmptyList($isTreasureMap))#if($isTreasureMap.get($question.memberid))<span class="gray">已关注</span>#else<span><a href="javascript:void(0);" onclick="addMemberTreasure($question.memberid,this,true)"  class="yellow" title="添加到哇啦关注">+关注</a></span>#end#else<span><a href="javascript:void(0);" title="添加到哇啦关注" onclick="addMemberTreasure($question.memberid,this,true)"  class="yellow">+关注</a></span>#end<a href="${basePath}home/message/sendMessage.xhtml?memberid=$question.memberid" class="yellow ml10" target="_blank">发信息</a>
+						</div>
+						<!--/会员信息-->
+						
+						<div class="uiText">
+						
+							<!--问题信息-->
+							<div class="way">
+								<span class="left">
+									<span class="wt mr5">发表于$DateUtil.format($!{question.addtime},'yyyy-MM-dd HH:mm:ss')</span>
+									<span class="see mr5 ml5">浏览$!question.clickedtimes次</span>
+									<span class="ret mr5 ml5">回复$!answerNum次</span>
+								</span>
+								<!--操作区-->
+								<span class="left">
+									#if($addinforight)
+									<a href="javascript:void(0)" onclick="sh()" class="wt mr5 ml5" title="越详细，越能获得准确的答案">补充</a>
+									#end
+									#if($modright)
+									<a href="${basePath}qa/modQuestion.xhtml?qid=${question.id}" class="owr ml5 mr5" title="编辑">编辑</a>
+									#end
+									#if($delright)
+									<a href="javascript:void(0)" onclick="delQuestion($question.id)" class="del ml5 mr5" title="删除">删除</a>
+									#end
+								</span>
+								<span class="trash left" title="举报" style="height:26px; line-height:26px; width:40px;" onclick="showAccusation('gewaquestion',$question.id)">举报</span>
+								<!--/操作区-->
+							</div>
+							<p>$!VmUtils.escapeHtml($!question.content)</p>
+							<!--/问题信息-->
+							
+							#if($!question.addinfo)
+							<!--问题补充-->
+							<div class="mt30">
+								<b>问题补充：</b>$!DateUtil.format($!question.addinfotime,'yyyy-MM-dd HH:mm:ss')<br/>
+								<p>$!VmUtils.escbr($!question.addinfo)</p>
+							</div>
+							<!--/问题补充-->
+							#end
+							
+							<!--悬赏信息-->
+							<div class="ui_warning mt30">
+								<span class="reward">悬赏：<b class="fs20 ce74 mr5" style="vertical-align:-2px;">$question.reward</b>经验值</span>
+								
+								<span class="more" style="right:4px;">
+									#if($!{timeinfo})
+									<span class="left">
+									$!{timeinfo}
+									</span>
+									#end
+									#if($noproper)
+									<label class="minBt whiteBt button left ml5" style="margin-top:4px;"><input type="button" onclick="noproper()" value="无满意答案"/></label>
+									#end
+								</span>
+							</div>
+							<!--/悬赏信息-->
+							
+							#if($bestAnswer)
+							<!--最佳回答-->
+							<div class="bestAnswer">
+								<div class="bestAnswerInner">
+									<div class="best-title">最佳答案</div>
+									<div class="mt10 ui_abeam">
+										<div class="uipic">
+											<a class="pubpic" target="_blank" title="$cacheMemberMap.get($bestAnswer.memberid).nickname" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$bestAnswer.memberid">
+												<img width="50" height="50" alt="$cacheMemberMap.get($bestAnswer.memberid).nickname" src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($bestAnswer.memberid).headpicUrl)"/>
+											</a>
+											<p><a class="c666" href="#" target="_blank" title="$cacheMemberMap.get($bestAnswer.memberid).nickname">$!VmUtils.escabbr($cacheMemberMap.get($bestAnswer.memberid).nickname,12)</a></p>
+											<p>$!bestMemberPosition.get('jobs').position<img src="$VmUtils.randomPic('',$position.get($!bestMemberPosition.get('jobs').position))" title="当前经验值：$!bestMemberPosition.get('jobs').expvalue,离下一职位【$!bestMemberPosition.get('nextJobs').position】,还差【$!bestMemberPosition.get('nextExp')】个积分"/></p>
+											<p>
+											#if(!$VmUtils.isEmptyList($isTreasureMap))
+												#if($isTreasureMap.get($bestAnswer.memberid))
+												<span class="c999">已关注</span>
+												#else
+												<span><a href="javascript:void(0);" onclick="addMemberTreasure($bestAnswer.memberid,this,true)"  class="ce74" title="添加到哇啦关注">+关注</a></span>
+												#end
+											#else
+												<span><a href="javascript:void(0);" title="添加到哇啦关注" onclick="addMemberTreasure($bestAnswer.memberid,this,true)"  class="ce74">+关注</a></span>
+											#end
+											<a href="${basePath}home/message/sendMessage.xhtml?memberid=$bestAnswer.memberid" class="ce74 ml5" target="_blank">发信息</a>
+											</p>
+										</div>
+										<div class="uiText">
+											<div class="way" style="border-color:#eee">
+												<span class="wt">发表于  $DateUtil.format($!{bestAnswer.addtime},'yyyy-MM-dd HH:mm:ss') </span>
+											</div>
+											<p>$!VmUtils.escapeHtml($!bestAnswer.content)</p>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!--/最佳回答-->
+							#end
+							
+							<!--问题补充输入框-->
+							<div class="mt20 c999" style="display:none;" id="bai"><b class="anser cMovie mr10">补充问题</b>越详细，越能获得准确的答案<br/>
+								<div class="outside-box">
+									<div class="inside-box">
+										<input type="hidden" name="qid" id="qid" value="$!VmUtils.escapeHtml($params.qid)" />
+										<textarea class="textarea" name="addinfo" id="addinfo">$!{question.addinfo}</textarea>
+										<div id="tj">
+											<label class="minBt redBt button mt5"><input type="button"  onclick="addInfo()" value="提交"/></label>
+										</div>
+									</div>
+								</div>
+							</div>
+							<!--/问题补充输入框-->
+							
+							#if($logonMember)
+							<!--回复输入框-->
+							<form id="replyForm">
+							<input type="hidden" name="questionid" id="questionid" value="$!VmUtils.escapeHtml($params.qid)"/>
+							<div class="outside-box mt20">
+								<div class="inside-box">
+									<b class="fs14 bold">我来回答</b>
+									<textarea class="textarea mt5" name="content" id="content"></textarea>
+									<p class="clear">
+										<em class="left">验证码：</em>
+										<input type="hidden" name="captchaId" id="captcha" />
+										<label class="left" style="width:80px">
+										<input type="text" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" size="18" style="width:80px" mustTxt="请输入验证码!" onfocus="GewaraUtil.refreshCaptcha('captcha');"/></label>
+										<img id="captchaImg" src="${staticPath}css/images/blank.gif" class="ml20" style="cursor: pointer;vertical-align: middle;float:left;height:30px; width:80px;" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清楚，请点击换一张图片"/>
+									</p>
+									<label class="button redBt minBt mt5"><input type="button" onclick="answer()" value="提交回答"/></label>
+								</div>
+							</div>
+							</form>
+							<!--/回复输入框-->
+							#else
+							<!--未登陆回复框-->
+							<div class="reply_ico mt20">
+								<div class="overv"></div>
+								<img width="550" height="232" style="background:url(${staticPath}css/qa/reply_min.gif) 0 0 no-repeat;" src="${staticPath}css/images/blank.gif"/>
+								<div class="un">
+									<a class="button bigBt redBt" href="javascript:showLogin(refreshPage)">
+										<span>点击登录，马上回答</span>
+									</a>
+									<p class="mt15">做新手任务送<b class="cF60">100</b>积分、<b class="cF60">5元</b>低值券<a href="http://www.gewara.com/register.xhtml" class="ml10" title="立即注册" target="_blank">立即注册</a></p>
+									<span style="line-height:22px;" class="c666">积分用于格瓦拉消费时抵值，<a href="http://www.gewara.com/helpCenter/index.dhtml?diaryId=3120809&dkey=helpcenter1308109899606" class="ffst c666" title="赚取更多积分" target="_blank">赚取更多积分&gt;&gt;</a></span>
+								</div>
+								<div class="unafter"></div>
+						    </div>
+						    <!--/未登陆回复框-->
+						    #end
+						    
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="bg"></div>
+			<div class="center none AD2" id="ajaxLoadAD"></div>
+			<input type="hidden" name="adid" id="adpid" value="qamiddle"/>
+			
+			<!--回复列表-->
+			#if($VmUtils.isEmptyList($answerList) && !$bestAnswer)
+			<div class="mod_title userReply">
+				<div class="mod_hd">
+					<h2>瓦友回复</h2>
+				</div>
+				<div class="mod_bd" style="padding-top:0;">
+					<div class="ui_warning">还没有瓦友回答此问题，快来帮他回答吧！</div>
+				</div>
+			</div>
+			#elseif(!$VmUtils.isEmptyList($answerList))
+			<div class="mod_title userReply">
+				<div class="mod_hd">
+					<h2>#if($bestAnswer)其他回答#else瓦友回复#end</h2>
+				</div>
+				<div class="mod_bd">
+					#foreach($answer in $answerList)
+					<div class="ui_abeam userBox #if($foreach.count gt 1)mt20#end">
+						<div class="uipic">
+							<a class="pubpic" target="_blank" title="$cacheMemberMap.get($answer.memberid).nickname" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$answer.memberid">
+								<img width="50" height="50" alt="$cacheMemberMap.get($answer.memberid).nickname" src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($answer.memberid).headpicUrl)"/>
+							</a>
+							<p><a class="c666" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$answer.memberid" target="_blank" title="$cacheMemberMap.get($answer.memberid).nickname">$!VmUtils.escabbr($cacheMemberMap.get($answer.memberid).nickname,12)</a></p>
+							<p>$!mapGewaAnswerMemberPosition.get($answer.memberid).get('jobs').position<img src="$VmUtils.randomPic('',$position.get($!mapGewaAnswerMemberPosition.get($answer.memberid).get('jobs').position))" title="当前经验值：$!mapGewaAnswerMemberPosition.get($answer.memberid).get('jobs').expvalue,离下一职位【$!mapGewaAnswerMemberPosition.get($answer.memberid).get('nextJobs').position】,还差【$!mapGewaAnswerMemberPosition.get($answer.memberid).get('nextExp')】个积分"/></p>
+							<p>
+							#if(!$VmUtils.isEmptyList($isTreasureMap))
+								#if($isTreasureMap.get($answer.memberid))
+								<span class="c999">已关注</span>
+								#else
+								<span><a href="javascript:void(0);" onclick="addMemberTreasure($answer.memberid,this,true)"  class="ce74" title="添加到哇啦关注">+关注</a></span>
+								#end
+							#else
+							<span><a href="javascript:void(0);" title="添加到哇啦关注" onclick="addMemberTreasure($answer.memberid,this,true)" class="ce74">+关注</a></span>
+							#end
+							<a href="${basePath}home/message/sendMessage.xhtml?memberid=$answer.memberid" class="ce74 ml5" target="_blank">发信息</a>
+							</p>
+						</div>
+						<div class="uiText">
+							<div class="way">
+								<span class="left">
+									<span class="wt mr5">发表于  $DateUtil.format($!{answer.addtime},'yyyy-MM-dd HH:mm:ss')</span>
+									<span class="trash" onclick="showAccusation('gewaanswer',$answer.id)" title="举报">举报</span>
+								</span>
+							</div>
+							<p>$!VmUtils.escapeHtml($!answer.content)</p>
+							<div class="tar">#if($bestright)<a class="button whiteBt minBt" href="javascript:void(0);" onclick="javascript:bestAnswer($answer.id)"><span>最佳答案</span></a>#end</div>
+						</div>
+					</div>
+					#end
+				</div>
+			</div>
+			#end
+			<!--/回复列表-->
+			
+			
+			<!--相关问题-->
+			#if(!$VmUtils.isEmptyList($questionList))
+			<div class="mod_title relatedQa">
+				<div class="mod_hd">
+					<h2>$!{question.tagname}相关问题</h2>
+					<span class="more">
+						<em>悬赏</em>
+						<em>回复</em>
+						<em>浏览</em>
+					</span>
+				</div>
+				<div class="mod_bd">
+					<ul>
+						#foreach($q in $questionList)
+						<li>
+							<a href="${basePath}qa/q${q.id}" target="_blank" title="$!VmUtils.escapeHtml($!{q.title})">$!VmUtils.escapeHtml($!{q.title})</a>
+							<span class="more">
+								<em class="reward">$q.reward</em>
+								<em>$!mapCount.get($!q.id)</em>
+								<em>$q.clickedtimes</em>
+							</span>
+						</li>
+						#end
+					</ul> 
+				</div>
+			</div>
+			#end
+			<!--/相关问题-->
+			
+			
+			<!--相关影评-->
+			#if($diaryList)
+			<div class="mod_title">
+				<div class="mod_hd">
+					<h2>相关影评</h2>
+					<a class="more cMovie" href="javascript:void(0);" onclick="submitDiary();return false;">发表影评</a>
+				</div>
+				<div class="mod_bd" style="padding-top:0;">
+					#parse('common/new_diaryList.vm')
+				</div>
+			</div>
+			<!--/相关影评-->
+			#end
+			
+			<!--热映电影-->
+			<div class="mod_title hotShow">
+				<div class="mod_hd">
+					<h2>热映电影 </h2>
+				</div>
+				<div class="mod_bd">
+					<ul>
+						#foreach($movieIndex in $!movieIndexList)
+						#set($vmovie=$relatedHelper.getR1("movieIndexList",$movieIndex.id))
+						#set($gmark=$VmUtils.getLastMarkStar($vmovie, "general",$curMarkCountMap.get($vmovie.id),$!markData))
+						#set($gmark1=$gmark/10) #set($gmark2=$gmark % 10) 
+						<li class="#if($foreach.count%2 eq 0)ml30#end #if($foreach.count gt 2)mt30#end">
+							<div class="ui_abeam">
+								<div class="uipic">
+									<a href="${basePath}movie/${vmovie.id}" title="$vmovie.moviename" target="_blank">
+										<img width="96" height="128" alt="$vmovie.moviename" src="$VmUtils.randomPic('cw96h128',$vmovie.limg)"/>
+									</a>
+									#if($opiMovieList.contains($vmovie.id))
+									<p class="mt10"><a title="选座购票" class="button minBt redBt" href="${basePath}movie/${vmovie.id}"><span>选座购票</span></a></p>
+									#end
+								</div>
+								<div class="uiText">
+									<p class="fs14 bold" style="position:relative;"><a title="$vmovie.moviename" target="_blank" href="${basePath}movie/${vmovie.id}">$vmovie.moviename</a><span class="more"><sub>$gmark1</sub><sup>.$gmark2</sup></span></p>
+									#if($VmUtils.isNotBlank($vmovie.highlight))<p>$VmUtils.escabbr($!vmovie.highlight,46)</p>#end
+									<p class="c999"><em class="c666">导演/主演：</em>$!{vmovie.director}#if($!vmovie.actors)/$VmUtils.escabbr($!vmovie.actors,46)#end</p>
+									<p class="c999 mt5"><em>价格：</em><span class="acPrice mr10">#if(!$VmUtils.isBlank($!vmovie.minprice))$!vmovie.minprice元起 #else 免费 #end</span> $vmovie.rclickedtimes人关注</p>
+								</div>
+							</div>
+						</li>
+						#end
+					</ul>
+				</div>
+			</div>
+		</div>
+		<!--/热映电影-->
+		
+		<div class="ui_right">
+			#parse('qa/items/qa_online.vm')
+			#parse('qa/items/performInfo.vm')
+			#parse('qa/items/stadiumInfo.vm')
+			#parse('qa/items/hotAc.vm')
+			#parse('qa/items/weekStar.vm')
+			#parse('qa/items/expList.vm')
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	adIndexOther();
+})
+function sh(){
+	if($('bai').getStyle('display')=='none')
+		$('bai').setStyle('display','');
+	else
+		$('bai').setStyle('display','none');
+}
+
+function answer(){
+	checkLogin(true,function(){
+		var values = GewaraUtil.getValues("replyForm");
+		GewaraUtil.sendRequest('${basePath}qa/saveAnswer.xhtml', values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				badEggAlert(result.msg);
+				if(result.msg) gewaUtil.alert(result.msg);
+				GewaraUtil.refreshCaptcha('captcha');
+			}
+		});
+	});
+}
+function badEggAlert(status){
+	if(status == '1'){
+		gewaUtil.alert('您的发表体验机会已用完，完善账户信息就可以使用哇啦、站内信、活动、知道、论坛的所有功能啦！', function(){gotoURL('${basePath}home/acct/safetyCenter.xhtml')});
+	}else if(status == '7'){
+		gewaUtil.alert('您的发表体验机会已用完，确认您的邮件地址就可以使用哇啦、站内信、活动、知道、论坛的所有功能啦！', function(){gotoURL('${basePath}home/acct/safetyCenter.xhtml')});
+	}else if(status == '0'){
+		gewaUtil.alert('非法请求！');
+	}else if(status == '51'){
+		gewaUtil.alert('操作过于频繁！');
+	}
+	if(status =='1' || status=='7' || status == '0' || status == '51'){
+		GewaraUtil.refreshCaptcha('captcha');
+		return;
+	}
+}
+function bestAnswer(aid){
+	checkLogin(true,function(){
+		var values = {"qid":$question.id,"aid":aid};
+		GewaraUtil.sendRequest('${basePath}qa/bestAnswer.xhtml', values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				if(result.msg) gewaUtil.alert(result.msg);
+			}
+		});
+	});
+}
+
+function delQuestion(){
+	gewaUtil.confirm("确认删除该问题吗?", function(){
+		checkLogin(true,function(){
+			var values = {"qid":$question.id};
+			GewaraUtil.sendRequest('${basePath}qa/delQuestion.xhtml', values, function(result){
+				if(result.success){
+					document.location.href='${basePath}qa';
+				}else{
+					if(result.msg) gewaUtil.alert(result.msg);
+				}
+			});
+		});
+	})
+}
+
+function addInfo(){
+	el = $('tj').getElement('input');
+	el.disabled=true;
+	checkLogin(true,function(){
+		gewa.util.mask({'element': el,'title':'正在提交，请稍等...'});
+		var values = GewaraUtil.getValues("bai");
+		GewaraUtil.sendRequest('${basePath}qa/addInfo.xhtml', values, function(result){
+			if(result.success){
+				gewaUtil.alert('成功补充!');
+				refreshPage();
+			}else{
+				if(result.msg) gewaUtil.alert(result.msg);
+				gewa.util.clearMask();
+				el.disabled=false;
+			}
+		});
+	});
+}
+
+function noproper(){
+	checkLogin(true,function(){
+		var values = {"qid":$question.id};
+		GewaraUtil.sendRequest('${basePath}qa/noproper.xhtml', values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				if(result.msg) gewaUtil.alert(result.msg);
+			}
+		});
+	});
+}
+
+#if($relate2)
+function submitDiary(){
+	checkLogin(true,function(){
+		GewaraUtil.openwin('${basePath}blog/modifyTopic.xhtml?tag=$question.category&relatedid=$relate2.id&type=1','_blank');
+	});
+}
+#end
+function adIndexOther(){
+	var url = '${basePath}ajax/common/getIndexOtherRandomAd.xhtml';
+	var values = {'pid':$('adpid').value,'isIndex':true};
+	GewaraUtil.sendLoad('ajaxLoadAD', url, values, function(result){
+		if(result.success){
+			if(result.html.length != 0){
+				$('ajaxLoadAD').getPrevious().addClass('none');
+				$('ajaxLoadAD').removeClass('none');
+				new adSoild('publicize','navControl',{'position':{'x':660,'y':100}});
+			}
+		}
+	});
+}
+</script>
+#parse('include/bottom.vm')
+#parse('include/accusation.vm')
+</body>
+</html>

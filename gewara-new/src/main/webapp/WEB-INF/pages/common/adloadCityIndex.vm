@@ -1,0 +1,48 @@
+#if(!$VmUtils.isEmptyList($jsonMapList))
+<div class="ui_panel coopArea">
+	<dl>
+		<dt>
+			<em>合作专区</em>
+			独家<b>购票专享</b>优惠
+		</dt>
+		<dd>
+			<div id="coopArea_box" class="coopArea_box clear">
+				<div class="even_center">
+					<ul id="coopArea_box_inner">
+						#foreach($jsonmap in $jsonMapList)
+							#if($jsonmap.adtype eq 'picture')
+							<li>
+								<a href="$jsonmap.link" title="$!jsonmap.title" target="_blank" onclick="_gaq.push(['_trackEvent', 'AD', '$!jsonmap.pid', '$!jsonmap.logicaldir']);">
+									<img width="160" height="80" alt="$jsonmap.title" src="$VmUtils.randomPic('',$!jsonmap.adpath)"/>
+									<span>
+										$!VmUtils.escabbr($!jsonmap.title,24)
+										<em>$!VmUtils.htmlabbr($!jsonmap.description, 24)</em>
+									</span>
+								</a>
+							</li>
+							#end
+						#end
+					</ul>
+				</div>
+			</div>
+		</dd>
+	</dl>
+</div>
+#end
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	var jsonSize = $VmUtils.size($jsonMapList);
+	try{
+		var isWarp02 = gewara.util.isWarp?192:184;
+		var isWarp03 = gewara.util.isWarp?5:4;
+		if(jsonSize>isWarp03){
+			var objA = new Element('b',{'class':'orientation'});
+			var objB = new Element('b',{'class':'orientation'});
+			objA.inject(new Element('span',{'class':'even_left'}).inject('coopArea_box'));
+			objB.inject(new Element('span',{'class':'even_right'}).inject('coopArea_box'));
+			new sigleLeep('coopArea_box','coopArea_box_inner',{isNode:'li','disable':'disable','size':isWarp02,'length':isWarp03,'screen':isWarp02});
+		}
+	}catch(e){
+	}
+});
+</script>

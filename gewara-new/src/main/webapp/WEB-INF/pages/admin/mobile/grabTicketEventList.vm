@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>抢票活动管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<div class="aboutMovie">
+			<div style="float:right">
+			<a href="${basePath}admin/mobile/modifyGrabTicketEvent.xhtml" target="_blank">新增</a> 
+			</div>
+			<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th>
+							抢票活动管理
+						</th>
+					</tr>
+				</thead>
+			</table>
+			
+			<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th>活动标题</th>
+						<th>活动城市</th>
+						<th>秒杀价(元)</th>
+						<th>抢票时间</th>
+						<th>状态</th>
+						<th>场次</th>
+						<th>创建时间</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody id="tbody">
+					#foreach($event in $eventList)
+						<tr>
+						<td>$event.title</td>
+						<td title="$event.cityStr" >
+						#if($VmUtils.length($event.cityStr)>19)
+							 $VmUtils.escabbr($event.cityStr,19)...<a href="javascript:;" data-title="$event.cityStr" name="more-city-btn" >更多</a>
+						#else
+							$event.cityStr
+						#end
+						</td>
+						<td>$event.price</td>
+						<td>$event.starttime</td>
+						<td>$event.grabStatus</td>
+						<td><a href="${basePath}admin/mobile/grabTicketMpiList.xhtml?id=$event.id" target="_blank" title="管理场次">$mpiMap.get($event.id)场  </a></td>
+						<td>$event.addtime</td>
+						<td>
+						<a href="${basePath}admin/mobile/modifyGrabTicketEvent.xhtml?id=$event.id" target="_blank">修改</a> |
+						<a href="javascript:;" name="grab-remove-btn" data-id="$event.id" >删除</a> 
+						</td>
+						</tr>
+					#end
+					<tr><td colspan="9">#parse('include/pageUtil.vm')</td></tr>
+				</tbody>
+			</table>
+		</div>
+		</div>
+		<b class="b2f"></b><b class="b1f"></b>
+	</div>
+</div>
+<script>
+	window.addEvent('domready', function(){
+		
+		//更多
+		$$("a[name='more-city-btn']").addEvent('click', function(){
+			this.getParent("td").set("html",this.get("data-title"));
+		});
+		
+		
+		//删除
+		$$("a[name='grab-remove-btn']").addEvent('click',function(){
+			var me=this;
+			var id=me.get("data-id");
+			var params="id="+id;
+		    var postRQ = new Request({
+				    url: '${basePath}admin/mobile/removeGrabTicketEvent.xhtml',
+				    method: 'post',
+				    onRequest: function(){
+				        GewaraUtil.mask();
+				    },
+				    onSuccess: function(responseHTML){
+				    	GewaraUtil.unmask();
+				    	me.getParent("tr").dispose();
+				    }
+			});
+			postRQ.send(params);
+		});
+	
+	});
+</script>
+</body>
+</html>

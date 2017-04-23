@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>我的头像_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,base_home&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.changePtohoBox{padding:10px 10px 10px 300px;height:100%;clear: both;}
+		.changePtohoBoxInner{float:left;width:280px;margin-left:-280px;_margin-left:-140px;height:320px;overflow:hidden;}
+		.changeImageBox{height:200px;width:260px;overflow:hidden;position: relative;z-index: 3;background:#ccc;}
+		.controlCursor{height:186px;width:120px;overflow:hidden;float:left;background:url(${staticPath}css/home/changebox.jpg) no-repeat;position: relative;}
+		.bigLink{height:20px;line-height:20px;margin-top:10px}
+		.bigLink a,.bigLink input{display:inline-block;height:20px;padding:0 10px;background:#7092da;font-size:14px;text-decoration: none !important;color:#fff;margin-right:10px;cursor: pointer;border:0}
+		.controlCursor input{border:0px;background:transparent;}
+		.controlCursor label,.sbbutton{display:inline-block;width:120px;height:33px;position:absolute;top:0px;cursor:pointer;}
+		.controlCursor label input{visibility: hidden;width:120px;height:33px;}
+		.controlCursor .sbbutton{bottom:0px;top:auto;}
+		#headlogo{filter:Alpha(opacity=0);opacity:0;cursor:pointer;font-size:28px;outline:none;hide-focus:expression(this.hideFocus=true);left:-295px;top:0px;position:absolute;cursor: pointer;}
+		.controlCursor a {color:#fff;font-size:14px;font-weight:bold;display:block;height:32px;line-height:32px;text-align:center;text-decoration:none;}
+		.dragging{border: solid 2px red;}
+	</style>
+</head>
+<body>
+#set($changeHead=true)#set($isBase=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/userInfo.vm')
+			<div class="mt20 ml20"><img src="${staticPath}css/images/blank.gif" width="90" height="90" style="background:url($VmUtils.randomPic('cw90h90',$cacheMemberMap.get($member.id).headpicUrl)) center center no-repeat;"/></div>
+			<div class="title mt20"><h2>上传新头像</h2></div>
+			<div class="changePtohoBox">
+				<div class="changePtohoBoxInner">
+					<div class="changeImageBox">
+						<div id="dragable-holder" style="background:#fff; width: 260px; height: 200px; overflow: hidden;position: relative;" class="none">
+							<div style="position: absolute; overflow: hidden; background-color: black; visibility: visible; opacity: 0.2;filter: alpha(opacity = 20); width: 260px; height: 52px;z-index:10"></div>
+							<div style="position: absolute; overflow: hidden; background-color: black; visibility: visible; opacity: 0.2;filter: alpha(opacity = 20); height: 92px; width: 81px; top: 52px;z-index:10"></div>
+							<div style="position:absolute;overflow:hidden;background-color: black;visibility: visible; opacity: 0.2;filter: alpha(opacity = 20);top:52px;width:87px;right:0px;height:92px;z-index:10"></div>
+							<div style="position:absolute;overflow:hidden;background-color: black;visibility: visible; opacity: 0.2;filter: alpha(opacity = 20);bottom:0px;width:260px;height:56px;left:0px;z-index:10"></div>
+							<div style="position: absolute; top: 52px; left: 81px; border: 1px solid #eee;width: 90px; height: 90px;z-index:10"></div>
+							<div id="dragable1" style="position: absolute;left:0;top:0; z-index: 33; width: 260px; height: 200px;background-color:#fff;cursor:url('${staticPath}css/home/href.cur'),default;*cursor:url('${staticPath}css/home/href.cur');filter: alpha(opacity = 10);opacity: 0.1;"></div>
+							<img id="corp" style="position: relative;left:0px;top:0px;" src="${staticPath}css/images/blank.gif"/>
+						</div>
+					</div>
+					<div class="bigLink none" id="bigLink">
+						<a href="#" rel="zoomOut">-</a><a href="#" rel="zoomIn">+</a><a href="#" rel="reset">重置</a>
+					</div>
+				</div>
+				<div class="controlCursor">
+					<div style="height:32px;overflow:hidden;position:relative;">
+						<a href="#"></a>
+						<form action="${basePath}common/uploadPicture.xhtml" id="headlogoForm" method="post" enctype="multipart/form-data" target="imgFrame">
+							<input type="hidden" name="callbackUrl" value="${basePath}home/acct/uploadHeadLogo.xhtml" />
+							<input type="hidden" name="watermark" value="watermark" />
+							<input type="file" name="headlogo" id="headlogo" style="" onchange="javascript:$('headlogoForm').submit()"/>
+						</form>
+						<iframe style="display:none;" src="javascript:void(0)" id="imgFrame" name="imgFrame"></iframe>
+					</div>
+					<form action="${basePath}home/acct/updateHead.xhtml" id="picForm" method="get" onsubmit="return valid()">
+						<input type="hidden" name="filename" id="filename"  value=""/>
+						<input type="hidden" id="imgleft" name="imgleft" value="81"/>
+						<input type="hidden" id="imgtop" name="imgtop" value="52"/>
+						<input type="hidden" id="imgW" name="imgW" />
+						<input type="hidden" id="imgH" name="imgH"/>
+						<input type="submit" class="sbbutton" style="position: absolute;bottom:0px;cursor:pointer;z-index: 99" value=""/>
+					</form>
+				</div>
+				<div>&nbsp;上传图片大小不能超过2M</div>
+			</div>
+		</div>
+	</div>
+</div>
+	<script type="text/javascript">
+function valid(){
+	if($('filename').value.length < 10){
+		gewaUtil.alert('请先选择图片！');
+		return false;
+	}
+	return true;
+}
+</script>
+<script type="text/javascript">
+var rImage;
+window.addEvent('domready',function() {
+	$('imgW').value=$("corp").getWidth();
+	$('imgH').value= $("corp").getHeight();
+	var initPosition=$("corp").getPosition("dragable-holder"), totalAdded={'x':0,'y':0}, curAdded={}, initPos=$("dragable1").getPosition();
+	var myMove = new Drag.Move('dragable1',{
+		onStart: function(){
+			initPos=$("dragable1").getPosition();
+		},
+		onSnap: function(el){
+			el.addClass('dragging');
+		},
+		onComplete: function(el){
+			el.removeClass('dragging');
+			curAdded = $("dragable1").getPosition();
+			totalAdded.x += curAdded.x-initPos.x;
+			totalAdded.y += curAdded.y-initPos.y;
+			$('corp').setStyles({
+				'position':'absolute',
+				'left':totalAdded.x,
+				'top':totalAdded.y,
+				'z-index':0
+			});
+			$('dragable1').setStyles({'left':0,'top':0});
+			$('imgW').value=$("corp").getWidth();
+			var left = 81 - ($("corp").getStyle('left')).toInt(),top = 52 - ($("corp").getStyle('top')).toInt();
+			$('imgleft').value= left;
+			$('imgtop').value= top;
+			$('imgH').value= $("corp").getHeight();		 
+		}
+	});
+});
+var ResizeImage=new Class({
+	Implements: [Options],
+	//these are the default options
+	options: {
+		maxW:200,
+		maxH:200       
+	},					   
+	initialize: function(img,z,options) {
+		this.setOptions(options);
+		this.z =$$(z);
+		this.setImg($(img));
+		this.setResize(this.z);
+	},
+	setImg:function(img){
+		this.img = img;
+	}, 
+	setResize:function(z){
+		var self = this;
+		//执行相应的动作
+		$each(z, function(el, i){
+			el.addEvent('click', function(e){
+				//获取原始图片大小的参数
+				var initW = self.img.width, initH = self.img.height;
+				//zoomOut,zoomIn
+				var newW = initW, newH = 0;
+				//图片比例初始化参数
+				var maxW=self.options.maxW,maxH=self.options.maxH;
+				//调用比例函数
+				var newSize = self.scaleSize(maxW,maxH,initW,initH);
+				e = new Event(e).stop();
+				switch(el.rel){
+					case 'zoomOut':
+						newW -= 20; 
+						break;
+					case 'zoomIn':
+						newW += 20;
+						break;
+					case 'resizeProportionally':
+						self.img.width = newSize[0];
+						self.img.height = newSize[1];
+						return;
+					default:
+						newW = initW;		            
+				}	
+				var ratio = initH / initW;
+				newH = newW * ratio;
+				self.img.width = newW;
+				self.img.height = newH;
+				$('imgW').value=newH;
+				$('imgH').value= newW;	
+			});
+		});						
+	},
+	//比例函数
+	scaleSize: function(maxW,maxH,currW,currH){
+		var ratio = currH / currW;
+		if(currW >= maxW){
+			currW = maxW;
+			currH = currW * ratio;
+		} else if(currH >= maxH){
+			currH = maxH;
+			currW = currH / ratio;
+		}
+		return [currW, currH];
+	}
+});
+var uploadCallback=function(params){
+	if(params.success){
+		$("dragable-holder").removeClass("none");
+		$("bigLink").removeClass("none");
+		$("corp").set("src", '${basePath}images/temp/' + params.filename);
+		//$("corp").set("width", "");
+		//$("corp").set("height", "");
+		$("filename").value = params.filename;
+		if(rImage) rImage.setImg($('corp'));
+		else rImage = new ResizeImage('corp','.bigLink a');
+	}else{
+		gewaUtil.alert(params.msg);
+	}
+};
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

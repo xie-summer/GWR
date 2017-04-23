@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	#parse('include/constant/cityParam.vm')
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>#if($VmUtils.isBlank($sport.seotitle))${sport.name}图片#else${sport.seotitle}#{end} - 格瓦拉生活网</title>
+	<meta name="keywords" content="${sport.name}场馆查询,${sport.name}资讯,${sport.name}公告,${sport.name}价格"/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_sport&v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/slider.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,slimbox&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	.title h2{font-weight:bold;}
+	
+	.row li {overflow:hidden;float:left; margin-right:12px;}
+	.box{width:200px; border:1px solid #ccc;margin-bottom:15px;}
+	.box img{padding:5px;background:#fff;border-bottom:1px solid #ccc;}
+	.box p{padding:4px;background:#f5f5f5;border:1px solid #fff;}
+	.box p span{color:#666;}
+	</style>
+</head>
+<body>
+#set($tag="sport") #set($issport=true) #set($isSportDetail=true)
+#set($isPicture=true)
+#set($issite=true)
+#set($relatedid=$sport.id)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout detail_body">
+	<div class="inner">
+		<div class="ui_panel">
+			#parse('sport/module/detailHead.vm')
+			<div class="detail_body_left acDiscription">
+				<div class="title">
+					<h2>官方上传图片</h2><em class="c999">（共$count张）</em>
+				</div>
+				<div id="pictureDetail"></div>
+				<div class="title sport_btn mt20">
+					<a href="javascript:void(0)" onclick="uploadPic();" class="button redBt minBt right"><span>添加场馆图片</span></a>
+					<h2>瓦友上传图片</h2><em class="c999">（共$memberPictureCount张）</em>
+				</div>
+				<div id="memberPictureDetail"></div>
+			</div>
+			<div id="uploadPic" style="display:none">
+	<p class="gray">添加与#if($VmUtils.eq($tag, "movie"))电影#else影院#end相关的剧照图片，支持jpeg,jpg,png,gif等格式图片，最大不超过2M</p>
+	<p class="gray">通过管理员审核通过后，你将有机会获得一定积分奖励。<a class="ml10 brown" href="${basePath}helpCenter/index.dhtml?diaryId=3120809&dkey=helpcenter1308109899606">什么是积分？</a></p>
+	<div class="title mt10"><span class="left">上传图片：</span>
+	<iframe name="uploadwarapic" id="uploadwarapic" style="display:none"></iframe>
+	<form id="uploadmicroForm" target="uploadwarapic" onsubmit="return this.file.value.length > 0" enctype="multipart/form-data" action="${basePath}common/uploadPicture.xhtml" style="margin: 0px; padding: 0px;" method="post" name="fileUpload">
+		<input id="callbackUrl" type="hidden" value="${basePath}common/afterUploadPicture.xhtml?uploadtag=moviePic&callbackf=_afterupdatePic" name="callbackUrl" />
+		<div id="dispFileDiv" style="position: relative; height: 30px; z-index: 0;">
+			<input type="hidden" name="tag" id="tag" value="sport"/>
+			<input type="hidden" name="uploadPath" id="uploadPath" value="images/memberpicture"/>
+			<input type="hidden" name="callback" id="callback" value="updateLogo"/>
+			<input type="file" name="file" id="file" onkeyup="this.value='';" size="38" />
+			<input type="submit" name="upload" value="上传文件" />
+		</div>
+	</form>
+	<input type="hidden" name="logo" id="logo" value=""/>
+	</div>
+	<div class="mt10" style="padding-left:60px;display: none" id="slogoimg"><img style="width:48px;heigh:64px; display: none" id='logoimg' src="${staticPath}css/images/blank.gif"/></div>
+	<div class="title mt10"><span class="left">图片名称：</span><input class="text fs14 left"style="height:15px;"type="text" name="pname" id="pname"/>&nbsp;&nbsp;<span class="brown">*</span></div>
+	<div class="clear"></div>
+	<div class="title mt10"><span class="left" style="padding-left:55px;">&nbsp;</span>
+		<label class="left">
+		<input type="hidden" name="captchaId" id="captcha"/>
+		<input type="text" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" size="18" style="width:120px" mustTxt="请输入验证码!" onfocus="GewaraUtil.refreshCaptcha('captcha');"/></label>
+		<img id="captchaImg" src="${staticPath}css/images/blank.gif" class="ml10" style="cursor: pointer;vertical-align: middle;float:left;height:36px;" onclick="GewaraUtil.refreshCaptcha('captcha');" title="看不清楚，请点击换一张图片"/>
+	</div>
+	<div class="clear"></div>
+	<div class="title mt20"><label class="button left minBt redBt" for="disBtn"><input type="button" id="disBtn" value="确认上传" onclick="saveAttachPicture()"></input></label></div>
+</div>
+			<div class="detail_body_right">
+				#parse('include/global/map.vm')
+				<div class="mt20">
+				#parse('sport/module/right_rimVenue.vm')
+				#parse('sport/module/right_rimEntertainment.vm')
+				</div>
+			</div>
+			<div class="cls"></div>
+		</div>
+	</div>
+</div>
+#parse('include/newMarkDialog.vm')
+#parse('include/treasure.vm')
+#parse('include/global/new_scorelevel.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	myTreasure('sport',$sport.id,'logonMember');
+	sportPictureDetail('apic');
+	sportPictureDetail('mpic');
+})
+function addPicture(){
+	checkLogin(true,function(){
+		location.href = "${basePath}home/new/uploadPicture.xhtml?tag=sport&relatedid=$sport.id";
+	});
+}
+function uploadPic(){
+	checkLogin(true,function(){
+		gewa.util.maskContent('','uploadPic','上传场馆图片',550,'notTitle');
+	});
+}
+
+function saveAttachPicture(){
+	checkLogin(true,function(){
+		var pname=$('pname').value;
+		var logo=$('logo').value;
+		if(pname.length == 0){
+			gewaUtil.alert('图片名称不能为空！');
+			return;
+		}
+		if(logo.length == 0){
+			gewaUtil.alert('图片不能为空！');
+			return;
+		}
+		var ttag=$('tag').value;
+		var pname=$('pname').value;
+		if($VmUtils.getByteLength(pname) > 60){
+			gewaUtil.alert('图片名称不能超过60位！');
+			return;
+		}
+		var url="${basePath}ajax/common/saveAttachPicture.xhtml";
+		var values={'relatedid':$relatedid,'pname':$('pname').value,'logo':$('logo').value, 'tag':ttag, 'captcha':$('captchaInput').value, 'captchaId':$('captcha').value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert('上传成功，请等待审核！', function(){
+					refreshPage();
+				});
+			}else{
+				GewaraUtil.refreshCaptcha('captcha');
+				gewaUtil.alert(result.msg);
+			}
+		})
+	});
+}
+function _afterupdatePic(paramsMap){
+	if(paramsMap == null){
+		gewaUtil.alert("上传文件出错! 请检查文件格式! ");
+		recover();
+		return false;
+	}
+	var imgpath = paramsMap["picpath"]; 
+	if(paramsMap["msg"] != 'ok'){
+		recover();
+		return false;
+	}
+	$('slogoimg').toggleDisplay();
+	$('logo').value=paramsMap.picpath;
+	$('logoimg').src='${picPath}sw48h64/'+paramsMap.picpath;
+	$('logoimg').toggleDisplay();
+}
+function updateLogo(params){
+	var picpath = params['picpath'];
+	$('logo').value = picpath;
+	$('logoimg').src='${basePath}' + picpath;
+	$('logoimg').setStyle('display','');
+	$('slogoimg').setStyle('display','');
+}
+function sportPictureDetail(el){
+	var url="${basePath}sport/ajax/sportPictureList.xhtml";
+	if(el == 'apic'){
+		var values={'relatedid':'$sport.id','type':el};
+		gewaUtil.loadData('pictureDetail', url, values, function(result){});
+	}
+	if(el == 'mpic'){
+		var values={'relatedid':'$sport.id','type':el};
+		gewaUtil.loadData('memberPictureDetail', url, values, function(result){});
+	}
+}
+</script>
+#parse('include/bottom.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

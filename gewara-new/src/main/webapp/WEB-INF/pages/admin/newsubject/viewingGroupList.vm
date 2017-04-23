@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>观影团模板专题列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline;float:left;width:80px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:400px; display:inline}
+		tr{height: 25px;}
+	</style>
+</head>
+<body style="width:850px;margin:auto;padding: 10px;" class="yui-skin-sam">
+<div style="width:750px; height: 20px;">
+	<span style="width: 60px; margin-left:60px;"></span>
+	<a href="${basePath}admin/newsubject/addViewingGroup.xhtml#if($!params.tag)?tag=$!params.tag#end#if($!params.signname)&signname=$!params.signname#end" target="_blank">增加专题</a>
+	<span style="width: 60px; margin-left:60px;"></span>
+	<a href="javascript:refreshPage()">刷新</a>
+	<span style="width: 60px; margin-left:60px;"></span>
+	<span id="callbackMsg"></span>
+</div>
+<table width="780px" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th style="width:15%;">专题名称</th>
+		<th style="width:12%;">添加日期</th>
+		<th style="width:24%;">数据添加</th>
+		<th style="width:12%;">模块配置</th>
+		<th style="width:12%;">操作</th>
+	</tr>
+	</thead>
+	<tbody id="roomTable">
+		#foreach($data in $list)
+		<tr>
+			<td><a href="${absPath}/zhuanti/viewGroup.xhtml?tempId=$data.id&citycode=$!citycode" target="_blank">$data.title</a></td>
+			<td>$DateUtil.format($data.addtime, 'yyyy-MM-dd HH:mm')</td>
+			<td style="text-align:center;">
+			<a href="${basePath}admin/newsubject/getViewingItemList.xhtml?parentid=$!data.id&tag=star&signname=viewing&citycode=$!citycode" target="_blank">本期明星</a>
+			<a href="${basePath}admin/newsubject/getViewingItemList.xhtml?parentid=$!data.id&tag=activpic&signname=viewing&citycode=$!citycode" target="_blank">活动图片</a>
+			<a href="${basePath}admin/newsubject/getViewingItemList.xhtml?parentid=$!data.id&tag=periodsreview&signname=viewing&citycode=$!citycode" target="_blank">往期回顾</a>
+			</td>
+			<td><a href="javascript:viewingGcDetail('$!data.id','$!data.signname');" >模块配置</a></td>
+			<td>
+				<a href="${basePath}admin/newsubject/addViewingGroup.xhtml?id=$data.id" target="_blank">[修改]</a>|
+				<a href="javascript:void(0);" onclick="opeDelete('$data.id', this)">[删除]</a>
+			</td>
+		</tr>
+		#end
+	</tbody>
+</table>
+<div id="pointText" style="visibility:hidden; z-index:601;"></div>
+#parse('admin/newsubject/commonjs.vm')
+</body>
+<script type="text/javascript">
+function viewingGcDetail(parentid,signname){
+	var url = "${basePath}admin/newsubject/viewingGcDetail.xhtml";
+	var values = {"parentid":parentid,"signname":signname};
+	gewaUtil.loadData('pointText',url, values, function(result){
+		if(result.success){
+			GewaraUtil.showDialog('pointText');
+		}else{
+			gewaUtil.alert(result.json.msg);
+		}
+	});
+}
+
+function save(){
+	var url = "${basePath}admin/newsubject/saveViewingGcDetail.xhtml";
+	var values = GewaraUtil.getValues("gcForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("信息添加成功！");
+			refreshPage();
+		}else {
+			alert(result.msg);
+		}
+	});
+}
+function updateLogo(params){
+	var picpath1 = params['picpath'];
+	$('bgImg').value = picpath1;
+	$('logoimg').src='${picPath}' + picpath1;
+}
+
+</script>
+</html>

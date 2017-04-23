@@ -1,0 +1,55 @@
+<div id="troupeDialog" class="yui-panel" style="width:600px; visibility:hidden; z-index:20;">
+	<div class="hd">
+		<span id="directorDiv">选择导演<span style="color:red">(现在是话剧数据)</span></span>
+	</div>
+	<div class="bd">
+	<div id="recommendForm">
+		<div>
+			<input type="hidden" name="starid" value="$!dramaStar.id">
+			<input type="hidden" name="startype" value="director" id="startype">
+			名称:<input type="text" name="starname" id="starname">
+			<input type="button" class="button buttonclass" value="查询" onclick="searchF()">(导演和明星之间的切换，需重新查询)
+		</div>
+	</div>
+	
+	<div id="troupeTable" class="container"></div>
+	
+	<div class="ml20 center">
+		<input type="button" class="button buttonclass" value="提 交" onclick="selecttroupe()">
+		<input type="button" class="button buttonclass" value="取 消" onclick="cancel()">
+	</div>
+	</div>
+</div>
+<script>
+	// 查找
+	function searchF(){
+		var url = '${basePath}admin/drama/star/loadDramaTable.xhtml';
+		var values = {'name':$('starname').value,'state':'','starid':$('starid').value,'dramatype':$('startype').value}
+		GewaraUtil.sendLoad('troupeTable', url, values, function(result){
+			if(!result.success){
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+	// 点击提交
+	function selecttroupe(){
+		var names = '', ids = '';
+		if($('troupUL')){
+			var ss = $('troupUL').getElements('input:checked');
+			$each(ss, function(i, n){
+				var star = $(i).get('value').split(',');
+				names += star[0] +',';
+				ids += star[1] + ',';
+			})
+			$('dramaids').value = ids.substring(0, ids.length-1);
+			$('dramas').value = names.substring(0, names.length-1);
+			cancel();
+		}
+	}
+	// 点击取消
+	function cancel(){
+		var type=$('startype').value;
+		$(type+'Div').addClass('none');
+		GewaraUtil.hideDialog('troupeDialog');
+	}
+</script>

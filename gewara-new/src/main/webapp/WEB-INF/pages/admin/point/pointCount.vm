@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>数据统计</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#fff;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		td, th{
+			text-align: center;
+			height: 23px;
+		}
+	</style>
+</head>
+<body>
+#set($isSpecial=true)
+#*#parse('admin/datacount/menuPartner.vm')*#
+<div style="margin-left: 140px;width: 800px;background-color: #fff;height: 550px;">
+<form action="${basePath}admin/searchPointList.xhtml" id="form">
+	<div style="margin-left: 15px;margin-bottom: 5px;">
+		<label for="applycity">申请区域：</label>
+		<select name="province" id="province" onchange="provinceChange()">
+			<option value="">选择省份</option>
+			#foreach($province in $province2CityList)
+				<option value="$province.provincename" #if($!VmUtils.eq($provincename,$province.provincename)) selected="selected" #end>$province.provincename</option>
+			#end
+		</select>
+		<select name="applycity" id="applycity">
+			<option value="">选择城市</option>
+		</select>
+		
+		
+		<label for="applydept">申请部门：</label>
+		<select name="applydept">
+			<option value="">选择部门</option>
+			#foreach($dept in $deptMap.keySet())
+			<option value="$dept" #if($applydept eq $dept)selected="selected"#end>$deptMap.get($dept)</option>
+			#end
+		</select>
+		<label for="applytype">申请类型：</label>
+		<select name="applytype">
+			<option value="">选择类型</option>
+			#foreach($type in $applyMap.keySet())
+			<option value="$type" #if($applytype eq $type)selected="selected"#end>$applyMap.get($type)</option>
+			#end
+		</select><br />
+		开始时间：<input name="starttime" id="starttime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!starttime" type="text" style="width: 160px"/>
+		结束时间：<input name="endtime" id="endtime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!endtime" type="text" style="width: 160px"/>
+		<input type="submit" value="查询" />
+	</div>
+	</form>
+	#set($keyList=["原因","增加积分","减少积分"])
+	<div style="background-color: #ffffff;">
+		<table cellpadding="0" cellspacing="0" width="100%" border="1" style="border-collapse: collapse">
+			<tr>
+				<th>申请区域</th>
+				<th>申请部门</th>
+				<th>申请类型</th>
+				#foreach($key in $keyList)
+				<th>$!key</th>
+				#end
+			</tr>
+			#foreach($point in $pointMapList)
+			<tr>	
+				<td>#if($VmUtils.isNotBlank($applycity)) $cityMap.get($applycity) #else 全国 #end</td>
+				<td>#if($VmUtils.isNotBlank($applydept)) $deptMap.get($applydept) #else 全部门 #end</td>
+				<td>#if($VmUtils.isNotBlank($applytype)) $applyMap.get($applytype) #else 全类型 #end</td>
+				#foreach($key in $keyList)
+				<td>#if(!$VmUtils.eq($key,'原因')) $point.get($key) #else #if($VmUtils.isNotBlank($pointTagMap.get($point.get($key)))) $pointTagMap.get($point.get($key)) #else $point.get($key) #end #end</td>
+				#end
+			</tr>
+			#end
+			<tr>
+				<th></th>
+				<th></th>
+				<th></th>
+				<th>合计</th>
+				#foreach($key in $keyList)
+					#if($foreach.count ge 2)
+					<th>$VmUtils.getTotal($pointMapList, $key)</th>
+					#end
+				#end
+			</tr>
+		</table>
+	</div>
+</div>
+	<script type="text/javascript">
+	window.addEvent('domready',function(){
+		provinceChange();
+	})
+	$$("tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+	
+	function comefrom(loca,locacity) { this.loca = loca; this.locacity = locacity; }
+	var where = new Array($province2CityList.size());
+	where[0]= new comefrom("请选择..","请选择..");
+	var citys2 = "";
+	#foreach($province in $province2CityList)
+		citys2 = "";
+		#foreach($city in $province.gewaCityList)
+			citys2 += "$city.citycode:$city.cityname|";
+		#end
+		if (citys2.length > 0) {
+			citys2 = citys2.substr(0, citys2.length - 1);
+		}
+		where[$foreach.count] = new comefrom("$province.provincename",citys2);
+	#end
+	function provinceChange(applycity) {
+		if($('province').value == "") {
+			$('applycity').disabled=true;
+			$('applycity').set('html', "<option>选择城市</option>");
+			return false;
+		}
+		$('applycity').disabled=false;
+		with(document.getElementById("form").province) { var loca2 = options[selectedIndex].value; }
+		for(i = 0; i < where.length; i++) {
+			if (where[i].loca == loca2) {
+				var loca3 = (where[i].locacity).split("|");
+				for(j = 0;j < loca3.length;j++) {
+					with(document.getElementById("form").applycity) {
+						length = loca3.length; 
+						options[j].text = loca3[j].split(":")[1]; 
+						options[j].value = loca3[j].split(":")[0];
+						if (applycity != "" && applycity == loca3[j].split(":")[0]) {
+							options[j].selected = true;
+						}
+						var loca4=options[selectedIndex].value;
+					}
+				}
+				break;
+			}
+		}
+	}
+	provinceChange(#if($applycity)$applycity#end);
+</script>
+</body>
+</html>

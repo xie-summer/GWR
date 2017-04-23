@@ -1,0 +1,236 @@
+<!Doctype html>
+<html>
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>$!{cookieCityname}$!{curCounty.countyname}羽毛球场地_游泳池_网球场_保龄球场_高尔夫球场馆预订 - 格瓦拉生活网</title>
+	<meta name="keywords" content="格瓦拉生活网提供羽毛球场地,游泳池,网球场,保龄球场,高尔夫球场等各类场地场馆预订及地址,线路,优惠信息查询."/>
+	<meta name="description" content="格瓦拉生活网提供羽毛球场地,游泳池,网球场,保龄球场,高尔夫球场等各类场地场馆预订及地址,线路,优惠信息查询."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${basePath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ui_layout{background:none;}
+	</style>
+</head>
+<body>
+#set($issport=true)
+#set($cfgHeader='header')
+#set($curriculumselect=true)
+#parse('include/wide_header.vm')
+<form id="searchForm" action="${basePath}sport/agencyList.xhtml">
+	<input type="hidden" name="searchKey" id="searchKey" value="$!VmUtils.getText($params.searchKey)"/>
+	<input type="hidden" name="order" id="order" value="$!VmUtils.getText($params.order)"/>
+</form>
+<div class="ui_layout bgtrans">
+	<div class="index_wrap clear">
+		#parse('include/sport/wide_menu_left.vm')
+		<div class="index_right">
+			<div class="mt10">
+				<div class="ui_left">
+					<div class="mod_kong">
+						<div class="mod_hd train_hd"></div>
+						<div class="mod_bd">
+							<div class="mod_tabs mod_tabs_sport">
+								<div class="mod_hd">
+									<ul class="nav_tabs" id="nav_tabsDiv">
+										<li><a href="${basePath}sport/curriculumList.xhtml">培训课程</a></li>
+										<li class="select"><a href="javascript:void(0);">培训机构</a></li>
+									</ul>
+								</div>
+								<div class="mod_bd clear wiP">
+									<div class="condition mt20">
+										<dl class="clear dlTy">
+											<dt>
+												<span class="typeTitle left">名称查询</span>
+											</dt>
+											<dd>
+												<div class="search_kuang left">
+													<form action="javascript:setParamsValue('searchKey',$('searchKey2').value);">
+														<input id="searchKey2" value="$!params.searchKey" class="search_text searchText noradius" type="text"  alt="请输入搜索关键词"  name="searchKey2">
+														<label class="search_button noradius">
+															<input type="button" value="" onclick="setParamsValue('searchKey',$('searchKey2').value)"/>
+														</label>
+													</form>
+												</div>						
+											</dd>
+										</dl>
+									</div>
+									<div class="selectedMenus clear mt20">
+										<div class="right">
+											<div class="ui_simulate">
+												<div class="simulate_select">
+													<div class="select_value">默认</div>
+													<a class="select_arrow" href="javascript:void(0);"></a>
+													<input class="simulate_value" type="hidden" value="" name="order">
+												</div>
+												<ul class="simulate_options">
+													<li><a href="javascript:void(0);" data-value="">默认</a></li>
+													<li><a href="javascript:void(0);" data-value="clickedtimes">按人气(由高到低)</a></li>
+													<li><a href="javascript:void(0);" data-value="generalmark">按评论(由高到低)</a></li>
+												</ul>
+											</div>
+										</div>
+										<div class="left tiaojian_p">
+											<span>
+												共<b class="cSport sNum">$!{agencyCount}</b>家场馆
+											</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="sportList" id="cinemaListArea">
+						#foreach($agency in $agencyList)
+						#set($gmark=$VmUtils.getSingleMarkStar($agency, "general"))#set($gmark1=$gmark/10) #set($gmark2=$gmark % 10)
+						#set($siList=$siListMap.get($agency.id))
+						<ul>
+							<li class="effectLi sportList" style="width:100%">
+								<div class="ui_media">
+									<div class="ui_pic cinema">
+										<a href="${basePath}sport/agencyDetail.xhtml?id=$!agency.id" target="_blank" title="$!agency.name">
+											<img src="${staticPath}css/images/blank.gif" alt="$!agency.name" height="92" width="122" style="border:1px solid #f4f4f4;background:url($VmUtils.randomPic('sw120h60',$agency.limg)) center center no-repeat #fff;vertical-align:middle;"/>
+										</a>
+										<p class="mt10">
+											#if($agency.openBooking())<a class="button redBt bigBt" href="${basePath}sport/agencyDetail.xhtml?id=$!agency.id" target="_blank"><span>在线预订</span></a>#end
+										</p>
+									</div>
+									<div class="ui_text">
+										<div class="title">
+											<h2>
+												<a href="${basePath}sport/agencyDetail.xhtml?id=$!agency.id" title="$!agency.name" target="_blank" class="color3">$!agency.name</a>
+											</h2>
+											<span class="ml5">($!{agency.clickedtimes}关注)</span>
+											<span class="grade">
+												<sub style="margin:0;">$gmark1</sub>
+												<sup>.$gmark2</sup>
+											</span>
+										</div>
+										<p class="mt10">
+											培训项目：#if($VmUtils.isEmptyList($siList))暂无#else#foreach($sportItem in $siList)$!sportItem.name #end#end
+										</p>
+										<p>简介：$!VmUtils.getHtmlText($!agency.remark, 200)...</p>
+									</div>
+								</div>
+							</li>
+						</ul>
+						#end
+						<div class="page">#parse('include/pageUtil.vm')</div>
+					</div>
+				</div>
+				<div class="ui_right">
+					#if(!$VmUtils.isEmptyList($bannerGclist))
+					<div class="sport_video mb20">
+						<ul id="slidePanel">
+							#foreach($banner in $bannerGclist)
+							<li><a href="$!banner.link" title="$!banner.title" target="_blank"><img width="310" height="200" alt="$!banner.title" src="$VmUtils.randomPic('sw270h200',$!banner.limg)" /></a></li>
+							#end
+						</ul>
+						<div class="control" id="controlChild"></div>
+					</div>
+					#end
+					#parse('sport/agency/wide_hotCurriculumList.vm')	#*热门培训课程*#
+					#parse('sport/agency/wide_hotAgencyList.vm')			#*热门培训机构*#
+					#parse('sport/agency/wide_hotSportList.vm')			#*人气运动场馆*#
+					<div id="activityDiv"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	new toggleImage();
+	selectBar();
+	$('searchKey2').addEvents({
+	 	'focus':function(){this.getParents('div[class*="search_kuang"]').addClass('search_kuangClicked');},
+	 	'blur':function(){this.getParents('div[class*="search_kuang"]').removeClass('search_kuangClicked');}
+	});
+	#if($params.order && !$VmUtils.isBlank($params.order))
+	var simulateSelect = $$('.simulate_select');
+	simulateSelect.each(function(item){
+		var e = item.getNext().getElement('a[data-value=$!{params.order}]')
+		item.getElement('.select_value').set('html',e.get('html'));
+		item.getElement('.simulate_value').set('value',e.get('data-value'));
+	});
+	#end
+	(function(){
+		gewaUtil.affix($('ui_left'));
+	}).delay(1000);
+	getActivityList();
+});
+var toggleImage = new Class({
+	Implements: [Options,Events],
+	options: {'panel':'slidePanel',count:0,deep:0},
+	initialize:function(options){
+		this.setOptions(options);
+		this.panel = $(this.options.panel);
+		this.lis = this.panel.getElements('li');
+		this.options.count = this.lis.length;
+		this.runcallbackEvent();
+	},
+	runbackofaway:function(){
+		if(this.options.deep > this.options.count - 1)this.options.deep = 0;
+		this.auto(this.lis[this.options.deep]);
+		this.options.deep++;
+	},
+	runcallbackEvent:function(){
+		var self = this;
+		this.lis.each(function(img,index){
+			if(index != 0){img.fade(0);}
+			var span = new Element('span',{'class':(index==0)?'select':''}).addEvents({
+				'mouseenter':function(){
+					$clear(self.options.clear);
+					self.auto(this.retrieve('key'));
+				},
+				'mouseleave':function(){self.options.clear = self.autoPlay.periodical(5000,self);}
+			}).inject('controlChild');
+			img.store('key',span);
+			span.store('key',img);
+		});
+		this.options.clear = this.autoPlay.periodical(5000,this);
+	},
+	autoPlay:function(){
+		this.runbackofaway();
+	},
+	auto:function(el){
+		$('controlChild').getElements('span').removeClass('select');
+		this.lis.fade(0);
+		el.fade(1);
+		el.retrieve('key').addClass('select');
+	}
+})
+function selectBar(){
+	var simulateSelect = $$('.simulate_select');
+	simulateSelect.each(function(item){
+		item.addEvent('click',function(){
+			item.getNext().toggle();
+		})
+		item.getParent().addEvent('mouseleave',function () {
+			item.getNext().hide();
+		})
+		item.getNext().getElements('a').addEvent('click',function (e){
+			e.preventDefault();
+			if(item.getElement('.simulate_value').get('value') != this.get('data-value')) {
+				sorder(this.get('data-value') ? this.get('data-value') : "");
+			}
+		});
+	});
+}
+function sorder(order){
+	document.location="${basePath}sport/agencyList.xhtml?searchKey=$!params.searchKey&order="+order;
+}
+function getActivityList(){
+	var url = '${basePath}sport/ajax/getActivityList.xhtml';
+	var values = {};
+	GewaraUtil.sendLoad('activityDiv',url, values, function(result){});
+}
+function setParamsValue(field,value){
+	$(field).value = value;
+	$('searchForm').submit();
+}
+</script>
+</body>
+<!-- SUCCESS_BOTTOM -->
+</html>

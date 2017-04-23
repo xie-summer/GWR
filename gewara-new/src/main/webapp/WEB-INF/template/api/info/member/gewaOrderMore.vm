@@ -1,0 +1,41 @@
+<gewaOrder>
+	#foreach($gewaOrder in $gewaOrderList)
+	#set($descMap=$VmUtils.readJsonToMap($gewaOrder.description2))
+	<ticketOrder>
+		<recordid>$!gewaOrder.id</recordid>
+		<quantity>$!gewaOrder.quantity</quantity>
+		<cinema>
+		#if('ticket' == $gewaOrder.getOrdertype())
+		$!gewaOrder.ordertitle.replace('电影票','')
+		#elseif('sport' == $gewaOrder.getOrdertype())
+		$!descMap.get('运动馆名')
+		#elseif('drama' == $gewaOrder.getOrdertype())
+		$!descMap.get('剧院')
+		#else
+		$!gewaOrder.ordertitle
+		#end
+		</cinema>
+		<totalfee>$!gewaOrder.totalfee</totalfee>
+		<paidtime>$!gewaOrder.paidtime</paidtime>
+		<description>
+		#if('ticket' == $gewaOrder.getOrdertype())
+		放映影片：$!descMap.get('影片') 放映时间：$!descMap.get('场次') 放映厅：$!descMap.get('影厅'),$!descMap.get('影票')
+		#elseif('sport' == $gewaOrder.getOrdertype())
+		运动项目：$!descMap.get('运动项目') 时间：$!descMap.get('时间'),$!descMap.get('详细')
+		#elseif('drama' == $gewaOrder.getOrdertype())
+		话剧：$!descMap.get('话剧') 时间：$!descMap.get('时间') 场区：$!descMap.get('场区'),$!descMap.get('座位')
+		#else
+		$!gewaOrder.description2
+		#end
+		</description>
+		<mobile>$!gewaOrder.mobile</mobile>
+		<paymethod>$!gewaOrder.paymethod</paymethod>
+		<status>$!gewaOrder.status</status>
+		<validtime>$!gewaOrder.validtime</validtime>
+		<discount>$!gewaOrder.discount</discount>
+		#if($member.get($gewaOrder.memberid))
+		<membername>$!member.get($gewaOrder.memberid).nickname</membername>
+		#end
+	</ticketOrder>
+	#end
+</gewaOrder>

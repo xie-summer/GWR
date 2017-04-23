@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>帮助中心配置</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<style>
+		.label2{
+			width: 200px;
+		}
+	</style>
+</head>
+<body style="width:750px;margin:auto" class="yui-skin-sam">
+<div style="margin:5px; margin-left:0px">
+	<a title="增加模块" href="javascript:showDialog();">增加模块</a>
+</div>
+<table class="table">
+	<thead>
+	<tr>
+		<th>匹配顺序</th>
+		<th>贴子ID</th>
+		<th>菜单标题</th>
+		<th>副标题</th>
+		<th>修改</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	#foreach($mainMenu in $mainMenuList)
+		#set($dataMap=$VmUtils.readJsonToMap($mainMenu.data))
+		<tr style="background-color: #dfd">
+			<td>$!{dataMap.get('menucode')}|$!{dataMap.get('matchorder')}</td>
+			<td>$!{dataMap.get('relatedid')}</td>
+			<td>$!{dataMap.get('menutitle')}</td>
+			<td>$!{dataMap.get('title')}</td>
+			<td>
+				<a href="javascript:void(0)" onclick="getHelpCenter('$!{mainMenu.dkey}');">修改模块</a>
+			</td>
+			<td><a title="删除模块" href="javascript:void(0);" onclick="delHelpCenter('$!{mainMenu.dkey}', this)">删除模块</a></td>
+		</tr>
+		#if(!$VmUtils.isEmptyList($subdataMap.get($mainMenu.dkey)))
+		#foreach($subMenu in $subdataMap.get($mainMenu.dkey))
+		#set($subMap=$VmUtils.readJsonToMap($subMenu.data))
+		<tr>
+			<td style="padding-left: 20px;">$!{subMap.get('menucode')}|$!{subMap.get('matchorder')}</td>
+			<td>$!{subMap.get('relatedid')}</td>
+			<td>$!{subMap.get('menutitle')}</td>
+			<td>$!{subMap.get('title')}</td>
+			<td>
+				<a href="javascript:void(0)" onclick="getHelpCenter('${subMenu.dkey}');">修改模块</a>
+			</td>
+			<td><a title="删除模块" href="javascript:void(0);" onclick="delHelpCenter('${subMenu.dkey}', this)">删除模块</a></td>
+		</tr>
+		#end
+		#end
+	#end
+</table>
+<div id="moduleDialog" class="yui-panel" style="width:550px;visibility: hidden;">
+	<div class="table" style="width:500px;height:auto;position:relative;top:30px;left:-10px;">
+	<form id="moduleForm">
+	<ul class="ul-80">
+		<input type="hidden" name="dkey" id="dkey" value=""/>
+		<li>
+			<label for="menutitle" class="ul-80Inner">菜单标题：</label>
+			<input type="text" name="menutitle" id="menutitle" value="" style="width:250px"/>
+		</li>
+		<li>
+			<label for="title" class="ul-80Inner">副标题：</label>
+			<input type="text" name="title" id="title" value="" style="width:250px"/>
+		</li>
+		<li>
+			<label for="matchorder"class="ul-80Inner">匹配次序：</label>
+			<input type="text" name="matchorder" id="matchorder" value="" style="width:250px"/>
+		</li>
+		<li>
+			<label for="matchorder"class="ul-80Inner">菜单编码：</label>
+			<input type="text" name="menucode" id="menucode" value="" style="width:50px" maxlength="4"/>(例如主菜单：08，子菜单：0808)
+		</li>
+		<li>
+			<label for="relatedid" class="ul-80Inner">帖子ID：</label>
+			<input type="text" name="relatedid" id="relatedid" value="" style="width:50px"/>
+		</li>
+		<li>
+			<label for="mainmenucode"class="ul-80Inner">主菜单：</label>
+			<select name="tag" id="tag">
+				<option value="">请选择</option>
+				#foreach($menu in $mainMenuList)
+				#set($menuMap=$VmUtils.readJsonToMap($menu.data))
+				<option value="$!{menu.dkey}" >$!{menuMap.get('menutitle')}</option>
+				#end
+			</select>
+			(如果添加主菜单, 不用选择该项)
+		</li>
+		<li>
+		<div>
+			<input type="button" class="button" onclick="saveModule();" value="保存"/>
+			<input type="button" class="button" value="取消" onclick="cancle();"/>
+		</div>
+		</li>
+	</ul>
+	</form>
+	</div>
+</div>
+
+<script type="text/javascript">
+var initFrmValues = GewaraUtil.getValues('moduleForm');
+function cancle(){
+	GewaraUtil.hideDialog('moduleDialog');
+}
+function showDialog(){
+	if(initFrmValues){
+		GewaraUtil.setValues(initFrmValues);
+	}
+	GewaraUtil.showDialog("moduleDialog");
+}
+function saveModule(){
+	var values = GewaraUtil.getValues($("moduleForm"));
+	if($chk(values.tag)){
+		if (values.relatedid == "") {
+			alert("请输入“贴子ID”！");
+			return;
+		}
+	}
+	var url = '${basePath}admin/common/saveHelpCenter.xhtml';
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){ 
+			GewaraUtil.hideDialog('moduleDialog');
+			alert("保存模块成功");
+			refreshPage();
+		}else alert(result.msg);
+	});
+}
+function getHelpCenter(key){
+	var url = '${basePath}admin/common/getHelpCenter.xhtml';
+	var values = {'key':key};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			GewaraUtil.setValues(result);
+			GewaraUtil.showDialog("moduleDialog");
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function delHelpCenter(key, obj){
+	var url = '${basePath}admin/common/delHelpCenter.xhtml';
+	var values = {'key':key};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("删除成功!");
+			gewaUtil.dispose($(obj).getParent('tr'));
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

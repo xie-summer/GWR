@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type;" content="text/html; charset=utf-8" />
+	<meta http-equiv="Expires" content="0" />    
+	<meta http-equiv="Cache-Control" content="no-cache" />    
+	<meta http-equiv="Pragma" content="no-cache" />    
+	<title>确认订单</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,play&v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${basePath}formcheck/formcheck.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${basePath}formcheck/formcheck.js"></script>
+	<style type="text/css">
+		.gui-title{height:24px;line-height:24px;background:#f3f0e9}
+		.gui-title h2{padding-left:12px;}
+		.play-outside-box .play-inside-box{padding:0px;width:100%;border-color:#f4e7df}
+		.pay_info_box{border:1px solid #d6d0ba;width:934px;position: relative;margin-top:20px;padding-bottom:10px;}
+		.notice{position: absolute;right:10px;top:-14px;height:145px;width:239px;padding:20px;background:url(${picPath}css/global/notice_drama.png) no-repeat;}
+		.ms_a,.ms_s{display:block;height:20px;background:url(${picPath}css/global/a_s.gif) no-repeat;color:#C03B0C;font-weight:bold;padding-left:26px;cursor: pointer;}
+		.ms_a{background-position:12px -2px;}
+		div.ms_s{background-position:12px -22px;}
+		.l_hr{border-top:1px solid #e8e7e7;margin:10px;}
+		.goodsListbox{height:150px;width:100%;overflow-x:hidden;overflow-y:auto;}
+		.pay_out{border:1px solid #d5d0b9;padding:3px;background:#f2f0e9;}
+		.payOrder li{width:32.7%;}
+		.pay_out .pay_inner{width:99.6%;background:#fff;border:2px solid #f2f0e9;padding-bottom:20px;}
+		.check-three label{width:130px;display:inline-block;cursor: pointer;height:20px;}
+		.xuzi-boxTitle,.xuzi-box{width:97.8%;}
+		.xuzi-boxTitle{background:#faf0ea;border-width:1px 1px 0;border-style:solid;border-color:#e8e7e7}
+		.xuzi-box{border-width:0 1px 1px;border-style:solid;border-color:#e8e7e7}
+	</style>
+</head>
+<body>
+#set($isPay = true) 
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout">
+	<div class="inner">
+	<form id="payForm"  method="post">
+		<input type="hidden" name="orderId" value="$!order.id"/>
+		#parse('exchange/pubsale/menu.vm')
+		<div class="pay_info_box">
+			<div class="title"><h2>确认购买信息</h2>	</div>
+			<ul class="ui_abeam">
+				<li class="abeam">
+					<div class="uipic"><img src="$VmUtils.randomPic('cw96h128',${sale.limg})" alt="${sale.name}"/></div>
+					<div class="uiText">
+						<p>竞拍：<b class="yellow fs14">$!{sale.name}</b></p>
+						<p>总额：<b class="yellow fs14">${order.totalAmount}元</b></p>
+					</div>
+				</li>
+			</ul>
+			<div class="l_hr"></div>
+			<div class="notice">
+				<p>竞拍已成功，<b class="yellow">请在两个小时内完成支付</b>，否则订单取消。</p>
+				<p class="mt10 center">剩余支付时间：<span style="font-size:2em;color:#C03B0C"><b id="CountMsg"><b id="RemainH">00</b><b>时</b><b id="RemainM">15</b><b>分</b><b id="RemainS">00</b><b>秒</b></b></span></p>
+			</div>
+			#if($sale.isGoods())
+			#set($descMap=$VmUtils.readJsonToMap($order.description2))
+			<div class="title mt10"><h2>支付成功后，格瓦拉将以快递方式给您（免费）,请填写以下信息</h2></div>
+			<ul class="ul-80 mt10">#set($mobile=$!descMap.get('联系手机'))#if(!$mobile)#set($mobile=$order.mobile)#end
+				<li><div class="ul-80Inner">收件人：</div><label><input type="text" name="realname" id="orderrealname" class="text" value="$!descMap.get('真实姓名')" style="width:80px;margin:0;vertical-align: middle;" /><span class="yellow">(*)</span></label></li>
+				<li><div class="ul-80Inner">联系手机：</div><label><input type="text" name="mobile" value="$!mobile" class="text" style="width:100px;margin:0;vertical-align: middle;" /><span class="yellow">(*)</span></label></li>
+				<li><div class="ul-80Inner">收件地址：</div><label><input type="text" name="address" id="address" class="text" value="$!descMap.get('详细地址')" style="width:400px;margin:0;vertical-align: middle;" /><span class="yellow">(*请填写详细的收货地址)</span></label></li>
+				<li><div class="ul-80Inner">接收时间：</div><label><input type="text" name="remark" id="remark" class="text" value="$!descMap.get('备注')" style="width:400px;margin:0;vertical-align: middle;" />如：工作日（周一至周五）  双休日（周六、周日）
+				</label></li>
+			</ul>
+			#end
+		</div>
+		<div class="xuzi-boxTitle"><label class="yellow" for="xiyi" style="cursor: pointer;"><input type="checkbox" id="xiyi" class="mr5"/>*<b class="xzbx" style="font-size:14px;color:#ff6200">服务条款</b></label><span id="tishi">（重要提示：请仔细阅读服务条款，同意并勾选后付款）</span></div>
+		<div class="xuzi-box">
+			<span class="bold">请仔细核对您的订单信息，订单一旦交易成功将不退不换。</span>
+		</div>
+		<div class="mt20 ml10">
+			<label class="bigBt button"><input type="button" onclick="gotoPay()" value="确认无误，去支付" id="subBt"/></label>
+		</div>
+		</form>
+	</div>
+</div>
+#set($pageTrack=${basePath} + 'pubsale/order/pay.html')
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+	var remain, pfun;
+	window.addEvent('domready', function(){
+		data();
+		$$('.ms_triger').addEvent('click',function(){
+			this.getNext().toggleClass('none');
+			this.toggleClass('ms_s');
+		})
+	});
+	function getRTime(){
+		var nH = Math.floor(remain/(1000*60*60)) % 24;
+		var nM = Math.floor(remain/(1000*60)) % 60;
+		var nS = Math.floor(remain/1000) % 60;
+		$("RemainH").innerHTML = (nH < 10 ? "0" : "") + nH;
+		$("RemainM").innerHTML = (nM < 10 ? "0" : "") + nM;
+		$("RemainS").innerHTML = (nS < 10 ? "0" : "") + nS;
+		remain -= 1000;
+		if(((remain/1000).toInt()*1000)%60000==0){
+			$clear(pfun);
+			data();
+		}
+		if(remain<=0){
+			if(pfun) $clear(pfun);
+			data();
+			return;
+		}
+	};
+	function data(){
+		var random = (Math.random()*1000000).toInt();
+		new Request({
+			url: '${basePath}exchange/pubsale/ordertime.xhtml?tid=$order.id&'+random,
+			method:'get',
+			onSuccess: function(responseText) {
+				remain = responseText * 1;
+				if(remain <= 0){
+					$("CountMsg").empty();
+					$("CountMsg").innerHTML = "订单已超时";
+				}else{
+					pfun = getRTime.periodical(1000);
+				}
+			}
+		}).send();
+	}
+</script>
+<script type="text/javascript">
+	javascript:window.history.forward(1);
+	function gotoPay(){
+		if(!$('xiyi').checked){
+			$('xiyi').focus();
+			$('tishi').toggleClass('yellow bold');
+			return false;
+		}
+		var values = GewaraUtil.getValues("payForm");
+		GewaraUtil.sendRequest("${basePath}gewapay/validEms.xhtml",values, function(result){
+			if(result.success){
+				document.location.href="${basePath}gewapay/confirmOrder.xhtml?orderId=$order.id";
+			}else gewaUtil.alert(result.msg);
+		});
+	}
+</script>
+</body>
+</html>

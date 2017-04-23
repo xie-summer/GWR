@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>网友添加视频列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline}
+	</style>
+</head>
+<body style="width:75%; margin:auto" class="yui-skin-sam">
+<table width="75%" class="table">
+	<tr>
+		<th>视频名称</th>
+		<td><a href="${basePath}admin/audit/videoDetail.xhtml?mpictureid=$!attachMemberPicture.id" target="_blank">$!memberPicture.name</a>
+		<input type="hidden" name="mpictureid" id="mpictureid" value="$memberPicture.id"/></td>
+	</tr>
+	<tr>
+		<th>视频路径</th>
+		<td>$!memberPicture.description</td>
+	</tr>
+	<tr>
+		<th>&nbsp;</th>
+		<td><embed style='width:500px;height:400px'  menu='true' loop='true' play='true' src='$!memberPicture.description' wmode='transparent' quality='high' pluginspage='http://www.macromedia.com/go/getflashplayer' type='application/x-shockwave-flash'></embed></td>
+	</tr>
+	<tr>
+		<th>封面图片</th>
+		<td><iframe width="450px" height="26" frameborder="0" scrolling="no" id="uploadIFrame" src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/memberpicture&callback=updateLogo"></iframe>
+			 <input type="" name="logo" id="logo" value=""/>
+			 <img style="width:110px; display: none" id='logoimg' src="${staticPath}css/images/blank.gif"/>
+		</td>
+	</tr>
+	<tr>
+		<th>状态</th>
+		<td align="center">#if($VmUtils.eq($memberPicture.status,'Y'))已审核#elseif($VmUtils.eq($memberPicture.status,'N'))未审核#end</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><input type="button" onclick="saveMemberPicture()" value="保存" style="width:50px;"/></td>
+	</tr>
+</table>
+<script type="text/javascript">
+	function saveMemberPicture(){
+		var mpictureid=$('mpictureid').value;
+		var logo=$('logo').value;
+		var url = "${basePath}admin/common/ajax/saveMemberPicture.xhtml";
+		var values = {'mpictureid':mpictureid, 'picturename':logo};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result){
+				document.location.href="${basePath}admin/common/auditMPVideoList.xhtml"
+			}else alert("操作失败");
+		});
+	}
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg').src='${basePath}' + picpath;
+		$('logoimg').setStyle('display','');
+	}
+</script>
+</body>
+</html>

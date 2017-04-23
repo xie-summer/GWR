@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>关注  格瓦拉社区</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/default.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,Autocompleter,page,noobSlide&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#parse('sns/common/header.vm')
+<div class="ui_layout">
+	#parse('sns/common/left.vm')
+	<div class="body_right">
+	
+	#set($wasi=true)
+	#parse("sns/message/menu.vm")
+	<div class="bodys" id="_body">
+	
+		<div class="body_nav_second">
+			<div class="navs">
+				<a href="${basePath}home/wala/fans.xhtml#if($params.memberid)?memberid=$!params.memberid#end" >瓦丝($!myFansCount)</a>
+				<a href="${basePath}home/wala/follow.xhtml#if($params.memberid)?memberid=$!params.memberid#end" class="hover">关注($!attentionCount)</a>
+			</div>
+		</div>
+		
+		<ul class="mymessage">
+			#foreach($tid in $treasureIds)
+			<li class="ui_abeam clear">
+			
+				<div class="uipic">
+					<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!tid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($!tid).headpicUrl)" width="50" height="50" title="$cacheMemberMap.get($!tid).nickname"/></a>
+				</div>
+				
+				<div class="uiText wasiText">
+				
+					<div class="title">
+					   <h2 class="mr10">
+					   <a target="_blank" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!tid" title="$cacheMemberMap.get($!tid).nickname">$cacheMemberMap.get($!tid).nickname</a>
+					   </h2>
+					   <span class="mr10">
+					   #if($VmUtils.isNotBlank($microMemberAreaMap.get($!tid)))
+					   $microMemberAreaMap.get($!tid)
+					   #end
+					   </span>
+					    #if($sexMap.get($!tid) eq '男')
+							 <span class="ico_male"></span>
+						#else
+							<span class="ico_famale"></span>
+						#end	
+					</div>
+					<p class="wasiTotal">
+					关注 <a href="${basePath}home/wala/fans.xhtml?memberid=$!tid">$!modertorFollowMap.get($!tid)</a>	  |  
+					粉丝 <a href="${basePath}home/wala/fans.xhtml?memberid=$!tid">$!microFansMap.get($!tid)</a>	|	
+					哇啦 <a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!tid">$!modertorWalaMap.get($!tid)</a>
+					</p>
+					#if($modertorMemberInfoMap.get($!tid).introduce)
+					<p>简介：$modertorMemberInfoMap.get($!tid).introduce</p>
+					#end
+					
+					#if($commentMap.get($!tid))
+						<p class="wasiTalk">$!VmUtils.getWebBody($!{commentMap.get($!tid).body},$picPath)
+						<span>$DateUtil.getTimeDesc($!{commentMap.get($!tid).addtime})</span></p>
+						<p class="title c999">通过<em>$!{commentMap.get($!tid).fromFlag}</em></p>
+					#end
+					
+				</div>
+				
+				#if($!logonMember eq $member)
+				<div class="wasiOpt isMember">
+						<span><a href="javascript:cancelMicroTreasure($!{memberTreasure.get($!tid).id})">取消关注</a></span>
+						<!--<span class="mutual"></span>-->
+				</div>
+				#end
+				
+			</li>
+			#end
+		</ul>
+		#parse('include/pageUtil.vm')
+</div>
+</div>
+</div>
+<div class="ui_view_menu"></div>
+<div class="footer_warp">
+	<div class="isFooter"></div>
+</div>
+#parse('include/innerLogin.vm')
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=snsUtil,index_even&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	if($('publicize'))new adSoild('publicize','navControl',{'position':{'x':#if($!params.memberid)280#{else}180#end,'y':#if($!params.memberid)80#{else}70#end},'width':14});
+	if($('slidePanel'))new noobSlide({
+		box: $('slidePanel'),
+		size:180,
+		items: $$('#slidePanel li'),
+		handle_event:'click',
+		addButtons: {
+			previous:$('eventL'),
+			next:$('eventR')
+		}
+	});
+});
+</script>
+#parse('sns/common/ga.vm')
+</body>
+</html>
+
+
+
+
+
+

@@ -1,0 +1,112 @@
+	<div class="popup">
+		<div class="club_form"><a href="javascript:GewaraUtil.hideDialog('pointText');"><img src="${staticPath}styles/images/gewacup/close.gif" border="0"/></a></div>
+		<div class="hinput">
+			<div class="transfer">
+			<form id="activityForm" name="activityForm" method="post" action="javascript:gewaActivity()">
+				<input type="hidden" name="mid" id="mid" value="$!mid"/>
+				<input type="hidden" name="id" id="id" value="$!playerMap.id"/>
+				<input type="hidden" name="clubInfoId" id="clubInfoId" value="$!commuid"/>
+				<ul class="ul-100">
+					<li id="choseTogether">
+						<div class="ul-100Inner">参赛项目：</div>
+						<label for="matchtype1"><input type="radio" name="type" id="type" onclick="javascript:changeData('boysingle')" value="boysingle" #if($VmUtils.eq($!type, 'boysingle') || !$!type) checked="checked" #end/>男单</label>
+						<label for="matchtype2"><input name="type" id="type" onclick="javascript:changeData('boydouble')"  type="radio" value="boydouble" #if($VmUtils.eq($!type, 'boydouble')) checked="checked" #end/>男双</label>
+						<label for="matchtype3"><input name="type" id="type" onclick="javascript:changeData('girlsingle')"  type="radio" value="girlsingle" #if($VmUtils.eq($!type, 'girlsingle')) checked="checked" #end/>女单</label>
+						<label for="matchtype4"><input name="type" id="type" onclick="javascript:changeData('girldouble')"  type="radio" value="girldouble" #if($VmUtils.eq($!type, 'girldouble')) checked="checked" #end/>女双</label>
+						<label for="matchtype5"><input name="type" id="type" onclick="javascript:changeData('mixeddouble')"  type="radio" value="mixeddouble" #if($VmUtils.eq($!type, 'mixeddouble')) checked="checked" #end/>混双</label>
+					</li>
+				</ul>
+				<ul id="signle" class="ul-100">
+					<li>
+						<div class="ul-100Inner"><span class="yellow mr5">*</span>姓名：</div>
+						<input  type="text" class="text" style="width:90px;" value="$!playerMap.player" maxlength="30" name="player" id="player" lang="请填写您的姓名"  mustTxt="姓名不能为空！"/>
+						<span class="ml20"><span class="yellow mr5">*</span>性别：</span>
+						<select name="sex" id="sex" onchange="updateSex(this)" #if(!$VmUtils.eq($!type, 'mixeddouble')) disabled="disabled" #end>
+							<option #if($VmUtils.eq($!playerMap.sex,'boy')) selected="selected" #end value="boy" >男</option>
+							<option #if($VmUtils.eq($!playerMap.sex,'girl')) selected="selected" #end value="girl">女</option>
+						</select>
+					</li>
+					<li>
+						<div class="ul-100Inner"><span class="yellow mr5">*</span>身份证：</div>
+						<input class="identity text" type="text" value="$!playerMap.idcards" maxlength="30" name="idcards" id="idcards" lang="请填写您的身份证号码（参赛的凭证之一）"  mustTxt="身份证号码不能为空！"/>
+					</li>
+					<li style="height:auto;">
+						<div class="ul-100Inner">身份证扫描：</div>
+						<iframe width="440px" height="26" allowtransparency=true frameborder="0" scrolling="no" id="uploadIFrame"
+									src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/activity&callback=updateCardPic"></iframe>
+						<input type="hidden" name="idcardslogo" id="idcardslogo" value="$!playerMap.idcardslogo"/>
+						<div id="playerimg" #if($VmUtils.isBlank($!playerMap.idcardslogo)) style="display:none;" #end>
+							<img id='idcardslogoimg' src="$VmUtils.randomPic('sw400h400',$!playerMap.idcardslogo)" />
+						</div>
+					</li>
+					<li>
+						<div class="ul-100Inner"><span class="yellow mr5">*</span>联系方式：</div>
+						<input type="text" class="mobile text" value="$!playerMap.phone" maxlength="30" name="phone" id="phone" lang="请填写您的手机号码（方便我们联系您）"  mustTxt="手机号码不能为空！"/>
+					</li>
+				</ul>
+				<div id="partnerinfo" #if($VmUtils.eq($type,'girlsingle') || $VmUtils.eq($type,'boysingle') || !$!type) style="display:none;" #end>
+					<div id="double" class="yellow mt10">搭档信息：</div>
+					<ul class="ul-100" style="display:inline-block;">
+						<li>
+							<div class="ul-100Inner"><span class="yellow mr5">*</span>姓名：</div>
+							<input style="width:90px;" class="text" type="text" value="$!partnerMap.player" maxlength="30" name="partnerplayer" id="partnerplayer" lang="请填写您搭档的姓名"/>
+							<span class="ml20"><span class="yellow mr5">*</span>性别：</span>
+							<select name="partnersex" id="partnersex" #if(!$VmUtils.eq($!type, 'mixeddouble')) disabled="disabled" #end>
+								<option value="boy" #if($VmUtils.eq($!partnerMap.sex,'boy')) selected="selected" #end>男</option>
+								<option value="girl" #if($VmUtils.eq($!partnerMap.sex,'girl')) selected="selected" #end>女</option>
+							</select>
+						</li>
+						<li>
+							<div class="ul-100Inner"><span class="yellow mr5">*</span>身份证：</div>
+							<input class="identity text" type="text" value="$!partnerMap.idcards" maxlength="30" name="partneridcards" id="partneridcards" lang="请填写您搭档的身份证号码（参赛凭证之一）"/>
+						</li>
+						<li style="height:auto;">
+							<div class="ul-100Inner">身份证扫描：</div>
+							<iframe width="440px" height="26" allowtransparency=true frameborder="0" scrolling="no" id="uploadIFrame"
+								src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/activity&callback=updatePCardPic"></iframe>
+							<input type="hidden" name="partneridcardslogo" id="partneridcardslogo" value="$!partnerMap.idcardslogo"/>
+							<div class="height0"></div>
+							<div id="partnerimg" #if($VmUtils.isBlank($!partnerMap.idcardslogo)) style="display:none;" #end>
+								<img id='partneridcardslogoimg' src="$VmUtils.randomPic('sw400h400',$!partnerMap.idcardslogo)" />
+							</div>
+							
+						</li>
+						<li>
+							<div class="ul-100Inner"><span class="yellow mr5">*</span>联系方式：</div>
+							<input class="mobile text" type="text" value="$!partnerMap.phone" maxlength="30" name="partnerphone" id="partnerphone" lang="请填写您搭档的手机号码（方便我们联系他）"/>
+						</li>
+					</ul>
+				</div>
+				<div style="margin:20px 0 0 100px;clear:both;">
+					<input type="image" id="disBtn" class="left" src="${staticPath}styles/images/2011_gewacup_01.png"/>
+					<div style="color:#fff;display:inline-block;vertical-align:middle;line-height:18px;margin-left:10px;">
+						<input type="checkbox" style="margin:0;" id="checkbox" checked="checked"/>
+						<span style="display:inline-block;vertical-align:top;">我已阅读并同意<a href="${basePath}subject/gewacup/2012/intro.xhtml" target="_blank" class="yellow mr15">参赛须知</a>(<span class="yellow">*</span>为必填选项)<br/>添加俱乐部成员信息，支付报名费才满足报名条件。<br/>报名费：个人20元，俱乐部100元，比赛后统一返还！</span>
+					</div>
+				</div>
+				</form>
+			</div>
+		</div>
+	</div>
+<script>
+window.addEvent('domready',function(){
+	$$('.mobile').addEvents({'keyup':function(){
+			if(this.hasClass('mobile')){
+				replaceStr(this);
+			}
+		}
+	})
+})
+function updateCardPic(params){
+	var picpath = params['picpath'];
+	$('idcardslogo').value = picpath;
+	$('idcardslogoimg').src = "$VmUtils.randomPic('sw400h400','"+picpath+"')";
+	$('playerimg').style.display = "";
+}
+function updatePCardPic(params){
+	var picpath = params['picpath'];
+	$('partneridcardslogo').value = picpath;
+	$('partneridcardslogoimg').src = "$VmUtils.randomPic('sw400h400','"+picpath+"')";
+	$('partnerimg').style.display = "";
+}
+</script>

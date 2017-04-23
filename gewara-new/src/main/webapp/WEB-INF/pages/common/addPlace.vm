@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="robots" content="noindex" />
+	<title>添加场馆_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_movie&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#if($VmUtils.eq($params.tag,'cinema'))
+#set($ismovie=true) 
+#elseif($VmUtils.eq($params.tag,'gym'))
+#set($isgym=true) 
+#elseif($VmUtils.eq($params.tag,'ktv'))
+#set($isktv=true) 
+#elseif($VmUtils.eq($params.tag,'bar'))
+#set($isbar=true) 
+#elseif($VmUtils.eq($params.tag,'sport'))
+#set($issport=true) 
+#end
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout" id="content">
+	<div class="ui_left">
+		<div class="ml10 addvenue"><h1>场馆添加</h1></div>
+		<div class="bbsTop addtopbg ml10">
+			<div class='integralInfo'>1、现在添加场馆，在审核通过后将会获得10-50积分奖励。信息越详细，获得的积分越高。 <a href='${basePath}home/acct/pointList.xhtml' class='fc_b' target='_blank'>看看积分可以换什么？</a><br/>2、审核通过后的场馆将显示出来，并显示您的用户名。</div>
+		</div>
+		<div class="inner">
+			<div id="bbsContent" class="fs14">
+				<div id="placeData">
+					<input type='hidden' name='id' id='id'/>
+					<input type='hidden' name='stationid' id='stationid'/>
+					<input type='hidden' name='lineidlist' id='lineidlist'/>
+					<div class="mt10 line clear ml10">以下信息为必填(<span class="fc_b">*</span>)</div>
+					<ul class="ul-80 ml30">
+						<li id="ttag">
+							<div class="ul-80Inner"><span class="mr5 fc_b">*</span>场馆关联：</div>
+							<label><input name="tag" type="radio" value="cinema" #if($VmUtils.eq($params.tag, 'cinema'))checked="checked"#end/>电影院</label>
+							<label class="ml30"><input name="tag"  type="radio" value="gym"  #if($VmUtils.eq($params.tag, 'gym'))checked="checked"#end/>健身房</label>
+							<label class="ml30"><input name="tag"  type="radio" value="ktv"  #if($VmUtils.eq($params.tag, 'ktv'))checked="checked"#end/>KTV</label>
+							<label class="ml30"><input name="tag"  type="radio" value="bar"  #if($VmUtils.eq($params.tag, 'bar'))checked="checked"#end/>酒吧</label>
+							<label class="ml30"><input name="tag"  type="radio" value="sport"  #if($VmUtils.eq($params.tag, 'sport'))checked="checked"#end/>运动场馆</label>
+						</li>
+						<li>
+							<div class="ul-80Inner"><span class="mr5 fc_b">*</span>场馆名称：</div>
+							<input type='text' name="name" id="name" size='30' class="text"/>
+						</li>
+						<li>
+							<div class="ul-80Inner"><span class="mr5 fc_b">*</span>所属区域：</div>
+							<select name="countyCode" id="county" style="width:220px">
+								<option value="">请选择....</option>
+								#foreach($county in $countyList)
+								<option value="$!{county.countycode}" #if($defaultCountyCode eq $county.countycode)selected #end>$!{county.countyname}</option>
+								#end
+							</select>
+						</li>
+					</ul>
+					<div class="mt30 line clear ml10">以下信息为选填项</div>
+					<ul class="ul-80 ml30">
+						<li>
+							<div class="ul-80Inner">联系电话：</div>
+							<input type='text' name="contactphone" id="contactphone" size='30' class="text"/>
+						</li>
+						<li>
+							<div class="ul-80Inner">详细地址：</div>
+							<input type='text' name="address" id="address" size='50' class="text"/>
+						</li>
+						<li>
+							<div class="ul-80Inner">场馆特色：</div>
+							<input type='text' name="feature" id="feature" size='77' class="text"/>
+						</li>
+						<li>
+							<div class="ul-80Inner">地铁信息：</div>
+							<a class="fc_b" href="${basePath}common/subwayList.xhtml" target="_blank">[添加地铁线路]</a>
+							地铁出口：<input type="text" name="exitnumber" id="exitnumber" style="width:100px" class="text"/>
+						</li>
+						<li>
+							<div class="ul-80Inner">公交信息：</div>
+							<input name="transport" id="transport" type="text" size='30' class="text"/>
+						</li>
+						<li>
+							<div class="ul-80Inner">停车信息：</div>
+							<label><input type="radio" name="park" value="停车免费"/>停车免费</label>
+							<label class="ml30"><input type="radio" name='park'  value="停车收费"/>停车收费</label>
+							<label class="ml30"><input type="radio" name='park'  value="没停车位"/>没停车位</label>
+						</li>
+						<li>
+							<div class="ul-80Inner">详细介绍：</div>
+							<textarea name='content' id="content1"  rows="8" class="text" style="width:300px;"></textarea>
+						</li>
+						<li>
+							<div class="ul-80Inner">&nbsp;</div>
+							<label class="button bigBt"><input type="button" value="写好了，提交" onclick="savePlace()"/></label>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="ui_right">
+		<div class="inner">
+			<!-- 具体关联 -->
+			<div class="partBg">
+				<div class="ml10 mt10">
+					<strong class="fc_b fs14">添加说明</strong>
+					<p>1、请尽量填写准确、完整的场馆信息，信息越准确、完整，获得的积分越高。</p>
+					<p>2、添加无效、错误、与网站主题不符的场馆信息，审核不会通过，将会被删除。</p>
+					<p>3、添加目前已经有的场馆，审核将不会通过。但欢迎补充已经存在的场馆的有用信息，审核后也会获得10-50积分奖励。</p>
+					<p>4、若要补充场馆信息，可以发送邮件到gewara#gewara.com(发送邮件请将"#"修改为"@")工作时间：周一至周五 9:00至18:00。</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="clear"></div>
+	<div class="mt10"></div>
+</div>
+	<script type="text/javascript">
+function validate(){
+		var tags = document.getElementsByName('tag');
+		var temp=0;
+		for(var i=0;i<tags.length;i++){
+			if(tags[i].checked){
+				temp++;
+				break;
+			}
+		}
+			if(temp==0){
+				gewaUtil.alert('请选择场馆关联!');
+				return false;
+			}
+			if($('name').value==""){
+				gewaUtil.alert('请输入场馆名称!');
+				return false;
+			}
+			if($('county').value==""){
+				gewaUtil.alert('请场馆所在区域!');
+				return false;
+			}
+			return true;
+	}
+	function savePlace(){
+			if(validate()){
+				checkLogin(true, function(){
+					var values = GewaraUtil.getValues("placeData");
+				gewa.util.mask({'title':"正在保存数据..."});
+				GewaraUtil.sendRequest("${basePath}ajax/common/savePlace.xhtml", values, function(result){
+					if(result.success){
+						#if($!referer)document.location="$!referer";#end
+						gewa.util.clearMask();
+					}else{
+						gewaUtil.alert(result.msg.replace("@@",","));
+						gewa.util.clearMask();
+					}
+				});
+			});
+			}
+	}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

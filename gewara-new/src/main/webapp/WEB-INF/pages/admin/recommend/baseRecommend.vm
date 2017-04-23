@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>推荐</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+<body style="width:95%; margin:auto" class="yui-skin-sam">
+<div style="clear:both;"></div>
+#set($returnURL={'drama':'admin/drama/dramaCommend.xhtml', 'sport':'admin/recommend/indexCommend.xhtml', 'movie':'admin/cinema/cinemaRecommend.xhtml','gym':'admin/gym/gymRecommend.xhtml'})
+#set($tagMap={'movie':'电影版块','ktv':'KTV版块','bar':'酒吧版块','sport':'运动版块','gym':'健身版块','sport':'运动板块','drama':'话剧版块'})
+#set($signNameMap={'sportindex_sportshealth':'运动保健新闻', 'sportindex_sportactivity':'活动', 'sportindex_sportdiary':'论坛帖子', 'sportindex_sportdiarycommu':'圈子热门帖', 'sportindex_sportcommu':'热门圈子', 'sportindex_sporttopdiary':'运动心得', 'sportindex_sportquestion':'待解决问题',
+						'dnews':'话剧首页新闻','dramaindex_hotsell':'正在热卖','dramaindex_hotdiary':'话剧辣评','dramaindex_dramacommu':'推荐圈子','dramaindex_dramadiarycommu':'圈子热门贴', 'dramaindex_theatre':'推荐场馆', 'dramaindex_star':'明星',
+						'mnews':'电影首页新闻4条', 'movie7other':'电影首页其他新闻7条','movie2Mark':'电影首页关注2条','diary_movieindex':'电影首页精彩影评',
+						'dramaindex_search':'话剧首页热门搜索4条','dnews':'话剧首页推荐新闻6条','dramaindex_toprightother':'话剧首页其他资讯7条','dramaindex_toprightmark':'话剧首页话剧关注2条',
+						'sportindex_search':'运动首页热门搜索','snews':'运动首页推荐新闻6条','sportindex_toprightother':'运动首页其他资讯7条','sportindex_toprightmark':'运动首页运动关注2条','drama_recruit_activity':'追剧团招募活动','drama_recruit_diary':'追剧团剧评','drama_recruit_diarysp':'追剧团剧评特典',
+						'gymindex_search_gym':'项目搜索4条','gymindex_search_coach':'教练搜索4条','gymindex_news':'相关资讯3条','gnews':'健身新闻3条','gymindex_hot_course':'最热门健身项目13条',
+						'gymindex_diary_course':'健身心得3条','gymindex_coach':'健身教练2条','gymindex_mate_activity':'结伴健身活动1条','gymindex_diary':'健身论坛6条','gymindex_commu':'健身圈子10条',
+						'gymindex_gym':'健身场馆展示4条','activityindex':'活动首页活动','hotactivity':'活动首页热门活动','memberactivity':'活动首页网友活动','movieindex_question':'待解决问题','movieindex_news':'首页信息','sportindex_news':'首页信息',
+						'sportitem_list_ad':'运动项目列表推荐','sportitem_list_sportactivity':'项目列表页右侧活动推荐','index_citymovie_header':'电影头部电影、活动、专题','movieindex_mobile':'电影首页手机客户端'})
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+	<td #if($!params.simpleCommend)colspan="2" #else colspan="3" #end align="left" class="td">当前位置>>$!tagMap.get($!params.signtype)>>$!signNameMap.get($!signname) &nbsp;推荐<span id="_resultSpan" class="ml20"></span></td>
+		<td align="right" class="td">
+			#if($!params.hand)<!-- 自定义  -->
+				#if($!signname eq 'sportindex_open_sport')
+				<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signname#if($!params.tag)&tag=$!params.tag#end#if($!params.relatedid)&relatedid=true#end#if($!params.title)&title=true#end#if($!params.summary)&summary=true#end#if($!params.logo)&logo=true#end#if($!params.smalllogo)&smalllogo=true#end#if($!params.link)&link=true#end#if($!params.parentid)&parentid=$!params.parentid#end#if($!params.acitivityDate)&acitivityDate=true#end#if($!params.notLimit)&notLimit=true#end">增加</a>|	
+				#elseif($!signname ne 'ceping')
+				<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signname#if($!params.tag)&tag=$!params.tag#end#if($!params.relatedid)&relatedid=true#end#if($!params.title)&title=true#end#if($!params.summary)&summary=true#end#if($!params.logo)&logo=true#end#if($!params.smalllogo)&smalllogo=true#end#if($!params.link)&link=true#end#if($!params.parentid)&parentid=$!params.parentid#end#if($!params.acitivityDate)&acitivityDate=true#end#if($!params.notLimit)&notLimit=true#end#if($!params.comment)&comment=y#end#if($params.starttime)&starttime=true#end#if($params.endtime)&endtime=true#end">增加</a>|			
+				#else
+				<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signname&spparentid=$!spparentid#if($!params.tag)&tag=$!params.tag#end#if($!params.relatedid)&relatedid=true#end#if($!params.title)&title=true#end#if($!params.summary)&summary=true#end#if($!params.logo)&logo=true#end#if($!params.smalllogo)&smalllogo=true#end#if($!params.link)&link=true#end#if($!params.parentid)&parentid=true#end#if($!params.acitivityDate)&acitivityDate=true#end#if($!params.notLimit)&notLimit=true#end#if($params.starttime)&starttime=true#end#if($params.endtime)&endtime=true#end">增加</a>|	
+				#end
+			#elseif($!params.simpleCommend)
+				#if($!params.summary)
+					<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signname&tag=$!params.tag&relatedid=true&summary=true#if($!params.notLimit)&notLimit=true#end">增加</a>|
+				#else
+					<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signname&tag=$!params.tag&relatedid=true#if($!params.notLimit)&notLimit=true#end">增加</a>|
+				#end
+			#else
+			<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signname&tag=$!params.tag&relatedid=true&title=true&summary=true#if($spparentid)&spparentid=$!spparentid#end#if($!params.notLimit)&notLimit=true#end">增加</a>|
+			#end
+				<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+				#if($!params.refer)
+				<span class="ml20"><a href="${basePath}$returnURL.get($!params.refer)">返&nbsp;回</span>
+				#end
+		</td>
+	</tr>
+	<tr class="td">
+			<td align="left" class="wd200"><b>标题 </b></td>
+			#if(($!signname ne 'ceping') && (!$VmUtils.startsWith($!signname,'drama_recruit_diary')))
+				<td align="left" class="wd60"><b>排序</b></td>
+				#if($!params.simpleCommend)
+				#else
+				<td align="left" class="wd60"><b>副标题</b></td>
+				#end
+			#else
+			<td align="left" class="wd60"><b></b></td>
+			#end
+		<td align="left" class="wd120"><b>操作</b></td>
+	</tr>
+	#set($now=$DateUtil.currentTime())
+	#foreach($gc in $gcList)
+	#set($relate=$relatedHelper.getR1("gcList",$gc.id))
+	<tr class="td" id="gcc$gc.id">
+		#if($!params.relatedid)
+			<td align="left" class="wd200">
+			#if($VmUtils.eq($gc.tag, "diary_commu"))
+			<span style="color: red; font-size: 12px; font-weight: normal;">[$gc.title]</span>
+			#end
+			#if($gc.signname eq 'hotactivity' || $gc.signname eq 'activityindex' || $gc.signname eq 'activityindex_info' || $gc.signname eq 'activityindex_city')#if($!relate.enddate)#if($DateUtil.after($now, $!relate.enddate) eq 1)<label style="color:red;">[下线]</label>#end#end#end
+				#if($VmUtils.startsWith($gc.tag,"news"))$!relate.title
+				#elseif($VmUtils.startsWith($gc.signname,'drama_recruit_diary'))$!gc.title
+				#elseif($VmUtils.startsWith($gc.tag, "diary"))$!relate.subject
+				#elseif($gc.tag eq 'movie' || $gc.tag eq 'commu') $!relate.name
+				#elseif($gc.tag eq 'activity'||$gc.tag eq 'gewaquestion'||$gc.tag eq 'moderator' || $gc.tag eq 'headinfo') $!relate.title
+				#elseif($gc.tag eq 'examlib') $!relate.libname
+				#elseif($gc.tag eq 'drama' || $gc.tag eq 'theatre' || $gc.tag eq 'dramastar') $!relate.name
+				#elseif($gc.tag eq 'gymcard') $!relate.cardname
+				#elseif($gc.tag eq 'gymvideo') $!relate.videotitle
+				#elseif($gc.tag eq 'comment') $gc.title $VmUtils.htmlabbr($relate.body, 60)
+				#elseif($VmUtils.eq($gc.tag,'video'))$relate.videotitle
+				#elseif($VmUtils.eq($gc.tag,'membercard'))$relate.title
+				#elseif($VmUtils.eq($gc.tag,'opentimeitem'))$relate.id
+				#else $!relate.name
+				#end
+			</td>
+			#else
+			<td align="left" class="wd200">$gc.title</td>
+			#end
+		<td align="left" class="wd60">
+			#if(($!signname ne 'ceping')  && (!$VmUtils.startsWith($!signname,'drama_recruit_diary')))
+			<input type="text" value="$!gc.ordernum" id="gc$gc.id" style="width: 50px" onchange="orderNum($gc.id, this.value, this)"/>
+			#end
+			#if($admincitycode eq '320600')
+			<input type="button" onclick="selectOtherCity($gc.id);" value="关联其他城市" />
+			#end
+		</td>
+		#if($!params.simpleCommend)
+		#else
+			#if($!signname ne 'ceping')
+			<td align="left" class="wd60"><a href="${basePath}admin/recommend/newssubtitle.xhtml?parentid=$gc.id" target="_blank">副标题</a></td>
+			#end
+		#end
+		<td align="left" class="wd120">
+			#if($!params.hand)<!-- 自定义  -->
+			<a class="aEvent" href="${basePath}noLink.xhtml?id=$gc.id&signname=$!signname#if($!params.tag)&tag=$!params.tag#end#if($!params.relatedid)&relatedid=true#end#if($!params.title)&title=true#end#if($!params.summary)&summary=true#end#if($!params.logo)&logo=true#end#if($!params.smalllogo)&smalllogo=true#end#if($!params.link)&link=true#end#if($!params.parentid)&parentid=true#end#if($!params.acitivityDate)&acitivityDate=true#end#if($!params.notLimit)&notLimit=true#end#if($!params.comment)&comment=y#end#if($params.starttime)&starttime=true#end#if($params.endtime)&endtime=true#end#if($spparentid)&spparentid=$spparentid#end">[修改]</a>|
+			#elseif($!params.simpleCommend)
+				#if($!params.summary)
+						<a class="aEvent" href="${basePath}noLink.xhtml?id=$gc.id&signname=$!signname&tag=$!params.tag&relatedid=true&summary=true#if($!params.notLimit)&notLimit=true#end">[修改]</a>
+				#else
+					<a class="aEvent" href="${basePath}noLink.xhtml?id=$gc.id&signname=$!signname&tag=$!params.tag&relatedid=true#if($!params.notLimit)&notLimit=true#end">[修改]</a>
+				#end
+			#else
+			<a class="aEvent" href="${basePath}noLink.xhtml?id=$gc.id&signname=$!signnamesignname=$!signname&tag=$!params.tag&relatedid=true&title=true&summary=true#if($spparentid)&spparentid=$!spparentid#end#if($!params.notLimit)&notLimit=true#end">[修改]</a>&nbsp;&nbsp;
+			#end
+			<a href="javascript:void(0)" onclick="javascript:del($gc.id)">[删除]</a>
+			#if($gc.signname eq 'sportindex_sportitem')
+			<a href="${basePath}admin/recommend/baserecommend.xhtml?signname=sportindex_open_sport&signtype=sport&tag=sport&hand=true&relatedid=true&simpleCommend=true&parentid=$gc.id">[增加关联]</a>
+			#end
+			#if($gc.signname eq 'sportindex_sport')
+			<a href="${basePath}admin/recommend/baserecommend.xhtml?signname=sportindex_sport_sportservice&signtype=sport&tag=sportservice&hand=true&relatedid=true&simpleCommend=true&parentid=$gc.id">[增加关联]</a>
+			#end
+		</td>
+		</tr>
+		#end
+</table>
+#parse('admin/recommend/commonjs.vm')
+<div id="showCityDialogDV" style="height: 0px;"></div>
+#parse('admin/common/datashareCitys.vm')
+</body>
+</html>

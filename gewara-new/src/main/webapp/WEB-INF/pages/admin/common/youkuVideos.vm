@@ -1,0 +1,43 @@
+<table width="100%" border="1" cellspacing="0" class="table">
+	<thead>
+	<b>搜索结果：</b>共 $count 部视频
+	<tr align="center">
+		<th>影片封面</th>
+		<th>影片名</th>
+		#*<th>主演</th>*#
+		<th>片长</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="videoTable">
+	#foreach($video in $videoList)
+		<tr id="video_${video.id}">
+			#set($url="http://player.youku.com/player.php/partnerid/$!{CLIENT_ID}/sid/$!{video.id}/v.swf")
+			<td><a href="$!video.link" target="_blank"><img src="$!video.thumbnail" /></a></td>
+			<td>$!video.title</td>
+			#*<td>
+			111
+			</td>*#
+			<td>$video.duration</td>
+			<td>
+				#if($urlList.contains($url))
+				<input type="button" style="width: 70px;" value="已确认" disabled="disabled"/>
+				#else
+				<input type="button" style="width: 70px;" value="确认" onclick="youkuVideo('$url','${video.title}','${video.thumbnail}');"/>
+				#end
+			</td>
+		</tr>
+	#end
+	</tbody>
+</table>
+#set($pageFun="ajaxPage")
+#parse('include/scriptPageUtil.vm')
+<script>
+youkuVideo = function(url,title,thumbnail){
+	GewaraUtil.hideDialog("youkuVideoDialog");
+	GewaraUtil.showDialog("videoDialog");
+	$('url').value = url;
+	$('videotitle').value = title;
+	$('logo').value = thumbnail;
+}
+</script>

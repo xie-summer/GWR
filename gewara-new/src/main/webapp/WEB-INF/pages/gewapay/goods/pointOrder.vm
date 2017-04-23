@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>确认订单</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=template&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.placeLocationListBox{height:auto;line-height:20px;overflow:hidden;}
+		.placeLocationListBox dd{line-height: 20px;}
+			.info_85{width:400px;}
+			.info_13{width:160px;}
+			.m{width:576px;padding:10px;}
+			.m label{width:130px;display:inline-block;height:20px;cursor: pointer;}
+			.sportPanel{width:600px;margin:0px;border:0px;}
+			.payOrder li{width:32.6%}
+			.paymsn{padding-left:68px;color:#000;}
+	</style>
+</head>
+<body>
+#set($isPay = true) 
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="panel">
+	<div class="moreMeanInfoBox">
+		<h2>确认订单信息</h2>
+	</div>
+	<div class="itemsList">
+		<dl class="placeLocationListBox">
+			<dt><span class="fs14">商品名称：</span></dt>
+			<dd><a href="${basePath}exchange/point/buyGoods.xhtml?gid=$order.goodsid" class="bold fs14" target="_blank">${order.ordertitle}</a></dd>
+		</dl>
+		<div id="height0"></div>
+		<dl class="placeLocationListBox mt10">
+			<dt><span class="fs14">兑换数量：</span></dt>
+			<dd><strong class="yellow">${order.quantity}</strong></dd>
+		</dl>
+		<div id="height0"></div>
+		<dl class="placeLocationListBox mt10">
+			<dt><span class="fs14">手机号码：</span></dt>
+			<dd><strong class="yellow fs14">${order.mobile}</strong></dd>
+		</dl>
+		#set($needPoint=$!{goods.realpoint}*${order.quantity})
+		<dl class="placeLocationListBox mt10">
+			<dt><span class="fs14">使用积分：</span></dt>
+			<dd><strong class="yellow fs14">$!needPoint</strong></dd>
+		</dl>
+		<div id="height0"></div>
+		#if($goods.isNeedDeliver())
+		<div class="mt10 fs14 paymsn">
+		#set($descMap=$VmUtils.readJsonToMap($order.description2))
+			<div><b>联系方式：</b></div>
+			<div>收件人：$!descMap.get('contactor')</div>
+			<div>邮编：$!descMap.get('postcode')</div>
+			<div>详细地址：$!descMap.get('address')</div>
+		</div>
+		#end
+		<div id="height0"></div>
+	</div>
+	<form id="payForm" action="${basePath}gewapay/saveOrder.xhtml" method="post">
+	<input type="hidden" name="orderId" value="$!order.id"/>
+	<input type="hidden" name="paymethod" id="paymethod" value="pointexchange"/>
+	<div class="itemsList">
+				<dl class="placeLocationListBox">
+			<dd>
+				<div class="wd30"><input type="submit" id="disBtn" class="trueBt" value="确认订单，去兑换"/></div>
+				<div class="wd70 black"><strong class="yellow">注：</strong>请先确认订单无误再进行兑换。</div>
+				<div id="height0"></div>
+			</dd> 
+		</dl>
+		<div id="height0"></div>
+	</div>
+	</form>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+	window.addEvent('domready', function(){
+		$('payForm').addEvent('submit', function(e) {
+			gewa.util.mask({'element':"disBtn",'title':'正在提交，请稍等...'});
+			e.stop();
+			this.set('send', {onSuccess: function(response) {
+				eval(response);
+				if(data.success){
+					document.location.href = data.url;
+				}else{
+					gewaUtil.alert(data.msg);
+					gewa.util.clearMask();
+				}
+			}, onFailure:function(){
+				gewaUtil.alert("订单错误!");
+				gewa.util.clearMask();
+			}});
+			this.send();
+		});
+		$$(".check-three label").addEvent('click',function(){
+			$("p2").checked=true;
+		});
+	});
+	function clearBank(){
+		$$(".check-three input").each(function(item){item.checked='';});
+	}
+</script>
+</body>
+</html>

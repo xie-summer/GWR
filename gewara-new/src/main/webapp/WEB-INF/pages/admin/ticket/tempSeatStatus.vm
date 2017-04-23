@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>座位初始状态设定</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#set($maxwidth=33+30*$room.ranknum)
+		#content{ width: ${maxwidth}px; background:#fff;}
+		.stype dd, .stype dt{float: left; width: 90px; height: 30px; line-height: 30px; vertical-align: middle;}
+		.stype input, .stype span{float:left; line-height: normal; margin-top: 10px;}
+		.stype div{float:left;}
+		.stype input{width:50px;}
+		.seatpic dt, .head dt{width:30px;}
+		.selectTemp{background-color:#FF6633;}
+		.tmpSeat{color: blue;cursor: pointer;font-size: 12px;height: 22px;line-height: 22px; display:inline-block;
+			margin-top: 5px;text-align: center; width: 30px;
+			border:1px solid black; margin-right:10px; }
+		.tmpSeat:hover{color:#999;}
+	</style>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div id="tmpSeatData" style="display:none;">
+	<input type="hidden" name="roomid" value="$!room.id" />
+	模板名称：<input name="tmpname" value=""/>
+</div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div id="height0"></div>
+	<div class="contentInfoList">
+		<b class="m2"></b>
+		<div class="m">${cinema.name}：$room.roomname<font class="bold" color="#ff6220">${room.roomname}</font>共安排<font class="bold" color="#ff6220"></font>个座位</div>
+		<b class="m2"></b>
+		<div id="content" style="margin:auto;">
+			#set($mleft=40+18*${room.ranknum} - 360)
+			<div class="screen" style="margin-left:${mleft}px">银幕长$!{room.screenwidth}m 高$!{room.screenheight}m</div>
+			<div style="display:block; overflow:hidden; margin-bottom:10px;">
+				<dl class="stype" id="seatTemp">
+					<dt>影厅模板：</dt>
+					#if(!$VmUtils.isEmptyList($roomSeatList))
+					<dd>
+						#foreach($roomSeat in $roomSeatList)
+						<a id="$!roomSeat.tmpname" class="tmpSeat #if($VmUtils.eq($roomSeat.id,$curTempSeat.id)) selectTemp #end" href="${basePath}admin/ticket/seatTempInitstatus.xhtml?roomId=$!room.id&tmpname=$!roomSeat.tmpname">$!{roomSeat.tmpname}</a>
+						#end
+					</dd>
+					#end
+					<dd><input onclick="showRoomSeat()" class="btn" style="width:60px;text-align:center; margin-left:20px;cursor:pointer;" value="增加模板" /></dd>
+				</dl>
+			</div>
+			<dl class="stype" id="seatstatus">
+				<dt><span>初始状态设定：</span></dt>
+				<dd><div class="Aseat" id="O"></div>初始开放</dd>
+				<dd><div class="Cseat" id="C"></div>初始关闭</dd>
+			</dl>
+			<div id="height0"></div>
+			
+			<ul class="seatlist" style="margin-top:10px;">
+				#set($classMap={'O':'Aseat','C':'Cseat'})
+				#set($styleMap={'0':'','1':'color:red;font-weight:bolder;','2':'color:red;font-weight:bolder;'})
+				#foreach($row in [1..$room.linenum])
+				<li>
+					<dl class="seatpic">
+						<dt><label>$!rowMap.get($row)</label></dt>
+						#foreach($rank in [1..$room.ranknum]) #set($sid='row'+${row}+'rank'+$rank)
+						#if($seatMap.get($sid)) #set($seat=$seatMap.get($sid))
+						#set($template=${seat.seatline} + ":" + ${seat.seatrank})
+						#set($tempId='row'+${seat.seatline}+'rank'+${seat.seatrank})
+						<dd><div id="$seat.id" title="$seat.seatLabel" rel="$!template" class="#if($VmUtils.contains($lockSeatList,$tempId)) Cseat #else Aseat #end" style="$styleMap.get($seat.loveInd)">$!seat.loveInd</div></dd>
+						#else<dd><div class="Nseat"></div></dd>#end
+						#end
+					</dl>
+				</li>
+				#end
+				<li class="head"><dl><dt>排编号</dt>#foreach($rank in [1..$room.ranknum])<dd>${rank}</dd>#end</dl></li>
+			</ul>
+			<div id="height0"></div>
+		</div>
+	</div>
+	<b class="b2f"></b> <b class="b1f"></b>
+</div>
+<script type="text/javascript">
+	var initstatus = "O", classMap={'O':'Aseat','C':'Cseat'};
+	window.addEvent("domready", function(){
+		$$("#seatstatus div").addEvent("click", function(){
+			initstatus = this.id;
+		});
+		new ClassGroup($("seatstatus").getElements("div"), $("seatstatus").getElement("div"), "match");
+		$$(".seatlist dd div").addEvent('click', function(){
+			var el=this;
+			if(this.hasClass('Nseat')){//无座位, 不管
+			}else{//有座位
+				if(el.hasClass(classMap[initstatus])) return;
+				if(initstatus=="O" || initstatus=="C"){//设置初始状态
+					var url = "${basePath}admin/ticket/mpi/setTempSeatInitstatus.xhtml";
+					GewaraUtil.sendRequest(url, {"roomid":'$!room.id', "initstatus":initstatus,'tmpname': '$!curTempSeat.tmpname','seatbody':el.get('rel')}, function(result){
+						if(result.success) el.set("class", classMap[initstatus]);
+						else alert("设置状态失败：" + result.msg);
+					});
+				}
+			}
+		});
+	});
+	
+	function showRoomSeat(){
+		gewa.util.issure('','tmpSeatData','新增模板数据',300,'tmpSeatData', function(){
+			addRoomSeat();
+		});
+	}
+	function addRoomSeat(){
+		var url = '${basePath}admin/ticket/mpi/addTempRoomSeat.xhtml';
+		var values = GewaraUtil.getValues('tmpSeatData');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	
+</script>
+</body>
+</html>

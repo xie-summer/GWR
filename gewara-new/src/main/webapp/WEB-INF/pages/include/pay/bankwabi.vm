@@ -1,0 +1,98 @@
+#if($account)
+	#if($account.isIncomplete()||$account.isNopassword())
+	<div class="paymenu_body_t lineB">为了你的账户安全,请先设置支付密码<a href="${basePath}home/acct/mbrMobileAuthPay.xhtml?op=mobileAuthPayMdy" style="color:#0077FF;font-size:12px;font-weight:normal;margin-left:10px;" target="_blank">设置支付密码</a></div>
+	#else
+	<div class="bankWabi">
+		<dl #if($account.banlance gt 0)class="lineB"#end>
+			<dd>
+				<span class="gewaRemain" style="background:none; padding-left:20px;">账户金额：<b class="cF60">#if($account.bankcharge gt 0)$!{account.bankcharge}#else 0 #end</b>元</span>
+				<span class="gewaWabi ml30" style="background:none;">瓦币：<b class="cF60">#if($account.othercharge gt 0)$!{account.othercharge}#else 0 #end</b>个<em>(<em class="cF60">1瓦币</em>=<em class="cF60">1元</em>)</em></span>
+				<a href="http://www.gewara.com/helpCenter/index.dhtml?diaryId=3225030&dkey=helpcenter1335254458085" target="_blank" title="什么是瓦币" class="wabiQa">&nbsp;</a>
+				#if($account.banlance eq 0)
+				<a href="${basePath}home/charge.xhtml" target="_blank" class="c07f ml5" style="line-height:36px;">去充值</a>
+				#end
+			</dd>
+			#if($account.banlance eq 0)
+			<dd>
+				<span class="gewaRemain" style="background:none; padding-left:20px;">您的余额不足，请选择其他支付方式</span>
+			</dd>
+			#end
+		</dl>
+		#if($account.banlance gt 0)
+		<dl>
+			<dd>
+				<div id="chooseGewaPay">
+					#set($needCharge = true)
+					#if($account.banlance ge $order.due) #set($needCharge = false)
+						#if($account.bankcharge gt 0)
+							#if($account.bankcharge ge $order.due)
+								#set($chargeText = '使用账户金额支付<b>' + ${order.due} + '</b>元')
+							#else
+								#set($wabiAccount = $order.due - $account.bankcharge)
+								#set($chargeText = '使用账户金额支付<b>' + ${account.bankcharge} + '</b>元，瓦币支付<b>' + ${wabiAccount} + '</b>元')
+							#end
+						#else
+							#set($chargeText = '瓦币支付<b>' + ${order.due} + '</b>元')
+						#end
+					#else
+						#set($chargeAmount = $order.due - $account.banlance)
+						#if($account.bankcharge gt 0)
+							#set($chargeText = '使用账户金额支付<b>' + ${account.bankcharge} + '</b>元')
+							#if($account.othercharge gt 0)
+								#set($chargeText = $chargeText + '，瓦币支付<b>' + ${account.othercharge} + '</b>元')
+							#end
+						#else
+							#set($chargeText = '瓦币支付<b>' + ${account.othercharge} + '</b>元')
+						#end
+						#set($chargeText = $chargeText + '，剩余<b class="cF60">' + ${chargeAmount} + '</b>元可选择网银或支付宝支付。')
+					#end
+					<p>#set($chargeOrderFee = $order.due - $account.banlance)
+						<input type="checkbox"  name="checkGewaPay" value="Y" checked style="margin-top:3px;*margin-top:-2px;" id="gewaRemainPay" class="left mr5">
+						<label for="gewaRemainPay">$!chargeText<span id="bankSpan"></span>
+						</label>
+					</p>
+				</div>
+			</dd>
+		</dl>
+		<dl class="ipsPay">
+			<dt>支付密码：</dt>
+			<dd>
+				<input type="password" name="paypass" id="paypass" class="text"/><span class="yellow ml5">*</span>
+				<a href="${basePath}home/acct/mbrMobileAuthPay.xhtml?op=mobileAuthPayGet&tagNo=$VmUtils.getRandom()" class="c07f ml5">忘记支付密码</a>
+			</dd>
+		</dl>
+		#end
+	</div>
+	<dl class="clear">
+		<dd>
+			#if($needCharge)
+			<div>
+				<p>网上支付，需要开通网上银行</p>
+				<div class="lineB payway mt10 clear">
+					#set($chargeBankList=["中国工商银行,icon_gsyh,pnrPay:25,zggsyh_charge"])
+					#set($tmpcharge=$chargeBankList.add("中国建设银行,icon_jsyh,pnrPay:10,zgjsyh_charge"))
+					#set($tmpcharge=$chargeBankList.add("中国农业银行,icon_nyyh,pnrPay:29,zgnyyh_charge"))
+					#set($tmpcharge=$chargeBankList.add("交通银行,icon_jtyh,pnrPay:41,jtyh_charge"))
+					#set($tmpcharge=$chargeBankList.add("招商银行,icon_zsyh,pnrPay:07,zsyh_charge"))
+					#set($tmpcharge=$chargeBankList.add("中国银行,icon_zgyh,pnrPay:45,zgyh_charge"))
+					#set($tmpcharge=$chargeBankList.add("中信银行,icon_zxyh,pnrPay:33,zxyh_charge"))
+					#set($tmpcharge=$chargeBankList.add("深圳发展银行,icon_sfyh,pnrPay:14,szfzyh_charge"))
+					#set($tmpcharge=$chargeBankList.add("兴业银行,icon_xyyh,pnrPay:09,xyyh_charge"))
+					#foreach($chargeBank in $chargeBankList) #set($chargepair=$VmUtils.split($chargeBank, ","))
+					<label class="$chargepair[1]" title="$chargepair[0]" for="$chargepair[3]">
+						<input type="radio" name="chargeMethod" id="$chargepair[3]" value="$!chargepair[2]" />
+					</label>
+					#end
+				</div>
+				<p class="mt20">支付宝支付，需要开通支付宝账户</p>
+				<div class="lineB payway mt10 clear">
+					<label style="background-position:30px -880px;" for="directPay_charge"><input type="radio" name="chargeMethod" id="directPay_charge" value="directPay"/></label>
+				</div>
+			</div>
+			#end
+		</dd>
+	</dl>
+	#end
+#else
+<dl><dd><strong class="yellow fs14" >为了你的账户安全,请先<a href="${basePath}home/acct/mbrMobileAuthPay.xhtml?op=mobileAuthPayMdy" class="c07f ml5" target="_blank">设置支付密码</a></strong></dd></dl>
+#end

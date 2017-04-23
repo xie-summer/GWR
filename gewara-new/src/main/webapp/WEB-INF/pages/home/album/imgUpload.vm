@@ -1,0 +1,424 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>上传图片</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($photo=true)#set($isUpdateImage = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			<div class="tab_menu">
+				<ul>
+					<li><a href="javascript:void(0)" id="more" class="select"><span>批量上传</span></a></li>
+					<li><a href="javascript:void(0)" id="single"><span>普通上传</span></a></li>
+				</ul>
+			</div>
+			<div class="title mt10"><img style="vertical-align:middle;" src="${picPath}css/home/myalbum.png" alt="" /><h2>上传图片</h2></div>
+			<div id="more_content">
+				<form action='${basePath}common/uploadPicture.xhtml' method="post" enctype="multipart/form-data">
+					<div class="mt10 clear">
+							#if($relatedtag eq 'commu' || $relatedtag eq 'member')
+							<span class="left">选择相册：</span>
+							<select name="albumid" id="selectId" class="optionsid left">
+								<option value="">请选择</option>
+								#foreach($aid in $albumMap.keySet())
+								<option #if($!albumid eq $aid)selected="selected"#end value="$aid">$albumMap.get($aid)</option>
+								#end
+							</select>
+							#if($!relatedtag eq 'commu' || $!relatedtag eq 'member')
+							<a class="button whiteBt minBt left ml10" href="javascript:showCreateAlbum('adoptAlbum')"><span>创建相册</span></a>
+							#end
+							#end
+					</div>
+					<div id="injectDom"></div>
+				</form>
+			</div>
+			<div id="single_content" class="none">
+				<!-- 真实上传 start -->
+				<form name="ordinaryupForm" id="ordinaryupForm" action="${basePath}home/album/uploadAlbumImages.xhtml" method="post" >
+					<input type="hidden" value="$!relatedtag" name="tag" />
+					<input type="hidden" value="$!relatedid" name="relatedid" />
+					<input type="hidden" value="$!url" name="redirecturl"/>
+					<input type="hidden" name="realName" id="realName" />
+					<input type="hidden" name="successFile" id="successFile" />
+					<input type="hidden" name="albumid" id="albumid" />
+				</form>
+				<!-- 真实上传 end -->
+				
+				<!-- 中介上传 start -->
+				<iframe name="uploadordinarypic" id="uploadordinarypic" style="display:none"></iframe>
+				<form name="ordinaryForm" id="ordinaryForm" enctype="multipart/form-data" action="${basePath}common/uploadPicture.xhtml" 
+					method="post" onsubmit="return isExistsFile();" target="uploadordinarypic">
+					<input type="hidden" name="callbackUrl" id="callbackUrl" value="${basePath}common/afterUploadPicture.xhtml?uploadtag=album&callbackf=_afterupdatePic"/>
+				<!-- 中介上传 end -->
+					<ul class="ul-80">
+						<li>
+							#if($relatedtag eq 'commu' || $relatedtag eq 'member')
+							<div class="ul-80Inner left">选择相册：</div>
+							<select name="albumid" id="aid" class="optionsid left">
+								<option value="">请选择</option>
+								#foreach($aid in $albumMap.keySet())
+								<option #if($!albumid eq $aid)selected="selected"#end value="$aid">$albumMap.get($aid)</option>
+								#end
+							</select>
+							<a class="button whiteBt minBt left ml10 mr10" href="javascript:showCreateAlbum('adoptAlbum')"><span>创建相册</span></a>
+							#end
+							<span style="color:red">上传图片总大小不得超过2M，格式为（.jpg | .gif | .png | .jpeg ）</span>
+						</li>
+						<li>
+							<div class="ul-80Inner">选择图片：</div>
+							1、<input type="file" name="logo0"/>
+						</li>
+						<li>2、<input type="file" name="logo1"/></li>
+						<li>3、<input type="file" name="logo2"/></li>
+						<li>4、<input type="file" name="logo3"/></li>
+						<li>5、<input type="file" name="logo4"/></li>
+						<li><label class="button redBt bigBt ml20"><input type="submit" value="上 传"/></label></li>
+					</ul>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+	<script type="text/javascript">
+	function _afterupdatePic(paramsMap){
+		if(paramsMap == null){
+			gewaUtil.alert("上传文件出错! 请检查文件格式! ");
+			return false;
+		}
+		$('realName').value = paramsMap['realName'];
+		$('successFile').value = paramsMap['successFile'];
+		#if($relatedtag eq 'commu' || $relatedtag eq 'member')
+		$('albumid').value = $('aid').value;
+		#end
+		$('ordinaryupForm').submit();
+	}
+</script>
+<script type="text/javascript">
+function getAlbumMap(){
+	var albumMap = $VmUtils.getScriptObject($albumMap);
+	return albumMap;
+}
+function isExistsFile(){
+	var logos = $('ordinaryForm').getElements('input[name^=logo]');
+	var count = 0;
+	$each(logos, function(i, n){
+			if(i.value != ''){
+				count+=1;
+			}
+		})
+	if(count>0){
+		#if($relatedtag eq 'commu' || $relatedtag eq 'member')
+			if(document.ordinaryForm.albumid.value != ''){
+				return true;
+			}else{
+				gewaUtil.alert('请选择相册！');
+				return false;
+			}
+		#else
+			return true;
+		#end
+	}else{
+		gewaUtil.alert("请选择要上传的图片！");
+		return false;
+	}
+}
+
+window.addEvent('domready',function(){
+	new PanelGroup(['more', 'single'], 'more', "select", "none", "click");
+	new uploadImg({
+		'formurl':'${basePath}common/uploadPicture.xhtml',
+		'requesturl':'$!url',
+		'relativeTag':'$!relatedtag',
+		'relativeid':'$!relatedid',
+		'requesturlKey':'redirecturl',
+		'relativeTagKey':'tag',
+		'relativeidKey':'relatedid',
+		#if($relatedtag eq 'member' || $relatedtag eq 'commu')
+		'requstAlbumidKey':'albumid',
+		'requstAlbumid':getAlbumMap(),
+		#if($!albumid)'curablbumid':$!albumid,#end
+		#end
+		'injectDom':'injectDom'
+	});
+});
+var uploadImg = new Class({
+	Implements: [Options,Events],
+	options: {
+		element:'preview',
+		onComplete: $empty,
+		domInnerTop:'',
+		domInnerMid:'',
+		domInnerBt:'',
+		/*global value*/
+		formurl:'',//formurl,form表单提交路径
+		requesturl:'',//最后跳转链接
+		relativeTag:'',//关联的tag<!--member,commu,movie,cinema,ktv,bar,coach,gym,sport,activity,singer ....-->
+		relativeid:'',//关联id<!--commuid,movieid .... id值-->
+		/*user and commu value*/
+		requstAlbumid:{},//关联用户相册id组合<!--用户所创建的相册id集合，值-->
+		curablbumid:'',//当前相册id值
+		/*相对应的参数*/
+		requesturlKey:'',//跳转键
+		relativeTagKey:'',//关联tag键
+		relativeidKey:'',//关联id键
+		requstAlbumidKey:'',//相册id键
+		injectDom:'',
+		beforList:[]
+	},
+	initialize: function(options) {
+		this.setOptions(options);
+		this.cearteDom();
+	},
+	cearteDom:function(){
+		var i = 0,self = this,select = '',uploadIframe = '',
+			domBox = new Element('div',{'styles':{
+				'width':'100%',
+				'height':'100%'
+			}}).inject(
+				new Element('div',{'styles':{
+					'width':'587px',
+					'height':'430px',
+					'background':'#fff9f6',
+					'border':'1px solid #f0f0f0',
+					'padding':'5px',
+					'margin-top':'10px'
+				}}).inject(self.options.injectDom?self.options.injectDom:document.body)),
+			mtitle = new Element('div',{'styles':{'width':'100%','height':'40px','line-height':'40px'}}).inject(domBox),
+			domInnerTop = new Element('span',{'styles':{
+				'display':'block',
+				'height':'40px',
+				'width':'80px',
+				'background':'url(${picPath}css/home/chooseimg.png) center 5px no-repeat',
+				'position':'relative',
+				'overflow':'hidden',
+				'margin-left':'5px',
+				'float':'left'
+			}}).inject(mtitle),
+			t = new Element('span',{'text':'上传图片总大小不得超过2M，格式为（.jpg | .gif | .png | .jpeg）','styles':{'display':'inline-block','floag':'left','margin-left':'20px','color':'red'}}).inject(mtitle),
+			domInnerMid = new Element('div',{'styles':{'width':'585px','height':'350px','border':'1px solid #f0f0f0','background':'#fff'}}).inject(domBox),
+			domInnerBt = new Element('div',{'styles':{'width':'587px','height':'40px'}}).inject(domBox);
+			uploadIframe = new Element('iframe',{'name':'uploadIframe'}).hide().inject(domInnerBt);
+			var stytag = true;
+			/*必须有*/
+			new Element('input',{'type':'hidden','name':this.options.relativeTagKey,'value':this.options.relativeTag}).inject(domBox);
+			new Element('input',{'type':'hidden','name':this.options.requesturlKey,'value':this.options.requesturl}).inject(domBox);
+			new Element('input',{'type':'hidden','name':this.options.relativeidKey,'value':this.options.relativeid}).inject(domInnerBt);
+			new Element('input',{'type':'hidden','name':'callbackUrl','value':'${basePath}home/album/uploadAlbumImages.xhtml'}).inject(domInnerBt);
+			
+			
+			if($chk(this.options.relativeTag) && (this.options.relativeTag == 'member' || this.options.relativeTag == 'commu')){
+				/*select = new Element('select',{'name':this.options.requstAlbumidKey,'styles':{'margin-left':'5px'}}).addClass('optionsid').inject(domInnerBt);
+				select.options.add(new Option('请选择相册',''));
+				var hash = new Hash(this.options.requstAlbumid);
+				if(hash.getLength() > 0){
+					hash.each(function(key, value){
+						select.options.add(new Option(key,value));
+					});
+					if(this.options.curablbumid)select.value = this.options.curablbumid;
+				}
+				new Element('span',{'text':'创建相册','styles':{
+					'width':'80px',
+					'height':'30px',
+					'font-size':'14px',
+					'background':'url(${picPath}css/home/upLoadCancel.png) no-repeat',
+					'border':'0',
+					'color':'#008ad5',
+					'font-weight':'bold',
+					'cursor':'pointer',
+					'margin-left':'20px',
+					'margin-top':'8px',
+					'text-align':'center',
+					'line-height':'30px',
+					'display':'inline-block'
+				}}).addEvent('click',function(){
+					showCreateAlbum('adoptAlbum');
+				}).inject(domInnerBt);
+				stytag = false;*/
+			}
+			new Element('input',{'type':'button','value':'上传图片','styles':{
+				'width':'80px',
+				'height':'30px',
+				'font-size':'14px',
+				'background':'url(${picPath}css/home/upLoadBt.png) no-repeat',
+				'border':'0',
+				'color':'#fff',
+				'font-weight':'bold',
+				'cursor':'pointer',
+				'margin-left':stytag?'5px':'30px',
+				'margin-top':'8px',
+				'text-align':'center'
+			}}).addEvent('click',function(){
+				if(self.options.domInnerMid.getElements('input').length<1){gewaUtil.alert('请先选择图片！');return false;}
+				if(self.options.relativeTag == 'member' || self.options.relativeTag == 'commu'){
+					if(!$('selectId').value){
+						gewaUtil.alert('请选择相册！');return false;
+					}
+				};
+				gewa.util.mask({'element': this,'title':'正在提交，请稍等...'});
+				$(self.options.injectDom).getParent('form').submit();
+			}).inject(domInnerBt);
+			this.options.domInnerMid = domInnerMid;
+			this.options.domInnerBt = domInnerBt;
+			//加图片按钮
+		while(i<15){
+			var cur = new Element('div',{'class':'mycur','styles':{
+				'width':'100px',
+				'height':'100px',
+				'float':'left',
+				'margin':'5px',
+				'background':'#efefef',
+				'overflow':'hidden',
+				'position':'relative',
+				'border':'3px solid #fefefe'
+			}}).addEvents({
+				'mouseenter':function(){
+					if(this.getElement('input')){this.setStyle('border-color','#666');this.getElement('span').show();}
+				},
+				'mouseleave':function(){
+					if(this.getElement('input')){this.getElement('span').hide();}
+					this.setStyle('border-color','#fefefe');
+				}
+			}).inject(domInnerMid);
+			i++;
+		}
+		this.options.domInnerTop = domInnerTop;
+		this.creatInput();
+	},
+	creatInput:function(){
+		var self = this,sum =  this.options.domInnerMid.getElements('input').length,name = 'logo'+sum;
+		var input = new Element('input',{'type':'file','name':name,'styles':{
+			'position':'absolute',
+			'font-size':'20px',
+			'right':0,
+			'bottom':'5px',
+			'outline':'none',
+			'hide-focus':'expression(this.hideFocus=true)',
+			'cursor':'pointer',
+			'opacity':'0',
+			'visibility':'visible',
+			'z-index':0
+		}}).addEvent('change',function(){
+			if(sum <= 14){
+				var loop = 0;
+				self.options.domInnerMid.getElements('div.mycur').each(function(item,input){
+					if(!item.getElement('input')){self.options.beforList[loop] = input;loop++;}
+				})
+				input.inject(self.options.domInnerMid.getElements('div.mycur')[self.options.beforList[0]]);
+				self.onUploadImgChange(this,self.options.domInnerMid.getElements('div.mycur')[self.options.beforList[0]]);
+				self.options.domInnerTop.empty();
+				self.creatInput();
+			}else{
+				gewaUtil.alert('本次上传数量已满，请下次再传！');
+			}
+		}).inject(this.options.domInnerTop);
+	},
+	onUploadImgChange:function(sender,previewFake){
+		var self = this,flag = true,
+			ipt = previewFake.getElement('input'),
+			previewDom = new Element('div',{'styles':{'filter':'progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale)'}}).addClass('previewFake').inject(previewFake);
+		new Element('span',{'styles':{
+				'display':'none',
+				'height':'30px',
+				'width':'30px',
+				'background':'url(${picPath}css/images/closebox.gif) no-repeat',
+				'position':'absolute',
+				'bottom':'-3px',
+				'right':'-3px',
+				'cursor':'pointer',
+				'z-index':'9'
+			}}).addEvent('click',function(){
+			previewFake.empty();
+		}).inject(previewFake);
+		if(!sender.value.match(/.jpg|.gif|.png|.jpeg/i)){
+				$(ipt).dispose();
+				gewaUtil.alert('图片格式无效！');
+				return false;
+		}
+		if(sender.files && sender.files[0]){
+			new Element('img').hide().inject(previewDom);
+			if(typeof FileReader === 'undefined'){
+				gewaUtil.alert('你的浏览器不支持批量上传，请使用普通上传！',function(){
+					$('single').fireEvent('click');
+				});
+			}else{
+				if(sender.files[0].size > 2000000){
+					$(ipt).dispose();
+					gewaUtil.alert('上传图片总大小不得超过2M！');
+					return false;
+				}
+				var reader = new FileReader();
+				reader.readAsDataURL(sender.files[0]);
+				reader.onload = function(e){
+					var srcImg = e.target.result;
+					this.options.domInnerMid.getElements('div.mycur').each(function(item){
+						if(item.getElement('img') && item.getElement('img').get('src') == srcImg)flag = false;
+					})
+					if(flag){
+						var el = previewFake.getElement('img');
+						el.set('src',srcImg).addEvent('load',function(){
+							self.autoSizePreview(el,el.width,el.height,previewFake);
+							el.show();
+						});
+					}else{
+						$(ipt).dispose();
+						gewaUtil.alert('有相同的图片，请重选图片');
+					}
+				}.bind(this);
+			}
+		}else if(previewFake.filters){//ie
+			previewSize = new Element('img',{'styles':{'filter':'progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=image)','visibility':'hidden'}}).addClass('previewSize').inject(previewFake);
+			sender.select();
+			var imgSrc = document.selection.createRange().text;
+			this.options.domInnerMid.getElements('div.mycur').each(function(item){
+				if(item.getElement('.previewSize') && item.getElement('.previewSize').filters.item('DXImageTransform.Microsoft.AlphaImageLoader').src == sender.value)flag = false;
+			})
+			if(flag){
+				previewDom.filters.item('DXImageTransform.Microsoft.AlphaImageLoader').src = imgSrc;
+				previewSize.filters.item('DXImageTransform.Microsoft.AlphaImageLoader').src = imgSrc;
+				this.autoSizePreview(previewDom,previewSize.offsetWidth,previewSize.offsetHeight,previewFake);
+			}else{
+				$(ipt).dispose();
+				gewaUtil.alert('有相同的图片，请重选图片');
+			}
+		}
+	},
+	autoSizePreview:function(objPre, originalWidth, originalHeight,previewFake){
+		var zoomParam = this.clacImgZoomParam(100,100,originalWidth, originalHeight);
+		new Element('div',{'styles':{'height':zoomParam.top+'px','line-height':zoomParam.top+'px','font-size':'0px'}}).inject(previewFake,'top');
+		$(objPre).setStyles({
+			'width':zoomParam.width + 'px',
+			'height':zoomParam.height + 'px',
+			'margin-left':zoomParam.left + 'px'
+		})
+	},
+	clacImgZoomParam:function(maxWidth, maxHeight, width, height){
+		var param = {width:width,height:height,top:0,left:0};  
+		if( width>maxWidth || height>maxHeight ){  
+			rateWidth = width / maxWidth;  
+			rateHeight = height / maxHeight;  
+			if( rateWidth > rateHeight ){  
+					param.width = maxWidth;  
+					param.height = height / rateWidth;  
+			}else{  
+					param.width = width / rateHeight;  
+					param.height = maxHeight;  
+			}  
+		}  
+		param.left = (maxWidth - param.width) / 2;  
+		param.top = (maxHeight - param.height) / 2;  
+		return param;  
+	}
+});
+</script>
+#parse('include/home/adoptAlbum.vm')
+#parse('include/bottom.vm')
+</body>
+</html>

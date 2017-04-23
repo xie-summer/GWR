@@ -1,0 +1,89 @@
+<data>#set($remarks='')
+	#if(!$VmUtils.isEmptyList($movieMpiRemark))
+		#foreach($mpiRemark in $movieMpiRemark)
+			#set($remarks=$remarks + $!mpiRemark.remark)
+		#end
+	#end
+	<mpid>$opi.mpid</mpid>
+	<movieid>$!opi.movieid</movieid>
+	<moviename>$!opi.moviename</moviename>
+	<cinemaid>$!opi.cinemaid</cinemaid>
+	<cinemaname>$!opi.cinemaname</cinemaname>
+	<language>$!opi.language</language>
+	<edition>$!opi.edition</edition>
+	<roomid>$opi.roomid</roomid>
+	<roomname>$opi.roomname</roomname>
+	<playtime>$!DateUtil.format($opi.playtime,'yyyy-MM-dd HH:mm:ss')</playtime>
+	<price>$priceHelper.getPrice($opi)</price>
+	<costprice>$!opi.price</costprice>
+	<gewaprice>$priceHelper.getPrice($opi)</gewaprice>
+    <servicefee>$priceHelper.getServiceFee($opi)</servicefee>
+	<linenum>$room.linenum</linenum>
+	<ranknum>$room.ranknum</ranknum>
+	<seatList>
+		#foreach($row in [1..$room.linenum])
+		<row><rownum>$row</rownum><rowid>$!rowMap.get($row)</rowid><columns>$!lineMap.get($row)</columns></row>
+		#end
+	</seatList>
+	#if($cacheSeat)
+	<cacheseat><![CDATA[$!seatMap]]></cacheseat>
+	#end
+	#if($isLoveSeat)
+	<loveSeatList>
+		<seat>$!loveSeatList</seat>
+	</loveSeatList>
+	#end
+	#if($!VmUtils.isNotBlank($!opi.elecard))<cardtype>$!opi.elecard</cardtype>#end
+	<closetime>$!DateUtil.format($!opi.closetime,'yyyy-MM-dd HH:mm:ss')</closetime>
+	<dayotime>$!opi.dayotime</dayotime>
+	<dayctime>$!opi.dayctime</dayctime>
+	#if($VmUtils.isNotBlank($opi.remark))
+	<remark><![CDATA[$!VmUtils.getHtmlText($!opi.remark,500)$!{remarks}]]></remark>
+	#elseif($VmUtils.isBlank($opi.elecard))
+	<remark><![CDATA[特别声明：该场次为特殊场次，不支持使用任何优惠$!{remarks}]]></remark>
+	#elseif($VmUtils.eq($opi.elecard,'AB') || $VmUtils.eq($opi.elecard,'BA'))
+		#if($VmUtils.contains($opi.edition,'IMAX'))
+		<remark><![CDATA[特别声明：该场次为特殊场次，只支持使用格瓦拉IMAX券和绿券，不支持使用其他券类和优惠$!{remarks}]]></remark>
+		#else
+		<remark><![CDATA[特别声明：该场次为特殊场次，只支持使用格瓦拉橙券和绿券，不支持使用其他券类和优惠$!{remarks}]]></remark>
+		#end
+	#elseif($VmUtils.eq($opi.elecard,'B'))
+	<remark><![CDATA[特别声明：该场次为特殊场次，只支持使用格瓦拉绿券，不支持使用其他券类和优惠$!{remarks}]]></remark>
+	#elseif($VmUtils.eq($opi.elecard,'BD') || $VmUtils.eq($opi.elecard,'DB'))
+	<remark><![CDATA[特别声明：该场次为特殊场次，只支持格瓦拉绿券和抵扣券，不支持使用其他券类和优惠$!{remarks}]]></remark>
+	#elseif($VmUtils.isNotBlank($remarks))
+	<remark><![CDATA[$!{remarks}]]></remark>
+	#end
+	#if($!goodsGift)
+	<bindGoodsList>
+    	<goods>
+			<goodsid>$!bindGoods.id</goodsid>
+    		<goodsname><![CDATA[$!bindGoods.goodsname]]></goodsname>
+    		<shortname><![CDATA[$!bindGoods.shortname]]></shortname>
+    		<description><![CDATA[$!bindGoods.description]]></description>
+			<logo>${mobilePath}$!bindGoods.limg</logo>
+    		<unitprice>$!bindGoods.unitprice</unitprice>
+			<oriprice>$!bindGoods.oriprice</oriprice>
+			<maxbuy>$!bindGoods.maxbuy</maxbuy>
+			<summary>$!goods.summary</summary>
+    		<rateinfo>$!goodsGift.rateinfo</rateinfo>
+    	</goods>
+	</bindGoodsList>
+	#elseif(!$VmUtils.isEmptyList($optionalGoods))
+	<optionalGoodsList>
+		#foreach($goods in $optionalGoods)
+		<goods>
+			<goodsid>$!goods.id</goodsid>
+			<goodsname><![CDATA[$!goods.goodsname]]></goodsname>
+			<shortname><![CDATA[$!goods.shortname]]></shortname>
+			<logo>${mobilePath}$!goods.limg</logo>
+			<description><![CDATA[$!goods.description]]></description>
+			<oriprice>$!goods.oriprice</oriprice>
+			<unitprice>$!goods.unitprice</unitprice>
+			<maxbuy>$!goods.maxbuy</maxbuy>
+			<summary>$!goods.summary</summary>
+		</goods>
+		#end
+    </optionalGoodsList>
+	#end
+</data>

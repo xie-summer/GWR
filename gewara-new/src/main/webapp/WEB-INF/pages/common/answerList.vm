@@ -1,0 +1,35 @@
+#set($pageFun='_ajaxAutoPage')
+#foreach($answer in $answerList)
+<ul class="ui_abeam btLine">
+	<li class="abeam">
+		<div class="uipic">
+			#if($answer.memberid eq $logonMember.id)
+			<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!answer.memberid" class="picmin" target="_blank"><img style="background:url($VmUtils.randomPic('cw30h30',$cacheMemberMap.get($!logonMember.id).headpicUrl)) center center no-repeat;" src="${staticPath}css/images/blank.gif"/></a>
+			#else
+			<span class="picmin"><img style="background:url($VmUtils.randomPic('cw30h30','images/201004/headpic/m_1_1235822524.gif')) center center no-repeat; cursor: default;" src="${staticPath}css/images/blank.gif"/></span>
+			#end
+		</div>
+		<div class="uiText wl_outer_text">
+			<div class="title">
+				#if($answer.memberid eq $logonMember.id)
+				<a target="_blank" href="/wala/$answer.memberid">
+				$!answer.nickname
+				</a>
+				#else
+				<span class="brown">
+				格瓦拉客服
+				</span>
+				#end				
+				<span class="gray more">$!DateUtil.format($answer.addtime,'yyyy-MM-dd HH:mm')</span>
+			</div>
+			<p>$!answer.body</p>
+		</div>
+	</li>
+</ul>
+#end
+#parse('include/scriptPageUtil.vm')
+<script>
+_ajaxAutoPage = function(pageNo, params, url){
+	gewaUtil.loadData('answerList', url, {});
+}
+</script>

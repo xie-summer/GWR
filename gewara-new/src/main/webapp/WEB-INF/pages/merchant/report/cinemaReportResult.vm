@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+</head>
+<body style="width:95%; margin:auto">
+<div style="line-height:25px;overflow: hidden;"><a style="float:right;margin-right:20px" href="javascript:report.downloadxls()">导出Xls</a><span style="color:red">注：报表数据仅供参考，不能作为对账结算依据</span></div>
+<table class="table">
+	<thead>
+	<tr>
+		<th>&nbsp;</th>
+		<th>电影名称</th>
+		<th>放映时间</th>
+		<th>影厅</th>
+		<th>价格</th>
+		<th>订单数</th>
+		<th>影票数</th>
+		<th>金额</th>
+	</tr>
+	</thead>
+	<tbody class="tbody">
+	#foreach($data in $dataList)
+	#set($opi=$opiMap.get($data.get('mpid')))
+	<tr>
+		<td>$foreach.count</td>
+		<td>$opi.moviename</td>
+		<td><a href="${basePath}merchant/report/orderList.xhtml?mpid=$opi.mpid">$!DateUtil.format($opi.playtime,'M月d HH:mm')</a></td>
+		<td>$opi.roomname</td>
+		<td>[$!VmUtils.getUniqueString($data.concatprice,',')]</td>
+		<td>$!data.totalcount</td>
+		<td>$!data.quantity</td>
+		<td>$!data.totalcost</td>
+	</tr>
+	#end
+	<tr>
+		<td>合计</td>
+		<td colspan="4" align="center" class="td">$cinema.name,#if($params.timetype eq 'addtime')按下单时间#else按场次时间#end,${params.timefrom}--${params.timeto}</td>
+		<td>$ReportUtil.getIntSum($dataList, "totalcount", "0")</td>
+		<td>$ReportUtil.getIntSum($dataList, "quantity", "0")</td>
+		<td>$ReportUtil.getIntSum($dataList, "totalcost", "0")</td>
+	</tr>
+	</tbody>
+</table>
+<br /><br /><br />
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		$$(".tbody tr").addEvents({
+			'mouseenter':function(){
+				this.addClass("over");
+			},
+			'mouseleave':function(){
+				this.removeClass("over");
+			}
+		});
+	})
+</script>
+</body>
+</html>

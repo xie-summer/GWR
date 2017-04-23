@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>$!mainsubject.title</title>
+	<meta name="keywords" content="$!keywords"/>
+	<meta name="description" content="$!description"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout&v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/slider.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,noobSlide,index_even,pagesNavigation,slimbox,base_home,swfobject&v=$VmUtils.jsVersion"></script>
+	#parse('common/newsTemplate/style.vm')
+</head>
+<body>
+#if($!mainsubject.subjecttype eq 'movie')
+#set($ismovie=true)
+#elseif($!mainsubject.subjecttype eq 'drama')
+#set($isdrama=true)
+#elseif($!mainsubject.subjecttype eq 'sport')
+#set($issport=true)
+#elseif($!mainsubject.subjecttype eq 'ktv')
+#set($isktv=true)
+#elseif($!mainsubject.subjecttype eq 'bar')
+#set($isbar=true)
+#elseif($!mainsubject.subjecttype eq 'gym')
+#set($isgym=true)
+#end
+#set($moderate=$!mainsubject.walatitle)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout_top">
+	#if(!$VmUtils.contains($mainsubject.newslogo, 'swf'))<img src="$VmUtils.randomPic('',$!mainsubject.newslogo)"/>
+	#else<embed width="960" height="260" pluginspage="http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash" swliveconnect="true" name="myFlash" quality="high" wmode="transparent" src="${picPath}$mainsubject.newslogo">
+	#end
+	#if(!$VmUtils.isEmptyList($LdaohangList))
+	<div class="model_menu">
+		#foreach($daohang in $LdaohangList)
+		<a href="$!daohang.newslink" class="model_a" target="_blank">$!daohang.newstitle</a>#if($foreach.count ne $LdaohangList.size())|#end 
+		#end
+	</div>
+	#end
+</div>
+<div class="ui_layout">
+	<div class="inner">
+		#foreach($top in $topSublist)
+		#if($top.ordernum !=0)
+		#if($top.subjecttype eq 'T_juzhao')
+			#parse('common/newsTemplate/picTemplate04.vm')
+		#elseif($top.subjecttype eq 'T_juzhao2')
+			#parse('common/newsTemplate/picTemplate05.vm')
+		#elseif($top.subjecttype eq 'T_bianji')
+			#parse('common/newsTemplate/bianjiTemplate02.vm')
+		#end
+		#end
+		#end
+	</div>
+</div>
+<div class="ui_layout">
+	<div class="ui_left">
+		<div class="inner">
+			#foreach($left in $leftSublist)
+			#if($left.ordernum !=0)
+			#if($left.subjecttype eq 'L_xinwen_01')
+				#parse('common/newsTemplate/newsTemplate01.vm')
+			#elseif($left.subjecttype eq 'L_xinwen_02')
+				#parse('common/newsTemplate/newsTemplate02.vm')
+			#elseif($left.subjecttype eq 'L_xinwen_03')
+				#parse('common/newsTemplate/newsTemplate03.vm')
+			#elseif($left.subjecttype eq 'L_shipin')
+				#parse('common/newsTemplate/videoTemplate01.vm')
+			#elseif($left.subjecttype eq 'L_juzhao')
+				#parse('common/newsTemplate/picTemplate01.vm')
+			#elseif($left.subjecttype eq 'L_shipin_02')
+				#parse('common/newsTemplate/videoTemplate03.vm')
+			#elseif($left.subjecttype eq 'L_juzhao_02')	
+				#parse('common/newsTemplate/picTemplate02.vm')
+			#elseif($left.subjecttype eq 'L_huodong')
+				#parse('common/newsTemplate/activityTemplate01.vm')
+			#elseif($left.subjecttype eq 'L_wala')
+				#parse('common/newsTemplate/walaTemplate01.vm')
+			#elseif($left.subjecttype eq 'L_bianji')	
+				#parse('common/newsTemplate/bianjiTemplate.vm')
+			#elseif($left.subjecttype eq 'L_choujiang')
+				#if($VmUtils.isNull($picurl))
+					#if($flashTag eq "laohuji")
+						#parse('subject/jlbhd/pullpa.vm')
+					#elseif($flashTag eq "zhuanpan")
+						#parse('subject/jlbhd/turntable.vm')
+					#else
+						#parse('subject/jlbhd/squares.vm')
+					#end
+				#else
+					<h2>本次抽奖活动已结束……</h2>
+					<img width="660" src="$VmUtils.randomPic('',$picurl)"/>
+				#end
+			#elseif($left.subjecttype eq 'L_mingxinpian')
+				#parse('subject/tatanic/index.vm')
+			#elseif($left.subjecttype eq 'L_toupiao')
+				#parse('common/newsTemplate/voteTemplate.vm')
+			#end
+			#end
+			#end
+		</div>
+	</div>
+	<div class="ui_right">
+		<div class="inner">
+			#foreach($right in $rightSublist)
+			#if($right.ordernum !=0)
+			#if($right.subjecttype eq 'R_yingpian')
+				#parse('common/newsTemplate/introduceTemplate.vm')
+			#elseif($right.subjecttype eq 'R_huaju')
+				#parse('common/newsTemplate/introduceDramaTemplate.vm')
+			#elseif($right.subjecttype eq 'R_xinwen_04')
+				#parse('common/newsTemplate/newsTemplate04.vm')
+			#elseif($right.subjecttype eq 'R_shipin')
+				#parse('common/newsTemplate/videoTemplate02.vm')
+			#elseif($right.subjecttype eq 'R_juzhao_02')	
+				#parse('common/newsTemplate/picTemplate03.vm')
+			#elseif($right.subjecttype eq 'R_huodong')
+				#parse('common/newsTemplate/activityTemplate02.vm')
+			#elseif($right.subjecttype eq 'R_zhidao')
+				#parse('common/newsTemplate/knowTemplate.vm')
+			#elseif($right.subjecttype eq 'R_luntan')
+				#parse('common/newsTemplate/blogTemplate.vm')
+			#elseif($right.subjecttype eq 'R_wala')
+				#parse('common/newsTemplate/walaTemplate02.vm')
+			#elseif($right.subjecttype eq 'R_bianji')	
+				#parse('common/newsTemplate/bianjiTemplate01.vm')
+			#end
+			#end
+			#end
+		</div>
+	</div>
+</div>
+
+<div class="ui_layout">
+	<div class="inner">
+		#foreach($bottom in $bottomSublist)
+		#if($bottom.ordernum !=0)
+		#if($bottom.subjecttype eq 'B_juzhao')
+			#parse('common/newsTemplate/picTemplate06.vm')
+		#elseif($bottom.subjecttype eq 'B_juzhao2')
+			#parse('common/newsTemplate/picTemplate07.vm')
+		#elseif($bottom.subjecttype eq 'B_bianji')
+			#parse('common/newsTemplate/bianjiTemplate03.vm')
+		#end
+		#end
+		#end
+	</div>
+</div>
+
+<script type="text/javascript">
+function setFlash(src,element,width,height){
+   var f=new SWFObject(src, "flash", width, height, "10", "#fff",true);
+   f.addParam('wmode','transparent');
+   f.write(element);
+}
+</script>
+#parse('include/bottom.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

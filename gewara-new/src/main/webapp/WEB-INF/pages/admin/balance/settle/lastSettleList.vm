@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>报表</title>
+	<link type="text/css" rel="stylesheet" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.unsettle {background-color: #eee;}
+	</style>
+</head>
+<body style="width:85%; margin:auto">
+	<table class="table">
+	<thead><tr>
+		<th>城市</th>
+		<th>影院</th>
+		<th>订单周期</th>
+		<th>上次结账时间</th>
+		<th>本次时间</th>
+		<th>本次金额</th>
+		<th>上期差额</th>
+		<th>本期差额</th>
+		<th>本期调整</th>
+		<th>查询</th>
+		<th>操作</th>
+	</tr></thead>
+	<tbody class="tbody">
+	#foreach($citycode in $cinemaGroupMap.keySet())
+		#foreach($cinema in $cinemaGroupMap.get($citycode))
+		<tr #if($settleMap.get($cinema.id) && $settleMap.get($cinema.id).nexttime.before($today)) class="unsettle"#end>
+			<td>$citycode</td>
+			<td>$cinema.name</td>
+			#if($settleMap.get($cinema.id)) #set($settle=$settleMap.get($cinema.id))
+			<td>$!DateUtil.format($settle.timefrom,'M月d日') ~ $!DateUtil.format($settle.timeto,'M月d日')</td>
+			<td>$!DateUtil.format($settle.lasttime,'M月d日 HH:mm')</td>
+			<td>$!DateUtil.format($settle.curtime,'M月d日 HH:mm')</td>
+			<td>$!settle.amount</td>
+			<td>$!settle.lastOrderRefund</td>
+			<td>$!settle.curOrderRefund</td>
+			<td>$!settle.adjustment</td>
+			<td>
+				<a href="${basePath}admin/balance/settle/cinemaSettleList.xhtml?cinemaid=$cinema.id" target="_blank">查看往期</a>
+				<a href="${basePath}admin/balance/settle/viewSettle.xhtml?settleId=$settle.id" target="_blank">报表</a>
+				<a href="${basePath}admin/balance/settle/viewOrderList.xhtml?settleId=$settle.id" target="_blank">订单明细</a>
+				<a href="${basePath}admin/balance/settle/modifySettle.xhtml?settleId=$settle.id" target="_blank">修改</a>
+			</td>
+			<td>
+				#if($settle.status eq 'N')
+				<a href="javascript:confirmSettle($settle.id)">确认结算</a>
+				#else
+				<a href="${basePath}admin/balance/settle/modifySettle.xhtml?cinemaid=$cinema.id" target="_blank">增加</a>
+				#end
+			</td>
+			#else
+			<td colspan="8">&nbsp;无&nbsp;</td>
+			<td><a href="${basePath}admin/balance/settle/modifySettle.xhtml?cinemaid=$cinema.id" target="_blank">增加</a></td>
+			#end
+		</tr>
+		#end
+	#end	
+	</tbody>
+	</table>
+	<script type="text/javascript">
+		window.addEvent("domready", function(){
+			$$(".tbody tr").addEvents({
+				'mouseenter':function(){
+					this.setStyle("background-color","#ccc");
+				},
+				'mouseleave':function(){
+					this.setStyle("background-color","");
+				}
+			});
+		});
+		function confirmSettle(settleId){
+			gewa.util.issure("","结算后信息不能修改，确认结算? ",'确认结算',420,'keys',function(){
+				var url = '${basePath}admin/balance/settle/confirmSettle.xhtml';
+				GewaraUtil.sendRequest(url, {"settleId":settleId}, function(result){
+					if(result.success) {
+						gewa.util.container['keys'].dispose('keys');
+					}else{
+						alert(result.msg);
+					}
+				});
+			});
+		}
+	</script>
+</body>
+</html>

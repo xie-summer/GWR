@@ -1,0 +1,54 @@
+#if(!$VmUtils.isEmptyList($commentList))
+	<ul class="ui_abeam list_wala mt5">
+		#foreach($comment in $commentList)
+		<li class="clear">
+			<div class="uipic">
+				<a title="$comment.nickname" target="_blank" class="pubpic" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid">
+				<img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50" alt=""/>
+				</a>
+				#if($!VmUtils.contains($!comment.flag,'ticket'))
+					<span class="ico_g ico_buyTicket" title="#if($VmUtils.eq($comment.tag,'sport'))预订#{else}购票#{end}用户"></span>
+				#end
+			</div>
+			<div class="uiText gewa_outer_text">
+				<div class="switch_ui_inside">
+					<div class="switch_plugs"><span class="pl"></span>
+						<div class="switch_uis_t"><div class="switch_uis_t"></div></div>
+						<div class="switch_uis_c">
+							<div class="switch_uis_c">
+								<div class="inner">
+									#if($tranferCommentMap.get($comment.transferid))
+									#set($tranfer = $tranferCommentMap.get($comment.transferid))
+									<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$tranfer.memberid">@$tranfer.nickname</a>$!VmUtils.getWebBody($tranfer.body,$picPath)//<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid">$!comment.nickname</a>$!VmUtils.getWebBody($!VmUtils.subLastText("#",$!comment.body),$picPath)</p>
+										<div class="wala_transmit">
+										<p class="wala_arrow"><em>◆</em><span>◆</span></p>
+										<div><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!tranferCommentMap.get($comment.transferid).memberid">$tranfer.nickname</a>$!VmUtils.getWebBody($!VmUtils.subLastText("#",$!tranfer.body),$picPath)</div>
+											<div class="t">
+												<span class="rtime">$DateUtil.getTimeDesc($comment.addtime) 来自$!comment.fromFlag</span>
+												<span class="ruse">
+													<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" title="转发" class="cite a_color3" target="_blank">#if($!comment.transfercount gt 0) $!comment.transfercount #else 0 #end</a>
+													<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" title="搭话" class="reply a_color3" target="_blank">#if($!comment.replycount gt 0)$!comment.replycount #else 0 #end</a>
+												</span>
+											</div>
+										</div>
+									#else
+										<a target="_blank" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid">$!comment.nickname</a>#if($!moderList.contains($!comment.memberid))【主持人】#end：#if($comment.generalmark)(<span title="$!comment.generalmark.0分" class="ui_grades ui_grade$!comment.generalmark">$!comment.generalmark.0</span>)#end<span id="comments$comment.id" class="seachTag">$!VmUtils.getWebBody($!VmUtils.subLastText("#",$!comment.body),$picPath)</span>
+										<div class="t">
+											<span class="rtime">$DateUtil.getTimeDesc($comment.addtime) 来自$!comment.fromFlag</span>
+											<span class="ruse">
+												<a id="$comment.id" href="javascript:void(0)" class="cite a_color3 forwards" title="转发" lang="f">$!comment.transfercount</a>
+												<a id="$comment.id" href="javascript:void(0)" class="reply a_color3 comment" title="搭话" lang="r">$!comment.replycount</a>
+											</span>
+										</div>
+									#end
+								</div>
+							</div>
+						</div>
+						<div class="switch_uis_b"><div class="switch_uis_b"></div></div>
+					</div>
+				</div>
+			</div>
+		</li>
+		#end
+	</ul>
+#end

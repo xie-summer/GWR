@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>${movie.name}</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=kaixin,layout,play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.wd100{padding:5px 0 5px 100px}
+		.w_50{width:49%;display:block;text-align:left}
+		.gewaT{
+			height:50px;
+			line-height:22px;
+			padding:10px;
+			background:#f9f9f9 url($VmUtils.randomPic('','css/buss/wifiLogo.png?v=0001')) 0 7px no-repeat;
+			font-size:12px;
+			color:#cc0000;
+			position: relative;
+			border:1px solid #d3d3d3;
+			width:593px;
+			margin:0 auto;
+		}
+		.gewaT .p{height:22px;width:96.6%;position: absolute;right:16px;bottom:3px;overflow:hidden;}
+		.gewaT .more{top:12px;}
+		.payOrder{width:94%;}
+		.payOrder li{width:23.8%;}
+		.payOrder li div.select{border-bottom-color:#cc0000;color:#cc0000}
+		.payOrder li div.select img{background:url($VmUtils.randomPic('','css/buss/verycd_ioc.png')) no-repeat;width:7px;height:4px;}
+		.payOrder li,.payOrder{height:32px;}
+		.site_menu, .site_menu li a, .site_menu li a span{background-image:url($VmUtils.randomPic('','css/buss/cmwifi.png'));color:#cc0000}
+		.site_menu li a.select, .site_menu li a:hover{background-position:0 -439px;}
+		.site_menu li a.select span, .site_menu li a:hover span{background-position:right -490px;}
+		.site_menu{background-position:0 -413px;}
+		.cmwifi_minBt{display:inline-block;height:22px;width:50px;line-height:22px;overflow:hidden;background:url($VmUtils.randomPic('','css/buss/verycd_bt.jpg')) no-repeat;color:#fff !important;text-decoration: none !important;}
+		.ptableList li span a {
+		    color: #FFFFFF;
+		    display: inline-block;
+		    height: 22px;
+		    line-height:22px;
+		    line-height: 18px;
+		    text-decoration: none !important;
+		    width: 50px;
+		}
+		#gewara .choices a,.yellow{color:#cc0000}
+		#gewara .choices a.select,#gewara .choices a:hover{background-color:#cc0000;color:#fff;}
+		.choiceDialog{width:96%;background:#f9f9f9;border-color:#d3d3d3}
+		.wd-left em{color:#5d84a3}
+		.movieBox{width:96%;}
+		.dot{padding-left:8px;background:url($VmUtils.randomPic('','css/home/dot.gif')) 0 center no-repeat;}
+		.wd500{width:460px;}
+		.ptableList li.playBg,.wrapperTitle{background:#f9f9f9;}
+		.play-outside-box{margin-top:20px;}
+	</style>
+</head>
+<body>
+<div id="gewara" style="width: 615px;margin:0 auto;height:100%;overflow:hidden;position: relative;">
+	<div class="gewaT">
+		<div class="p">
+			<span class="left">
+				#if(!$VmUtils.isNull($gewaCommend))
+				<a href="$!gewaCommend.link" class="dot" target="_blank">$!gewaCommend.title </a>
+				#end
+			</span>
+			<span class="right">在线选座购票服务由格瓦拉生活网提供</span>
+		</div>
+	</div>
+	<ul class="payOrder" id="top">
+		<li style="margin-right:8px;">
+			<div class="step_order_inner select">1、选择电影场次<img src="$VmUtils.randomPic('','css/images/blank.gif')"/></div>
+		</li>
+		<li style="margin-right:8px;"><div class="step_order_inner">2、选择座位</div></li>
+		<li style="margin-right:8px;"><div class="step_order_inner">3、确认订单，支付</div></li>
+		<li><div class="step_order_inner">4、完成购票</div></li>
+	</ul>
+	<div class="inner">
+		<form id="searchForm" action="${basePath}partner/verycd/movieDetail.xhtml">
+		<input type="hidden" name="movieid" id="movieid" value="$!VmUtils.escapeHtml($params.movieid)"/>
+		<input type="hidden" name="fyrq" id="fyrq" value="$!fyrq"/>
+		<input type="hidden" name="encQryStr" value="$!encQryStr" />
+		</form>
+		<dl class="choices clear mt5" style="border:0px;">
+			<dt>购票区域：</dt>
+			<dd>
+				<a id="allCountyLabel" href="javascript:void(0);" onclick="filterCounty('',this)" class="select countyLabel" style="position: relative;">全部$VmUtils.size($!cinemaList)<em id="curCountySelect" class="spt" style="background:url($VmUtils.randomPic('','css/buss/verycd_pt.png')) center bottom no-repeat;"></em></a>
+				#foreach($county in $countyList)
+				<a href="javascript:void(0);" onclick="filterCounty('$county.countycode', this)" class="countyLabel" style="position: relative;">$county.countyname<span>($VmUtils.size($!cinemaMap.get($county.countycode)))</span></a>
+				#end
+			</dd>
+			<dd>
+				<div class="choiceDialog clear mt5">
+					#foreach($cinema in $cinemaList)
+					<a class="cinemaLabel" id="f$cinema.id" rel="$!cinema.countycode" href="javascript:void(0);" onclick="filterCinema('$cinema.id',this);">$cinema.name</a>
+					#end
+				</div>
+			</dd>
+		</dl>
+		<ul class="site_menu mt10" style="position: relative">
+			#foreach($pdate in $dateList)#set($pdateStr=$DateUtil.formatDate($pdate))
+			<li><a #if($VmUtils.eq($pdateStr, $fyrq)) class="select" #end href="javascript:search('fyrq', '$pdateStr')"><span>${DateUtil.format($pdate, 'M月d日')}[$DateUtil.getCnWeek($pdate)]</span></a></li>
+			#end
+		</ul>
+		#foreach($county in $countyList)
+		#if($VmUtils.isNotBlank($countycode))
+		#if($VmUtils.eq($county.countycode, $countycode))#set($tmpcountycode=$countycode)#end
+		#else #set($tmpcountycode=$county.countycode)
+		#end
+		#foreach($cinema in $cinemaMap.get($tmpcountycode))
+		<div class="play-outside-box countyContent" id="A${cinema.id}OF$cinema.countycode">
+			<div class="title">
+				<h2><span class="brown ml10">$!cinema.name</span></h2>
+				<span class="gray">地址：$!{cinema.countyname}$!{cinema.address}</span>
+			</div>
+			<div class="wrapper" id="href$cinema.id">
+				<div class="wrapperTitle">
+					<b>放映时间</b>
+					<b>语言/版本</b>
+					<b>放映厅</b>
+					<b>票价(元)</b>
+					<b class="yellow">现价(元)</b>
+					<b class="yellow">购票</b>
+				</div>
+				#set($width=71 * $VmUtils.size($opiMap.get($cinema.id)))
+				<ul class="ptableList" id="wrapped$cinema.id" style="width:${width}px;">
+					#foreach($pItem in $opiMap.get($cinema.id))
+					<li #if($foreach.index%2 eq 1) class="playBg" #end>
+						<b class="getvlue" id="$pItem.id">$DateUtil.format($!{pItem.playtime},'HH:mm')</b>
+						<span class="gray getvlue" id="$pItem.id">$!pItem.language#if($!pItem.edition)/$!pItem.edition#end</span>
+						<span class="gray getvlue" id="$pItem.id">$!{pItem.roomname}</span>
+						<span class="gray getvlue" id="$pItem.id">$!pItem.price</span>
+						<b id="$pItem.id" class="getvlue">$!priceHelper.getPrice($pItem)</b>
+						<span>
+							<a href="${basePath}partner/${partner.partnerpath}/chooseSeat.xhtml?mpid=${pItem.mpid}&encQryStr=$!encQryStr&come=$!come" class="cmwifi_minBt">购票</a>
+						</span>
+					</li>
+					#end
+				</ul>
+			</div>
+		</div>
+		#end
+		#end
+	</div>
+</div>
+<script type="text/javascript" src="${staticPath}scripts/scrollerbar.js"></script>
+<script type="text/javascript">
+function search(field,value){
+	$(field).value = value;
+	$('searchForm').submit();
+}
+function searchMovie(field,value){
+	$('searchForm').getElements('input').each(function(item){if(item.name!='encQryStr') item.value=""});
+	search(field,value);
+}
+var countyGroup={};
+countyGroup.curCountyLabel=$("allCountyLabel");
+function filterCounty(countycode, el){
+	countyGroup.curCountyLabel.removeClass("select");
+	$(el).addClass("select");
+	$("curCountySelect").inject(el);
+	countyGroup.curCountyLabel=el;
+	$$(".cinemaLabel").each(function(item){
+		item.removeClass("select");
+		if(countycode=='' || item.get('rel')==countycode) item.removeClass("none");
+		else item.addClass("none");
+	});
+	$$(".countyContent").each(function(item){
+		if(countycode=='' || item.id.indexOf(countycode)>0) item.removeClass("none");
+		else item.addClass("none");
+	});
+}
+function filterCinema(cinemaid, el){
+	$$(".countyContent").each(function(item){
+		if(item.id.indexOf("A"+cinemaid+"OF")>=0) item.removeClass("none");
+		else item.addClass("none");
+	});
+	$(el).addClass("select");
+	if(countyGroup.curCinema) countyGroup.curCinema.removeClass("select");
+	countyGroup.curCinema=el;
+}
+window.addEvent('domready',function(){
+	#foreach($county in $countyList)
+	#foreach($cinema in $cinemaMap.get($county.countycode))
+	#if($VmUtils.size($opiMap.get($cinema.id)) gt 9)
+	new ScrollerBar('href$cinema.id',{mode:'horizontal',wrapped:'wrapped$cinema.id'});
+	#end
+	#end
+	#end
+});
+function allContent(){
+	$('mcontent').innerHTML=$('acontent').innerHTML;
+}
+</script>
+<script src="${staticPath}scripts/loaderProxy.js?v=$VmUtils.jsVersion" data-frameid="gewara_tickets"  data-timer="600" data-hParams="iframe_height" data-idParams="iframe_id" data-proxy="http://www.verycd.com/iframe_proxy.html"></script>
+<script type="text/javascript">
+var pageCode="Showtimelist"
+</script>
+#parse('partner/googleGa.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

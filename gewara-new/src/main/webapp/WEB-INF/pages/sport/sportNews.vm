@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	#parse('include/constant/cityParam.vm')
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>#if($VmUtils.isBlank($sport.seotitle))${sport.name}资讯#else${sport.seotitle}#{end} - 格瓦拉生活网</title>
+	<meta name="keywords" content="${sport.name}场馆查询,${sport.name}资讯,${sport.name}公告,${sport.name}价格"/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	.title h2{font-weight:bold;}
+	
+	.hasEvent {padding-bottom:20px;}
+	.hasEvent li{border-bottom:1px solid #ddd;overflow:hidden;padding:30px 0;}
+	.hasEvent dl {width:100%;}
+	.hasEvent dl dt.uipic{width:160px;}
+	.hasEvent dl dd.uiText{width:460px;}
+	</style>
+</head>
+<body>
+#set($tag="sport") #set($issport=true) #set($isSportDetail=true)
+#set($isNavNews=true)
+#set($issite=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout detail_body">
+	<div class="inner">
+		<div class="ui_panel">
+			#parse('sport/module/detailHead.vm')
+			<div class="detail_body_left">
+				<ul class="hasEvent">
+					#foreach($news in $newsList)
+					<li style="#if($foreach.count eq 6)border-bottom:0;#end #if($foreach.count eq 1)padding-top:0;#end">
+						<h2><a target="_blank" title="$!news.title" href="${basePath}news/$news.id" class="fs14">$VmUtils.escabbr($!news.title, 20)</a></h2>
+						<p class="c999 mt5"><span>作者：#if($news.author)$!news.author#else Gewara#end</span><span class="ml20">发表时间：$!DateUtil.format($news.addtime, 'yyyy-MM-dd HH:mm:ss')</span></p>
+						<dl class="mt10">
+							<dt class="uipic clear"><a href="${basePath}news/$news.id" target="_blank" title="$!news.title">
+							<img width="154" height="114" class="bp" style="background:url($VmUtils.randomPic('cw160h120',$!news.limg)) center center no-repeat;" src="${staticPath}css/images/blank.gif" alt="">
+							</a></dt>
+							<dd class="uiText clear">$!VmUtils.htmlabbr($news.content,400)……
+							<a target="_blank" class="ffst" title="" href="$!news.getLink($basePath)">全文&gt;&gt;</a></dd>
+						</dl>
+					</li>
+					#end
+				</ul>
+				#parse('include/pageUtil.vm')
+			</div>
+			
+			<div class="detail_body_right">
+				#parse('include/global/map.vm')
+				<div class="mt20">
+				#parse('sport/module/right_rimVenue.vm')
+				#parse('sport/module/right_rimEntertainment.vm')
+				</div>
+			</div>
+			<div class="cls"></div>
+		</div>
+	</div>
+</div>
+#parse('include/newMarkDialog.vm')
+#parse('include/treasure.vm')
+#parse('include/global/new_scorelevel.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	myTreasure('sport',$sport.id,'logonMember');
+});
+</script>
+#parse('include/bottom.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

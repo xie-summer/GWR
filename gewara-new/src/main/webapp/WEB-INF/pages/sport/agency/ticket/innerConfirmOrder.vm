@@ -1,0 +1,122 @@
+#*课程详情页报名*#
+<div class="mt10" id="lfPhone">
+	<div class="chooseOpi_head" style="line-height:40px; padding:0 10px;">
+		请填写以下报名信息
+	</div>
+	<div style="overflow:hidden;padding-right:0;height:auto;" class="chooseOpi_body">
+		<div class="course_apply">
+			<div class="addNum">
+				学员信息：
+				<span>
+					报名人数：
+					<em class="freeTag1 iCut" id="cutCline"></em>
+					<b class="text">1</b>
+					<em class="freeTag1 iAdd" id="addCline"></em>
+				</span>
+			</div>
+			<table width="100%" cellspacing="0" cellpadding="0" style="text-align:center;" class="isTable">
+				<colgroup>
+					<col style="width:33%" />
+					<col style="width:33%" />
+					<col />
+				</colgroup>
+				<thead>
+					<tr>
+						<th>姓名</th>
+						<th>性别</th>
+						<th>年龄</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr id="cloneNum" data-type="price">
+						<td><input mustTxt="姓名不能为空！" class="text" name="name" type="text" value="" style="width:80px;" /></td>
+						<td>
+							<select name="sex" style="width:60px;">
+								<option value="male">男</option>
+								<option value="female">女</option>
+							</select>
+						</td>
+						<td><input mustTxt="年龄不能为空！" class="text" onkeyup="GewaraUtil.replaceStr(this);" name="age" type="text" value="" style="width:80px;" /></td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="fs14 mt20">
+				<input type="hidden" id="quantity" name="quantity" value="1"/>
+				<input type="hidden" id="goodsId" name="goodsId" value="$!trainingGoods.id"/>
+				<input type="hidden" id="gspId" name=gspId value="$!goodsPrice.id"/>
+				<input type="hidden" id="price" value="$!goodsPrice.price"/>
+				<p><em>套餐：</em>$!goodsPrice.remark</p>
+				<p><em>费用合计：</em><b id="showPice" class="cF60">$!goodsPrice.price</b></p>
+				<p><em>联系手机：</em>
+				<input class="text" maxlength="11" onkeyup="GewaraUtil.replaceStr(this);" id="orderMobile" name="mobile" type="text" value="$!logonMember.mobile" style="width:145px; font-size:16px; font-weight:bold; color:#333;" /><span class="cF60 ffst fs14 ml5">*</span></p>
+				<p><em>验证码：</em>
+					<input type="hidden" name="captchaId"  id="orderCaptcha"/>
+					<input type="text" id="orderCaptchaInput" style="width:70px; font-size:16px; font-weight:bold; color:#333;" class="text" name="captcha" alt="点击获取" autocomplete="off" onfocus="GewaraUtil.refreshCaptcha('orderCaptcha')"/>
+					<span class="cMovie ml10 ffst">*</span>
+					<img id="orderCaptchaImg" width="80" height="30" class="ml10" src="${staticPath}css/images/blank.gif" style="cursor: pointer; _vertical-align:-2px;" onclick="GewaraUtil.refreshCaptcha('orderCaptcha')" title="看不清楚，请点击换一张图片"/>
+				</p>
+			</div>
+			<p class="mt20" style="padding-left:75px;">
+				<a class="button redBt bigBt" href="javascript:submitMyOrder();"><span>提交报名信息</span></a>
+				<a class="button bigBt bigWhiteBt ml10" href="${basePath}sport/curriculumDetail.xhtml?id=$!trainingGoods.id"><span>取　消</span></a>
+			</p>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+var tempContainer={};
+submitMyOrder = function(){
+	checkLogin(true,function(){
+		var temp = []; 
+		document.getElements('*[data-type=price]').each(function(node,index){
+			temp.push(GewaraUtil.getValues(node));
+		});
+		var orderMobile = $('orderMobile').value;
+		var orderCaptcha = $('orderCaptchaInput').value;
+		if(orderMobile == '' || orderMobile.length != 11){
+			GewaraUtil.showValidateErr('orderMobile',(orderMobile == '')?'请输入手机号码！':'请输入正确的手机号码！');
+			return;
+		}
+		if(!$chk(orderCaptcha)){GewaraUtil.showValidateErr('orderCaptchaInput','请输入验证码!');return;}
+		var url = '${basePath}goods/order/trainingStep2.xhtml';
+		if(!GewaraUtil.baseValidForm('lfPhone')) return false;
+		var values = GewaraUtil.getValues('lfPhone');
+		values.infoList = JSON.encode(temp);
+		GewaraUtil.mask('showStepDiv');
+		GewaraUtil.sendRequest(url,values,function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				document.location.href="${basePath}gewapay/order.xhtml?orderId=" + result.retval;
+			}else{
+				gewaUtil.alert(result.msg);
+				GewaraUtil.refreshCaptcha('orderCaptcha');
+			}
+		});
+	});
+}
+var vcount = 0;
+var maxnum = $!trainingGoods.maxbuy;
+apendmodel = function(){
+	$('addCline').addEvent('click',function(){
+		if(vcount == (maxnum-1))return false;
+		var cloneNum = $('cloneNum'),d = cloneNum.clone();
+		var injectBody = cloneNum.getParent('tbody');
+		var ap=new Element('tr',{'html':d.innerHTML,'data-type':'price'}).inject(injectBody);
+		vcount++;
+		addNumber(vcount);
+	})
+	$('cutCline').addEvent('click',function(){
+		if(vcount > 0){
+			cloneNum.getParent().getLast().dispose();
+			vcount--;
+			addNumber(vcount);
+		}
+	})
+}
+function addNumber(el){
+	$$('.addNum span b.text').set('text',el+1);
+	$('quantity').set('value',el+1);
+	var price=$('price').get('value');
+	$('showPice').set('text',price*(el+1));
+}
+</script>

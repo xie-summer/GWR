@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>一体机同步管理</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=mootools"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width:750px; margin:auto">
+<div>
+	<form action="${basePath}admin/synch/synchManager.xhtml" name="newsForm" id="newsForm">
+	<label for="releasetime">成功同步时间：</label>
+	<input name="starttime" id="releasetime" value="$!starttime" readonly="readonly" 
+	onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" type="text"/>
+	<input type="submit" class="fdBt" value="确定"/><br/>
+	</form>
+</div>
+<table width="800px" class="table">
+	<thead>
+	<tr>
+		<th>影院</th>
+		<th>最新同步成功时间</th>
+		<th>最新请求时间</th>
+		<th>票纸</th>
+		<th>总订单数量</th>
+		<th>已同步数量</th>
+		<th>未取票订单</th>
+	</tr>
+	</thead>
+	<tbody id="sportTable">
+	#foreach($synch in $synchList)
+	<tr>
+		<td>$!cinemaMap.get($!synch.cinemaid).name</td>
+		<td>$!DateUtil.format($!synch.successtime,'yyyy-MM-dd hh:mm:ss')</td>
+		<td>$!DateUtil.format($!synch.synchtime,'yyyy-MM-dd hh:mm:ss')</td>
+		<td>$!synch.ticketnum.split(",").get(0)</td>
+			<td>$!ordernumMap.get($synch.cinemaid)</td>
+			<td>$!synchnumMap.get($synch.cinemaid)</td>
+			<td>$!{untakenumMap.get($synch.cinemaid)}[<a href="${basePath}admin/synch/getUnTakeGoodsOrderList.xhtml?cinemaid=$!synch.cinemaid" target="_blank">查看</a>]</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<script type="text/javascript">
+</script>
+</body>
+</html>

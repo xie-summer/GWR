@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.gewara.model.common.BaseSettle" table="BASE_SETTLE" lazy="false">
+		<cache usage="read-write" region="oneHour"/>
+		<id name="id" type="long" column="RECORDID">
+			<generator class="sequence" />
+		</id>
+		<discriminator column="SETTLETYPE" type="string"/>
+		<property name="remark" type="string" column="REMARK" />
+		<property name="addtime" type="timestamp" column="ADDTIME" />
+		<many-to-one name="settle" class="com.gewara.model.pay.SettleConfig" column="SETTLEID" />
+		<subclass name="com.gewara.model.drama.DramaSettle" discriminator-value="drama" dynamic-update="true">
+			<property name="dramaid" type="long" column="RELATEDID"/>
+		</subclass>
+		<subclass name="com.gewara.model.sport.SportSettle" discriminator-value="sport" dynamic-update="true">
+			<property name="sportid" type="long" column="RELATEDID"/>
+			<property name="itemid" type="long" column="CATEGORYID"/>
+		</subclass>
+	</class>
+</hibernate-mapping>

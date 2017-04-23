@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>改进建议，服务评价，其它</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		.inputradio{vertical-align: middle;}
+		.OkMsg {
+			background: url(${staticPath}styles/images/standard_msg_ok.gif) #e6ffe6 no-repeat 5px 0px; color: #000;
+			border: #00be00 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.WarningMsg {
+			background: url(${staticPath}styles/images/standard_msg_warning.gif) #e2f5ff no-repeat 5px 0px; color: #000;
+			border: #00a8ff 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.ErrorMsg {
+			background: url(${staticPath}styles/images/standard_msg_error.gif) #fff2e9 no-repeat 5px 0px; color: #000;
+				border: #f60 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+	</style>
+</head>
+<body>
+#set($cururl='customerQM')
+<div class="logoPanel"></div>
+<div class="menu">
+	<div class="menuInner">
+		#parse("admin/blog/customerMenu.vm")
+	</div>
+</div>
+<div class="manageItemList">
+	<em class="b1f"></em><em class="b2f"></em>
+	<div class="contentInfoList">
+		<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+			<thead>
+			<tr>
+				<th width="35%" style="text-indent: 10px;text-align: left;">$!cacheMemberMap.get($!customerQuestion.memberid).nickname</th>
+				<th width="10%" style="text-align: right;">$DateUtil.format(${customerQuestion.addtime},'yyyy-MM-dd HH:mm')</th>
+			</tr>
+			</thead>
+			<tr>
+				<td colspan="2">${customerQuestion.body}</td>
+			</tr>
+		</table>
+		<div id="tbody"></div>
+		<br />
+		
+		<div style="color: red">说明：反馈建议回复。</div>
+		<div id="addDataForm">
+			<form name="wsForm" id="wsForm" onsubmit="return false;">
+				<input type="hidden" name="qid" id="qid" value="${customerQuestion.id}"/>
+				<input type="hidden" name="aid" id="aid" />
+				<input type="hidden" name="feedbackType" id="feedbackType" value=""/>
+				<div style="margin-left: 20px;margin-bottom: 10px;margin-top: 10px;">管理员回复:</div>
+				<div style="margin-left: 20px;margin-bottom: 10px;margin-top: 10px;">常用语:
+					<select name="customerUse" id="customerUse">
+						<option value="">请选择</option>
+						#foreach($use in $backList)
+						<option value="$use.get('body')">#if($!VmUtils.getByteLength($use.get('body')) gt 80) $!VmUtils.htmlabbr($use.get('body'),80)... #else $use.get('body') #end</option>
+						#end
+					</select>
+					<input type="button" value="确&nbsp;&nbsp;认" onclick="copyBody('customerUse')"/>
+					反馈归属类型：
+					<select id="feedbackTypes" name="feedbackTypes">
+					<option #if($VmUtils.eq($customerQuestion.feedbackType,'A')) selected #end value="A">一般建议咨询</option>
+					<option #if($VmUtils.eq($customerQuestion.feedbackType,'B')) selected #end value="B">注册问题</option>
+					<option #if($VmUtils.eq($customerQuestion.feedbackType,'C')) selected #end	value="C">登陆问题</option>
+					<option #if($VmUtils.eq($customerQuestion.feedbackType,'D')) selected #end value="D">购票场次问题</option>
+					<option #if($VmUtils.eqs($customerQuestion.feedbackType,'E')) selected #end value="E">短信问题</option>
+					<option #if($VmUtils.eq($customerQuestion.feedbackType,'F')) selected #end value="F">取票观影问题</option>
+					<option #if($VmUtils.eq($customerQuestion.feedbackType,'G')) selected #end value="G">活动问题</option>
+					<option #if($VmUtils.eq($customerQuestion.feedbackType,'H')) selected #end value="H">拓展需求</option>
+					<option #if($VmUtils.eq($customerQuestion.feedbackType,'I')) selected #end value="I">退换票问题</option>
+					<option #if($VmUtils.eq($customerQuestion.feedbackType,'J')) selected #end value="J">投诉问题</option>
+					<option #if($VmUtils.eq($customerQuestion.feedbackType,'K')) selected #end value="K">充值支付问题</option>
+					<option #if($VmUtils.eq($customerQuestion.feedbackType,'L')) selected #end value="L">手机建议咨询</option>
+					<option #if($VmUtils.eq($customerQuestion.feedbackType,'M')) selected #end value="M">产品建议咨询</option>
+					<option #if($VmUtils.eq($customerQuestion.feedbackType,'other')) selected #end value="other">其他类型</option>
+					</select>
+				</div>
+				<div style="margin-left: 25px;" >
+						<textarea class="text" id="body" name="body" mustTxt="内容不能为空！"></textarea>
+				</div>
+				<div style="margin-left: 370px;margin-top: 10px;"><input type="button" id="btnMit" value="提&nbsp;&nbsp;交" onclick="saveAnswer();"/></div>
+			</form>
+		</div>
+	</div>
+	<em class="b2f"></em><em class="b1f"></em>
+</div>
+<script type="text/javascript">
+	var ckeditor;
+	window.addEvent('domready', function(){
+		loadAnswer();
+		ckeditor = CKEDITOR.replace("body", {customConfig : '/ckeditor/gewaConfig.js',width:700,height:300});
+	});
+	function loadAnswer(){
+		gewaUtil.loadData('tbody','${basePath}admin/blog/customerAnswerList.xhtml',{'qid':$customerQuestion.id});
+	}
+	function saveAnswer(){
+		$('body').value = ckeditor.getData();
+		$('feedbackType').value=$('feedbackTypes').value;
+		if(!GewaraUtil.baseValidForm('wsForm')) return false;
+		var url ="${basePath}admin/blog/saveCustomerAnser.xhtml";
+		var values = GewaraUtil.getValues("wsForm");
+		GewaraUtil.mask('btnMit');
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				init();
+				gewaUtil.alert("回复成功！");
+				loadAnswer();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	
+	function init(){
+		$('aid').set('value', '');
+		$('body').set('value', '');
+	}
+	
+	function copyBody(id){
+		if($(id).value==''){
+			alert('请选择模版内容！');
+			return false;
+		}
+		if(ckeditor.getData()==''){
+			$('body').value+=$(id).value;
+			ckeditor.setData($('body').value);
+		}else{
+			$('body').value = ckeditor.getData()+$(id).value;
+			ckeditor.setData($('body').value);
+		}
+	}
+</script>
+</body>
+</html>

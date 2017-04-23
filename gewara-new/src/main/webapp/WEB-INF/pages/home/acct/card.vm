@@ -1,0 +1,137 @@
+#if($isMovieCard)#set($tag='movie')#elseif($isDramaCard)#set($tag='drama')#elseif($isSportCard)#set($tag='sport/item')#end
+#set($cardtype=$card.ebatch.cardtype)
+#set($cardtag=$card.ebatch.tag)
+#set($exchangetype=$card.ebatch.exchangetype)
+#set($edition=$card.ebatch.edition)
+<div class="clear mt20">
+	<div style="padding-bottom:10px;"><h2>券号：$card.cardno</h2></div>
+	<table cellpadding="0" class="table" cellspacing="0" border="0">
+		<tr>
+		  <td width="12%">有效日期：</td>
+		  <td width="45%">$!{DateUtil.format($card.timefrom, "yyyy年MM月dd日")}-$!{DateUtil.format($card.timeto, "yyyy年MM月dd日")}</td>
+		  <td>票券类型：</td>
+		  <td>
+			#if($VmUtils.eq($cardtype, "A"))
+				#if($VmUtils.eq($exchangetype, "A"))
+					橙券
+				#elseif($VmUtils.eq($exchangetype, "B"))
+					蓝券
+				#elseif($VmUtils.eq($exchangetype, "D"))
+					兑换券
+				#elseif($VmUtils.eq($exchangetype, "E"))
+					IMAX券
+				#end
+			#elseif($VmUtils.eq($cardtype, "B"))
+				补差券
+			#else
+				抵值券
+			#end
+			#if($VmUtils.eq($card.ebatch.soldType, "P"))
+			(赠券)
+			#end
+		  </td>
+		</tr>
+		<tr>
+		  <td>有效时间段：</td>
+		  <td>$VmUtils.joinStr($!{card.ebatch.opentime},":",2) ~ $VmUtils.joinStr($!{card.ebatch.closetime},":",2)</td>
+		  <td width="10%">指定星期：</td>
+		  <td>#if($strweek)${strweek}#else不限#end</td>
+		</tr>
+		<tr>
+		  <td>#set($atag='cinema')
+		  	#if($isMovieCard)
+		  		指定影院：#set($atag='cinema')
+		  	#elseif($isDramaCard)
+		  		指定剧院：#set($atag='theatre')
+		  	#elseif($isSportCard)
+		  		指定场馆：#set($atag='sport')
+		  	#end
+		  </td>
+		  <td align="left">
+		  	#if(!$VmUtils.isEmptyList($cinemaList))
+		  		#foreach($cinema in $cinemaList)
+		  		<a href="${basePath}$atag/$cinema.id" target="_blank">$!cinema.name</a> |
+		  		#end
+		  	#else不限#end
+		  </td>
+		  <td>	#if($isMovieCard)指定影片：#elseif($isDramaCard)指定演出：#elseif($isSportCard)指定运动项目：#end</td>
+	 	  <td>
+	 	  	#if(!$VmUtils.isEmptyList($movieList))
+		 	  	#foreach($movie in $movieList)
+		 	  		<a href="${basePath}$tag/$movie.id" target="_blank">$!movie.name</a> |
+		 	  	#end
+	 	  	#else不限#end
+	 	  </td>
+		</tr>
+		<tr>
+		  <td>
+		 	#if($VmUtils.eq($!card.ebatch.citypattern, 'exclude')&&!$VmUtils.isNull($!card.ebatch.citycode))
+		 	不可用城市：
+		 	#else
+		 	适用城市：
+		 	#end 
+		  </td>
+		  #set($citys = $VmUtils.split($card.ebatch.citycode, ","))
+		  <td align="left">#if($VmUtils.eq($card.ebatch.citycode, '000000'))不限 
+		  	#else
+			  	#foreach($city in $citys)
+				$!cityMap.get($city)&nbsp; 
+				#end
+			#end
+		  </td>
+		  <td>适用版本：</td>
+		  <td>
+		  	#if($cardtag eq 'movie')
+			 	#if($VmUtils.eq($edition, 'ALL')) 
+			 		#if($VmUtils.eq($cardtype, "A"))
+			 			限2D、3D场次
+			 		#else
+			 			全部版本的场次
+			 		#end
+		  		#elseif($VmUtils.eq($edition, '2D')) 限2D场次
+		  		#elseif($VmUtils.eq($edition, '3D')) 限3D场次
+		  		#elseif($VmUtils.eq($edition, 'IMAX')) 限IMAX、巨幕场次
+		  		#elseif($VmUtils.eq($edition, '4D')) 限4D场次
+		  		#elseif($VmUtils.eq($edition, 'IMAX4D')) 限IMAX、巨幕\、4D场次
+		  		#end
+		  	#else
+		  	&nbsp;
+		  	#end
+		  </td>
+		</tr>
+		<tr>
+		  <td>使用说明：</td>
+		  <td colspan="3" align="left">
+		  	#set($cardtype=$card.ebatch.cardtype)
+		  	#set($edition=$card.ebatch.edition)
+		  	#if($VmUtils.eq($cardtype, 'A'))
+		  		#if($cardtag eq 'movie' || $cardtag eq 'drama')
+		  			#if($VmUtils.eq($edition, 'ALL')) 每张兑换一张电影票，不支持Imax场及其他特殊场次
+		  			#elseif($VmUtils.eq($edition, '2D')) 每张兑换一张电影票，仅限普通场次使用，不支持Imax场及其他特殊场次
+		  			#elseif($VmUtils.eq($edition, '3D')) 每张兑换一张电影票，仅限3D场次使用，不支持Imax场及其他特殊场次
+		  			#elseif($VmUtils.eq($edition, 'IMAX')) 每张兑换一张电影票，仅限Imax场次使用
+		  			#elseif($VmUtils.eq($edition, '4D')) 每张兑换一张电影票，仅限4D场次使用
+		  			#elseif($VmUtils.eq($edition, 'IMAX4D')) 每张兑换一张电影票，仅限Imax4D场次使用
+		  			#end
+		  		#else
+		  			#if($VmUtils.eq($edition, 'ALL'))
+		  				每张兑换一个场次
+		  			#end
+		  		#end
+		  	#elseif($VmUtils.eq($cardtype, 'B'))
+		  		最多抵用$!{card.ebatch.amount}元，超出部分需额外支付；
+		  	#elseif($VmUtils.eq($cardtype, 'D'))
+		  		每张抵用$!{card.ebatch.amount}元；
+		  	#end
+		  </td>
+		</tr>
+		<tr>
+		  <td>补充说明：</td>
+		  <td colspan="3" align="left" style="color:red">
+		  	$!card.ebatch.channelinfo
+		  </td>
+		</tr>
+	</table>
+	<div class="clear mt5">
+	</div>
+</div>

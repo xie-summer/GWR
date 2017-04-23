@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>#if($!logonMember.id eq $member.id)我#else$!member.nickname#end的个人相册_格瓦拉社区</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/default.css?v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/userPhoto.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,Autocompleter,page,noobSlide&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div id="snsHeader"></div>
+<div class="ui_layout">
+	#set($menuTag = 'photo')
+	#parse('sns/common/left.vm')
+<div class="body_right">
+#parse('sns/userAlbum/common_menu.vm')
+<div class="bodys" id="_body">
+	<form method="post" id="pictureForm" name="pictureForm" action="${basePath}home/updatePictureInfo.xhtml">
+	<input type="hidden" name="tag" value="$!relatedtag" />
+	<input type="hidden" name="redirectUrl" value="$!redirecturl"/>
+	<ul class="ui_abeam mt10 clear">
+		
+		#if(!$VmUtils.isEmptyList($albumImageList))
+			#foreach($albumimage in $albumImageList)
+			<li class="abeam" style="float:left;width:370px;">
+				<div class="uipic"><img width="96" src="$VmUtils.randomPic('sw96h72',$albumimage.limg)"></div>
+				<div class="uiText" style="width:230px;">
+					<input type="hidden" value="$albumimage.id" name="id"/>
+					<p><label>名称：</label><input type="text" style="width:180px" maxlength="50" name="name" id="name$albumimage.id" value="$!albumimage.name"  class="text"></p>
+					<p class="mt10"><label style="vertical-align:top">描述：</label><textarea id="description$albumimage.id" style="width:180px;height:80px;overflow-x:hidden;overflow-y:auto;clear: both;" class="text" name="description" >$!albumimage.description</textarea></p>
+				</div>
+			</li>
+				#if($albumsMap.get($albumimage.albumid).memberid eq $logonMember.id)
+					<li><input type="radio" name="isalbumcover" value="$albumimage.id"/>设置为相册封面</li>
+				#end
+			#end
+		#end
+		
+		#if(!$VmUtils.isEmptyList($pictureList))
+			#foreach($picture in $pictureList)
+			<li class="abeam" style="float:left;width:370px;">
+					<div class="uipic"><img width="96" src="$VmUtils.randomPic('sw96h72',$picture.limg)"></div>
+					<div class="uiText" style="width:230px;">
+						<input type="hidden" value="$picture.id" name="id"/>
+						<p><label>名称：</label><input type="text" style="width:180px" maxlength="50" name="name" id="name$picture.id" value="$!picture.name" class="text"></p>
+						<p class="mt10"><label style="vertical-align:top">描述：</label><textarea id="description$picture.id" style="width:180px;height:80px;overflow-x:hidden;overflow-y:auto;clear: both;" class="text" name="description" >$!picture.description</textarea></p>
+					</div>
+			</li>
+			#end
+		#end
+		
+	</ul>
+	<div class="mt10 center">
+		<label class="button bigBt "><input type="submit" value="保存图片" class="bold"></label>
+	</div>
+	
+	</form>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$('label.button,span.button,label.ui_btn,span.ui_btn').addEvents({
+		'mouseenter':function(){if(this.hasClass('bigBt')){this.addClass('bg_hover');}else{this.addClass('hover');}},
+		'mouseleave':function(){if(this.hasClass('bigBt')){this.removeClass('bg_hover');}else{this.removeClass('hover');}}
+	});	
+});
+</script>
+#parse('include/home/adoptAlbum.vm')
+</div>
+</div>
+#parse('sns/common/ga.vm')
+</body>
+</html>

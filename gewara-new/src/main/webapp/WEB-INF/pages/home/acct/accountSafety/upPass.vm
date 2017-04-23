@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>修改登录密码_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	#parse('home/acct/accountSafety/style.vm')
+</head>
+<body>
+#set($ishome=true)#set($safetyCenter = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			<div class="mod_tLine">
+				<div class="mod_hd"><h2>修改登录密码</h2></div>
+				<div class="mod_bd">
+					<div class="ui_warning">
+						<p>
+							<em>成功认证您的身份！</em>
+						</p>
+					</div>
+					<div class="payStep02">
+						<ul class="payOrderSteps clear">
+							<li class="step1">1、验证身份</li>
+							<li class="step2">2、修改登录密码</li>
+							<li class="step3">3、完成</li>
+						</ul>
+					</div>
+					<div class="modifyBox" id="upPassForm">
+						<ul>
+							<li>
+								<div class="ui_media">
+									<div class="ui_pic"><span class="red ffst mr5">*</span>当前密码：</div>
+									<div class="ui_text">
+										<input type="password" id="password" name="password" class="text" data-alt="老密码"/>
+									</div>
+								</div>
+								<div class="ui_media mt15">
+									<div class="ui_pic"><span class="red ffst mr5">*</span>修改密码：</div>
+									<div class="ui_text">
+										<input type="password" id="password1" name="password1"  class="text" data-alt="新密码"/><span class="ml10">请输入6-14位字母/符号/数字或其组合</span>
+									</div>
+								</div>
+								<div class="ui_media mt15">
+									<div class="ui_pic"><span class="red ffst mr5">*</span>确认密码：</div>
+									<div class="ui_text">
+										<input type="password" id="password2" name="password2"  class="text" data-alt="确认密码"/>
+										<p class="mt20">
+											<a id="disBtn" onclick="submitUpPass();" class="btn redBtn">确认无误，提交</a>
+										</p>
+									</div>
+								</div>
+							</li>
+						</ul>
+						#if($!type eq 'mobile')
+						<input type="hidden" name="checkpass" value="$!params.checkpass"/>
+						#end
+						#if($!type eq 'email')
+						<input type="hidden" name="encode" value="$!params.encode"/>
+						<input type="hidden" name="uuid" value="$!params.uuid"/>
+						#end
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+	function submitUpPass(){
+		if(checkBlank($('password')) || checkBlank($('password1')) || checkBlank($('password2'))){ 
+			return;
+		}
+		if($('password').value == $('password1').value){
+			gewaUtil.alert('修改密码不能与当前密码一致！');
+			return;
+		}
+		if($('password1').value!=$('password2').value){
+			gewaUtil.alert('确认密码与新密码不一致，请重新输入！');
+			return;
+		}
+		var url = '$!{type}'=='mobile'?'${basePath}home/acct/sendExchangePassByCkPs.xhtml':'${basePath}home/acct/sendExchangePassByEml.xhtml';
+		GewaraUtil.mask('disBtn');
+		var values = GewaraUtil.getValues("upPassForm");
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				window.location.href='${basePath}home/acct/successPage.xhtml?msg=恭喜你，密码修改成功！&title=修改登录密码';
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+			$('password').value="";
+			$('password1').value="";
+			$('password2').value="";
+		});
+	}
+	function checkBlank(that){
+		if(!that.value){
+			gewaUtil.alert('请输入'+that.get('data-alt'));
+			return true;
+		}else return false;
+	}
+</script>
+</body>
+</html>

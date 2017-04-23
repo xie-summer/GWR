@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>支付限制</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=mootools"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.play-outside-box .play-inside-box{padding:0px;width:100%;border-color:#f4e7df}
+		.ms_a,.ms_s{display:block;height:20px;background:url(${picPath}css/global/a_s.gif) no-repeat;color:#C03B0C;font-weight:bold;padding-left:26px;cursor: pointer;}
+		.ms_a{background-position:12px -2px;}
+		div.ms_s{background-position:12px -22px;}
+		.l_hr{border-top:1px solid #e8e7e7;margin:10px 0;}
+		.killM{padding-left:16px;background:url(${picPath}css/home/ico_dui.gif) 0 center no-repeat;}
+		.goodsListbox{height:150px;width:100%;overflow-x:hidden;overflow-y:auto;}
+		.chinapay_pt{position: relative;width:280px;height:20px;padding:10px;border:1px solid #FC9E64;background:#FFF3EC;margin:5px 0 0 0px;}
+		.chinapay_pt .chinapaypt{position: absolute;top:-6px;left:20px;background:url(${picPath}css/buss/chinapay_py.gif) no-repeat;width:11px;height:6px;}
+		#china2Pay label{display:inline-block;}
+		.icon_gsyh,.icon_jsyh,.icon_zsyh,.icon_jtyh,.icon_gfyh,.icon_xyyh,.icon_nyyh,.icon_gdyh,.icon_zxyh,.icon_pfyh,.icon_zgyh,.icon_sfyh,.icon_msyh,.icon_payh,.icon_shnsyh,.icon_hxyh,.icon_njyh,.icon_zhsyh,.icon_hzyh,.icon_nbyh,.icon_kj,.icon_yl{background:url(${staticPath}img/pay/iconbank.jpg?v=000) no-repeat;}
+		.icon_gsyh{background-position:26px 0;}
+		.icon_jsyh{background-position:26px -40px;}
+		.icon_zsyh{background-position:26px -80px;}
+		.icon_jtyh{background-position:26px -120px;}
+		.icon_xyyh{background-position:26px -200px;}
+		.icon_gfyh{background-position:26px -160px;}
+		.icon_nyyh{background-position:26px -240px;}
+		.icon_gdyh{background-position:26px -280px;}
+		.icon_zxyh{background-position:26px -320px;}
+		.icon_pfyh{background-position:26px -360px;}
+		.icon_zgyh{background-position:26px -400px;}
+		.icon_sfyh{background-position:26px -440px;}
+		.icon_msyh{background-position:26px -480px;}
+		.icon_payh{background-position:26px -520px;}
+		.icon_shnsyh{background-position:26px -560px;}
+		.icon_hxyh{background-position:26px -600px;}
+		.icon_njyh{background-position:26px -640px;}
+		.icon_zhsyh{background-position:26px -680px;}
+		.icon_hzyh{background-position:26px -720px;}
+		.icon_nbyh{background-position:26px -760px;}
+		.icon_kj{background-position:26px -801px;}
+		.icon_yl{background-position:26px -848px;}
+		.icon_zdyh{background-position:30px -2294px;}
+		.icon_bestPay{background-position:30px -2344px;}
+		.picdowBox{border:1px solid #ccc;display:inline-block;padding:3px 10px;position:relative;margin-left: 60px; top:3px;width:337px;*width:345px;}
+		.payObject {
+		    padding: 0 20px 20px;
+		}
+	</style>
+</head>
+<body style="width:800px;margin:auto">
+#parse('include/constant/paybank.vm')
+#set($bankPayList=[])
+#foreach($confPay in $confPayList)
+	#set($bankicon=$PAYBANK_MAP.get($confPay.name))
+	#if($VmUtils.isNotBlank($bankicon))
+		#set($bicoll=$VmUtils.split($bankicon, ","))
+		#set($tmp=$bankPayList.add("$bicoll[0],$bicoll[1],$confPay.paymethod,$bicoll[1]"))
+	#end
+#end
+<div class="ui_layout">
+	<div class="inner">
+		<div class="payObject">
+			<div style="color: red;font-size: 14px;">说明：【勾选某个支付方式，表示:这个支付方式不能使用】</div>
+			<span class="ml30">
+			<input type="text" value="$!config.content" style="width: 700px;" id="content" /><input type="button" onclick="saveAll()" value="保存" />
+			</span>
+			<div class="plug_pay ckM">
+				<div class="title"><b>请选择以下银行支付</b></div>
+				<div class="payObject">
+					<ul class="clear">
+					#foreach($bank in $bankPayList) #set($pair=$VmUtils.split($bank, ","))
+						<li>
+							<label title="$pair[0] $pair[2]" for="$pair[3]">
+								<input type="checkbox" name="paymethod" value="$!pair[2]" #if($limitList.contains($!pair[2]))checked#end/>$pair[0]
+							</label>
+						</li>
+					#end
+					</ul>
+				</div>
+			</div>
+			<div class="plug_pay ckM">
+				<div class="title"><b>请选择以下支付方式</b></div>
+				<div class="payObject">
+					<ul class="clear">
+						#foreach($paymethod in $payTextMap.keySet())
+						#set($paytext=$payTextMap.get($paymethod))
+							<li>
+								
+								<label title="${paytext} ${paymethod}" for="$paymethod">
+									<input type="checkbox" name="paymethod" value="$paymethod" #if($limitList.contains($paymethod))checked#end/><b>$paytext</b>
+								</label>
+							</li>
+						#end
+					</ul>
+				</div>
+			</div>
+			<div class="plug_pay ckM">
+				<div class="title"><b>支付宝快捷支付</b></div>
+				<div class="payObject">
+					<ul class="clear">
+					#foreach($key in $creditMap.keySet())
+						#set($directKJ='directPay:' + $key)
+						<li>
+							<label  title="$creditMap.get($key)">
+								<input type="checkbox" name="paymethod" value="$directKJ" #if($limitList.contains($directKJ))checked#end/>$creditMap.get($key)
+							</label>
+						</li>
+					#end
+					</ul>
+				</div>
+			</div></br>
+		</div>
+	</div>
+</div>
+<script>
+	window.addEvent("domready", function(){
+		$$("input[type=checkbox]").addEvents({
+			'click':function(){
+				modMethod(this);
+			}
+		});
+	});
+	function modMethod(e){
+		var url = "${basePath}admin/sysmgr/modMethod.xhtml";
+		GewaraUtil.sendRequest(url, {"method":e.value},function(result){
+			if(result.success){
+				alert('修改成功');
+				refreshPage();
+			}else {
+				alert(result.msg);
+			}
+		});
+	}
+	function saveAll(e){
+		var url = "${basePath}admin/sysmgr/saveAllLimitPay.xhtml";
+		GewaraUtil.sendRequest(url, {"content":$('content').value},function(result){
+			if(result.success){
+				alert('保存成功');
+				refreshPage();
+			}else {
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

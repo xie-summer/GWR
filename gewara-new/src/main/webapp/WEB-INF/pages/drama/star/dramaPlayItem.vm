@@ -1,0 +1,137 @@
+<!-- SUCCESS_HEAD -->
+#if(!$VmUtils.isEmptyList($dpiList))
+<div class="playDate">
+	<dl class="ui_media">
+		<dt class="ui_pic">项&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;目：</dt>
+		<dd class="ui_text" id="fieldData">
+			#foreach($drama in $dramaList)
+			<span class="mr15 venue">
+			<a href="${basePath}drama/star/$!dramaStar.id?dramaid=$!drama.id#troupe" class="#if($VmUtils.eq($drama.id,$!curDrama.id))select #end" title="$!{drama.realBriefname}" >$!{drama.realBriefname}</a>
+			</span>
+			#end
+		</dd>
+	</dl>
+	<dl class="ui_media">
+		<dt class="ui_pic">选择场次：</dt>
+		<dd class="ui_text">
+			<div class="playTimeList clear">
+				<div id="wrapper">
+					<div id="wrapped">
+						<ul class="clear" id="playTimeList">
+							#foreach($dpi in $dpiList)
+							#set($isHidden=false)
+							#set($playDate=$DateUtil.formatDate($dpi.playtime))
+							#set($playTime=$DateUtil.format($dpi.playtime, 'HH:mm'))
+							#set($playWeek=$DateUtil.getCnWeek($dpi.playtime))
+							#set($odi=$!{odiMap.get($dpi.id)})
+							#if($odi.hasUnShowToGewa())#set($isHidden=true) #end
+							<li>
+								<div id="$dpi.id" #if($isHidden) configShow="unShow" #end #if($odi.booking) config="playBox" lang="item" data-item="$dpi.id" istips="$!VmUtils.getText($!odi.remark)" #elseif(!$odi) onclick="showTemplate('$DateUtil.formatTimestamp($dpi.playtime)','$!{theatre.realBriefname} $!field.name',$!theatre.id);" istips="添加提醒，开放购票时通知我" #end class="palyTimeBox #if($odi.booking && $dpi.isOpenseat())iSeat #elseif(!$odi.booking) disable d_close d_sale #elseif(!$VmUtils.gt($odi.remainnum,0)) d_sale #end" itemname="#if($dpi.hasPeriod('N'))$!dpi.name#{else}$!playDate $!playWeek $!playTime#{end}">
+									<div #if($odi)class="seatP" #end>
+										#if($dpi.hasPeriod('N'))
+										<p class="bold fs14">$!dpi.name</p>
+										<span></span>
+										#else
+										<p class="bold fs14">$!playDate</p>
+										<span>$!playWeek $!playTime</span>
+										#end
+									</div>
+									<i class="i_on"></i>
+									#if($odi)
+										#if(!$odi.booking)
+										<b class="S_close" title="关闭售票"></b>
+										#elseif(!$VmUtils.gt($odi.remainnum,0))
+										<b class="S_sale" title="卖光了"></b>
+										#elseif($dpi.isOpenseat())
+										<b class="S_seat" title="该场次可在线选座"></b>
+										#end
+									#else
+										<i class="clock_off"></i>
+									#end
+									#if($odi.booking && $odi.hasDiscount() || $drama.hasPretype('E'))
+									<div class="clear opiInfo surAct1 S_surAct">
+										#if($drama.hasPretype('E'))
+										<em class="d" title="代售模式" plugs-tips="代售场不支持优惠，发票由演出主办方开据">代</em>
+										#end
+										#if($odi.openPointPay)
+										<em class="j" title="持积分抵值" plugs-tips="支持积分抵值">积</em>
+										#end
+										#if($odi.openCardPay)
+										<em class="q" title="" plugs-tips="支持票券抵值">券</em>
+										#end
+										#if($odi.disCountPay)
+										<em class="y" data-type="$odi.dpid">惠</em>
+										#end
+									</div>
+									#end
+								</div>
+							</li>
+							#end
+						</ul>
+					</div>
+				</div>
+			</div>
+		</dd>
+	</dl>
+	<dl class="ui_media">
+		<dt class="ui_pic">选择票价：</dt>
+		<dd class="ui_text">
+			<div class="playPriceList clear" id="playPriceList">
+			</div>
+		</dd>
+	</dl>
+	<dl class="ui_media none playChooseResult" id="playChooseResult">
+		<dt class="ui_pic" style="padding:0;">你选择了：</dt>
+		<dd class="ui_text">
+			<div id="chooseResult" class="chooseResult clear"></div>
+		</dd>
+	</dl>
+	<div class="buyBtn clear drBt" id="buyBtn">
+		<a data-type="submit" href="javascript:void(0);" class="button maxBt redBt buyNowBt"><span><em class="bt_price">立即购票</em></span></a>
+		<a data-type="submit" href="javascript:void(0);" class="button maxBt none onlineSeatBt"><span><em class="bt_seat ">在线选座</em></span></a>
+	</div>
+</div>
+#end
+<div id="dramaInfoBox" class="dramaInfoBox" style="display:none">
+	<p class="textInfo">填写手机号码，开放购票后格瓦拉将第一时间短信通知你！</p>
+	<p class="clear"><em>剧目：</em><span class="bold f60">$!curDrama.realBriefname</span></p>
+	<p class="clear"><em>剧院：</em><span id="theatrenameId">$!{curTheatre.realBriefname}</span></p>
+	<p class="clear"><em>场次：</em><span class="bold f60" id="itemInfo"></span></p>
+	<p class="clear"><em>手机号码：</em><input type="text" class="text" style="width:150px;" id="mobile" value="$!logonMember.mobile"/></p>
+	<p class="clear">
+		<em class="left">验证码：</em>
+		<input type="hidden" name="captchaId" id="captcha" />
+		<input type="text" class="text captcha left" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" size="18" style="width:60px" mustTxt="请输入验证码!" onfocus="GewaraUtil.refreshCaptcha('captcha');"/>
+		<img id="captchaImg" src="${staticPath}css/images/blank.gif" width="80" height="30" class="ml10" style="cursor: pointer;vertical-align: middle;float:left;height:30px;" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清楚，请点击换一张图片"/>
+	</p>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$('.tips').each(function(item){
+		item.amTips({content:function(){return $(item.get('lang'))},ispointer:false,position:'top',center:true,showDelay:200,width:250});
+	});
+});
+showTemplate = function(playdate,theatrenameId,threatreId){
+	checkLogin(true,function(){
+		$("itemInfo").set("text",playdate);
+		$("theatrenameId").set("text",theatrenameId);
+		gewa.util.issure('','dramaInfoBox','开放购票通知',533,'dramaInfoBox',function(){
+			if(!GewaraUtil.isMobile($('mobile').value)) return gewaUtil.alert("请填写正确的手机号！");
+			var url="${basePath}ajax/drama/savePlayItemMessageWithcaptchaId.xhtml";
+			var captchaId = $('captcha').value;
+			var captchaInput = $('captchaInput').value;
+			var values={"mptag":"theatre","mprelatedid":threatreId,"mpcategoryid":"$drama.id","playdate":playdate,"mobile":$('mobile').value,"captchaId":captchaId,"captcha":captchaInput};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewaUtil.alert("操作成功！开放购票后你会在第一时间收到短信通知");
+					gewa.util.container['dramaInfoBox'].dispose('dramaInfoBox');
+				}else{
+					gewaUtil.alert(result.msg);
+					gewa.util.container['dramaInfoBox'].dispose('dramaInfoBox');
+				}
+			});
+		});
+	});
+}
+</script>
+<!-- SUCCESS_BOTTOM -->

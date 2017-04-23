@@ -1,0 +1,54 @@
+<style type="text/css">
+	.tel_bg{width:205px;height:97px;padding:5px 20px 10px 10px;background:url(${picPath}css/buss/tel_bg.gif) no-repeat;display:inline-block;overflow:hidden;}
+</style>
+<div id="SendcenimaInfo" class="mt20"style="display:none;">
+	<ul class="ui_abeam">
+		<li>
+			<div class="uipic ml10"style="text-align:left;_margin-left:5px;">
+				<div class="tel_bg">
+					<p class="fs14 bold">【$!cinema.realBriefname】</p>
+					<p>$!cinema.contactphone/$!cinema.address</p>
+				</div>
+				<p class="gray mt5 ml10">短信将在15分钟内发送至您的手机</p>
+				<p class="gray ml10">同一影院信息24小时内只能发送3次！</p>
+			</div>
+			<form id="mform" name="mform" method="post" action="javascript:saveTemplate();">
+				<input id="relatedid" name="relatedid" value="$!cinema.id" type="hidden" />
+				<div class="uiText" style="width:auto; margin:0; *margin:-20px 0 0 0; padding:0;">
+					<dl class="ui-100">
+						<dt style="padding-top:2px;">你的手机号码：</dt>
+						<dd><input name="mobile" id="mobile" class="text"style="width:126px;height:16px;" type="text" value="$!logonMember.mobile" mustTxt="手机号不能为空！"/></dd>
+					</dl>
+					<dl class="ui-100 mt10">
+						<dt style="padding-top:3px;">请输入验证码：</dt>
+						<dd>
+							
+							<input type="hidden" name="captchaId" id="captchaCinema" />
+							<input type="text" class="text bold captcha" name="captcha" tips="点击获取" autocomplete="off"  id="captchaCinemaInput" style="width:126px;height:16px;font-size:16px;" mustTxt="请输入验证码！" onfocus="GewaraUtil.refreshCaptcha('captchaCinema');"/><br/>
+							<img id="captchaCinemaImg" src="${staticPath}css/images/blank.gif" class="mr5 mt10" style="cursor:pointer;vertical-align:middle;" width="80" height="26" onclick="GewaraUtil.refreshCaptcha('captchaCinema')" title="看不清楚，请点击换一张图片"/>
+						</dd>
+					</dl>
+				</div>
+			</form>
+		</li>
+	</ul>
+</div>
+<script type="text/javascript">
+function saveTemplate(){
+	if(!GewaraUtil.baseValidForm('mform')) return;
+	var url = '${basePath}cinema/ajax/sendMessage.xhtml';
+	var values = GewaraUtil.getValues('mform');
+	if(!GewaraUtil.isMobile(values.mobile)){
+		gewaUtil.alert('手机号格式不正确！');
+		return;
+	}
+	GewaraUtil.sendRequest(url,values, function(result){
+		if(result.success){
+			gewaUtil.alert('发送成功！');
+			gewa.util.container['SendcenimaInfo'].dispose('SendcenimaInfo');
+		}else{
+			gewaUtil.alert(result.msg, GewaraUtil.refreshCaptcha('captchaCinema'));
+		}
+	});
+}
+</script>

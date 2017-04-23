@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>一体机关机配置列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script> 
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.table tbody tr td,.table thead tr th{min-width:20px;padding:5px !important;text-align:center;max-width:100px;}
+		.item{margin-top:10px;}
+		#machine-add-canves{width:500px;display:none;margin:5px;}
+		.form-item{float:left;margin:2px;}
+		.form-item lable{float:right}
+	</style>
+</head>
+<body >
+<div>
+<div style="margin-top: 10px;">
+	<a href="javascript:;" id="add-btn">新增</a>
+</div>
+<div>
+<table class="table" style="width:800px;">
+	<thead>
+	<tr>
+		<th>影院ID</th>
+		<th>影院名称</th>
+		<th>默认自动关机时间</th>
+		<th>单位时间(分钟)</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="dramaTable">
+	#foreach($map in $machineConfigList)
+		<tr  >
+			<td>$!map.get("venueId")</td>
+			<td>$!map.get("venueName")</td>
+			<td>$!map.get("defShutDownTime")</td>
+			<td>$!map.get("unitTime")</td>
+			<td><a href="javascript:;" data-id="$!map.get("_id")" data-venueId="$!map.get("venueId")" data-venueName="$!map.get("venueName")" data-defShutDownTime="$!map.get("defShutDownTime")" data-unitTime="$!map.get("unitTime")"  name="modify-btn">修改</a> | <a href="javascript:;" name="remove-btn" data-id="$!map.get("_id")" >删除</a></td>
+		</tr>
+	#end
+	<tr><td colspan="5">#parse('include/pageUtil.vm')</td></tr>
+	</tbody>
+</table>
+</div>
+	<!--添加面板-->
+	<div id="machine-add-canves">
+		<fieldset>
+		<form id="add-btn-form" >
+			<input type="hidden" name="id">
+			<div class="form-item">
+				<table>
+					<tr>
+						<td><lable>影院ID：</lable></td><td><input type="text" style="width: 100px;margin-left: 10px;" name="venueId" value = "$!result.venueId" /></td>
+					</tr>
+					<tr>
+						<td><lable>影院名称：</lable></td><td><input type="text" style="width: 100px;margin-left: 10px;" name="venueName" value = "$!result.venueName" /></td>
+					</tr>
+					<tr>
+						<td><lable>默认自动关机时间：</lable></td><td><input type="text" class='Wdate' readonly="readonly" onclick="WdatePicker({dateFmt:'HH:mm'})" style="width: 100px;margin-left: 10px;" name="defShutDownTime" value = "$!result.defShutDownTime" /></td>
+					</tr>
+					<tr>
+						<td><lable>单位时间（分钟）：</lable></td><td><input type="text"  style="width: 100px;margin-left: 10px;" name="unitTime" value = "$!result.unitTime" /></td>
+					</tr>
+					<tr>
+						<td><input type="button" value="确认" id="save-machine-form"/></td><td></td>
+					</tr>
+					</table>
+			</div>
+		</form>
+		</fieldset>
+		<a href="javascript:;" id="hide-add-btn" style="float:right">收起</a>
+	</div>
+	<!--/添加面板-->
+</div>
+
+</div>
+<script type="text/javascript">
+window.addEvent('domready', function(){
+		
+		$$("a[name='remove-btn']").addEvent('click', function(){
+    		var me=this;
+    		gewa.util.confirm("确定要删除吗?",function(){
+    			new Request({
+				    url: '${basePath}admin/machine/removeMachineConfig.xhtml',
+				    method: 'post',
+				    onRequest: function(){
+				        GewaraUtil.mask();
+				    },
+				    onSuccess: function(responseText){
+				       GewaraUtil.unmask();
+				       me.getParent("tr").dispose();
+				    },
+				    onFailure: function(){
+				        alert("删除失败:)");
+				    }
+				}).send("id="+me.get("data-id"));
+    		});
+    		
+		});
+		
+	
+		//展开添加面板
+		$("add-btn").addEvent('click', function(){
+			var form=$("add-btn-form");
+			form.reset();
+			form.id.value="";
+			$("machine-add-canves").show();
+		});
+		//收起添加面板
+		$("hide-add-btn").addEvent('click', function(){
+			$("machine-add-canves").hide();
+		});
+		
+		
+		//保存
+		$("save-machine-form").addEvent('click',function(){
+			 
+			 var form=$("add-btn-form");
+			 var id=form.id.value.trim();
+			 var venueId=form.venueId.value.trim();
+			 var venueName=form.venueName.value.trim();
+			 var defShutDownTime=form.defShutDownTime.value.trim();
+			 var unitTime=form.unitTime.value.trim();
+			 
+			 if(venueId==""){
+			 	alert('请输入影院ID');
+			 	return;
+			 }
+			 if(isNaN(venueId)){
+			 	alert('影院ID必须为数字');
+			 	return;
+			 }
+			 if(defShutDownTime==""){
+			 	alert('请输入默认自动关机时间');
+			 	return;
+			 }
+			 
+			 if(unitTime==""){
+			 	alert('请输入单位时间');
+			 	return;
+			 }
+			 
+			 if(isNaN(unitTime)){
+			 	alert('单位时间必须为数字');
+			 	return;
+			 }
+		
+			 var params="id="+id+"&venueId="+venueId+"&venueName="+venueName+"&defShutDownTime="+defShutDownTime+"&unitTime="+unitTime;
+			 
+			 var postRQ = new Request({
+				    url: '${basePath}admin/machine/saveMachineConfig.xhtml',
+				    method: 'post',
+				    onRequest: function(){
+				        GewaraUtil.mask();
+				    },
+				    onSuccess: function(responseHTML){
+				    	eval(responseHTML);
+				    	GewaraUtil.unmask();
+				    	if(data.success==true){
+				    		location.href="${basePath}admin/machine/machineConfigList.xhtml?r="+Math.random();
+				    	}else{
+				    		alert(data.msg);
+				    	}
+				    }
+			});
+   			postRQ.send(params);
+   			
+		});
+		
+		
+		//修改
+		$$("a[name=modify-btn]").addEvent('click', function(){
+			$("add-btn").fireEvent("click");
+			var form=$("add-btn-form");
+			form.reset();
+			form.id.value=this.get("data-id");
+			form.venueId.value=this.get("data-venueId");
+			form.venueName.value=this.get("data-venueName");
+			form.defShutDownTime.value=this.get("data-defShutDownTime");
+			form.unitTime.value=this.get("data-unitTime");
+		});
+		
+	});
+
+</script>
+</body>
+</html>

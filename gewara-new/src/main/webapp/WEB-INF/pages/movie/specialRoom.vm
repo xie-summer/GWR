@@ -1,0 +1,582 @@
+<!Doctype html>
+<html>
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	#set($isCityParam=true)
+	#parse('include/constant/cityParam.vm')
+	<title>$!{cookieCityname}$!{ctypeName}电影院,$!{ctypeName}厅【正在售票】_格瓦拉生活网</title>
+	<meta name="keywords" content="$!{ctypeName}电影院,$!{ctypeName}厅"/>
+	<meta name="description" content="格瓦拉生活网提供$!{cookieCityname}$!{ctypeName}电影院电影票网上选座订票,$!{cookieCityname}$!{ctypeName}厅汇总,$!{cookieCityname}$!{ctypeName}影院排片,简介,地址及观影攻略。"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_movie&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	html{background:#000 url('${staticPath}css/movie_wide/bg.jpg') repeat-y center 0;}
+	a:hover{text-decoration:none;}
+	.S_Room{width:100%;margin-top:-20px;box-shadow:-2px 3px 7px #000;background:#000;}
+	.ui_layout{background:none !important;}
+	.S_Room .scrollArea{height:550px;position:relative;}
+	.nor{background:url('${staticPath}css/movie_wide/sp24_01.png') no-repeat 0 0;_background:url('${staticPath}css/movie_wide/sp8_01.png') no-repeat 0 0;}
+	.Rcon_imax,.Rcon_chinamax,.Rcon_reald,.Rcon_double3d,.Rcon_d4,.Rcon_k4,.Rcon_dolbyatmos{
+		float:right;height:550px;width:220px;
+	}
+	.Rcon_imax dt,.Rcon_chinamax dt,.Rcon_reald dt,.Rcon_double3d dt,.Rcon_d4 dt,.Rcon_k4 dt,.Rcon_dolbyatmos dt{width:220px;height:160px;}
+	.Rcon_imax dd,.Rcon_chinamax dd,.Rcon_reald dd,.Rcon_double3d dd,.Rcon_d4 dd,.Rcon_k4 dd,.Rcon_dolbyatmos dd{height:50px;line-height:50px;display:block;margin-top:5px;width:200px;padding-left:20px;}
+	.Rcon_imax dd a,.Rcon_chinamax dd a,.Rcon_reald dd a,.Rcon_double3d dd a,.Rcon_d4 dd a,.Rcon_k4 dd a,.Rcon_dolbyatmos dd a{
+		text-align:left;font:16px/50px "微软雅黑","宋体";
+	}
+	.Rcon_imax dd a:hover,.Rcon_chinamax dd a:hover,.Rcon_reald dd a:hover,.Rcon_double3d dd a:hover,.Rcon_d4 dd a:hover,.Rcon_k4 dd a:hover,.Rcon_dolbyatmos dd a:hover,.Rcon_imax dd a.select,.Rcon_chinamax dd a.select,.Rcon_reald dd a.select,.Rcon_double3d dd a.select,.Rcon_d4 dd a.select,.Rcon_k4 dd a.select,.Rcon_dolbyatmos dd a.select{
+		color:#c36728;
+	}
+	.Rcon_imax dd ul,.Rcon_chinamax dd ul,.Rcon_reald dd ul,.Rcon_double3d dd ul,.Rcon_d4 dd ul,.Rcon_k4 dd ul,.Rcon_dolbyatmos dd ul{
+		background-color:rgba(255,255,255,0.8)!important;
+		display:none;
+		-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#80ffffff,endColorstr=#80ffffff)"!important;   
+		filter:progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#80ffffff, endColorstr=#80ffffff)!important;
+		padding:0 20px 10px;z-index:3;
+	}
+	.Rcon_imax dd.k_hover ul,.Rcon_chinamax dd.k_hover ul,.Rcon_reald dd.k_hover ul,.Rcon_double3d dd.k_hover ul,.Rcon_d4 dd.k_hover ul,.Rcon_k4 dd.k_hover ul,.Rcon_dolbyatmos dd.k_hover ul{display:block;position:absolute;right:220px;top:220px;z-index:21;}
+	.Rcon_imax dd ul li,.Rcon_chinamax dd ul li,.Rcon_reald dd ul li,.Rcon_double3d dd ul li,.Rcon_d4 dd ul li,.Rcon_k4 dd ul li,.Rcon_dolbyatmos dd ul li{
+		height:32px;line-height:32px;padding:10px 0 0;
+	}
+	.Rcon_imax dd ul li a,.Rcon_chinamax dd ul li a,.Rcon_reald dd ul li a,.Rcon_double3d dd ul li a,.Rcon_d4 dd ul li a,.Rcon_k4 dd ul li a,.Rcon_dolbyatmos dd ul li a{
+		display:inline-block;padding:0 5px;border:0 none;height:32px;line-height:32px;color:#000;font-size:14px; border-radius:3px;text-decoration:none;background:none;text-align:left;width:220px;overflow:hidden;
+	}
+	.Rcon_imax dd ul li.select a,.Rcon_chinamax dd ul li.select a,.Rcon_reald dd ul li.select a,.Rcon_double3d dd ul li.select a,.Rcon_d4 dd ul li.select a,.Rcon_k4 dd ul li.select a,.Rcon_dolbyatmos dd ul li.select a,.Rcon_imax dd ul li a:hover,.Rcon_chinamax dd ul li a:hover,.Rcon_reald dd ul li a:hover,.Rcon_double3d dd ul li a:hover,.Rcon_d4 dd ul li a:hover,.Rcon_k4 dd ul li a:hover,.Rcon_dolbyatmos dd ul li a:hover{
+		background:#ff8822 !important;color:#fff;
+	}
+	
+	/*类型透明背景色*/
+	.Rcon_imax{
+		background-color:rgba(0,0,0,0.6)!important;
+		-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#60000000,endColorstr=#60000000)"!important;   
+		filter:progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#60000000, endColorstr=#60000000)!important;
+	}
+	.Rcon_reald{
+		background-color:rgba(41,0,7,0.6)!important;
+		-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#60290007,endColorstr=#60290007)"!important;   
+		filter:progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#60290007, endColorstr=#60290007)!important;
+	}
+	.Rcon_dolbyatmos,.Rcon_chinamax,.Rcon_d4,.Rcon_double3d,.Rcon_k4{
+		background-color:rgba(0,0,0,0.6)!important;
+		-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#60000000,endColorstr=#60000000)"!important;   
+		filter:progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#60000000, endColorstr=#60000000)!important;
+	}
+	
+	/*列表背景和字体色彩*/
+	.Rcon_imax dt{background:url('${staticPath}css/movie_wide/Imax.jpg') no-repeat 0 0;}
+	.Rcon_chinamax dt{background:url('${staticPath}css/movie_wide/chinamax.jpg') no-repeat 0 0;}
+	.Rcon_reald dt{background:url('${staticPath}css/movie_wide/reald.jpg') no-repeat 0 0;}
+	.Rcon_d4 dt{background:url('${staticPath}css/movie_wide/4D.jpg') no-repeat 0 0;}
+	.Rcon_k4 dt{background:url('${staticPath}css/movie_wide/4K.jpg') no-repeat 0 0;}
+	.Rcon_double3d dt{background:url('${staticPath}css/movie_wide/double3d.jpg') no-repeat 0 0;}
+	.Rcon_dolbyatmos dt{background:url('${staticPath}css/movie_wide/dolbyatmos.jpg') no-repeat 0 0;}
+	
+	.Rcon_imax dd,.Rcon_chinamax dd,.Rcon_double3d dd,.Rcon_k4 dd,.Rcon_reald dd,.Rcon_d4 dd,.Rcon_dolbyatmos dd{
+		background-color:rgba(255,255,255,0.1)!important;
+		-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#10ffffff,endColorstr=#10ffffff)"!important;   
+		filter:progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#10ffffff, endColorstr=#10ffffff)!important;
+	}
+	.Rcon_imax dd a,.Rcon_chinamax dd a,.Rcon_double3d dd a,.Rcon_k4 dd a,.Rcon_reald dd a,.Rcon_d4 dd a,.Rcon_dolbyatmos dd a{
+		color:#fff;
+	}
+	.Rcon_imax dd a.cel,.Rcon_chinamax dd a.cel,.Rcon_double3d dd a.cel,.Rcon_k4 dd a.cel,.Rcon_reald dd a.cel,.Rcon_d4 dd a.cel,.Rcon_dolbyatmos dd a.cel{
+		padding-right:30px;
+		background:url('${staticPath}css/movie_wide/ce_24.png') no-repeat right 5px;_background:url('${staticPath}css/movie_wide/ce_8.png') no-repeat right 5px;
+	}
+	
+	
+	/*选座购票*/
+	.Rcon_imax .buyTicket .byarea{
+		background-color:rgba(0,119,238,0.5)!important;
+		-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#500077ee,endColorstr=#500077ee)"!important;   
+		filter:progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#500077ee, endColorstr=#500077ee)!important;
+		display:block;width:125px;height:125px;border-radius:50%;margin:0 auto;text-align:center;
+		position:relative;
+	}
+	.Rcon_chinamax .buyTicket .byarea,.Rcon_d4 .buyTicket .byarea,.Rcon_k4 .buyTicket .byarea{
+		background-color:rgba(238,0,0,0.5)!important;
+		-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#50ee0000,endColorstr=#50ee0000)"!important;   
+		filter:progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#50ee0000, endColorstr=#50ee0000)!important;
+		display:block;width:125px;height:125px;border-radius:50%;margin:0 auto;text-align:center;
+		position:relative;
+	}
+	.Rcon_reald .buyTicket .byarea,.Rcon_double3d .buyTicket .byarea{
+		background-color:rgba(221,136,51,0.5)!important;
+		-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#50dd8833,endColorstr=#50dd8833)"!important;   
+		filter:progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#50dd8833, endColorstr=#50dd8833)!important;
+		display:block;width:125px;height:125px;border-radius:50%;margin:0 auto;text-align:center;
+		position:relative;
+	}
+	.Rcon_dolbyatmos .buyTicket .byarea{
+		background-color:rgba(255,232,142,0.5)!important;
+		-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#50ffe88e,endColorstr=#50ffe88e)"!important;   
+		filter:progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#50ffe88e, endColorstr=#50ffe88e)!important;
+		display:block;width:125px;height:125px;border-radius:50%;margin:0 auto;text-align:center;
+		position:relative;
+	}
+	
+	.m_type{width:200px;height:100px;position:absolute;left:0;top:0;}
+	.m_type ul li {position:relative;width:200px;height:100px;float:left;}
+	.m_type ul li div{overflow:hidden;cursor:pointer;overflow:hidden;width:200px;height:100px;}
+	.m_type ul li span{
+		background:url('${staticPath}css/movie_wide/san24.png') no-repeat 0 0;
+		 _background-image:none; _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='${staticPath}css/movie_wide/san24.png',sizingMethod='crop');
+		position:absolute;right:-17px;display:block;width:17px;height:22px;overflow:hidden;top:36px;_top:40px;display:none;
+	}
+	.m_type ul li.select span{display:block;}
+	.m_type ul li img{width:200; height:700px; background:url('${staticPath}css/movie_wide/mvT.png') no-repeat; _background-image:none; _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='${staticPath}css/movie_wide/mv_ty.png',sizingMethod='crop'); border:none; float:left;}
+	.m_type ul li div.mv_imax img{margin-top:0;}
+	.m_type ul li div.mv_cgint img{margin-top:-100px;}
+	.m_type ul li div.mv_realD img{margin-top:-200px;}
+	.m_type ul li div.mv_dou3d img{margin-top:-300px;}
+	.m_type ul li div.mv_fourD img{margin-top:-400px;}
+	.m_type ul li div.mv_fourk img{margin-top:-500px;}
+	.m_type ul li div.mv_dolby img{margin-top:-600px;}
+	
+	.btn_list,.btn_list2{position:absolute;top:570px;right:380px;overflow:hidden;z-index:20;}
+	.btn_list a,.btn_list2 a{display:block;border-radius:50%;background:#666;width:10px;height:10px;margin-right:5px;float:left;cursor:pointer;}
+	.btn_list a.select,.btn_list a:hover,.btn_list2 a.select,.btn_list2 a:hover{background:#ec6120;}
+	.buyTicket{width:100%;padding:50px 0;}
+	.buyTicket .byarea span{font:24px/24px "微软雅黑","宋体";color:#fff;display:block;position:absolute;top:38px;left:14px;}
+	/*animation*/
+	@keyframes flash{
+		0%{opacity: 1;transform: translateY(0px) scale(1.1);}
+		50%{opacity: 0;transform: translateY(10px) scale(1);}
+		100%{opacity: 1;transform: translateY(0px) scale(1.1);}
+	}
+	/* Firefox */
+	@-moz-keyframes flash {
+		0%{opacity: 1;transform: translateY(0px) scale(1.1);}
+		50%{opacity: 0;transform: translateY(10px) scale(1);}
+		100%{opacity: 1;transform: translateY(0px) scale(1.1);}
+	}
+	/* Safari 和 Chrome */
+	@-webkit-keyframes flash 
+	{
+		0%{opacity: 1;transform: translateY(0px) scale(1.1);}
+		50%{opacity: 0;transform: translateY(10px) scale(1);}
+		100%{opacity: 1;transform: translateY(0px) scale(1.1);}
+	}
+	/* Opera */
+	@-o-keyframes flash 
+	{
+		0%{opacity: 1;transform: translateY(0px) scale(1.1);}
+		50%{opacity: 0;transform: translateY(10px) scale(1);}
+		100%{opacity: 1;transform: translateY(0px) scale(1.1);}
+	}
+	.scrollArrow{
+		background-position:0 0;display:block;width:40px;height:40px;position:absolute;bottom:15px;left:44px;
+		animation: flash 1.2s ease-in-out 0s normal none infinite;
+		/* Firefox: */
+		-moz-animation: flash 1.2s ease-in-out 0s normal none infinite;
+		/* Safari 和 Chrome: */
+		-webkit-animation: flash 1.2s ease-in-out 0s normal none infinite;
+		/* Opera: */
+		-o-animation: flash 1.2s ease-in-out 0s normal none infinite;
+	}
+	
+	.mvlistBox{padding:20px 20px 0 240px; font:12px/24px "微软雅黑","宋体";}
+	.mvlistBox .mv_info p{color:#666;font-size:16px;margin:20px 0 40px 0;line-height:30px;}
+	.mvT span{font-size:18px;color:#eb6120;float:left;display:block;padding-top:26px;}
+	.mvT .ciName{background-position:right -162px;display:block;padding:0 25px 0 0;font-size:24px;line-height:30px;font-weight:normal;min-width:150px;width:150px;width:auto !important;}
+	.mvT .l-choose{padding:20px 30px 0;float:left;margin-left:20px;color:#fff;}
+	.mvT .l-select{background:#ebebeb;color:#000;position:relative;}
+	.mvT .l-select .l-area{position:absolute;top:50px;left:0px;z-index:10;width:100%;}
+	.mvT .l-select ul{display:block !important;padding:0 30px 20px;}
+	.mvT .l-choose ul{background:#ebebeb;display:none;}
+	.mvT .l-choose li{height:32px;line-height:32px;padding:10px 0 0;}
+	.mvT .l-choose li a{width:;display:block; padding:0 5px;border:0 none;height:32px; color:#000;font-size:14px; border-radius:3px;text-decoration:none;}
+	.mvT .l-choose li a:hover,.mvT .l-choose li.select a{background:#ff8822;color:#fff;}
+	
+	
+	.mv_list .mod_hd{height:41px;}
+	.mv_list .mod_hd ul.nav_tabs{border-bottom:1px solid #c9c9c9;height:40px;line-height:40px;}
+	.mv_list .mod_hd ul.nav_tabs li a{font-family:'微软雅黑','宋体'; font-size:14px; font-weight:bold;}
+	.mv_list .mod_hd ul.nav_tabs{line-height:40px;background:none;}
+	.mv_list .mod_hd ul.nav_tabs li{float:left;height:40px;}
+	.mv_list .mod_hd ul.nav_tabs li a{display:inline-block; padding:0 35px;border:0 none;height:40px; color:#cccccc;margin-right:3px;background:#555555;}
+	.mv_list .mod_hd ul.nav_tabs li a:hover{color:#f60; text-decoration:none;}
+	.mv_list .mod_hd ul.nav_tabs li.select a,.mv_list .mod_hd ul.nav_tabs li a:hover{background:#c9c9c9; color:#333;border:0 none;}
+	
+	.mv_list .mod_bd{padding:30px 0 0 15px;}
+	.mv_list .mod_bd .scrollList{margin-bottom:80px;}
+	.pc-te-list .l-pt{font-size:18px;}
+	.pc-te-list .l-pt .l-text{padding:15px 0 0;}
+	.pc-te-list .l-pt .l-text p{width:155px;}
+	.pc-te-list .l-pt .l-text p a{color:#fff;}
+	.pc-te-list .l-pt .l-text p a:hover{color:#fff;}
+	.pc-te-list .grade sub{font-style:normal;margin-left:5px;}
+	.pc-te-list .grade sup{font-style:normal;margin-left:-3px;}
+	.pc-te-list .l-pt .l_iv{background-position:-70px 0px;display:block;width:18px;height:17px;margin:5px 0 0 15px;}
+	
+	.picFocusScroll li{
+		float:left;width:200px;height:200px;padding:0 8px;
+	}
+	.pc-te-list .picFocusScroll{position:relative;margin-top:20px;}
+	.pc-te-list .ui_pic{width:220px;overflow:hidden;}
+	.pc-te-list .ui_text{overflow:hidden;}
+	.pc-te-list .xgpeo_pic{width:648px;margin:0 auto;}
+	.pc-te-list .slide em{position:absolute;top:82px;text-indent:-9999px;overflow:hidden;display:block;width:20px;height:50px;cursor:pointer;}
+	.pc-te-list .slide .slideL .orientation{background-position:0 -100px;left:4px;}
+	.pc-te-list .slide .slideL .disable{background-position:0 -40px;}
+	.pc-te-list .slide .slideR .orientation{background-position:-39px -40px;right:4px;}
+	.pc-te-list .slide .slideR .disable{background-position:-39px -100px;}
+	.pc-te-list .xgpeo_pic{width:648px;height:200px;overflow:hidden;position:relative;}
+	.pc-te-list .xgpeo_pic ul{position:absolute;}
+	
+	.l_con{
+		font:12px/24px verdana,lucida,arial,helvetica,宋体,sans-serif;
+		background:#dadada;
+		background:-moz-linear-gradient(top,#dadada 0%,#9e9e9e 100%);
+		background:-webkit-gradient(linear,left top,left bottom,color-stop(0%,#dadada),color-stop(100%,#9e9e9e));
+		background:-webkit-linear-gradient(top,#dadada 0%,#9e9e9e 100%);
+		background:-o-linear-gradient(top,#dadada 0%,#9e9e9e 100%);
+		background:-ms-linear-gradient(top,#dadada 0%,#9e9e9e 100%);
+		filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#dadada',endColorstr='#9e9e9e',GradientType=0);
+		background:linear-gradient(top,#dadada 0%,#000 100%);
+		
+		width:200px;height:180px;text-align:center;padding-top:20px;color:#000;
+	}
+	.l_con .time span{font-size:21px;}
+	.l_con .mvType{padding:15px 0;}
+	.l_con .mvType p{line-height:18px;}
+	.l_con .mvType em{display:inline-block;height:17px;margin-right:3px;line-height:17px;float:none;}
+	.l_con .mvType .imax{width:46px;background-position:0 -220px;}
+	.l_con .mvType .d3{width:27px;background-position:0 -240px;}
+	.l_con .mvType .eng{vertical-align:4px;}
+	.l_con .mark_price span b{font-size:18px;margin:0 3px;}
+	.l_con .mark_price span.through{color:#999;text-decoration:line-through;}
+	
+	.bgImgView,.bgImgView2{height:550px;position:absolute;width:100%;*width:1200px;*margin:0 auto;}
+	.bgImgView .opiList ul,.bgImgView2 .opiList ul{height:550px;overflow:hidden;}
+	.bgImgView .opiList li,.bgImgView2 .opiList li{position:relative;height:550px;}
+	.bgImgView .opiList li img,.bgImgView2 .opiList li img{width:100%;height:550px;}
+	
+	.odd{
+		background-color:rgba(255,255,255,0.65)!important;
+		-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#65ffffff,endColorstr=#65ffffff)"!important;   
+		filter:progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#65ffffff, endColorstr=#65ffffff)!important;
+	}
+	.even{
+		background-color:rgba(255,255,255,0.7)!important;
+		-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#70ffffff,endColorstr=#70ffffff)"!important;   
+		filter:progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#70ffffff, endColorstr=#70ffffff)!important;
+	}
+	.m_type ul li.select .odd,.m_type ul li.select .even{
+		background-color:rgba(255,255,255,0.9)!important;
+		-ms-filter:"progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#90ffffff,endColorstr=#90ffffff)"!important;   
+		filter:progid:DXImageTransform.Microsoft.gradient(GradientType=1,startColorstr=#90ffffff, endColorstr=#90ffffff)!important;
+	}
+	</style>
+</head>
+<body>
+#set($tag="movie")#set($ismovie=true)#set($movieFlag="movieindex")
+#set($isIndexBigAd=true)#set($cfgHeader='header')
+#parse('include/wide_header.vm')
+<div id="S_Room" class="S_Room">
+	<div class="bgImgView" id="bgImgView">
+		<div class="opiList">
+			<ul>
+				#foreach($picture in $!ctypePictureList)
+					<li><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('',$picture.picturename)) no-repeat center top;"/></li>
+				#end
+			</ul>
+		</div>
+	</div>
+	<div class="bgImgView2" id="bgImgView2">
+		<div class="opiList">
+			<ul>
+				#foreach($picture in $!roomPictureList)
+					<li><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('',$picture.picturename)) no-repeat center top;"/></li>
+				#end
+			</ul>
+		</div>
+	</div>
+	<div class="ui_layout">
+		<div class="btn_list" id="bgImgView_b">
+			#set($whyPic = 0)
+			#foreach($picture in $!ctypePictureList)
+				#if($picture.name eq 'whyChoose')
+					#set($whyPic = $foreach.count - 2)
+				#end
+				<a title="" href="javascript:void(0)"></a>
+			#end
+		</div>
+		<div class="btn_list2 none" id="bgImgView2_b">
+			#foreach($picture in $!roomPictureList)
+				<a title="" href="javascript:void(0)"></a>
+			#end
+		</div>
+		<div class="scrollArea">
+			<div class="m_type">
+				<ul id="ctypeLiList">
+					#set($leftMenustyle = 'Rcon_imax')
+					#if($ctype eq 'IMAX')
+						#set($leftMenustyle = 'Rcon_imax')
+					#elseif($ctype eq 'CHINAMAX' || $ctype eq 'POLYMAX')
+						#set($leftMenustyle = 'Rcon_chinamax')
+					#elseif($ctype eq 'REALD')
+						#set($leftMenustyle = 'Rcon_reald')
+					#elseif($ctype eq 'DOUBLE3D')
+						#set($leftMenustyle = 'Rcon_double3d')
+					#elseif($ctype eq '4D')
+						#set($leftMenustyle = 'Rcon_d4')
+					#elseif($ctype eq '4K')
+						#set($leftMenustyle = 'Rcon_k4')
+					#elseif($ctype eq 'DOLBYATMOS')
+						#set($leftMenustyle = 'Rcon_dolbyatmos')
+					#end
+					
+					#if($ctypeList.contains('IMAX'))
+					<li #if($ctype eq 'IMAX')class="select"#end>
+						<span></span>
+						<div data-ctype="IMAX" class="mv_imax"><img src="${staticPath}css/images/blank.gif" alt="IMAX厅" width="200" height="100"/></div>
+					</li>
+					#end
+					#if($ctypeList.contains('CHINAMAX') || $ctypeList.contains('POLYMAX'))
+					<li #if($ctype eq 'CHINAMAX')class="select"#end>
+						<span></span>
+						<div data-ctype="CHINAMAX" class="mv_cgint"><img src="${staticPath}css/images/blank.gif" alt="巨幕厅" width="200" height="100"/></div>
+					</li>
+					#end
+					#if($ctypeList.contains('REALD'))
+					<li #if($ctype eq 'REALD')class="select"#end>
+						<span></span>
+						<div data-ctype="REALD" class="mv_realD"><img src="${staticPath}css/images/blank.gif" alt="realD厅" width="200" height="100"/></div>
+					</li>
+					#end
+					#if($ctypeList.contains('DOUBLE3D'))
+					<li #if($ctype eq 'DOUBLE3D')class="select"#end>
+						<span></span>
+						<div data-ctype="DOUBLE3D" class="mv_dou3d"><img src="${staticPath}css/images/blank.gif" alt="双机3D厅" width="200" height="100"/></div>
+					</li>
+					#end
+					#if($ctypeList.contains('4D'))
+					<li #if($ctype eq '4D')class="select"#end>
+						<span></span>
+						<div data-ctype="4D" class="mv_fourD"><img src="${staticPath}css/images/blank.gif" alt="4D厅" width="200" height="100"/></div>
+					</li>
+					#end
+					#if($ctypeList.contains('4K'))
+					<li #if($ctype eq '4K')class="select"#end>
+						<span></span>
+						<div data-ctype="4K" class="mv_fourk"><img src="${staticPath}css/images/blank.gif" alt="4K厅" width="200" height="100"/></div>
+					</li>
+					#end
+					#if($ctypeList.contains('DOLBYATMOS'))
+					<li #if($ctype eq 'DOLBYATMOS')class="select"#end>
+						<span></span>
+						<div data-ctype="DOLBYATMOS" class="mv_dolby"><img src="${staticPath}css/images/blank.gif" alt="杜比全景声厅" width="200" height="100"/></div>
+					</li>
+					#end
+				</ul>
+			</div>
+			<div class="$leftMenustyle">
+				<dl>
+					<dt></dt>
+					<dd><a title="" href="javascript:changeCtypeImg('whyChoose','cinemaVirtual','bgImgView','bgImgView2')" id="whyChoose">为什么选择$!{ctypeName}？</a></dd>
+					<dd id="chooseCi1">
+						<a title="" href="javascript:void(0)" class="cel">#if($cId)$!VmUtils.escabbr($!cinema.name,18)#else我想去的$!{ctypeName}厅#end</a>
+						<ul>
+							#if($VmUtils.isEmptyList($cinemaList))
+								<li><a href="javascript:void(0)">暂时未开放对应影院，敬请期待！</a></li>
+							#else
+								#foreach($c in $cinemaList)
+									<li><a title="$!c.name" href="${basePath}$!{cityPinyin}/cinema/imax.xhtml?cId=$c.id&ctype=$!{ctype}&mId=$!{mId}">$!VmUtils.escabbr($!c.name,48)</a></li>
+								#end
+							#end
+						</ul>
+					</dd>
+					<dd><a title="" href="javascript:changeRoomImg('cinemaVirtual','whyChoose','bgImgView2','bgImgView')" id="cinemaVirtual">影厅实景图</a></dd>
+				</dl>
+				<div class="buyTicket">
+					<a href="javascript:scrollToEle('ctypeOpiList');" class="byarea">
+						<span>选座购票</span>
+						<em class="nor scrollArrow"></em>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="ui_layout">
+	<div class="mvlistBox">
+		<div style="position:relative;z-index:5;">
+			<div class="mv_info">
+				<div class="mvT clear">
+					<span>$!{ctypeName}厅</span>
+					<div class="l-choose" id="chooseCi">
+						<h2 class="nor ciName">$!cinema.name</h2>
+						<div class="l-area">
+							<ul>
+								#foreach($c in $cinemaList)
+									#if(!($c.id eq $cinema.id))
+									<li><a title="$!c.name" href="${basePath}$!{cityPinyin}/cinema/imax.xhtml?cId=$c.id&ctype=$!{ctype}&mId=$!{mId}">$!VmUtils.escabbr($!c.name,48)</a></li>
+									#end
+								#end
+							</ul>
+						</div>
+					</div>
+				</div>
+				<p>$!cinemaRoom.content</p>
+			</div>
+		</div>
+		<div style="z-index:4;">
+			<div class="mod_tabs mv_list" id="ctypeOpiList">
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<!-- SUCCESS_BOTTOM -->
+<script type="text/javascript">
+window.addEvent("domready",function(){
+	setBgColor();
+	#if(!$VmUtils.isEmptyList($ctypePictureList))
+	setTop("bgImgView","li");
+	try{
+		var thumns = $$(".btn_list a");
+		var bgImgView = new fadeGallery($("bgImgView"), {
+			speed: 500,
+			autoplay: true,
+			onStart: function() {
+				thumns.removeClass("select");
+				thumns[this.current].addClass("select");
+				
+			},
+			onPlay: function() {this.fireEvent("start");}
+		});
+		thumns.each(function(el, i) {
+			el.addEvent("mouseover", function() {
+				thumns.removeClass("select");
+				this.addClass("select");
+				bgImgView.current = i;
+				bgImgView.play(true);
+				return false;
+			});
+		});
+		thumns[0].fireEvent('mouseover');
+	}catch(err){}
+	#end
+	#if(!$VmUtils.isEmptyList($roomPictureList))
+	 setTop("bgImgView2","li");
+	try{
+		var thumns2 = $$(".btn_list2 a");
+		var bgImgView2 = new fadeGallery($("bgImgView2"), {
+			speed: 500,
+			autoplay: true,
+			onStart: function() {
+				thumns2.removeClass("select");
+				thumns2[this.current].addClass("select");
+				
+			},
+			onPlay: function() {this.fireEvent("start");}
+		});
+		thumns2.each(function(el, i) {
+			el.addEvent("mouseover", function() {
+				thumns2.removeClass("select");
+				this.addClass("select");
+				bgImgView2.current = i;
+				bgImgView2.play(true);
+				return false;
+			});
+		});
+	}catch(err){}
+	#end
+	
+	GewaraUtil.sendLoad('ctypeOpiList', '${basePath}ajax/movie/searchCharacteristicRoomOpi.xhtml', {"mId":"$!{mId}","cId":"$!{cinema.id}","ctype":"$!{ctype}"}, function(result){},"ctypeOpiList");
+	showNode("chooseCi","l-select");
+	showNode('chooseCi1','k_hover');
+	hideNode('chooseCi','l-select');
+	hideNode('chooseCi1','k_hover');
+	choseCinema();
+	$('ctypeLiList').getElements("div").each(function(item){
+		item.addEvent('click',function(){
+			var ctypeURL = "${basePath}$!{cityPinyin}/cinema/imax.xhtml?ctype=" + item.get("data-ctype");
+			#if($mId)
+				ctypeURL += "&mId=$!{mId}";
+			#end
+			document.location.href = ctypeURL;
+		});
+	})
+	changeCtypeImg('whyChoose','cinemaVirtual','bgImgView','bgImgView2');
+});
+
+function setTop(id,oLi){
+	if($(id)){
+		var oList = $(id).getElements(oLi);
+		for(var i=0;i<oList.length;i++){
+			var topNum = 550*i;
+			oList[i].setStyle('top',-topNum+"px");
+		}
+	}
+}
+
+function setBgColor(){
+	if($("ctypeLiList")){
+		var oDiv = $$("#ctypeLiList li div");
+		for(var i=0;i<oDiv.length;i++){
+			if(i%2==0){
+				oDiv[i].addClass("even");
+			}else{
+				oDiv[i].addClass("odd");
+			}
+		}
+	}
+} 
+var divRoom = $('S_Room');
+var isNow=0;
+var isRoomFacTab = false;
+var whyPic = $!whyPic;
+ function changeRoomImg(addS,removeS,id,id2){
+	$(id2).addClass("none");
+	$(id2 + '_b').addClass("none");
+	$(id).removeClass("none");
+	$(id + "_b").removeClass("none");
+	$(removeS).removeClass("select");
+	$(addS).addClass("select");
+}
+function changeCtypeImg(addS,removeS,id,id2){
+	$(id2).addClass("none");
+	$(id2 + '_b').addClass("none");
+	$(id).removeClass("none");
+	$(id + "_b").removeClass("none");
+	isNow=whyPic;
+	$(removeS).removeClass("select");
+	$(addS).addClass("select");
+} 
+
+function choseCinema(){
+	var oH2 =$('chooseCi').getElement('h2').getSize().x;
+	if(oH2>150){
+		$('chooseCi').getElement('ul').setStyle('width',oH2+"px");
+	}else{
+		$('chooseCi').getElement('ul').setStyle('width',"150px")
+	}
+}
+function showNode(id,className){
+	var getId = $(id);
+	if(getId){
+		getId.addEvent('click',function(ev){
+			this.toggleClass(className);
+			ev.stopPropagation();
+		});
+	}
+}
+function hideNode(id,className){
+	if($(id)){
+		document.addEvent('click',function(){
+			if($(id).hasClass(className)){
+				$(id).removeClass(className);
+			}
+		});
+	}
+}
+function scrollToEle(el){
+	var el = $(el);
+	new Fx.Scroll(window).toElement(el);
+}
+</script>
+</body>
+</html>

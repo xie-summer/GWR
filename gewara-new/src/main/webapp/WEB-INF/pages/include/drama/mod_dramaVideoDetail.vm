@@ -1,0 +1,48 @@
+<div class="mod_kong dramaScrollPic">
+	<div class="mod_hd">
+		<h2>视频 </h2><span class="ml5 c999">(共$!VmUtils.size($videoList)部)</span>
+	</div>
+	<div class="mod_bd">
+		<div id="video" style="width:630px; margin:0 auto;">
+			#if($videoList.size() gt 0)
+				$videoList.get(0).getVideoHtml(630, 472)
+			#end
+		</div>
+		#if($videoList.size() gt 0)
+		<div class="groupImgsControl" id="outsideVideo">
+			#set($width=$videoList.size()*114)
+			<ul style="width:${width}px;" id="insideVideo">
+				#foreach($video in $videoList)
+				<li style="text-align:center;">
+					<span class="videoDef #if($foreach.index eq 0) select #end" lang="$video.url" title="$!video.videotitle" date="上传日期$DateUtil.format($!video.addtime, 'yyyy-MM-dd')" id="$video.id">
+						<span class="video">
+							<img alt="$!video.videotitle" src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw128h96',$!video.limg)) center center no-repeat;" width="128" height="72"/>
+						</span>
+					</span>
+				</li>
+				#end
+			</ul>
+		</div>
+		#end
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	#if($videoList.size() ge 4 || $memberVideoList.size() ge 4)new ScrollerBar('outsideVideo',{mode:'horizontal',wrapped:'insideVideo'});#end
+	setVideos();
+});
+
+function setVideos(){
+	if($('insideVideo')){
+		var videoElement = $('insideVideo').getElements('.videoDef');
+		if(videoElement){
+			videoElement.addEvent('click',function(){
+				$("video").empty();
+				$("video").innerHTML = "<EMBED height='472' width='630'  menu='true' loop='true' play='true' src='"+this.get('lang')+"' wmode='transparent' quality='high' pluginspage='http://www.macromedia.com/go/getflashplayer' type='application/x-shockwave-flash'></EMBED>"
+				videoElement.removeClass('select');
+				this.addClass('select');
+			});
+		}
+	}
+}
+</script>

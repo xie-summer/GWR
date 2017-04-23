@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>广告位列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;maradn-top:3px}
+		input,textarea { width:450px; display:inline}
+		a{text-decoration: none;}
+		.ua{text-decoration: none;color: red }
+		.bk{background:rgb(255, 246, 200)}
+	</style>
+</head>
+<body style="width:100%; maradn:auto" class="yui-skin-sam">
+<div>
+#parse('admin/site/ad/common.vm')
+</div>
+<table width="100%" class="table">
+	<thead>
+	<tr>
+		<th>PID</th>
+		<th>版块</th>
+		<th>位置</th>
+		<th>描述</th>
+		<th>广告</th>
+		<th>导出</th>
+		<th>添加时间</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="gymTable">
+	#set($tagMap={'indexbottom':'首页右下角','indexother':'首页其他','indexother_new':'新版首页合作专区','index_headinfo':'首页套头广告位','cinemamiddle':'电影首页中间','movieAutoIndex':'无人运营站点首页','cinemaother':'电影其他','bar':'酒吧首页'
+	,'barother':'酒吧其他','ktvother':'KTV其他','gym':'健身首页','gymother':'健身其他','qa':'知道'
+	,'sportother':'运动其他','sportresult':'运动购票成功页','ticketorder':'购票','dramaother':'话剧其他','ktv':'KTV首页','bbs':'论坛'
+	,'ticketsuccess':'购票成功页面','everyPoint':'每日积分页面','wala':'哇啦页面','pubsale':'竞拍页面','mobilemovie':'手机电影','mobilesport':'手机运动','mobilebar':'手机酒吧','qamiddle':'详细页面中栏'})
+	#foreach($position in $adPositionList)
+	<tr>
+		<td>${position.pid}</td>
+		<td>$!tagMap.get($!{position.tag})</td>
+		<td>$!{position.position}</td>
+		<td>$!{position.description}</td>
+		<td>#if($!tagMap.get($!{position.tag}))<a href="${basePath}admin/site/ad/adversitingList.xhtml?adpid=${position.id}" target="_blank">广告</a>#else<span title="如有疑问，资讯产品！">暂无使用</span>#end</td>
+		<td><a href="${basePath}admin/site/ad/export.xhtml?adpid=${position.id}" target="_blank">导出</a></td>
+		<td>$!DateUtil.format($!position.addtime,'yyyy-MM-dd')</td>
+		<td align="center">
+		<input type="button" value="修改" onclick="modAdPosition($position.id)" style="width: 80px"/>
+		<!--  <input type="button" value="删除" onclick="removeAdPosition($position.id)" style="width: 80px"/>-->
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<div id="adDialog" class="yui-panel" style="width:600px; visibility:hidden; z-index:20;">
+	<div class="hd">
+		<span>编辑广告位数据</span>
+	</div>
+	<div class="bd">
+	<form name="adForm" id="adForm">
+		<input type="hidden" name="adpid" id="adpid" />
+		<div>
+			<label for="tag">版块：</label>
+			<select name="tag" id="tag">
+				<option value="">请选择</option>
+				#foreach($map in $tagMap.keySet())
+				<option value="$map">$tagMap.get($map)</option>
+				#end
+			</select><span class="req">*</span>
+		</div>
+		<div>
+			<label for="pid">标识PID：</label>
+			<select name="pid" id="pid">
+				<option value="">请选择</option>
+				#foreach($map in $tagMap.keySet())
+				<option value="$map">$tagMap.get($map)</option>
+				#end
+			</select>
+			<span class="req">*</span>
+		</div>
+			<div>
+			<label for="position">页面位置：</label>
+			<input  name="position" id="position" type="text"/>
+			<span class="req">&nbsp;</span>
+		</div>
+		<div>
+			<label for="description">描述：</label>
+			<textarea  name="description" id="description"></textarea>
+			<span class="req">&nbsp;</span>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="save();" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	function save(){
+		if($('pid').value==""){alert('标识PID不能为空,并且唯一');return;}
+		var values = GewaraUtil.getValues($("adForm"));
+		var url = "${basePath}admin/site/ad/saveAdPosition.xhtml";
+		GewaraUtil.sendRequest(url, values, saveCallBack);
+	}
+	function modAdPosition(id){
+		var url = "${basePath}admin/site/ad/getAdPosition.xhtml";
+		GewaraUtil.sendRequest(url, {"id":id},modCallBack);
+	}
+	function addAdPosition(){
+		GewaraUtil.showDialog("adDialog");
+	}
+	function removeAdPosition(id){
+		if(confirm("确认要删除吗?")==false) return;
+		var url = "${basePath}admin/site/ad/removeAdPosition.xhtml";
+		GewaraUtil.sendRequest(url, {"id":id},removeCallBack);
+	}
+	function saveCallBack(result){
+		if(result.success){
+			alert("保存成功");
+			cancle();
+			refreshPage();
+		}else alert(result.msg);
+	}
+	function modCallBack(ad){
+		GewaraUtil.setValues(ad);
+		$('adpid').value=ad.id;
+		addAdPosition();
+	}
+	function removeCallBack(result){
+		if(result){
+			alert("成功删除")
+			refreshPage();
+		}else alert("删除失败");
+	}
+	function cancle(){
+		$('adpid').value= '';
+		GewaraUtil.hideDialog('adDialog');
+	}
+</script>
+</body>
+</html>

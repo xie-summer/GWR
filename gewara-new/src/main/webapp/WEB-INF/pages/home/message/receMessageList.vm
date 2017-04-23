@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>短消息</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($receMessageList=true)#set($dialogMessage=true)#set($isCloseAll=false)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/messageMenu.vm')
+			<div class="inner">
+				#if(!$VmUtils.isEmptyList($umaList))
+				<div style="background-color:#FBE954;text-align:center;color:#DD0000;">以下内容60天后系统自动清除，如有重要信息请注意备份。</div>
+				<ul class="ui_abeam btLine">
+					#foreach($uma in $umaList)
+					#set($userMessage=$userMessageMap.get($uma.id))
+					<li class="abeam">
+						<div class="uipic">
+							#if($VmUtils.eq($uma.frommemberid,'0'))
+							<span class="pubpic" title="系统管理员"><img src="${staticPath}css/images/blank.gif" style="cursor: default; background:url(${picPath}css/global/logo.png) no-repeat center center"/></span>
+							#end
+							#if(!$VmUtils.eq($uma.frommemberid,'0'))
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$uma.frommemberid" class="pubpic" target="_blank" title=""><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($uma.frommemberid).headpicUrl)) no-repeat center center"/></a>
+							#end
+						</div>
+						<div class="uiText max_outer_text">
+							<a href="${basePath}home/message/userMessDetail.xhtml?mid=$userMessage.id&type=receive" class="fs14 bold">$!VmUtils.escabbr($!userMessage.subject,50)<img src="${staticPath}css/images/msg_${uma.isread}.gif" align="top"/></a>
+							<p>$!userMessage.cutContent</p>
+							<div class="title">来自：	#if($VmUtils.eq($uma.frommemberid,'0'))系统管理员	#end<span class="more gray">$!DateUtil.format($uma.addtime,'yyyy-MM-dd HH:mm')</span>
+								#if(!$VmUtils.eq($uma.frommemberid,'0'))
+								<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$uma.frommemberid" target="_blank">$cacheMemberMap.get($uma.frommemberid).nickname</a>
+								#if($messageNumMap.get($uma.id)>1)<span class="gray ml10">共$messageNumMap.get($uma.id)条会话</span>
+								<a href="${basePath}home/message/userMessDetail.xhtml?mid=$userMessage.id">+展开</a>#end
+							</div>
+							<div class="tar">
+								<a href="${basePath}home/message/sendMessage.xhtml?messageid=$userMessage.id" class="mr10" style="color:gray"><img src="${staticPath}css/home/sendMessage.gif" class="mr5"/>转发</a>|
+								<a onclick="showAccusation('userMessage',$uma.id);" class="ml10 mr10" style="color:gray;cursor:pointer;"><img src="${staticPath}css/home/trash.gif"/>举报</a>	|
+								<a href="javascript:void(0)" onclick="javascript:delUserMsg($uma.id)" class="ml10" style="color:gray"><img src="${staticPath}css/home/del.gif"/>删除</a>													
+							</div>
+							#end
+						</div>
+					</li>
+					#end
+				</ul>
+				#else
+				<div class="mt20 clew">暂无消息！</div>
+				#end
+				#parse('include/pageUtil.vm')
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/home/friend.vm')
+#parse('include/home/messageBox.vm')
+#parse('include/accusation.vm')
+<script type="text/javascript">
+function delUserMsg(sid){
+	gewaUtil.confirm("确认要删除吗?", function(){
+		checkLogin(true, function(){
+			var url = '${basePath}home/message/delUserMsg.xhtml';
+			var values = {'sid':sid};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					refreshPage();
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		});
+	})
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

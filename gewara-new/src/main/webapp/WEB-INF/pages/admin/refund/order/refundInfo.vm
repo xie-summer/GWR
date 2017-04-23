@@ -1,0 +1,119 @@
+<div class="hd" style="text-align: left;text-indent: 10px;">订单基本信息</div>
+<div class="bd">
+	<table cellpadding="0" cellspacing="0" width="100%" class="table" >
+	<tr>
+		<td>订单号：<a href="${basePath}admin/gewapay/orderDetail.xhtml?tradeNo=$order.tradeNo" target="_blank"><span class="yellow">$order.tradeNo</span></a></td>
+		<td>类型：$order.ordertype#if($order.ordertype eq 'ticket')<a href="${basePath}admin/ticket/booking.xhtml?mpid=$order.mpid&ordertype=$order.status">查看场次</a>#end</td>
+		<td>名称：$order.ordertitle</td>
+		<td>状态：<span class="yellow">${order.statusText}</span></td>
+	</tr>
+	<tr>
+		<td><a href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$!order.memberid" target="_blank">用户ID：$order.memberid</a></td>
+		<td>用户名：$!order.membername</td>
+		<td>商家ID：$!order.partnerid</td>
+		<td>手机号码：<span class="yellow">$!order.mobile</span></td>
+	</tr>
+	<tr>
+		<td>下单时间：$DateUtil.formatTimestamp($order.addtime)</td>
+		<td>有效时间：$DateUtil.formatTimestamp($order.validtime)</td>
+		<td>付款时间：$!DateUtil.formatTimestamp($order.paidtime)</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td>订单总额：${order.totalAmount}</td>
+		<td>应付款：${order.due}</td>
+		<td>折扣：$order.discount</td>
+		<td>
+		#if($VmUtils.eq($order.status,'paid_return'))
+		<span class="yellow">已退款</span>
+		#elseif($refund)
+		<span class="yellow">$!refund.getStatusText($refund.status)</span>
+		#end
+		&nbsp;
+		</td>
+	</tr>
+	<tr>
+		<td>Gewa付款：${order.gewapaid}</td>
+		<td>网络付款：${order.alipaid}</td>
+		<td>付款方式：$!order.paymethodText</td>
+		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td colspan="4">
+		#if($order.description2)
+			#set($descMap=$VmUtils.readJsonToMap($order.description2))
+			#foreach($m in $descMap.keySet())
+				${m}：$!descMap.get($m)
+			#end
+		#end
+		</td>
+	</tr>
+	#if($discountList.size() gt 0)
+	<tr>
+		<td colspan="4" style="color: red;">
+			折扣金额：$order.discount <br />
+			#foreach($discount in $discountList)
+				$discount.description
+			#end
+		</td>
+	</tr>
+	#end
+	#if($itemList.size() gt 0)
+	<tr>
+		<td colspan="4">
+			#foreach($item in $itemList)
+				同时购买：$item.goodsname数量$item.quantity单价$item.unitprice总价$item.totalfee
+			#end
+		</td>
+	</tr>
+	#end
+	</table>
+</div>
+<div class="hd" style="text-align: left;text-indent: 10px;">其他基本信息</div>
+<div class="bd">
+	<table cellpadding="0" cellspacing="0" width="100%" >
+	#if($opi)
+	<tr>
+		#set($difference = $!DateUtil.getDiffHour($opi.playtime,$DateUtil.currentTime()))
+		<td>观影时间与当前时间差：<span #if($difference lt 4)style="color: red;"#end>$difference小时</span></td>
+		<td>该场次是否可退票：#if($VmUtils.eq($!VmUtils.getJsonValueByKey($opi.otherinfo, "isRefund"), 'N'))<span style="color: red;">不可以</span>#else可以#end</td>
+		<td>查看取票状态：#if($VmUtils.eq($orderResult.istake, 'Y'))<span style="color: red;">已取</span> #else未取#end</td>
+		<td>取票方式：<span #if($VmUtils.eq($cinemaProfile.takemethod, 'U')) style="color: red;" #end>$!cinemaProfile.takeInfo</span></td>
+	</tr>
+	#elseif($odi)
+	<tr>
+		#set($takemethodMap={'P':'现场派送','W':'售票窗口','E':'快递','A':'自动取票机'})
+		#set($difference = $!DateUtil.getDiffHour($odi.playtime,$DateUtil.currentTime()))
+		<td>演出时间与当前时间差：<span #if($difference lt 4)style="color: red;"#end>$difference小时</span></td>
+		<td>该场次是否可退票：#if($VmUtils.eq($!VmUtils.getJsonValueByKey($odi.otherinfo, "isRefund"), 'N'))<span style="color: red;">不可以</span>#else可以#end</td>
+		<td>查看取票状态：#if($VmUtils.eq($orderResult.istake, 'Y'))<span style="color: red;">已取</span> #else未取#end</td>
+		<td>取票方式：<span #if($VmUtils.eq($odi.takemethod, 'A')) style="color: red;" #end></span>$takemethodMap.get($odi.takemethod)</td>
+	</tr>	
+	#end
+	<tr>
+		<td>此用户总退票数：$!memberCount</td>
+		<td #if($memberMonthCount ge 4)style="color:red; font-size: 16px; font-weight: bolder;"#end>此用户月退票数：$!memberMonthCount</td>
+		<td>此手机号总退票数：$!mobileCount</td>
+		<td #if($mobileMonthCount ge 4)style="color:red; font-size: 16px; font-weight: bolder;"#end>此手机号月退票数：$!mobileMonthCount</td>
+	</tr>
+	<tr>
+	 <td colspan="4">
+	#foreach($reson in $reasonCount)
+		 <span style="float:left;width:198px;23px">
+		 	#if($VmUtils.eq($reson.reason, 'gewa'))Gewara原因退款:
+		 	#elseif($VmUtils.eq($reson.reason, 'merchant'))
+		 	场次更改退票:
+		 	#elseif($VmUtils.eq($reson.reason, 'user'))
+		 	用户要求退票:
+		 	#elseif($VmUtils.eq($reson.reason, 'price'))
+		 	价格调整:
+		 	#else
+		 	其它原因:
+		 	#end
+		 	$reson.resasonCount
+		 </span>
+	#end
+	</td>
+	</tr>
+	</table>
+</div>

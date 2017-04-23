@@ -1,0 +1,448 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>Gewara后台发票管理系统</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		.inputradio{vertical-align: middle;}
+		.OkMsg {
+			background: url(${staticPath}styles/images/standard_msg_ok.gif) #e6ffe6 no-repeat 5px 0px; color: #000;
+			border: #00be00 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.WarningMsg {
+			background: url(${staticPath}styles/images/standard_msg_warning.gif) #e2f5ff no-repeat 5px 0px; color: #000;
+			border: #00a8ff 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.ErrorMsg {
+			background: url(${staticPath}styles/images/standard_msg_error.gif) #fff2e9 no-repeat 5px 0px; color: #000;
+			border: #f60 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.menuInner_seach{
+			background-attachment: scroll;
+		   background-clip: border-box;
+		   background-color: transparent;
+		   background-origin: padding-box;
+		   background-position: 0 0;
+		   background-repeat: repeat;
+		   background-size: auto auto;
+		}
+	</style>
+</head>
+<body style="width:85%; margin:auto">
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore"></li>
+			<li class="currs"><a><span>客服发票查询</span></a></li>
+		</ul>
+	</div>
+</div>
+<div class="left"style="width:45%;">
+	<form action="${basePath}admin/invoice/getInvoiceList.xhtml" id="quickSearchForm">
+	<ul class="orderSet mt5">
+		<li>流水号：</li>
+		<li style="width:160px;overflow:hidden;"><input type="text" name="invoiceid" id="invoiceid" value="$!params.invoiceid"/></li>
+		<li>收件人：</li>
+		<li style="width:160px;overflow:hidden;"><input type="text" name="contactor" id="contactor" value="$!params.contactor"/></li>
+		<li><input type="button" name="searchButton" value="查询" onclick="quickSearch()"/></li>
+	</ul>
+	<ul  class="orderSet mt5">
+		<li>用户ID：</li>
+		<li  style="width:160px;overflow:hidden;"><input type="text" name="memberid" id="memberid" value="$!params.memberid"/></li>
+		<li>手机号：</li>
+		<li style="width:160px;overflow:hidden;"><input type="text" name="phone" id="phone" value="$!params.phone"/></li>
+		<li></li>
+	</ul>
+	<ul  class="orderSet mt5">
+		<li>排序方式：</li>
+		<li  style="margin-right:50px;both:clear">
+			<select name="order">
+				<option value="addtime" #if($VmUtils.eq($!{params.order},'addtime'))selected="selected" #end>按提交时间</option>
+				<option value="opentime" #if($VmUtils.eq($!{params.order},'opentime'))selected="selected" #end>按开票时间</option>
+				<option value="posttime" #if($VmUtils.eq($!{params.order},'posttime'))selected="selected" #end>按邮寄时间</option>
+			</select>
+		</li>
+		<li></li>
+		<li></li>
+	</ul>
+	</form>
+</div>
+<!-- right start-->
+<div class="right" style="width:55%;">
+<form action="${basePath}admin/invoice/getInvoiceList.xhtml" id="complexSearchForm" name="complexSearchForm">
+<ul class="orderSet mt5">
+	<li style="width:100px">
+		<select name="order">
+			<option value="addtime" #if($VmUtils.eq($!{params.order},'addtime'))selected="selected" #end>按提交时间</option>
+			<option value="opentime" #if($VmUtils.eq($!{params.order},'opentime'))selected="selected" #end>按开票时间</option>
+			<option value="posttime" #if($VmUtils.eq($!{params.order},'posttime'))selected="selected" #end>按邮寄时间</option>
+		</select>
+	</li>
+	<li style="width:150px"><input type="text" class="Wdate" value="$!{params.fromDate}" name="fromDate" id="fromDate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" style="width:120px;" /></li>
+	<li style="width:10px">至</li>
+	<li style="width:150px"><input type="text" class="Wdate" value="$!{params.toDate}" name="toDate" id="toDate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" style="width:120px;" /></li>
+	<li style="width:120px">发票状态：</li>
+	<li>
+		<select name="invoicestatus">
+			<option value="Y" #if($VmUtils.eq(${params.invoicestatus},'Y'))selected="selected" #end>已开票</option>
+			<option value="N" #if($VmUtils.eq(${params.invoicestatus},'N'))selected="selected" #end>申请中</option>
+			<option value="Y_EXP" #if($VmUtils.eq(${params.invoicestatus},'Y_EXP'))selected="selected" #end>快递</option>
+			<option value="Y_POST" #if($VmUtils.eq(${params.invoicestatus},'Y_POST'))selected="selected" #end>平邮</option>
+			<option value="Y_NOTPOST" #if($VmUtils.eq(${params.invoicestatus},'Y_NOTPOST'))selected="selected" #end>未邮寄</option>
+			<option value="N_APPLYAGAIN" #if($VmUtils.eq(${params.invoicestatus},'N_APPLYAGAIN'))selected="selected" #end>申请补开</option>
+			<option value="Y_AGAIN" #if($VmUtils.eq(${params.invoicestatus},'Y_AGAIN'))selected="selected" #end>已补开</option>
+			<option value="N_TRASH" #if($VmUtils.eq(${params.invoicestatus},'N_TRASH'))selected="selected" #end>已废弃</option>
+		</select>
+	</li>
+</ul>
+<ul class="orderSet mt5">
+	<li style="width:100px">金额：</li>
+	<li style="width:150px"><input type="text" name="startAmount" id="startAmount" value="$!params.startAmount" style="width:120px;"/></li>
+	<li style="width:10px">至</li>
+	<li style="width:150px"><input type="text" name="endAmount" id="endAmount" value="$!params.endAmount" style="width:120px;"/></li>
+	<li style="width:120px">发票归属地：</li>
+	<li>
+		<select name="citycode">
+			<option value="310000" #if($VmUtils.eq($params.citycode, '310000')) selected="selected"#end>上海</option>
+			<option value="000000" #if($VmUtils.eq($params.citycode, '000000')) selected="selected"#end>非上海</option>
+		</select>
+	</li>
+</ul>
+<ul class="orderSet mt5">
+	<li style="width:100px">申请类型：</li>
+	<li style="width:125px">
+		<select name="applytype">
+			<option value="">不限</option>
+			<option value="selfservice">客户自助申请</option>
+			<option value="customservice">后台客服申请</option>
+		</select>
+	</li>
+	<li>类别：</li>
+	<li style="width:125px;text-align:left;">
+		<select name="pretype">
+			#foreach($key in $pretypeMap.keySet())
+			<option value="$key" #if($VmUtils.eq($params.pretype, $key)) selected="selected" #end>$pretypeMap.get($key)</option>
+			#end
+		</select>
+	</li>
+	<li style="width:100px"><input type="button" value="筛选" id="complexsearch" name="complexsearch" onclick="complexSearch()"/></li>
+	<li style="width:100px"><input type="button" value="后台申请发票" name="adminApply" id="adminApply" onclick="adminApplyInvoice()"/></li>
+	<li style="width:100px">&nbsp;</li>
+	<li style="width:120px">&nbsp;</li>
+</ul>
+</form>
+</div>
+<!-- right end-->
+<br/>
+<table width="100%" cellspacing="0" class="roomManageTable" id="tbody">
+	<tbody>
+		<tr class="td">
+			<td colspan="19">
+				共查出$invoiceCount条结果
+			</td>
+		</tr>
+		<tr class="td">
+			<td align="center">全选</td>
+			<td align="center">流水号</td>
+			<td align="center">申请类型</td>
+			<td align="center">提交日期</td>
+			<td align="center">申请用户</td>
+			<td align="center">发票金额</td>
+			<td align="center">发票抬头</td>
+			<td align="center">票据类型</td>
+			<td align="center">收件人</td>
+			<td align="center">联系电话</td>
+			<td align="center">发票归属地</td>
+			<td align="center">地址</td>
+			<td align="center">邮政编码</td>
+			<td align="center">发票状态</td>
+			<td align="center">开票日期</td>
+			<td align="center">邮寄状态</td>
+			<td align="center">邮寄日期</td>
+			<td align="center">类别</td>
+			<td align="center">操作</td>
+		</tr>
+		#if(!$VmUtils.isEmptyList($invoiceList))
+		#foreach($invoice in $invoiceList)
+		#set($iMemberName=$memberMap.get($invoice.id))
+		<tr class="td" id="row$invoice.id">
+			<td align="center" class="wd120"><input type="checkbox"  name="invoiceorder" id="invoiceorder" value="$!invoice.id"/></td>
+			<td align="center" class="wd120">$invoice.id</td>
+			<td align="center" class="wd120">#if($VmUtils.eq($!invoice.applytype, 'selfservice'))用户自助申请#elseif($VmUtils.eq($!invoice.applytype, 'customservice'))客服后台申请#end</td>
+			<td align="center" class="wd120">$!DateUtil.format($invoice.addtime,'yyyy年M月d日')</td>
+			<td align="center" class="wd120">$!VmUtils.escapeHtml($!iMemberName)</td>
+			<td align="center" class="wd120">$!invoice.amount</td>
+			<td align="center" class="wd120">$!VmUtils.escapeHtml($!invoice.title)</td>
+			<td align="center" class="wd120">&nbsp;#if($VmUtils.eq($!invoice.invoicetype,'movienote'))电影票款#elseif($VmUtils.eq($!invoice.invoicetype,'dramanote'))演出票款#elseif($VmUtils.eq($!invoice.invoicetype,'sportnote'))运动票款#end</td>
+			<td align="center" class="wd120">$!VmUtils.escapeHtml($!invoice.contactor)</td>
+			<td align="center" class="wd120" onclick="showMobile($invoice.id, '$!invoice.phone')"><span name="demobile" id="order$invoice.id" title="$!invoice.enmobile">$!invoice.enmobile</span></td>
+			<td align="center" class="wd120">$!cityMap.get($invoice.id)</td>
+			<td align="center" class="wd120">$!VmUtils.escapeHtml($!invoice.address)</td>
+			<td align="center" class="wd120">&nbsp;$!VmUtils.escapeHtml($!invoice.postcode)</td>
+			<td align="center" class="wd120">
+				#if($VmUtils.eq($invoice.invoicestatus,'N_APPLY'))申请中
+				#elseif($VmUtils.eq($invoice.invoicestatus,'N_NOTOPEN'))发票未开
+				#elseif($invoice.invoicestatus.contains('Y_AGAIN'))发票已补开
+				#elseif($VmUtils.eq($invoice.invoicestatus,'N_APPLYAGAIN'))申请补开
+				#elseif($invoice.invoicestatus.contains('N_TRASH'))发票已废弃
+				#elseif($VmUtils.eq($invoice.invoicestatus,'Y_OPEN') || $VmUtils.eq($invoice.invoicestatus,'Y_EXP') ||
+				$VmUtils.eq($invoice.invoicestatus,'Y_POST') || $VmUtils.eq($invoice.invoicestatus,'Y_NOTPOST'))
+				发票已开#end
+			</td>
+			<td align="center" class="wd120">&nbsp;$!DateUtil.format($invoice.opentime,'yyyy年M月d日')</td>
+			<td align="center" class="wd120">
+				#*#if(!$VmUtils.eq($invoice.invoicestatus,'N_TRASH'))
+				<form action="post" name="invoiceForm$invoice.id" id="invoiceForm$invoice.id">
+				<input type="hidden" name="invoiceid" value="$invoice.id"/>
+				<select name="invoicestatus">
+					<option value="">请选择</option>
+					<option value="Y_EXP" #if($VmUtils.eq($!invoice.invoicestatus,'Y_EXP')) selected="selected" #end>快递</option>
+					<option value="Y_POST" #if($VmUtils.eq($!invoice.invoicestatus,'Y_POST')) selected="selected" #end>平邮</option>
+					<option value="Y_NOTPOST" #if($VmUtils.eq($!invoice.invoicestatus,'Y_NOTPOST')) selected="selected" #end>未邮寄</option>
+					</select>
+				#if($VmUtils.eq($invoice.invoicestatus,'Y_EXP'))<input type="text" name="postnumber" id="postnumber" style="width:80px;" value="$!invoice.postnumber"/>#end
+				<input type="button" name="button1" id="button1" value="确定" onclick="changeInvoiceStatus('$invoice.id')"/>
+				</form>
+				#end*#
+				&nbsp;
+				#if($VmUtils.eq($invoice.invoicestatus,'Y_EXP'))快递
+				#elseif($VmUtils.eq($invoice.invoicestatus,'Y_POST'))平邮
+				#elseif($invoice.invoicestatus.contains('Y_NOTPOST'))未邮寄#end
+			</td>
+			<td align="center" class="wd120">&nbsp;$!DateUtil.format($invoice.posttime,'yyyy年M月d日')</td>
+			<td align="center" class="wd120">$!pretypeMap.get($invoice.pretype)</td>
+			<td align="center" class="wd120">
+				#if(!$VmUtils.eq($invoice.invoicestatus,'N_TRASH'))<a href="javascript:void(0)" onclick="modifyInvoice($!invoice.id)">详细</a>
+				<input type="button" value="废弃发票" onclick="trashInvoice('$invoice.id')"/>#end
+			</td>
+		</tr>
+		#end
+		<tr class="td">
+			<td align="center" class="wd120" colspan="18">
+				<input type="checkbox" id="cbAll" onclick="selAll(this)"/>全选
+				<select name="changestatus" id="changestatus" onchange="changeText(this.value)">
+					<option value="N_APPLYAGAIN">申请补开</option>
+					<option value="N_MERGE">合并发票</option>
+				</select>
+				<input type="button" name="batchOperation" id="batchOperation" value="批量操作" onclick="batchOpeationInvoice()"/>
+			</td>
+		</tr>
+		#if($invoiceCount gt 25)<tr class="td" height="40"><td colspan="18">#parse('include/pageUtil.vm')</td></tr>#end
+		#else
+		<tr class="td">
+			<td align="center" class="wd120" colspan="18">没有数据记录</td>
+		</tr>
+		#end
+	</tbody>
+</table>
+<div id="modifyInvoiceForm" style="display:none;"></div>
+#parse('admin/invoice/adminApplyInvoice.vm')
+<script type="text/javascript">
+	function quickSearch(){
+		$('quickSearchForm').submit();
+		clearSearch('complexSearchForm');
+	}
+	function clearSearch(el){
+		var element= $(el).getElements('input').each(function(item){
+			item.value="";
+		});
+	}
+	function complexSearch(){
+		$('complexSearchForm').submit();
+		clearSearch('quickSearchForm');
+	}
+	// 全选
+	function selAll(obj){
+		var cbs = document.getElementsByName('invoiceorder');
+		$each(cbs, function(i, n){
+			i.checked=obj.checked;
+		})
+	}
+	// 检查选中的
+	function checkedArrs(cbs){
+		var checkedArr = new Array();
+		var a = 0;
+		$each(cbs, function(i, n){
+			if(i.checked){
+				checkedArr[a] = i.value;
+				a++;
+			}
+		})
+		return checkedArr;
+	}
+	function changeText(text){
+		if(text =='N_APPLYAGAIN'){
+			$('batchOperation').value="批量申请补开";
+		}else if(text =='N_MERGE'){
+			$('batchOperation').value="批量合并发票";
+		}
+	}
+	
+	function batchOpeationInvoice(){
+		var showExp="";
+		var invoicestatus=$('changestatus').value;
+		if(invoicestatus =='N_APPLYAGAIN'){ showExp="确定批量申请补开吗?";
+		}else if(invoicestatus =='N_MERGE'){ showExp="确定批量合并吗?";}
+		if(!$chk(invoicestatus)){
+			gewaUtil.alert('请选择批量邮寄方式！');
+			return;
+		}
+		if(confirm(showExp)){
+			var cbs = document.getElementsByName('invoiceorder');
+			var checkedArr = checkedArrs(cbs);
+			var idList = checkedArr.join(',');
+			if(idList.length==0){
+				gewaUtil.alert('请选择要批量的发票！');
+				return;
+			}
+			var url="${basePath}admin/invoice/batchOperationInvoice.xhtml";
+			var values={'invoiceidList':idList, 'invoicestatus':invoicestatus};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					if(cbs.length >= checkedArr.length){
+						gewaUtil.alert('批量操作成功！');
+						$each(checkedArr, function(i, n){
+							$('row'+i).dispose();	
+						})
+					}
+				}else {
+					gewaUtil.alert(result.msg);
+				}
+			})
+		}
+	}
+	function modifyInvoice(invoiceid){
+		var url="${basePath}admin/invoice/modifyInvoice.xhtml"
+		var values={'invoiceid':invoiceid};
+		gewaUtil.loadData('modifyInvoiceForm', url, values, function(result){
+			if(result.success){
+				gewaUtil.issure('', 'modifyInvoiceForm', '修改发票信息' , 420, 'modifyInvoiceForm',function(calls,id){
+					saveModifyInvoice();
+				});
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	
+	function saveModifyInvoice(){
+		var modifyinvoiceid=$('modifyinvoiceid').value;
+		var modifytitle=$('modifytitle').value;
+		var modifycontactor=$('modifycontactor').value;
+		var modifyphone=$('modifyphone').value;
+		var modifyaddress=$('modifyaddress').value;
+		var modifypostcode=$('modifypostcode').value;
+		var modifyinvoicetype=$('modifyinvoicetype').value;
+		var citycode=$('citycode1').value;
+		var url ="${basePath}admin/invoice/saveModifyInvoice.xhtml";
+		var values={'invoiceid':modifyinvoiceid,'title':modifytitle,'contactor':modifycontactor,'phone':modifyphone,'address':modifyaddress,
+			'postcode':modifypostcode,'invoicetype':modifyinvoicetype,'citycode':citycode};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewa.util.container['modifyInvoiceForm'].dispose('modifyInvoiceForm');
+			}else{
+				gewaUtil.alert(result.msg);
+			}	
+		});
+	}
+	function adminApplyInvoice(){
+		gewaUtil.issure('', 'adminApplyForm', '后台客服申请发票' , 420, 'adminApplyForm',function(calls,id){
+			saveAdminApplyInovice();
+		});
+	}
+	function saveAdminApplyInovice(){
+		var applytitle=$('applytitle').value;
+		var applycontactor=$('applycontactor').value;
+		var applyphone=$('applyphone').value;
+		var applyaddress=$('applyaddress').value;
+		var applypostcode=$('applypostcode').value;
+		var applyinvoicetype=$('applyinvoicetype').value;
+		var citycode=$('citycode').value;
+		var applyamount=$('applyamount').value;
+		var applymemberid=$('applymemberid').value;
+		var applyorderid=$('orderidList').value;
+		if(!$chk(applytitle)){
+			gewaUtil.alert('发票抬头不能为空!');
+			return;
+		}
+		if(!$chk(applycontactor)){
+			gewaUtil.alert('收件人不能为空!');
+			return;
+		}
+		if(!$chk(applyphone)){
+			gewaUtil.alert('电话不能为空!');
+			return;
+		}
+		if(!$chk(applyaddress)){
+			gewaUtil.alert('邮寄地址不能为空!');
+			return;
+		}
+		if(!$chk(citycode)){
+			gewaUtil.alert('邮寄地址不能为空!');
+			return;
+		}
+		var url ="${basePath}admin/invoice/saveApplyInvoice.xhtml";
+		var values={'title':applytitle,'contactor':applycontactor,'phone':applyphone,'address':applyaddress,'postcode':applypostcode,
+		'invoicetype':applyinvoicetype,'orderidList':applyorderid,'memberid':applymemberid,'amount':applyamount,'citycode':citycode};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				clearApplyForm('adminApplyForm');
+				gewaUtil.alert('申请成功！');
+				gewa.util.container['adminApplyForm'].dispose('adminApplyForm');
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	function clearApplyForm(el){
+		var element= $(el).getElements('input').each(function(item){
+			item.value="";
+		});
+		$('membername').innerHTML='';
+		$('totalfee').innerHTML='';
+	}
+	
+	function trashInvoice(invoiceid){
+		if(confirm("确定废弃发票吗?")){
+			var url="${basePath}admin/invoice/trashInvoice.xhtml"
+			var values={'invoiceid':invoiceid}	
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert('废弃发票成功，可继续申请该发票');
+				}else{	
+					alert(result.msg);
+				}
+			})
+		}
+	}
+	function changeInvoiceStatus(item){
+		var url="${basePath}admin/invoice/postInvoice.xhtml";
+		var values = GewaraUtil.getValues("invoiceForm"+item);
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("操作成功");
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function showMobile(orderid, mobile){
+		$('tbody').getElements('span[name=demobile]').each(function(item){
+			item.set('html', item.title);
+			item.removeClass('yellow');
+			$('order' + orderid).set('html', mobile);
+			$('order' + orderid).addClass('yellow');
+		});
+	}
+</script>
+</body>
+</html>

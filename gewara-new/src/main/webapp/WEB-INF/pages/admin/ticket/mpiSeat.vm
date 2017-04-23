@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影院放映厅座位表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/admin.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#set($maxwidth=163+30*${maxranknum})
+		#content{ width: ${maxwidth}px; background:#fff;}
+	</style>
+</head>
+<body>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+		<div class="contentInfoList">
+			<b class="m2"></b>
+			<div class="checkOrder"><h2>场次信息</h2></div>
+			<div class="aboutMovie">
+				<p>
+					<span class="fs14">场次名称：${opi.cinemaname} ---&gt; ${opi.roomname} ---&gt; ${opi.moviename} </span>
+					<span class="ml30 fs14">放映时间：$DateUtil.format($opi.playtime,"MM-dd HH:mm")（$DateUtil.getCnWeek($opi.playtime)）</span>
+				</p>
+			</div>
+			<b class="m2"></b>
+			<div id="content" style="margin-left:40px;">
+				#set($mleft=170+18*${maxranknum} - 360)
+				<ul class="seatlist">
+					#foreach($line in [1..$maxlinenum])
+					<li>
+						<dl class="seatpic">
+							<dt class="left">
+								<label>排号：$!rowMap.get($line)</label>
+							</dt>
+							#foreach($rank in [1..$maxranknum]) #set($sid='row'+${line}+'rank'+$rank)
+							<dd><div id="L${line}R${rank}" #if($seatMap.get($sid))class="Aseat" title="$!sid $!seatMap.get($sid).seatLabel"#else class="Nseat" title="$!sid"#end >#if($seatMap.get($sid).loveInd ne "0")$!seatMap.get($sid).loveInd#end</div></dd>
+							#end
+						</dl>
+					</li>
+					#end
+					<li class="head"><dl><dt>排编号</dt>#foreach($rank in [1..$maxranknum])<dd>${rank}</dd>#end</dl></li>
+				</ul>
+				<div id="height0"></div>
+			</div>
+		</div>
+	<b class="b2f"></b> <b class="b1f"></b>
+</div>
+</body>
+</html>

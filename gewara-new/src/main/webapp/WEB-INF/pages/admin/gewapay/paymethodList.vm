@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>支付方式管理</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/layout.css"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/bms.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js"></script>
+	<style type="text/css">
+		.tablist .trbg td{padding:0; height:40px; line-height:40px;}
+		#page,.rowCount{margin:5px 0;}
+		.useCao label{color:#555555;font-weight:bold;font-size:12px;}
+		.useCao .init-text{width:160px;padding:2px 1px;vertical-align:middle;border:1px solid #ccc;margin-right:40px;}
+		.useCao .fline{font-size:15px;margin:0 5px;}
+		.useCao .btn{padding:2px 8px;cursor:pointer;}
+		.useCao .t_ico{background:url(${staticPath}css/sport/cus_icon.png?v=4545) no-repeat right -159px;}
+		.tablist .trbg{background:#efefef;color:#555;}
+		.tablist .trbg:hover{background:#f1f5ff;}
+		.tablist .trbg td{height: 30px;line-height: 30px;padding: 0;}
+		.redBt input {width: 50px;}
+		.orderSet{height:26px;line-height: 26px;padding:0 10px;clear: left;}
+		.orderSet li{width:60px;float:left;text-align:center;cursor: pointer;}
+		.seeOrder{background:#bbb;font-weight:bold}
+	</style>
+</head>
+<body class="ui_orange">
+<div class="maintop">支付方式链接管理</div>
+<div class="main">
+    <div class="info">
+      <table class="tablist mt10" id="all_content" width="100%">
+			<tbody id="tbody">
+				<tr class="trbg">
+					<td>&nbsp;</td>
+					<td>支付编码</td>
+					<td>说明</td>
+					<td>管理链接</td>
+					<td>操作</td>
+				</tr>
+				#foreach($paymethod in $methodList)
+				<tr>
+					<td>$foreach.count</td>
+					<td>$!paymethod.payMethod</td>
+					<td>$!paymethod.payMethodText</td>
+					<td>$!paymethod.mangerUrl</td>
+					<td><a href="javascript:void(0)" onclick="getPaymethod('$!{paymethod.payMethod}')">修改</a></td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+    </div>
+</div>
+<div id="template" style="display:none;"></div>
+<script type="text/javascript">
+	function getPaymethod(paymethod){
+		var url = "${basePath}admin/gewapay/getPaymethod.xhtml";
+		var values = {'paymethod':paymethod};
+		GewaraUtil.sendLoad("template", url, values, function(result){
+			if(result.success){
+				$("template").show();
+				gewaUtil.issure('','template','支付方式管理',580,'template', function(){
+					savePaymethod();
+				});
+			}else{
+				
+			}
+		});
+	}
+	function savePaymethod(){
+		var url = "${basePath}admin/gewapay/savePaymethod.xhtml";
+		var values = GewaraUtil.getValues('template');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert('保存成功！',function(){
+					gewa.util.container['template'].dispose('template');
+				});
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

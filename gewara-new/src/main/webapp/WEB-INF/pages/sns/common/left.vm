@@ -1,0 +1,336 @@
+<div class="body_left">
+	#if($VmUtils.isNull($topic))
+	<div class="person_head">
+		<img src="$VmUtils.randomPic('cw150h150',$!memberInfo.headpicUrl)" title="$!memberInfo.nickname" width="150" height="150"/>
+		<div class="person_headShadow"></div>
+	</div>
+	#end
+	<div class="person_relationship">
+		<!-- 关于我的关系统计 -->
+		#if($VmUtils.isNull($topic))
+		<div class="preson_shipCount">
+			<span class="mycount">
+				<a href="${basePath}home/wala/follow.xhtml#if($params.memberid)?memberid=$!params.memberid&tagNo=$VmUtils.getRandom()#else?tagNo=$VmUtils.getRandom()#end"><b>$!{treasureCount}</b></a>关注
+			</span>
+			<span class="vLine"><span class="t"></span><span class="b"></span></span>
+			<span class="mycount">
+				<a href="${basePath}home/wala/fans.xhtml#if($params.memberid)?memberid=$!params.memberid&tagNo=$VmUtils.getRandom()#else?tagNo=$VmUtils.getRandom()#end"><b>$!{fansCount}</b></a>瓦丝
+			</span>
+			<span class="vLine"><span class="t"></span><span class="b"></span></span>
+			<span class="mycount">
+				<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=#if($params.memberid)$!params.memberid#else$!memberInfo.id#end"><b>$!{commentCount}</b></a>哇啦
+			</span>
+		</div>
+		#end
+		
+		#if((!$!params.memberid || $!params.memberid==$!logonMember.id) && !$VmUtils.eq($isMy, 'no'))
+		<!-- 标签管理 -->
+		#if($VmUtils.isNull($topic))
+		<div id="myidremove">
+		<div class="preson_link" id="tagsPanel">
+			#foreach($!myfav in $!myfavTags)
+			<a href="javascript:void(0)"><span>$VmUtils.escapeHtml($!myfav)</span><img title="删除" onclick="delthisTag('$VmUtils.escapeHtml($!myfav)','myidremove','myfavremove')" src="${staticPath}css/images/blank.gif"/></a>
+			#end
+			<span class="cls"></span>
+			<div class="clear"><a href="javascript:void(0)" onclick="gewa.util.addTags();" class="addLink">+标签</a></div>
+		</div>
+		</div>
+		#end
+		
+		<!-- 个人导航 -->
+		#if($VmUtils.isNull($topic))
+		<div class="person_nav">
+			<a href="${basePath}home/sns/personIndex.xhtml?tagNo=$VmUtils.getRandom()" class="sm #if($VmUtils.eq($!menuTag, 'index'))select#end">我的首页</a>
+			#*<a href="${basePath}home/activity/activityList.xhtml?memberid=$!member.id&activityTag=joinActivity" target="_blank" class="actm">我的活动</a>*#
+			<a href="${basePath}home/comment/newTopicList.xhtml?tagNo=$VmUtils.getRandom()" class="bm #if($VmUtils.eq($!menuTag, 'blog'))select#end">我的论坛</a>
+			<a href="${basePath}home/newAttentioninfo.xhtml?tagNo=$VmUtils.getRandom()" class="lnkm #if($VmUtils.eq($!menuTag, 'like'))select#end">我感兴趣</a>
+			<a href="${basePath}home/qa/newQuestionList.xhtml?tagNo=$VmUtils.getRandom()" class="qam #if($VmUtils.eq($!menuTag, 'know'))select#end">我的知道</a>
+			#*<a href="${basePath}home/commu/commuList.xhtml" class="qm #if($VmUtils.eq($!menuTag, 'commu'))select#end">我的圈子</a>*#
+			<a href="${basePath}home/sns/myLifePlans.xhtml?tagNo=$VmUtils.getRandom()" class="am #if($VmUtils.eq($!menuTag, 'agenda'))select#end">我的生活安排</a>
+			<a href="${basePath}home/new/album/albumList.xhtml?tagNo=$VmUtils.getRandom()" class="pm #if($VmUtils.eq($!menuTag, 'photo'))select#end">我的相册</a>
+			<a href="${basePath}home/sns/myNewTasks.xhtml?tagNo=$VmUtils.getRandom()" class="tm #if($VmUtils.eq($!menuTag, 'newtask'))select#end">我的任务</a>
+		</div>
+		#end
+		
+		#if(!$VmUtils.isEmptyList($moderatorList))
+			#if($VmUtils.isNull($topic))<div class="aLine" id="hotModeratoridline"><span class="l"></span><span class="r"></span></div>#end
+			<div class="person_together">
+				<div class="person_t" id="hotModeratoridtitle">
+				<b>热门话题</b><a href="javascript:void(0)" onclick="return gethotModerator()" class="refresh">换一换</a></div>
+				<div id="hotModeratorid">
+				#parse('sns/myleft/hotModerator.vm')
+				</div>
+			</div>
+		#end
+		
+		#if(!$VmUtils.isEmptyList($activityMapList) || !$VmUtils.isEmptyList($hotActivityList))
+		#set($number = $math.abs($VmUtils.size($activityMapList)) + ($math.abs($VmUtils.size($hotActivityList))*(-1)))
+		<div class="aLine" id="interstedActivityline"><span class="l"></span><span class="r"></span></div>
+		<div class="person_together" id="interstedActivitytitle">
+			<div class="person_t"><b>推荐活动</b><span class="evenSlide">#if($number gt 1)<span id="eventL"></span><span class="next" id="eventR"></span>#end</span></div>
+			<div id="interstedActivityid">
+			#parse('sns/myleft/recommendActivity.vm')
+			</div>
+		</div>
+		#end
+		
+		#if(!$VmUtils.isEmptyList($recommendModerator))
+		<div class="aLine"><span class="l"></span><span class="r"></span></div>
+		<div class="person_together recommendTopic">
+			<div class="person_t recommendTopicTitle"><b>推荐话题</b></div>
+			#parse('sns/myleft/recommendTopic.vm')
+		</div>
+		#end
+		
+		#*
+		#if(!$VmUtils.isEmptyList($memberMapList))
+		<div class="aLine" id="interstedpersonidline"><span class="l"></span><span class="r"></span></div>
+		<div class="person_together">
+		<div class="person_t" id="interstedpersonidtitle"><b>可能感兴趣的人</b><a href="javascript:void(0)" onclick="return getInterestedPersonZ()" class="refresh">换一换</a></div>
+			<div id="interstedpersonid">
+				#parse('sns/myleft/interestedPerson.vm')
+			</div>
+		</div>
+		#end
+		*#
+		#if(!$VmUtils.isEmptyList($commuMapList) || !$VmUtils.isEmptyList($personcommulist))
+		#if($VmUtils.isNull($topic))
+		<div class="aLine" id="hotcommuIdline"><span class="l"></span><span class="r"></span></div>
+		<div class="person_together">
+		<div class="person_t" id="hotcommuIdtitle"><b>热门圈子</b><a href="javascript:void(0)" onclick="return gethotCommuZ()" class="refresh">换一换</a></div>
+		<div id="hotcommuId">
+		#parse('sns/myleft/hotCommu.vm')
+		</div>
+		</div>
+		#end
+		#end
+		#else
+		<div class="preson_link">
+		#foreach($!myfav in $!myfavTags)
+			<span class="otherLink">$VmUtils.escapeHtml($!myfav)</span>
+		#end
+		</div>
+		<!-- 个人导航 -->
+		<div class="person_nav">
+			<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!member.id" class="sm #if($VmUtils.eq($!menuTag, 'index'))select#end">他的首页</a>
+			<a href="${basePath}home/comment/newTopicList.xhtml?memberid=$!member.id" class="bm #if($VmUtils.eq($!menuTag, 'blog'))select#end">他的论坛</a>
+			<a href="${basePath}home/newAttentioninfo.xhtml?memberid=$!member.id" class="lnkm #if($VmUtils.eq($!menuTag, 'like'))select#end">他感兴趣</a>
+			<a href="${basePath}home/qa/newQuestionList.xhtml?memberid=$!member.id" class="qam #if($VmUtils.eq($!menuTag, 'know'))select#end">他的知道</a>
+			<a href="${basePath}home/new/album/albumList.xhtml?memberid=$!member.id" class="pm #if($VmUtils.eq($!menuTag, 'photo'))select#end">他的相册</a>
+		</div>
+		#if(!$VmUtils.isEmptyList($fansTreasureMemberList))
+		<div class="aLine"><span class="l"></span><span class="r"></span></div>
+		#end
+		
+		#*关注Ta的人同时关注了*#
+		#if(!$VmUtils.isEmptyList($fansTreasureMemberList))
+			#parse('sns/herleft/fansTreasureMember.vm')
+		#end
+		#if(!$VmUtils.isEmptyList($fansTreasureMemberList) && !$VmUtils.isEmptyList($microTreasureList))
+		<div class="aLine"><span class="l"></span><span class="r"></span></div>
+		#end
+		
+		#*Ta感兴趣的*#
+		#if(!$VmUtils.isEmptyList($microTreasureList))
+			#parse('sns/herleft/microInterestMember.vm')
+		#end
+		#if(!$VmUtils.isEmptyList($treasureMemberList) && !$VmUtils.isEmptyList($microTreasureList))
+		<div class="aLine"><span class="l"></span><span class="r"></span></div>
+		#end
+		
+		#*Ta关注的*#
+		#if(!$VmUtils.isEmptyList($treasureMemberList))
+			#parse('sns/herleft/treasureMember.vm')
+		#end
+		#if(!$VmUtils.isEmptyList($treasureMemberList) && !$VmUtils.isEmptyList($memberInfoList))
+		<div class="aLine"><span class="l"></span><span class="r"></span></div>
+		#end
+		
+		#*Ta的fans*#
+		#if(!$VmUtils.isEmptyList($memberInfoList))
+			#parse('sns/herleft/herfans.vm')
+		#end
+		#if(!$VmUtils.isEmptyList($microModeratorList) && !$VmUtils.isEmptyList($memberInfoList))
+		<div class="aLine"><span class="l"></span><span class="r"></span></div>
+		#end
+		
+		#*Ta的话题*#
+		#*
+		#if(!$VmUtils.isEmptyList($microModeratorList))
+			#parse('sns/herleft/herModerator.vm')
+		#end
+		*#
+		#if(!$VmUtils.isEmptyList($commuList) && !$VmUtils.isEmptyList($microModeratorList))
+		<div class="aLine"><span class="l"></span><span class="r"></span></div>
+		#end
+		#if(!$VmUtils.isEmptyList($commuList))
+			#parse('sns/herleft/hercommu.vm')
+		#end
+		#end
+	</div>
+	#if($VmUtils.isNull($topic))
+	<div class="person_footer">
+		<div class="person_footerShadow"></div>
+	</div>
+	#end
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	if($('publicize'))new adSoild('publicize','navControl',{'position':{'x':#if($!params.memberid)280#{else}180#end,'y':#if($!params.memberid)80#{else}70#end},'width':14});
+	#if(!$VmUtils.isEmptyList($activityMapList) || !$VmUtils.isEmptyList($hotActivityList))
+	#set($number = $math.abs($VmUtils.size($activityMapList)) + ($math.abs($VmUtils.size($hotActivityList))*(-1)))
+	#if($number gt 1)
+	if($('slidePanel') && $('eventL') && $('eventR'))new noobSlide({
+		box: $('slidePanel'),
+		size:180,
+		items: $$('#slidePanel li'),
+		handle_event:'click',
+		addButtons: {
+			previous:$('eventL'),
+			next:$('eventR')
+		}
+	});
+	#end
+	#end
+	GewaraUtil.sendLoad('snsHeader', '${basePath}home/sns/ajax/loadHear.xhtml', {});
+	gotoTop();
+});
+
+function gotoTop(){
+	var backToTopTxt = "返回顶部", backToTopEle = new Element("div", {
+		"class": "isGoUp",
+		title: backToTopTxt
+	}).addEvent("click", function() {
+		$(window).scrollTo(document.getScroll().y,0);
+	}).inject(document.body), backToTopFun = function() {
+		var st = document.getScroll().y, winh = window.getSize().y;
+		if(st > 0){
+			if($('changeNode'))$('changeNode').setStyle('top',(272 > st)?(272 - st):0)
+			if(backToTopEle.getSize().y != 100)backToTopEle.morph({
+				'opacity':[0,1],
+				'height':[0,100]
+			});
+		}else{
+			backToTopEle.morph({
+				'opacity':[1,0],
+				'height':[100,0]
+			});
+			if($('changeNode') && st <= 270)$('changeNode').setStyle('top',272)
+		}
+		if(!window.XMLHttpRequest){
+			backToTopEle.setStyle("top", st + winh - 166);
+		}
+	};
+	window.addEvents({
+		scroll: backToTopFun,
+		domready:backToTopFun,
+		resize:backToTopFun
+	});
+}
+
+function gethotModerator(){
+	var url="${basePath}sns/getHotModerator.xhtml";
+	gewaUtil.loadData('hotModeratorid', url, '', function(result){
+	
+	});
+}
+function getInterestedPersonZ(){
+	var url="${basePath}sns/getInterestedPerson.xhtml";
+	var values={'memberid':'$!member.id'};
+	gewaUtil.loadData('interstedpersonid', url, values, function(result){
+		
+	});
+}
+function gethotCommuZ(){
+	var url="${basePath}sns/gethotCommu.xhtml";
+	var values={'memberid':'$!member.id'};
+	gewaUtil.loadData('hotcommuId', url, values, function(result){
+	
+	});
+}
+function getRandomTags(){
+	var url = '${basePath}home/sns/randomintrest.xhtml';
+	GewaraUtil.sendLoad('typeids', url, {}, function(result){});
+}
+function remarkTag(val){
+	var url = '${basePath}home/sns/updateFavorInfo.xhtml?r=' + GewaraUtil.rtime();
+	var values = {'tag': val};
+	GewaraUtil.sendLoad('mytagid', url, values, function(result){
+		if(!result.success){
+			gewaUtil.alert(result.json.msg);
+		}
+	});
+}
+function delthisTag(val, obj, tag){
+	var url = '${basePath}home/sns/delFavorInfo.xhtml?r=' + GewaraUtil.rtime();
+	var values = {'tag': val,'taytype':tag};
+	GewaraUtil.sendLoad(obj, url, values, function(result){
+		if(!result.success){
+			gewaUtil.alert(result.json.msg);
+		}
+	});
+}
+function addFavor(){
+	var favortag = $('favortag').value;
+	if(favortag == ''){
+		gewaUtil.alert("标签不可以为空！");
+	}else{
+		var patrn=/^[0-9a-zA-Z\u4e00-\u9fa5]+$/;
+		if (!patrn.exec(favortag)){
+			gewaUtil.alert('只支持汉字,数字,字母！');
+			return false;
+		}else{
+			var url = '${basePath}home/sns/updateFavorInfo.xhtml';
+			var values = {'tag':favortag};
+			gewaUtil.loadData('mytagid', url, values, function(result){
+				if(!result.success){
+					gewaUtil.alert(result.json.msg);
+				}
+			});
+		}
+	}
+}
+function addInterestedMemberTreasure(memberid,obj){
+	checkLogin(true, function(){
+		var url = GewaraUtil.basePath + "wala/addMicroAttention.xhtml";
+		new Request({
+			url:url,
+			method:'get',
+			onSuccess:function(resText){
+				eval(resText);
+				if(data.success){
+					gewaUtil.alert("关注成功");
+					getInterestedPersonZ();
+				}else{
+		 			gewaUtil.alert(data.msg);
+				}
+				
+			}
+		}).send({'data':{'memberid':memberid}});
+	});
+}
+
+function applyAddCommu(commuid){
+	checkLogin(true, function(){
+		var url = GewaraUtil.basePath + "home/sns/AddCommu.xhtml";
+		new Request({
+			url:url,
+			method:'get',
+			onSuccess:function(resText){
+				eval(resText);
+				if(data.success){
+					gewaUtil.alert('成功加入圈子');
+					gethotCommuZ();
+				}else{
+		 			gewaUtil.alert(data.msg);
+				}
+				
+			}
+		}).send({'data':{'commuid':commuid}});
+	});
+}
+
+function moderatorTitle(title){
+	location.href = GewaraUtil.basePath+"home/sns/moderatorDetail.xhtml?title="+encodeURIComponent(title);
+}
+</script>

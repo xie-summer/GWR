@@ -1,0 +1,134 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>反馈建议_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+</head>
+<body>
+#set($is2011Beta=true)
+#set($advise=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			<div class="clew">
+				<p>如果你在使用格瓦拉的过程中遇到了问题，或者你希望给格瓦拉提出一些意见或建议，非常欢迎你在这里提交给我们。我们每天都在倾听来自用户的声音，你的支持是我们前进的动力！</p>
+			</div>
+			<form id="aform" name="aform" onsubmit="return false;">
+				<ul class="ul-150">
+					<li class="clear"><a class="right button minBt redBt" href="${basePath}home/acct/customerQuestion.xhtml"><span>我的反馈</span></a></li>
+					<li class="list_h">
+						<div class="left_150"><span class="fc_b mr5">*</span>E-mail：</div>
+						<div class="full_percent">
+							#if($logonMember)
+								#if($VmUtils.isNotBlank($logonMember.email))
+									$logonMember.email<input type="hidden" id="email" name="email" mustTxt="E-Mail不能为空！" value="$logonMember.email"/>
+								#else
+									<input type="text" class="text" name="email" id="email" value="" mustTxt="E-Mail不能为空！"/>
+								#end
+							#else
+								<input type="text" class="text" name="email" id="email" value="" mustTxt="E-Mail不能为空！"/>
+							#end
+						</div>
+					</li>
+					#if(!$logonMember)
+					<li class="clear">
+						<div class="full_percent">
+							请填写你的Email，以便我们可以及时回复您的反馈。建议您<a class="ml5 mr5 brown" href="javascript:showLogin(refreshPage);">登录</a>后填写反馈
+						</div>
+					</li>
+					#end
+					<li class="list_h">
+						<div class="left_150"><span class="fc_b mr5">*</span>反馈类型：</div>
+						<div class="full_percent">
+							<select class="text mt5" name="tag" id="tag" mustTxt="请选择反馈类型！">
+								<option value="">请选择</option>
+								<option value="advise">网站建议</option>
+								<option value="evaluate">服务反馈</option>
+								<option value="mobile">手机客户端</option>
+								<option value="other">其它问题</option>
+							</select>
+						</div>
+					</li>
+					<li class="mt10 clear" style="height: 270px;">
+						<div class="left_150 fs14 mt5"><span class="fc_b mr5">*</span>反馈内容：</div>
+						<div class="full_percent" >
+							<textarea class="text" id="body" name="body" mustTxt="反馈内容不能为空！"></textarea>
+						</div>
+					</li>
+					<li class="list_h">
+						<div class="left_150"><span class="fc_b mr5">*</span>验证码：</div>
+						<div class="full_percent">
+							<input type="hidden" name="captchaId" id="adviseCaptcha"/>
+							<input type="text" mustTxt="请输入验证码!" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="adviseCaptchaInput" style="width:100px;" size="18" onfocus="GewaraUtil.refreshCaptcha('adviseCaptcha');"/>
+							<img id="adviseCaptchaImg" src="${staticPath}css/images/blank.gif" style="cursor: pointer;height:42px;width:100px;" align="top" onclick="GewaraUtil.refreshCaptcha('adviseCaptcha');" title="看不清楚，请点击换一张图片"/>
+						</div>
+					</li>
+					<li class="mt20 clear">
+						<label class="button redBt bigBt "><input type="button" id="subMit" onclick="saveCustometQ();" value="确认提交" /></label>
+					</li>
+				</ul>
+			</form>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+
+var ckeditor;
+window.addEvent('domready',function(){
+	ckeditor = CKEDITOR.replace("body", {customConfig : '/ckeditor/gewaConfig.js',width:560});
+	ckeditor.on('paste',function(e){
+		if($chk(e.data.html)){
+			var data = this.getData();
+			var htm = e.data.html;
+			if(e.data.html.indexOf('data:image/') > 0){
+				gewa.util.alert('图片不能直接粘贴，请点击图像上传！',function(){
+					this.setData(data);
+				}.bind(this));
+			}else if((htm.indexOf('&lt;script&gt;') > 0 || htm.indexOf('<script>') > 0 )
+			 && (htm.indexOf('&lt;style&gt;') > 0 || htm.indexOf('<style>') > 0)){
+				gewa.util.alert('粘贴非法数据，请在文本中过滤后再进行粘贴！',function(){
+					this.setData(data);
+				}.bind(this));
+			}
+		}
+	})
+});
+
+function saveCustometQ(){
+	$('body').value = ckeditor.getData();
+	if($('body').value.length>1000){
+		gewaUtil.alert("反馈内容字符过长！");
+		return false;
+	}
+	if(!GewaraUtil.baseValidForm('aform')) return false;
+	if(!GewaraUtil.isEmail($('email').value)){
+		gewaUtil.alert("E-Mail地址不合法！");
+		return false;
+	}
+	var url = "${basePath}home/blog/saveCustomerQ.xhtml";
+	var values = GewaraUtil.getValues("aform");
+	GewaraUtil.mask("subMit");
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			gewaUtil.alert("提交成功，感谢您的反馈！", function(){
+				gotoURL('${basePath}home/acct/customerQuestion.xhtml');
+			});
+		}else{
+			GewaraUtil.refreshCaptcha('adviseCaptcha');
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!Doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>演出资讯_今日演出新闻 - 格瓦拉生活网</title>
+	<meta name="description" content="格瓦拉生活网提供各类演出新闻及资讯,人物专访及演出专题.格瓦拉演出资讯频道提供最新演员及人物动态相关资讯信息."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,noobSlide&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ui_layout{background:none;}
+	</style>
+</head>
+<body>
+#set($dramaHeadFlag='isDramaIndex')#set($relatedtag='drama')
+#set($dramaLeftTag='newsList')
+#set($isIndexBigAd = true)
+#if(!$VmUtils.eq($params.type, 'subject'))
+	#set($news=true)
+#else
+	#set($isSubjects=true)
+#end
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="index_wrap clear">
+	#parse('include/drama/wide_drama_menu.vm')
+		<div class="index_right">
+			<div class="ui_left">
+				<div class="mod_kong">
+					<div class="mod_hd">
+						<h2>演出资讯</h2>
+					</div>
+					<div class="mod_bd">
+						<div class="infoTab clear">
+						#if(!$VmUtils.isEmptyList($topNewsListP))
+							<div class="inner_left dramaTab">
+								<div class="moveBox">
+									<ul id="drama_box">
+										#foreach($top in $topNewsListP)
+										#set($relate = $relatedHelper.getR1("topNewsListP",$top.id))
+										<li>
+											<a target="_blank" title="" href="${basePath}news/$!top.relatedid" class="movieImg">
+												<img width="240" height="180" alt=" " src="$VmUtils.randomPic('cw260h180',$relate.limg)" />
+											</a>
+											<a class="movieTitle mt5" title="" target="_blank" href="${basePath}news/$!top.relatedid"><span>$!VmUtils.escabbr($!relate.title,36)</span></a>
+											<p class="mt5">
+												#if($relate.content)$!VmUtils.htmlabbr($relate.content,70)...<a class="brown ffst" href="${basePath}news/$!top.relatedid">[阅读全文]</a>#end
+											</p>
+										</li>
+										#end
+									</ul>
+								</div>
+								<div class="control_cir" id="drama_move_tag">
+									#foreach($x in $topNewsListP)
+									<span>$foreach.count</span>
+									#end
+								</div>	
+							</div>
+						#end
+							<div class="inner_right ml20">
+							#if(!$VmUtils.isEmptyList($titleNewsList))
+							#set($titleNews=$titleNewsList.get(0))
+							#set($relate = $relatedHelper.getR1("titleNewsList",$titleNews.id))
+								<h3 class="c80"><a class="fs14" title="$!relate.title" href="${basePath}news/$titleNews.relatedid" target="_blank">$!relate.title</a></h3>
+								<p>#if($VmUtils.length($relate.content) gt 100)$!VmUtils.htmlabbr($relate.content,100)...#else $!relate.content #end<a class="ui_readMore" href="${basePath}news/$titleNews.relatedid">[阅读全文]</a></p>
+							#end
+								<ul>
+									#foreach($topNews in $topNewsList)
+									<li>
+										<span class="right c999">$!DateUtil.format($topNews.releasetime,"MM.dd")</span>
+										<p class="ro"><a title="$!topNews.title" target="_blank" href="$!topNews.getLink($basePath)">#if($VmUtils.getByteLength($topNews.title) gt 52) $!VmUtils.escabbr($topNews.title,48)...#else $topNews.title #end</a></p>
+									</li>
+									#end
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				#*mod_kong 结束*#
+				<div class="ui_newsNav">
+					<ul class="clear">
+						<li #if($news && !$VmUtils.eq($params.newstype, 5)) class="select" #end><a href="${basePath}news/$!params.tag" title="演出资讯">演出资讯</a></li>
+						#if($figureCount)
+							<li #if($news && $VmUtils.eq($params.newstype, 5)) class="select" #end><a href="${basePath}news/$!params.tag?newstype=5" title="人物专访">人物专访</a></li>
+						#end
+						<li #if($isSubjects) class="select" #end><a href="${basePath}news/$!params.tag?type=subject" title="演出专题">演出专题</a></li>
+					</ul>
+					<div class="topicSearch more">
+						<div class="search_kuang">
+							<form>
+							<input type="text" class="search_text searchText ycjmSerch" onkeydown="keyDownDef(event);" alt="请输入搜索关键词" id="searchKey" />
+								<label class="searchButton">
+									<input type="button" value="" onclick="searchNews();return false;" />
+								</label>
+							</form>
+						</div>
+					</div>
+				</div>
+				#*ui_newsNav 结束*#
+				<div class="ui_newsList">
+					<ul>
+					#if(!$VmUtils.isEmptyList($newsList))
+						#foreach($allNews in $!VmUtils.groupList($!newsList,3))
+						<li #if($foreach.count%3==0)style="margin-right:0;"#end>
+							#foreach($news in $allNews)
+							#set($newother = $VmUtils.readJsonToMap($news.otherinfo))
+							<div class="newsbox">
+								<div class="tbox">
+									<a href="$!news.getLink($basePath)" title="$!news.title" target="_blank" class="newImg">
+										<img width="200" src="$!VmUtils.randomPic('',$!news.limg)" alt="$!news.title"/>
+									</a>
+									<h3>
+										<a href="$!news.getLink($basePath)" target="_blank" title="$!news.title">
+										$!news.title
+										</a>
+									</h3>
+									<p>$!VmUtils.htmlabbr($news.content,72)...<a class="ui_readMore" target="_blank" href="$!news.getLink($basePath)">全文&gt;&gt;</a></p>
+								</div>
+								<div class="bbox mt10">
+									<p>$!DateUtil.format($news.addtime,'yyyy年MM月dd日')</p>
+									<p>#if($news.linksource)$!{news.linksource}#else格瓦拉生活网#end</p>
+								</div>
+							</div>
+							#end
+						</li>
+						#end
+					#elseif(!$VmUtils.isEmptyList($spList))
+						#foreach($allSp in $!VmUtils.groupList($spList,3))
+						<li #if($foreach.count%3==0)style="margin-right:0;"#end>
+							#foreach($sp in $allSp)
+							<div class="newsbox">
+								<div class="tbox">
+									<a href="#if($VmUtils.isNotBlank($sp.website))$!sp.website#else${basePath}subject/$!sp.id#end" title="$!sp.activityname" target="_blank" class="newImg">
+										<img width="200" src="$!VmUtils.randomPic('',$!spLogoMap.get($sp.id))" alt="$!sp.activityname"/>
+									</a>
+									<h3>
+										<a href="#if($VmUtils.isNotBlank($sp.website))$!sp.website#else${basePath}subject/$!sp.id#end" target="_blank" title="$!sp.activityname">
+										$!sp.activityname
+										</a>
+									</h3>
+								</div>
+								<div class="bbox mt10">
+									<p>$!DateUtil.format($news.addtime,'yyyy年MM月dd日')</p>
+								</div>
+							</div>
+							#end
+						</li>
+						#end
+					#else
+					<div style="margin:0 10px;">
+							<div class="ui_warning center">没有查询到符合条件的内容，请重新搜索。</div>
+					</div>
+					#end
+					</ul>
+				</div>
+				#parse('include/pageUtil.vm')
+				#*ui_newsList 结束*#
+			</div>
+			<div class="ui_right">
+			#if(!$VmUtils.isEmptyList($hotActivityList))
+				#set($sactivity=$hotActivityList.get(0))
+				#set($activity = $relatedHelper.getR1("hotActivityList",$sactivity.id))
+				#set($activityList = [$activity])
+				#parse('include/drama/mod_ychd.vm')
+			#end
+				#parse('include/drama/mod_weekHotInfo.vm')
+				#parse('include/drama/mod_recentHotPerson.vm')
+				#parse('include/drama/mod_interestYc.vm')
+				#parse('include/drama/mod_rmpl.vm')
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	new noobSlide({
+		box: $('drama_box'),
+		items:$$('#drama_box li'),
+		size:240,
+		handles:$$('#drama_move_tag span'),
+		handle_event:'click',
+		autoPlay:true,
+		onWalk: function(currentItem,currentHandle){
+			this.handles.removeClass('select');
+			currentHandle.addClass('select');
+		}
+	});
+	$('submenu').addEvents({
+		'mouseover':function(){this.addClass('jm_hover')},
+		'mouseout':function(){this.removeClass('jm_hover')}
+	});
+	(function(){
+		gewaUtil.affix($('ui_left'));
+	}).delay(500);
+	secrchIn();
+});
+function secrchIn(){
+	$('searchKey').addEvents({
+	 	'focus':function(){this.getParents('div[class*="search_kuang"]').addClass('search_kuangClicked');},
+	 	'blur':function(){this.getParents('div[class*="search_kuang"]').removeClass('search_kuangClicked');}
+	}); 
+}
+function searchNews(){
+	var key = $('searchKey').value;
+	if(key == '请输入搜索关键词') key = '';
+	document.location.href="${basePath}news/$!params.tag?newstype=$!params.newstype&type=$!params.type&searchKey=" + key;
+}
+function keyDownDef(event){
+	if(event.keyCode == 13){
+		searchNews();
+	}
+}
+</script>
+</body>
+</html>

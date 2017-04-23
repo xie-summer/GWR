@@ -1,0 +1,91 @@
+<!--  选择城市 弹出框begin -->
+<div id="showCityDialog" class="yui-panel" style="width:560px; visibility:hidden;">
+	<div class="hd" id="title">关联显示城市</div>
+	<div class="bd">
+	<form name="showCityForm" id="showCityForm">
+		<input type="hidden" name="gcid" id="gcid" value="$!gcid">
+		<div>
+			<label class="labelspan">是否全部：</label>
+			<input type="checkbox" name="relatecityAll" id="relatecityAll" style="width: 20px;" value="000000" onclick="checkSelAll(this)" #if($VmUtils.contains($selcitycode, '000000')) checked="checked" #end>
+			<label class="labelfor" for="relatecityAll">全部分站</label>
+			<br />
+		</div>
+		<div style="margin-top: 20px;" id="subCitys">
+			<label class="labelspan">开放城市：</label>
+			#foreach($helper in $!province2CityList)
+				<fieldset>
+					<legend class="yellow">$helper.provincename
+						<input style="width:auto;" type="checkbox" name="provinceCode" onclick="selectProvinceCityAll(this)" id="$foreach.count" value="provinceCode$foreach.count"></input>
+					</legend>
+					<div id="pro$foreach.count">
+					#foreach($city in $helper.gewaCityList)
+						<input type="checkbox" name="relatecity" style="width:15px;" id="ct$city.citycode" onclick="checkSelSingle(this)" value="$!city.citycode" #if($VmUtils.contains($$selcitycode, $!city.citycode) || $!gc.citycode eq '000000') checked="checked" #end />
+						<label class="labelfor" for="ct$city.citycode">$!city.cityname</label>	
+					#end
+					</div>
+				</fieldset>
+			#end
+		</div>
+		<div>
+			<br />
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="saveRelateCity();" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="GewaraUtil.hideDialog('showCityDialog');" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+<!-- 选择城市 弹出框end -->
+	<script>
+	window.addEvent('domready', function(){
+		if($('relatecityAll').checked){
+			checkSelAll($('relatecityAll'));
+		}
+		if($('subCitys').getElements('input').length == $('subCitys').getElements('input').filter(function(file){
+				return file.checked;
+			}).length){
+				$('relatecityAll').checked = true;
+			}
+	})
+	// 全选
+	checkSelAll = function(obj){
+		$each($('subCitys').getElements('input'), function(n, i){
+			n.checked = obj.checked;
+		})
+	}
+	// 单选
+	checkSelSingle = function(obj){
+		if(!obj.checked){
+			$('relatecityAll').checked = false;
+		}else{
+			if($('subCitys').getElements('input').length == $('subCitys').getElements('input').filter(function(file){
+				return file.checked;
+			}).length){
+				$('relatecityAll').checked = true;
+			}
+		}
+	}
+	// 保存关联城市
+	saveRelateCity = function(){
+		var url = '${basePath}admin/common/dataShareSaveCitys.xhtml';
+		var values = GewaraUtil.getValues('showCityForm', ',');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				GewaraUtil.successAlert('_resultSpan');
+				GewaraUtil.hideDialog('showCityDialog');
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+	function selectProvinceCityAll(e){
+		checkSelSingle(e);
+		$('pro'+e.id).getElements("input[type=checkbox]").each(function(el){
+			if(e.checked){
+				el.checked = true;
+			}else {
+				el.checked = false;	
+			}
+		});
+	}
+</script>

@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>角色修改</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,selectbox"></script>
+	<style>
+		label {display:inline-block; width:70px; text-align:right;}
+		.clear {clear:both;}
+		.mouseBg{background-color: #FBE7DB;}
+		.none{display: none;}
+	</style>
+</head> 
+<body style="width:800px;margin:auto" class="yui-skin-sam">
+<div id="modifyRoleDialog" class="yui-panel" style="width:100%;margin:20px auto">
+	<div class="hd">修改角色信息</div>
+	<div class="bd">
+	<form name="roleForm" method="post" action="${basePath}admin/acl/saveRole.xhtml" id="roleForm">
+		#if($VmUtils.isNotBlank($params.roleId))
+		<input type="hidden" name="roleId" value="$!VmUtils.escapeHtml($params.roleId)"/>
+		#end
+		<div>
+			<label for="name">角色名称：</label>
+			<input type="text" name="name" value="${role.name}"/>
+			<label for="description">角色描述：</label>
+			<input type="text" name="description" value="${role.description}"/>
+			<input type="submit" class="button" value="保存" />
+		</div>
+		<div>
+			<table class="table" style="width:160px; float: left;">
+				<caption>关联用户</caption>
+				#foreach($user in ${roleUsers})
+				<tr><td><input type="checkbox" name="user" value="$user.id" checked="checked" /></td><td>${user.nickname}[$user.username]</td></tr>
+				#end
+				#foreach($user in $unrelatedUsers)
+				<tr><td><input type="checkbox" name="user" value="$user.id" /></td><td>${user.nickname}[$user.id]</td></tr>
+				#end
+			</table>
+			<table class="table" style="width:560px; float: left; margin-left: 20px;">
+				<caption>关联功能模块<input type="button" onclick="toggleModule()" value="隐藏/显示" /></caption>
+				<thead>
+				<tr>
+					<th>匹配顺序</th>
+					<th>模块URL</th>
+					<th>功能描述</th>
+					<th>关联</th>
+				</tr>
+				</thead>
+				#foreach($mainMenu in $mainMenuList)
+				<tr style="background-color: #dfd" #if(!$roleModules.contains($mainMenu.id))class="unrelated"#end>
+					<td>$!{mainMenu.menucode}|$!{mainMenu.matchorder}</td>
+					<td>$!{mainMenu.moduleurl}</td>
+					<td>$!{mainMenu.menutitle}</td>
+					<td><input type="checkbox" name="webmodule" value="$mainMenu.id" #if($roleModules.contains($mainMenu.id)) checked="checked"#end/></td>
+				</tr>
+				#set($menucodeLen=$VmUtils.size($subMenuMap.get($mainMenu.menucode)))
+				#if($menucodeLen gt 0)
+				#foreach($subMenu in $subMenuMap.get($mainMenu.menucode))
+				<tr #if(!$roleModules.contains($subMenu.id))class="unrelated"#end>
+					<td style="padding-left: 20px;">$!{subMenu.menucode}|$!{subMenu.matchorder}</td>
+					<td>$!{subMenu.moduleurl}</td>
+					<td>$!{subMenu.menutitle}</td>
+					<td><input type="checkbox" name="webmodule" value="$subMenu.id" #if($roleModules.contains($subMenu.id)) checked="checked"#end/></td>
+				</tr>
+				#end
+				#end
+				#end
+			</table>
+		</div>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+	window.addEvent("domready", function(){
+		$$(".table tr").addEvents({
+			'mouseenter':function(){
+				this.addClass("mouseBg");
+			},
+			'mouseleave':function(){
+				this.removeClass("mouseBg");
+			}
+		});
+		toggleModule();
+	});
+	function toggleModule(){
+		$$(".unrelated").each(function(row){row.toggleClass("none");})
+	}	
+</script>
+</body>
+</html>

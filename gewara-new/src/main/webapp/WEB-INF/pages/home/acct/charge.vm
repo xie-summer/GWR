@@ -1,0 +1,393 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head> 
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>账户充值_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	.tab_title_bg{font-size:12px;font-weight:bold;position: relative;height:32px;line-height:32px;background:url(${picPath}css/home/tab_title_bg.jpg) repeat-x;border:1px solid #bccced}
+	.tab_title_mainbg{height:45px;position:absolute;left:140px;top:-3px;;overflow:hidden;width:auto;cursor:pointer;}
+	.tab_title_mainbg label{width:108px;height:35px;float:left;text-align: center;cursor: pointer;padding-top:10px;line-height:20px;}
+	.tab_title_mainbg label input{vertical-align: middle;margin-right:2px;}
+	.tab_title_mainbg label.select{background:url(${picPath}css/home/tab_title_mainbg.jpg) no-repeat;}
+	.tab_title_mainbox{border:1px solid #bccced;width:auto; }
+	.tab_title_mainboxInner{padding:20px 76px;}
+	.topup_input{width:90px;height: 18px;padding:3px;border:2px solid #68acff;}
+	#onlinePay_content label{width:153px;display:inline-block;height:30px;cursor: pointer;}
+	.s{width:440px;height:36px;margin-top:10px;vertical-align: middle;border-width:1px 0 1px;border-style:solid;border-color:#f8cc53;text-align:left}
+	.s td, .s th{font-size:14px;font-weight:bold;text-indent: 5px;border-right:1px solid #f8cc53}
+	.s td{background:#ffe187;color:#724b00}
+	.s th{background:#fdefbe;color:#ff6509}
+	.balance_color{color:#2abe7d;}
+	.topup_search_box{border-bottom:1px solid #c0c0c0;border-top:1px solid #c0c0c0;background:#f9f9f9;height:40px;}
+	.table_bline th{border-bottom:1px #d2d2d2 solid;line-height:25px;background:#f5f5f5;text-align:left;padding-left:10px;}
+	.table_bline td{border-bottom:1px #d2d2d2 solid;line-height:40px;padding-left:10px;}
+	.ui-layout .vipCard{border-bottom:0px;line-height:22px;height:30px;}
+	.vipCard .vipText{width:150px;text-align:right;float:left;}
+	.vipCard .vipSb{width:auto;float:left;}
+	.bt1{width:50px;height:25px;background:url(${staticPath}img/pay/bt.png) no-repeat;border:0px;cursor: pointer;}
+	.warmTips{color:green;height:20px;line-height:20px;padding-left:16px;background:url(${picPath}css/home/harTips.jpg) 0 center no-repeat;margin-top:20px;}
+	.warmp{padding:0 20px;}
+	.out-table{margin:10px auto 0 auto;width:90%}
+	.order_table{background:#eee;margin:4px 0 0 4px;}
+	.order_table table{border:1px solid;border-color:#fce3cb #ccc #ccc #fce3cb;background:#fff;position:relative;top:-4px;left:-4px;}
+	.order_table td{border-bottom:1px solid #fce3cb;padding:4px 7px;}
+	.bgcolor td{background:#fce3cb;height:22px;font-weight:normal;border:0px;}
+	
+	.title_box{position:relative;top:-35px;width:218px;height:28px;visibility:hidden;left:260px;_left:270px;}
+	.point{border-color:transparent #facd68 transparent transparent ;border-style:dotted  solid;border-width:6px;height:0px;;lineheight:0;overflow:hidden;width:0px;position:relative;left:-12px;top:17px;}
+	.top{border-color:#facd68 transparent;border-style:none dotted solid;border-width:1px;}
+	.bot{border-color:#facd68 transparent;border-style: solid dotted  none;border-width:1px;}
+	.title_box{position:relative;top:-22px;left:36px;width:218px;height:28px;line-height:28px;visibility:hidden;border:1px solid #facd68;background:#fffbe2;color:#666;z-index:1000;text-align:center;}
+	.title_box span{width:0;height:0px;font-size:0;overflow:hidden;position:absolute;}
+	.bot{ border-width:8px;border-style: dotted solid dotted none;border-color: transparent #facd68 transparent transparent;left:-8px;top:5px;}
+	.top{border-width:8px;border-style: dotted solid dotted none ;border-color:transparent #fffbe2; left:-6px;top:5px;}
+	.labelBox{margin-top:10px;}
+	.labelBox label{display:inline-block;width:140px;height:22px;line-height: 22px;margin-bottom:10px;overflow:hidden;}
+	.getPrice{font-size:16px;font-weight:bold;color:#333}
+	.getPrice b{color:#FF3300}
+	
+	.cF60{color:#f60!important;}
+	</style>
+</head>
+<body>
+#set($orderManage=true)#set($myAccount = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/myAccount.vm')
+			<div class="title mt20">
+				充值账户：#if($member.email&&$VmUtils.isNotBlank($member.email))$member.email#{else}$VmUtils.getSmobile($!member.mobile)#end 
+				<div class="more" style="right:268px;">
+					#if($member.mobile)
+					<span class="left">绑定手机：$VmUtils.getSmobile($!member.mobile)</span>
+					<a href="${basePath}home/acct/changeBindMobile.xhtml?authType=oldmobile&tagNo=$VmUtils.getRandom()" class="ml5"><span class="ml5">修改 </span></a>
+					#else
+					<span class="left">为了你的账户安全，请</span>
+					<a href="${basePath}home/acct/bindMobile.xhtml?tagNo=$VmUtils.getRandom()">绑定手机</a>
+					#end
+				</div>
+			</div>
+			<div class="outside-box auto-outside-box">
+				<div class="inside-box auto-inside-box acolor" style="padding:5px 10px; height:30px; line-height:30px;">
+					#if($account)
+						<span class="gewaRemain">账户金额： <b>$!{account.bankcharge}</b>元</span>
+						<span class="gewaWabi ml20">瓦币：<b>$account.othercharge</b><em>(<em class="">1瓦币</em>=<em>1元</em>)</em></span>
+						<a href="http://www.gewara.com/helpCenter/index.dhtml?diaryId=3225030&dkey=helpcenter1335254458085" target="_blank" title="什么是瓦币" class="wabiQa">&nbsp;</a>
+						<a class="ml10 cF60 udl" href="javascript:toChangeBank()">站内金额转瓦币</a>
+						<div style="position:absolute;">
+							<div class="title_box" id="box">
+									<span class="bot"></span>
+									<span class="top"></span>
+									现金劵金额是所得现金劵的面值总额。
+							</div>
+						</div>
+						#if($notPassCheck)
+							<span class="more mt5"><img class="mr5 szpic" src="${picPath}css/home/ico_g.gif"/><b>支付密码</b>
+							<a href="${basePath}home/acct/mbrMobileAuthPay.xhtml?op=mobileAuthPaySet&tagNo=$VmUtils.getRandom()" class="ml20" style="">设置</a></span>						
+						#else
+							<span class="more mt5">
+								<img class="mr5 szpic" src="${picPath}css/home/ico_dui.gif"/><b>支付密码</b>
+								<a href="${basePath}home/acct/mbrMobileAuthPay.xhtml?op=mobileAuthPayGet&tagNo=$VmUtils.getRandom()" class="ml20" style="">忘记支付密码？</a>
+							</span>
+						#end
+						<span class="ml10"><a href="${basePath}home/myAccount.xhtml?tagNo=$VmUtils.getRandom()" style="color:#666;">充值记录</a></span>
+					#else
+						<img class="mr5 szpic" src="${picPath}css/home/ico_g.gif"/>为了你的账户安全，请<a href="${basePath}home/acct/mbrMobileAuthPay.xhtml?op=mobileAuthPaySet&tagNo=$VmUtils.getRandom()">设置支付密码</a>
+					#end
+				</div>
+			</div>
+			<div id="payFromDIV">
+			<form id="payForm" action="javascript:submitFun()" method="post">
+			<input type="hidden" name="cid" value="$!charge.id"/>
+			<input type="hidden" name="paymethod" id="paymethod" value="#if($charge)$!{charge.paymethod}#{else}pnrPay#end"/>
+			<div class="tab_title_bg mt10">
+				<span class="ml10">请选择充值方式：</span>
+				<div class="tab_title_mainbg clear" id="chooseWay">
+					<label for="p1s" id="onlinePay" #if($VmUtils.eq($charge.paymethod,'pnrPay') || $VmUtils.eq($charge.paymethod,'directPay') || $VmUtils.isBlank($!charge.paymethod))class="select" #end>在线充值</label>
+					<label for="p4s" id="ccardPay" #if($VmUtils.eq($charge.paymethod,'ccardPay'))class="select" #end>贵宾卡激活</label>
+					<label for="p3s" id="lakalaPay" #if($VmUtils.eq($charge.paymethod,'lakalaPay'))class="select" #end>拉卡拉充值</label>
+					<label for="p5s" id="telecomPay" #if($VmUtils.eq($charge.paymethod,'telecomPay'))class="select" #end>电信话费充值</label>
+				</div>
+			</div>
+			<div class="tab_title_mainbox">
+				<div class="tab_title_mainboxInner">
+					<ul class="ul-80 clear" id="amount_content">
+						<li class="c_ud" >
+							<div class="ul-80Inner">充值账户：</div>
+							<label for="gewaWabi" class="mr10">
+								<input type="radio" name="chargeto" value="wabi" #if($VmUtils.eq($charge.chargeto,'wabi') || $VmUtils.isBlank($charge.chargeto))checked#end style="vertical-align:-2px; margin-right:2px;" id="gewaWabi"/>瓦币账户
+							</label>
+							<label for="gewaBank">
+								<input type="radio" name="chargeto" value="bank" #if($VmUtils.eq($charge.chargeto,'bank'))checked#end style="vertical-align:-2px; margin-right:2px;" id="gewaBank"/>账户金额
+							</label>
+							#*
+							<select name="chargeto">
+								<option value="wabi" #if($VmUtils.eq($charge.chargeto,'wabi') || $VmUtils.isBlank($charge.chargeto))selected#end>瓦币账户</option>
+								<option value="bank"  #if($VmUtils.eq($charge.chargeto,'bank'))selected#end>账户金额</option>
+							</select>
+							*#
+							<span class="cF60 ml20">$!map.get('content')</span>
+							<a href="http://www.gewara.com/helpCenter/index.dhtml?diaryId=3225030&dkey=helpcenter1335254458085" target="_blank">什么是瓦币？</a>
+							<div class="mt15"></div>
+							<div class="ul-80Inner mt5">充值金额：</div><input type="text" id="totalfee" name="totalfee" onfocus="msg()" onblur="msb()" class="left mr5 topup_input text validate['required','digit[1,500]']" size="11" #if($charge)value="$!charge.totalfee"#end/>元
+							<div id="xianshi" style="visibility:hidden;position:relative;left:15px;top:0px;display:inline;"><span style="color:#c13a0a;font-weight:bold;">注：</span>每笔最高充值金额不超过<b class="bgfont">500</b>元，账户余额最多不超过<b class="bgfont">2000</b>元。</div>
+						</li>
+					</ul>
+					<ul class="ul-80 mt10">
+						<li class="check-three" id="onlinePay_content">
+							<div class="ul-80Inner">银行卡：</div>
+							#set($bankPayList=["icon_zsyh_s.gif,CMB,pnrPay07"])
+							#set($tmp=$bankPayList.add("icon_ccb_s.gif,CCB,pnrPay10"))
+							#set($tmp=$bankPayList.add("icon_zggsyh_s.gif,ICBC,pnrPay25"))
+							#set($tmp=$bankPayList.add("icon_zgyh.gif,BOC,pnrPay45"))
+							#set($tmp=$bankPayList.add("icon_pa.gif,PINGAN,pnrPay50"))
+							#set($tmp=$bankPayList.add("icon_comm_s.gif,BCOM,pnrPay41"))
+							#set($tmp=$bankPayList.add("icon_abc_s.gif,ABC,pnrPay29"))
+							#set($tmp=$bankPayList.add("icon_spdb_s.gif,PDB,pnrPay16"))
+							#foreach($bank in $bankPayList) #set($pair=$VmUtils.split($bank, ","))
+							<label style="background:url(http://static5.gewara.com/img/pay/$pair[0]) no-repeat 24px top;" for="$pair[2]">
+							<input name="paybank" id="$pair[2]" type="radio" value="$pair[1]"  #if($charge.paybank eq $pair[1]) checked#end/>
+							</label>
+							#end
+							<label for="more"><input name="paybank" id="more" type="radio" #if($VmUtils.isBlank($charge.paybank))checked #end value=""/>更多充值方式</label><br/><br/>
+							<div class="ul-80Inner">支付宝：</div>
+							<label style="background:url(http://static5.gewara.com/img/pay/zfb.gif) no-repeat 24px top;" for="online_directPay">
+								<input type="radio" name="paymethod_type" id="online_directPay" #if($VmUtils.eq($charge.paymethod,'directPay'))checked#end value="directPay" onclick="onlinePay(this.value)"/>
+							</label>
+						</li>
+						
+						<li class="none" id="lakalaPay_content"style="position:relative;z-index:0;">
+							<div class="ul-80Inner">第一步：</div>
+							绑定充值账号<b class="fc_b">小贴士：</b>
+							为方便记忆,你可将充值号免费发送至手机#if($!member.mobile)：$!member.mobile
+							<label class="button whiteBt minBt"><input type="button" id="btn2" value="发送至手机" onclick="validateMobiles();"/></label>
+							#else。#end
+							#if($!member.mobile)
+							<table cellpadding="0" cellspacing="0" class="s">
+								<tr>
+									<td width="100">账户充值号：</td>
+									<th>320103 $!member.mobile</th>
+								</tr>
+							</table>
+							#else
+								<br/>
+								你尚未绑定手机号，请 <a href="${basePath}home/acct/bindMobile.xhtml?tagNo=$VmUtils.getRandom()"><strong>点击绑定</strong></a>
+							#end
+							<div class="mt5 gray">手续费由拉卡拉收取，按每笔金额1%计收，2元起步50元封顶。</div>
+							<div class="clear"></div>
+							<div class="ul-80Inner">第二步：</div>
+							去便利店<br/><img src="${picPath}css/buss/lakala_charge_flow .gif" align="middle"/><br/><br/>
+							去便利店<img src="${picPath}css/buss/lakala_ct.jpg" align="middle"/>付款。
+							<div class="mt10">
+								<img src="${picPath}css/buss/lakala.png" style="vertical-align: middle;"/>自助刷卡机服务<a href="${basePath}home/lakala/showlakalaIntroduce.xhtml" class="brown">拉卡拉充值介绍</a>
+							</div>
+							
+							<div class="ul-80Inner mt10" >提示：</div>
+							<div class="mt10 brown fc_b" style="font-size:14px">拉卡拉充值只能充值瓦币，活动期间充值赠送双倍积分</div>
+						</li>
+						<li class="none" id="ccardPay_content" style="padding-left:0px;">
+							<div class="vipCard">
+								<div class="vipText mt5">请输入贵宾卡激活密码：</div>
+								<div class="vipSb">
+									<input type="text" id="cardpass" class="topup_input" name="cardpass" class="text" size="14" style="width:160px;"/>
+									<input type="submit" class="bt1" value="充 值"/>
+								</div>
+							</div>
+							<div class="clear"></div>
+							<div class="warmTips">使用说明</div>
+							<div class="warmp">
+								<p>1、此卡仅限在格瓦拉生活网上激活充值后使用</p>
+								<p>2、此卡充值后可在格瓦拉生活网上在线选购电影票、套餐、演出票等格瓦拉提供服务；</p>
+								<p>3、卡内金额不可兑换现金，不挂失，请妥善保管充值密码；</p>
+								<p>4、请在有效期内完成充值，有效期自发卡之日起一年有效；</p>
+							</div>
+							<div class="warmTips">温馨提示</div>
+							<div class="warmp">您可以<a href="${basePath}subject/advertIndex.xhtml" target="_blank">联系贵宾卡销售部</a>购买</div>
+						</li>
+						
+						<li id="telecomPay_content" class="none">
+							<div class="ul-80Inner">充值方式：</div>
+							<div class="left telecom-paymethod">
+								<label for="tianyi"><input name="mbank" id="tianyi" checked="checked" type="radio" value="4"/>中国电信天翼手机充值</label>
+								<label for="guhua" class="ml20"><input name="mbank" id="guhua" type="radio" value="3"/>中国电信固定电话充值</label>
+							</div>
+							<div class="cls"></div>
+							<div class="ul-80Inner">充值金额：</div>
+							<div class="left labelBox">
+								<label for="gewa_01"><input name="payAmount" id="gewa_01" onclick="changCharge(5)" type="radio" value="5"/>5元格瓦拉币</label>
+								<label for="gewa_02"><input name="payAmount" id="gewa_02" onclick="changCharge(10)" type="radio" value="10"/>10元格瓦拉币</label><br/>
+								<label for="gewa_04"><input name="payAmount" id="gewa_04" onclick="changCharge(20)" type="radio" value="20"/>20元格瓦拉币</label>
+								<label for="gewa_03"><input name="payAmount" id="gewa_03" onclick="changCharge(30)" type="radio" value="30"/>30元格瓦拉币</label><br/>
+								<label for="gewa_05"><input name="payAmount" id="gewa_05" onclick="changCharge(50)" type="radio" value="50"/>50元格瓦拉币</label>
+								<label for="gewa_06"><input name="payAmount" id="gewa_06" onclick="changCharge(70)" type="radio" value="70"/>70元格瓦拉币</label>
+							</div>
+							<div class="cls"></div>
+							<div class="getPrice">实付总额：<b id="tel_amount">xxx</b>元（<b id="tel_czf">x</b>元充值费用+<b id="tel_tdf">x</b>元通道服务费）</div>
+							<div class="clew" style="width:410px;margin-top:10px;">
+								中国电信天翼手机用户开通地区：广东、浙江、湖北<br/>中国电信固定电话用户开通地区：上海、重庆、广东、浙江、湖北
+							</div>
+						</li>
+						<li style="padding-left:0px;margin-top:20px;"><b class="fc_b">注：</b>
+							在充值过程中遇到任何问题，请联系客服：4000-406-506
+							<!--  <span onclick="javascript:window.open('${basePath}chat.html','gewara','height=473,width=703,top=200,left=200,status=yes,toolbar=no,menubar=no,resizable=no,scrollbars=no,location=no,titlebar=no');" class="inIco" style="color: rgb(255, 153, 0); background-position:right -1008px ; cursor: pointer;text-indent:-9999px;width:76px;height:24px;display:inline-block;"></span> -->
+							周一至周日  9:00至22:00
+						</li>
+						<li id="lakalanone">
+							<label class="button redBt bigBt mt30" for="disBtnaccount033"><input type="submit" value="下一步" id="disBtnaccount033"/></label>
+						</li>
+					</ul>
+				</div>
+			</div>
+			</form>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="_hidDV" style="display:none;"></div>
+<!-- 加入 弹出框 dlgpaypwd.vm -->
+#parse('include/home/dlgpaypwd.vm')
+#parse('include/home/upMobile.vm')
+##parse('home/acct/bindMemberInfo.vm')
+#parse('include/home/sendMobileMSG.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	#if(!$memberInfo.bindSuccess)
+		window.location.href = '${basePath}home/acct/bindBaseInfo.xhtml';
+	#end
+	if($('chooseWay')){
+		$('chooseWay').getElements('label').each(function(item){
+			item.addEvent('click',function(){
+				this.addClass('select');
+				$(item.id+'_content').removeClass('none');
+				clearOther(item);
+				var tmps = item.id
+				if(tmps=='onlinePay') tmps = 'pnrPay';
+				$('paymethod').value = tmps;
+			});
+		})
+	}
+	#if($charge)
+		var pms = new Array('onlinePay','lakalaPay','ccardPay','telecomPay')
+		var pm = '$charge.paymethod';
+		if(pm=='pnrPay' || pm=='directPay') pm='onlinePay';
+		for(var i=0;i<pms.length;i++){
+			if(pms[i]==pm) $(pms[i]+'_content').removeClass('none');
+			else $(pms[i]+'_content').addClass('none');
+		}
+		
+		if(pm=='onlinePay')  $('amount_content').removeClass('none');
+		else  $('amount_content').addClass('none');
+	#end
+	$("onlinePay_content").getElements("input[type=radio][name=paybank]").each(function(item){
+		item.addEvent('click',function(){
+			$('online_directPay').checked = false;
+			$('paymethod').value = 'pnrPay';
+		});
+	});
+	
+});
+function clearOther(self){
+	$('chooseWay').getElements('label').each(function(item){
+		if(self.id!=item.id){ 
+			item.removeClass('select');
+			$(item.id+'_content').addClass('none');
+			if(self.id!='onlinePay')  $('amount_content').addClass('none');
+			else  $('amount_content').removeClass('none');
+		}
+	})
+}
+function onlinePay(paymethod){
+	$('paymethod').value = paymethod;
+	if(paymethod=='directPay'){
+		$("onlinePay_content").getElements("input[type=radio][name=paybank]").each(function(item){
+			item.checked = false;
+		});
+	}
+	
+}
+function submitFun(){
+	// 点击下一步按钮时, 验证是否有设置密码, 是否需要弹框
+	var paymethod = $('paymethod').value;
+	if(paymethod=='ccardPay'){
+		var v = $('cardpass').value;
+		if(!GewaraUtil.isNotNull(v)){gewaUtil.alert('请填写密码！');$('cardpass').focus();return;}
+	}else if(paymethod=='telecomPay'){
+		if(!($("tianyi").checked || $("guhua").checked)){
+			gewaUtil.alert('请选择充值方式！');
+			return;
+		}
+	}else{
+		var v = $('totalfee').value;
+		if(!GewaraUtil.isNotNull(v)){gewaUtil.alert('请填写充值金额！', function(){$('totalfee').focus();});return;}
+		else if(isNaN(v) || v<1){gewaUtil.alert('请填写正确的充值金额！', function(){$('totalfee').focus();});return;}
+		else if(v > 500){gewaUtil.alert('充值金额不能超过500元！', function(){$('totalfee').focus();});return;}
+	}
+	var url = '${basePath}home/confirmCharge.xhtml';
+	var values = GewaraUtil.getValues('payForm');
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			if(result.redirectUrl){
+				if(result.redirectUrl.contains('http')){
+					document.location.href = result.redirectUrl;
+				}else{
+					document.location.href = result.redirectUrl;
+				}
+			}else{
+				gewaUtil.alert(result.retval,function(){
+					gotoURL('${basePath}home/myAccount.xhtml');
+				});
+			}
+		}else{
+			if(result.account){
+				gotoURL('${basePath}home/acct/mbrMobileAuthPay.xhtml?op=mobileAuthPaySet&tagNo=$VmUtils.getRandom()');
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		}
+	});
+}
+
+function changCharge(amount){
+	$('tel_amount').innerHTML = (amount + amount/5*1.5);
+	$('tel_czf').innerHTML = amount;
+	$('tel_tdf').innerHTML = amount/5*1.5;
+}
+
+function msg(){
+	var temp=document.getElementById('xianshi').style.visibility="visible";
+}
+
+function msb(){
+	var temp=document.getElementById('xianshi').style.visibility="hidden";
+}
+function visi(){
+	var temp=document.getElementById('box').style.visibility="visible";
+}
+
+function hid(){
+	var temp=document.getElementById('box').style.visibility="hidden";
+}
+function toChangeBank(){
+	var number = Number.random(100000,999999);
+	var cur = gewara.util.rtime();
+	var url = "/home/toChangeBank.xhtml?tagNo="+cur+number;
+	gewaUtil.loadData('_hidDV', url, {}, function(result){
+		if(result.success){
+			gewaUtil.issure('', '_hidDV', '账户金额转瓦币 ' , 400, '_hidDV',function(calls,id){
+				bankToWabi();
+			});
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+
+</script>
+#parse('include/bottom.vm') 
+</body>
+</html>

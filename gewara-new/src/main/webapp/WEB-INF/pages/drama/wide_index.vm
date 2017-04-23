@@ -1,0 +1,154 @@
+<!Doctype html>
+<html>
+<head>
+	<!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>演出_展会_展览_赛事_话剧_演唱会门票预订 - 格瓦拉生活网</title>
+	<meta name="keywords" content="演唱会门票,展会门票,话剧票"/>
+	<meta name="description" content="格瓦拉生活网提供各类展会,展览,赛事,话剧,演唱会等演出在线门票预订.是国内领先的城市生活娱乐票务订购平台."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,noobSlide&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#if($headInfo)
+		html{background:$!headInfo.css url($VmUtils.randomPic('',$!headInfo.logosmall)) 0 50px repeat-x;}
+		body{background:transparent url($VmUtils.randomPic('',$!headInfo.logobig)) center 50px no-repeat;}
+		#end
+		.ui_layout{background:none;}
+	</style>
+</head>
+<body>
+#set($dramaHeadFlag='isDramaIndex')#set($relatedtag='drama')
+#set($isIndexBigAd = true)
+#set($dramaLeftTag='index')
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="index_wrap clear">
+	#parse('include/drama/wide_drama_menu.vm')
+		<div class="index_right">
+			<div class="ui_left">
+				#parse('drama/wide_index_left.vm')
+			</div>
+			<div class="ui_right">
+				#parse('drama/wide_index_right.vm')
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$('submenu').addEvents({
+		'mouseover':function(){this.addClass('jm_hover')},
+		'mouseout':function(){this.removeClass('jm_hover')}
+	});
+	try{
+		toggledContent('onshowList');
+		toggledContent('onshowList1');
+		toggledContent('onshowList2');
+		toggledContent('percentShow_list','li.isrelative','span.ssh');
+	}catch(e){}
+	secrchIn();
+	var thumns = $$(".countList a");
+#if(!$VmUtils.isEmptyList($picList))
+	var imgView = new fadeGallery($("imgView"), {
+		speed: 800,
+		autoplay: true,
+		onStart: function() {
+			thumns.removeClass("select");
+			thumns[this.current].addClass("select");
+		},
+		onPlay: function(){
+			this.fireEvent("start");
+		}
+	});
+	thumns.each(function(el, i) {
+		el.addEvent("mouseover", function() {
+			thumns.removeClass("select");
+			this.addClass("select");
+			imgView.current = i;
+			imgView.play(true);
+			return false;
+		});
+	});
+	imgView.holder.addEvent("mouseenter", function() {
+		imgView.prev.show();
+		imgView.next.show();
+	});
+	imgView.holder.addEvent("mouseleave", function() {
+		imgView.prev.hide();
+		imgView.next.hide();
+	});
+#end
+	(function(){
+		gewaUtil.affix($('ui_left'));
+	}).delay(500);
+});
+function toggledContent(el, isNode, chlidNode){
+	el = $(el);
+	if(el){
+		var node = isNode || 'li';
+		var chlid = chlidNode || ['div.tickArea_s','div.tickArea'];
+		var nodeList = el.getElements(node);
+		if(nodeList){
+			nodeList.addEvents({
+				'mouseover':function(){
+					var _this = this;
+					_this.addClass('select');
+					
+					if(instanceOf(chlid,Array)){
+						Array.each(chlid,function(item, index){
+							var _chlid = _this.getElement(item);
+							if(_chlid){
+								if(index == 0){
+									_chlid.show();
+								}else{
+									_chlid.hide();
+								}
+							}
+						});
+					}else if(instanceOf(chlid,String)){
+						if(_this.getElement(chlid)){
+							_this.getElement(chlid).show();
+						}
+					}
+				},
+				'mouseout':function(){
+					var _this = this;
+					_this.removeClass('select')
+					if(instanceOf(chlid,Array)){
+						Array.each(chlid,function(item, index){
+							var _chlid = _this.getElement(item);
+							if(_chlid){
+								if(index == chlid.length-1){
+									_chlid.show();
+								}else{
+									_chlid.hide();
+								}
+							}
+						});
+					}else if(instanceOf(chlid,String)){
+						if(_this.getElement(chlid)){
+							_this.getElement(chlid).hide();
+						}
+					}
+				}
+			});
+		}
+	}
+}
+function secrchIn(){
+	$('filmName').addEvents({
+	 	'focus':function(){this.getParents('div[class*="search_kuang"]').addClass('search_kuangClicked');},
+	 	'blur':function(){this.getParents('div[class*="search_kuang"]').removeClass('search_kuangClicked');}
+	}); 
+}
+function searchKey(){
+	var searchvalue = $('filmName').value;
+	var queryParams = {'searchkey':searchvalue, 'order':'releasedate', 'fyrq':7};
+	document.location.href = '${basePath}drama/dramaList.xhtml?' + Object.toQueryString(queryParams);
+}
+</script>
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

@@ -1,0 +1,43 @@
+#if($logonMember)
+<div class="right">
+	<a href="${basePath}home/sns/personIndex.xhtml" style="color:#c03b0c;">$!logonMember.nickname</a>
+	<a href="${basePath}home/sns/personIndex.xhtml" target="_blank">我的格瓦拉</a>
+	<a href="${basePath}home/myOrderManage.xhtml" target="_blank"><em>我的订单</em></a>
+	<a href="${basePath}home/acct/cardList.xhtml" target="_blank">绑定票券</a>
+	<a href="${basePath}home/message/new/sysMsgList.xhtml" target="_blank">站内信
+	#if($notReadCount && $notReadCount gt 0)
+	<b class="brown">($!notReadCount)</b>
+	#end
+	</a>
+	<a href="${basePath}helpCenter/index.dhtml" target="_blank">帮助中心</a>
+	<a href="javascript:logout()">退出</a>
+</div>
+<script type="text/javascript">
+	gewara.util.member.login = true;
+	gewara.util.member.memberid=$logonMember.id;
+	gewara.util.member.nickname='$logonMember.nickname';
+	gewara.util.member.notReadCount='$!notReadCount';
+	gewara.util.member.headUrl='$headUrl';
+	#if($VmUtils.isNotBlank($logonMember.mobile))
+	gewara.util.member.isMobile = true;
+	#end
+</script>
+#else
+<span id="headright">
+	<span style="color:#666;">你好，欢迎来到格瓦拉生活网！ 请<a href="javascript:showLogin(refreshPage);">登录</a><span class="ml2 mr5">|</span>[<a href="${basePath}register.xhtml" target="_blank" class="checkLogin">立即注册</a>]</span>
+</span>
+#parse('include/innerLogin.vm')
+#end
+
+<script type="text/javascript">
+	function microLogout(){
+		var url = '${basePath}cas/logout.xhtml?ptn=wala';
+		GewaraUtil.sendRequest(url, {}, function(result){
+			if(result.success){
+				gewaUtil.alert('成功退出！', refreshPage);
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+</script>

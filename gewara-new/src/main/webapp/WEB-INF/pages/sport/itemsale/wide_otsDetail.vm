@@ -1,0 +1,233 @@
+#set($sport=$sportMap.get($curOts.sportid))
+#set($item=$itemMap.get($curOts.itemid))
+<dl class="ui_media">
+	<dt class="ui_pic">
+		<a target="_blank" href="${basePath}sport/$!sport.id" title="$!sport.name">
+			<img width="240" height="147" title="$!sport.name" src="$!VmUtils.randomPic('cw180h295',$!sport.limg)">
+			#if($curOts.hasBooking() && $joinMember)
+			<span class="ing"></span>
+			#elseif($curOts.hasLockStatus('success')&& $VmUtils.eq($curOts.memberid,$!logonMember.id))
+			<span class="win"></span>
+			#elseif($curOts.hasSuccessPaid() && $VmUtils.eq($curOts.memberid,$!logonMember.id))
+			<span class="end"></span>
+			#end
+		</a>
+	</dt>
+	<dd class="ui_text">
+		<div class="clear borderB">
+			<a class="right" href="${basePath}sport/order/step1.xhtml?ottid=$curOts.ottid" target="_blank">选择该场馆其他竞价</a>
+			<h2>$!sport.realBriefname $!item.realBriefname $!{DateUtil.format($!curOts.playdate,'M月d日')} $!DateUtil.getCnWeek($curOts.playdate) $!curOts.starttime - $!curOts.endtime</h2>
+		</div>
+		<div class="clear borderT">
+			<div class="left" style="width:530px;">
+				<p><em>距离结束还有：</em><b id="RemainD">00</b>天<b id="RemainH">00</b>小时<b id="RemainM">00</b>分<b id="RemainS">00</b>秒</p>
+				#if($curOts.hasLockStatus('success')&& $VmUtils.eq($curOts.memberid,$!logonMember.id))
+				<p><em>成功竞价：</em><b id="curprice">$!curOts.curprice</b>元<span>(支付差额<strong>$math.sub($!curOts.curprice,20)</strong>元)</span></p>
+				#elseif($curOts.hasSuccessPaid()&& $VmUtils.eq($curOts.memberid,$!logonMember.id))
+				<p><em>成功竞价：</em><b id="curprice">$!curOts.curprice</b>元</p>
+				#elseif($curOts.hasBooking())
+				<p><em>当前竞价：</em><b id="curprice">$!curOts.curprice</b>元<span>(原价<strong>$!curOts.lowerprice</strong>元)</span></p>	
+				#end
+				<p class="clear">
+					#if($curOts.hasLockStatus('success')&& $VmUtils.eq($curOts.memberid,$!logonMember.id))
+					<a target="_blank" href="${basePath}gewapay/order.xhtml?orderId=$!curOts.orderid" class="button redBt maxBt"><span>支付差额</span></a>
+					#elseif($curOts.hasBooking())
+					<span class="left mr20 mt5">
+						<span class="delcredits exeSub"></span>
+						<input type="text" style="width:30px;text-align:center;color:#39c;" class="text" id="usepoint" readonly="readonly" value="5">
+						<span class="addcredits exeSub sub"></span>
+					</span>
+					<a href="javascript:confirmJoin()" class="button redBt maxBt left"><span>我要竞价</span></a>
+					<font class="left ml10" style="line-height:18px;">
+						(一口价<strong id="auctionprice">$!curOts.auctionprice</strong>元)<br/><a href="javascript:join($!curOts.auctionprice)" class="ffst fs14">以一口价出价&gt;&gt;</a>
+					</font>
+					#end
+				</p>
+			</div>
+			<div id="otsMemberList">
+				## #parse('sport/itemsale/wide_otsMember.vm')
+			</div>
+		</div>
+	</dd>
+</dl>
+<div id="remarkMsg" style="display:none;">
+	<ul>
+		<li>竞价模式目前仅支持使用支付宝支付。用户参与竞价时，格瓦拉将预收￥20作为保证金，如竞价失败保证金将原路退还。（退还到账时间可能存在数日的延时，具体以银行规定时间为准）</li>
+		<li>竞价过程中，如您的出价被超过或竞价结束，格瓦拉将通过手机短信通知您，以便您及时获知竞价情况。</li>
+		<li>竞价结束后，出价最高者必须在12小时内完成订单差额支付。逾期则场次将被释放为普通场次，并没收保证金。</li>
+	</ul>
+	<input type="hidden" name="otsid" value="$!curOts.id"/>
+	<dl class="clear mt15">
+		<dt class="left">手机号码：</dt>
+		<dd class="left"><input type="text" class="text" id="" name="mobile" value="$!logonMember.mobile" maxlength="11" style="width:140px;" mustTxt="手机号不能为空！"/></dd>
+	</dl>
+	<dl class="clear mt10">
+		<dt class="left">验证码：</dt>
+		<dd class="left">
+			#set($captchaId=$VmUtils.randomCaptchaId)
+			<input type="hidden" name="captchaId" id="chargeCaptcha" value="$!captchaId"/>
+			<input type="text" class="text" id="chargeCaptchaInput" name="captcha" style="width:70px;" mustTxt="验证码不能为空！"/>
+			<img id="chargeCaptchaImg" src="${basePath}captcha.xhtml?captchaId=$!captchaId&r=$math.random" style="cursor: pointer;" onclick="GewaraUtil.refreshCaptcha('chargeCaptcha')" title="看不清楚，请双击换一张图片"/>
+		</dd>
+	</dl>
+</div>
+<script type="text/javascript">
+#if($curOts)
+	var remain, pfun;
+	getRTime = function(){
+		if(!remain) return;
+		var nD = Math.floor(remain/(1000*60*60*24))
+		var nH = Math.floor(remain/(1000*60*60))%24;
+		var nM = Math.floor(remain/(1000*60)) % 60;
+		var nS = Math.floor(remain/1000) % 60;
+		$("RemainD").innerHTML = (nD < 10 ? "0" : "") + nD;
+		$("RemainH").innerHTML = (nH < 10 ? "0" : "") + nH;
+		$("RemainM").innerHTML = (nM < 10 ? "0" : "") + nM;
+		$("RemainS").innerHTML = (nS < 10 ? "0" : "") + nS;
+		remain -= 1000;
+		if(((remain/1000).toInt()*1000)%300000==0){
+			$clear(pfun);
+			data();
+			countdown();
+			getOtsMemberList("$!curOts.id");
+		}
+		if(remain<=0){
+			if(pfun) $clear(pfun);
+			pfun = $empty();
+			data();
+			refreshPage();
+			return;
+		}
+	};
+	data = function(){
+		#if($curOts.hasBooking())
+			var random = (Math.random()*1000000).toInt();
+			new Request({
+				url: '${basePath}sport/open/time.xhtml?id=$curOts.id&'+random,
+				method:'get',
+				onSuccess: function(responseText){
+					remain = responseText * 1;
+					if(remain > 0){
+						pfun = getRTime.periodical(1000);
+					}
+				}
+			}).send();
+		#else
+			remain = 0;
+		#end
+	}
+	
+	countdown = function(){
+		var url = "${basePath}sport/open/countdown.xhtml";
+		var values = {"otsid":$!curOts.id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				if(result.isJoin){
+					$('curprice').set('html', result.curprice);
+				}else{
+					refreshPage();
+				}
+			}
+		});
+	}
+	
+	var retriving = false;
+	join = function(price){
+		var auctionprice = $('auctionprice').get('html').toInt();
+		if(price>auctionprice){
+			gewaUtil.alert('竞价最高为' + auctionprice + "元");
+			return;
+		}
+		checkLogin(true,function(){
+			var values = {'otsid':$curOts.id,"price": price};
+			if(retriving) return;
+			retriving = true;
+			GewaraUtil.sendRequest('${basePath}sport/open/join.xhtml?t='+ GewaraUtil.rtime(), values, function(result){
+				if(result.success) {
+					gewaUtil.alert('出价成功');
+					retriving = false;
+					getOtsMemberList($curOts.id, "");
+					$('curprice').set('html', result.curprice);
+				}else {
+					retriving = false;
+					if(result.isJsoin){
+						gewaUtil.alert(result.msg, refreshPage);
+					}else{
+						gewaUtil.alert(result.msg);
+					}
+				}
+			}, 'get');
+		});
+	}
+	getOtsMemberList = function(otsid,jointype){
+		var url = "${basePath}sport/open/joinOtsMember.xhtml";
+		var values = {'otsid':otsid};
+		if(jointype){
+			values.jointype = jointype;
+		}
+		GewaraUtil.sendLoad('otsMemberList', url, values, function(result){
+			
+		});
+	}
+	
+	confirmJoin=function(){
+		#if(!$deposit)
+			gewa.util.issure('','remarkMsg','格瓦拉生活网提示',420,'',function(){
+				var url = "${basePath}sport/open/payDepositCharge.xhtml";
+				var values = GewaraUtil.getValues('remarkMsg');
+				GewaraUtil.sendRequest(url, values, function(result){
+					if(result.success){
+						document.location.href="${basePath}sport/open/showDeposit.xhtml?orderId=" + result.retval;
+					}else{
+						GewaraUtil.refreshCaptcha('chargeCaptcha');
+						gewaUtil.alert(result.msg);
+					}
+				});
+			});
+		#else
+			var curprice = $('curprice').get('html');
+			var price = $('usepoint').value;
+			price = price.toInt() + curprice.toInt();
+			if(price == null || price.toInt() <=0){
+				gewaUtil.alert('出价必须高于当前价格才可参与竞价！');
+				return;
+			}
+			join(price);
+		#end
+	}
+	
+	pay = function(){
+		var url = '${basePath}exchange/pubsale/pubOrder.xhtml';
+		var values = {'sid':$sale.id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				document.location='${basePath}gewapay/order.xhtml?orderId='+result.retval;
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	window.addEvent('domready', function(){
+		data();
+		getOtsMemberList("$curOts.id");
+		$$('.exeSub').addEvent('click',function(){
+			var el = $('usepoint'),value = el.value.toInt(),bigValue = 80,minValue = 5;
+			if(this.hasClass('sub')){
+				value = value + 5;
+				if(bigValue < value){
+					el.value = bigValue;
+				}else{
+					el.value = value.toInt();
+				}
+			}else{
+				value = value - 5;
+				if(value.toInt() > minValue){
+					el.value = value.toInt();
+				}else{
+					el.value = minValue;
+				}
+			}
+		});
+	});
+#end
+</script>

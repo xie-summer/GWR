@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>用户列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="margin:auto;">
+<table class="table clear">
+	<tr>
+		<td>
+			<form action="${basePath}admin/sns/ticketMemberList.xhtml" method="get">
+			当前位置：<font style="color: blue">购票用户>></font>
+			查询条件：影院
+			<select name="cinemaid" id="cinemaid">
+				<option value="">请选择</option>
+				#foreach($cinema in $cinemaList)]
+				<option value="$cinema.id" #if($VmUtils.eq($!params.cinemaid, $cinema.id)) selected="selected"#end>$cinema.name</option>
+				#end
+			</select>
+			从<input type="text" class="Wdate" value="$!{params.fromDate}" name="fromDate" id="fromDate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" style="width:100px;" />
+			至<input type="text" class="Wdate" value="$!{params.toDate}" name="toDate" id="toDate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" style="width:100px;" />
+			<input type="submit" class="button" value="查询"/>
+			</form>
+		</td>
+	</tr>
+</table>
+<table class="table clear">
+	<thead>
+	<tr>
+		<th>用户ID</th>
+		<th>用户昵称</th>
+		<th>手机号码</th>
+	</tr>
+	</thead>
+	<tbody id="pointTable">
+	#foreach($ticketOrder in $ticketOrderMap)
+	#set($member=$memberMap.get($ticketOrder.memberidinfo))
+	<tr>
+		<td>$!member.id</td>
+		<td>$!member.nickname</td>
+		<td>$!ticketOrder.get('mobileinfo')</td>
+	</tr>
+		#end
+	</tbody>
+</table>
+#parse('include/pageUtil.vm')
+</body>
+</html>

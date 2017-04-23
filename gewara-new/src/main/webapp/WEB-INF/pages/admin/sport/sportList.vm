@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>运动场所列表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width:100%; margin:auto">
+<div style="padding:1px">
+	<form action="${basePath}admin/sport/sportList.xhtml" style="width:840px;margin:3px">
+		搜索(名称+拼音+区县+地址)：<input name="key" type="text" style="width:80px" value="$!params.key"/>
+		<input type="submit" class="button" value="查询"/>
+	</form>
+	<a href="${basePath}admin/sport/modifySportDetail.xhtml" target="_blank">增加运动场所</a>
+	&nbsp;&nbsp;<a href="${basePath}admin/common/newsList.xhtml?tag=sport&newstype=2" target="_blank">增加新闻</a>
+	&nbsp;&nbsp;<a href="${basePath}admin/sport/sportList.xhtml?flag=flag" target="_blank">推荐场馆</a>
+</div>
+<table width="100%" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th>场所名称</th>
+		<th>编辑</th>
+		<th>场地</th>
+		<th>服务项目</th>
+		<th>价格表</th>
+		<th>会员卡</th>
+		<th>教练</th>
+		<th>图片</th>
+		#*<th>公告</th>*#
+		<th>培训</th>
+		<th>场馆公告</th>
+		<th>测评</th>
+		<th>前台</th>
+		<th>推荐项目</th>
+		<th>推荐</th>
+		<th>热门</th>
+		<th>设置</th>
+		<th>地图</th>
+		<th>百度地图</th>
+		<th>历史记录</th>
+	</tr>
+	</thead>
+	<tbody id="sportTable">
+	#foreach($sport in $sportList)
+	<tr>
+		<td>${sport.name}</td>
+		<td>
+			<a href="${basePath}admin/sport/modifySportDetail.xhtml?sportId=${sport.id}" target="_blank">详细信息</a>
+		</td>
+		<td>
+			<a href="${basePath}admin/sport/roomList.xhtml?sportId=${sport.id}" target="_blank">场地</a>
+		</td>
+		<td>
+			<a href="${basePath}admin/sport/relateItemList.xhtml?sportId=${sport.id}" target="_blank">服务项目</a>
+		</td>
+		<td>
+			<a href="${basePath}admin/sport/priceTableList.xhtml?sportId=${sport.id}" target="_blank">价格表</a>
+		</td>
+		<td>
+			<a href="${basePath}admin/sport/cardList.xhtml?sportId=${sport.id}" target="_blank">会员卡</a>
+		</td>
+		<td>
+			<a href="${basePath}admin/sport/coachList.xhtml?sportId=${sport.id}" target="_blank">教练</a>
+		</td>
+		<td>
+			<a href="${basePath}admin/common/pictureList.xhtml?tag=sport&relatedid=${sport.id}&uploadPath=images/sport" target="_blank">上传组图</a>
+		</td>
+		#*
+		<td>
+			<a target="_blank" href="${basePath}admin/common/bulletinList.xhtml?tag=sport&relatedid=${sport.id}">公告</a>
+		</td>
+		*#
+		<td>
+			<a target="_blank" href="${basePath}admin/common/discountInfoList.xhtml?tag=sportTrain&relatedid=${sport.id}">专业培训</a>
+		</td>
+		<td>
+			<a target="_blank" href="${basePath}admin/common/discountInfoList.xhtml?tag=sport&relatedid=${sport.id}">场馆公告</a>
+		</td>
+		<td>
+			<a target="_blank" href="${basePath}admin/recommend/baserecommend.xhtml?signtype=sportdetailceping&signname=ceping&tag=news&hand=true&relatedid=true&logo=true&parentid=$sport.id">测评信息</a>
+		</td>
+		<td>
+			<a target="_blank" href="$!{absPath}${basePath}sport/$!sport.id">前台页面</a>
+		</td>
+		<td nowrap="nowrap" id="b$sport.id">
+			<select name="f$sport.id" id="s$sport.id" onchange="setHotValue($sport.id)">
+				<option value="">请推荐</option>
+				#foreach($item in $commendItemList)
+				<option value="$item.id" #if($!sport.flag && $!sport.flag.indexOf($item.id.toString()) ge 0) selected="selected" #end>$item.itemname</option>
+				#end
+			</select>
+		</td>
+		<td nowrap="nowrap" id="b$sport.id">
+			<select name="f$sport.id" id="h$sport.id" onchange="setHotValue($sport.id)">
+				<option value="">请推荐</option>
+				<option value="hot" #if($!sport.flag && $sport.flag.indexOf('hot') ge 0) selected="selected" #end>热门</option>
+			</select>
+		</td>
+		<td><input type="text" name='hotvalue' id='$sport.id' onchange='updateHotValue("$sport.id")' value="$sport.hotvalue" style="width: 50px;"/></td>
+		<td><a href="${basePath}admin/sport/open/baseData.xhtml?sportid=$sport.id">设置</a></td>
+		<td><a href="${basePath}admin/common/mappoint.xhtml?id=$sport.id&tag=sport" target="_blank">地图</a></td>
+		<td><a href="${basePath}admin/common/mapbpoint.xhtml?id=$sport.id&tag=sport" target="_blank">百度地图</a></td>
+		<td>
+			<a href="${basePath}admin/common/getChangeHis.xhtml?tag=Sport&relatedid=$sport.id" target="_blank">历史</a>
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+#if($pageUtil)
+<div id="page">
+	#parse('include/pageUtil.vm')
+</div>
+#end
+	<script type="text/javascript">
+	function setHotValue(vid){
+		var values = {'sportId':vid,'value':$('s'+vid).value,'value2':$('h'+vid).value};
+		var url = "${basePath}admin/sport/ajax/updateSportFlagValue.xhtml";
+		GewaraUtil.sendRequest(url, values , function(result){
+			if(result.success) alert('成功设置！');
+		});
+	}
+	function updateHotValue(vid){
+		var url = "${basePath}admin/sport/ajax/updateSportHotValue.xhtml";
+		var values = {'sportId':vid, "value":$(vid).value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) alert('成功设置！');
+		});
+	}
+</script>
+</body>
+</html>

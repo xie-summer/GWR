@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>推荐详细</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline}
+		a{text-decoration: none;}
+		.ua{text-decoration: none;color: red }
+		.bk{background:rgb(255, 246, 200)}
+	</style>
+</head>
+<body style="width:85%; margin:auto" >
+
+<form name="sportfrmDIV" id="sportfrmDIV">
+<div class="table" >
+	<input type="hidden" name="id" value="$!gc.id" />
+	<input type="hidden" name="tag" value="sport" />
+	<input type="hidden" name="signname" value="$params.signname" />
+	输入场馆ID: <input type="text" id="sportid" name="relatedid" style="width: 120px;" value="$!gc.relatedid"/>
+	<input type="button" value="查询运动项目" onclick="loadSportItem()" style="width: 90px;"/>
+	<br />
+	<div id="loadsoprtserviceDIV"></div>
+</div>
+</form>
+
+	<script>
+	function loadSportItem(){
+		var sportid = $('sportid').value;
+		if(!GewaraUtil.isNotNull(sportid)){
+			return false;
+		}
+		var url = '${basePath}admin/recommend/loadSportServicetable.xhtml';
+		var values = {'sportid': sportid};
+		GewaraUtil.sendLoad('loadsoprtserviceDIV', url, values, function(result){
+			if(!result.success){
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+	
+	function save(){
+		var sportid = $('sportid').value;
+		if(!GewaraUtil.isNotNull(sportid)){
+			return false;
+		}
+		var parentid = $('parentid').value;
+		if(!GewaraUtil.isNotNull(parentid)){
+			return false;
+		}
+		/* var title = $('title').value;
+		if(!GewaraUtil.isNotNull(title)){
+			alert("至少选中1个价格推荐!");
+			return false;
+		} */
+		
+		var url = '${basePath}admin/recommend/saveSporttable.xhtml';
+		var values = GewaraUtil.getValues('sportfrmDIV');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				document.location='${basePath}admin/recommend/gcResult.xhtml';
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+</script>
+</body>
+</html>

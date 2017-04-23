@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次排片管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.none{display:none;}
+	</style>
+</head>
+<body>#set($isSearch=true)
+#parse('admin/theatreticket/menu.vm')
+<div style="color:red" id="notifyWin"></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+		<form action="${basePath}admin/dramaTicket/searchOdiList.xhtml">
+		<input type="hidden" name="tid" value="$!theatre.id" />
+		开始时间：<input name="starttime" id="starttime"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd 00:00:00'})" value="$!starttime" type="text" style="width: 160px"/>
+		结束时间：<input name="endtime" id="endtime"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd 23:59:59'})" value="$!endtime" type="text" style="width: 160px"/>
+		<input type="submit" value="提交" />
+		</form>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>开设类型</th>
+					<th>话剧</th>
+					<th>放映厅</th>
+					<th>演出时间</th>
+					<th>修改</th>
+					<th>剧院价</th>
+					<th>成本价</th>
+					<th>卖价</th>
+					<th>价格</th>
+					<th>场次</th>
+					<th>优惠券</th>
+					<th title="提起几小时关闭预订">时间设置
+					<th>前台</th>
+					<th colspan="2">操作</th>
+				</tr>
+			</thead>
+			<tbody class="tbody">
+				#foreach($odi in $odiList)
+				#set($sectionList=$sectionMap.get($odi.id))
+				<tr class="grayBg disp c$odi.movieid">
+					<td><span class="yellow">#if($odi.isOpenseat())按座位#elseif($odi.isOpenprice())按价格#end</span></td>
+					<td><a href="${basePath}drama/$odi.dramaid" target="_blank">$odi.dramaname</a></td>
+					<td>$odi.roomname</td>
+					<td>$DateUtil.format($odi.playtime,'MM-dd HH:mm')</td>
+					<td><a href="${basePath}admin/dramaTicket/odiDetail.xhtml?itemid=$odi.dpid" target="_blank">修改</a></td>
+					<td width="90" style="text-align: left;">
+						#foreach($section in $sectionList)
+						#set($key=$odi.id + $section.sno)
+						#foreach($tsp in $tspMap.get($key))
+						$section.name:[$tsp.seattype]$!tsp.theatreprice<br/>
+						#end
+						#end
+					</td>
+					<td width="60">
+						#foreach($section in $sectionList)
+						#set($key=$odi.id + $section.sno)
+						#foreach($tsp in $tspMap.get($key))
+						$!tsp.costprice<br/>
+						#end
+						#end
+					</td>
+					<td width="60">
+						#foreach($section in $sectionList)
+						#set($key=$odi.id + $section.sno)
+						#foreach($tsp in $tspMap.get($key))
+						$!tsp.price<br/>
+						#end
+						#end
+					</td>
+					<td>
+						#foreach($section in $sectionList)
+						<a href="${basePath}admin/dramaTicket/seatprice.xhtml?itemid=$odi.dpid&sno=$section.sno" target="_blank">$section.name</a><br/>
+						#end
+					</td>
+					<td>
+						#foreach($section in $sectionList)
+						<a href="${basePath}admin/dramaTicket/booking.xhtml?itemid=$odi.dpid&sno=$section.sno" target="_blank">$section.name</a><br/>
+						#end
+					</td>
+					<td><input type="text" class="elecard pubinput" style="width:40px;" name="${odi.dpid}" value="$!opi.elecard"/></td>
+					<td>
+						<label>开放：<input type="text" #if($odi.expired)disabled="disabled"#else class="optime" #end style="width:140px;" value="$!DateUtil.format($odi.opentime,'yyyy-MM-dd HH:mm:ss')" onchange="setOpenTime(this,$odi.dpid)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" /></label>
+						<label>关闭：<input type="text" #if($odi.expired)disabled="disabled"#end style="width:140px;" value="$!DateUtil.format($odi.closetime,'yyyy-MM-dd HH:mm:ss')" onchange="setCloseTime(this, $odi.dpid)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly"/></label>
+					</td>
+					<td>
+						#foreach($section in $sectionList)
+						#if($odi.isOpenseat())
+						<a href="$!{absPath}${basePath}drama/order/step1.xhtml?itemid=$odi.dpid&sno=$section.sno" target="_blank">$section.name</a><br/>
+						#elseif($odi.isOpenprice())
+						<a href="$!{absPath}${basePath}drama/$odi.dramaid" target="_blank">$section.name</a><br/>
+						#end
+						#end
+					</td>
+					<td class="clearB" #if($odi.closed)title="超时"#end>
+						<select id="$odi.dpid" onchange="setStatus(this, $odi.dpid)" #if($odi.expired || $odi.closed)disabled="disabled"#else class="opselect" #end>
+							<option value="N" #if($odi.status eq 'N')selected="selected"#end>不接受预订</option>
+							<option value="Y" #if($odi.status eq 'Y')selected="selected"#end>接受预订</option>
+							<option value="D" #if($odi.status eq 'D')selected="selected"#end>废弃场次</option>
+						</select><br/>
+						<input type="button" onclick="delOdi($odi.dpid)" value="删除" />
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<div id="openDialog" style="width:370px; visibility:hidden; z-index:20;background: #000">
+	<div style="width:350px;margin:10px;background:#FFF;">
+		<div style="text-align:center;height:20px;line-height: 20px;">
+			<strong>修改价格数据</strong>
+		</div>
+		<div class="bd ml20" style="text-align:left;">
+			<form name="openForm" id="openForm">
+				<input type="hidden" name="dpid" id="dpid" />
+				<input type="radio" name="opentype" value="price" onclick="javascript:closeTsp()"/>按价格
+				<input type="radio" name="opentype" value="seat" onclick="javascript:showTsp()"/>按座位
+				<div id="tsp" class="none" style="width: 100%;">
+					<input type="hidden" name="tspid" id="tspid" />
+					类&nbsp;&nbsp;型：<span id="seatType">&nbsp;</span><br/>
+					剧院价：<span name="theatrePrice" id="theatrePrice">&nbsp;</span><br/>
+					成本价：<input type="text" name="costPrice" id="costPrice" style="width: 60px;" /><br/>
+					买&nbsp;&nbsp;价：<input type="text" name="gewaPrice" id="gewaPrice" style="width: 60px;" />
+				</div>
+				<div>
+					<label>&nbsp;</label>
+					<input type="button" class="cbt1"  value="保存" onclick="saveOpen()"/>
+					<input type="button" class="cbt1" onclick="hiDialog();" value="取消"/>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+	<script type="text/javascript">
+	window.addEvent("domready", function(){
+		$$(".tbody tr").addEvents({
+			'mouseenter':function(){
+				this.addClass("mouseBg");
+			},
+			'mouseleave':function(){
+				this.removeClass("mouseBg");
+			}
+		});
+		updateElecard();
+	});
+	function updateElecard(){
+		$$(".elecard").addEvent("change", function(){
+			this.setStyle("background","red");	var el=this;
+			var values = {"itemid":el.name,"elecard":el.value};
+			GewaraUtil.sendRequest('${basePath}admin/dramaTicket/updateElecard.xhtml', values, function(result){
+				if(result.success){
+					el.setStyle("background","");
+				}else{
+					alert(result.msg);
+				}
+			});
+		});
+	}
+	function updateCostprice(el, itemid){
+		el.setStyle("background","red");
+		var values = {"itemid":itemid,"price":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/updateCostprice.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function updateGewaprice(el, itemid){
+		el.setStyle("background","red");
+		var values = {"itemid":itemid,"price":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/updateGewaprice.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function setStatus(el, itemid){
+		el.setStyle("background","red");
+		var values = {"itemid":itemid,"status":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/setStatus.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function setOpenTime(el, itemid){
+		el.setStyle("background","red");
+		var values = {"itemid":itemid,"opentime":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/setOpenTime.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function setCloseTime(el, itemid){
+		el.setStyle("background","red");
+		var values = {"itemid":itemid,"closetime":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/setCloseTime.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function hiDialog(){
+		GewaraUtil.hideDialog("openDialog");
+	}
+	function closeTsp(){
+		$('tsp').addClass('none');
+	}
+	function showTsp(){
+		$('tsp').removeClass('none');
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/firstTsp.xhtml', {'itemid':$('dpid').value}, function(result){
+			if(result.success){
+				$('tspid').value = result.id;
+				$('gewaPrice').value = result.price;
+				$('costPrice').value = result.costprice;
+				$('seatType').innerHTML = result.seattype;
+				$('theatrePrice').innerHTML = result.theatreprice;
+			}else{
+				alert(result.msg);
+			}
+		});	
+	}
+	function showDialog(dpid){
+		$('dpid').value=dpid;
+		GewaraUtil.showDialog('openDialog');
+	}
+	function saveOpen(){
+		GewaraUtil.mask('odiTable');
+		var mask = gewa.util.mask({'element': 'odiTable','title':'正在提交，请稍等...'});
+		var values = GewaraUtil.getValues('openForm');
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/saveOdi.xhtml', values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function delOdi(itemid){
+		if(confirm('确认要删除吗?')==false) return;
+		var values= {'itemid':itemid};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/delOdi.xhtml', values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

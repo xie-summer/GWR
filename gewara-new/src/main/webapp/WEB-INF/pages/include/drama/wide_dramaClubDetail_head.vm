@@ -1,0 +1,178 @@
+<div class="mod_kong" style="margin-bottom:0;">
+	<div class="mod_hd detailPa1">
+		<div class="detailPa1_name clear">
+			<h1 class="left">$!dramaStar.name</h1>
+			<div class="ratingsSide1 left">
+				#set($gmark=$VmUtils.getSingleMarkStar($dramaStar,"general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+				#set($isBigStaticRating=true)
+				#parse('include/global/staticRating.vm')
+				<span class="bigSubp"><sub id="mark_integer">$gmark1</sub><sup id="mark_decimal">.$gmark2</sup></span>
+			</div>
+			<div class="ratingsCount left">
+				<ul>
+					<li><a class="cou" href="javascript:showMovieMark();">我要评分</a></li>
+					#*<li>
+						<span><a class="ad" href="javascript:void(0)">收藏</a></span>
+						<span><a class="ad se none" href="javascript:void(0);">取消收藏</a></span>
+					</li>
+					*#
+				</ul>
+			</div>
+			<div class="movieCountList">
+				<ul class="ui_inline">
+					<li class="first">
+						<b>$!dramaStar.clickedtimes</b>
+						<span>关注</span>
+					</li>
+					<li>
+						<b>#if($!walaCount)${walaCount}#{else}0#end</b>
+						<span>哇啦</span>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="mod_bd detailPa2">
+		<div class="ui_left">
+			<div class="detail_head_info detailMa">
+				<div class="ui_media">
+					<div class="ui_pic">
+						<img width="210" height="280" alt="" title="$!dramaStar.name" src="$VmUtils.randomPic('cw210h280',$!dramaStar.limg)"/>
+						<div style="" id="bdshare" class="bdshare_t bds_tools get-codes-bdshare mt10" data="{'pic':'$VmUtils.randomPic('cw210h280',$!dramaStar.limg)',}">
+							<span class="bds_more">分享到：</span><a class="bds_tsina"></a><a class="bds_tqq"></a><a class="bds_qzone"></a><a class="bds_renren"></a>
+						</div>
+					</div>
+					<div class="ui_text cs_K_1">
+						<div class="detail_head_text">
+							#if($VmUtils.isNotBlank(${dramaStar.content}))
+							<div class="detail_head_text1">
+								<p class="c999">$!VmUtils.htmlabbr($dramaStar.content,280)...<a href="javascript:showContent()" class="c80 ml10">更多&nbsp;&nbsp;</a></p>
+							</div>
+							#end
+							
+							#if(!$VmUtils.isEmptyList($historyDramaList))
+							<div class="detail_head_text2">
+								#*
+								<dl class="clear">
+									<dt>详细地址：</dt>
+									<dd>徐汇区安福路288号(近武康路</dd>
+								</dl>
+								<dl class="clear">
+									<dt>联系电话：</dt>
+									<dd>021-63274260   021-63273399</dd>
+								</dl>
+								*#
+								<dl class="clear">
+									<dt>代表作品：</dt>
+									<dd>
+									#foreach($drama in $historyDramaList)
+										<a href="${basePath}drama/$drama.id" target="_blank" class="ml5">《$!drama.name》</a>
+									#end
+									</dd>
+								</dl>
+							</div>
+							#end
+						</div>
+						#if(!$VmUtils.isEmptyList($commentList))
+						<div class="detail_head_use" id="detail_head_use">
+							<ul class="ui_inline left">
+								#foreach($comment in $!commentList)
+								<li>
+									<a lang="$comment.memberid" class="picmin" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank">
+										<img width="30" height="30" alt="$!comment.nickname" src="$VmUtils.randomPic('cw30h30', $!cacheMemberMap.get($comment.memberid).headpicUrl)"/>
+									</a>
+								</li>
+								#end
+							</ul>
+							<em>$!{walaCount}人发表哇啦，</em>
+							<a href="javascript:replyWalaContent()" class="ui_addInfo">+发表哇啦</a>
+						</div>
+						#end
+					</div>
+				</div>
+			</div>
+		</div>
+		#if(!$VmUtils.isEmptyList($headTroupeList))
+		<div class="ui_right" style="width:310px; padding:0 10px 0 0;">
+			<div class="club_people">
+				<div class="peopleScroll clear" id="nowPlaying">
+					<div class="peopleScroll_H">
+						<h2>剧社成员</h2><em class="ml10 c999">共$!{troupecount}个</em>
+						#if($VmUtils.gt($VmUtils.size($headTroupeList),5))
+						<div class="slide more">
+							<span class="slideL"><em class="orientation">左滑动</em></span>
+							<span class="slideR"><em class="orientation">右滑动</em></span>
+						</div>
+						#end
+					</div>
+					<div class="peopleScroll_B mt10">
+						<ul id="nowPlayWidth">
+							#foreach($troupe in $headTroupeList)
+							<li>
+								<dl>
+									<dd>
+										<a class="img_wrap" target="_blank" href="${basePath}drama/star/$troupe.id"><img width="120" height="160" alt="$troupe.name" src="$VmUtils.randomPic('cw120h160',$troupe.limg)" /></a>
+										<div class="tickArea">
+											<span class="mark_text"></span>
+											<p class="info_title c80 bold">$!troupe.name</p>
+										</div>
+										<div class="tickArea_s" style="display:none;">
+											<span class="mark_text_s"></span>
+											<div class="tickInfo">
+												<p class="info_title fs14 bold">$!troupe.name</p>
+												##<p>近期作品：$!{troupe.worknum}部</p>
+											</div>
+										</div>
+									</dd>
+								</dl>
+							</li>
+							#end
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		#end
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	#if($VmUtils.gt($VmUtils.size($headTroupeList),5))
+		new sigleLeep('nowPlaying','nowPlayWidth',{isNode:'li','disable':'disable','size':145,'length':2});
+	#end
+});
+function walaContentFoucus(){
+	if($('replycontent')){
+		$('replycontent').focus();
+	}else{
+		$('club_wala').fireEvent('click');
+		setTimeout(walaContentFoucus,1000);
+	}
+	gewaUtil.pagePos('walaData');
+}
+function replyWalaContent(){
+	walaContentFoucus();
+}
+
+function showContent(){
+	
+	if($('theraIntroduce')){
+		$('review_$!{dramaStar.id}_short').hide();
+		$('review_$!{dramaStar.id}_full').show();
+	}else{
+		$('club_ticket').fireEvent('click');
+		setTimeout(showContent,1000);
+	}
+	gewa.util.pagePos('theraIntroduce');
+}
+
+</script>
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=560708" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+	try{
+		#set($sizeprice = $VmUtils.size($allPriceList) - 1)
+		var bds_config = {'bdText':'我在 @格瓦拉生活网 看到一家不错的机构#$!{dramaStar.name}#，分享给大家，他们的是 #foreach($curDrama in $curDramaList)《$!curDrama.name》 #end 的创作方，快去看看 ${basePath}drama/star/$!dramaStar.id <img src=$!VmUtils.randomPic("",$!dramaStar.limg)" /> ， 分享给大家！@格瓦拉生活网  链接：','snsKey':{'tsina':'2536251945','tqq':'801037658'}};
+		document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + new Date().getHours();
+	}catch(e){}
+</script>

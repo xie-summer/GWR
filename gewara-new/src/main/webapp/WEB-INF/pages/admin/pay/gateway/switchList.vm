@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>新老接口切换列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/layout.css"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/bms.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js"></script>
+</head>
+<body class="ui_orange">
+<div class="maintop">
+    [<a href="javascript:loadAddPage()">新增切换网关</a>]
+</div>
+<div class="main">
+    <div class="info">
+      <table class="tablist mt10 " id="myTable" width="100%">
+      	<tbody>
+      		<tr class="trbg">
+	  		     <td>支付网关</td>
+	  		     <td>支付网关名称</td>
+	  		     <td>修改时间</td>
+	  		     <td>修改人</td>
+	  		     <td>操作</td>
+      		</tr>
+      		#foreach($switch in $switchList)
+      		<tr class="">
+      	       	<td style="text-align: left">$!{switch.gatewayCode}</td>
+      	       	<td style="text-align: left">$!{gatewayMap.get($!{switch.gatewayCode}).gatewayName}</td>
+      	       	<td style="text-align: left">$!DateUtil.format($!{switch.modifyTime},"yyyy-MM-dd HH:mm:ss")</td>
+      	       	<td style="text-align: left">$!{switch.modifyUser}</td>
+      	       	<td style="text-align: center;">
+      	       		<a href="javascript:delSwitch('$!{switch.gatewayCode}')">删除</a>
+      	       	</td>
+      		</tr>
+      		#end
+      	</tbody>
+      </table>
+    </div>
+</div>
+<div class="edit" id="switchDiv" style="display:none;">	
+	
+</div>
+<script type="text/javascript">
+	function loadAddPage(){		
+		var url = '${basePath}admin/pay/gateway/switch/addPage.xhtml';
+		gewaUtil.loadData('switchDiv', url, null, function(result){
+			if(result.success){
+				gewa.util.maskContent('','switchDiv','新增商户路由',500,'switchDiv');
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+	
+	function closetc(){
+		var el = "switchDiv";
+		gewa.util.container[el].dispose(el);
+	}
+	
+	function saveSwitch(){
+		var values = GewaraUtil.getValues($("switchForm"));
+		var url = "${basePath}admin/pay/gateway/switch/save.xhtml";
+		gewa.util.mask({'element': "btns",'title':'正在保存...', "opacity":"0.4"});
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				refreshPage();
+			}else {
+				gewaUtil.alert(result.msg);			
+			}
+		});
+	}
+	
+	function delSwitch(gatewayCode){
+		var values = {"gatewayCode" : gatewayCode};
+		var url = "${basePath}admin/pay/gateway/switch/del.xhtml";
+		gewa.util.mask({'element': "btns",'title':'正在删除...', "opacity":"0.4"});
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				refreshPage();
+			}else {
+				gewaUtil.alert(result.msg);			
+			}
+		});
+	}
+	
+</script>
+</body>
+</html>

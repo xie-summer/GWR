@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>用户列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="margin:auto;">
+<div style="padding:1px;">
+	<form action="${basePath}admin/sns/simpleSearchSnsExpList.xhtml" method="post" onsubmit="return searchMember()" >
+		搜索条件：<span>经验值范围：<input type="text" name="startExp" value="$!params.startExp" id="startExp"/> - <input type="text" name="endExp" value="$!params.endExp" id="endExp"/></span> 
+				<span style="margin-left: 10px;"><input type="submit" class="button" value="查询" onclick="return doSearchMember();"/></span>
+	</form>
+</div><br/>
+<div style="font-size: 14px;color:red;">当前系统总经验值：$!sumMemberExp</div>
+<table class="table clear">
+	<thead>
+	<tr>
+		<th>用户编号</th>
+		<th>用户昵称</th>
+		<th>email</th>
+		<th>经验值</th>
+		<th>注册时间</th>
+	</tr>
+	</thead>
+	<tbody id="pointTable">
+	#foreach($memberInfo in $memberInfoList)
+	#set($member = $memberMap.get($memberInfo.id))
+	<tr>
+		<td>$!member.id</td>
+		<td>$!member.nickname</td>
+		<td>$!member.email</td>
+		<td>$!memberInfo.expvalue</td>
+		<td>$DateUtil.format($memberInfo.addtime,'yyyy-MM-dd')</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+#parse('include/pageUtil.vm')
+
+	<script type="text/javascript">
+function searchMember(){
+	var memberid=$("memberid").value;
+	if(memberid.length!=0){
+		if(!parseInt(memberid)){
+			alert('用户编号只能是整数');
+			return false;
+		}
+	}
+	return true;
+}
+
+function doSearchMember(){
+	var memberid = $('memberid').value;
+	var nickname = $('nickname').value;
+	var mobile = $('mobile').value;
+	var email = $('email').value;
+	
+	if(memberid == '' && nickname == '' && mobile == '' && email == ''){
+		return false;
+	}
+}
+</script>
+</body>
+</html>

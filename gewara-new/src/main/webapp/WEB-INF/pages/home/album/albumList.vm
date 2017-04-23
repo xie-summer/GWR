@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>#if($!logonMember.id eq $member.id)我#else$!member.nickname#end的个人相册_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($tag="home")#set($photo=true)#set($adoptAlbum=true)
+#set($isShow=false)
+#if($!rights.get(1) eq 'album_public')
+#set($isShow=true)
+#elseif($!rights.get(1) eq 'album_friend' && $isMyFriend)
+#set($isShow=true)
+#end
+#if(!$!rights)
+	#set($isShow=true)
+#end
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#if($isShow)
+				#if(!$isFriend)
+				<div class="tab_menu">
+					<ul class="clear">
+						<li><a href="${basePath}home/album/albumList.xhtml?memberid=$member.id" #if(!$params.type)class="select"#end><span>#if($!logonMember.id eq $member.id)我#else TA#end的相册</span></a></li>
+						<li><a href="${basePath}home/album/albumList.xhtml?memberid=$member.id&type=friend" #if($params.type eq 'friend')class="select"#end><span>好友相册</span></a></li>
+						#if(!$isFriend)<li><a href="${basePath}home/new/uploadPicture.xhtml?tag=member&relatedid=$!logonMember.id" style="background:none;text-decoration:underline !important;">上传图片</a></li>#end
+					</ul>
+					#if(!$isFriend)<a href="javascript:void(0);" onclick="showCreateAlbum('adoptAlbum')" class="button whiteBt minBt more" style="right:0;"><span>+创建相册</span></a>#end
+				</div>
+				#end
+				<div class="title mt10">
+					<span class="gray">共有$count个相册</span>
+			   </div>
+				<ul class="percent_25 mt20">
+					#foreach($album in $albumList)
+					<li>
+						<a href="${basePath}home/album/albumImageList.xhtml?albumid=$!album.id" class="photoBox"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw100h100',$album.albumLogoUrl)) center 0 no-repeat;" width="100" height="100" alt=""/></a><br/>
+						$VmUtils.escabbr($album.subject, 20)<br/>
+						共$imageNum.get($album.id)张<br/>
+					</li>
+					#end
+				</ul>
+				<div class="page">#parse('include/pageUtil.vm')</div>
+			#else
+				<div class="outside-box">
+					<div class="inside-box">
+						<div class="gui-content topBg">
+						#if($!rights.get(1) eq 'album_private')
+							【$member.nickname】的相册设置了权限为【全体不可见】
+						#elseif($!rights.get(1) eq 'album_friend')
+							【$member.nickname】的相册设置了权限为【仅好友可见】,<a href="${basePath}home/friend/addFriend.xhtml?memberid=$member.id" class="brown">加为好友</a>即可一睹为快!
+						#end
+						</div>
+					</div>
+				</div>
+			#end
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+#parse('include/home/adoptAlbum.vm')
+</body>
+</html>

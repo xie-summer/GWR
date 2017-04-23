@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>万达格瓦拉订单差异明细</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="http://static5.gewara.com/component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="http://static5.gewara.com/styles/base.css"/>
+</head>
+<body style="margin:auto">
+<table class="table clear">
+	<thead>
+	<tr>
+		<th >城市</th>
+		<th >影院名称</th>
+		<th>下单时间</th>
+		<th>播放时间</th>
+		<th>影厅</th>
+		<th>座位</th>
+		<th>万达结算价</th>
+		<th >万达结算总金额</th>
+		<th>格瓦拉结算价</th>
+		<th >格瓦拉结算总金额</th>
+		<th >差异总金额</th>
+		<th>万达付款</th>
+	</tr>
+	</thead>
+	<tbody id="cinemaTable">
+	#set($wFF = 0)
+	#set($wCFF = 0)
+	#set($gFF = 0)
+	#set($gCFF = 0)
+	#foreach($c in $contrastList)
+	<tr>
+		<td>$!cinemaMap.get($c.cinemaId).getCityname()</td>
+		<td>$!cinemaMap.get($c.cinemaId).getName()</td>
+		<td>$!c.addTime</td>
+		<td>$!c.playTime</td>
+		<td>$!c.roomName</td>
+		<td>$!c.seats</td>
+		#set($fee = $c.ticketMoney/$c.seatNum)
+		#if($c.orderType eq 'WD')
+			#set($wFF = $wFF + $fee)
+			#set($wCFF = $wCFF + $c.ticketMoney)
+		#else
+			#set($gFF = $gFF + $fee)
+			#set($gCFF = $gCFF + $c.ticketMoney)	
+		#end
+		<td>#if($c.orderType eq 'WD')$fee #else 0#end</td>
+		<td>#if($c.orderType eq 'WD')$c.ticketMoney #else 0#end</td>
+		<td>#if($c.orderType eq 'WD')0 #else $fee#end</td>
+		<td>#if($c.orderType eq 'WD')0 #else $c.ticketMoney#end</td>
+		<td>#if($c.orderType eq 'GEWA')-#end$c.ticketMoney</td>
+		<td>$!c.payMode</td>
+	</tr>
+	#end
+	<tr>
+		<th ></th>
+		<th ></th>
+		<th></th>
+		<th></th>
+		<th></th>
+		<th></th>
+		<th>$wFF</th>
+		<th >$wCFF</th>
+		<th>$gFF</th>
+		<th >$gCFF</th>
+		#set($subT = $wCFF - $gCFF)
+		<th >$subT</th>
+	</tr>
+	</tbody>
+</table>
+</body>
+</html>

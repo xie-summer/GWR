@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>推荐列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+<body style="width:95%; margin:auto" class="yui-skin-sam">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td colspan="5"><span id="_resultSpan" class="ml20">推荐图片</span></td>
+		<td align="right" class="td">
+			<a class="p5Event" href="${basePath}noSubjectLink.xhtml?type=$!params.type&tag=$!params.tag">增加 </a>|			
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td">
+		<td align="left" width="160px"><b>标题</b></td>
+		<td align="left" width="200px"><b>内容</b></td>
+		<td align="left" width="160px"><b>图片</b></td>
+		<td align="left" width="200px"><b>链接</b></td>
+		<td align="left" width="80px"><b>排序</b></td>
+		<td align="left" width="120px"><b>操作</b></td>
+	</tr>
+	#foreach($pic in $picList)
+	<tr class="td">
+		<td align="left">$!pic.title</td>
+		<td align="left">$!pic.content</td>
+		<td align="left"><img style="height:100px; margin-left:80px;" src='${picPath}$pic.newslogo'/></td>
+		<td align="left">$!pic.newslink</td>
+		<td align="left">
+			<input type="text" value="$!pic.ordernum" name="ordernum" style="width: 50px" onchange="changeOrdernum('$!pic.get('_id')', this)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="p5Event" href="${basePath}noSubjectLink.xhtml?type=$!params.type&tag=$!params.tag&id=$!pic.get('_id')">[修改]</a>|
+			<a href="javascript:void(0)" onclick="javascript:doDelete('$!pic.get('_id')', this)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+<div id="pointText" style="visibility:hidden; z-index:601;"></div>
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		$$('.p5Event').addEvent('click',function(e){
+			e.preventDefault();
+			var url = "${basePath}admin/newsubject/commonAddPictrue.xhtml";
+			var values = {};
+			var ul = this.get('href').split('?');
+			if($defined(ul[1])){
+				values = ul[1].parseQueryString();
+			}
+			gewaUtil.loadData('pointText',url, values, function(result){
+				if(result.success){
+					GewaraUtil.showDialog('pointText');
+				}else{
+					gewaUtil.alert(result.json.msg);
+				}
+			});
+		});
+	});
+	doDelete = function (bsid, obj){
+		if(!window.confirm('确认删除吗? 该操作将删除所有记录，请谨慎操作！')) return false;
+		if(!window.confirm('请再次确认删除，请谨慎操作！')) return false;
+		var url = '${basePath}admin/newsubject/deletePictrue.xhtml';
+		var values = {'id': bsid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.dispose($(obj).getParent('tr'));				
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function changeOrdernum(id, obj){
+		var url = '${basePath}admin/newsubject/changeOrdernumPictrue.xhtml';
+		var values = {'id':id, 'ordernum': $(obj).get('value')};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$(obj).setStyle('background-color','red');
+				(function(){
+					$(obj).setStyle('background-color','');
+				}.bind(obj)).delay(800);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

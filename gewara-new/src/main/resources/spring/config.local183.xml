@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+	<bean class="com.gewara.support.GewaPropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:config/*.local.properties</value>
+				<value>classpath:/com/gewara/config/openapi-comment.properties</value>
+				<value>classpath:/com/gewara/config/sportApi.properties</value>
+				<value>classpath:/com/gewara/config/terminalApi.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="VmUtils" class="com.gewara.util.VmUtils" />
+	<bean id="AdminCityContant" class="com.gewara.constant.AdminCityContant" />
+	<bean id="config" class="com.gewara.Config">
+		<property name="pageMap">
+			<map>
+				<entry key="basePath" value="/" />
+				<entry key="staticPath" value="http://test.gewala.net/" />
+				<entry key="mobilePath" value="http://test.gewala.net/" />
+				<entry key="absWap" value="http://test10.gewala.net/" />
+				<entry key="absPath" value="http://test.gewala.net" />
+				<entry key="picPath" value="http://test.gewala.net/"/>
+				<entry key="httpsPath" value="http://test.gewala.net/" />
+				<entry key="monitorPath" value="http://192.168.2.188:81/monitor/" />
+				<entry key="terminalPath" value="http://192.168.2.224:17080/terminal/" />
+				<entry key="sendGoogleAnalytics" value="nosend" />
+				<entry key="VmUtils" value-ref="VmUtils" />
+				<entry key="ticketPath" value="/ticket/"/>
+				<entry key="AdminCityContant" value-ref="AdminCityContant" />
+			</map>
+		</property>
+		<property name="configMap">
+			<map>
+				<entry key="imgServer" value="102" />
+				<entry key="payServer" value="200" />
+				<entry key="payUrlBase" value="http://test.gewala.net/" />
+				<entry key="toPay" value="http://test.gewala.net/pay/tmpOrderForm.xhtml" />
+				<entry key="kaixinapikey" value="774701495538852734044bccef24a4ed" />
+				<entry key="kaixinsecretkey" value="84804d6eebab7305d82eaaf9c29b516d" />
+				<entry key="memcacheVersion" value="35" />
+				<entry key="domain" value="test.gewala.net" />
+				<entry key="searchUrl" value="http://192.168.2.224:12080/search"/>
+				<entry key="activityApiUrl" value="http://test.gewala.net/activity"/>
+				<entry key="cinemaproApiUrl" value="http://192.168.2.188:8080/cinemacompany/"/>
+				<entry key="gymApiUrl" value="http://test.gewala.net/gym"/>
+				<entry key="ticketApiUrl" value="http://test.gewala.net/ticket"/>
+				<entry key="ticketApi4Pnx" value="http://test.gewala.net/ticket"/>
+				<entry key="ssoLoginUrl" value="http://192.168.2.224:13080/sso/login" />
+				<entry key="ssoValidateUrl" value="http://192.168.2.224:13080/sso/"/>
+				<entry key="openApiUrl" value="http://test.gewala.net/openapi2/router/rest"/>
+				<entry key="openApiAppkey" value="gewaraInner"/>
+				<entry key="asynchTicketPriKey" value="xk#ysHGXK"/>
+				<entry key="encryptKey" value="${encryptKey}"/>
+				<entry key="spiderApiUrl" value="http://test.gewala.net/spider"/>
+				<entry key="sportTestPath" value="http://192.168.2.224:15080/sport/" />
+				<entry key="sendPushServerFlag" value="send"/>
+				<entry key="openfire.host" value="${openfire.host}" />
+			</map>
+		</property>
+	</bean>
+	<bean id="mongo" class="org.springframework.data.mongodb.core.MongoFactoryBean">
+		<property name="host" value="${mongo.server}" />
+		<property name="port" value="${mongo.port}" />
+		<property name="mongoOptions">
+			<bean class="com.gewara.mongo.support.GewaMongoOptions">
+				<property name="connectionsPerHost" value="50" />
+				<property name="maxWaitTime" value="5000" />
+				<property name="connectTimeout" value="5000" />
+			</bean>
+		</property>
+	</bean>
+	<bean id="memcachedClient" class="net.spy.memcached.spring.MemcachedClientFactoryBean">
+		<property name="servers" value="${memchached.servers}" />
+	</bean>
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+		<property name="url" value="jdbc:oracle:thin:@192.168.2.248:1521:dbtest" />
+		<property name="username" value="webdata" />
+		<property name="password" value="webdata2" />
+	</bean>
+	<!-- ReadOnly Hibernate SessionFactory -->
+	<bean id="readOnlyDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+		<property name="url" value="jdbc:oracle:thin:@192.168.2.249:1521:dbtest" />
+		<property name="username" value="webdata" />
+		<property name="password" value="webdata2" />
+	</bean>
+</beans>

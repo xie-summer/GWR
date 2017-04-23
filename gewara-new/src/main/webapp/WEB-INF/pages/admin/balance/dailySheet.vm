@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>每日报表</title>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=mootools&v=$VmUtils.jsVersion"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+</head>
+<body style="width:750px; margin:auto;">
+	<div class="mt20">
+		<a href="${basePath}admin/balance/settleAccount.xhtml" onclick="this.dispose()">结账（一日只能结一次帐）</a>
+	</div>
+	<table class="table mt20">
+		<thead>
+		<tr>
+			<th>结账日期</th>
+			<th>结账起始时间</th>
+			<th>结账结束时间</th>
+			<th>本次对账单</th>
+			<th>本次订单</th>
+			<th>本日现金表</th>
+			<th>本日订单</th>
+		</tr>		
+		</thead>
+		<tbody>
+			#foreach($checkRecord in $checkRecordList)
+			<tr>#set($checkStr=$DateUtil.formatDate($checkRecord.checktime))
+				<td>$checkStr</td>
+				<td>$DateUtil.formatTimestamp($checkRecord.fromtime)</td>
+				<td>$DateUtil.formatTimestamp($checkRecord.checktime)</td>
+				<td><a href="${basePath}admin/balance/queryAccount.xhtml?checkid=$checkRecord.id" target="_blank">本次对账单</a></td>
+				<td><a href="${basePath}admin/balance/queryOrder.xhtml?checkid=$checkRecord.id" target="_blank">本次订单</a></td>
+				<td><a href="${basePath}admin/balance/queryBill.xhtml?date=$checkStr" target="_blank">本日现金</a></td>
+				<td><a href="${basePath}admin/balance/queryOrder.xhtml?date=$checkStr" target="_blank">本日订单</a></td>
+			</tr>
+			#end
+			<tr>
+				<td colspan="7">#parse('include/pageUtil.vm')</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>

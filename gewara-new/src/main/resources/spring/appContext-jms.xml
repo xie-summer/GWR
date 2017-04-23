@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd">
+	<bean id="jmsFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
+		<property name="idleTimeout" value="600000"/><!-- 600 seconds -->
+		<property name="connectionFactory">
+			<bean class="org.apache.activemq.ActiveMQConnectionFactory">
+				<property name="sendTimeout" value="10000" />
+				<property name="clientIDPrefix">
+					<util:constant static-field="com.gewara.Config.DEPLOYID"/>
+				</property>
+				<property name="connectionIDPrefix">
+					<util:constant static-field="com.gewara.Config.DEPLOYID"/>
+				</property>
+				<property name="brokerURL">
+					<value>${jms.brokeUrl}</value>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	<bean id="defaultMsgQueue" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="defaultMsgQueue"/>
+	</bean> 
+	<bean id="jmsService" class="com.gewara.untrans.impl.JmsServiceImpl">
+		<property name="connectionFactory" ref="jmsFactory" />
+		<property name="defaultDestination" ref="defaultMsgQueue" />
+		<property name="receiveTimeout" value="20000" />
+		<property name="queueMap">
+			<map>
+				<entry key="paidOrderQueue" value="persist" />
+				<entry key="paidChargeQueue" value="persist" />
+				<entry key="addOrderQueue" value="persist" />
+				<entry key="updateCacheQueue" value="nonpersist" />
+				<entry key="shareQueue" value="nonpersist" />
+				<entry key="orderSettleQueue" value="persist" />
+				<entry key="activityGoodsQueue" value="persist" />
+				<entry key="gymOrderQueue" value="persist" />
+				<entry key="ticketPlayItemQueue" value="nonpersist" />
+				<entry key="ticketRemoteOrderQueue" value="persist" />
+				<entry key="gpticketRemoteOrderQueue" value="persist" />
+				<entry key="testQueue" value="persist" />
+				<entry key="terminalOrderQueue" value="persist" />
+			</map>
+		</property>
+	</bean>
+</beans>

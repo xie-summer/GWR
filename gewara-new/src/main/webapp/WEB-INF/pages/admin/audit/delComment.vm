@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>已删除的点评列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.w50{width:70px;}
+		.fck {clear: both;font-size: 12px;line-height: 22px;margin: 20px 40px;overflow: scorll; width:400px;}
+		.fck img{width:300px !important; height:200px !important;} 
+	</style>
+</head>
+<body>
+<form action="${basePath}admin/audit/getDelComment.xhtml" method="post" name="delCommentListForm" id="delCommentListForm">
+<input type="hidden" name="isexport" id="isexport"/>
+<div>
+<dl>
+<dd>发表日期：<input type="text" name="startTime" value="$!startTime"  onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" />~<input type="text" name="endTime" value="$!endTime"  onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" /></dd>
+<dd><input type="button" value="搜索" class="bt" onclick="exportComment('')" /> &nbsp; <input type="button" id="exportCommentBtn" value="导出Excel" onclick="exportComment('true')" /></dd>
+</dl>
+</div>
+</form>
+<div id="page" style="margin-top: 10px;">
+	#parse('include/pageUtil.vm')
+</div>
+<table class="table" width="100%" style="text-align: center;">
+	<thead  style="text-align: center;">
+	<tr>
+		<th width="10%">发布时间</th>
+		<th width="60%">内容</th>
+		<th width="10%">用户名</th>
+		<th width="10%">IP</th>
+		<th width="10%">手机</th>
+	</tr>
+	</thead>
+	<tbody id="diaryTable"  style="text-align: center;">
+	#foreach($comment in $commentList)
+		<tr>
+			<td>$!DateUtil.format($comment.addtime, 'yyyy-MM-dd HH:mm:ss')</td>
+		   <td>$!VmUtils.getSrcString($!comment.body)</td>
+			<td>$!comment.nickname</td>
+			<td>$!comment.ip</td>
+			<td>$!mobileMap.get($comment.memberid)</td>
+		</tr>
+	#end
+	</tbody>
+</table>
+</body>
+<script type="text/javascript">
+//表单搜索 / 导出Excel
+function exportComment(flag){
+	$('isexport').set('value', flag);
+	if(GewaraUtil.isNotNull(flag))$('exportCommentBtn').disabled = true;
+	$('delCommentListForm').submit();
+}
+</script>
+</html>

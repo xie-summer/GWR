@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>格瓦拉影院自助终端系统 - 格瓦拉生活网</title>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/partner/juxiang/layout.css"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript" src="${staticPath}scripts/base.js"></script>
+</head>
+
+<body>
+<div class="ui_layout">
+	<div class="ui_header"><h1>格瓦拉影院自助终端系统</h1></div>
+    <div class="ui_content">
+    	<div class="ui_step ui_step3"></div>   
+        <div class="ui_left">
+        	<div class="mod_kong chooseList" id="seatTable">
+            	<div class="mod_hd">
+                	<h2>选择影片</h2>
+                    <ul class="seatInfo">
+                    	<li><em class="hasSeat"></em>可选位置</li>
+                        <li><em class="sellSeat"></em>已售位置</li>
+                        <li><em class="checkSeat"></em>您已选的位置</li>                                               
+                    </ul>
+                </div>
+                <div class="mod_bd">
+                	<div class="stage">
+                    	<span class="text">全景图</span>
+                        <span class="eventTags eventTop">上</span>
+                        <span class="eventTags eventRight">右</span>
+                        <span class="eventTags eventDown">下</span>
+                        <span class="eventTags eventLeft">左</span>
+                        <div class="screen">$!{cinema.name} 银幕 #if($room.screenwidth)长$!{room.screenwidth}米#end  #if($room.screenheight)高$!{room.screenheight}米#end </div>
+                       #set($rowList=$VmUtils.split($room.seatmap,"@@"))
+                        <div class="wrapper" id="wrapper">
+                        	<div class="wrapped" id="wrapped" style="">
+                            	<div class="seatlist">
+                            	#set($classMap={'O':'noSeat','A':'hasSeat'})
+								#foreach($row in $rowList)
+                                    <dl class="clear">
+                                    	#foreach($rank in $VmUtils.split($row, ","))
+                                        <dd><div class="$classMap.get($rank)"></div></dd>
+                                        #end
+                                    </dl>
+                                  #end
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>            
+        </div>
+        <div class="ui_right">
+        	<div class="mod_kong">
+            	<div class="mod_hd">
+                	<h2>订票信息</h2>
+                </div>
+                <div class="mod_bd">
+                	<h3>$!{movie.name}</h3>
+                    <p>影院：$!{cinema.name}</p>
+                    <p>场次：$!{DateUtil.format($opi.playtime,'yyyy-MM-dd')}($!{DateUtil.getCnWeek($opi.playtime)}) $!{DateUtil.format($opi.playtime,'HH:mm')}</p>
+                    <p>放映厅：$!{opi.roomname}</p>
+                    <p>票价：<b class="cFf0 fs30">${priceHelper.getPrice($opi)}</b>元(原价$!{opi.price},立省#set($freePrice=$opi.price - $priceHelper.getPrice($opi))$!freePrice元)</p>
+                    <div class="ui_line"></div>
+                    <span id="no"></span>
+                    <p>您选择的座位：</p>
+                    <p class="chooseSeatResult" id="selectedSeat"></p>
+                    <p id="seatNumP">共<b class="cFf0">0</b>张电影票</p>
+                    <p id="seatPrices">需支付：<b class="cFf0 fs30">¥0</b>元</p>
+                    <div class="ui_line"></div>                    
+                </div>
+            </div>
+            <form id="orderForm">
+                <input type="hidden" name="seatid" id="seatList" value=""/>     
+                <input type="hidden" name="mpid" value="$!opi.mpid"></input>      
+                <div class="modifyPhone">
+                    <p>接收手机：<input type="text" class="phone" maxlength="11" id="phoneInput" name="mobile"/></p>
+                    <p class="text">用于接收取票信息，不会产生任何费用</p>
+                    <div class="phoneTips none" id="phoneTips">
+                        <span></span>
+                        <ul>
+                            <li class="num1"><a onclick="choosePhoneNum(this);" title="1" href="javascript:;">1</a></li>
+                            <li class="num2"><a onclick="choosePhoneNum(this);" title="2" href="javascript:;">2</a></li>
+                            <li class="num3"><a onclick="choosePhoneNum(this);" title="3" href="javascript:;">3</a></li>
+                            <li class="del"><a id="del" href="javascript:;">del</a></li>
+                            <li class="num4"><a onclick="choosePhoneNum(this);" title="4" href="javascript:;">4</a></li>
+                            <li class="num5"><a onclick="choosePhoneNum(this);" title="5" href="javascript:;">5</a></li>
+                            <li class="num6"><a onclick="choosePhoneNum(this);" title="6" href="javascript:;">6</a></li>
+                            <li class="pre"><a id="pre" onclick="setPreCaret();" href="javascript:;">pre</a></li>
+                            <li class="num7"><a onclick="choosePhoneNum(this);" title="7" href="javascript:;">7</a></li>
+                            <li class="num8"><a onclick="choosePhoneNum(this);" title="8" href="javascript:;">8</a></li>                                
+                            <li class="num9"><a onclick="choosePhoneNum(this);" title="9" href="javascript:;">9</a></li>
+                            <li class="next"><a id="next" onclick="setNextCaret();" href="javascript:;">next</a></li>
+                            <li class="num0"><a onclick="choosePhoneNum(this);" title="0" href="javascript:;">0</a></li>
+                            <li class="clean"><a id="clean" href="javascript:;">clean</a></li>
+                            <li class="submit"><a id="submit" href="javascript:;">submit</a></li>
+                        </ul>
+                    </div>
+                </div>       
+                <a class="bigBt payment" href="javascript:submitOrder()">下一步，支付</a>
+            </form>
+        </div>      
+    </div>
+    <div class="ui_footer" id="uiFooter">    	
+        <a class="goBack" href="${basePath}partner/juxiang/chooseOpi.xhtml?pageNo=0&movieId=$!{movie.id}&fyrq=$!{DateUtil.format($opi.playtime,'yyyy-MM-dd')}&cinemaId=$!{cinema.id}&width=$!{width}">返回</a>
+        <a class="logOut" href="javascript:window.external.FromExit();">退出</a>
+    </div>
+</div>
+<script type="text/javascript">
+var curCursor=1,curNum,aCurNum;
+window.addEvent('domready',function(){
+	new seat();
+	choosePhone();
+	$('del').addEvent('click',function(){
+		deletePhoneNum();	
+	});
+	refreshSeat();
+});
+function choosePhone(){
+	$('phoneInput').addEvent('click',function(){
+		this.addClass('select');
+		$('phoneTips').removeClass('none');
+		$('uiFooter').setStyle("z-index","10");
+        getCurCaret();
+	});
+	$('submit').addEvent('click',function(){		
+		var curPhone = $('phoneInput').get('value');
+		if(!isMobile(curPhone)){
+			alert('请输入正确的手机号码');
+		}
+		else{
+			$('phoneTips').addClass('none');
+			$('phoneInput').removeClass('select');	
+			$('uiFooter').setStyle("z-index","100");
+			//alert('号码正确');
+		}
+	});
+	$('clean').addEvent('click',function(){		
+		$('phoneInput').set('value','');
+		$('phoneInput').focus();
+	});
+}
+function isNumber(str){return /^\d+$/.test(str);}
+
+function submitOrder(){
+	var err = "",val=$("phoneInput").value.trim();
+	if($("seatList").value.trim()== ""){
+		err = "请先选择座位！";
+		alert(err);
+		return;
+	}
+	if(val == ""){err += "请输入您的手机号码！";alert(err);return;}
+	if((!isNumber(val) || val.length != 11) && val != ""){err += "请输入正确的手机号码！";alert(err);return;}
+	//if($('orderCaptchaInput').value == ""){err += "请输入验证码！";alert(err);return;}
+	gewa.util.mask({'element': "orderForm",'title':'正在提交，请稍等...'});
+	var values = GewaraUtil.getValues($("orderForm"));
+	var url = '${basePath}partner/juxiang/addOrder.xhtml';
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			document.location = '${basePath}partner/juxiang/showOrder.xhtml?orderId='+result.retval+"&citydes=$!citydes&width=$!{width}";
+		}else {
+			alert(result.msg);
+			//GewaraUtil.refreshCaptcha('orderCaptcha');
+		}
+	});
+}
+function choosePhoneNum(el){
+	curNum = $('phoneInput').get('value'); 
+	aCurNum = curNum.split("");
+	var numTags = el.getAttribute('title');
+	if(aCurNum.length > 10){
+		alert('手机号码不能超过11位！');
+		return false;
+	}	
+	aCurNum.splice(curCursor,0,numTags);	
+	$('phoneInput').set('value', aCurNum.join(""));
+	$('phoneInput').setCaretPosition(curCursor+1);
+	getCurCaret();
+
+}
+function deletePhoneNum(){
+	curNum = $('phoneInput').get('value');
+	aCurNum = curNum.split("");
+	if(curCursor < 1){
+		$('phoneInput').focus();
+		return false;
+	}
+	aCurNum.splice(curCursor-1,1);
+	$('phoneInput').set('value', aCurNum.join(""));	
+	$('phoneInput').setCaretPosition(--curCursor);	
+}
+function setPreCaret(){
+	var preCursor = $('pre');
+	$('phoneInput').setCaretPosition(--curCursor);
+}
+function setNextCaret(){
+	var NextCursor = $('next');
+	$('phoneInput').setCaretPosition(++curCursor);
+}
+function getCurCaret(){
+	curCursor = $('phoneInput').getCaretPosition();
+}
+
+
+function refreshSeat(){
+	gewa.util.mask({'element': "loadtable",'title':'正在查询数据...', "opacity":"0.4"});
+	GewaraUtil.sendLoad("seatTable",'${basePath}partner/juxiang/seatPage.xhtml', {'mpid':$opi.mpid, 'price':'$!{price}'}, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			new seat({cloneList:[$!jsSeatList]});
+		}else{
+			if(result.json){
+				alert(result.json.msg);
+			}
+		}
+	});
+}
+</script>
+<script type="text/javascript">
+var pageCode="step1.shtml"
+</script>
+#parse('partner/googleGa.vm')
+</body>
+</html>

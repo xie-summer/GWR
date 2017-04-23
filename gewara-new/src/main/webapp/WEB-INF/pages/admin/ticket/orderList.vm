@@ -1,0 +1,265 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>售票订单处理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+	</style>
+</head>
+<body>
+#set($opiLen=$VmUtils.size($opiList))
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore">$!{cinema.name}</li>
+			<li><a href="${basePath}admin/ticket/mpiManage.xhtml?cid=$!params.cid"><span>场次管理</span></a></li>
+			<li class="currs"><a href="${basePath}admin/ticket/orderList.xhtml" class="admin"><span>订单管理</span></a></li>
+			<li><a href="${basePath}admin/message/smsList.xhtml?status=failure" class="admin"><span>失败短信</span></a></li>
+			<li><a href="${basePath}admin/message/unSmsRecordOrderList.xhtml" class="admin"><span>未加入短信</span></a></li>
+			<li><a href="${basePath}admin/ticket/opiStats.xhtml?cid=$!params.cid" class="admin"><span>座位统计</span></a></li>
+			<li><a href="${basePath}admin/message/hisSmsList.xhtml" class="admin"><span>历史短信</span></a></li>
+		</ul>
+	</div>
+</div>
+<div class="manageItemList">
+	<em class="b1f"></em><em class="b2f"></em>
+	<div class="contentInfoList"> 
+		<div class="checkOrder"><h2>影票订单处理</h2></div>
+		<div class="aboutMovie">
+			#if($msg)<div style="colr:red;font-size:24px;font-weight:bolder">$msg</div>#end
+			<table cellpadding="0" cellspacing="0" width="100%">
+				#if($VmUtils.isNotBlank($!params.cid) && $VmUtils.isNotBlank($!params.movieid))
+				#foreach($opi in $opiList)
+				#if($foreach.count%5 eq 1)
+				<tr>
+				#end
+					<td style="height: 25px;width: 125px;">
+						<a #if($VmUtils.eq($params.mpid,$opi.mpid))class="match" #else class="blue" #end href="javascript:queryOrder('mpid','$opi.mpid')">${DateUtil.format($opi.playtime,'MM-dd HH:mm')}</a><a href='${basePath}admin/message/smsList.xhtml?relatedid=${opi.mpid}&smstype=now' class="ml10" target="_blank">[短信]</a>
+					</td>
+				#if($foreach.count%5 eq 0 || $foreach.count eq $opiLen)
+				</tr>
+				#end
+				#end
+				#end
+				<tr valign="middle" style="margin-top: 10px;">
+					<td colspan="5">
+						<form id="searchOrderForm" action="${basePath}admin/ticket/orderList.xhtml">
+							影&nbsp;&nbsp;院：<select name="cid">
+							<option value="" #if($VmUtils.isBlank($!params.cid))selected#end>全部影院</option>
+							#foreach($cinema in $cinemaList)
+							<option value="$cinema.id" #if($VmUtils.eq($!params.cid, $cinema.id))selected#end>$VmUtils.getFirstSpell($cinema.realBriefname)-$cinema.realBriefname</option>
+							#end
+						</select>
+						电影：<select name="movieid">
+							<option value="" #if($VmUtils.isBlank($!params.movieid))selected#end>全部电影</option>
+							#foreach($movie in $movieList)
+							<option value="$movie.id" #if($VmUtils.eq($!params.movieid, $movie.id))selected#end>$VmUtils.getFirstSpell($movie.realBriefname)-$movie.realBriefname</option>
+							#end
+						</select>
+						<span class="ml10"><a href="javascript:queryOrder('mpid', '')" #if($VmUtils.isBlank($!params.mpid))class="match" #else class="blue"#end>全部场次</a></span>
+						<div class="mt5"></div>
+						<input type="hidden" name="ordertype" id="ordertype" value="$!ordertype" />
+						<input type="hidden" name="minute" id="minute" value="$!params.minute" />
+						<input type="hidden" name="mpid" id="mpid" value="$!params.mpid" />
+						<label>订单号：<input type="text" name="tradeNo" value="$!{params.tradeNo}" class="pubinput" size="18" style="height:20px;"/>（尾数）</label>
+						<label class="ml10">手机号（模糊）：<input type="text" name="mobile" value="$!{params.mobile}" class="pubinput" size="18" style="height:20px;"/></label>
+						<input type="submit" value="查  询" class="bt1"/>
+						</form>
+					</td>
+				</tr>
+				<tr valign="middle" style="height:40px;">
+					<td colspan="5">
+						<a href="javascript:queryOrder('minute','')" class="bold">时间：</a>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'30'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','30')">半小时前</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'60'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','60')">1小时</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'120'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','120')">2小时</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'180'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','180')">3小时</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'240'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','240')">4小时</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'360'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','360')">6小时</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'480'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','480')">8小时</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'720'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','720')">12小时</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'1440'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','1440')">1天</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'2880'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','2880')">2天</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'7200'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','7200')">5天</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'10080'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','10080')">7天</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'14400'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','14400')">10天</a></span>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<ul class="orderSet mt20">
+			<li id="all" #if($VmUtils.isBlank($ordertype))class="seeOrder"#end><a href="javascript:queryOrder('ordertype','')" class="blue">全部</li>
+			<li id="new" #if($ordertype eq 'new')class="seeOrder"#end><a href="javascript:queryOrder('ordertype','new')" class="blue">待付款</a></li>
+			<li id="paid" #if($ordertype eq 'paid')class="seeOrder"#end><a href="javascript:queryOrder('ordertype','paid')" class="blue">已付款</a></li>
+			<li id="paid_success" #if($ordertype eq 'paid_success')class="seeOrder"#end><a href="javascript:queryOrder('ordertype','paid_success')" class="blue">交易成功</a></li>
+			<li id="paid_failure" #if($ordertype eq 'paid_failure')class="seeOrder"#end><a href="javascript:queryOrder('ordertype','paid_failure')" class="blue">交易失败</a></li>
+			<li id="cancel" #if($ordertype eq 'cancel')class="seeOrder"#end><a href="javascript:queryOrder('ordertype','cancel')" class="blue">已取消</a></li>
+			<li><a href="${basePath}admin/message/smsList.xhtml?status=failure" class="blue" target="_blank"><b>失败短信</b></a></li>
+		</ul>
+		<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+			<thead><tr>
+				<th>&nbsp;</th>
+				<th>场次</th>
+				<th>类型</th>
+				<th style="width:100px;">订单号</th>
+				<th style="width:60px;">取票密码</th>
+				<th style="width:60px;">HFH密码</th>
+				<th style="width:90px;">下单/付款</th>
+				<th style="width:75px;">联系电话</th>
+				<th>用户</th>
+				<th style="width:230px;">座位</th>
+				<th>总价</th>
+				<th>套餐</th>
+				<th style="width:80px;">状态</th>
+				#if($VmUtils.eq($params.ordertype, 'paid_failure'))<th>支付方式</th>#end
+				<th>操作</th>
+			</tr></thead>
+			<tbody id="tbody">
+				#set($SUMQ=0)
+				#foreach($order in $orderList)
+				#set($dmap=$VmUtils.readJsonToMap($order.description2))#set($SUMQ=$SUMQ+$order.quantity)
+				#set($changeMap=$VmUtils.readJsonToMap($order.changehis)) #set($buytimes=$changeMap.get("buytimes"))
+				#set($otherMap=$VmUtils.readJsonToMap($order.otherinfo))
+				#set($opi=$opiMap.get($order.mpid))
+				<tr class="grayBg h" id="row${order.id}">
+					<td>$foreach.count</td>
+					<td title="$VmUtils.escapeHtml($order.description2)"><a href="${basePath}admin/ticket/booking.xhtml?mpid=$order.mpid&ordertype=$order.status" target="_blank">$order.ordertitle.replace('电影票','')</a><br />$dmap.get("场次")</td>
+					<td>${order.category}</td>
+					<td><a href="${basePath}admin/gewapay/orderDetail.xhtml?tradeNo=$order.tradeNo" target="_blank">$order.tradeNo.substring(10)</a><br/>
+						<a style="color:blue;" href="${basePath}admin/ticket/orderLoghis.xhtml?tradeNo=$order.tradeNo&post=true" target="_blank">[历史]</a>
+					</td>
+					<td>$order.checkpass</td>
+					<td>$!order.hfhpass</td>
+					<td #if($otherMap.size() gt 0) title="$!otherMap" style="color: red;"#end>$DateUtil.format(${order.addtime},'M-d HH:mm:ss')#if($order.paidtime)<br />$DateUtil.format(${order.paidtime},'M-d HH:mm:ss')#end<span style="display:none">$otherMap</span></td>
+					<td #if($changeMap.changeSeat || $changeMap.mpito || $order.remark) title='$order.changehis $!order.remark' style="color:red"#end onclick="showMobile($order.id,'$order.mobile')"><span class="demobile" id="order$order.id">$VmUtils.getSmobile($order.mobile)</span></td>
+					<td><a href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$order.memberid" target="_blank">$order.membername</a></td>
+					<td #if($buytimes)style="color:green; cursor: pointer; font-weight: bold;" title="曾经购买次数：$buytimes"#end>$dmap.get("影票")</td>
+					<td>#if($order.discount gt 0)<span style="color:red;font-weight: bold;" title="$order.disreason">${order.totalAmount}</span>#else${order.totalAmount}#end</td>
+					<td>#if($order.paidSuccess)
+					#if($otherMap.get("bindgoods") || $orderMap.get("goodsgift"))
+						#if($otherMap.get("bindtradeno"))<a href="${basePath}admin/gewapay/orderDetail.xhtml?tradeNo=$otherMap.get('bindtradeno')" target="_blank">查看</a>
+						#else<a href="${basePath}admin/ticket/order/addBindGoodsOrder.xhtml?orderid=$order.id">手动增加</a>#end
+					#else<a href="${basePath}admin/ticket/order/getBindGoodsOrder.xhtml?orderid=$order.id">无</a>#end
+						#end
+					</td>
+					<td>${order.statusText}</td>
+					#if($VmUtils.eq($params.ordertype, 'paid_failure'))<td>$!order.paymethodText</td>#end
+					<td>
+			#if(!$opi.expired)
+				#if($order.notAllPaid)
+						<span style="color:red; font-size: 18px; font-weight:bolder;">付款金额与订单金额不等，请退款</span>
+				#elseif($order.paidFailure || $order.paidUnfix)
+					#if($order.canProcess() || !$order.needChangeSeat())
+						#if(!$opi.hasGewara())
+						<a href="${basePath}admin/ticket/order/checkSeat.xhtml?orderid=$order.id" target="_blank">检查状态</a>
+						<a href="${basePath}admin/ticket/order/unlock.xhtml?orderid=$order.id" target="_blank">解锁</a>
+						<a href="${basePath}admin/ticket/order/getRemoteOrder.xhtml?orderid=$order.id" target="_blank">火状态</a>
+							#if($order.needChangeSeat() && $order.paidUnfix)
+						<a href="${basePath}admin/ticket/order/reConfirmOrder.xhtml?orderId=$order.id" target="_blank">重下订单</a>
+						<input type="button" class="bt1" value="修改座位" onclick="modifySeat($order.id)"/>
+							#else
+						<input type="button" class="bt1" value="确认成功" onclick="confirmOrder($order.id, this)"/>
+							#end
+						#else
+						<input type="button" class="bt1" value="确认成功" onclick="confirmOrder($order.id, this)"/>
+						#end
+						<br /><span style="color:red" id="confirm$order.id">#if($otherMap.get('processError'))上次：$otherMap.get('processError')#end</span>
+					#else
+					<span>请1-5分钟后处理</span>
+					#end
+				#elseif($order.cancel && $opi.hfh)
+					<a href="${basePath}admin/ticket/order/unlock.xhtml?orderid=$order.id" target="_blank">解锁</a>
+					<a href="${basePath}admin/ticket/order/getRemoteOrder.xhtml?orderid=$order.id" target="_blank">火状态</a>
+				#end
+			#end
+					</td>
+				</tr>
+				#end
+				<tr class="grayBg h">
+					<td #if($VmUtils.startsWith($params.ordertype, 'paid_failure'))colspan="15" #else colspan="14" #end>订单数量：$VmUtils.size($!orderList),影票数量：$SUMQ</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<em class="b2f"></em><em class="b1f"></em>
+</div>
+<div id="modifyDialog" class="yui-panel" style="width:450px; visibility:hidden; z-index:20;background: #000">
+	<div style="width:430px;margin:10px;background:#FFF;">
+		<div style="text-align:center;height:20px;line-height: 20px;">
+			<strong>修改订单座位</strong>
+		</div>
+		<div class="bd" style="text-align:center;">
+			<form name="seatForm" id="seatForm">
+				<input type="hidden" name="orderid" id="orderid" />
+				<div>座位的总价格必须与原座位相同，多个座位用英文逗号分隔，输入格式比如“5排03座,5排04座”，如入为：”5:03,5:04“</div>
+				<div style="padding:0 40px;text-align:left">
+					<label for="newseat" style="display:inline-block;">输入座位：</label>
+					<input name="newseat" id="newseat" style="150px;display:inline-block;border-width:1px;border-style:solid;border-color:#404040 #CCC #CCC #404040;"/>
+					<span class="req">&nbsp;</span>
+				</div>
+				<div>
+					<label>&nbsp;</label>
+					<input type="button" class="cbt1" onclick="save();" value="保存"/>
+					<input type="button" class="cbt1" onclick="GewaraUtil.hideDialog('modifyDialog');" value="取消"/>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+	if($("curList")) $("curList").getParent().removeClass("shrink");
+	$$(".aboutMovie").getElements(".controlPoint").each(function(item){
+		item.addEvent("click",function(){
+			this.getNext().getElement("ul").toggleClass("shrink");
+		});
+	});
+});
+function queryOrder(field, value){
+	$(field).value=value;
+	$('searchOrderForm').submit();
+}
+var item = "";
+function showMobile(orderid, mobile){
+	if($(item)) {
+		$(item).set('html', "*******"+mobile.substr(7,4));
+		$(item).removeClass('yellow');
+	}
+	$('order' + orderid).set('html', mobile);
+	$('order' + orderid).addClass('yellow');
+	item = 'order' + orderid;
+}
+function modifySeat(orderId){
+	$("orderid").value=orderId;
+	GewaraUtil.showDialog("modifyDialog");
+}
+function confirmOrder(orderId, el){
+	el.dispose();
+	var url = "${basePath}admin/ticket/order/confirmSuccess.xhtml";
+	GewaraUtil.sendRequest(url, {"orderId":orderId}, function(result){
+		if(result.success){
+			$("confirm"+orderId).set("html", "转换成功");
+		}else {
+			alert(result.msg);
+			$("confirm"+orderId).set("html", "转换失败");
+		}
+	})
+}
+</script>
+</body>
+</html>

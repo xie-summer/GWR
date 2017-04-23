@@ -1,0 +1,72 @@
+<table width="100%" border="1" cellspacing="0" class="table">
+	<thead>
+	<b>搜索结果：</b>共 $count 部视频
+	<tr align="center">
+		<th>影片封面</th>
+		<th>影片名</th>
+		#*<th>主演</th>*#
+		<th>片长</th>
+		<th>操作 </th>
+	</tr>
+	</thead>
+	<tbody id="videoTable">
+	#foreach($video in $videoList)
+		#if($relationVideo)
+			#if($video.timeLength > 1500)
+		<tr id="video_${video.id}">
+			#set($url="http://dispatcher.video.qiyi.com/disp/shareplayer.swf?coop=coop_gewara&bd=1&autoPlay=1&tvid=$!video.tvId&vid=$!video.tvUniqId")
+			<td><a href="$!video.link" target="_blank"><img src="$!video.videoImage" /></a></td>
+			<td>$!video.tvName</td>
+			#*<td>
+			111
+			</td>*#
+			<td>$!math.idiv($!video.timeLength, 60)分$!math.mod($!video.timeLength, 60)秒</td>
+			<td>
+				#if($urlList.contains($url))
+				<input type="button" style="width: 70px;" value="已确认" disabled="disabled"/>
+				#else
+				<input type="button" style="width: 70px;" value="确认" onclick="youkuVideo('$url','${video.tvName}','${video.videoImage}');"/>
+				#end
+			</td>
+		</tr>
+			#end
+		#else
+			<tr id="video_${video.id}">
+			#set($url="http://dispatcher.video.qiyi.com/disp/shareplayer.swf?coop=coop_gewara&bd=1&autoPlay=1&tvid=$!video.tvId&vid=$!video.tvUniqId")
+			<td><a href="$!video.link" target="_blank"><img src="$!video.videoImage" /></a></td>
+			<td>$!video.tvName</td>
+			#*<td>
+			111
+			</td>*#
+			<td>$!math.idiv($!video.timeLength, 60)分$!math.mod($!video.timeLength, 60)秒</td>
+			<td>
+				#if($urlList.contains($url))
+				<input type="button" style="width: 70px;" value="已确认" disabled="disabled"/>
+				#else
+				<input type="button" style="width: 70px;" value="确认" onclick="youkuVideo('$url','${video.tvName}','${video.videoImage}');"/>
+				#end
+			</td>
+		</tr>
+		#end
+	#end
+	</tbody>
+</table>
+#set($pageFun="ajaxPage")
+#parse('include/scriptPageUtil.vm')
+<script>
+youkuVideo = function(url,title,thumbnail){
+	#if($relationVideo)
+		addMovieRelation(url,title,thumbnail);
+	#else
+	GewaraUtil.hideDialog("youkuVideoDialog");
+	GewaraUtil.showDialog("videoDialog");
+	$('url').value = url;
+	$('videotitle').value = title;
+	$('logo').value = thumbnail;
+	#end
+}
+addMovieRelation = function(playUrl,title,thumbnail){
+	var url = "${basePath}admin/common/ajax/saveOrUpdateVideo.xhtml";
+	GewaraUtil.sendRequest(url, {"tag":"movieFilm","relatedid":"$!{relatedid}","url":playUrl,"videotitle":title,"logo":thumbnail}, saveCallBack)
+}
+</script>

@@ -1,0 +1,371 @@
+<!Doctype html>
+<html>
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>$!{cookieCityname}$!{curCounty.countyname}羽毛球场地_游泳池_网球场_保龄球场_高尔夫球场馆预订 - 格瓦拉生活网</title>
+	<meta name="keywords" content="格瓦拉生活网提供羽毛球场地,游泳池,网球场,保龄球场,高尔夫球场等各类场地场馆预订及地址,线路,优惠信息查询."/>
+	<meta name="description" content="格瓦拉生活网提供羽毛球场地,游泳池,网球场,保龄球场,高尔夫球场等各类场地场馆预订及地址,线路,优惠信息查询."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${basePath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ui_layout{background:none;}
+	</style>
+</head>
+<body>
+#set($issport=true)
+#set($cfgHeader='header')
+#set($curriculumselect=true)
+#parse('include/wide_header.vm')
+<form id="searchForm" action="${basePath}sport/curriculumList.xhtml">
+	<input type="hidden" name="servicetype" id="servicetype" value="$!VmUtils.getText($params.servicetype)"/>
+	<input type="hidden" name="countycode" id="countycode" value="$!VmUtils.getText($params.countycode)"/>
+	<input type="hidden" name="indexareacode" id="indexareacode" value="$!VmUtils.getText($params.indexareacode)"/>
+	<input type="hidden" name="timetype" id="timetype" value="$!VmUtils.getText($params.timetype)"/>
+	<input type="hidden" name="fitcrowd" id="fitcrowd" value="$!VmUtils.getText($params.fitcrowd)"/>
+	<input type="hidden" name="searchKey" id="searchKey" value="$!VmUtils.getText($params.searchKey)"/>
+	<input type="hidden" name="fromprice" id="fromprice" value="$!VmUtils.getText($params.fromprice)"/>
+	<input type="hidden" name="toprice" id="toprice" value="$!VmUtils.getText($params.toprice)"/>
+	<input type="hidden" name="order" id="order" value="$!VmUtils.getText($params.order)"/>
+</form>
+<div class="ui_layout bgtrans">
+	<div class="index_wrap clear">
+		#parse('include/sport/wide_menu_left.vm')
+		<div class="index_right">
+			<div class="mt10">
+				<div class="ui_left">
+					<div class="mod_kong">
+						<div class="mod_hd train_hd">
+							
+						</div>
+						<div class="mod_bd">
+							<div class="mod_tabs mod_tabs_sport">
+								<div class="mod_hd">
+									<ul class="nav_tabs" id="nav_tabsDiv">
+										<li class="select" id="dramaInfoBoxTab"><a href="javascript:void(0);">培训课程</a></li>
+										<li id="theatraIntruduceTab"><a href="${basePath}sport/agencyList.xhtml">培训机构</a></li>
+									</ul>
+								</div>
+								<div class="mod_bd clear wiP">
+									<div class="condition mt20">
+										<ul class="ulist">
+											<li>
+												<div class="condition">
+													<dl class="clear dlTy">
+														<dt>
+															<span class="typeTitle mr10">选择项目 </span>
+														</dt>
+														<dd>
+														#foreach($sportItem in $sportItemList)
+														<a #if($VmUtils.eq($sportItem.id, $params.servicetype)) #set($searchTJ1=${sportItem.itemname}) class="selected" #end href="javascript:setParamsValue('servicetype','$sportItem.id');">${sportItem.itemname}</a>
+														#end
+														</dd>
+													</dl>
+												</div>
+											</li>
+											<li>
+												<div class="condition">
+													<dl class="clear dlTy">
+														<dt>
+															<span class="typeTitle mr10">行政区域 </span>
+														</dt>
+														<dd>
+														#foreach($pair in $countyGroup)
+														#set($pairCount = $countyGroup.size())
+														#set($str=${pair.get('county').briefname})
+														<a #if($VmUtils.eq($pair.get('county').countycode,$params.countycode)) #set($searchTJ2=$str) class="selected" #else href="javascript:setParamsValue('countycode','${pair.get('county').countycode}');" #end>$str</a>
+														#end
+														</dd>
+													</dl>
+												</div>
+											</li>
+											#if($VmUtils.isNotBlank($params.countycode))
+											<li>
+												<div class="condition">
+													<dl class="clear dlTy">
+														<dt>
+															<span class="typeTitle mr10">选择商圈 </span>
+														</dt>
+														<dd>
+														#foreach($pair in $indexareaGroup)
+														<a #if($VmUtils.eq($pair.indexarea.indexareacode,$params.indexareacode))class="selected" #set($searchTJ3=$pair.indexarea.indexareaname) #else href="javascript:setParamsValue('indexareacode','${pair.indexarea.indexareacode}');" #end>${pair.indexarea.indexareaname}</a>
+														#end
+														</dd>
+													</dl>
+												</div>
+											</li>
+											#end
+											<li>
+												<div class="condition">
+													<dl class="clear dlTy">
+														<dt>
+															<span class="typeTitle mr10">培训时间 </span>
+														</dt>
+														<dd>
+														<a #if($VmUtils.eq($params.timetype, 'weekend')) class="selected" #set($searchTJ4='周末') #else href="javascript:setParamsValue('timetype','weekend');" #end>周末</a>
+														<a #if($VmUtils.eq($params.timetype, 'nighttime')) class="selected" #set($searchTJ4='夜间') #else  href="javascript:setParamsValue('timetype','nighttime');" #end>夜间</a>
+														<a #if($VmUtils.eq($params.timetype, 'summerwinter')) class="selected" #set($searchTJ4='全日制') #else  href="javascript:setParamsValue('timetype','summerwinter');" #end>全日制</a>
+														<a #if($VmUtils.eq($params.timetype, 'fulltime')) class="selected" #set($searchTJ4='寒暑班') #else  href="javascript:setParamsValue('timetype','fulltime');" #end>寒暑班</a>
+														</dd>
+													</dl>
+												</div>
+											</li>
+											<li>
+												<div class="condition">
+													<dl class="clear dlTy">
+														<dt>
+															<span class="typeTitle mr10">适宜人群 </span>
+														</dt>
+														<dd>
+														<a #if($VmUtils.eq($params.fitcrowd, 'child')) class="selected" #set($searchTJ5='幼儿') #else href="javascript:setParamsValue('fitcrowd','child');" #end>幼儿</a>
+														<a #if($VmUtils.eq($params.fitcrowd, 'youngster')) class="selected" #set($searchTJ5='青少年') #else href="javascript:setParamsValue('fitcrowd','youngster');" #end>青少年</a>
+														<a #if($VmUtils.eq($params.fitcrowd, 'adult')) class="selected" #set($searchTJ5='成人') #else href="javascript:setParamsValue('fitcrowd','adult');" #end>成人</a>
+														<a #if($VmUtils.eq($params.fitcrowd, 'elderly')) class="selected" #set($searchTJ5='中老年') #else href="javascript:setParamsValue('fitcrowd','elderly');" #end>中老年</a>
+														</dd>
+													</dl>
+												</div>
+											</li>
+										</ul>
+										<dl class="clear dlTy">
+											<dt>
+												<span class="typeTitle left">名称查询</span>
+											</dt>
+											<dd>
+												<div class="search_kuang left">
+													<form action="javascript:setParamsValue('searchKey',$('searchKey2').value);">
+														<input id="searchKey2" value="$!params.searchKey" class="search_text searchText noradius" type="text"  alt="请输入搜索关键词"  name="searchKey2">
+														<label class="search_button noradius">
+															<input type="button" value="" onclick="setParamsValue('searchKey',$('searchKey2').value)"/>
+														</label>
+													</form>
+												</div>						
+											</dd>
+										</dl>
+									</div>
+									<div class="selectedMenus clear mt20">
+										<div class="right">
+											<div class="ui_simulate">
+												<div class="simulate_select">
+													<div class="select_value">默认</div>
+													<a class="select_arrow" href="javascript:void(0);"></a>
+													<input class="simulate_value" type="hidden" value="" name="order">
+												</div>
+												<ul class="simulate_options">
+													<li><a href="javascript:void(0);" data-value="">默认</a></li>
+													<li><a href="javascript:void(0);" data-value="clickedtimes">按人气(由高到低)</a></li>
+													<li><a href="javascript:void(0);" data-value="minprice">按价格(由低到高)</a></li>
+												</ul>
+											</div>
+										</div>
+										<div class="left tiaojian_p">
+											#if(${searchTJ1} || ${searchTJ2} || ${searchTJ3} || ${searchTJ4} || ${searchTJ5} || $VmUtils.isNotBlank($params.sportname))
+											<span class="">已选条件：</span>
+											#end
+											#if(${searchTJ1})
+											<span class="selections">
+												<em>${searchTJ1}</em>
+												<a class="ui_x bg6_hover" onclick="removeParamsValue('servicetype','$searchTJ1')">×</a>
+											</span>
+											#end
+											#if(${searchTJ2})
+											<span class="selections">
+												<em>${searchTJ2}</em>
+												<a class="ui_x bg6_hover" onclick="removeParamsValue('countycode','$searchTJ2')">×</a>
+											</span>
+											#end
+											#if(${searchTJ3})
+											<span class="selections">
+												<em>${searchTJ3}</em>
+												<a class="ui_x bg6_hover" onclick="removeParamsValue('indexareacode','$searchTJ3')">×</a>
+											</span>
+											#end
+											#if(${searchTJ4})
+											<span class="selections">
+												<em>${searchTJ4}</em>
+												<a class="ui_x bg6_hover" onclick="removeParamsValue('timetype','$searchTJ4')">×</a>
+											</span>
+											#end
+											#if(${searchTJ5})
+											<span class="selections">
+												<em>${searchTJ5}</em>
+												<a class="ui_x bg6_hover" onclick="removeParamsValue('fitcrowd','$searchTJ5')">×</a>
+											</span>
+											#end
+											#if($VmUtils.isNotBlank($params.searchKey))
+											<span class="selections">
+												<em>$params.searchKey</em>
+												<a class="ui_x bg6_hover" onclick="removeParamsValue('searchKey','$!VmUtils.getText($params.searchKey)')">×</a>
+											</span>
+											#end
+											<span>
+												共<b class="cSport sNum">$!{curriculumCount}</b>个课程
+											</span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="sportList" id="cinemaListArea">
+						#foreach($tcGoods in $tcGoodsList)
+						#set($tcGoodsotherinfo=$VmUtils.readJsonToMap($tcGoods.otherinfo))
+						#set($sport=$sportMap.get($tcGoods.placeid))
+						#set($agency=$agencyMap.get($tcGoods.relatedid))
+						#set($gmark=$VmUtils.getSingleMarkStar($agency, "general"))#set($gmark1=$gmark/10) #set($gmark2=$gmark % 10)
+						<ul>
+							<li class="effectLi sportList" style="width:100%">
+								<div class="ui_media">
+									<div class="ui_pic cinema">
+										<a href="${basePath}sport/curriculumDetail.xhtml?id=$tcGoods.id" target="_blank" title="$!tcGoods.goodsname">
+											<img src="${staticPath}css/images/blank.gif" alt="$!sport.name" height="92" width="122" style="border:1px solid #f4f4f4;background:url($VmUtils.randomPic('sw120h60',$agency.limg)) center center no-repeat #fff;vertical-align:middle;"/>
+										</a>
+										<p class="mt10">
+											<a class="button redBt bigBt" href="${basePath}sport/curriculumDetail.xhtml?id=$tcGoods.id" target="_blank"><span>在线预订</span></a>
+										</p>
+									</div>
+									<div class="ui_text">
+										<div class="title">
+											<h2>
+												<a href="${basePath}sport/curriculumDetail.xhtml?id=$tcGoods.id" title="$!tcGoods.goodsname" target="_blank" class="color3">$!tcGoods.goodsname</a>
+											</h2>
+											<span class="ml5">&nbsp;($!tcGoods.clickedtimes&nbsp;关注&nbsp;|&nbsp;<em>$!tcGoods.sales</em>&nbsp;报名)</span>
+										</div>
+										<p class="mt10"><em>培训地点：</em>#if($!sport.name)<a href="${basePath}sport/$!sport.id" target="_blank">$!sport.name</a>#else根据学员要求就近安排 #end</p>
+										<p class="mt10"><em>培训机构：</em><a href="${basePath}sport/agencyDetail.xhtml?id=$!agency.id" title="$agency.name" target="_blank">$agency.name</a>(<span class="ui_grades ui_grade$gmark1" title="$gmark1.$gmark2分">$gmark1.$gmark2</span>)</p>
+										<p class="mt10"><em>培训项目：</em>$!sportItemMap.get($!tcGoods.itemid).name </p>
+										<p class="mt10"><em>培训时间：</em>#if($VmUtils.eq($!tcGoods.timetype, 'weekend'))周末#elseif($VmUtils.eq($!tcGoods.timetype, 'nighttime'))夜间#elseif($VmUtils.eq($!tcGoods.timetype, 'fulltime'))寒暑#else全日#end</p>
+										<p class="mt10"><em>适宜人群：</em>&lt;#if($VmUtils.eq($!tcGoods.fitcrowd, 'child'))幼儿#elseif($VmUtils.eq($!tcGoods.fitcrowd, 'youngster'))青少年#elseif($VmUtils.eq($!tcGoods.fitcrowd, 'adult'))成人#else中老年#end&gt; $!tcGoods.summary</p>
+										<p class="mt10"><em>招生人数：</em>#if($VmUtils.gt($tcGoods.minquantity, 0))$!{tcGoods.minquantity}-#end$!{tcGoods.quantity}人 </p>
+										<p class="mt10"><em>课程价格：</em><b>$!tcGoods.minprice#if($!tcGoods.maxprice)-$!tcGoods.maxprice#end</b>元</p>
+									</div>
+								</div>
+							</li>
+						</ul>
+						#end
+						<div class="page">#parse('include/pageUtil.vm')</div>
+					</div>
+				</div>
+				<div class="ui_right">
+					#if(!$VmUtils.isEmptyList($bannerGclist))
+					<div class="sport_video mb20">
+						<ul id="slidePanel">
+							#foreach($banner in $bannerGclist)
+							<li><a href="$!banner.link" title="$!banner.title" target="_blank"><img width="310" height="200" alt="$!banner.title" src="$VmUtils.randomPic('sw270h200',$!banner.limg)" /></a></li>
+							#end
+						</ul>
+						<div class="control" id="controlChild"></div>
+					</div>
+					#end
+					#parse('sport/agency/wide_hotAgencyList.vm')			#*热门培训机构*#
+					#parse('sport/agency/wide_hotCurriculumList.vm')	#*热门培训课程*#
+					#parse('sport/agency/wide_hotSportList.vm')			#*人气运动场馆*#
+					<div id="activityDiv"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	getActivityList();
+	new toggleImage();
+	selectBar();
+	$('searchKey2').addEvents({
+	 	'focus':function(){this.getParents('div[class*="search_kuang"]').addClass('search_kuangClicked');},
+	 	'blur':function(){this.getParents('div[class*="search_kuang"]').removeClass('search_kuangClicked');}
+	});
+	#if($params.order && !$VmUtils.isBlank($params.order))
+		var simulateSelect = $$('.simulate_select');
+		simulateSelect.each(function(item){
+			var e = item.getNext().getElement('a[data-value=$!{params.order}]')
+			item.getElement('.select_value').set('html',e.get('html'));
+			item.getElement('.simulate_value').set('value',e.get('data-value'));
+		});
+	#end
+	(function(){
+		gewaUtil.affix($('ui_left'));
+	}).delay(1000);
+});
+var toggleImage = new Class({
+	Implements: [Options,Events],
+	options: {'panel':'slidePanel',count:0,deep:0},
+	initialize:function(options){
+		this.setOptions(options);
+		this.panel = $(this.options.panel);
+		this.lis = this.panel.getElements('li');
+		this.options.count = this.lis.length;
+		this.runcallbackEvent();
+	},
+	runbackofaway:function(){
+		if(this.options.deep > this.options.count - 1)this.options.deep = 0;
+		this.auto(this.lis[this.options.deep]);
+		this.options.deep++;
+	},
+	runcallbackEvent:function(){
+		var self = this;
+		this.lis.each(function(img,index){
+			if(index != 0){img.fade(0);}
+			var span = new Element('span',{'class':(index==0)?'select':''}).addEvents({
+				'mouseenter':function(){
+					$clear(self.options.clear);
+					self.auto(this.retrieve('key'));
+				},
+				'mouseleave':function(){self.options.clear = self.autoPlay.periodical(5000,self);}
+			}).inject('controlChild');
+			img.store('key',span);
+			span.store('key',img);
+		});
+		this.options.clear = this.autoPlay.periodical(5000,this);
+	},
+	autoPlay:function(){
+		this.runbackofaway();
+	},
+	auto:function(el){
+		$('controlChild').getElements('span').removeClass('select');
+		this.lis.fade(0);
+		el.fade(1);
+		el.retrieve('key').addClass('select');
+	}
+})
+function setParamsValue(field,value){
+	$(field).value = value;
+	$('searchForm').submit();
+}
+function removeParamsValue(key){
+	$(key).value = '';
+	if(key == 'countycode'){
+		$('indexareacode').value = '';
+	}
+	$('searchForm').submit();
+}
+function selectBar(){
+	var simulateSelect = $$('.simulate_select');
+	simulateSelect.each(function(item){
+		item.addEvent('click',function(){
+			item.getNext().toggle();
+		})
+		item.getParent().addEvent('mouseleave',function () {
+			item.getNext().hide();
+		})
+		item.getNext().getElements('a').addEvent('click',function (e){
+			e.preventDefault();
+			if(item.getElement('.simulate_value').get('value') != this.get('data-value')) {
+				sorder(this.get('data-value') ? this.get('data-value') : "");
+			}
+		});
+	});
+}
+function sorder(order){
+	$('order').value = order;
+	$('searchForm').submit();
+}
+function getActivityList(){
+	var url = '${basePath}sport/ajax/getActivityList.xhtml';
+	var values = {};
+	GewaraUtil.sendLoad('activityDiv',url, values, function(result){});
+}
+</script>
+</body>
+<!-- SUCCESS_BOTTOM -->
+</html>

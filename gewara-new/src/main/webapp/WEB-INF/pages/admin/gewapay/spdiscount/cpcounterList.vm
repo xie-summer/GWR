@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>特殊折扣列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore">特殊折扣设置&nbsp;</li>
+			<li><a href="${basePath}admin/gewapay/spdiscount/spdiscountList.xhtml"><span>商户价格</span></a></li>
+			<li><a href="${basePath}admin/gewapay/spdiscount/spcounterList.xhtml"><span>计数器列表</span></a></li>
+			<li class="currs"><a><span>城市/商家计数器</span></a></li>
+		</ul>
+	</div>
+</div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+	<a href="javascript:void(0)" onclick="showCpcounter('')">新增</a><span class="ml10">计数器ID[<b style="color:red;">$!{spcounter.id}</b>]</span>
+		<table class="roomManageTable" cellpadding="0" style="width:100%;" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>控制类型</th>
+					<th>城市/商家代码</th>
+					<th>基础数据</th>
+					<th>下单总数</th>
+					<th>名额总数</th>
+					<th>卖出总数量</th>
+					<th>卖出总订单笔数</th>
+					<th>本期卖出数</th>
+					<th>本期订单笔数</th>
+					<th>添加时间</th>
+					<th>更新时间</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				#foreach($cpcounter in $cpcounterList)
+				<tr class="grayBg">
+					<td>$!cpcounter.id</td>
+					<td>#if($VmUtils.eq($cpcounter.flag,'city'))城市 #elseif($VmUtils.eq($cpcounter.flag,'partner'))商家 #end</td>
+					<td>$!cpcounter.cpcode</td>
+					<td>$!cpcounter.basenum</td>
+					<td>$!cpcounter.allownum</td>
+					<td>$!cpcounter.limitnum</td>
+					<td>$!spcounter.allquantity</td>
+					<td>$!spcounter.allorder</td>
+					<td>$!cpcounter.sellquantity</td>
+					<td>$!cpcounter.sellorder</td>
+					<td>$DateUtil.format($!cpcounter.addtime,'yyyy-MM-dd HH:mm:ss')</td>
+					<td>$DateUtil.format($!cpcounter.updatetime,'yyyy-MM-dd HH:mm:ss')</td>
+					<td>
+						<a href="javascript:void(0)" onclick="showCpcounter('$!cpcounter.id')">修改</a>
+						<a href="javascript:void(0)" onclick="delCpcounter('$!cpcounter.id',this)">删除</a>
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<div id="showCpcounter"></div>
+<script type="text/javascript">
+	function showCpcounter(id){
+		var url = '${basePath}admin/gewapay/spdiscount/getCpcounter.xhtml';
+		var values = {'id':id,'spcounterid':$!params.spid};
+		GewaraUtil.sendLoad('showCpcounter', url, values, function(result){
+			if(!result.success){
+				alert(result.json.msg);
+			}else{
+				gewa.util.maskContent('','showCpcounter','城市/商家计数器管理',500,'showCpcounter');
+			}
+		});
+	}
+	
+	function updateCpcounter(){
+		var url = '${basePath}admin/gewapay/spdiscount/updateCpcounter.xhtml';
+		if(!GewaraUtil.baseValidForm('showCpcounter','admin'))return;
+		var values = GewaraUtil.getValues('showCpcounter');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				hideProgramItem('showCpcounter');
+				document.location.href='${basePath}admin/gewapay/spdiscount/cpcounterList.xhtml?spid='+result.retval;			
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function delCpcounter(id,obj){
+		if(window.confirm("确定要删除？")){
+			var url = '${basePath}admin/gewapay/spdiscount/deleteCpcouter.xhtml';
+			var values = {'id':id};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert('删除成功！');
+					$(obj).getParent('tr').dispose();
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+	}
+	
+	function hideProgramItem(el){
+		if(gewa.util.container[el]){
+			gewa.util.container[el].dispose(el);
+		}
+	}
+</script>
+</body>
+</html>

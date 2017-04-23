@@ -1,0 +1,36 @@
+#set($opiOtherInfoMap=$VmUtils.readJsonToMap($opi.otherinfo))
+<table>
+   	<tbody>
+   		<tr class="trbg">
+    		<td rowspan="3" class="desc">订单号<br />信息</td>
+		    <td>场馆：</td>
+		    <td><a style="color:blue;" href="${basePath}cinema/$!order.cinemaid" target="_blank">$!orderMap.place.realBriefname</a></td>
+		    <td>场次[ID]：</td>
+		    <td><a style="color:blue;" href="${basePath}admin/ticket/booking.xhtml?mpid=$!order.mpid" target="_blank">$!order.mpid</a></td>
+		    <td>项目(影片)：</td>
+		    <td><a style="color:blue;" href="${basePath}movie/$!order.movieid" target="_blank">$!orderMap.item.realBriefname</a></td>
+		    <td>时间：</td>
+		    <td>$!DateUtil.format($!order.playtime,'M月d日')</td>
+		 </tr>
+   		<tr class="trbg">
+    		<td>场地：</td>
+		    <td>$!opi.roomname</td>
+    		<td>座位：</td>
+		    <td>$!descriptionMap.get('影票')</td>
+    		<td>数量：</td>
+		    <td>$!order.quantity</td>
+		    <td>单价：</td>
+		    <td>$!order.unitprice</td>
+		</tr>
+   		<tr class="trbg">
+    		<td>GWL取票密码：</td>
+		    <td>$!order.checkpass</td>
+		    <td>第三方取票密码：</td>
+		    <td>$!order.hfhpass</td>
+   			<td>取票机：</td>
+   			<td>$!takemethodMap.get($profile.takemetod)</td>
+   			<td>场次是否支持退款：</td>
+   			<td>#if($VmUtils.eq($opiOtherInfoMap.get('isRefund'),'N'))否#else是#end</td>
+   		</tr>
+   	</tbody>
+</table>

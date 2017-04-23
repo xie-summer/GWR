@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>角色管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:150px; display:inline}
+	</style>
+</head>
+<body style="width:750px; margin:auto" class="yui-skin-sam">
+	<div style="margin:5px;margin-left:0">
+		<a title="增加角色" href="javascript:showDialog()">增加角色</a>
+	</div>
+	<table class="table">
+		<thead>
+		<tr>
+			<th>角色名称</th>
+			<th>角色描述</th>
+			<th>修改</th>
+			<th>操作</th>
+		</tr>
+		</thead>
+		<tbody id="roleTable">
+		#foreach($role in $roleList)
+			<tr>
+				<td>${role.name}</td>
+				<td>${role.description}</td>
+				<td><a href="${basePath}admin/acl/modifyRole.xhtml?roleId=${role.id}" target="_blank">编辑详细信息</a></td>
+				<td><a title="删除角色" href="javascript:deleteRole('${role.name}');">删除角色</a></td>
+			</tr>
+		#end
+		</tbody>
+	</table>
+	<div id="roleDialog" class="yui-panel" style="width:250px; visibility:hidden">
+		<div class="hd">请输入角色信息</div>
+		<div class="bd">
+			<form id="roleForm">
+				<input name="tag" value="$!VmUtils.escapeHtml($params.tag)" type="hidden" />
+				<div>
+					<label for="rolename">角色名称：</label><input type="text" name="rolename" id="rolename" />
+				</div><div>
+					<label for="description">角色描述：</label><input type="text" name="description" id="rolename"/> 
+				</div><div>
+					<input type="button" style="width:60px" name="save" value="保存" onclick="saveRole()"/> 
+					<input type="button" style="width:60px" name="save" value="取消" onclick="cancle()"/> 
+				</div>
+			</form>
+		</div>
+	</div>
+	<script type="text/javascript">
+		function cancle(){
+			GewaraUtil.hideDialog('roleDialog');
+		}
+		function showDialog(){
+			GewaraUtil.showDialog("roleDialog");
+		}
+		function saveRole(){
+			var values = GewaraUtil.getValues($("roleForm"));
+			if (values.rolename == "" || values.description == "") {
+				alert("请输入角色名称和描述！");
+				return;
+			}
+			var url = '${basePath}admin/acl/ajax/addRole.xhtml';
+			var values = {"rolename":values.rolename, "description":values.description, "tag":values.tag};
+			GewaraUtil.sendRequest(url, values, roleFun);
+		}
+		function roleFun(result){
+			if(result.success){
+				alert("成功增加角色！" + result.retval);
+				refreshPage();
+			}else{
+				alert("增加角色失败！");
+			}
+		}
+	</script>
+</body>
+</html>

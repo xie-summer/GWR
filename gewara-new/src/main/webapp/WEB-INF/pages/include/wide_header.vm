@@ -1,0 +1,153 @@
+<!-- SUCCESS_HEAD -->
+<div id="top_notice" class="ui_notice" style="display:#if(!$publicNotice)none#end;">
+	<div class="ui_notice_in">
+		#if(!$isMobile)
+		#if($publicNotice)
+		<span id="sn">$!publicNotice</span>
+		<img src="${picPath}css/home/del.gif" alt="关闭" title="关闭" class="more" onclick="nav.closeTopNotice();"/>
+		#end
+		#end
+	</div>
+</div>
+#if($!ismovie)#set($navigation='movie')
+#elseif($!isActivity)#set($navigation='activity')
+#elseif($!isbar)#set($navigation='bar')
+#elseif($!isgym)#set($navigation='gym')
+#elseif($!isktv)#set($navigation='ktv')
+#elseif($!issite || $!issport)#set($navigation='sport')
+#elseif($!relatedtag eq 'drama' || $!isdrama)#set($navigation='drama')
+## #parse('include/feedback.vm')
+#end
+#parse('include/constant/city.vm')
+#if($syscitycodeKey)
+	#set($cookieCitycode=$syscitycodeKey)
+#else
+	#set($cookieCitycode=$cookieTool.citycode.value)
+#end
+#if($VmUtils.isBlank($cookieCitycode))#set($cookieCitycode='310000')#end
+#if(!$isCityParam)
+#parse('include/constant/cityPoint.vm')
+#parse('include/navigationParams.vm')
+#set($cityPinyin=$pinyinMap.get($cookieCitycode))
+#set($cookieCityname=$!CITY_MAP.get($cookieCitycode))
+#set($cityItemModule=$globalItemModuleMap.get($cookieCitycode))
+#set($cityActivityRelate=$globalActivityRelateMap.get($cookieCitycode))
+#set($cityOtherRelate=$globalOtherRelateMap.get($cookieCitycode))
+#set($globalCurPoint=$globalCityPoint.get($cookieCitycode))
+#end
+#if($VmUtils.isBlank($cityItemModule))#set($cityItemModule='movie,activity,comment,diary,commu,answer')#end
+<div class="ui_nav ui_$!{navigation}_nav" #if($headInfo)style="margin-bottom:150px;"#end>
+	<div class="ui_plugs_body">
+		<a href="${basePath}" class="logo" title="格瓦拉生活网"><img src="${staticPath}css/images/blank.gif" alt="格瓦拉生活网" width="102" height="40"/></a>
+		<div id="cityChoose" class="ui_changeCity"></div>
+		<div class="ui_nav_menu" lang="bgcolor">
+			#if($AdminCityContant.citycode2GewaCity.get($cookieCitycode).hasAuto() || $AdminCityContant.citycode2GewaCity.get($cookieCitycode).serviceType eq 'single')
+				<ul class="ui_inline" lang="ishover">
+					<li class="isDisabled"><a href="${basePath}">首 页</a></li>
+					<li><a href="$!{basePath}movie/searchMovie.xhtml">热映</a></li>
+					<li><a href="$!{basePath}movie/futureMovie.xhtml">即将上映</a></li>
+					<li><a href="$!{basePath}$cityPinyin/cinemalist">电影院</a></li>
+					<li><a href="${basePath}activity/">活动</a></li>
+					<li key="moreInfo"><a href="javascript:void(0);">更多</a></li>
+				</ul>
+			#else
+				<ul class="ui_inline" lang="ishover">
+					<li class="isDisabled"><a #if($!isIndex)class="select" #end href="${basePath}">首 页</a></li>
+					#if($VmUtils.contains($cityItemModule,'movie'))<li key="movie"><a #if($!ismovie)class="select" #end href="${basePath}movie/">电影</a></li>#end
+					#if($VmUtils.contains($cityItemModule,'drama'))<li key="drama"><a #if($relatedtag eq 'drama' || $!isdrama)class="select" #end href="${basePath}drama/">演出</a></li>#end
+					#if($VmUtils.contains($cityItemModule,'sport'))<li key="sport"><a #if($!issite || $!issport || $!isgym)class="select" #end href="${basePath}sport/">运动</a>	</li>#end
+					#*
+					#if($VmUtils.contains($cityItemModule,'gym'))<li key="gym"><a #if($!isgym)class="select"#end href="${basePath}gym/">健身</a></li>#end
+					*#
+					#if($VmUtils.contains($cityItemModule,'activity'))<li key="activity"><a #if($!isActivity)class="select" #end href="${basePath}activity/">活动</a></li>#end
+					<li key="home"><a #if($!istopic || $isqa || $isCommu || $communityIndex)class="select" #end href="${basePath}home/sns/personIndex.xhtml">社区</a></li>
+				</ul>
+			#end
+		</div>
+		<div class="ui_nav_right">
+			<div class="ui_t_search">
+				<form action="${basePath}newSearchKey.xhtml"  id="gForm">
+					<input type="hidden" value="" id="searchid"/>
+					<input type="text" name="skey" value="" class="search_text" alt="电影、演出、场馆、教练.." id="skey" autocomplete="off" x-webkit-speech="" accesskey="s"/><label class="search_button"><input class="search_button" type="submit" value="&nbsp;"/></label>
+				</form>
+			</div>
+			<div class="ui_logins right" id="global_check_login"></div>
+		</div>
+	</div>
+</div>
+<div class="ui_city_plugs none clear" id="ui_city_plugs"></div>
+#if($isIndexBigAd)
+#if(!$VmUtils.isNull($!headInfo.link))
+<a href="$!headInfo.link" onclick="_gaq.push(['_trackEvent', 'index', 'clicktaotou', 'taotou_${cityPinyin}']); return true;" style="display:block; background:url(about:blank); position:absolute;left:0px; top:#if(!$publicNotice) 50px #else 77px #end;width:100%;height:150px;z-index:2" target="_blank" title="$!headInfo.title"></a>
+#end
+#end
+<script type="text/javascript">
+gewa.util.cinemaCityPy = "$!{basePath}$cityPinyin/cinemalist";
+</script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=Autocompleter,wide_navigation&v=$VmUtils.jsVersion" cityMap='$proMap' cookieCityname='$cookieCityname' cookieCitycode='$cookieCitycode' head='$!cfgHeader' issearch='$!showSearch' id='navigation'></script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	nav.init();
+	gotoTop();
+	loadHeadCityList();
+});
+
+function loadHeadCityList(){
+	GewaraUtil.sendLoad("ui_city_plugs", "${basePath}ajax/common/loadHeadCity.xhtml",{}, function(result){
+	});
+}
+function gotoTop(){
+	var backToTopTxt = "返回顶部", backToTopEle = new Element("a", {
+		"class": "isGoUp",
+		title: backToTopTxt,
+		href:'javascript:void(0);'
+	}).addEvent("click", function() {
+		new Fx.Scroll($(window)).toTop();
+	}).inject($('backTopBox')), backToTopFun = function() {
+		var st = document.getScroll().y, winh = window.getSize().y;
+		if(st > 0){
+			if(backToTopEle.getStyle('opacity') != 0.9)backToTopEle.morph({
+				'opacity':[0,0.9]
+			});
+		}else{
+			backToTopEle.morph({
+				'opacity':[0.9,0]				
+			});
+		}
+		if(!window.XMLHttpRequest){
+			backToTopEle.setStyle("top", st + winh - 166);
+		}
+	};
+	window.addEvents({
+		scroll: backToTopFun,
+		domready:backToTopFun,
+		resize:backToTopFun
+	});
+}
+var _gaq = _gaq || [];
+var _gaStartTime = GewaraUtil.rtime();
+var recordPage = '$!recordPage';
+window.addEvent("load", function(){
+	var timegap = GewaraUtil.rtime() - _gaStartTime;
+	var pageTag = '$!googleSpeedPageTag';
+	var curPage = document.location.href;
+	if(pageTag == '') {
+		if(curPage.indexOf("/movie/") > 0) pageTag = "/movie/all";
+		else if(curPage.indexOf("/cinema/") > 0) pageTag = "/cinema/all";
+		else if(curPage.indexOf("/sport/") > 0) pageTag = "/sport/all";
+		else if(curPage.indexOf("/ktv/") > 0) pageTag = "/ktv/all";
+		else if(curPage.indexOf("/gym/") > 0) pageTag = "/gym/all";
+		else if(curPage.indexOf("/bar/") > 0) pageTag = "/bar/all";
+		else if(curPage.indexOf("/drama/") > 0) pageTag = "/drama/all";
+		else if(curPage.indexOf("/blog") > 0) pageTag = "/blog/all";
+		else if(curPage.indexOf("/activity/") > 0) pageTag = "/activity/all";
+		else if(curPage.indexOf("/wala/") > 0) pageTag = "/wala/all";
+		else if(curPage.indexOf("/qa/") > 0) pageTag = "/qa/all";
+		else if(curPage.indexOf("/quan/") > 0) pageTag = "/quan/all";
+		else if(curPage.indexOf("/theartr/") > 0) pageTag = "/theatre/all";
+		else if(curPage.indexOf("/news/") > 0) pageTag = "/news/all";
+		else pageTag = "/other";
+	}
+	if(timegap < 0 || timegap > 30000 || recordPage.length>0) GewaraUtil.sendRequest("${basePath}logRendError.xhtml", {"timegap":timegap, 'pageTag':pageTag, "page": curPage}, function(result){});
+});
+</script>

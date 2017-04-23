@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>开设设置</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.contentInfoList li{margin-top:5px;}
+		.grayBg td input{width: 80px;}
+	</style>
+</head>
+<body>
+#set($isPre=true)
+#parse('admin/theatre/menu.vm')
+<div style="color:red" id="notifyWin"></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+		<div><input type="text" name="dramaid" id="dramaid" /><input type="button" value="添加" onclick="savePreDrama()"/></div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>图片</th>
+					<th>话剧</th>
+					<th>首映时间</th>
+					<th>演员</th>
+					<th>排序</th>
+					<th>删除</th>
+				</tr>
+			</thead>
+			<tbody class="tbody">
+				#foreach($commend in $commendList)
+				#set($drama=$dramaMap.get($commend.relatedid))
+				<tr class="grayBg disp c$item.movieid">
+					<td><img src="$VmUtils.randomPic('cw48h64',${drama.limg})" /></td>
+					<td>$drama.name</td>
+					<td>$!DateUtil.fromat($drama.releasedate, 'yyyy-MM-dd') -- $!DateUtil.fromat($drama.enddate, 'yyyy-MM-dd')</td>
+					<td>$drama.actors</td>
+					<td><input type="text" value="$!commend.ordernum" style="width:30px;" onchange="orderNum($!commend.id, this.value, this)" /></td>
+					<td><a href="javascript:delPreDrama($drama.id)">删除</a></td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	#parse('include/pageUtil.vm')
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<div id="copyDialog" style="width:370px; visibility:hidden; z-index:5;background: #000;"></div>
+<div id="dialog" style="width:400px; visibility:hidden; z-index:1000;background: #000"></div>
+<script type="text/javascript">
+	function orderNum(gcid, val, obj){
+		var url = "${basePath}admin/common/ajax/changeGCOrderNum.xhtml";
+		GewaraUtil.sendRequest(url, {'id':gcid, 'ordernum':val}, function(result){
+			if(result.success){
+				if($(obj)){
+					$(obj).setStyle('background-color','red');
+					(function(){
+						$(obj).setStyle('background-color','');
+					}.bind(obj)).delay(800);
+				}
+			}else{
+				alert('设置失败');
+			}
+		});
+	}
+	function savePreDrama(){
+		var dramaid = $('dramaid').value;
+		if(dramaid==''){
+			alert('请输入话剧的ID');
+			return;
+		}
+		var values= {'theatreid':$theatre.id, 'dramaid':$('dramaid').value};
+		GewaraUtil.sendRequest('${basePath}admin/drama/dramaPlayItem/savePreDrama.xhtml', values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function delPreDrama(id){
+		if(confirm('确认要删除吗?')==false) return;
+		var values= {'theatreid':$theatre.id, 'dramaid':id};
+		GewaraUtil.sendRequest('${basePath}admin/drama/dramaPlayItem/delPreDrama.xhtml', values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

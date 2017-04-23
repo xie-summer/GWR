@@ -1,0 +1,130 @@
+<div id="updateMemberInfo" style="display:none">
+	<form id="upMoibleForm" name="upMoibleForm" method="post" action="javascript:upMobile()">
+		<ul class="ul-80 bangMt15">
+			#*<li><div class="mt10" id="mobilemessage" style="color:#FF5B00;margin-left:20px;"></div></li>*#
+			<li><div class="ul-80Inner">手机号码：</div>
+				#if($member.mobile)<b class="fs14">$!{member.mobile}</b>
+				<input name="mobile" id="umobile" type="hidden" value="$!member.mobile" />
+				#else
+				<input name="mobile" id="umobile" style="width:100px;" type="text" class="text" value="$!member.mobile" />
+				#end
+				<input type="button"  id="btn2" class="ml20" style="background:#f6a935;color:#fff;border:0;cursor:pointer;padding:0 15px 0 0;" value="获取验证码" onclick="resend();"/>
+			</li>
+			<li id="showMessage" style="display:none;"><div class="brown" style="margin-left:-60px;">如果没有收到短信验证码，可在<span class="ml5 mr5" id="timecount"></span>秒钟后重新发送</div></li>
+			<li><div class="ul-80Inner">短信验证码：</div><input name="mobile2" id="mobile2" type="text" class="text" style="width:100px;"  /></li>
+ 			<li>
+ 				<div class="ul-80Inner">输入验证码：</div>
+ 				
+				<input type="hidden" name="captchaId" id="captcha" />
+ 				<input type="text" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" style="width:100px;" size="18" onfocus="GewaraUtil.refreshCaptcha('captcha');"/><span class="fc_b ml10">*</span>
+				<img id="captchaImg" src="${staticPath}css/images/blank.gif" style="cursor: pointer;height:26px;width:80px;" align="top" onclick="GewaraUtil.refreshCaptcha('captcha');" title="看不清楚，请点击换一张图片"/>
+			</li>
+			#*
+			#if($member.mobile)
+			<li>
+				<div style="margin-left:-60px;">你还可以通过发邮件验证解除手机绑定，点此<a href="javascript:void(0)" onclick="sendEmail($member.mobile);" class="ml5 mr5" style="color:blue;">发送邮件</a>验证</div>
+			</li>
+			#end
+			*#
+		</ul>
+	</form>
+</div>
+	<script type="text/javascript">
+upMobile = function(){
+	if($('umobile')){
+		if(!$('umobile').value){
+			gewaUtil.alert('请输入手机号码！');
+			return;
+		}
+	}
+	if(!$('mobile2').value){
+		gewaUtil.alert('请输入手机验证码！');
+		return;
+	}
+	var url = '';
+	#if($member.mobile)
+		url = '${basePath}home/acct/relieveMobile.xhtml';
+	#else
+	   url = '${basePath}home/acct/sendExchangeMobile.xhtml';
+	#end
+	GewaraUtil.mask("disBtnMobile");
+	var values = GewaraUtil.getValues("upMoibleForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			gewaUtil.alert("保存成功！");
+			gewa.util.container['updateMemberInfo'].dispose('updateMemberInfo');
+			refreshPage();
+		}else{
+			GewaraUtil.refreshCaptcha('captcha');
+			gewaUtil.alert(result.msg);
+		}
+	})
+}
+bindMobile = function(){
+	var title = "";
+	#if($member.mobile)
+		title = "解除手机绑定";
+	#else
+		title = "绑定手机";
+	#end
+	gewa.util.issure('','updateMemberInfo',title,420,'updateMemberInfo',function(){
+		$('upMoibleForm').submit();
+	})
+}
+updateMobile = function(mobile){
+	bindMobile();
+}
+
+var second = 60;
+GetRTime = function (){  
+	if(second>=0){
+		$('showMessage').setStyle('display','block');  
+		$('timecount').set('html', second);
+		second = second-1;
+		setTimeout("GetRTime()",1000);
+	}else {  
+		$("btn2").set("disabled", false); 
+		$('showMessage').setStyle('display','none');
+		$("btn2").setStyle("cursor","pointer"); 
+	}  
+} 
+resend = function(){
+	checkLogin(true,function(){
+		gewa.util.mask({'element': "btn2",'title':'正在提交，请稍等...'});
+		#if($member.mobile)
+		var values = {"mobile":"$!{member.mobile}"};
+		#else
+		var values = {"mobile":$('umobile').value};
+		#end
+		GewaraUtil.sendRequest('${basePath}home/bindmobile/receive.xhtml', values, function(result){
+			if(result.success){
+				gewa.util.clearMask();
+				retime();
+			}else{
+				gewa.util.clearMask();
+				if(result.msg) gewaUtil.alert(result.msg);
+			}
+		});
+	});
+}
+retime = function(){
+	$("btn2").set("disabled", true);
+	$("btn2").setStyle("cursor",""); 
+	second = 60;
+	GetRTime();
+}
+
+/* sendEmail = function(mobile){
+	var url = '${basePath}home/acct/sendEmailReMobile.xhtml';
+	var values = {'mobile':mobile};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.alert('邮件已发送到您绑定的邮箱中，请接收邮件完成解除手机绑定!');
+			if(gewa.util.container['updateMemberInfo'])gewa.util.container['updateMemberInfo'].dispose('updateMemberInfo');
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+} */
+</script>

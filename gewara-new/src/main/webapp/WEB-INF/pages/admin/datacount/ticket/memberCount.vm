@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>数据统计</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#fff;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		td, th{
+			text-align: center;
+			height: 23px;
+		}
+	</style>
+</head>
+<body>
+<div style="margin-left: 140px;width: auto;background-color: #fff;height: auto;">
+		<div style="clear: right;">
+		#set($keyList=["用户id","用户名","注册时间","注册邮箱","手机号码","最后消费时间","总消费次数"])
+	<table cellpadding="0" cellspacing="0" width="100%" border="1" style="border-collapse: collapse">
+		<tr>
+			#foreach($key in $keyList)
+			<th>$key</th>
+			#end
+		</tr>
+		#foreach($member in $memberList)
+		#set($time=$timeMap.get($member.id))
+		#set($buynum=$buynumMap.get($member.id))
+		<tr>
+			<td>$member.id</td>
+			<td>$!member.nickname</td>
+			<td>$!DateUtil.formatTimestamp($!member.addtime)</td>
+			<td>$!member.email</td>
+			<td>$!member.mobile</td>
+			<td>$!DateUtil.formatTimestamp($!time)</td>
+			<td>$buynum</td>
+		</tr>
+		#end
+		<tr>
+		<tr><td colspan="7">#parse('include/pageUtil.vm')</td></tr>
+	</table>
+</div>
+</div>
+	<script type="text/javascript">
+	$$("tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+</script>
+</body>
+</html>

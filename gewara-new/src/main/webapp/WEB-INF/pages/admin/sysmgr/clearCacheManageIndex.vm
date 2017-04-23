@@ -1,0 +1,203 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body>
+	<hr />
+	<input type="button" onclick="showDialogDiv('')" value="清理首页缓存">
+	<input type="button" id="" name="" onclick="showDialogDiv(2);" value="清除其它缓存" />
+	<div class="table"	id="showDia_div" style="visibility:hidden; z-index:601;">
+			<span >页面链接：</span>&nbsp;
+			<select  name="pageUrl" id="pageUrl"  onchange="changeChild(this)">
+				<option value="" selected>请选择</option>
+				<option value="index.xhtml" >首页</option>
+				<option value="movie/index.xhtml" >电影首页</option>
+				<option value="drama/index.xhtml" >话剧首页</option>
+				<option value="sport/index.xhtml" >运动首页</option>
+				<option value="gym/index.xhtml" >健身首页</option>
+				<option value="activity/index.xhtml" >活动首页</option>
+				<option value="cinema/searchOpi.xhtml" >快速购票</option>
+				<option value="movie/ajax/opi.xhtml" >影片排片</option>
+				<option value="movie/movieDetail.xhtml" >影片详情</option>
+			</select>
+			<span>默认为 index.xhtml</span><br/>
+			<div id="dia_div_child" style="display:none;" >
+					放映日期：&nbsp;&nbsp;<input id="fyrq" name="fyrq" type="text" class="optime"  style="width:140px;"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" readonly="readonly" /><br />
+					电影ID：&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="movieid" name="movieid" value="">(关联的电影ID)<br />
+			</div>
+			<div id="dia_div_child2" style="display:none;" >
+					电影ID：&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="mid" name="mid" value="">(关联的电影ID)<br />
+			</div>
+			<span id="cityHTML">
+			城市选择：&nbsp;
+			<select name="province" id="province" onchange="provinceChange()">
+				<option value="">选择省份</option>
+				#foreach($province in $province2CityList)
+					<option value="$province.provincename" #if($!VmUtils.eq($provincename,$province.provincename)) selected="selected" #end>$province.provincename</option>
+				#end
+			</select>
+			<select name="citycode" id="citycode">
+				<option value="">选择城市</option>
+			</select>
+			不选择，默认为上海
+			</span>
+			<br />
+			<span>
+			<input type="button" onclick="clearIndex()" value="保存" style="width: 50px;"/>
+			<input type="button" onclick="javascript:GewaraUtil.hideDialog('showDia_div');" value="取消" style="width: 50px;"/>
+			</span>
+	</div>
+	
+	<div class="table"	id="showDia_div2" style="visibility:hidden; z-index:601;">
+			<span >页面链接：</span>&nbsp;
+			<select  name="key" id="key"  onchange="changeChild(this)">
+				<option value="" selected>请选择</option>
+				<option value="key_movieplayitem_movieid_citycode_playdate_count" >排片数量</option>
+				<option value="key_activity_count" >活动数量</option>
+				<option value="key_news_count" >新闻数量</option>
+				<option value="key_picture_count" >照片数量</option>
+				<option value="key_video_count" >预告片数量</option>
+				<option value="key_comment_count" >哇啦数量</option>
+				<option value="key_diary_count" >影评数量</option>
+				<option value="key_commu_count" >圈子数量</option>
+				<option value="key_sportitem_itemid_playdate_count">运动项目场馆开放数量</option>
+				<option value="index">首页数据统计</option>
+				<option value="recentlygetpoint">最近领取红包的用户</option>
+				<option value="luckgetpoint">最近领取纸包大于5的用户</option>
+			</select>
+			<span>缓存区域：</span>&nbsp;
+			<select disabled  name="regionName" id="regionName"  onchange="changeChild(this)">
+				<option value="" selected>请选择</option>
+				<option value="halfMin" >30 秒</option>
+				<option value="oneMin" >1 分钟</option>
+				<option value="tenMin" >10 分钟</option>
+				<option value="twentyMin" >20 分钟</option>
+				<option value="halfHour" >30 分钟</option>
+				<option value="oneHour" >1 小时</option>
+				<option value="twoHour" >2 小时</option>
+				<option value="halfDay" >0.5 天</option>
+				<option value="oneDay" >1 天</option>
+			</select>
+			<div id="index_detail" style="display:none;"><font color="green"> 此首页数据统计中包含'帖子总数','影评数','观影数','看话剧数','运动数','参加活动数','领红包数' </font></div>
+			<br />
+			<font color="red"> (此功能现将已道指定模块的准确缓存区域值，给写死。如需扩展，还仍有待调整！) </font>
+			<span>
+			<input type="button" onclick="removeCacheDetail()" value="保存" style="width: 50px;"/>
+			<input type="button" onclick="javascript:GewaraUtil.hideDialog('showDia_div2');" value="取消" style="width: 50px;"/>
+			</span>
+	</div>
+</body>
+<script language="javascript">
+function showDialogDiv(num){
+	GewaraUtil.showDialog('showDia_div'+num);
+}
+
+function clearIndex(){
+		var url =  "${basePath}admin/sysmgr/clearIndex.xhtml";
+		var pageUrl = $('pageUrl').value;
+		var citycode = $('citycode').value;
+		var values = {"pageUrl":pageUrl,'citycode':citycode,'fyrq':$('fyrq').value,'movieid':$('movieid').value,'mid':$('mid').value};
+			GewaraUtil.sendRequest(url,values, function(result){
+				if(result.success){
+					alert("清除完成！");
+					GewaraUtil.hideDialog('showDia_div');
+					$('pageUrl').value = "";
+					$('citycode').value="";
+					$('fyrq').value="";
+					$('movieid').value="";
+					$('mid').value="";
+				}else{
+					alert("清除期间发生错误！MSG：["+result.msg+"]");
+				}
+			});	
+}
+
+function removeCacheDetail(){
+	if($('key').value==null||$('key').value==""){
+		alert("请选择对应缓存清除模块！");
+		return;
+	}
+	var url = "${basePath}admin/sysmgr/removeCacheDetail.xhtml";
+	var values = {"regionName":$('regionName').value,"key":$('key').value};
+	GewaraUtil.sendRequest(url,values, function(result){
+		if(result.success){
+			alert("清除完成！");
+			GewaraUtil.hideDialog('showDia_div2');
+			$('regionName').value = "";
+			$('key').value="";
+		}else{
+			alert("清除期间发生错误！MSG：["+result.msg+"]");
+		}
+	});	
+}
+function changeChild(obj){
+	var text = obj.options[obj.selectedIndex].text;
+	if(text=='快速购票'||text=='影片排片'){
+		$('dia_div_child').style.display = "";
+		$('dia_div_child2').style.display = "none";
+	}else if(text=="影片详情"){
+		$('dia_div_child2').style.display = "";
+		$('dia_div_child').style.display = "none";
+	}else{
+		$('dia_div_child').style.display = "none";
+		$('dia_div_child2').style.display = "none";
+	}
+	if(obj.id=="key"){
+		if(text=="排片数量"||text=="活动数量"||text=="新闻数量"||text=="照片数量"||text=="预告片数量"||text=="哇啦数量"||text=="影评数量"||text=="圈子数量"||text=="运动项目场馆开放数量"){
+			$('regionName').value="halfDay";
+			$('regionName').disabled=true;
+			$('index_detail').style.display="none";
+		}else if(text=="首页数据统计"){
+			$('index_detail').style.display="";
+			$('regionName').value="tenMin";
+			$('regionName').disabled=true;
+		}else if(text=="最近领取红包的用户"||text=="最近领取纸包大于5的用户"){
+			$('regionName').value="oneDay";
+			$('regionName').disabled=true;
+			$('index_detail').style.display="none";
+		}else{
+			$('regionName').disabled=false;
+			$('regionName').value="";
+			$('index_detail').style.display="none";
+		}
+	}
+}
+function comefrom(loca,locacity) { this.loca = loca; this.locacity = locacity; }
+var where = new Array($province2CityList.size());
+where[0]= new comefrom("请选择..","请选择..");
+var citys2 = "";
+#foreach($province in $province2CityList)
+	citys2 = "";
+	#foreach($city in $province.gewaCityList)
+		citys2 += "$city.citycode:$city.cityname|";
+	#end
+	if (citys2.length > 0) {
+		citys2 = citys2.substr(0, citys2.length - 1);
+	}
+	where[$foreach.count] = new comefrom("$province.provincename",citys2);
+#end
+function provinceChange() {
+	with(document.getElementById("province")) { var loca2 = options[selectedIndex].value; }
+	for(i = 0; i < where.length; i++) {
+		if (where[i].loca == loca2) {
+			var loca3 = (where[i].locacity).split("|");
+			for(j = 0;j < loca3.length;j++) {
+				with(document.getElementById("citycode")) {
+					length = loca3.length; 
+					options[j].text = loca3[j].split(":")[1]; 
+					options[j].value = loca3[j].split(":")[0]; 
+					var loca4=options[selectedIndex].value;
+				}
+			}
+			break;
+		}
+	}
+}
+</script>
+</html>

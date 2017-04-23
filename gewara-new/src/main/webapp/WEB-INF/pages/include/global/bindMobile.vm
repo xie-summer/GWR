@@ -1,0 +1,96 @@
+<div id="bindMobilePanel" style="width:390px;padding:10px;display:none">
+	<form id="upMoibleForm" name="upMoibleForm" method="post" action="javascript:upMobile()">
+	<input type="hidden" id="tag" name="tag" value="bind"/>
+	<dl class="tales100">
+		<dt>手机号：</dt>
+		<dd>
+			<label class="text label" style="width:150px;margin-right:10px;_margin-right:0px;" for="bindMobile"><input type="text" class="text" style="width:150px;" maxlength="11" name="mobile" id="bindMobile" onkeyup="GewaraUtil.replaceStr(this);" onblur="checkUserName(this,'手机号');" mustTxt="请输入手机号码！"/></label>
+			<input class="botton_count_on" type="button" id="bindBotton" value="获取动态码" onclick="resendGetBindCode();"/>
+		</dd>
+	</dl>
+	<dl class="tales100">
+		<dt>动态码：</dt>
+		<dd><label class="text label" for="cgbBind" style="width:90px"><input type="text" name="mobile2" id="cgbBind" value="" class="text"  style="width:90px" mustTxt="请输入动态码！"/></label></dd>
+	</dl>
+	</form>
+</div>
+<script type="text/javascript">
+function bindMobile(callback,title,content){
+	checkLogin(true, function(){
+		if(!GewaraUtil.member.isMobile){
+			if(content && content != '' && $defined(content) && $('bindMobilePanel').retrieve('bind') == null){
+				new Element('h2',{'html':'温馨提示：','styles':{
+					'display':'block',
+					'font-weight':'bold',
+					'color':'#C03B0C',
+					'font-size':'12px'
+				}}).inject(new Element('div',{'html':content,'styles':{
+					'border':'1px solid #FFCC9A',
+					'background':'#FFFFE3',
+					'padding':'5px 10px'
+				}}).inject('bindMobilePanel'),'top');
+				$('bindMobilePanel').store('bind',true);
+			}
+			gewaUtil.issure('','bindMobilePanel',title?title:'绑定手机号码',444,'bindMobilePanel',function(){
+				if(!GewaraUtil.baseValidForm('bindMobilePanel')) return;
+				if(!GewaraUtil.isMobile($('bindMobile').value)) return;
+				var values = GewaraUtil.getValues('bindMobilePanel');
+				GewaraUtil.sendRequest('${basePath}home/acct/sendExchangeMobile.xhtml', values, function(result){
+					gewaUtil.container['bindMobilePanel'].dispose('bindMobilePanel');
+					if(result.success){
+						gewaUtil.alert('手机绑定成功！');
+						callback();
+					}else{
+						gewaUtil.alert(result.msg);
+					}
+				});
+			},'确认绑定');
+		}else callback();
+	});
+}
+var bindsecond = 60,bindId = $('bindBotton');
+GetRTimeBind = function (){  
+	if(bindsecond>=0){
+		var txt = '';
+		if(bindId){
+			if(bindsecond == 0){
+				txt = '重新获取动态码';
+				bindId.removeClass('DTPTUn');
+			}else{
+				txt = bindsecond + '秒后重新获取';
+				bindId.addClass('DTPTUn');
+			}
+			bindId.value = txt;
+		}
+		bindsecond = bindsecond-1;
+		setTimeout("GetRTimeBind()",1000);
+	}else {  
+		if(bindId){
+			bindId.set("disabled", false); 
+			bindId.setStyle("cursor","pointer"); 
+		}
+	}  
+} 
+resendGetBindCode = function(){
+	if($('bindMobile').value == '' || $('bindMobile').value.length != 11){
+		GewaraUtil.showValidateErr('bindMobile',($('bindMobile').value == '')?'请输入手机号码！':'请输入正确的手机号码！');
+		return false;
+	}
+	gewa.util.mask({'element':bindId,'title':'正在提交，请稍等...'});
+	var values = {"mobile":$('bindMobile').value};
+	GewaraUtil.sendRequest('${basePath}home/bindmobile/receive.xhtml', values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			retimeBind();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	}, 'get');
+}
+function retimeBind(){
+	bindId.set("disabled", true);
+	bindId.setStyle("cursor","text"); 
+	bindsecond = 60;
+	GetRTimeBind();
+}
+</script>

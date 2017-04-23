@@ -1,0 +1,79 @@
+<div id="vipCardDetail" style="display:none;" class="detail_vipBuy">
+	<a href="javascript:hideCard();" class="colseMark"></a>
+	<form id="cardForm">
+	<p class="fs14"><b>你选择了<span class="ml10">$mct.title</span>
+		#if($mct.cardType eq 1)
+			<span class="ml10 cF60">$mct.money</span>次</b>
+		#elseif($mct.cardType eq 2)
+			<span class="ml10 cF60">$mct.money</span>元</b>
+		#end
+	</p>
+	<p>适用项目：#if($VmUtils.isNotBlank($fitItem))$fitItem#else所有#end</p>
+	<div>
+		有效期：#if($mct.validtime)$DateUtil.formatDate($mct.validtime)#else无期限#end
+		可在<a href="${basePath}sport/$!sport.id" title="$sport.name" class="ml5 mr5">$!VmUtils.htmlabbr($sport.name, 18)</a>#if($sportList.size() eq 1)使用#end
+		#if($sportList.size() gt 1)
+		等<b>$sportList.size()</b>家场馆使用
+		<div id="lookSiteBox" class="lookSiteBox">
+			<a href="javascript:void(0);" class="ml5 lookSite" id="lookSite">查看所有</a>
+			<div id="vipSite" class="tips_vipSiteBox" style="display:none;">
+				#foreach($sport in $sportList)
+				<p>$sport.name</p>
+				#end
+			</div>
+		</div>
+		#end
+	</div>
+	#if($mct.cardType eq 1)
+	<p>说明：1次可抵用一个场次</p>
+	#end
+	<p class="fs14 mt20 c333">请填写手机号码并提交订单：</p>
+	<dl class="clear mt15">
+		<dt class="left">手机号码：</dt>
+		<dd class="left"><input type="text" class="text" name="mobile" id="mobile" value="$!member.mobile"/></dd>
+	</dl>
+	<dl class="clear mt10">
+		<dt class="left">验证码：</dt>
+		<dd class="left">
+			<input type="hidden" name="placeid" id="placeid" value="$!placeid"/>
+			<input type="hidden" name="mctid" value="$!mct.id"/>
+			#set($captchaId=$VmUtils.randomCaptchaId)
+			<input type="hidden" name="captchaId" id="captcha" value="$!captchaId"/>
+			<input type="text" class="text" name="captcha" id="captchaInput" mustTxt="请输入验证码！" style="width:60px;"/>
+			<img id="captchaImg" src="${basePath}captcha.xhtml?captchaId=$!captchaId&r=$math.random" class="mr5" style="cursor:pointer;vertical-align:middle;width:100px;height:30px;"  onclick="GewaraUtil.refreshCaptcha('captcha');" title="看不清楚，请双击换一张图片"/>
+			<span onclick="GewaraUtil.refreshCaptcha('captcha');" class="cyan" style="cursor:pointer;color:#39c;">看不清楚</span>
+		</dd>
+	</dl>
+	<p class="mt20" style="padding-left:100px;">
+		<a href="javascript:addCardOrder(this)" class="button bigBt redBt">
+			<span>提交订单</span>
+		</a>
+	</p>
+	</form>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	gewa.util.maskContent('','vipCardDetail','',500,'vipCardDetail');
+	//new amTips($$('#lookSite'),{position:'bottom',content:function(){return "546545646"},width:160});
+	if($('lookSite')){
+		$('lookSite').addEvents({
+		'mouseover':function(){$('vipSite').show();},
+		'mouseout':function(){$('vipSite').hide();}
+	});
+	}
+});
+addCardOrder=function(el){
+	var url = '${basePath}sport/order/memberCard/step2.xhtml';
+	var values = GewaraUtil.getValues("cardForm");
+	//gewa.util.mask({'element': el,'title':'正在提交，请稍等...'});
+	GewaraUtil.sendRequest(url, values, function(result){
+		//gewa.util.clearMask();
+		if(result.success){
+			document.location.href="${basePath}gewapay/order.xhtml?orderId=" + result.retval;
+		}else{
+			GewaraUtil.refreshCaptcha('captcha');
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>

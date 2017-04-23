@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>运动场所价格表信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:350px; display:inline}
+	</style>
+</head>
+<body style="width:750px;margin:auto" class="yui-skin-sam">
+<div style="width:740px;">${sport.name}的价格表信息
+<input type="button" class="button" style="width:80px" value="增加" onclick="addPriceTable();"/>
+</div>
+<div style="width:745px;">
+<table class="table" style="width:730px">
+	<thead>
+	<tr>
+		<th width="200px">名称</th>
+		<th width="120px">单位</th>
+		<th width="150px">备注</th>
+		<th width="50px">排序</th>
+		<th width="200px">操作</th>
+	</tr>
+	</thead>
+	<tbody id="priceTable">
+	#foreach($priceTable in ${priceTableList})
+		<tr id="priceTable_${priceTable.id}">
+			<td id="tablename_${priceTable.id}">$!{priceTable.tablename}($!{priceTable.item.fullname})</td>
+			<td id="unit_${priceTable.id}">$!{priceTable.unit}</td>
+			<td id="remark_${priceTable.id}">$!{priceTable.remark}</td>
+			<td><input type="text" value="$!{priceTable.ordernum}" id="pt${priceTable.id}" style="width: 50px" onchange="orderNum(${priceTable.id}, this.value)"/></td>
+			<td>
+				<a href="${basePath}admin/sport/priceList.xhtml?priceTableId=${priceTable.id}" target="_blank">详细价格</a>   
+				<input type="button" class="button" style="width:60px" value="修改" onclick="modifyPriceTable(${priceTable.id});"/>
+				<input type="button" class="button" style="width:60px" value="删除" onclick="deletePriceTable(${priceTable.id});"/>
+			</td>
+			
+		</tr>
+	#end
+	</tbody>
+</table>
+</div>
+<div id="priceTableDialog" class="yui-panel" style="width:450px; visibility:hidden;">
+	<div class="hd" id="title">编辑SPORT价格表数据</div>
+	<div class="bd">
+	<form name="priceTableForm" id="priceTableForm">
+		<input type="hidden" name="id" id="id"/>
+		<div>
+			<label for="itemid">运动项目：</label>
+			<select name="itemid" id="itemid">
+				<option value="">请选择...</option>
+				#foreach($item in $allItem)
+				<option value="${item.id}">${item.itemname}</option>
+				#end
+			</select>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="tablename">名称</label>
+			<input name="tablename" id="tablename" type="text"/>
+		</div>
+		<div>
+			<label for="unit" title="例如：元/包/小时">计价单位:</label>
+			<input name="unit" id="unit" type="text"/>
+		</div>
+		<div>
+			<label for="remark">备注:</label>
+			<textarea name="remark" id="remark" rows="6"></textarea>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="save();" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	var itemnames = {
+		#foreach($item in $sport.itemList)
+		'${item.id}':'${item.itemname}',
+		#end
+		'itemid':'itemid'
+	};
+	function save(){
+		var values = GewaraUtil.getValues($("priceTableForm"));
+		if (values.unit == "") {
+			alert("请输入计价单位！");
+			return;
+		}
+		values.sportId = ${sport.id};
+		var url = "${basePath}admin/sport/ajax/saveOrUpdateSportPriceTable.xhtml";
+		GewaraUtil.sendRequest(url, values , saveCallBack);
+	}
+	function showDialog(){
+		GewaraUtil.showDialog("priceTableDialog");
+	}
+	function cancle(){
+		GewaraUtil.hideDialog("priceTableDialog");
+	}
+	var isModify = false;
+	function addPriceTable(){
+		$("id").value="";
+		isModify = false;
+		showDialog();
+	}
+	function saveCallBack(priceTable){
+		if(priceTable){
+			cancle();
+			if(isModify){
+				$("tablename_" + priceTable.id).innerHTML = priceTable.tablename + itemnames[$("itemid").value];
+				$("unit_" + priceTable.id).innerHTML = priceTable.unit;
+				$("remark_" + priceTable.id).innerHTML = priceTable.remark;
+			} else addRow(priceTable);
+		}
+		else alert("保存失败");
+	}
+	function modifyPriceTable(priceTableId){
+		var values = {'sportPriceTableId':priceTableId};
+		var url = "${basePath}admin/sport/ajax/getSportPriceTableById.xhtml";
+		GewaraUtil.sendRequest(url, values , function(priceTable){
+			GewaraUtil.setValues(priceTable);
+			if(priceTable.item) $("itemid").value = priceTable.item.id;
+			isModify = true;
+			showDialog();
+		});
+	}
+	var options = new Object();
+	options.escapeHtml = false;
+	options.rowCreator = function(opt){
+		var rowData = opt.rowData;
+		var tmpRow = document.createElement("tr");
+		tmpRow.id="priceTable_" + rowData.id;
+		return tmpRow;
+	}
+	
+	var cellFunc = [
+		function(priceTable){
+			return priceTable.tablename
+		},function(priceTable){
+			return priceTable.unit;
+		},function(priceTable){
+			return priceTable.remark;
+		},function(priceTable){
+			var tmpLink ='<a href="${basePath}admin/sport/sportOtherInfo.xhtml?a=priceList&priceTableId=' + priceTable.id + '" target="_blank">详细价格</a>'; 
+			tmpLink +='<input type="button" class="button" style="width:60px" value="修改" onclick="modifyPriceTable(' + priceTable.id+');"/>';
+			tmpLink +='<input type="button" class="button" style="width:60px" value="删除" onclick="deletePriceTable(' + priceTable.id + ');"/>';
+			return tmpLink;
+		}
+	]
+	
+	function addRow(priceTable){
+		var priceTableList=[priceTable];
+		GewaraUtil.addRows("priceTable", priceTableList, cellFunc, options);
+		var cells = $("priceTable_" + priceTable.id).cells;
+		cells[0].id="tablename_"+priceTable.id;
+		cells[1].id="unit_"+priceTable.id;
+		cells[2].id="remark_"+priceTable.id;
+	}
+	function deletePriceTable(priceTableId){
+		if(!window.confirm('价格表请不要轻易删除，请确认是否需要？')) return false;
+		var values = {'sportPriceTableId':priceTableId};
+		var url = "${basePath}admin/sport/ajax/removeSportPriceTableById.xhtml";
+		GewaraUtil.sendRequest(url, values , function(priceTable){
+			if(priceTable){
+				$("priceTable_"+priceTableId).dispose();
+				alert("删除成功！");
+			}else alert("删除失败！");
+		});
+	}
+	
+	function orderNum(gcid, val, obj){
+		var url = "${basePath}admin/common/ajax/changeSPTOrderNum.xhtml";
+		GewaraUtil.sendRequest(url, {'id':gcid, 'ordernum':val}, function(result){
+			if(result.success){
+				alert('成功设置！');
+			}else{
+				alert('设置失败');
+			}
+		});
+	}
+</script>
+</body>
+</html>

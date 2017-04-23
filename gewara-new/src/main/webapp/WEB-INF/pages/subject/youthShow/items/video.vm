@@ -1,0 +1,34 @@
+#if(!$VmUtils.isEmptyList($filmActivityList))
+<div class="move_video">
+	<div class="move_center">
+		<div class="move_box" id="move_box">
+			#foreach($activity in $filmActivityList)
+			<a target="_blank"  href="$activity.newslink"><img width="260" height="180"  src="$VmUtils.randomPic('cw260h180',$!activity.newslogo)"></a>
+			#end
+		</div>
+	</div>
+	<div id="move_tag" class="control">
+		#foreach($x in $filmActivityList)
+		<a #if($foreach.count eq 1)class="select"#end href="javascript:void(0);" title="">$foreach.count</a>
+		#end
+	</div>
+</div>	
+<script type="text/javascript">
+#if($!VmUtils.size($filmActivityList) gt 1)
+	window.addEvent('domready',function(){
+		new noobSlide({
+			box: $('move_box'),
+			items:$$('#move_box a'),
+			size:260,
+			handles:$$('#move_tag a'),
+			handle_event:'click',
+			autoPlay:true,
+			onWalk: function(currentItem,currentHandle){
+				this.handles.removeClass('select');
+				currentHandle.addClass('select');
+			}
+		});
+	})
+#end
+</script>
+#end

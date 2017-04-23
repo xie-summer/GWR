@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>银联钱包券id场次映射</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.none{display:none;}
+		.tar{text-align:right;margin-top:10px;margin-right:10px;font-weight:bold;}
+		.tar a{color:red;}
+		#settleTable td{text-align:left;}
+	</style>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<table class="roomManageTable" id="settleTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+	<tbody class="tbody">
+		<tr class="grayBg tdor">
+			<td >银联票券id</td>
+			<td >场次id</td>
+			<td >tag</td>
+			<td>
+				操作 <input type="button" value="增加" onclick="showDialog()"/>
+			</td>
+		</tr>
+		#if(!$VmUtils.isEmptyList($mappings))
+			#foreach($mapping in $mappings)
+			<tr class="grayBg">
+				<td>
+					$mapping.get('billId')
+				</td>
+				<td>
+					$mapping.get('mpid')
+				</td>
+				<td>
+					$mapping.get('tag')
+				</td>
+				<td>
+					<input type="button" value="删除" onclick="doDelete('$mapping.get('_id')')" />
+				</td>
+			</tr>
+			#end
+		#end
+	</tbody>
+</table>
+<div id="openDialog" style="width:370px; visibility:hidden; z-index:20;background: #000">
+		<div style="width:350px;margin:10px;background:#FFF;">
+			<div style="text-align:center;height:20px;line-height: 20px;margin-bottom: 5px;">
+				<strong id = "bankName">添加银联钱包关联</strong>
+			</div>
+			<div class="bd ml20" style="text-align:left;">
+				<form name="openForm" id="openForm">
+					<div class="clear">
+						银联票券id：<input type="text" name="billId" id="billId" value="" /><br/><br/>
+						场 &nbsp;次 &nbsp;id：<input type="text" name="mpid" id="mpid" value="" /><br/><br/>
+						&nbsp;&nbsp;&nbsp;&nbsp;tag:<select name="tag">
+							<option value="cinema">
+								电影
+							</option>
+							<option value="drama">
+								演出
+							</option>
+							<option value="sport">
+								运动
+							</option>
+						</select>
+						<br/><br/>
+						<input type="button" class="cbt1"  value="保存" onclick="saveMapping()"/>
+						<input type="button" class="cbt1" onclick="hiDialog();" value="取消"/>
+					</div>
+				</form>
+			</div><br/>
+		</div>
+	</div>
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+	});
+	function hiDialog(){
+		GewaraUtil.hideDialog("openDialog");
+	}
+	function showDialog(){
+		GewaraUtil.showDialog('openDialog');
+	}
+	
+	function saveMapping(){
+		GewaraUtil.mask('openDialog');
+		var mask = gewa.util.mask({'element': 'openDialog','title':'正在提交，请稍等...'});
+		var values = GewaraUtil.getValues('openForm');
+		var url = "${basePath}admin/ticket/addUnionpayWalletMapping.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) {
+				refreshPage();
+			}else {
+				alert(result.msg);
+				GewaraUtil.unmask();
+			}
+		});
+	}
+	
+	function doDelete(id){
+		var url = '${basePath}admin/ticket/deleteUnionpayWalletMapping.xhtml';
+		var values = {"id":id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

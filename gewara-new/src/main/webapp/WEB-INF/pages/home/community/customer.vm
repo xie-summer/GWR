@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<meta name="robots" content="noindex" />
+	<title>申请圈子认证</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,commnu&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+	#parse('home/community/commnu_style.vm')
+	<style type="text/css">
+		h1{height:60px;line-height:60px;text-indent: 20px;font-size:2.2em;font-weight:bold}
+		.ch2{line-height:30px;padding:0 20px;font-size:1.6em;font-weight:bold;margin-top:10px;}
+		.registerBox{padding:10px 0px 10px 532px;width:400px;height:500px;}
+		.registerItem{float:left;width:500px;margin-left:-532px;_margin-left:-266px;overflow:hidden;border-right:2px solid #eee4db}
+	</style>
+</head>
+<body>
+#set($isFlase=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="commnu_layout" style="padding:12px;width:936px;background:#fff">
+	<h1>申请圈子认证</h1>
+	<div class="showList " style="margin-top:20px;">
+		<strong>以下信息仅做格瓦拉生活网工作人员审核使用，不会再前台显示。请放心填写我们将对您的信息严格保密。</strong><br/>
+		提交成功后，将在2个工作日内，格瓦拉生活网工作人员将通过您填写的信息对您的网点进行审核，请确保您填写内容的真实信和查收信息。
+	</div>
+	<div style="overflow: hidden;position: relative; width: 100%;height:100px">
+		<h2 class="ch2">您当前正在申请<b class="yellow ml5 mr5">$commu.name</b>圈子的认证，<br/>请详细填写以下信息，以便核实申请信息。</h2>
+		<img class="gui-more" src="${picPath}css/pub/c_bg_top.png"/>
+	</div>
+	<div class="height0"></div>
+	<div style="width:85%;border-bottom:2px dashed #eee;height:1px;margin:10px auto;"></div>
+	<div class="registerBox" id="customerForm">
+		<input type="hidden" name="commuid" value="$!commu.id" />
+		<input type="hidden" name="applymemberid" value="$!logonMember.id" /> 
+		<ul class="registerItem" style="border:0px;">
+			<li><div class="ul-80Inner">真实姓名：<span class="mr5 yellow">*</span></div>
+				<input type="text" name="realname" mustTxt="真实姓名必填" id="realname" class="text"  style="width:60%;"/>
+				<span class="ml10"><input type="radio" name="sex" id="sex1" value="1" checked='checked' style="vertical-align: middle"/><label for="sex1">先生</label></span>
+				<span class="ml10"><input type="radio" name="sex" id="sex0" value="0" style="vertical-align: middle"/><label for="sex0">女士</label></span>
+			</li>
+			<li><div class="ul-80Inner">联系手机：<span class="mr5 yellow">*</span></div>
+				<input type="text" name="contactphone" id="contactphone" mustTxt="联系电话必填" class="text"  style="width:60%;"/>
+			</li>
+			<li><div class="ul-80Inner">身份证号：<span class="mr5 yellow">*</span></div>
+				<input type="text" name="idnumber" mustTxt="身份证号必填" class="text" style="width:60%;" />
+			</li>
+			
+			<li><div class="ul-80Inner">E-mail：<span class="mr5 yellow">*</span></div>
+				<input type="text" name="email" mustTxt="E-mail必填" id="email" class="text"  style="width:60%;" value="$!member.email"/>
+			</li>
+			<li><div class="ul-80Inner">QQ：<span class="mr5 yellow">&nbsp;</span></div>
+				<input type="text" name="qq" class="text"  style="width:60%;"/>
+			</li>
+			<li><div class="ul-80Inner">MSN：<span class="mr5 yellow">&nbsp;</span></div>
+				<input type="text" name="msn" style="width:60%;" class="text" />
+			</li>
+			<li style="height:auto"><div class="ul-80Inner">其他说明：<span class="mr5 yellow">&nbsp;</span></div>
+				<textarea name="remark" class="text" style="width:70%;height:80px;"></textarea>
+			</li>
+			<li style="height:auto"><div class="ul-80Inner">服务协议：<span class="mr5 yellow">&nbsp;</span></div>
+				<input type="checkbox" name="agreeprotocol" id="agreeprotocol" checked="checked"/>我接受服务协议表明您已经阅读并同意接受格瓦拉的<a href="${basePath}service/commuProtocol.dhtml" class="yellow unline" target="_blank">服务协议</a>
+			</li>
+			<li><input type="image" id="buss_bt" src="${picPath}css/buss/b_bt.png" onclick="saveCustomer();"/></li>
+		</ul>
+		<img src="${picPath}css/pub/c_bg.png"/>
+	</div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+	function saveCustomer(){
+		if(!GewaraUtil.baseValidForm('customerForm')){return false;}
+		if(!gewara.util.isMobile($('contactphone').value)){
+			gewaUtil.alert('请输入正确的手机号!');
+			return false;
+		}
+		var url = '${basePath}home/commu/saveapplyCertification.xhtml';
+		var values = GewaraUtil.getValues('customerForm');
+		gewa.util.mask({'element': 'buss_bt','title':'正在提交，请稍等...'});
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				gewaUtil.alert("您的申请已提交，我们会尽快联系您！", function(){
+					location.href = '${basePath}quan/$commu.id';
+				});
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

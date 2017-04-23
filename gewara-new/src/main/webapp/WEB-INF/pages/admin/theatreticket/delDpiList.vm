@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>已删除的场次</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		#gcForm ul li{padding: 3px;}
+		.disabled{background-color: #D4D0C8; color: #808080;}
+		.cke_skin_chris{width:700px !important;}
+		.shrink{height:40px;}
+		.showList li{height:40px; line-height:40px;}
+		.roomManageTable .aa td,.roomManageTable th .aa th{border-top:0 none;}
+		.roomManageTable .bb{border-right:0 none;}
+		.importExcle{width:500px;height:auto;padding:15px;background:#d7d7d7;color:#000;position:relative;}
+		.importExcle .closed{position:absolute;padding:2px 3px;background:#333333;color:#fff;right:10px;top:10px;cursor:pointer;text-decoration:none;}
+		.importExcle h2{font-size:14px;font-weight:bold;color:#000;margin-bottom:5px;}
+		.importExcle ul li{width:100%;}
+		.importExcle ul li span{color:#2e2e2e;}
+		.importExcle ul li p{display:block;overflow:hidden;}
+		.orderSet li{width:auto;margin-right:15px;height:30px;line-height:30px;}
+	</style>
+</head>
+<body>
+<div class="manageItemList">
+	<em class="b1f"></em><em class="b2f"></em>
+	<div class="contentInfoList"> 
+		<div class="aboutMovie">
+			<table cellpadding="0" cellspacing="0" width="100%">
+				<tr>
+					<td>序号</td>
+					<td>场次id</td>
+					<td>名称</td>
+					<td>场馆</td>
+					<td>话剧名称</td>
+					<td>演出时间</td>
+					<td>恢复</td>
+				</tr>
+				#foreach($dpi in $dpiList)
+				<tr>
+					<td>$foreach.count</td>
+					<td>$dpi.id</td>
+					<td>$dpi.name</td>
+					<td>$!dpi.theatrename</td>
+					<td>$!dpi.dramaname</td>
+					<td>$DateUtil.formatTimestamp($dpi.playtime)</td>
+					<td><input type="button" onclick="reDel($dpi.id)" value="恢复" /></td>
+				</tr>
+				#end
+			</table>
+		</div>
+	</div>
+	<em class="b2f"></em><em class="b1f"></em>
+</div>
+
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+});
+
+function reDel(id){
+	var url = '${basePath}admin/dramaTicket/reDelDpi.xhtml';
+	var values = {'dpid':id};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('恢复成功');
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+</script>
+</body>
+</html>

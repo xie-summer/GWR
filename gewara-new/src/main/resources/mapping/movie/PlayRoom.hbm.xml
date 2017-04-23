@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="com.gewara.model.ticket.PlayRoom" lazy="false">
+		<cache usage="read-write" region="halfDay"/>
+		<id name="id" type="long" column="RECORDID">
+			<generator class="sequence" />
+		</id>
+		<property name="roomname" type="string" column="ROOMNAME"/>
+		<property name="content" type="string" column="CONTENT"/>
+		<property name="linenum" type="integer" column="LINE_NUM"/>
+		<property name="ranknum" type="integer" column="RANK_NUM"/>
+		<property name="seatnum" type="integer" column="SEAT_NUM"/>
+		<property name="firstline" type="integer" column="FIRSTLINE"/>
+		<property name="firstrank" type="integer" column="FIRSTRANK"/>
+		<property name="num" type="string" column="ROOMNUM" />
+		<property name="sections" type="string" column="SECTIONS"/>
+		<property name="updatetime" type="timestamp" column="UPDATETIME"/>
+		<property name="roomtype" type="string" column="ROOMTYPE"/>
+		<!-- 影院 -->
+		<union-subclass name="com.gewara.model.movie.CinemaRoom" table="CINEMAROOM" lazy="false">
+			<property name="seatmap" type="string" column="SEATMAP" />
+			<property name="cinemaid" type="long" column="CINEMAID"/>
+			<property name="screenheight" type="integer" column="SCREEN_HEIGHT"/>
+			<property name="screenwidth" type="integer" column="SCREEN_WIDTH"/>
+			<property name="vipflag" type="string" column="VIPFLAG"/>
+			<property name="loveflag" type="string" column="LOVEFLAG"/>
+			<property name="effectivedate" type="date" column="EFFECTIVEDATE"/>
+			<property name="allowsellnum" type="integer" column="ALLOWSELLNUM"/>
+			<property name="playtype" type="string" column="PLAYTYPE"/>
+			<property name="roomDoor" type="string" column="ROOMDOOR"/>
+			<property name="otherinfo" type="string" column="OTHERINFO" />
+			<property name="characteristic" type="string" column="CHARACTERISTIC" />
+			<property name="defaultEdition" type="string" column="DEFAULT_EDITION" />
+		</union-subclass>
+		
+		<!-- 话剧院 -->
+		<union-subclass name="com.gewara.model.drama.TheatreRoom" table="THEATRE_ROOM" lazy="false">
+			<property name="theatreid" type="long" column="THEATREID"/>
+			<property name="seatmap" type="string" column="SEATMAP" />
+			<property name="logo" type="string" column="LOGO"/>
+			<property name="fieldid" type="long" column="FIELDID" />
+			<property name="hotzone" type="string" column="HOTZONE" />
+			<property name="synchtime" type="timestamp" column="SYNCHTIME" />
+		</union-subclass>
+	
+	</class>
+</hibernate-mapping>

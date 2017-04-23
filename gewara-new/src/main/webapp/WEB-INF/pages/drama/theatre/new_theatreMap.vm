@@ -1,0 +1,425 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	#parse('include/constant/cityParam.vm')
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title>${theatre.name}_地图,地址 - 格瓦拉生活网</title>
+	<meta name="keywords" content="" />
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,map,new_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.2&services=true"></script>
+	<style type="text/css">
+		.percent_50 li{text-align:left;}
+		#startPanel div,#endPanel div{padding:5px;}
+		#resultPanel{height:350px;border: 1px solid #F0F0F0;}
+		#spanTransit{font-size: 12px;line-height:25px;}
+		#spanTransit b{color: #333333;}
+		.map{height:auto !important;}
+ 		.search_panel .inner{padding-left:40px !important;}
+	</style>
+</head>
+<body>
+#set($isMap=true)
+#set($relatedtag='drama')
+#set($dramaHeadFlag='isDramatheatre')
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout">
+	<div class="inner">
+		<div class="ui_panel">
+		#parse('drama/theatre/new_theatreHead.vm')
+			<div class="panel_inner">
+				<div class="inner_left">
+					<div class="search_panel">
+						<h2>交通驾车查询</h2>
+						<div class="inner">
+							<div id="pattern" class="search_icon_tab map_ico clear">
+								<a title="驾车" class="select" href="javascript:;"><img class="car" src="$VmUtils.randomPic('','css/images/blank.gif')"/></a>
+								<a title="公共交通" href="javascript:;"><img class="bus" src="$VmUtils.randomPic('','css/images/blank.gif')"/></a>
+								<a title="步行" href="javascript:;"><img class="man" src="$VmUtils.randomPic('','css/images/blank.gif')"/></a>
+							</div>
+							<div class="search_form mt20">
+								<ul>
+									<li>
+										<span class="map_ico" title="起点"><img class="a" src="$VmUtils.randomPic('','css/images/blank.gif')"/></span>
+										<input id="fromAddress" type="text" value="$!from" class="text" alt="起点："/>
+									</li>
+									<li>
+										<span class="map_ico" title="终点"><img class="b" src="$VmUtils.randomPic('','css/images/blank.gif')"/></span>
+										#if($VmUtils.isBlank($end))
+											#set($endAddress = $!object.name)
+										#else
+											#set($endAddress = $!end)
+										#end
+										<input id="endAddress" type="text" value="$!endAddress" class="text"/>
+									</li>
+								</ul>
+								<p class="tar mt20"><a href="" class="ibutton w90_button" onclick="mDriving();return false;">查询路线</a></p>
+							</div>
+						</div>
+					</div>
+					<div class="seach_result mt10" id="directions" style="height: %00; overflow:auto; display:none;">
+						<div id="startSelect"><span style="font-size:14px;">起点选择 <a href="#" onclick="document.getElementById('startPanel').style.display=document.getElementById('startPanel').style.display=='none'?'':'none';">(展开/收缩)</a></span><br/></div>
+						<div id="startPanel"></div>
+						<hr id="hr" color="#f2f2f2"/>
+						<div id="endSelect" style="display: none"><span style="font-size:14px;">终点选择 <a href="#" onclick="document.getElementById('endPanel').style.display=document.getElementById('endPanel').style.display=='none'?'':'none';">(展开/收缩)</a></span><br/></div> 
+						<div id="endPanel"></div> 
+						<div style="display: none;" id="resultSelect"><h3>导航面板</h3></div>
+						<div id="resultPanel"></div>
+					</div>
+				</div>
+				<div class="inner_right">
+					<div class="map">
+						<div class="map_canvas" id="map_canvas"></div>
+						<div style="display: none;"><p class="mt10"><a class="cMovie ffst" href="${basePath}common/relateMap.xhtml?tag=$!{tag}">全部场馆&gt;&gt;</a></p></div>
+					</div>
+				</div>
+				<div class="cls"></div>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/global/new_scorelevel.vm')
+#parse('include/treasure.vm')
+#parse('include/bottom.vm')
+#parse('include/newMarkDialog.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	myTreasure('theatre','$theatre.id');
+	gewara.util.sendRequest('${basePath}ajax/member/synchroizaInfo.xhtml',null,function(result){
+		if(result.success){
+			if(result.appList){
+				if(result.appList.contains('sina')){$('isWb').checked=true;isWbOpen = false;}
+			}
+		}
+	});
+	if(!$VmUtils.isNull($!from)){
+		mDriving();
+	}
+	gewa.util.textOver('.text')
+	tabs();
+});
+function tabs(){
+	var elements = $$('.search_icon_tab a');
+	elements.addEvent('click',function(){
+		elements.each(function(item){
+			item.removeClass('select');
+		})
+		this.addClass('select');
+	})
+}
+</script>
+</body>
+</html>
+<script type="text/javascript">
+	var endstart=$('endAddress').value;
+	var elements = $$('.search_icon_tab a');
+	var pattern;
+	elements.addEvent('click',function(){
+		pattern=this.title;
+	})
+	var map =new BMap.Map("map_canvas"); //创建Map实例 
+	if(!$VmUtils.isNull($object.bpointy) || !$VmUtils.isNull($object.bpointx)){
+		var pointy = $object.bpointy;
+		var pointx = $object.bpointx;
+		if(!(pointx > -90 && pointx < 90) || !(pointy > -180 && pointy < 180)){
+			var point =new BMap.Point($!globalCurPoint[1],$!globalCurPoint[0]); //默认为当前城市经纬度
+		}else{
+			var point =new BMap.Point($object.bpointy,$object.bpointx); //创建点坐标		
+		}
+	}else{
+		var point =new BMap.Point($!globalCurPoint[1] ,$!globalCurPoint[0]);
+	}
+	
+	map.centerAndZoom(point,15); //初始化地图,设置中心点坐标和地图级别。
+	//创建标记
+	var marker=new BMap.Marker(point);
+	map.addOverlay(marker);
+	var info = "$object.name";
+	var address= '$!{object.countyname}$!{object.address}';
+	//创建窗口信息
+	var opts = {
+	  width : 220     // 信息窗口宽度
+	}
+	var infoWindow=new BMap.InfoWindow("<b><span style='color: #cc3300;font-size: 14px;'>"+info+"</span></b><br/>"+"<span style='color:#666666; font-size:12px;'>"+address+"</span>",opts)
+	marker.openInfoWindow(infoWindow);
+	marker.addEventListener("click",function(){
+		this.openInfoWindow(infoWindow);
+	});
+	
+	map.addControl(new BMap.NavigationControl());		//平移缩放控件
+	map.addControl(new BMap.OverviewMapControl());		//缩略地图控件
+	var opts={offset:new BMap.Size(150,5)}
+	map.addControl(new BMap.ScaleControl(opts));		//比例尺控件
+	map.addControl(new BMap.CopyrightControl());		//版权控件
+	map.addControl(new BMap.MapTypeControl());			//地图类型控件
+	map.setCurrentCity("$!cityname"); 					// 仅当设置城市信息时，MapTypeControl的切换功能才能可用
+	map.enableScrollWheelZoom();  				// 开启鼠标滚轮缩放  
+	map.enableKeyboard();         				// 开启键盘控制  
+	map.enableContinuousZoom();   				// 开启连续缩放效果  
+	map.enableInertialDragging(); 				// 开启惯性拖拽效果
+	
+	var startResults =null;
+	var endResults =null;
+	var startPoint;
+	var endPoint;
+	var startInfowin = new BMap.InfoWindow("<p class='t-c'><input value='选为起点' type='button' onclick='startDeter();' /></p>");
+	var endInfowin =new BMap.InfoWindow("<p class='t-c'><input value='选为终点' type='button' onclick='endDeter();' /></p>");
+	var driving =new BMap.DrivingRoute(map, {renderOptions:{map: map, autoViewport: true, panel:"resultPanel"}});
+	var transit=new BMap.TransitRoute(map);
+	transit.setSearchCompleteCallback(function(results){
+    if (transit.getStatus() == BMAP_STATUS_SUCCESS){
+    	$("resultPanel").innerHTML="<h2>&nbsp;交通前往 终点 的路线</h2><br/>";
+        	for (var index = 0; index < results.getNumPlans(); index++){
+            	var showElement = document.createElement("div");
+        	    var callDLFunc = drawLine(map,results,index,showElement);
+    	        showElement.style.lineHeight = "20px";
+	            showElement.onclick=callDLFunc;
+            	showElement.innerHTML = "<hr style='margin:5px;height:0px;border-top:1px;height:0;'><font style='color:red;font-size:14px;'><b>"+(index + 1) + "</b></font>. <span id='spanTransit'>" + results.getPlan(index).getDescription()+"</span><br/>";
+				$("resultPanel").appendChild(showElement);
+    	        if(index == 0){showElement.onclick();}
+	        }
+    	}
+	})
+	var lastSetBackObj = null;
+	function drawLine(aMap,results,index,obj){
+    	return function(){
+        	var opacity = 0.45;
+        	var planObj = results.getPlan(index);
+        	var bounds = new Array();
+        	var addMarkerFun = function(point,imgType,index,title){
+            	var url;
+            	var width;
+            	var height;
+            	var myIcon;
+            	// imgType:1的场合，为起点和终点的图；2的场合为过程的图形
+            	if(imgType == 1){
+	                url = "http://openapi.baidu.com/map/images/dest_markers.png";
+    	            width = 42;
+        	        height = 34;
+            	    myIcon = new BMap.Icon(url,new BMap.Size(width, height),{offset: new BMap.Size(14, 32),imageOffset: new BMap.Size(0, 0 - index * height)});
+	            }else{
+    	            url = "http://openapi.baidu.com/map/images/trans_icons.png";
+        	        width = 22;
+            	    height = 25;
+                	var d = 25;
+	                var cha = 0;
+    	            var jia = 0
+        	        if(index == 2){
+            	        d = 21;
+                	    cha = 5;
+                    	jia = 1;
+	                }
+    	            myIcon = new BMap.Icon(url,new BMap.Size(width, d),{offset: new BMap.Size(10, (11 + jia)),imageOffset: new BMap.Size(0, 0 - index * height - cha)});
+        	    }
+
+            	var marker = new BMap.Marker(point, {icon: myIcon});
+	            if(title != null && title != ""){
+    	            marker.setTitle(title);
+        	    }
+            	// 起点和终点放在最上面
+	            if(imgType == 1){
+    	            marker.setTop(true);
+        	    }
+            	aMap.addOverlay(marker);
+	        }
+    	    var addPoints = function(points){
+        	    for(var i = 0; i < points.length; i++){
+            	    bounds.push(points[i]);
+	            }
+    	    }
+
+        	// 清空覆盖物
+        	aMap.clearOverlays();
+
+        	// 绘制驾车步行线路
+        	for (var i = 0; i < planObj.getNumRoutes(); i ++){
+            	var route = planObj.getRoute(i);
+            	if (route.getDistance(false) > 0){
+                	// 步行线路有可能为0
+                	aMap.addOverlay(new BMap.Polyline(route.getPath(), {strokeStyle:"dashed",strokeColor: "#30a208",strokeOpacity:0.75,strokeWeight:4,enableMassClear:true}));
+            	}
+        	}
+	        // 绘制公交线路
+    	    for (i = 0; i < planObj.getNumLines(); i ++){
+        	    var line = planObj.getLine(i);
+            	addPoints(line.getPath());
+	            // 公交
+    	        if(line.type == BMAP_LINE_TYPE_BUS){
+        	        // 上车
+            	    addMarkerFun(line.getGetOnStop().point,2,2,line.getGetOnStop().title);
+                	// 下车
+	                addMarkerFun(line.getGetOffStop().point,2,2,line.getGetOffStop().title);
+        	        // 地铁
+	            }else if(line.type == BMAP_LINE_TYPE_SUBWAY){
+	                // 上车
+    	            addMarkerFun(line.getGetOnStop().point,2,3,line.getGetOnStop().title);
+        	        // 下车
+            	    addMarkerFun(line.getGetOffStop().point,2,3,line.getGetOffStop().title);
+	            }
+    	        aMap.addOverlay(new BMap.Polyline(line.getPath(), {strokeColor: "#0030ff",strokeOpacity:opacity,strokeWeight:6,enableMassClear:true}));
+        	}
+
+    	    aMap.setViewport(bounds);
+        	// 终点
+        	addMarkerFun(results.getEnd().point,1,1);
+        	// 开始点
+        	addMarkerFun(results.getStart().point,1,0);
+        	// 设置文字背景色
+        	if(lastSetBackObj != null){
+	            lastSetBackObj.style.backgroundColor = "#fff";
+    	    }
+        	obj.style.backgroundColor = "#f0f0f0";
+	        lastSetBackObj = obj;
+    	}
+	}
+	var walking=new BMap.WalkingRoute(map, {renderOptions:{map: map, autoViewport: true, panel:"resultPanel"}});
+	var startInfoWindows=new Hash();
+	var endInfoWindows=new Hash();
+	var startMarkers=new Hash();
+	var endMarkers=new Hash();
+	var startOption ={
+		onSearchComplete: function(results){
+			//判断状态是否正确
+			if(startSearch.getStatus() == BMAP_STATUS_SUCCESS){  
+				startResults =results;
+				var s =[];
+				map.setCenter(startResults.getPoi(1).point)
+				for(var i =0;i < results.getCurrentNumPois(); i ++){
+					var opts = {
+					  width : 220     // 信息窗口宽度
+					}
+					var startInfoWindow=new BMap.InfoWindow("<span style='color:#cc3300;font-size:14px;'>"+startResults.getPoi(i).title+"</span><br/><span style='color:#666666;font-size:12px;'>"+startResults.getPoi(i).address+"</span><br/><div align='right'><br/><input value='选为起点' type='button' onclick='startDeter(startResults.getPoi("+i +").title,startResults.getPoi("+i +").point);' /></div>",opts);
+					var startMarker=new BMap.Marker(startResults.getPoi(i).point);
+					startInfoWindows.set(i,startInfoWindow);
+					startMarkers.set(i,startMarker);
+					map.addOverlay(startMarkers.get(i));
+					s.push("<div id='div"+i+"'><p><a style='color:#cc3300;' onmouseover='startMarkers.get("+i+").openInfoWindow(startInfoWindows.get("+i+"),startResults.getPoi("+i +").point);' onclick='startDeter(startResults.getPoi("+i +").title,startResults.getPoi("+i +").point);' href='#'>");
+					s.push(results.getPoi(i).title);
+					s.push("</a></p><p style='color:#666666;'>");  
+					s.push(results.getPoi(i).address);  
+					s.push("</p></div>");
+				}  
+				$("startPanel").innerHTML =s.join("");  
+			}else{startResults =null;alert("起始地址解析错误!");}  
+		}  
+	};
+	
+	var endOption ={
+		onSearchComplete: function(results){
+			//判断状态是否正确
+			if(endSearch.getStatus() == BMAP_STATUS_SUCCESS){
+				endResults =results;
+				var s =[];
+				for(var i =0;i <results.getCurrentNumPois(); i ++){
+					var opts = {
+					  width : 220     // 信息窗口宽度
+					}
+					var endInfoWindow=new BMap.InfoWindow("<span style='color:#cc3300;font-size:14px;'>"+endResults.getPoi(i).title+"</span><br/><span style='color:#666666;font-size:12px;'>"+endResults.getPoi(i).address+"</span><br/><div align='right'><br/><input value='选为终点' type='button' onclick='endDeter(endResults.getPoi("+i +").title,endResults.getPoi("+i +").point);' /></div>",opts);
+					var endMarker=new BMap.Marker(endResults.getPoi(i).point);
+					endInfoWindows.set(i,endInfoWindow);
+					endMarkers.set(i,endMarker);
+					map.addOverlay(endMarkers.get(i));
+					endMarkers.get(i).disableMassClear();
+					s.push("<div><p><a style='color:#cc3300;' href='#' onmouseover='endMarkers.get("+i+").openInfoWindow(endInfoWindows.get("+i+"),endResults.getPoi("+i +").point);' onclick='endDeter(endResults.getPoi("+i +").title,endResults.getPoi("+i +").point);'>");
+					s.push(results.getPoi(i).title);
+					s.push("</a></p><p style='color:#666666;'>");
+					s.push(results.getPoi(i).address);  
+					s.push("</p></div>");  
+				}
+				$("endPanel").innerHTML =s.join("");  
+			}else{endResults =null;alert("终点地址解析错误!")}
+		}  
+	}; 
+	
+	var startSearch;
+	var endSearch;
+	function mDriving(){
+		map.clearOverlays();
+		$("resultPanel").style.display="none";
+		var startPlace =$("fromAddress").value;
+		var endPlace =$("endAddress").value;
+		if(startPlace==""||startPlace==null){
+			alert("请填写起点地址");
+			return false;
+		}
+		//创建2个搜索实例  
+		startSearch =new BMap.LocalSearch(map,startOption);
+		startSearch.search(startPlace);
+		if(endstart!=endPlace){
+			endSearch =new BMap.LocalSearch(map,endOption);
+			endSearch.search(endPlace);
+			$("endSelect").style.display="block";
+		}
+		$("directions").style.display="none"; 
+		$("directions").style.display="block";
+		$("startSelect").style.display="block";
+		$("startPanel").style.display="block";
+		$("hr").style.display="block";
+	}
+	function startDeter(title,point){
+		map.clearOverlays();
+		$("fromAddress").value=title;
+		startPoint =point;
+		var marker =new BMap.Marker(startPoint);  
+		map.addOverlay(marker);
+		$("startPanel").style.display="none";
+		$("endPanel").style.display="block";
+		if(endstart==$('endAddress').value){
+			if($VmUtils.isNull($object.bpointy) || $VmUtils.isNull($object.bpointx) || !(pointx > -90 && pointx < 90) || !(pointy > -180 && pointy < 180)){
+				endPoint =new BMap.Point($!globalCurPoint[1],$!globalCurPoint[0]); //默认为当前城市经纬度
+			}else{
+				endPoint =new BMap.Point($object.bpointy,$object.bpointx); //创建点坐标				
+			}
+			chaxun();
+		}
+	}
+	function endDeter(title,point){ 
+		if(startPoint==null){
+			alert("请先选择起点！");
+		}else{
+			for(var i=0;i<endMarkers.getKeys().length;i++){
+				endMarkers.get(i).enableMassClear();
+			}
+			map.clearOverlays();
+			endPoint =point;
+			$("endAddress").value=title;
+			chaxun();
+		}
+	}
+	function chaxun(){
+		if(pattern=="驾车" || pattern==null){
+			map.clearOverlays();
+			driving.search(startPoint,endPoint);
+		}
+		if(pattern=="公共交通"){
+			map.clearOverlays();
+			transit.search(startPoint,endPoint);
+		}
+		if(pattern=="步行"){
+			map.clearOverlays();
+			walking.search(startPoint,endPoint);
+		}
+		$("resultPanel").style.display="block";
+		$("endPanel").style.display="none";
+		$("startSelect").style.display="none";
+		$("endSelect").style.display="none";
+		$("hr").style.display="none";
+		//点击查询状态获得路线	
+		elements.addEvent('click',function(){
+			if(this.title=="驾车"){
+				map.clearOverlays();
+				driving.search(startPoint,endPoint);
+			}
+			if(this.title=="公共交通"){
+				transit.search(startPoint,endPoint);
+			}
+			if(this.title=="步行"){
+				map.clearOverlays();
+				walking.search(startPoint,endPoint);
+			}
+		})
+	}
+	
+</script>

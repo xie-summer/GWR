@@ -1,0 +1,192 @@
+<div class="inner">
+	<ul class="payOrder">
+		<li style="margin-right:8px;">
+			<div class="step_order_inner">1、选择影片</div>
+			<div class="order_step_info">选择影片、影院及场次</div>
+		</li>
+		<li style="margin-right:8px;">
+			<div class="step_order_inner select">2、选择座位<img src="${staticPath}css/buss/06_ioc.png"/></div>
+			<div class="order_step_info">选择座位，并输入用于取票的手机号码</div>
+		</li>
+		<li style="margin-right:8px;">
+			<div class="step_order_inner">3、在线支付</div>
+			<div class="order_step_info">#if($isAlipay)使用支付宝支付#elseif($issrcb)使用上海农商银行借记卡支付#else选择网上支付#end</div>
+		</li>
+		<li>
+			<div class="step_order_inner">4、自助取票</div>
+			<div class="order_step_info">$!profile.takeInfo</div>
+		</li>
+	</ul>
+	<div class="mt10 horn">
+		<em class="m1"></em><em class="m2"></em>
+		<div class="m">
+			<div class="inner">
+				<table cellpadding="0" cellspacing="0" width="100%" style="line-height:26px;font-size:14px;">
+					<tr>
+						<td width="34%">
+							<dl class="ui_abeam">
+								<dt class="uipic">
+									<img src="${basePath}sw60h80/${movie.limg}" alt="$movie.moviename"/>
+								</dt>
+								<dd class="uiText">
+									<p>影片：《$movie.moviename》</p>
+									<p>语言：$!{opi.language}(仅供参考)</p>
+									#if(${opi.edition})<p>版本：$!{opi.edition}</p>#end
+								</dd>
+							</dl>
+						</td>
+						<td width="33%" valign="top">
+							<p>影院：${cinema.name}</p>
+							<p class="fs14"><b>场次：</b><b class="yellow">$DateUtil.format($opi.playtime,"yyyy-MM-dd HH:mm")（$DateUtil.getCnWeek($opi.playtime)）</b></p>
+							<p>放映厅：$room.roomname</p>
+						</td>
+						<td valign="top">
+							<p>影院价：${opi.price}元</p>
+							<p>#if($partner.partnerpath eq "douban")豆瓣优惠价： 
+								#elseif($partner.partnerpath eq "anxin")安欣优惠价： 
+								#elseif($partner.partnerpath eq "sdo")盛大优惠价：
+								#elseif($partner.partnerpath eq "online")上海热线优惠价：
+								#elseif($partner.partnerpath eq "shokw")OK卡优惠价：
+								#else票价：#end<b class="yellow fs14">#set($price=$priceHelper.getPrice($opi))$price元</b>#set($fufee=$opi.gewaprice - $opi.costprice)(含服务费#if($fufee gt 0)${fufee}#{else}0#{end}元)</p>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<em class="m2"></em><em class="m1"></em>
+	</div>
+	<div class="pewGroup">
+		<div class="pewView clear">
+			<div class="roomView">
+				<div class="inner clear pewBg">
+					<div class="roomView hasScoll" id="seatTable">
+						<div class="pewDemo">
+							<b class="b">选择座位</b>
+							<span><img src="${staticPath}css/images/blank.gif" class="hasSeat" align="middle"/>可选位置</span>
+							<span><img src="${staticPath}css/images/blank.gif" class="sellSeat" align="middle"/>已售位置</span>
+							<span><img src="${staticPath}css/images/blank.gif" class="checkSeat" align="middle"/>您已选的位置</span>
+							<span><b style="color:green">1、2</b>：情侣座第1、2个座位</span>
+						</div>
+						<div class="wrapper" id="wrapper">
+							#set($maxwidth=22+22*$room.ranknum)
+							#set($pewHeight=$room.linenum*25)
+							#set($rowList=$VmUtils.split($room.seatmap,"@@"))
+							<div id="wrapped" style="width: #if(${maxwidth} gt 640)${maxwidth}px;#else 640px #end;margin:0 auto;overflow:visible;">
+								<div class="room_screen" style="width: #if(${maxwidth} gt 600) ${maxwidth}px; #else 600px;#end;">${opi.cinemaname}$room.roomname银幕#if($!{room.screenwidth})长$!{room.screenwidth}m #end #if($!{room.screenheight})高$!{room.screenheight}m#end</div>
+								<div class="seatlist" style="margin:0 auto;width:${maxwidth}px">
+									#set($classMap={'O':'noSeat','A':'hasSeat'})
+									#foreach($row in $rowList)
+									<dl class="clear">
+										#foreach($rank in $VmUtils.split($row, ","))
+										<dd><div class="$classMap.get($rank)"></div></dd>
+										#end
+									</dl>
+									#end
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<h2 class="mt10"><strong class="fs14">使用说明：</strong></h2>
+				<p class="ml10">
+					1、查看座位编码，请将鼠标移至相应座位上；<br/>
+					2、选择座位，请用鼠标左键单击该座位；<br/>
+					3、每笔订单最多可选购$!{opi.gainLockSeat()}张电影票；<br/>
+					4、选座时，请尽量选择相邻座位，请不要留下单个座位；<br/>
+					5、点击“立即购买”进入付款页面后，请在15分钟内完成支付，超时系统将释放您选定的座位。
+				</p>
+			</div>
+			<div class="pewSettle pewBg">
+				<div class="inner">
+					<p><b id="yes">#if($VmUtils.size($mySeatList) gt 0)您选择的座位#else您尚未选座 #end</b><span id="no" #if($VmUtils.size($mySeatList) gt 0) class="none" #end>请在<strong class="m5">左面座位图</strong>选择座位，每笔订单最多可购5张电影票！</span></p>
+					<div id="selectedSeat">
+					</div>
+					<div class="cls"></div>
+					<p class="fs14">您已选购<strong class="m5" id="seatNum">$VmUtils.size($mySeatList)</strong>张电影票</p>
+				</div>
+				<div class="pewForm">
+					<div class="pewGroup pewBg" style="margin-top:0px;">
+						<div class="pewStepTitle"><b>输入用于取票的手机号码</b></div>
+						#set($seatidList=[])
+						#if($VmUtils.size($mySeatList) gt 0)#foreach($oseat in $mySeatList)#set($tmp=$seatidList.add($oseat.id))#end#end
+						<form id="orderForm" action="${basePath}partner/${partner.partnerpath}/addOrder.xhtml" method="post">
+							<input type="hidden" name="encQryStr" value="$!encQryStr" />
+							#if($otherParams)
+							#foreach($key in $otherParams.keySet())
+							<input type="hidden" name="$key" value="$!otherParams.get($key)" />
+							#end
+							#end
+							<input type="hidden" name="mpid" id="mpid" value="${opi.mpid}"/>
+							<input type="hidden" name="seatid" id="seatList" value="$!VmUtils.join($seatidList,',')"/>
+							<ul>
+								<li>
+									#if($mobile)
+									<input type="hidden" class="g-pubinput validate['required','digit']" name="mobile" id="mobile" value="$!mobile"/>
+									#else
+									<label for="mobile">接收手机号：</label><input type="text" class="text validate['required','digit']" name="mobile" id="mobile" size="18" value="$!VmUtils.escapeHtml($params.mobile)" style="width:130px"/><span class="yellow">*</span></li>
+									#end
+								<li><span class="ml30 black">接收都是免费的，不会产生任何费用</span></li>
+								<li class="mt5"><label for="captcha">输入验证码：</label>
+								#set($captchaId=$VmUtils.randomCaptchaId)
+								<input type="hidden" name="captchaId" id="captcha" value="$!captchaId"/>
+								<input type="text" class="text" name="captcha" id="captchaInput" size="18" style="width:130px"/><span class="yellow">*</span></li>
+								<li class="mt5">
+									<div style="height:55px;width:120px;overflow: hidden;margin-left:74px;_margin-left:32px;float:left">
+										<img id="captchaImg" src="${basePath}captcha.xhtml?captchaId=$!captchaId&r=$math.random" style="cursor: pointer;" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清楚，请双击换一张图片"/>
+									</div>
+									<div class="blue left" onclick="GewaraUtil.refreshCaptcha('captcha')" style="cursor: pointer;">看不清楚</div>
+									<div id="height0"></div>
+								</li>
+								<li class="mt5">
+									<input type="button" class="buyBut mt10" #if($partner.partnerpath eq "spsdo")id="disBtn"#else value="立即购买" #end onclick="submitOrder(this);" style="margin-left:76px;"/>
+									<div style="margin-top:10px;line-height:20px;"><strong class="yellow">注</strong>：点击“立即购买”后，系统将为您锁定座位15分钟。</div>
+								</li>
+							</ul>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript" src="${staticPath}scripts/scrollerbar.js"></script>
+<script type="text/javascript">
+	var w = #if($!isKaixin)460 #else 640#end;
+	#set($seatidList=[])
+	#if($VmUtils.size($mySeatList) gt 0)#foreach($oseat in $mySeatList)#set($tmp=$seatidList.add($oseat.id))#end#end
+	#if($VmUtils.size($seatidList) gt 0)#set($jsSeatList="'" +$!VmUtils.join($seatidList,"','") + "'")#end
+	
+	var selectedSeat=[$!jsSeatList];
+	
+	window.addEvent('domready',function(){
+		refreshSeat();
+		if($('wrapper') && $('wrapped') && $('wrapped').getStyle('width').toInt() > w){
+			new ScrollerBar('wrapper',{mode:'horizontal',wrapped:'wrapped'});
+		}
+	});
+	
+	function refreshSeat(){
+		gewa.util.mask({'element': "seatTable",'title':'正在查询数据...', "opacity":"0.4"});
+		#set($price=$priceHelper.getPrice($opi))
+		var values={'mpid':$opi.mpid, 'partnerid':$partner.id, 'price':'$price'};
+		var url="${basePath}partner/$partner.partnerpath/seatPage.xhtml"
+		GewaraUtil.sendLoad('seatTable', url, values, function(result){
+			gewa.util.clearMask();
+			if(!result.success){
+				var msg = result.json.msg;
+				gewa.util.maskContent("seatTable", '<span style="cursor:pointer">'+msg+'</span>');
+			}
+		})
+	}
+	function submitOrder(){
+		var err = "",val=$("mobile").value.trim();
+		if($("seatList").value.trim()=="") err = "请先选择座位！";
+		if(val == ""){err += "请输入您的手机号码！"}
+		if((!isNumber(val) || val.length != 11) && val != "") err += "请输入正确的手机号码！";
+		if(err.length>0){gewaUtil.alert(err); return;}
+		gewa.util.mask({'element': "orderForm",'title':'正在提交，请稍等...'});
+		$("orderForm").submit();
+	}
+	
+	function isNumber(str){return /^\d+$/.test(str);}
+</script>

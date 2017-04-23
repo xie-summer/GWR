@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>问答列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+#parse('admin/blog/qa/common.vm');
+<body style="width: 750px; margin:auto" class="yui-skin-sam">
+<table class="table">
+	<thead>
+	<tr>
+		<th>申请者</th>
+		<th>申请时间</th>
+		<th>Ta的优势</th>
+		<th>专家类型</th>
+		<th>Ta的回答</th>
+		<th>Ta的最佳答案</th>
+		<th>审核</th>
+		<th>热度</th>
+	</tr>
+	</thead>
+	#foreach($qaexpert in $qaExpertList)
+		#set($member=$lmMap.get($qaexpert.id))
+		<tr>
+			<td><a href="${absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!member.id" target="_blank">$member.nickname</a></td>
+			<td>$DateUtil.format(${qaexpert.addtime},'yyyy-MM-dd HH:mm')</td>
+			<td>$!qaexpert.reason</td>
+			<td>$!qaexpert.tagname</td>
+			<th><a href="${basePath}admin/blog/answerDetail.xhtml?memberid=$qaexpert.memberid">Ta的回答</a></th>
+			<th><a href="${basePath}admin/blog/bestAnswer.xhtml?memberid=$qaexpert.memberid">Ta的最佳回答</a></th>
+			<td>
+				<select name="hotvalue" id='$qaexpert.id' onchange="setAdminVerify('$qaexpert.id');">
+					<option value="Y" #if($VmUtils.eq($qaexpert.status,'Y')) selected #end>通过</option>
+					<option value="N" #if($VmUtils.eq($qaexpert.status,'N')) selected #end>拒绝</option>
+				</select> 
+			</td>
+			<td>
+				<select name="hotvalue" id='$qaexpert.id' onchange="setHotValue('$qaexpert.id',this.value);">
+					<option value="0" #if($qaexpert.hotvalue eq 0) selected #end>一般</option>
+					<option value="30000" #if($qaexpert.hotvalue eq 30000) selected #end>热门</option>
+					<option value="50000" #if($qaexpert.hotvalue eq 50000) selected #end>推荐</option>
+				</select> 
+			</td>
+		</tr>
+	#end
+</table>
+#parse('include/pageUtil.vm')
+	<script type="text/javascript">
+	function setHotValue(vid,value){
+		var url = "${basePath}admin/blog/ajax/setQAExpertHotValue.xhtml";
+		var values = {'id':vid, 'hotvalue':value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) alert('成功设置！');
+			else alert('设置失败！');
+		});
+	}
+	function setAdminVerify(vid){
+		var url = "${basePath}admin/blog/ajax/setAdminVerify.xhtml";
+		var values = {'id':vid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) alert('成功设置！');
+			else alert('设置失败！');
+		});
+	}
+</script>
+</body>
+</html>

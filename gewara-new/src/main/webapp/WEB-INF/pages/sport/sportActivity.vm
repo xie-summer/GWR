@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	#parse('include/constant/cityParam.vm')
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>#if($VmUtils.isBlank($sport.seotitle))${sport.name}活动#else${sport.seotitle}#{end} - 格瓦拉生活网</title>
+	<meta name="keywords" content="${sport.name}场馆查询,${sport.name}资讯,${sport.name}公告,${sport.name}价格"/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	.title h2{font-weight:bold;}
+	
+	.right_Hotlist{overflow:hidden;}
+	.right_Hotlist li{border:1px solid #eee;background-color:#F7F9F8;margin-top:10px;padding:10px;width:608px;}
+	.right_Hotlist .uiText{width:496px;}
+	.right_Hotlist .uiText p {margin-top:5px;}
+	.right_Hotlist .uiText p em {color:#999;}
+	.right_Hotlist .uiText p em.i_xm{color:#666;margin:0 5px;}
+	.right_Hotlist .uiText p span {width:49.6%;display:inline-block;}
+	.right_Hotlist a {font-family:'宋体';}
+	</style>
+</head>
+<body>
+#set($tag="sport") #set($issport=true) #set($isSportDetail=true)
+#set($isAct=true)
+#set($issite=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout detail_body">
+	<div class="inner">
+		<div class="ui_panel">
+			#parse('sport/module/detailHead.vm')
+			<div class="detail_body_left">
+				<ul class="right_Hotlist">
+					#foreach($activity in $activityList)
+					<li #if($foreach.count eq 1)style="margin-top:0;"#end>
+					#if($VmUtils.eq($activity.sign,'reserve'))
+					#set($appCount=$reserCountMap.get($activity.id).size())
+					#set($currentTime=$DateUtil.format($DateUtil.currentTime(),"yyyy-MM-dd"))
+					#set($enddate=$!DateUtil.format(${activity.enddate},"yyyy-MM-dd"))
+					#set($aj1=$reserCountMap.get($activity.id).get(0))
+					#if($VmUtils.eq($appCount,2))#set($aj2=$reserCountMap.get($activity.id).get(1))#end
+						<div class="uipic sMatch">
+							<a target="_blank" href="${basePath}activity/$activity.id" title="$activity.title">
+								<img width="96" height="96" alt="" src="$VmUtils.randomPic('cw100h100',$!cacheMemberMap.get($aj1.memberid).headpicUrl)"/>
+								<span class="yz"></span>
+								<span class="vs"></span>
+								<span class="dd">
+								#if($VmUtils.gt($currentTime,$enddate))
+									已结束
+								#elseif($VmUtils.eq($currentTime,$enddate))
+									#if($VmUtils.gt($DateUtil.format($DateUtil.currentTime(),"HH:mm"),$!{activity.endtime}))
+										已结束
+									#elseif($VmUtils.gt($enddate,$currentTime) && $VmUtils.eq($appCount,1))
+										等待应战
+									#elseif($VmUtils.gt($activity.endtime,$DateUtil.format($DateUtil.currentTime(),"HH:mm")) && $VmUtils.eq($appCount,1))
+										等待应战
+									#else
+										进行中
+									#end
+								#elseif($VmUtils.gt($enddate,$currentTime) && $VmUtils.eq($appCount,1))
+										等待应战
+								#else
+									进行中	
+								#end
+								</span>
+								#if($VmUtils.eq($appCount,1))
+								<img width="30" height="30" src="${staticPath}css/images/blank.gif" style="background:url(${staticPath}css/sport/face_1.png)" class="tx"/>
+								#else
+								<img width="30" height="30" src="$VmUtils.randomPic('cw30h30',$!cacheMemberMap.get($aj2.memberid).headpicUrl)" class="tx"/>
+								#end
+								<span class="mask"></span>
+								<span class="txt">$!{activity.clickedtimes}人关注</span>
+							</a>
+						</div>
+					#else
+						<div class="uipic">
+							<a target="_blank" href="${basePath}activity/$activity.id" title="$activity.title">
+								#if(!$VmUtils.isNull($activity.logo))
+								<img width="96" height="128" alt="" src="$VmUtils.randomPic('cw96h128',$activity.limg)"/>
+								#else
+								<img width="96" height="128" src="${staticPath}css/activity/d_m_sport.jpg"/>
+								#end
+								<span class="mask"></span>
+								<span class="txt">$!{activity.clickedtimes}人关注</span>
+							</a>
+						</div>
+					#end
+						<div class="uiText">
+							<p>
+								#if($VmUtils.eq($activity.atype,"gewa") || $VmUtils.contains($activity.flag,"renzheng"))<img width="37" height="17" class="uiMark" src="${staticPath}css/images/blank.gif">#end
+								<em class="i_xm">#if(!$VmUtils.isNull($activity.categoryid))[$sportItemMap.get($activity.id)]#end</em><a class="fs14 cSport" href="${basePath}activity/$activity.id" title="" target="_blank">$!activity.title</a>
+							</p>
+							<p class=""><span><em>活动时间：</em>$!DateUtil.format($!activity.startdate, 'MM月dd日')#if($activity.starttime)$!activity.starttime#end
+									#if($activity.enddate)—$!DateUtil.format($activity.enddate, 'MM月dd日')#if($activity.endtime)$!activity.endtime#end#end</span>
+							<span><em>活动地点：</em>$!VmUtils.escabbr($!activity.address,30)</span></p>
+							<p class=""><span><em>活动价格：</em>#if($!activity.priceinfo)$!VmUtils.escabbr($!activity.priceinfo,28)#else免费#end</span>#if($!activity.contactway)<span><em>联系方式：</em>$!VmUtils.escabbr($activity.contactway,20)</span>#end</p>
+							<p class=""><span><em>报名时间：</em>$!DateUtil.format($!activity.fromtime,'MM月dd日')$!DateUtil.format($!activity.fromtime,'HH:mm')&nbsp;--&nbsp;$!DateUtil.format($!activity.duetime,'MM月dd日')$!DateUtil.format($!activity.duetime,'HH:mm')</span></p>
+							<p class="">
+								<a class="right cSport" href="${basePath}activity/$activity.id" title="$!activity.title" target="_blank">查看详情&gt;&gt</a>
+								<span class="c999"><em class="mr5">$!{activity.clickedtimes}人关注</em>|<em class="ml5">$!{activity.membercount}人参加</em></span>
+							</p>
+						</div>
+					</li>
+					#end
+					
+				</ul>
+				#parse('include/pageUtil.vm')
+			</div>
+			<div class="detail_body_right">
+				#parse('include/global/map.vm')
+				<div class="mt20">
+				#parse('sport/module/right_rimVenue.vm')
+				#parse('sport/module/right_rimEntertainment.vm')
+				</div>
+			</div>
+			<div class="cls"></div>
+		</div>
+	</div>
+</div>
+#parse('include/newMarkDialog.vm')
+#parse('include/treasure.vm')
+#parse('include/global/new_scorelevel.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	myTreasure('sport',$sport.id,'logonMember');
+});
+</script>
+#parse('include/bottom.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

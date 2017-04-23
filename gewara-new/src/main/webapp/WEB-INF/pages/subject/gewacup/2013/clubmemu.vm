@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>格瓦拉羽毛球活力赛_上海羽毛球业余选手大赛_格瓦拉生活网</title>
+<meta name="keywords" content="羽毛球公开赛"/>
+<meta name="description" content="羽毛球公开赛"/>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout&v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+#parse('subject/gewacup/2013/style.vm')
+</head>
+<body>
+#set($tag="sport") #set($issport=true) #set($isSportIndex=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout" id="p">
+	<div class="bodybg">
+		<div class="click">
+	   		<div class="menutext"><a href="${basePath}gewacup2013/index.xhtml">首页</a>　|　<a href="${basePath}gewacup2013/instruction.xhtml">简介</a>　|　<a href="${basePath}gewacup2013/newsList.xhtml">新闻</a>　|　<a href="${basePath}gewacup2013/intro.xhtml">大赛规程</a>　|　<a class="select" href="javascript:goMyPlayersInfo()">我的报名状态</a>　|　<a href="${basePath}gewacup2013/award.xhtml">大赛奖品</a>　|　<a href="http://pan.baidu.com/share/link?shareid=1533610662&uk=3459573590" target="_blank">赛程对阵表</a>　|　<a href="http://www.gewara.com/sport/sportList.xhtml" target="_blank">羽毛球在线预订</a>　|　<a href="${basePath}gewacup2013/answer.xhtml">违规举报专区</a></div>
+	    </div>
+	    <div class="sport_tips"></div>
+		<div class="import">
+			<div class="logo">
+				<a href="http://www.pingan.com/index.shtml" target="_blank"><img src="${staticPath}styles/images/gewacup/2013/pingan.gif" boder="0"/></a>
+				<a style="margin-left:35px;" href="http://www.gewara.com/sport/index.xhtml"><img src="${staticPath}styles/images/gewacup/2013/gewala.gif" boder="0"/></a>
+			</div>
+			<div class="banner2012"></div>
+		    <div class="menubg"></div>
+		</div>
+	    <div class="entryform">
+	    	<div class="htitle"><img src="${staticPath}styles/images/gewacup/register_club.gif"/></div>
+	    	<form action="javascript:gewaActivity()" method="post" id="activityForm" name="activityForm">
+	    	<input type="hidden" name="commuid" id="commuid" value="$!clubMap.id"/>
+	    	<input type="hidden" name="orderid" id="orderid" value="$!clubMap.orderid" />
+	    	<div class="transfer">
+				<ul class="ul-100">
+					<li>
+						<div class="ul-100Inner">参赛方式：</div>
+						<div class="left"><input name="gewacupmethod" checked="checked" type="radio" class="retxt" />俱乐部（只针对俱乐部官方报名）</div>
+						<div style="display:inline-block;margin-left:20px;"><input name="gewacupmethod" type="radio" class="retxt" onclick="selectMethod()" #if(!$VmUtils.eq($personalstatus,'game')) disabled="disabled" #end />个人（所有羽毛球爱好者）</div>
+					</li>
+					<li>
+						<div class="ul-100Inner"><span class="yellow mr5">*</span>选择俱乐部：</div>
+						<select style="width:210px;" #if(!$VmUtils.isEmpty($!clubMap.id)) value="$!clubMap.id" disabled="disabled" #end name="id" id="id" lang="请选择或创建一个俱乐部！" mustTxt="俱乐部不能为空！">
+							<option value = "">请选择</option>
+							#foreach($commu in $commuList)
+								<option value="$commu.id" #if($VmUtils.eq($!clubMap.id, $commu.id) || $VmUtils.eq($!commuid, $commu.id)) selected #end>$commu.name</option>
+							#end
+						</select>
+						#if($VmUtils.isEmpty($!clubMap.id)) 
+						<a class="yellow ml10" onclick="GewaraUtil.showDialog('createQuan','',true)" href="javascript:void(0);">创建»</a>
+						#end
+					</li>
+					<li>
+						<div class="ul-100Inner"><span class="yellow mr5">*</span>俱乐部联系人：</div>
+						<input class="text"  type="text" value="$!clubMap.contact" maxlength="30" name="contact" id="contact" lang="联系人不能落空，请填写联系人名" mustTxt="联系人不能为空！"/>
+					</li>
+					
+					<li>
+						<div class="ul-100Inner"><span class="yellow mr5">*</span>身份证：</div>
+						<input class="text identity" style="width:270px;" type="text" value="$!clubMap.idcards" maxlength="30" name="idcards" id="idcards" lang="身份证号码不能为空（必须跟连写人名一致）！" mustTxt="身份证号码不能为空！"/>
+					</li>
+					<li style="height:auto;">
+						<div class="ul-100Inner">身份证扫描：</div>
+						<iframe width="450px" height="26" allowtransparency=true frameborder="0" scrolling="no" id="uploadIFrame"
+									src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/activity&callback=updateCardPic"></iframe>
+						<input type="hidden" name="idcardslogo" id="idcardslogo" value="$!clubMap.idcardslogo"/>
+						<div id="playerimg" #if($VmUtils.isBlank($!clubMap.idcardslogo)) style="display:none;" #end>
+							<img id='idcardslogoimg' src="$VmUtils.randomPic('sw400h400',$!clubMap.idcardslogo)" />
+						</div>
+					</li>
+					<li>
+						<div class="ul-100Inner"><span class="yellow mr5">*</span>联系方式：</div>
+						<input class="text mobile" style="width:270px;" type="text" value="$!clubMap.phone" maxlength="30" name="phone" id="phone" lang="手机号码不能为空（必须跟连写人名一致）！" mustTxt="手机号码不能为空！"/>
+					</li>
+				</ul>
+				<div style="margin:20px 0 0 100px;clear:both;">
+					<input type="image" id="disBtn" class="left" src="${staticPath}styles/images/gewacup/gewacup_01.png"/>
+					<div style="color:#fff;display:inline-block;vertical-align:middle;line-height:18px;margin-left:10px;margin-top:10px;">
+						<input type="checkbox" style="margin:0;" id="checkbox" checked="checked"/>
+						<span style="display:inline-block;vertical-align:top;">我已阅读并同意<a href="${basePath}gewacup2013/intro.xhtml" target="_blank" class="yellow mr15">参赛须知</a></span>
+					</div>
+				</div>
+			</div>
+			</form>
+	    </div>
+	    <div class="cls"></div>
+		<div class="circular">
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular1.gif"/></div>
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular2.gif"/></div>
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular3.gif"/></div>
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular4.gif"/></div>
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular5.gif"/></div>
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular6.gif"/></div>
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular10.gif"/></div>
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular11.gif"/></div>
+	    	<div class="in"><img src="${staticPath}styles/images/gewacup/cup_circular12.gif"/></div>
+	    </div>
+	</div>
+</div>
+#parse('subject/gewacup/createAndSucc.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$('.mobile').addEvents({'keyup':function(){
+			if(this.hasClass('mobile')){
+				replaceStr(this);
+			}
+		}
+	})
+})
+function goMyPlayersInfo(){
+	checkLogin(true, function(){
+		location.href="${basePath}gewacup2013/myPlayersInfo.xhtml";
+	});
+}
+function replaceStr(el){
+	$(el).value = $(el).value.replace(/[^\d]/g,'');
+}
+function gewaActivity(){
+	checkLogin(true,function(){
+		if(!GewaraUtil.baseValidForm('activityForm','member')) return;
+		if(!gewara.util.isMobile($('phone').value)){
+			gewaUtil.alert("手机号码不正确！");
+			return;
+		}
+		if(!$('checkbox').checked){
+			gewaUtil.alert("请阅读并同意我们的报名须知和竞赛规则");
+			return;
+		}
+		var url = '${basePath}gewacup2013/saveClubInfo.xhtml'
+		$('id').disabled = false;
+		var values = GewaraUtil.getValues("activityForm");
+		gewa.util.mask({'element': "disBtn",'title':'正在提交，请稍等...'});
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				document.location.href="${basePath}gewacup2013/myPlayersInfo.xhtml";
+			}else{
+				gewaUtil.alert(result.msg);
+				gewa.util.clearMask();
+			}
+		});
+	});
+}
+function selectMethod(){
+	checkLogin(true,function(){
+		document.location.href="${basePath}gewacup2013/personalApply.xhtml";
+	});
+}
+function updateCardPic(params){
+	var picpath = params['picpath'];
+	$('idcardslogo').value = picpath;
+	$('idcardslogoimg').src = "$VmUtils.randomPic('sw400h400','"+picpath+"')";
+	$('playerimg').style.display = "";
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

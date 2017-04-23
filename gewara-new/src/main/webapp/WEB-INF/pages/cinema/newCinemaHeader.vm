@@ -1,0 +1,149 @@
+<style type="text/css">
+.detail_head .detail_head_pic{float:left; padding:9px 15px 15px; width:120px;}
+.detail_head_pic img{width:114px; height:54px;}
+.detail_head .detail_head_desc{width:480px; background-position:-382px -388px}
+.detail_head_desc .uipic{color:#666;}
+.detail_head_desc .uiText{width:86.5%; *width:85%;}
+.detail_head_desc .title{height:32px;}
+.cinemaYhList,.cinemaYhList ul{background:url($VmUtils.randomPic('','css/home/cinema_yh_bg.png')) no-repeat; width:120px;}
+.cinemaYhList{background-position:-120px 0; padding-top:12px;}
+.cinemaYhList ul{background-position:0 bottom; padding-bottom:8px;}
+.cinemaYhList ul li{padding-left:5px; height:24px; overflow:hidden;}
+.cinemaYhList ul li span{padding-left:25px; display:inline-block;}
+.switch_ui_c .title .brown{color:#CB3400; vertical-align:middle; font-family:'tahoma','Arial';}
+.detail_head_name h1{font-size:28px;}
+</style>
+<div class="detail_head clear newdetail_head">
+	<div class="detail_head_pic">
+		<img src="$VmUtils.randomPic('sw120h60',$cinema.Limg)" width="114" height="54" alt="${cinema.name}" title="${cinema.name}" class="bp"/>
+		#set($otherinfo=$VmUtils.readJsonToMap($cinema.otherinfo))
+		#if($VmUtils.isNotBlank($otherinfo.get('parkRecommend')) || $VmUtils.isNotBlank($otherinfo.get('visacardRecommend')) || $VmUtils.isNotBlank($otherinfo.get('3DRecommend'))
+		 || $VmUtils.isNotBlank($otherinfo.get('saleRecommend')) || $VmUtils.isNotBlank($otherinfo.get('foodRecommend')) || $VmUtils.isNotBlank($otherinfo.get('restregionRecommend')) 
+		 || $VmUtils.isNotBlank($otherinfo.get('pairseatRecommend')) || $VmUtils.isNotBlank($otherinfo.get('imaxRecommend')) || $VmUtils.isNotBlank($otherinfo.get('childRecommend')))
+		<div class="cinemaYhList mt5">
+			<ul>
+				#if($VmUtils.isNotBlank($otherinfo.get('parkRecommend')))<li title="$!otherinfo.get('parkRecommend')"><span style="background-position: 5px -341px;">$!otherinfo.get('parkRecommend')</span></li>#end
+				#if($VmUtils.isNotBlank($otherinfo.get('visacardRecommend')))<li title="$!otherinfo.get('visacardRecommend')"><span style="background-position: 5px -314px;">$!otherinfo.get('visacardRecommend')</span></li>#end
+				#if($VmUtils.isNotBlank($otherinfo.get('3DRecommend')))<li title="$!otherinfo.get('3DRecommend')"><span style="background-position: 5px -469px; padding-left:35px;">$!otherinfo.get('3DRecommend')</span></li>#end
+				#if($VmUtils.isNotBlank($otherinfo.get('saleRecommend')))<li title="$!otherinfo.get('saleRecommend')"><span style="background-position: 5px -652px;">$!otherinfo.get('saleRecommend')</span></li>#end
+				#if($VmUtils.isNotBlank($otherinfo.get('foodRecommend')))<li title="$!otherinfo.get('foodRecommend')"><span style="background-position: 5px -516px;">$!otherinfo.get('foodRecommend')</span></li>#end
+				#if($VmUtils.isNotBlank($otherinfo.get('restregionRecommend')))<li title="$!otherinfo.get('restregionRecommend')"><span style="background-position: 5px -587px;">$!otherinfo.get('restregionRecommend')</span></li>#end
+				#if($VmUtils.isNotBlank($otherinfo.get('pairseatRecommend')))<li title="$!otherinfo.get('pairseatRecommend')"><span style="background-position: 5px -2682px;">$!otherinfo.get('pairseatRecommend')</span></li>#end
+				#if($VmUtils.isNotBlank($otherinfo.get('imaxRecommend')))<li title="$!otherinfo.get('imaxRecommend')"><span style="background-position: 5px -2963px; padding-left:35px;">$!otherinfo.get('imaxRecommend')</span></li>#end
+				#if($VmUtils.isNotBlank($otherinfo.get('childRecommend')))<li title="$!otherinfo.get('childRecommend')"><span style="background-position: 5px -2613px;">$!otherinfo.get('childRecommend')</span></li>#end
+			</ul>
+		</div>
+		#end
+	</div>
+	<div class="detail_head_desc">
+		#set($gmark=$VmUtils.getSingleMarkStar($cinema, "general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+		<div class="detail_head_name">
+			<span class="right" style="right:0px; height:24px;">
+				<span class="freeTag0 f_bt" id="nCollect" onclick="collection($!cinema.id, 'cinema')"></span>
+				<span id="nTResult"></span><span id="hTResult"></span>
+				<span class="cancelBox clear none" id="hCollect">
+					<span class="mr5">已添加</span>|
+					<a href="javascript:void(0)" onclick="cancelTreasure('cinema','$cinema.id')">取消</a>
+				</span>
+			</span>
+			<h1>$!cinema.name</h1>
+		</div>
+		<div class="mt20">
+			<dl class="ui_abeam">
+				<dt class="uipic mr0">影院特色：</dt>
+				<dd class="uiText">$!VmUtils.escabbr($!cinema.feature, 130)</dd>
+			</dl>
+			<dl class="ui_abeam">
+				<dt class="uipic mr0">详细地址：</dt>
+				<dd class="uiText"><a class="brown" href="${basePath}movie/searchCinema.xhtml?countycode=$!{cinema.countycode}" target="_blank">$!{cinema.countyname}</a>$!cinema.address <span class="ffst">[<a class="blue" href="${basePath}common/baiduMap.xhtml?id=${cinema.id}&tag=cinema">地图</a>]</span><a class="freeTag0" title="免费发送地址到手机" style="width:1px; height:20px; background-position:-157px -743px; vertical-align:middle;" href="javascript:void(0)" onclick="showTemplate()";></a></dd>
+			</dl>
+			<dl class="ui_abeam">
+				<dt class="uipic mr0">联系电话：</dt>
+				<dd class="uiText">$!cinema.contactphone</dd>
+			</dl>
+		</div>
+		<div class="title mt10">#if($VmUtils.eq($cinemaProfile.status,'open'))<a href="${basePath}cinema/$!cinema.id/playtable" class="button bigBt redBt"><span>选座购票</span></a>#end#if($otherinfo.get('commentID'))<a href="${basePath}blog/t$!otherinfo.get('commentID')" class="brown ml10" target="_blank">查看场馆测评»</a>#end</div>
+	</div>
+	<div class="detail_head_ratings">
+		<dl class="clear">
+			<!-- <dt>评分：</dt> -->
+			<dd>
+				<div class="ratingsSide clear" itemscope itemtype="http://schema.org/Product">
+					<span class="none" itemprop="name">$!cinema.name</span>
+					#set($isBigStaticRating=true)
+					#parse('include/global/staticRating.vm')
+					<span><sub id="mark_integer">$gmark1</sub><sup id="mark_decimal">.$gmark2</sup></span>
+					<div class="none" itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating">
+						<span itemprop="ratingValue">$gmark1.$gmark2</span>
+						<span itemprop="bestRating">10</span>
+						<span itemprop="ratingCount">$!commnetCount</span>
+					</div>
+				</div>
+				<div class="ratingsGo">
+					<div class="mt10 center">
+						<span class="button minBt whiteBt" onclick="showMovieMark();"><span><em>我要评分</em></span></span>
+					</div>
+					#set($generalmark=$goCount*100/$sumCount)
+					#if($sumCount > 60 && $sumCount ne 100 && $mtCount ne 25 && $geCount ne 25 && $okCount ne 25 && $neCount ne 25)
+					<div class="gray center mt10">
+						<span class="brown fs14 mr5"><strong>$!{generalmark}%</strong></span>瓦友推荐
+					</div>
+					#end
+				</div>
+			</dd>
+		</dl>
+		<div class="ratingsCount">
+			<span><b>$!cinema.clickedtimes</b>关注</span>|<span><b>$!commnetCount</b>点评</span>
+		</div>
+	</div>
+</div>
+<div class="detail_nav">
+	<ul>
+		<li #if($isDetail)class="select cursor"#end><a href="${basePath}cinema/$cinema.id">影院首页</a></li>
+		<li class="navline"></li>
+		<li #if($isIntro)class="select cursor"#end><a href="${basePath}cinema/$!cinema.id/introduce">简介/公告</a></li>
+		<li class="navline"></li>
+		<li #if($isPlayItem)class="select cursor"#end><a href="${basePath}cinema/$!cinema.id/playtable">排片/购票</a></li>
+		<li class="navline"></li>
+		<li #if($isComment)class="select cursor"#end><a #if($menucontent eq '电影院')  #else rel="nofollow" #end  href="${basePath}cinema/$!cinema.id/commentlist">哇啦<span>($!commnetCount)</span></a></li>
+		<li class="navline"></li>
+		<li #if($isNews)class="select cursor"#end><a  #if($menucontent eq '电影院')  #else rel="nofollow" #end href="${basePath}cinema/$!cinema.id/newslist">资讯<span>($!newscount)</span></a></li>
+		<li class="navline"></li>
+		<li #if($isPictureDetail)class="select cursor"#end><a href="${basePath}cinema/$!cinema.id/picturelist">影院图片<span>($!piccount)</span></a></li>
+		<li class="navline"></li>
+	</ul>
+	<a href="${basePath}blog/cinema" class="goblog" target="_blank">电影论坛</a>
+</div>
+<script type="text/javascript">
+window.addEvent('load', function(){
+	Asset.javascript('http://v1.jiathis.com/code_mini/jia.js?uid=1518302', {
+		onLoad: function(){
+			jiathis_config = {
+				data_track_clickback:true,
+				url: document.location.href,
+				title: "$!ctitle"
+			}
+		}
+	});
+});
+function showTemplate(){
+	checkLogin(true,function(){
+		gewa.util.issure('','SendcenimaInfo','发送影院信息',540,'SendcenimaInfo',function(){
+			$('mform').submit();
+		});
+		getMobile();
+		GewaraUtil.refreshCaptcha('captchaCinema');
+	});
+}
+function getMobile(){
+	var url='${basePath}ajax/getLogonMemberMobile.xhtml';
+	gewara.util.sendRequest(url,{},function(result){
+		if(result.success){
+			if(result.mobile!=null){
+				$('mobile').value = result.mobile;
+			}
+		}
+	});
+}
+</script>
+#parse('cinema/sendToPhone.vm')

@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>售票订单处理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.showList li{width:24.9%;position:static;}
+		.logoPanel{background:url(${staticPath}css/partner/logo_doupan.png) no-repeat;position:relative;}
+		.partnerlink{position: absolute;left:290px;width:146px !important;top:0px;}
+		.eastName{position: absolute;left:470px;top:6px;}
+		.eastName strong{font-size:18px;font-weight:bold;color:#333333}
+		.eastName p{font-size:14px;font-weight:bold;color:#787878}
+		a.manager{position:absolute;height:20px;padding-left:20px;bottom:0px;right:0px;width:26px;text-indent:0px;background:url(${staticPath}css/partner/winer.png) no-repeat;line-height:24px;}
+	</style>
+</head>
+<body>
+<div class="manageItemList">
+	<em class="b1f"></em><em class="b2f"></em>
+	<div class="contentInfoList"> 
+		<div class="checkOrder"><h2>订单列表</h2></div>
+		<div class="aboutMovie">
+			<table cellpadding="0" cellspacing="0" width="100%">
+				<tr style="height:30px;vertical-align: middle">
+					<td>
+						<form id="searchOrderForm" id="searchOrderForm" #if($orderOrigin)action="${basePath}partner/admin/orderOriginReport.xhtml" #else action="${basePath}partner/admin/orderList.xhtml"#end method="post">
+							<label>精确查询：<input type="hidden" name="report" id="report" value="xls"/></label>
+							#if($partner.hasChild())
+							<label>选择分店：
+								<select name="memberid">
+									<option value="">所有分店</option>
+									#foreach($sub in $subList)
+									<option value="$sub.id" #if($VmUtils.eq($sub.id, $params.memberid))selected="selected"#end>$sub.briefname</option>
+									#end
+								</select>
+							</label><br />
+							#end
+							<label>订单号（尾数）：<input type="text" name="tradeNo" value="$!VmUtils.escapeHtml($params.tradeNo)" class="pubinput" size="10"/></label>
+							<label class="ml5">手机号（模糊）：<input type="text" name="mobile" value="$!VmUtils.escapeHtml($params.mobile)" class="pubinput" size="15"/></label>
+							<label class="ml5">时间范围：<input type="text" value="$!timeFrom" name="timeFrom" class="pubinput" id="timeFrom" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width:150px;" /></label>
+							<label>至<input type="text" value="$!timeTo" name="timeTo" id="timeTo" class="pubinput" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width:150px;" /></label>
+							<br />
+							<label>
+								<select name="status">
+									<option value="">所有</option>
+									<option value="paid"  #if($params.status eq 'paid') selected="selected"#end>已付款</option>
+									<option value="new" #if($params.status eq 'new') selected="selected"#end>待付款</option>
+									<option value="cancel" #if($params.status eq 'cancel') selected="selected"#end>取消</option>
+								</select>
+							</label>
+							<input type="button" value="查 询" class="bt1" onclick="sbt()"/>
+							<br />
+							#if($VmUtils.size($orderList) gt 0)
+							<br />
+							查询结果导出:<input type="radio" name="report2" value="xls" onclick="rep(this.value)" checked/>Excel
+											<input type="radio" name="report2" value="pdf" onclick="rep(this.value)"/>PDF
+											<input type="radio" name="report2" value="html" onclick="rep(this.value)"/>网页
+											<input type="submit" value="导 出" class="bt1"/>
+							#end
+						</form>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+			<thead>
+			<tr>
+				<th>商户名</th>
+				<th style="width:350px; white-space: normal;">订单信息</th>
+				<th style="width:100px;">订单号</th>
+				<th>下单时间</th>
+				<th>付款时间</th>
+				<th style="width:75px;">联系电话</th>
+				<th>数量</th>
+				<th>总价</th>
+				<th>状态</th>
+				<th>操作</th>
+			</tr></thead>
+			<tbody id="tbody">
+				#set($totalFee=0)#set($totalSeat=0)
+				#foreach($order in $orderList) 
+				#set($dmap=$VmUtils.readJsonToMap($order.description2)) #set($totalFee=$totalFee+$order.totalAmount) #set($totalSeat=$totalSeat+$order.quantity)
+				<tr class="grayBg h" id="row${order.id}">
+					<td>$order.membername</td>
+					<td style="width:350px; white-space: normal;">$!cinemanameMap.get($order.cinemaid);$order.description2#if($VmUtils.isNotBlank($order.disreason))<br />$order.disreason#end</td>
+					<td>$order.tradeNo</td>
+					<td>$DateUtil.format(${order.addtime},'yyyy-MM-dd HH:mm:ss')</td>
+					<td>$!DateUtil.format(${order.paidtime},'yyyy-MM-dd HH:mm:ss')&nbsp;</td>
+					<td>${order.mobile}</td>
+					<td>${order.quantity}</td>
+					<td>${order.totalAmount}</td>
+					<td>${order.statusText}</td>
+					<td>
+					#if($partner.isRole("partnerSendSMS"))
+					<input type="button" id="" class="cbt1" onclick="sendMessage('$order.tradeNo')" value="发送"/>
+					#end
+					</td>
+				</tr>
+				#end
+				<tr class="grayBg h">
+					<td>合计</td>
+					<td colspan="9">$VmUtils.size($!orderList)个订单，${totalSeat}个座位，总金额为$totalFee</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<em class="b2f"></em><em class="b1f"></em>
+</div>
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+});
+
+#if($partner.isRole("partnerSendSMS"))
+var channel = "mlink";
+function sendMessage(id){
+	if(confirm('确认要发信息吗?')==false) return;
+	var url = "${basePath}partner/admin/sendMessageByTradeNo.xhtml";
+	GewaraUtil.sendRequest(url, {"tradeNo":id}, function(result){
+		if(result.success){
+			alert("成功发送信息！");
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+#end
+function sbt(){
+	$('report').value='';
+	$('searchOrderForm').submit();
+}
+function rep(v){
+	$('report').value=v;
+}
+</script>
+</body>
+</html>

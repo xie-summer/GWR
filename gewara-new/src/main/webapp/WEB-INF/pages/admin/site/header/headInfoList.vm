@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>套头信息列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd140{width:140px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.center{text-align:center;}
+	</style>
+</head>
+<body style="width:95%; margin:20px;" class="yui-skin-sam">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+	<td colspan="8" align="left" class="td">当前位置>><a href="${basePath}admin/recommend/indexCommend.xhtml">首页推荐</a>>>
+	<span>网站头部信息列表</span></td>
+		<td colspan="2" align="right">
+		<a href="${basePath}admin/site/header/addHeadInfo.xhtml#if($!params.board)?board=$!params.board#end" target="_blank">增加</a>|  	 	
+				<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td" >
+			<td align="left" class="wd60" ><b>ID</b></td>
+			<td align="left" class="wd120" ><b>标题</b></td>
+			<td align="left" class="wd120 " ><b>样式</b></td>
+			<td align="left" class="wd120 "><b>修饰图</b></td>
+			<td align="left" class="wd120 "><b>背景图</b></td>
+			<td align="left" style="width:80px;"><b>链接</b></td>
+			<td align="left" style="width:100px;" ><b>开始时间</b></td>
+			<td align="left" ><b>结束时间</b></td>
+			<td align="left" class="wd60 "><b>是否使用</b></td>
+			<td align="left" class="wd120 " colspan="2"><b>操作</b></td>
+	</tr>
+	#foreach($hi in $headInfoList)
+	#set($headObj = $gcHeadMap.get($hi.id))
+	<tr class="td" #if($foreach.index%2 eq 0)style="background: #cccccc;"#else style="background:#ffffff"#end>
+		<td align="left" class="wd60">$!hi.id</td>
+		<td align="left" class="wd120">$!hi.title</td>
+			<td align="left" class="wd120">$!hi.css</td>
+			<td align="left" class="wd120"><img src="${picPath}$!hi.logosmall" width="50px" height="50px" /></td>
+			<td align="left" class="wd120"><img src="${picPath}$!hi.logobig" width="50px" height="50px" /></td>
+			<td align="left"  style="width:150px;"><a href="$!hi.link" target="_blank">$!hi.link </a></td>
+			<td align="left"  style="width:100px;">$!DateUtil.format($!headObj.starttime,'yyyy-MM-dd HH:mm:ss')</td>
+			<td align="left"  style="width:50px;">$!DateUtil.format($!headObj.stoptime,'yyyy-MM-dd HH:mm:ss')</td>
+		<td align="left" class="wd60">
+			#if($!params.board ne 'subject')
+			#if($admincitycode eq '320600')
+				<input type="button" value="#if($!hi.id eq $!headInfo.id)取消#else使用#end" onclick="orderNumAllcity($!hi.id,#if($!hi.id eq $!headInfo.id) 0 #else 1 #end)"/>				
+			#else
+				<input type="button" value="#if($VmUtils.contains($!gcHeadStrList,$!hi.id))取消#else使用#end" onclick="getHeadInfo($!hi.id,#if($VmUtils.contains($!gcHeadStrList,$!hi.id)) 0 #else 1 #{end},this)"/>			
+			#end
+			#end
+		</td>
+		<td align="left" class="wd140">
+			<a href="${basePath}admin/site/header/updateHeaderInfo.xhtml?hid=$!hi.id&command=update" target="_blank">[修改]</a>&nbsp;&nbsp;
+			#if($!hi.id ne $!headInfo.id)<a href="javascript:void(0)" onclick="del($!hi.id, '$!params.board', this);">[删除]#end</a>
+		</td>
+		</tr>
+	#end
+</table>
+<div id="showCityDialogDV" style="height: 0px;"></div>
+#parse('admin/common/datashareCitys.vm')
+<script type="text/javascript">
+function getHeadInfo(id, value, obj){
+	if(value == 1){
+		var url = '${basePath}admin/site/header/getHeadInfo.xhtml';
+		var values = {'id':id,'board':'$params.board','tag':value};
+		GewaraUtil.sendLoad('showCityDialogDV', url, values, function(result){
+			if(!result.success){
+				alert(result.json.msg);
+			}else{
+				GewaraUtil.showDialog('showDialog');
+			}
+		});
+	}else{
+		var url = '${basePath}admin/site/header/cancleOp.xhtml';
+		var values = {'hid':id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(!result.success){
+				alert(result.msg);
+			}else{
+				alert("成功取消！");
+				refreshPage();
+			}
+		});
+	}
+}
+function del(hiid, board, obj){
+	if(!confirm('确认要删除吗?'))return false;
+	var url="${basePath}admin/site/header/deleteHeaderInfo.xhtml";
+	var values = {'hiid':hiid,'board':board};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.dispose($(obj).getParent('tr'));
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function orderNum(){
+	var url="${basePath}admin/site/header/updateHeadInfoOrderNum.xhtml";
+	var values = GewaraUtil.getValues('showDialog');
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function orderNumAllcity(hiid, value){
+	if(value == 0){
+		orderNum(hiid, value);
+	}else{
+		selectOtherCity(hiid);
+	}
+}
+
+function selectOtherCity(hiid){
+	var url = '${basePath}admin/site/header/headinfoShareCitys.xhtml';
+	var values = {'hid':hiid,'board':'$!params.board'};
+	GewaraUtil.sendLoad('showCityDialogDV', url, values, function(result){
+		GewaraUtil.showDialog('showCityDialog');
+	})
+}
+</script>
+</body>
+</html>

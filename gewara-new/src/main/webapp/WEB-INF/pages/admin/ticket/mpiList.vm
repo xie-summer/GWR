@@ -1,0 +1,993 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次排片管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,tips&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.none{display:none;}
+		#showGather{height: 500px;overflow: auto;}
+	</style>
+</head>
+<body>
+#set($targetUrl=$VmUtils.escapeHtml("admin/ticket/mpiManage.xhtml"))
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore">$cinema.name</li>
+			<li class="currs"><a><span>场次管理</span></a></li>
+			<li><a href="${basePath}admin/ticket/orderList.xhtml?cid=$cinema.id" class="admin"><span>订单管理</span></a></li>
+			<li><a href="${basePath}admin/ticket/baseData.xhtml?cid=$cinema.id" class="admin"><span>基础数据</span></a></li>
+			<li><a href="${basePath}admin/ticket/auto/setterList.xhtml?cinemaid=$cinema.id"><span>自动设置器</span></a></li>
+			<li><a href="${basePath}admin/ticket/auto/mpiList.xhtml?cid=$cinema.id"><span>自动设置器审核列表</span></a></li>
+			<li><a href="${basePath}admin/ticket/opiStats.xhtml?cid=$cinema.id" class="admin"><span>座位统计</span></a></li>
+			<li><a href="${basePath}admin/ticket/settleList.xhtml?cid=$!cinema.id" class="admin"><span>结算说明</span></a></li>
+			<li><a href="${basePath}admin/ticket/settleConfirm.xhtml?cid=$!cinema.id" class="admin"><span>结算确认</span></a></li>
+			<li><a href="${basePath}admin/ticket/disabledOpi.xhtml?provincecode=$provincecode" class="admin"><span>废弃场次</span></a></li>
+			<li style="float: right;">#parse('admin/common/adminProvinceLink.vm')</li>
+		</ul>
+	</div>
+</div>
+<div style="color:red" id="notifyWin"></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<div class="checkMenu">
+			<ul>#foreach($day in $dateList)
+				<li #if($day eq $curDate)class="chooseItem"#end>
+					<div>
+						<a href="${basePath}admin/ticket/mpiManage.xhtml?cid=$cinema.id&date=$day">$dateMap.get($day)</a>
+						<h2>${countMap.get($day)}场</h2>
+					</div>
+				</li>
+				#end
+			</ul>
+		</div>
+		<div class="selectMovie">
+			如有不正常的红色数字，点击<a href="${basePath}admin/ticket/verifyUnopenMpi.xhtml" target="_blank">此处</a>更新，本城市$curDate开放订票影院数为<span style="color:red">${opiCinemaCount}/$openCinemaCount</span>，有<span style="color:red;font-weight: bolder;">$unopenedCinema.size()</span>个影院还有排片没开放（包含从不开放的影厅排片，点击<!-- ${basePath}admin/ticket/updateMpiOpenStatus.xhtml --><a href="javascript:alert('暂不支持！');" target="_blank">此处</a>更新）
+			<a href="javascript:void(0)" style="float: right;margin-right: 20px;" onclick="mpidGather();">收集场次信息</a>
+		</div>
+		<div class="selectMovie">#set($sumC=0)
+		#foreach($city in $cinemaCityMap.keySet())
+			#if($foreach.count gt 1)
+				<br/>
+			#end
+			<span  style="color:red;font-size:18px;text-align:left;line-height: 25px;"><b>${cityMap.get($city).cityname}</b></span>
+			#foreach($ckey in $cinemaCityMap.get($city))
+				<span class="i" style="line-height: 25px;white-space: nowrap;">$!{countyMap.get($city).get($ckey)}：</span>
+				#foreach($cinemaMap in $cinemaCountyMap.get($ckey))
+				<span class="r" style="line-height: 25px;white-space: nowrap;">
+					<a href="${basePath}admin/ticket/mpiManage.xhtml?cid=$cinemaMap.get('cid')&date=$curDate" 
+						class="#if($cinema.id eq $cinemaMap.get('cid')) match #end mr10">
+						${cinemaMap.get('cname')}[$cinemaMap.get('opicount')场]#if($!hashAutoSetterCinema.contains($cinemaMap.get('cid')))[自动]#end#if($unopenedCinema.containsKey($cinemaMap.get('cid')))<span style="color:red;font-weight: bolder">[$unopenedCinema.get($cinemaMap.get('cid'))]</span>#end
+						#if($unopenItemCinema.containsKey($cinemaMap.get('cid')))<span style="color:#00BE00;font-weight: bolder;" title="未开放">[$unopenItemCinema.get($cinemaMap.get('cid'))]</span>#end
+						#if($recorverItemCinema.containsKey($cinemaMap.get('cid')))<span style="color:#333366;font-weight: bolder;" title="待恢复">[$recorverItemCinema.get($cinemaMap.get('cid'))]</span>#end
+					</a>
+				</span>
+				#end
+			#end
+		#end
+		</div>
+		<div class="selectMovie">
+			<span class="i">上映影厅：</span>
+			<span class="r"><a href="#" onclick="selectMpi('',this)">全部</a>&nbsp;&nbsp;&nbsp;#foreach($room in $roomList)<a href="#" onclick="selectMpi('mpiR$room.id',this)">$room.roomname</a>&nbsp;&nbsp;&nbsp;#end</span>
+		</div>
+		<div class="selectMovie">
+			<span class="i">上映电影：</span>
+			<span class="r"><a href="#" onclick="selectMpi('',this)">全部</a>&nbsp;&nbsp;&nbsp;#foreach($movie in $movieList)<a href="#" onclick="selectMpi('mpiM$movie.id',this)">$movie.moviename</a>&nbsp;&nbsp;&nbsp;#end</span>
+		</div>
+		<div class="selectMovie">
+			<span class="i">版本筛选：</span>
+			<span class="r"><a href="#" onclick="selectMpi('',this)">全部</a>&nbsp;&nbsp;&nbsp;
+				<a href="#" onclick="selectMpi('2D',this)">2D</a>&nbsp;&nbsp;&nbsp;
+				<a href="#" onclick="selectMpi('3D',this)">3D</a>&nbsp;&nbsp;&nbsp;
+				<a href="#" onclick="selectMpi('双机3D',this)">双机3D</a>&nbsp;&nbsp;&nbsp;
+				<a href="#" onclick="selectMpi('IMAX2D',this)">IMAX2D</a>&nbsp;&nbsp;&nbsp;
+				<a href="#" onclick="selectMpi('IMAX3D',this)">IMAX3D</a>&nbsp;&nbsp;&nbsp;
+				<a href="#" onclick="selectMpi('4D',this)">4D</a>&nbsp;&nbsp;&nbsp;
+				<a href="#" onclick="selectMpi('巨幕2D',this)">巨幕2D</a>&nbsp;&nbsp;&nbsp;
+				<a href="#" onclick="selectMpi('巨幕3D',this)">巨幕3D</a>&nbsp;&nbsp;&nbsp;
+			</span>
+		</div>
+		<div class="selectMovie">
+			<span class="i">设置器：</span>
+			<span class="r"><a href="#" onclick="selectMpi('',this)">全部</a>&nbsp;&nbsp;&nbsp;#foreach($setter in $setterList)
+				<a href="#" onclick="selectMpi('mpiS$setter.id',this)" title="$!{setter.gainFullDesc()}:$!{changeSetterLog.get($setter.id).get('addtime')}">$setter.name</a>&nbsp;&nbsp;&nbsp;#end</span>
+		</div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>影片</th>
+					<th>影厅</th>
+					<th>放映时间</th>
+					<th>标识为不开放</th>
+					<th>语言版本</th>
+					<th>原价</th>
+					<th>标记</th>
+					<th>统一卖价
+					<br /><input type="button" value="统一售价" onclick="javascript:GewaraUtil.showDialog('setBatchGewaprice');"/>
+					</th>
+					<th>备注</th>
+					<th><input type="button" value="批量选择模板" onclick="selectAllSeatTempale()"/>操作<input type="button" onclick="autoOpenAll(this)" value="批量自动设置" /></th>
+					<th>最低限价</th>
+				</tr>
+			</thead>
+			<tbody class="tbody" id="mpiListBody">
+				#foreach($mpi in $playitemList)
+				<tr class="grayBg disp #foreach($edition in $!mpi.edition.split(',')) $edition #end mpiM$mpi.movieid mpiR$mpi.roomid#if($setterMap.get($mpi.id)) mpiS$setterMap.get($mpi.id).id#end" #if($mpi.hasOpenStatus('disabled'))style="background-color: #999;" #end>
+					<td>$movieMap.get($mpi.movieid).moviename</td>
+					<td>$!roomMap.get($mpi.roomid).roomname</td>
+					<td>$mpi.playtime</td>
+					<td>#if($mpi.openStatus eq 'init')<input type="button" value="不开放" onclick="change2Unopen($mpi.id,this)"/>#else $mpi.openStatus #end</td>
+					<td>$!{mpi.language}/$!mpi.edition</td>
+					<td>$!mpi.price</td>
+					<td>#if($mpi.seqNo)$!flagMap.get($mpi.opentype)#end</td>
+					<td><input type="text" class="gewaprice pubinput" style="width:30px;" name="${mpi.id}" value="$!mpi.gewaprice"/></td>
+					<td>$!mpi.remark</td>
+					<td>
+						<select id="temp_$mpi.id" style="width:50px;display:inline-block;" data-type="seatTemplate">
+						#foreach($tempSeat in $tempSeatMap.get($mpi.roomid))
+							<option value="$!{tempSeat.id}">$!{tempSeat.tmpname}</option>
+						#end
+						</select>
+						#if($mpi.seqNo)
+						<input type="button" onclick="openParnterMpi('$!mpi.id', '$!mpi.opentype', this)" value="开放预订#if($VmUtils.isNotBlank($!partnerMap.get($mpi.opentype)))($!partnerMap.get($mpi.opentype))#end"/>
+						#if($setterMap.get($mpi.id))
+						<input type="hidden" class="autoId" value="$mpi.id,$setterMap.get($mpi.id).id"/>
+						<input type="button" id="autoBt$mpi.id" onclick="autoOpenHfhMpi($mpi.id, '$setterMap.get($mpi.id).id', this)" value="$setterMap.get($mpi.id).name" title="$setterMap.get($mpi.id).description" />
+						#end
+						#if($params.showGewa eq "Gewa${userid}")
+						<input type="button" onclick="openMpi($mpi.id, this)" value="开放Gewa预订" />
+						#end
+						#else
+						<input type="button" onclick="openMpi($mpi.id, this)" value="开放预订" />
+						#end
+					</td>
+					<td>$!mpi.lowest</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>是否可退
+					#if($!hashAutoSetterCinema.contains($cinema.id))
+					<br/><a href="javascript:autoSetter(true)">[自动]</a><a href="javascript:autoSetter(false)">[手动]</a>
+					#end
+					</th>
+					<th width="120">
+						<select onchange="showThisMove(this)" id="movieSelect">
+							<option value="">影片...</option>
+							#foreach($movieid in $movieidList)
+							<option value="c$movieid">$movienameMap.get($movieid)</option>
+							#end
+						</select>
+					</th>
+					<th>
+						<select onchange="showThisMove(this)" id="roomSelect">
+							<option value="">影厅</option>
+							#foreach($room in $roomList)
+							<option value="r$room.id">$room.roomname</option>
+							#end
+						</select>
+					</th>
+					#if($profile && $profile.fee gt 0)<th>手续费</th>#end
+					<th>时间<br/><a href="javascript:setMPIRemark()">场次说明</a></th>
+					<th>
+						<select onchange="showThisMove(this)" id="edtionSelect">
+							<option value="">版本</option>
+						 	#foreach($edtion in $editionList)
+						 	<option value="$!eMap.get($edtion)" >$edtion</option>
+						 	#end
+						</select>
+						<br/>
+						<select onchange="showThisMove(this)" id="languageSelect">
+							<option value="">语言</option>
+							#foreach($language in $languages)
+						 		<option value="$!languageMap.get($language)" >$language</option>
+						 	#end
+						</select>
+					</th>
+					<th>影院价</th>
+					<th>成本价<br/>
+						<input type="button" value="统一结算价" onclick="javascript:GewaraUtil.showDialog('setBatchCostprice');"/>
+					</th>
+					<th width="7%">
+						<input type="text" name="minprice" id="minprice" style="margin-top: 10px;width: 30px;" />至<input type="text" name="maxprice" id="maxprice" style="margin-top: 10px;width: 30px;"/><br />
+						<input type="button" onclick="showPrice('minprice','maxprice')" value="卖价" />
+						<input type="button" onclick="javascript:$('setAllPriceForm').submit()" value="拓展" />
+					</th>
+					<th title="提起几小时关闭预订">
+						<input type="text" id="alltime" style="width:140px;" value="" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly"/><br />
+						<input type="button" onclick="openAll()" value="统一时间" /></th>
+					<th>优惠券<br/><input type="button" onclick="showRemoveElecard()" value="清空" /></th>
+					<th>场次管理</th>
+					<th colspan="2"><input type="button" value="全部接受预订" onclick="enableAll('Y')"/><input type="button" value="全部不接受" onclick="enableAll('N')"/><input type="button" value="全部恢复" onclick="enableAll('R')"/>
+					<input type="button" value="批量废弃" onclick="discardAllOpi()"/></th>
+				</tr>
+			</thead>
+			<tbody class="tbody opi" id="opiListBody">
+				#foreach($opi in $opiList)
+				#set($otherMap=$VmUtils.readJsonToMap($opi.otherinfo))
+				<tr data-opi="$opi.id" class="grayBg disp c$opi.movieid r$opi.roomid $!eMap.get($!opi.edition) $!languageMap.get($opi.language)" ref="$!opi.edition"  #if($opi.status eq 'D')style="background: red;"#elseif($goodMap.get($opi.id))style="background: yellow;"#end>
+					<td>${foreach.count}.#if($otherMap.get('isRefund') eq 'Y')是#else否#end
+					#if($otherMap.get('tempRoomSeatName'))
+					($otherMap.get('tempRoomSeatName'))
+					#end
+					#if($otherMap.get('autoOpen'))
+					<br />[#if($otherMap.get('autoOpenStatus') eq 'open_a')<span title="$otherMap.get('autoOpen')" style="color: blue;cursor: pointer;" name="autoSetter">自动#else<span title="$otherMap.get('autoOpen')" style="color: blue;cursor: pointer;" name="shouSetter">手动#end</span>]#end</td>
+					<td>$!{opi.moviename} #if($!partnerMap.get($opi.opentype)) [$!partnerMap.get($opi.opentype)]#end<br />
+						<a href="${basePath}admin/common/getChangeHis.xhtml?tag=OpenPlayItem&relatedid=$opi.mpid" target="_blank">历史</a>
+						<a href="${basePath}admin/common/getChangeHis.xhtml?tag=MoviePlayItem&relatedid=$opi.mpid" target="_blank">系统</a>
+					</td>
+					<td>$opi.roomname</td>
+					#if($profile.fee gt 0)<td><input type="text" class="fee pubinput" name="${opi.mpid}" style="width:30px;" #if($opi.expired || $opi.closed)disabled="disabled"#end value="$!opi.fee"/></td>#end
+					<td>
+						$DateUtil.format($opi.playtime,'MM-dd HH:mm')<br/>
+						<a href="${basePath}admin/ticket/modifyMpi.xhtml?opid=$opi.id" target="_blank">修改</a>
+					</td>
+					<td>$!opi.language|$!opi.edition<br /><a href="${basePath}admin/ticket/modifyMsg.xhtml?opid=$opi.id" target="_blank">短信</a></td>
+					<td>$!opi.price<br/><a href="${basePath}admin/ticket/opiOther.xhtml?opid=$opi.id" target="_blank">其他</a></td>
+					<td style="vertical-align:top;"><input type="text" class="costprice pubinput" style="width:30px; margin-top:5px;" name="${opi.mpid}" #if($opi.expired || $opi.closed)disabled="disabled"#end value="$!opi.costprice"/></td>
+					<td><input type="text" class="gewaprice pubinput" style="width:30px;" name="${opi.mpid}" #if($opi.expired || $opi.closed)disabled="disabled"#end value="$!opi.gewaprice"/>
+						<a href="${basePath}admin/ticket/extensions.xhtml?mpid=$opi.mpid" target="_blank">扩展</a>
+					</td>
+					<td>
+						<label>开放：<input type="text" #if($opi.expired)disabled="disabled"#else class="optime" name="$opi.mpid"#end style="width:140px;" value="$!DateUtil.format($opi.opentime,'yyyy-MM-dd HH:mm:ss')" onchange="setOpentime($opi.mpid, this)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly"/></label>
+						<label>关闭：<input type="text" #if($opi.expired)disabled="disabled"#end style="width:140px;" value="$!DateUtil.format($opi.closetime,'yyyy-MM-dd HH:mm:ss')" onchange="setClosetime($opi.mpid, this)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly"/></label>
+					</td>
+					<td><input type="text" class="elecard pubinput" style="width:40px;" name="${opi.mpid}" value="$!opi.elecard"/></td>
+					<td>
+						<a href="${basePath}admin/ticket/booking.xhtml?mpid=$opi.mpid" target="_blank">场次管理</a><br />
+						<a href="$!{absPath}${basePath}$VmUtils.getStep1Url($opi.mpid,'')" target="_blank">购票链接</a>
+					</td>
+					<td class="clearB">
+						<select id="$opi.mpid" rel="$!opi.costprice" onchange="changeStatus($opi.mpid,this);" #if($opi.expired || $opi.closed)disabled="disabled"#else class="opselect" #end
+							data-cinemaprice = "$!opi.price" data-gewaprice="$!opi.gewaprice" data-costprice="$!opi.costprice"
+							data-errormsg="$!{opi.moviename}[$opi.roomname],放映时间$DateUtil.format($opi.playtime,'MM-dd HH:mm')">
+							<option value="N" #if($opi.status eq 'N')selected="selected"#end>不接受</option>
+							<option value="Y" #if($opi.status eq 'Y')selected="selected"#end>接受</option>
+							<option value="R" #if($opi.status eq 'R')selected="selected"#end>待恢复</option>
+							<option value="D" #if($opi.status eq 'D')selected="selected"#end>废弃</option>
+						</select>
+						#if($opi.status ne 'Y')
+						<br /><span data-id="$opi.mpid" data-type="tips" style="cursor:pointer">????</span>
+						#end
+					</td>
+					<td class="clearB" #if($opi.closed)title="超时"#end>
+						<div style="float:left;width:70px;">
+							<input type="button" onclick="setError('$opi.mpid','质检错误','errorMsg1','e')" value="质检错误" /><br/>
+							<input type="button" onclick="setError('$opi.mpid','设置错误','pointText','')" value="设置错误" />
+						</div>
+						<div style="float:left;width:125px;">
+							<select onchange="changePartnerStatus($opi.mpid, this);" #if($opi.expired || $opi.closed)disabled="disabled"#end>
+								<option value="Y" #if($opi.partner eq 'Y')selected="selected"#end>对外</option>
+								<option value="N" #if($opi.partner eq 'N')selected="selected"#end>不对外</option>
+							</select>
+							<input type="button" onclick="discardOpi($opi.mpid, this)" value="废弃" />
+							#if(!$mpidList.contains($opi.mpid) && $params.sj eq 'sj')<input type="button" onclick="setGather($opi.mpid, this)" value="收集"/>#end
+						</div>
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+		<div class="selectMovie">
+			<span class="i yellow"><b>订票影院：</b></span><br/>
+			#foreach($city in $noOpiCinemaCityMap.keySet())
+			<div style="color:red">$!{cityMap.get($city).cityname}市</div>
+				#foreach($ckey in $noOpiCinemaCityMap.get($city))
+					<span class="i">$!{countyMap.get($city).get($ckey)}：</span>
+					<span class="r">
+						#foreach($cinema2 in $noOpiCinemaMap.get($ckey))
+						<a href="${basePath}admin/ticket/mpiManage.xhtml?cid=$cinema2.id&date=$curDate" 
+							class="#if($cinema.id eq $cinema2.id) match #end ml10"><span style="width: 120px;">${cinema2.name}</span>
+							#if($unopenedCinema.containsKey($cinema2.id))<span style="color:red;font-weight: bolder">[$unopenedCinema.get($cinema2.id)]</span>#end
+						</a>
+							
+						#if($unopenList.contains($cinema2.id))
+						<span style="color:red;font-weight: bolder">未</span>
+						#end
+						#end
+					</span>
+					<div class="mt5"></div>
+				#end
+			#end
+		</div>
+		<div id="showGather" class="selectMovie" style="display: none;">
+		</div>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<form action="${basePath}admin/ticket/seatpriceAll.xhtml" method="post" id="setAllPriceForm" target="_blank">
+#foreach($key in $setExpandMovie.keySet())
+<input type="hidden" name="movies" value="$!{key}:$!{VmUtils.join($setExpandMovie.get($key),',')}"/>
+#end
+</form>
+<div id="pointText"  style="visibility: visible; z-index: 601; position: absolute; top: 227px; left: 422px;display:none">
+	<div style="width:500px;height:auto;position:relative;top:30px;left:-10px;background: none repeat scroll 0 0 #FFFFFF; border: 2px solid #74B3DC; border-collapse: collapse;color: #000000;margin-top: 2px;">
+	<form action="${basePath}admin/ticket/mpi/saveSetError.xhtml" id="errorForm">
+		<input name="mpid" type="hidden" value="" id="errorMpid" />
+		<input name="msgType" type="hidden" value="" id="errorMsgType" />
+		<ul style="margin:20px 25px">
+			<li>
+				错误原因:<select name="msg">
+					<option value="价额错误">价额错误</option>
+					<option value="语言版本错误">语言版本错误</option>
+					<option value="其他错误">其他错误</option>
+				</select>
+			</li>
+			<li>
+				<input type="button" style="width: 50px;" value="保存" onclick="saveMsgError('errorForm','pointText')"/>
+				<input type="button" style="width: 50px;" value="取消" onclick="javascript:GewaraUtil.hideDialog('pointText');"/>
+			</li>
+		</ul>
+	</form>
+	</div>
+</div>
+
+<div id="errorMsg1"  style="visibility: visible; z-index: 601; position: absolute; top: 227px; left: 422px;display:none">
+	<div style="width:500px;height:auto;position:relative;top:30px;left:-10px;background: none repeat scroll 0 0 #FFFFFF; border: 2px solid #74B3DC; border-collapse: collapse;color: #000000;margin-top: 2px;">
+	<form action="${basePath}admin/ticket/mpi/saveSetError.xhtml" id="errorForm1">
+		<input name="mpid" type="hidden" value="" id="errorMpide" />
+		<input name="msgType" type="hidden" value="" id="errorMsgTypee" />
+		<ul style="margin:20px 25px">
+			<li>
+				错误原因:<textarea rows="15" cols="20" name="msg"></textarea>
+			</li>
+			<li>
+				金额：<input type="text" name="price" value="" />
+			</li>
+			<li>
+				<input type="button" style="width: 50px;" value="保存" onclick="saveMsgError('errorForm1','errorMsg1')" />
+				<input type="button" style="width: 50px;" value="取消" onclick="javascript:GewaraUtil.hideDialog('errorMsg1');" />
+			</li>
+		</ul>
+	</form>
+	</div>
+</div>
+
+
+<div id="removeElecard"  style="visibility: visible; z-index: 601; position: absolute; top: 227px; left: 422px;display:none">
+	<div style="width:300px;height:auto;position:relative;top:30px;left:-10px;background: none repeat scroll 0 0 #FFFFFF; border: 2px solid #74B3DC; border-collapse: collapse;color: #000000;margin-top: 2px;">
+	<form  id="removeElecardForm">
+		<ul style="margin:20px 25px">
+			<li>
+				请选择需要删除的券种?
+			</li>
+			<li>
+				<br/>
+				<input type="radio" name="elecardType" value="B"/>B
+				<input type="radio" name="elecardType" value="A"/>A
+				<input type="radio" name="elecardType" value="D"/>D
+				<input type="radio" name="elecardType" value="M"/>M
+				<input type="radio" name="elecardType" value="BA"/>BA
+				<input type="radio" name="elecardType" value="BD"/>BD
+				<input type="radio" name="elecardType" value="BM"/>BM
+				<input type="radio" name="elecardType" value="AD"/>AD
+			</li>
+			<li>
+				<br/>
+				<input type="radio" name="elecardType" value="AM"/>AM
+				<input type="radio" name="elecardType" value="DM"/>DM
+				<input type="radio" name="elecardType" value="BAD"/>BAD
+				<input type="radio" name="elecardType" value="BAM"/>BAM
+				<input type="radio" name="elecardType" value="BDM"/>BDM
+				<input type="radio" name="elecardType" value="ADM"/>ADM
+				<input type="radio" name="elecardType" value="BADM"/>BADM
+			</li>
+			<li>
+				<br/>
+				<input type="button" style="width: 50px;" value="确定" onclick="removeALLElecard()" />
+				<input type="button" style="width: 50px;" value="取消" onclick="javascript:GewaraUtil.hideDialog('removeElecard');" />
+			</li>
+		</ul>
+	</form>
+	</div>
+</div>
+
+<div id="selectSeatTemplate"  style="visibility: visible; z-index: 601; position: absolute; top: 227px; left: 422px;display:none">
+	<div style="width:300px;height:auto;position:relative;top:30px;left:-10px;background: none repeat scroll 0 0 #FFFFFF; border: 2px solid #74B3DC; border-collapse: collapse;color: #000000;margin-top: 2px;">
+	<form  id="selectSeatTemplateForm">
+		<ul style="margin:20px 25px">
+			<li>
+				请填写批量设置的模板名称
+			</li>
+			<li>
+				<br/>
+				模板名称：<input type="text" name="templateName" value=""/>
+			</li>
+			<li>
+				<br/>
+				<input type="button" style="width: 50px;" value="确定" onclick="selectAllSeatTempaleConfirm()" />
+				<input type="button" style="width: 50px;" value="取消" onclick="javascript:GewaraUtil.hideDialog('selectSeatTemplate');" />
+			</li>
+		</ul>
+	</form>
+	</div>
+</div>
+<div id="setBatchGewaprice"  style="visibility: visible; z-index: 601; position: absolute; top: 227px; left: 422px;display:none">
+	<div style="width:300px;height:auto;position:relative;top:30px;left:-10px;background: none repeat scroll 0 0 #FFFFFF; border: 2px solid #74B3DC; border-collapse: collapse;color: #000000;margin-top: 2px;">
+	<form  id="batchGewaPriceForm">
+		<ul style="margin:20px 25px">
+			<li>
+				请填写批量设置统一售价
+			</li>
+			<li>
+				<br/>
+				统一售价：<input type="text" name="gewaprice" id="batchGewaprice" value=""/>
+			</li>
+			<li>
+				<br/>
+				<input type="button" style="width: 50px;" value="确定" onclick="setMpiBatchGewaprice()" />
+				<input type="button" style="width: 50px;" value="取消" onclick="javascript:GewaraUtil.hideDialog('setBatchGewaprice');" />
+			</li>
+		</ul>
+	</form>
+	</div>
+</div>
+<div id="setBatchCostprice"  style="visibility: visible; z-index: 601; position: absolute; top: 227px; left: 422px;display:none">
+	<div style="width:300px;height:auto;position:relative;top:30px;left:-10px;background: none repeat scroll 0 0 #FFFFFF; border: 2px solid #74B3DC; border-collapse: collapse;color: #000000;margin-top: 2px;">
+	<form  id="batchCostPriceForm">
+		<ul style="margin:20px 25px">
+			<li>
+				请填写批量设置统一结算价
+			</li>
+			<li>
+				<br/>
+				统一结算价：<input type="text" name="costprice" id="batchCostprice" value=""/>
+			</li>
+			<li>
+				<br/>
+				<input type="button" style="width: 50px;" value="确定" onclick="setOpiBatchCostprice()" />
+				<input type="button" style="width: 50px;" value="取消" onclick="javascript:GewaraUtil.hideDialog('setBatchCostprice');" />
+			</li>
+		</ul>
+	</form>
+	</div>
+</div>
+
+<div id="setMPIRemark"  style="visibility: visible; z-index: 601; position: absolute; top: 227px; left: 422px;display:none">
+	<div style="width:300px;height:auto;position:relative;top:30px;left:-10px;background: none repeat scroll 0 0 #FFFFFF; border: 2px solid #74B3DC; border-collapse: collapse;color: #000000;margin-top: 2px;">
+	<form  id="setMPIRemarkForm">
+		<ul style="margin:20px 25px">
+			<li>
+				设置场次说明
+			</li>
+			<li>
+				<br/>
+				场次说明：<textarea name="remark" rows="5"></textarea>
+			</li>
+			<li>
+				<br/>
+				<input type="button" style="width: 50px;" value="确定" onclick="saveMpiRemark()" />
+				<input type="button" style="width: 50px;" value="取消" onclick="javascript:GewaraUtil.hideDialog('setMPIRemark');" />
+			</li>
+		</ul>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+function setMPIRemark(){
+	GewaraUtil.showDialog("setMPIRemark");
+}
+
+function saveMpiRemark(){
+	var values = GewaraUtil.getValues("setMPIRemarkForm");
+	if(!values.remark){
+		alert('请输入场次说明！');
+		return;
+	}
+	var url = "${basePath}admin/ticket/saveMpiRemark.xhtml";
+	$('opiListBody').getElements("tr").each(function(item){
+		if(!item.hasClass('none')){
+			GewaraUtil.sendRequest(url,{'opid':item.get('data-opi'),'remark':values.remark}, function(result){
+				 if(result.success){
+				 }else {
+				 	alert(result.msg);
+				 }
+			 }); 
+		}
+	});
+	GewaraUtil.hideDialog("setMPIRemark");
+}
+
+function selectAllSeatTempale(){
+	GewaraUtil.showDialog("selectSeatTemplate");
+}
+function selectAllSeatTempaleConfirm(){
+	var values = GewaraUtil.getValues("selectSeatTemplateForm");
+	if(!values.templateName){
+		alert("请填写批量操作的模板名称！");
+		return ;
+	}
+	$$("select[data-type=seatTemplate]").each(function(item){
+		var hisValue = item.value;
+		for (var i = 0; i < item.options.length; i++) {        
+			if (item.options[i].text == values.templateName) {  
+				item.options[i].selected=true;       
+			}        
+		}
+	});
+	GewaraUtil.hideDialog('selectSeatTemplate');
+}
+function setError(mpid,msgType,dialog,endName){
+	$('errorMpid' +　endName).value = mpid;
+	$('errorMsgType' + endName).value = msgType;
+	GewaraUtil.showDialog(dialog);
+	//GewaraUtil.hideDialog('pointText');
+}
+
+function saveMsgError(form,dialog){
+	var values = GewaraUtil.getValues(form);
+	if(!values.msg || values.msg == ""){
+		alert("请选择错误原因");
+	}
+	var url = "${basePath}admin/ticket/mpi/saveSetError.xhtml";
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(!result.success){
+			alert(result.msg);
+		}else{
+			GewaraUtil.hideDialog(dialog);
+		}
+	}); 
+}
+
+function setMpiBatchGewaprice(){
+	var priceValue = $('batchGewaprice').value;
+	if(priceValue == ""){
+		alert("请填写价格");
+		return;
+	}
+	GewaraUtil.hideDialog('setBatchGewaprice');
+	$("mpiListBody").getElements('input.gewaprice').each(function(item){
+		if(item.value == ""){
+			item.setStyle("background","red");
+			var url = "${basePath}admin/ticket/mpi/updateMpiGewaPrice.xhtml";
+			GewaraUtil.sendRequest(url, {"mpid":item.name, "gewaprice":priceValue}, function(result){
+				if(result.success){
+					item.setStyle("background","");
+					item.value = priceValue;
+				}else {
+					alert("修改价格失败！"+result.msg);
+				}
+			});
+		}
+	});
+}
+function setOpiBatchCostprice(){
+	var priceValue = $('batchCostprice').value;
+	if(priceValue == ""){
+		alert("请填写价格");
+		return;
+	}
+	GewaraUtil.hideDialog('setBatchCostprice');
+	$("opiListBody").getElements('input.costprice').each(function(item){
+		if(item.value == ""){
+			item.setStyle("background","red");
+			var el=item;
+			var url = "${basePath}admin/ticket/mpi/updateMpiCostPrice.xhtml";
+			GewaraUtil.sendRequest(url, {"mpid":el.name, "costprice":priceValue}, function(result){
+				if(result.success){
+					el.value = priceValue;
+					$(el.name).set('rel',el.value);
+					el.setStyle("background","");
+				}else {
+					alert(result.msg);
+				}
+			});
+		}
+	});
+}
+	window.addEvent("domready", function(){
+		$$(".tbody tr").addEvents({
+			'mouseenter':function(){
+				this.addClass("mouseBg");
+			},
+			'mouseleave':function(){
+				this.removeClass("mouseBg");
+			}
+		});
+		$$(".gewaprice").addEvent("change", function(){
+			this.setStyle("background","red");
+			var el=this;
+			var url = "${basePath}admin/ticket/mpi/updateMpiGewaPrice.xhtml";
+			GewaraUtil.sendRequest(url, {"mpid":this.name, "gewaprice":this.value}, function(result){
+				if(result.success){
+					el.setStyle("background","");
+				}
+				else alert("修改价格失败！"+result.msg);
+			});
+		});
+		$$(".costprice").addEvent("change", function(){
+			this.setStyle("background","red");
+			var el=this;
+			var url = "${basePath}admin/ticket/mpi/updateMpiCostPrice.xhtml";
+			GewaraUtil.sendRequest(url, {"mpid":this.name, "costprice":this.value}, function(result){
+				if(result.success){
+					$(el.name).set('rel',el.value);
+					el.setStyle("background","");
+				}
+				else alert(result.msg);
+			});
+		});
+		$$(".elecard").addEvent("change", function(){
+			changeEleccard(this);
+		});
+		#if($profile && $profile.fee gt 0)
+		$$(".fee").addEvent("change", function(){
+			this.setStyle("background","red");	var el=this;
+			var url = "${basePath}admin/ticket/mpi/updateMpiFee.xhtml";
+			GewaraUtil.sendRequest(url, {"mpid":this.name, "fee":this.value}, function(result){
+				if(result.success){
+					el.setStyle("background","");
+				}
+				else alert("修改服务费失败：" + result.msg);
+			});
+		});
+		#end
+		getLastChange();
+	});
+	
+	function showRemoveElecard(){
+		GewaraUtil.showDialog("removeElecard");
+	}
+	function removeALLElecard(){
+		var values = GewaraUtil.getValues("removeElecardForm");
+		if(!values.elecardType){
+			alert("请选择要删除的优惠券！");
+			return ;
+		}
+		var elecardTypeValue = values.elecardType;
+		var eLength = elecardTypeValue.length
+		if(confirm("确定删除选择的优惠券吗？")){
+			$$(".disp .elecard").each(function(item){
+				var hisValue = item.value;
+				for(var index = 0;index < eLength;index++){
+					var subE = elecardTypeValue.charAt(index);
+					if(subE){
+						hisValue = hisValue.replace(subE,"");
+					}
+				}
+				item.value = hisValue;
+				changeEleccard(item)
+			});
+			GewaraUtil.hideDialog('removeElecard');
+		}
+	}
+	function changeEleccard(el){
+		el.setStyle("background","red");
+		var url = "${basePath}admin/ticket/mpi/updateMpiElecard.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":el.name, "cardtype":el.value}, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}
+			else alert("修改优惠券失败！");
+		});
+	}
+	
+	function setClosetime(mpid, el){
+		el.setStyle("background","red");
+		var url = "${basePath}admin/ticket/mpi/setMpiClosetime.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":mpid, "closetime":el.value}, function(result){
+			if(result.success) el.setStyle("background","");
+			else alert(result.msg);
+		});
+	}
+	function setOpentime(mpid, el){
+		el.setStyle("background","red");
+		var url = "${basePath}admin/ticket/mpi/setMpiOpentime.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":mpid, "opentime":el.value}, function(result){
+			if(result.success) el.setStyle("background","");
+			else alert(result.msg);
+		});
+	}
+	
+	function changeStatus(mpid, el){
+		el.setStyle("background","red");
+		var url = "${basePath}admin/ticket/mpi/changeMpiStatus.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":mpid, "status":el.value, "costprice":el.get('rel')}, function(result){
+			if(result.success) el.setStyle("background","");
+			else alert(result.msg);
+		});
+	}
+	function changePartnerStatus(mpid, el){
+		el.setStyle("background","red");
+		var url = "${basePath}admin/ticket/mpi/changePartnerStatus.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":mpid, "status":el.value}, function(result){
+			if(result.success) el.setStyle("background","");
+			else alert(result.msg);
+		});
+	}
+	function openMpi(mpid, bt){
+		bt.dispose();
+		var url = "${basePath}admin/ticket/mpi/openMpi.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":mpid,"opentype":"GEWA","tempid":$('temp_'+mpid).value}, function(result){
+			if(result.success){
+				if(result.retval) $('notifyWin').set('html', result.retval);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function openParnterMpi(mpid, opentype, bt){
+		bt.dispose();
+		var url = "${basePath}admin/ticket/mpi/openHfhMpi.xhtml"; 
+		GewaraUtil.sendRequest(url, {"mpid":mpid,"opentype": opentype,"tempid":$('temp_'+mpid).value}, function(result){
+			if(result.success){
+				if(result.retval) $('notifyWin').set('html', result.retval);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function autoOpenHfhMpi(mpid, setter, bt){
+		bt.dispose();
+		var url = "${basePath}admin/ticket/mpi/autoOpenHfhMpi.xhtml"; 
+		GewaraUtil.sendRequest(url, {"mpid":mpid, "setterId":setter}, function(result){
+			if(result.success){
+				if(result.retval) $('notifyWin').set('html', result.retval);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function autoOpenAll(bt){
+		bt.dispose();
+		var url = "${basePath}admin/ticket/mpi/autoOpenHfhMpi.xhtml";
+		$("mpiListBody").getElements(".disp .autoId").each(function(item){
+			var pair = item.value.split(',');
+			$("autoBt" + pair[0]).dispose();
+			GewaraUtil.sendRequest(url, {"mpid":pair[0], "setterId":pair[1]}, function(result){
+				if(result.success){
+					if(result.retval) $('notifyWin').set('html', result.retval);
+				}else{
+					alert(result.msg);
+				}
+			});
+		});
+	}
+	function discardOpi(mpid, bt){
+		if(bt){
+			bt.dispose();
+		}
+		var url = "${basePath}admin/ticket/mpi/discardOpi.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":mpid}, function(result){
+			if(!result.success) alert(result.msg);
+		});
+	}
+	
+	function setGather(mpid, bt){
+		bt.dispose();
+		var url = "${basePath}admin/ticket/mpi/setMpidGather.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":mpid}, function(result){
+			if(!result.success) alert(result.msg);
+		});
+	}
+	
+	function change2Unopen(mpid, bt){
+		bt.dispose();
+		var url = "${basePath}admin/ticket/mpi/change2Unopen.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":mpid}, function(result){
+			if(!result.success) alert(result.msg);
+		});
+	}
+	
+	function discardAllOpi(){
+		$$(".disp .opselect").each(function(item){
+			if(item.value=='D'){
+				discardOpi(item.id);
+			}
+		});
+	}
+	function enableAll(status){
+		$$(".disp .opselect").each(function(item){
+			if(status == 'N' && item.value=='Y'){
+				item.value="N";
+				changeStatus(item.id, item);
+			}else if(status == 'R' && item.value=='R'){
+				item.value="Y";
+				changeStatus(item.id, item);
+			}else if(status == 'Y' && item.value=="N"){
+				var costprice = parseInt(item.get("data-costprice"));
+				var gewaprice = parseInt(item.get("data-gewaprice"));
+				var cinemaprice = parseInt(item.get("data-cinemaprice"));
+				if(gewaprice > cinemaprice || gewaprice < costprice){
+					alert(item.get('data-errormsg') + "不符合格瓦拉售价体系，需要特殊权限的人才能单独开通，不能使用全部接受预定按钮。");
+					return;
+				}
+				if((costprice*0.2 > 12 && (gewaprice - costprice) > 12) || (costprice*0.2 <= 12 && (gewaprice - costprice) > costprice*0.2)){
+					alert(item.get('data-errormsg') + "不符合格瓦拉售价体系，需要特殊权限的人才能单独开通，不能使用全部接受预定按钮。");
+					return;
+				}
+				item.value="Y";
+				changeStatus(item.id, item);
+			}
+		});
+	}
+	function openAll(){
+		var time = $("alltime").value;
+		if(time=='') {
+			alert("先设置时间！");
+			return;
+		}
+		$$(".disp .optime").each(function(item){
+			if(item.value!=time){
+				item.value=time;
+				setOpentime(item.name, item);
+			}
+		});
+		
+	}
+	function showThisMove(el){
+		var edtionValue = $('edtionSelect').value
+		var roomValue = $('roomSelect').value
+		var movieValue = $('movieSelect').value
+		var languageValue = $('languageSelect').value
+		$("opiListBody").getElements('tr').each(function(item){
+			item.addClass('none');
+			item.removeClass("disp");
+			var movie = false;
+			var room = false;
+			var edtion = false;
+			var language = false;
+			if(movieValue == '' || item.hasClass(movieValue)){
+				movie = true;
+			}
+			if(roomValue == '' || item.hasClass(roomValue)){
+				room = true;
+			}
+			if(edtionValue == '' || item.hasClass(edtionValue)){
+				edtion = true;
+			}
+			if(languageValue == '' || item.hasClass(languageValue)){
+				language = true;
+			}
+			if(movie && room && edtion && language){
+				item.removeClass('none');
+				item.addClass('disp');
+			}
+		});
+	}
+	function showThisEdtion(el){
+		if(el.value != ''){
+			$("opiListBody").getElements('tr').each(function(item){
+				item.addClass('none');
+				item.removeClass('disp');
+			})
+			var ed = '.' + el.value;
+			$$(ed).removeClass('none');
+			$$(ed).addClass('disp');
+		}else{
+			$("opiListBody").getElements('tr').each(function(item){
+				item.removeClass('none');
+			})
+		}
+	}
+	var lastSelect = $(document.body);
+	function selectMpi(selid, el){
+		lastSelect.removeClass("match");
+		if(selid != ''){
+			$('mpiListBody').getElements('tr').each(function(item){
+				item.addClass('none');
+				item.removeClass("disp");
+			});
+			var cls = '.'+selid;
+			$$(cls).removeClass('none');
+			$$(cls).addClass('disp');
+		}else{
+			$('mpiListBody').getElements('tr').each(function(item){
+				item.removeClass('none');
+			});
+		}
+		lastSelect = $(el);
+		lastSelect.addClass("match");
+	}
+	function mpidGather(){
+		var url = '${basePath}admin/ticket/mpi/getMpidGather.xhtml';
+		GewaraUtil.sendLoad('showGather',url,{},function(result){
+			if(result.success){
+				gewa.util.maskContent('','showGather','收集场次数据',1000,'showGather');
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+	
+	function showPrice(min, max){
+		if($$('.opi .gewaprice') && $(min) && $(max)){
+			var gewaprice = $$('.opi .gewaprice');
+			if($(min).value != '' && $(max).value != ''){
+				if($(min).value >$(max).value){alert('价格范围有误！'); return;}
+				gewaprice.each(function(item){
+					if(item.value != ''){
+						if($(min).value<= item.value && item.value <=$(max).value){
+							item.getParent('tr').removeClass('none');
+						}else{
+							item.getParent('tr').addClass('none');
+						}
+					}else{
+						item.getParent('tr').addClass('none');
+					}
+				});
+			}else if($(min).value != ''){
+				gewaprice.each(function(item){
+					if(item.value != ''){
+						if($(min).value<= item.value){
+							item.getParent('tr').removeClass('none');
+						}else{
+							item.getParent('tr').addClass('none');
+						}
+					}else{
+						item.getParent('tr').addClass('none');
+					}
+				});
+			}else if($(max).value != ''){
+				gewaprice.each(function(item){
+					if(item.value != ''){
+						if(item.value <=$(max).value){
+							item.getParent('tr').removeClass('none');
+						}else{
+							item.getParent('tr').addClass('none');
+						}
+					}else{
+						item.getParent('tr').addClass('none');
+					}
+				});
+			}else{
+				gewaprice.each(function(item){
+					item.getParent('tr').removeClass('none');
+				});
+			}
+		}
+	}
+	function getLastChange(){
+		document.getElements('span[data-type=tips]').amTips({
+			ajax:true,
+			mouseBandCallback:function(arg){
+				if(arg.retrieve('key') == null){
+					GewaraUtil.sendRequest("${basePath}admin/ticket/mpi/getLastChange.xhtml?mpid="+arg.get('data-id'), '', function(result){
+						if(result.success){
+							var html = new Element('div');
+							html.innerHTML = "<div style=\"padding:3px;\">"+result.retval+"</div>";
+							arg.store('key',html)
+							this.show(arg);
+						}else{
+							arg.store('key','服务器忙，请稍后再试！')
+							this.show(arg);
+						}
+					}.bind(this));
+				}else this.show(arg);
+			},
+			content:function(arg){
+				return arg.retrieve('key');
+			},
+			position:'left',center:true
+		});
+	}
+	function autoSetter(isAuto){
+		if(isAuto){
+			$('opiListBody').getElements("tr").each(function(item){
+				item.addClass('none');
+			});
+			$('opiListBody').getElements("span[name=autoSetter]").each(function(item){
+				item.parentNode.parentNode.removeClass('none');
+			});
+		}else{
+			$('opiListBody').getElements("tr").each(function(item){
+				item.addClass('none');
+			});
+			$('opiListBody').getElements("span[name=shouSetter]").each(function(item){
+				item.parentNode.parentNode.removeClass('none');
+			});
+		}
+	}
+</script>
+</body>
+</html>

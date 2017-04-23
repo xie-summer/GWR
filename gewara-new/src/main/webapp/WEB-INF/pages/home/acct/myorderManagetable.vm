@@ -1,0 +1,215 @@
+#set($pageFun='_ajaxAutoPage')
+<div class="mt20">
+	显示
+	<select class="ml5" name="queryDate" id="queryDate" onchange="queryOrderByDate(this)">
+		<option value="60" #if($queryDate eq '60')selected#end>60天内的订单</option>
+		<option value="180" #if($queryDate eq '180')selected#end>180天内的订单</option>
+		<option value="365" #if($queryDate eq '365')selected#end>1年内的订单</option>
+		<option value="0" #if($queryDate eq '0')selected#end>所有订单</option>
+	</select>
+</div>
+<table cellpadding="0" cellspacing="0" border="0" class="table mt10">
+	<thead>
+		<tr>
+			<th style="width:220px;"><div style="width:220px;">订单号</div></th>
+			<th style="width:80px;"><div style="width:80px;">购买时间</div></th>
+			<th style="width:150px;"><div style="width:150px;">场馆/物品名称</div></th>
+			<th><div>金额</div></th>
+			<th style="width:65px;"><div style="width:65px;">状态</div></th>
+			<th style="width:75px;"><div style="width:75px;">操作</div></th>
+			<th style="width:110px;"><div style="width:110px;">评论</div></th>
+		</tr>
+	</thead>
+	<tbody>
+		#foreach($order in $orderList)
+		#set($dMap=$dataMap.get($order.id))
+		#set($descMap=$VmUtils.readJsonToMap($order.description2))
+		#set($orderExtra=$orderExtraMap.get($order.id))
+		<tr #if($foreach.index%2 eq 1)class="tdHover"#end>
+			<td style="text-align:left">
+				#set($tagList=['movie','drama','sport'])
+				<div class="uipic">
+					#set($hreftag="#")
+					#if($dMap.get('type') eq 'ticket')
+						#set($hreftag='movie')
+					#elseif($dMap.get('type') eq 'drama')
+						#set($hreftag='drama')
+					#elseif($dMap.get('type') eq 'sport')
+						#set($hreftag='sport')
+					#elseif($dMap.get('type') eq 'pubsale')
+						#set($hreftag='pubsale')
+					#elseif($dMap.get('type') eq 'goods')
+						#set($hreftag='activity')
+					#end
+					#if($dMap.get('type') ne 'goods')
+					<a href="${basePath}$hreftag/$dMap.get('id')" target="_blank">
+					#end
+						<img alt="" src="${staticPath}css/images/blank.gif" style="background: url($VmUtils.randomPic('sw50h50',$dMap.get('img'))) center center no-repeat" width="50" height="50"/>
+					#if($dMap.get('type') ne 'goods')
+					</a>
+					#end
+				</div>
+				<div class="left">
+					<span class="fs14" title="$dMap.get('name')">#if($VmUtils.gt($dMap.get('name').length(), 9)) $!VmUtils.escabbr($dMap.get('name'),16)... #else $!VmUtils.escabbr($dMap.get('name'),16) #end</span>
+					<br/><a href="${basePath}gewapay/showOrder.xhtml?orderId=$order.id" target="_blank" style="vertical-align: middle;">$order.tradeNo</a>
+				</div>
+			</td>
+			<td>$DateUtil.format($order.updatetime, 'yyyy-MM-dd')<br/>$DateUtil.format($order.updatetime, 'HH:mm')
+			</td>
+			<td style="width:130px;"><div style="width:130px;">$order.ordertitle</div></td>
+			<td>¥$order.totalAmount</td>
+			<td>
+				#if($order.status eq 'paid')
+					<div>$order.statusText2</div>
+				#elseif($order.status eq 'paid_failure_unfix')
+					<div class="orderQs">$order.statusText2</div>
+				#else
+					<div style="color:#666;">$order.statusText2
+						#if($orderCinema.get($!order.id) && $hasGoods.get($orderCinema.get($!order.id)))
+						<br>
+						<a href="${basePath}cinema/$!orderCinema.get($!order.id)?goPostion=mod_cinemaSale">购买卖品</a>
+						#end
+					</div>
+				#end
+			</td>
+			<td>
+				#if($order.paidSuccess)
+					#if($order.getDue() gt 0)
+						#if($openedIdList.contains($order.id))
+						已开发票
+						#elseif($order.paymethod ne 'umPay') 
+							#if($order.paymethod eq 'gewaPay')
+							#set($bankfee=${order.gewapaid} - ${order.wabi})
+							#if($VmUtils.eq($orderExtra.invoice,'N') && $bankfee gt 0)<p><a href="${basePath}home/invoice/receiveInvoice.xhtml" target="_blank" style="vertical-align: middle;">申请发票</a></p>#end
+							#else
+							<p><a href="${basePath}home/invoice/receiveInvoice.xhtml" target="_blank" style="vertical-align: middle;">申请发票</a></p>
+							#end
+						#end
+					#end
+					#if($VmUtils.eq($order.ordertype,'drama'))
+						#set($expressNo=$!VmUtils.readJsonToMap($!order.otherinfo).get('expressNo'))
+						#if($VmUtils.isNotBlank($expressNo))
+						<p><a href=" http://api.kuaidi100.com/chaxun?com=yd&nu=$!expressNo" target="_blank" style="vertical-align: middle;">查看物流</a></p>
+						#end
+					#end
+					#if($VmUtils.isNotBlank($order.checkpass))
+						#if($!VmUtils.isNotBlank($member.smobile) && $orderIdList.contains($order.id))
+							<p><a href="javascript:void(0)" onclick="javascript:sendOrderSMS($order.id, $order.mobile)" style="vertical-align: middle;">取票密码</a></p>
+						#elseif( $!VmUtils.isBlank($member.smobile) && $orderIdList.contains($order.id))
+							#set($mpdate = $DateUtil.format($order.updatetime, 'yyyy-')+$!VmUtils.getJsonValueByKey($!order.description2, '场次').replace("月","-").replace("日",""))
+						#if($DateUtil.getDiffHour($DateUtil.currentTime(),$DateUtil.parseDate($mpdate,'yyyy-MM-dd HH:mm')) gt 3)
+						
+						#else
+							<p><a href="javascript:void(0)" onclick="javascript:sendOrderSMS($order.id, $order.mobile)" style="vertical-align: middle;">取票密码</a></p>
+						#end
+						#end
+					#end
+				#elseif($order.status eq 'paid_unconfirm')
+				<p><a href="javascript:confirmDbOrder($order.id)">确认担保支付</a></p>
+				#elseif($order.new)
+				<p><a #if($VmUtils.eq($order.ordertype,'ticket')) href="${basePath}gewapay/confirmOrder.xhtml?orderId=$order.id" #else href="${basePath}gewapay/confirmOrder.xhtml?orderId=$order.id" #end style="vertical-align: middle;">立即付款</a></p>
+				<p><a href="javascript:cancelOrder('$order.tradeNo');" style="vertical-align: middle;color:#666;">取消订单</a></p>
+				#end
+				#if(($order.status eq 'paid_success' && ($delStatusMap.get($order.id) eq 'Y' || $orderDelList.contains($order.id)))||$order.cancel)
+					<p><a href="javascript:void(0)" onclick="javascript:removeOrder($order.id)" style="vertical-align: middle;">删除记录</a></p>
+				#end
+			</td>
+			<td>
+				#if($tagList.contains($hreftag) && !$order.cancel && !$order.new)
+				<a target="_blank" class="button minBt redBt" href="${basePath}$hreftag/$dMap.get('id')?topos=issueTips">
+				<span>我要评论</span>
+				</a>
+				#end
+			</td>
+		</tr>
+		#end
+		#*
+		<tr>
+			<td style="text-align:left">
+				<div class="uipic">
+					<a href="#"><img alt="" src="${staticPath}css/images/blank.gif" style="background: url(http://img0.gewara.cn/sw50h50/images/movie/s_2b61293b_12b9f8d8fc9__7fd2.jpg) center center no-repeat" width="50" height="50"/></a>
+				</div>
+				<div class="left">
+					<span class="fs14 bold">李小龙，我的兄弟</span>
+					<br/><a href="#" target="_blank" style="vertical-align: middle;">1120106143046664</a>
+				</div>
+			</td>
+			<td>2012-01-06<br/>14:30
+			<td>华谊兄弟影院-百联店电影票</td>
+			<td>¥182</td>
+			<td>
+				<div class="orderQs">已支付</div>
+			</td>
+			<td>
+				<a href="#">取票密码</a><br />
+				<a href="#">申请发票</a><br />
+				<span class="gray">已申请</span>
+			</td>
+			<td>
+				<span class="gray">已评论</span><br />
+				<a target="_blank" class="button minBt whiteBt" href="#"><span>追加评论</span></a>
+			</td>
+			</tr>
+		 *#
+	</tbody>
+</table>
+<div class="clear">#parse('include/scriptPageUtil.vm')</div>
+#parse('include/orderCheckPass.vm')
+#parse('include/repeatSendOrderSMS.vm')
+<div id="hiddenData" style="display:none"></div>
+<div id="orderQsInfo" class="none orderQsInfo"><p class="none">由于场馆网络不稳定，你选择的座位可能没有锁定成功，客服已介入处理，取票短信可能会延迟发送，若有疑问请致电：<b class="brown">4000-406-506</b></p></div>
+<script>
+window.addEvent('domready',function(){
+	gewa.util.popo($$('.orderQs'),'orderQsInfo');
+	$$('tbody tr').addEvents({
+		"mouseenter":function(){this.addClass('tdHover');},
+		"mouseleave":function(){this.removeClass('tdHover');}
+	})
+});
+cancelOrder = function(tradeNo){
+	gewaUtil.confirm('确认取消该订单？', function(){
+		document.location = '${basePath}gewapay/cancelOrder.xhtml?tradeNo=' + tradeNo;
+	})
+}
+ajaxshoworder = function(orderid, tradeNo){
+	var url = '${basePath}gewapay/ajaxShowOrder.xhtml';
+	var values = {'orderId': orderid};
+	gewaUtil.loadData('hiddenData', url, values, function(result){
+		if(result.success){
+			gewaUtil.maskContent('', 'hiddenData', '订单 ' + tradeNo, 580, 'hiddenData'+tradeNo);
+		}else{
+			gewaUtil.alert(result.json.msg);
+		}
+	});
+}
+confirmDbOrder = function(orderId, el){
+	el.dispose();
+	GewaraUtil.sendRequest("${basePath}gewapay/confirmDanbaoOrder.xhtml", {"orderId":orderId}, function(result){
+		if(result.success){
+		}else{
+			alert(result.msg);
+			document.location.href="https://unionpaysecure.com/user/UnpaidOrder.action";
+		}
+	});
+}
+
+removeOrder =function(orderId){
+	gewa.util.issure('','<div style="background:url(${picPath}css/images/sigh0.gif) no-repeat; padding-left:30px;line-height:25px; margin:5px 0;">你确定要删除该订单信息吗？</div>','系统提示',300,'keys',function(){	
+		gewa.util.container['keys'].dispose('keys');
+		var url = "${basePath}home/removeMyOrder.xhtml";
+		var values = {'orderid':orderId};
+		GewaraUtil.sendRequest(url, values , function(result){
+			if(result.success){
+			}else{
+				alert(result.msg);
+			}
+			refreshPage();
+		});
+	})	
+}
+</script>
+<script>
+_ajaxAutoPage = function(pageNo, params, url){
+	gewaUtil.loadData('myOrderManagetableDIV', url, {});
+}
+</script>

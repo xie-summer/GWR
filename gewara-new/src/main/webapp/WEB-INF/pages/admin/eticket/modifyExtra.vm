@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>编辑电子影票</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}formcheck/formcheck.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}formcheck/formcheck.js?v=$VmUtils.jsVersion"></script>
+	<style>
+		label{width:90px;text-align:right; display:inline-block;}
+		input, select{width:140px;}
+		.yui-panel div{margin-top: 5px;}
+	</style>
+</head>
+<body>
+<div class="yui-skin-sam">
+<div id="batchDialog" class="yui-panel" style="width:650px;margin:50px auto;">
+	<div class="hd">[编辑电子影票-额外信息]</div>
+	<div class="bd">
+	<form name="batchForm" id="batchForm" action="javascript:saveBatch()">
+		<input type="hidden" name="pid" id="pid" value="${extra.pid}"/>
+		<input type="hidden" name="bid" id="bid" value="${extra.batchid}"/>
+		<div>
+			<label for="applycity">申请区域：</label>
+			<select name="applycity" style="width:70px;">
+				#foreach($citycode in $cityMap.keySet())
+				<option value="$citycode" #if($citycode eq $extra.applycity)selected="selected"#end>$cityMap.get($citycode)</option>
+				#end
+			</select>
+			<span class="req">*</span>
+			<label for="applydept">申请部门：</label>
+			<select name="applydept">
+				#foreach($depno in $deptMap.keySet())
+				<option value="$depno" #if($extra.applydept eq $depno)selected="selected"#end>$deptMap.get($depno)</option>
+				#end
+			</select>
+			<span class="req">*</span>
+			<label for="applytype">申请类型：</label>
+			<select name="applytype" style="width:70px;">
+				<option value="">请选择</option>
+				#foreach($applyno in $applyMap.keySet())
+				<option value="$applyno" #if($extra.applytype eq $applyno)selected="selected"#end>$applyMap.get($applyno)</option>
+				#end
+			</select>
+			<span class="req">*</span>
+		</div><div>
+			<label for="sellprice">卖价：</label>
+			<input name="sellprice" style="width:70px;" id="sellprice" type="text" value="$!{extra.sellprice}" class="validate['digit[0,1200]']"/><span class="req" style="">*</span>
+			<label for="sellprice">发行人：</label>
+			<select name="issuerid">
+				<option value="">请选择...</option>
+				#foreach($user in $userList)
+				#set($userId = $user.id + "")
+				#if($userIdList && $userIdList.contains($userId))
+				<option value="$user.id" #if($user.id eq $extra.issuerid)selected="selected"#end>${user.realname}[$user.nickname]</option>
+				#end
+				#end
+			</select> <a href="javascript:setUserIds()">设置发行人</a>
+			<span class="req">*</span>
+			
+		</div>
+		<div>
+		<label for="merchantid" style="font-weight: bolder; cursor: pointer; " title="“0”表示Gewara自用券，填写影院影院商家表示该商家使用！">指定商户：</label>
+			<input name="merchantid" id="merchantid" style="width:70px;" type="text" value="$!{extra.merchantid}" class="validate['required']" /><span class="req">*</span>
+		</div>
+		<div>
+			<label for="category1" style="font-weight: bolder; cursor: pointer; " title="前期自己填写">券大分类：</label>
+			<input name="category1" style="width:90px;" id="category1" type="text" value="$!{extra.category1}"/>
+			<label for="category2" style="font-weight: bolder; cursor: pointer;" title="前期自己填写">二级分类：</label>
+			<input name="category2" style="width:90px;" id="category2" type="text" value="$!{extra.category2}"/>
+		</div><div>
+			<label for="channel">销售渠道：</label>
+			<input name="channel" id="channel" type="text" style="width:480px;" value="$!{extra.channel}" />
+			<span class="req">*</span>
+		</div><div>
+			<label>&nbsp;</label><input type="submit" class="button" style="width:100px" value="保存数据"/>
+		</div>
+	</form>
+	</div>
+</div>
+</div>
+
+<div id="setUserIdlist"  style="visibility: visible; z-index: 601; position: absolute; top: 227px; left: 422px;display:none">
+	<div style="width:450px;height:auto;position:relative;top:30px;left:-10px;background: none repeat scroll 0 0 #FFFFFF; border: 2px solid #74B3DC; border-collapse: collapse;color: #000000;margin-top: 2px;">
+		<ul style="margin:20px 25px">
+			<form action="${basePath}admin/eticket/setExtraUser.xhtml" id="userForms">
+				#foreach($user in $userList)
+				#set($userId = $user.id + "")
+				
+				<li>
+					<input type="checkbox" name="userIds" value="$user.id" #if($userIdList && $userIdList.contains($userId))checked = 'checked' #end/>${user.realname}[$user.nickname]
+				</li>
+				#end
+				<li>
+					<input type="button" style="width: 50px;" value="保存" onclick="saveUserList('setUserIdlist')">
+					<input type="button" style="width: 50px;" value="取消" onclick="javascript:GewaraUtil.hideDialog('setUserIdlist');">
+				</li>
+			</form>
+		</ul>
+	</div>
+</div>
+<script type="text/javascript">
+function setUserIds(){
+	GewaraUtil.showDialog('setUserIdlist');
+}
+function saveUserList(){
+	 var url = "${basePath}admin/eticket/setExtraUser.xhtml?1=1";
+	 $('userForms').getElements('input[type=checkbox]').each(function(item){
+		 if(item.checked){
+			 url += "&userIds=" + item.value;
+		 }
+	 })
+	 GewaraUtil.sendRequest(url, null, function(result){
+		 if(result.success){
+		 	alert("信息添加成功！");
+		 	refreshPage();
+		 }else {
+		 	alert(result.msg);
+		 }
+		 GewaraUtil.hideDialog(dialog);
+	 }); 
+}
+	window.addEvent("domready", function(){
+		new FormCheck("batchForm", {
+			tipsClass : "fc-tbx",
+			display : {
+				scrollToFirst : true
+			}
+		});
+	});
+	function saveBatch(){
+		GewaraUtil.mask();
+		var url = '${basePath}admin/eticket/saveExtra.xhtml';
+		var values = GewaraUtil.getValues("batchForm", ",");
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert("保存成功！");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

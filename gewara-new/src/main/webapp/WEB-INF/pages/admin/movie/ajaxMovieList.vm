@@ -1,0 +1,30 @@
+<table class="table">
+	<thead>
+	<tr>
+		<th>电影名称</th>
+		<th>加入时间</th>
+		<th>在线播放</th>
+	</tr>
+	</thead>
+	<tbody id="movieTable">
+	#foreach($movie in $movieList)
+	<tr>
+		<td>$movie.moviename</td>
+		<td>$!movie.addtime</td>
+		<td nowrap="nowrap" id="b$movie.id">
+		 #if($!relationVideoS.contains($movie.id))
+			<input type="button" style="width: 60px;" value="已关联" disabled="disabled"/>
+		#else
+			<input type="button" style="width: 60px;" value="关联视频" onclick="addRelation('$!movie.id')"/>
+		#end
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<script>
+	addRelation = function(movieId){
+		var url = "${basePath}admin/common/ajax/saveOrUpdateVideo.xhtml";
+		GewaraUtil.sendRequest(url, {"tag":"movieFilm","relatedid":movieId,"url":"$!{videoPlayUrl}","videotitle":"$!{videoName}","logo":"$!{videoImage}"}, saveRelationCallBack);
+	}
+</script>

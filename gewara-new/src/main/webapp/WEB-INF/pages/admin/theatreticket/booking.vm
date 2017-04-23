@@ -1,0 +1,426 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>影院预订情况</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		#set($maxwidth=33+30*$curSeatArea.ranknum)
+		#content{ width: ${maxwidth}px; background:#fff;}
+		.orD2 li{width:auto;margin-right:15px;}
+	</style>
+</head>
+<body>#set($isDpi=true)
+#parse('admin/theatreticket/menu.vm')
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<div class="checkOrder"><h2>场次信息</h2></div>
+		<div class="aboutMovie">
+			<p>
+				<span class="fs14">放映话剧：$opi.dramaname</span>
+				<span class="ml30 fs14">放映时间：$DateUtil.format($opi.playtime,"MM-dd HH:mm")（$DateUtil.getCnWeek($opi.playtime)）</span>
+				<span class="ml30 fs14">放映厅：${opi.roomname}</span>
+			</p>
+			#if($opi.openseat)
+			<p class="mt10">
+				<span class="fs14">当前区域名称：<b style="color:#ff6220">$!curSeatArea.name</b></span>
+				<span class="ml30 fs14">座位总数：<b style="color:#ff6220">$!curSeatArea.total</b></span>
+				<span class="ml30 fs14">已售座位：<b style="color:#ff6220">$!curSeatArea.gsellnum</b></span>
+				<span class="ml30 fs14">锁定座位：<b style="color:#ff6220">$!curSeatArea.locknum</b></span>
+				<span class="ml30 fs14">场馆锁定：<b style="color:#ff6220">$!curSeatArea.csellnum</b></span>
+			</p>
+			#end
+			<div>
+				<ul class="orderSet orD2">
+					#foreach($area in $areaList)
+					<li><a href="${basePath}admin/dramaTicket/booking.xhtml?itemid=$opi.dpid&areaid=$area.id" #if($area.id eq $!curSeatArea.id) style="color:#ff6220"#{else}class="yy"#end><h2>$area.areaname</h2></a></li>
+					#end
+				</ul>
+			</div>
+			<div class="mt10 gray">如果要锁定获取消某个座位，请点击该座位；#if($hfherror)<span style="color:red; font-size: 16px; font-weight: bold">$hfherror</span>#end</div>
+			<div class="gray">请注意，座位一旦被锁定，用户将不能预订该座位。</div>
+		</div>
+		#if($opi.isOpenseat()||$opi.isOpenArea())
+		<ul class="seatIntroduce">
+			<li><span>锁定原因：</span><input type="text" id="lockreason"/></li>
+			<li><span>排数：</span><input type="text" id="lockline"/></li>
+			<li><span>列数：</span><input type="text" id="lockrank"/></li>
+			<li><input type="button" onclick="batchLock()" value="批锁"/></li>
+			<li><input type="button" onclick="batchUnLock()" value="批解"/></li>
+		</ul>
+		<ul class="seatIntroduce">
+			<li><span>开放时间：</span><input type="text" #if($opi.expired)disabled="disabled"#else class="optime" id="$opi.id"#end value="$!DateUtil.format($opi.opentime,'yyyy-MM-dd HH:mm:ss')" onchange="setOpentime(this,$opi.id)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly"/></li>
+			<li><span>关闭：</span><input type="text" #if($opi.expired)disabled="disabled"#end value="$!DateUtil.format($opi.closetime,'yyyy-MM-dd HH:mm:ss')" onchange="setClosetime(this, $opi.id)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly"/></li>
+			<li><select id="$opi.dpid" onchange="setStatus(this, $opi.dpid);" #if($opi.expired || $opi.closed)disabled="disabled"#else class="opselect" #end>
+					<option value="N" #if($opi.status eq 'N')selected="selected"#end>不接受预订</option>
+					<option value="Y" #if($opi.status eq 'Y')selected="selected"#end>接受预订</option>
+					<option value="D" #if($opi.status eq 'D')selected="selected"#end>废弃场次</option>
+				</select>
+			</li>
+		</ul>
+		<div id="content" style="margin-left:40px;width:100%;height:100%;overflow-y:hidden;overflow-x:auto;">
+			#set($mleft=30+30*${section.ranknum} / 2 - 300)
+			<dl class="seattype" id="locktypeList">
+				<dd><div class="Bseat" id="B" title="剧院售出锁定"></div></dd>
+				<dd><div class="Cseat" id="C" title="保留座位锁定"></div></dd>
+				<dd><div class="Dseat" id="D" title="赠票锁定"></div></dd>
+			</dl>
+			<div id="height0"></div>
+			<div class="screen" style="margin-left:${mleft}px">银幕长$!{room.screenwidth}m 高$!{room.screenheight}m</div>
+			<ul class="seatlist" id="seatList" style="width:${maxwidth}px">
+				#set($classMap={'A':'Aseat','B':'Bseat','C':'Cseat','D':'Dseat','E':'Eseat','S':'sellSeat','W':'lockSeat'})
+				#foreach($row in [${curSeatArea.firstline}..$curSeatArea.linenum])
+				<li>
+					<dl class="seatpic">
+						<dt class="left" style="width:20px;">${row}</dt>
+						#foreach($rank in [${curSeatArea.firstrank}..$curSeatArea.ranknum]) #set($sid='row'+${row}+'rank'+$rank)
+						#if($seatMap.get($sid))#set($seat=$seatMap.get($sid))
+						<dd><div id="$seat.id" class="$!classMap.get($seatStatusUtil.getFullStatus($seat))" title="$!seatStatusUtil.getFullStatus($seat), ${seat.seatLabel},$!{seat.remark}">#if($rLockList.contains($seat.key))x#end#if($seat.loveInd ne "0")$!seat.loveInd#end</div></dd>
+						#{else}<dd><div class="noSeat"></div></dd> #end
+						#end
+					</dl>
+				</li>
+				#end
+				<li class="head"><dl><dt style="width:20px;"></dt>#foreach($rank in [${curSeatArea.firstrank}..$curSeatArea.ranknum])<dd style="width:30px">${rank}</dd>#end</dl></li>
+			</ul>
+			<div id="height0"></div>
+		</div>
+		#end
+		<ul class="orderSet mt20">
+			<li id="all" #if($VmUtils.isBlank($params.ordertype))class="seeOrder"#end><a href="${basePath}admin/dramaTicket/booking.xhtml?itemid=$opi.dpid&areaid=$!params.areaid" class="blue">全部</li>
+			<li id="paid" #if($params.ordertype eq 'paid')class="seeOrder"#end><a href="${basePath}admin/dramaTicket/booking.xhtml?itemid=$opi.dpid&ordertype=paid&areaid=$!params.areaid" class="blue">已付款</a></li>
+			<li id="new" #if($params.ordertype eq 'new')class="seeOrder"#end><a href="${basePath}admin/dramaTicket/booking.xhtml?itemid=$opi.dpid&ordertype=new&areaid=$!params.areaid" class="blue">待付款</a></li>
+			<li id="paid_success" #if($params.ordertype eq 'paid_success')class="seeOrder"#end><a href="${basePath}admin/dramaTicket/booking.xhtml?itemid=$opi.dpid&ordertype=paid_success&areaid=$!params.areaid" class="blue">交易成功</a></li>
+			<li id="paid_unconfirm" #if($ordertype eq 'paid_unconfirm')class="seeOrder"#end><a href="${basePath}admin/dramaTicket/booking.xhtml?itemid=$opi.dpid&ordertype=paid_unconfirm&areaid=$!params.areaid" class="blue">付款待确认</a></li>
+			<li id="paid_failure" #if($params.ordertype eq 'paid_failure')class="seeOrder"#end><a href="${basePath}admin/dramaTicket/booking.xhtml?itemid=$opi.dpid&ordertype=paid_failure&areaid=$!params.areaid" class="blue">交易失败</a></li>
+			<li id="cancel" #if($params.ordertype eq 'cancel')class="seeOrder"#end><a href="${basePath}admin/dramaTicket/booking.xhtml?itemid=$opi.dpid&ordertype=cancel&areaid=$!params.areaid" class="blue">已取消</a></li>
+		</ul>
+		<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+			<thead>
+				<tr>
+					<th width="20">订单编号</th>
+					<th width="100">订单号</th>
+					<th width="90">下单时间</th>
+					<th width="75">手机号</th>
+					<th>用户</th>
+					<th style="width:230px;">座位</th>
+					<th>数量</th>
+					<th>总价</th>
+					<th width="80">状态</th>
+					<th>收件人</th>
+					<th style="width:75px;">联系电话</th>
+					<th style="width:150px;">地址</th>
+					<th>快递方式</th>
+					<th style="width:75px;">快递单号</th>
+					<th width="400">
+						<table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0;">
+							<tr>
+								<th width="10%">物品名称</th>
+								<th width="10%">场馆</th>
+								<th width="10%">单价</th>
+								<th width="10%">数量</th>
+								<th width="10%">套票优惠</th>
+								<th width="10%">总价</th>
+								<th width="10%">取票密码</th>
+								<th width="10%">操作</th>
+							</tr>
+						</table>
+					</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">#set($totalSeat=0)
+				#foreach($order in $orderList)
+				#set($dmap=$VmUtils.readJsonToMap($order.description2))
+				#set($totalSeat=$totalSeat+$order.quantity)
+				#set($buytimes=$VmUtils.getJsonValueByKey($order.changehis, "buytimes"))
+				#set($orderAddress=$addressMap.get($order.tradeNo))
+				#set($tmpNoteMap=$noteMap.get($order.id))
+				#set($playText=$dmap.get('时间'))
+				#set($seatText=$dmap.get('座位'))
+				<tr class="grayBg h" id="row${order.id}">
+					<td>$order.id</td>
+					<td><a href="${basePath}admin/order/getOrderInfo.xhtml?orderId=$order.id" target="_blank">$order.tradeNo</a></td>
+					<td>$DateUtil.format(${order.addtime},'MM-dd HH:mm:ss')</td>
+					<td #if($VmUtils.isNotBlank($order.remark))title="$order.remark" style="color:red"#end onclick="showMobile($order.id,$order.mobile)"><span name="demobile" id="order$order.id" title="$VmUtils.getSmobile($order.mobile)">$VmUtils.getSmobile($order.mobile)</span></td>
+					<td><a href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$order.memberid" target="_blank">$order.membername</a></td>
+					<td #if($buytimes)style="color:green; cursor: pointer; font-weight: bold;" title="曾经购买次数：$buytimes"#end>
+						#set($seatText=$dmap.get('座位'))#if($VmUtils.isNotBlank($seatText))$seatText#end
+					</td>
+					<td>$order.quantity</td>
+					<td>#if($order.discount gt 0)<span style="color:red;font-weight: bold;" title="$order.disreason">${order.totalAmount}</span>#else${order.totalAmount}#end</td>
+					<td>${order.statusText}</td>
+					#if($orderAddress)
+					<td>$!{orderAddress.realname}</td>
+					<td onclick="showMobile($!orderAddress.tradeno,$orderAddress.mobile)"><span name="demobile" id="order$!orderAddress.tradeno" title="$!orderAddress.mobile">#if($VmUtils.isBlank($xls))$!VmUtils.getSmobile($!{orderAddress.mobile})#{else} $!{orderAddress.mobile} #end</span></td>
+					<td>$!{orderAddress.provincename}&nbsp;&nbsp;$!{orderAddress.cityname}&nbsp;&nbsp;$!{orderAddress.countyname}$!{orderAddress.address}</td>
+					#else
+					<td></td>
+					<td></td>
+					<td></td>
+					#end
+					#if($orderAddress)
+							#set($orderMap = $VmUtils.readJsonToMap($!order.otherinfo))
+						<td>
+							#if($!xls)
+								$!orderMap.get('expressMode')
+							#else
+								<input type="text" id="expressMode$!order.id" name="expressMode" onchange="setExpressNo($!order.id)" style="width: 75px;" value="$!orderMap.get('expressMode')" />
+							#end	
+						</td>
+						<td>
+							#if($!xls)
+								$!orderMap.get('expressNo')
+							#else
+								<input type="text" id="expressNo$!order.id" name="expressNo" style="width: 75px;" onchange="setExpressNo($!order.id)" value="$!orderMap.get('expressNo')" />
+							#end
+						</td>
+					#else
+						<td></td>
+						<td></td>
+					#end
+					<td width="400">
+					<table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0;">
+					#foreach($note in $tmpNoteMap.values())
+					<tr class="grayBg h abcd">
+						<td width="10%">$!{playText} , $!{seatText}</td>
+						<td width="10%">$!note.placename</td>
+						<td width="10%">$!{order.unitprice}</td>
+						<td width="10%">$!{order.quantity}</td>
+						<td width="10%">0</td>
+						<td width="10%">$!order.totalfee</td>
+						<td width="10%">$!note.checkpass</td>
+						<td width="20%">#if(!$VmUtils.isBlank($!note.message))[<span style="color: red;">已发</span>]#{end}#if($VmUtils.eq($order.status,'paid_success'))<a href="javascript:void(0)" onclick="sendMessage('$!note.id',$VmUtils.isNotBlank($!note.message))" title="#if(!$VmUtils.isBlank($!note.message))短信已加入#end">重发短信</a>#end</td>
+					</tr>
+					#end
+					</table>
+					</td>
+					<td>
+						#if($order.notAllPaid)
+								<span style="color:red; font-size: 18px; font-weight:bolder;">付款金额与订单金额不等，请退款</span>
+						#elseif($order.paidFailure || $order.paidUnfix)
+							#if($opi.isOpenseat())
+								#if($order.canProcess())
+									#if(!$opi.hasGewara())
+										<a href="${basePath}admin/dramaTicket/reConfirmOrder.xhtml?orderId=$order.id" target="_blank"#if($otherMap.get("processError")) title="上次错误：$otherMap.get('processError')"#end>重下订单</a>
+									#end
+										<input type="button" class="bt1" value="确认成功" onclick="confirmOrder($order.tradeNo, this)"#if($otherMap.get("processError")) title="上次错误：$otherMap.get('processError')"#end/>
+										<input type="button" class="bt1" value="修改座位" onclick="modifySeat($order.id)"#if($otherMap.get("processError")) title="上次错误：$otherMap.get('processError')"#end/>
+								#else
+									<span>请1-5分钟后处理</span>
+								#end
+							#else
+								<a href="${basePath}admin/dramaTicket/reConfirmOrder.xhtml?orderId=$order.id" target="_blank"#if($otherMap.get("processError")) title="上次错误：$otherMap.get('processError')"#end>重下订单</a>
+								<input type="button" class="bt1" value="确认成功" onclick="confirmOrder($order.tradeNo, this)"#if($otherMap.get("processError")) title="上次错误：$otherMap.get('processError')"#end/>
+							#end
+						#end
+						<a href="${basePath}admin/dramaTicket/printDramaOrder.xhtml?orderid=$!order.id&xls=pdf">导出pdf</a>
+					</td>
+				</tr>
+				#end
+				<tr><td colspan="11">订单总数：$VmUtils.size($orderList), 座位总数：$totalSeat</td></tr>
+			</tbody>
+		</table>
+		
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+#if(!$opi.expired && $opi.isOpenseat())
+<div id="modifyDialog" class="yui-panel" style="width:450px; visibility:hidden; z-index:20;background: #000">
+	<div style="width:430px;margin:10px;background:#FFF;">
+		<div style="text-align:center;height:20px;line-height: 20px;">
+			<strong>修改订单座位</strong>
+		</div>
+		<div class="bd" style="text-align:center;">
+			<form name="seatForm" id="seatForm">
+				<input type="hidden" name="orderid" id="orderid" />
+				<div>座位的总价格必须与原座位相同，多个座位用英文逗号分隔，输入格式比如“5排03座,5排04座”，如入为：”5:03,5:04“</div>
+				<div style="padding:0 40px;text-align:left">
+					<label for="newseat" style="display:inline-block;">输入座位：</label>
+					<input name="newseat" id="newseat" style="150px;display:inline-block;border-width:1px;border-style:solid;border-color:#404040 #CCC #CCC #404040;"/>
+					<span class="req">&nbsp;</span>
+				</div>
+				<div>
+					<label>&nbsp;</label>
+					<input type="button" class="cbt1" onclick="save(this);" value="保存"/>
+					<input type="button" class="cbt1" onclick="GewaraUtil.hideDialog('modifyDialog');" value="取消"/>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	var locktype="B";
+	window.addEvent("domready", function(){
+		$('locktypeList').pin();
+		new ClassGroup($("locktypeList").getElements("div"), $("locktypeList").getElement("div"), "match");
+		$$("#locktypeList div").addEvent("click",function(){
+			locktype = this.id;
+		});
+		$$(".seatlist dd div").addEvent('click',function(){
+			if(this.hasClass("Aseat") || hasLockClass(this)) changeStatus(this);
+		});
+	});
+	function hasLockClass(el){
+		return el.hasClass("Bseat") || el.hasClass("Cseat") || el.hasClass("Dseat") || el.hasClass("Eseat");
+	}
+	function changeStatus(el){
+		if(el.hasClass('Aseat')){//原来能购票, 现在手工锁住
+			lockSeat(el);
+		}else if(hasLockClass(el)){//原来手工锁住，现在释放
+			releaseSeat(el);
+		}
+	}
+	function releaseSeat(el){
+		var values = {"itemid":$!opi.dpid, "seatId":el.id};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/releaseSeat.xhtml', values, function(result){
+			if(result.success){
+				el.set('class','Aseat');
+			}else{
+				refreshPage();
+				alert("操作失败，座位状态已经改变，自动刷新页面！");
+			}
+		});
+	}
+	function lockSeat(el){
+		var values = {"itemid":$!opi.dpid, "seatId":el.id, "locktype":locktype, "lockreason":$("lockreason").value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/lockSeat.xhtml', values, function(result){
+			if(result.success){
+				el.set('class', locktype + "seat");
+			}else{
+				refreshPage();
+				alert("操作失败，座位状态已经改变，自动刷新页面！");
+			}
+		});
+	}
+	function batchLock(){
+		var values = {"itemid":$!opi.dpid,"areaid":$curSeatArea.id, "locktype":locktype, "lockreason":$("lockreason").value,
+		"lockline":$('lockline').value, "lockrank":$('lockrank').value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/batchLockSeat.xhtml', values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function batchUnLock(){
+		var values = {"itemid":$!opi.dpid, "areaid":$curSeatArea.id,"lockline":$('lockline').value, "lockrank":$('lockrank').value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/batchUnLockSeat.xhtml', values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function modifySeat(orderId){
+		$("orderid").value=orderId;
+		GewaraUtil.showDialog("modifyDialog");
+	}
+	function save(el){
+		el.disabled=true;
+		var url = "${basePath}admin/dramaTicket/changeSeat.xhtml";
+		GewaraUtil.sendRequest(url, GewaraUtil.getValues("seatForm"), function(result){
+			el.disabled=false;
+			if(result.success) refreshPage();
+			else alert(result.msg);
+		});
+	}
+	
+	function setOpenTime(el, itemid){
+		el.setStyle("background","red");
+		var values = {"itemid":itemid,"opentime":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/setOpenTime.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function setCloseTime(el, itemid){
+		el.setStyle("background","red");
+		var values = {"itemid":itemid,"closetime":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/setCloseTime.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function setStatus(el, itemid){
+		el.setStyle("background","red");
+		var values = {"itemid":itemid,"status":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/setStatus.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+#end
+<script type="text/javascript">
+	function showMobile(orderid, mobile){
+		$('tbody').getElements('span[name=demobile]').each(function(item){
+			item.set('html', item.title);
+			item.removeClass('yellow');
+			$('order' + orderid).set('html', mobile);
+			$('order' + orderid).addClass('yellow');
+		});
+	}
+	function setExpressNo(orderid){
+		var url = '${basePath}admin/dramaTicket/setExpressNo.xhtml';
+		var expressMode = $('expressMode'+orderid).value;
+		var expressNo = $('expressNo'+orderid).value;
+		if(expressMode==""&&expressNo!=""){
+			alert("快递方式与快递单号需同时存在！");
+			return;
+		}
+		if(expressMode!=""&&expressNo!=""){
+			var values = {'orderId':orderid,'expressNo':expressNo,'expressMode':expressMode};
+			GewaraUtil.mask(obj);
+			GewaraUtil.sendRequest(url, values, function(result){
+				GewaraUtil.unmask();
+				if(!result.success){
+					alert(result.msg);	
+				}
+			});
+		}
+	}
+	sendMessage = function(id, el){
+		if(el && el == true){
+			if(!window.confirm('短信已发送成功，确定重发?')) return;
+		}
+		var url = "${basePath}admin/order/sendOrderNoteSms.xhtml";
+		var values = {"id":id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('发送成功');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function confirmOrder(tradeNo, el){
+		var url = "${basePath}admin/dramaTicket/failConfirm.xhtml";
+		GewaraUtil.mask(el);
+		GewaraUtil.sendRequest(url, {"tradeNo":tradeNo}, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				refreshPage();
+			}else alert(result.msg);
+		})
+	}
+</script>
+</body>
+</html>

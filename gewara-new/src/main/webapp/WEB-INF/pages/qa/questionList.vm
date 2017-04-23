@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	#set($tagMap={'cinema':'电影','movie':'电影','gym':'健身','gymcourse':'健身','ktv':'KTV','bar':'酒吧','theatre':'演出','drama':'演出','sport':'运动','sportservice':'运动','activity':'活动','other':'其他'})
+	<title>#if($relate2)$relate2.name问答-#end#if($relate)$relate.name问答-#end#if($VmUtils.isNotBlank($!params.tag) && !$relate && !$relate2)$!tagMap.get($!params.tag)问答_#end格瓦拉知道_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,qa&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($tag="qa") #set($isqa=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="gb-qa-panel">
+	<div class="gb-l">
+		#parse('include/qa.vm')
+		<ul class="way mt20">
+			<li><a href="${basePath}" class="sred">首页</a></li>
+			<li><span class="mr5 ml5">-</span><a href="${basePath}qa/" class="sred">知道首页</a></li>
+			<li #if($VmUtils.isNotBlank($!params.tag)||$VmUtils.isNotBlank($!params.category)) #end>
+				<span class="mr5 ml5">-</span><a href="${basePath}qa/questionList.xhtml" class="sred">全部</a></li>
+			#if($VmUtils.isNotBlank($!params.tag))<li><span class="mr5 ml5">-</span><a href="${basePath}qa/questionList.xhtml?tag=$!params.tag" class="sred">$!tagMap.get($!params.tag)知道</a></li>#end
+			#if($relate)<li><span class="mr5 ml5">-</span><a href="${basePath}qa/questionList.xhtml?tag=$!params.tag&relatedid=$!relate.id" class="sred">$!relate.name</a></li>#end
+			#if($relate2)<li><span class="mr5 ml5">-</span>$!relate2.name</li>#end
+		</ul>
+		#if($VmUtils.isNotBlank($!params.tag) && !$VmUtils.eq($!params.tag,'other'))
+		<div class="qa-choose">
+			<h2>$!tagMap.get($!params.tag)&nbsp;</h2>
+			<ul class="mt10">
+				#if($VmUtils.eq($!params.tag,'cinema') || $VmUtils.eq($!params.tag,'movie'))
+				#foreach($movie in $movieList)
+				<li><a href="${basePath}qa/questionList.xhtml?category=movie&categoryid=${movie.id}">$!VmUtils.escabbr($movie.name,30)</a></li>
+				#end
+				#foreach($cinema in $cinemaList)
+				<li><a href="${basePath}qa/questionList.xhtml?tag=cinema&relatedid=${cinema.id}">$!VmUtils.escabbr($cinema.name,30)</a></li>
+				#end
+				#elseif($VmUtils.eq($!params.tag,'gym') || $VmUtils.eq($!params.tag,'gymcourse'))
+				#foreach($course in $courseList)
+				<li><a href="${basePath}qa/questionList.xhtml?category=gymcourse&categoryid=$course.id">$!VmUtils.escabbr($course.name,30)</a></li>
+				#end
+				#foreach($gym in $gymList)
+				<li><a href="${basePath}qa/questionList.xhtml?tag=gym&relatedid=$gym.id">$!VmUtils.escabbr($gym.name,30)</a></li>
+				#end
+				#elseif($VmUtils.eq($!params.tag,'ktv'))
+				#foreach($ktv in $ktvList)
+				<li><a href="${basePath}qa/questionList.xhtml?tag=ktv&relatedid=$ktv.id">$!VmUtils.escabbr($ktv.name,30)</a></li>
+				#end
+				#elseif($VmUtils.eq($!params.tag,'bar'))
+				#foreach($bar in $barList)
+				<li><a href="${basePath}qa/questionList.xhtml?tag=bar&relatedid=$bar.id">$!VmUtils.escabbr($bar.name,30)</a></li>
+				#end
+				#elseif($VmUtils.eq($!params.tag,'sport') || $VmUtils.eq($!params.tag,'sportservice'))
+				#foreach($service in $sportItemList)
+				<li><a href="${basePath}qa/questionList.xhtml?category=sportservice&categoryid=$service.id">$!VmUtils.escabbr($service.name,30)</a></li>
+				#end
+				#foreach($sport in $sportList)
+				<li><a href="${basePath}qa/questionList.xhtml?tag=sport&relatedid=$sport.id">$!VmUtils.escabbr($sport.name,30)</a></li>
+				#end
+				#end
+				#if($VmUtils.eq($!params.tag,'theatre') || $VmUtils.eq($!params.tag,'drama'))
+				#foreach($drama in $dramaList)
+				<li><a href="${basePath}qa/questionList.xhtml?category=drama&categoryid=${drama.id}">$!VmUtils.escabbr($drama.name,30)</a></li>
+				#end
+				#foreach($theatre in $theatreList)
+				<li><a href="${basePath}qa/questionList.xhtml?tag=theatre&relatedid=${theatre.id}">$!VmUtils.escabbr($theatre.name,30)</a></li>
+				#end
+				#end
+			</ul>
+		</div>
+		#end
+		<div class="title-bg-bar mt20">
+			<ul class="bg-qa-bar">
+				#if($VmUtils.isBlank($!params.status))
+				<li class="ck-bar">全部<span>&nbsp;</span></li>
+				#else
+				<li><a href="${basePath}qa/questionList.xhtml?order=$!params.order&tag=$!{params.tag}&category=$!{params.category}&relatedid=$!{params.relatedid}&categoryid=$!{params.categoryid}">全部</a><span>&nbsp;</span></li>
+				#end
+				#if($VmUtils.eq($!params.status,'N'))
+				<li class="ck-bar">待解决<span>&nbsp;</span></li>
+				#else
+				<li><a href="${basePath}qa/questionList.xhtml?status=N&order=$!params.order&tag=$!{params.tag}&category=$!{params.category}&relatedid=$!{params.relatedid}&categoryid=$!{params.categoryid}">待解决</a><span>&nbsp;</span></li>
+				#end
+				#if($VmUtils.eq($!params.status,'Y'))
+				<li class="ck-bar">已解决<span>&nbsp;</span></li>
+				#else
+				<li><a href="${basePath}qa/questionList.xhtml?status=Y&order=$!params.order&tag=$!{params.tag}&category=$!{params.category}&relatedid=$!{params.relatedid}&categoryid=$!{params.categoryid}">已解决</a><span>&nbsp;</span></li>
+				#end
+				#if($VmUtils.eq($!params.status,'Z'))
+				<li class="ck-bar">零回答<span>&nbsp;</span></li>
+				#else
+				<li><a href="${basePath}qa/questionList.xhtml?status=Z&order=$!params.order&tag=$!{params.tag}&category=$!{params.category}&relatedid=$!{params.relatedid}&categoryid=$!{params.categoryid}">零回答</a><span>&nbsp;</span></li>
+				#end
+			</ul>
+			<div class="right">
+				#if($VmUtils.eq($!params.order,'updatetime'))
+				<span class="mr5 bold">按更新时间排序</span>
+				#else
+				<a href="${basePath}qa/questionList.xhtml?status=$!{params.status}&order=updatetime&tag=$!{params.tag}&category=$!{params.category}&relatedid=$!{params.relatedid}&categoryid=$!{params.categoryid}">按更新时间排序</a>
+				#end
+				&nbsp;&nbsp;
+				#if($VmUtils.eq($!params.order,'addtime') || $VmUtils.isBlank($!params.order))
+				<span class="mr5 bold">按创建时间排序</span>
+				#else
+				<a href="${basePath}qa/questionList.xhtml?status=$!{params.status}&order=addtime&tag=$!{params.tag}&category=$!{params.category}&relatedid=$!{params.relatedid}&categoryid=$!{params.categoryid}" class="ml5">按创建时间排序</a>
+				#end
+			</div>
+		</div>
+		<div class="bg-qa-list mt20" style="width:98%">
+			<table cellpadding="0" width="100%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th>标题(共$count项)</th>
+						<th><span class="val">经验值</span></th>
+						<th><span class="ret">回答数</span></th>
+						<th><span class="wt">提问时间</span></th>
+					</tr>
+				</thead>
+				<tbody>
+					#foreach($question in $questionList)
+						<tr>
+							<td #if($VmUtils.eq($question.questionstatus,'Y')) class="solve" #else class="qus" #end><a href="${basePath}qa/q$question.id" class="sred fs14" title="$question.title" target="_blank">$!VmUtils.escabbr($question.title,25)</a><span class="ml5"><a href='${basePath}qa/questionList.xhtml?tag=$!{question.tag}' target="_blank">$!tagMap.get($question.tag)</a></span></td>
+							<td align="center">$question.reward</td>
+							<td align="center">$question.replycount</td>
+							<td align="right">$DateUtil.format($question.addtime,'yyyy-MM-dd HH:mm')</td>
+						</tr>
+					#end
+				</tbody>
+			</table>
+		</div>
+		<div id="page">#parse('include/pageUtil.vm')</div>
+	</div>
+	#parse('include/qaright.vm')
+	<div id="height0"></div>
+</div>
+	<script type="text/javascript">
+function search(e,value){
+	$(e).value = value;
+	$('searchForm').submit();
+}
+</script>
+#parse('include/bottom.vm')
+#parse('include/qaexpert.vm')
+</body>
+</html>

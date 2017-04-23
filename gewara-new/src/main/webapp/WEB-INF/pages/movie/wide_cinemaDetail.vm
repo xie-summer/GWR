@@ -1,0 +1,588 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>#if($VmUtils.isBlank($cinema.seotitle))$!{cookieCityname}$!{cinema.name}【正在售票】_排片表_票价_影讯 - 格瓦拉生活网#else${cinema.seotitle}【正在售票】_排片表_票价_影讯 - 格瓦拉生活网#{end}</title>
+	<meta name="description" content="#if($VmUtils.isBlank($cinema.seodescription))$!{cinema.name}优惠售票.打折!特价!格瓦拉@电影提供每日$!{cinema.name}排片表,$!{cinema.name}票价及最新影片影讯信息. $!{cinema.name}[地址]及[停车]交通指南.#else${cinema.seodescription}#end"/> 
+	<meta name="keywords" content="#if($VmUtils.isBlank($cinema.seodescription))$!{cinema.name},排片,影讯,票价#else$!{cinema.seodescription}#end " />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_movie,wide_cinema&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,noobSlide,scrollerbar,tips,page,raphael,picture&v=$VmUtils.jsVersion"></script>
+	#if($headInfo)
+	<style type="text/css">
+		html{background:$!headInfo.css url($VmUtils.randomPic('',$!headInfo.logosmall)) 0 50px repeat-x;}
+		body{background:transparent url($VmUtils.randomPic('',$!headInfo.logobig)) center 50px no-repeat;}
+	</style>
+	#end
+</head>
+<body>
+#set($ismovie=true)#set($isIntro=true)#set($keytag="cinema")
+#set($cfgHeader='header')
+#*
+#set($isIndexBigAd=true)
+*#
+#parse('include/wide_header.vm')
+#set($otherinfo=$VmUtils.readJsonToMap($cinema.otherinfo))
+#*影院服务*#
+#set($showservice=false)
+#if($VmUtils.isNotBlank($otherinfo.get('sale')) ||
+	$VmUtils.isNotBlank($otherinfo.get('imax')) ||
+	$VmUtils.isNotBlank($otherinfo.get('child')) ||
+	$VmUtils.eq($cinemaProfile.isRefund,'Y') ||
+	$VmUtils.isNotBlank($otherinfo.get('restregion')) ||
+	$VmUtils.isNotBlank($otherinfo.get('shoppingTime')))
+	#set($showservice=true)
+#end
+
+#*周边设施*#
+
+#set($showAround=false)
+#if($VmUtils.isNotBlank($otherinfo.get('food')) ||
+	$VmUtils.isNotBlank($otherinfo.get('recreation')) ||
+	$VmUtils.isNotBlank($otherinfo.get('shopping')))
+	#set($showAround=true)
+#end
+#*交通*#
+#set($map_place=$cinema)
+#set($showTraffic=false)
+#if($VmUtils.isNotBlank($map_place.rTransport) ||
+	$VmUtils.isNotBlank($map_place.subwayTransport))
+	#set($showTraffic=true)
+#end
+ 
+#if($VmUtils.isNotBlank($map_place.otherinfo))
+	#set($parkOtherInfoMap=$VmUtils.readJsonToMap($map_place.otherinfo))
+	#set($park = $parkOtherInfoMap.get('park'))
+	#if($park || $parkOtherInfoMap.get('parkRecommendRemark') || $parkOtherInfoMap.get('otherPark'))
+		#set($showTraffic=true)
+	#end
+#end
+<div class="ui_layout detail_body detail_cinema_warp">
+	#parse('include/movie/mod_theatreHeader.vm')
+	<div class="detail_content clear">
+		<div class="ui_left">
+			<div class="mod_tabs mod_tabs_movie">
+				<div class="mod_hd">
+					#*<a id="showNotice" class="sNotice right" href="javascript:showNotice();" title="开放购票通知">开放购票通知</a>*#
+					<ul class="nav_tabs" id="nav_tabsDiv" style="overflow:visible;">
+						<li class="select" id="theatraInfoBoxTab"><a href="$!{basePath}cinema/$cinema.id?cinemaMpiList=true">排片购票</a></li>
+						#if(!$VmUtils.isEmptyList($ctypeList))
+						<li style="position:relative;" id="speRoomPlayItemTab"><a href="javascript:navTabsChanged('speRoomPlayItemTab');" >特效厅</a><em class="ui_tags_newTxt"></em></li>
+						#end
+						<li id="walaInfoBoxTab"><a href="javascript:navTabsChanged('walaInfoBoxTab');" >哇啦<em>($!commnetCount)</em></a></li>
+						<li id="theatraIntruduceTab"><a href="javascript:navTabsChanged('theatraIntruduceTab');" >简介&amp;公告</a></li>
+					</ul>
+				</div>
+				<div class="mod_bd clear">
+					<input type="hidden" id="paramsCinemaId" value="$!params.cid"/>
+					<input type="hidden" id="fyrq" value="$!fyrq"/>
+					<input type="hidden" id="paramsCinemaName" value="$!params.cinemaname"/>
+					<div class="" id="theatraInfoBox">
+						<div class="" id="cinemaDatePlayItemList">
+							#parse('cinema/wide_ajax_buyTicket.vm')
+						</div>
+						<div class="none" id="cinemaSpeRoomPlayItemList">
+							#parse('cinema/wide_ajax_speRoomInfo.vm')
+							#parse('cinema/wide_ajax_speRoom.vm')
+						</div>
+						#parse('include/movie/mod_NcinemaServer.vm')
+					</div>
+					<div id="walaInfoBox"></div>
+					<div id="theatraIntruduce"></div>
+					<!-- wala info -->
+					<div class="mod_tabs cinecism speCinecism ptt20" id="walaCon">
+						<div class="mod_hd" id="palayitemheader">
+							<ul class="nav_tabs">
+								<li class="select"><a onclick="getWalaList('palayitemheader', this,'flowernum');" href="javascript:void(0);">热门哇啦</a></li>
+								<li><a onclick="getWalaList('palayitemheader', this,'');" href="javascript:void(0);">最新哇啦</a></li>
+							</ul>
+						</div>
+						<div class="mod_hd lineTabs" id="walaheader" style="display:none;">
+							<ul class="tabs clear">
+								<li class="select"><a onclick="getWalaList('walaheader',this,'flowernum');" href="javascript:void(0);">热门哇啦</a></li>
+								<li><a onclick="getWalaList('walaheader',this,'');" href="javascript:void(0);">最新哇啦</a></li>
+							</ul>
+						</div>
+						<div class="mod_bd">
+							<div id="cinemaWalaDetail" class="mt20"></div>
+						</div>
+					</div>
+					<!-- wala info -->
+				</div>
+			</div>
+		</div>
+		<div class="ui_right">
+			#parse('include/movie/mod_cinemaFavorable.vm')
+			#parse('include/movie/mod_cinemaSale.vm')
+			#parse('include/movie/mod_cinemaAct.vm')
+			#parse('include/movie/mod_hotActivity.vm')
+			#parse('include/movie/mod_mostLikeMovieList.vm')
+			#parse('include/movie/mod_announcementl.vm')
+			#parse('include/movie/mod_recentCinemaList.vm')
+			#parse('include/movie/mod_news.vm')
+			#parse('include/movie/mod_theatrebbs.vm')
+			#parse('include/movie/mod_rimVenue.vm')
+			#parse('include/treasure.vm')
+			#parse('include/global/new_scorelevel.vm')
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	#if(!$VmUtils.isEmptyList($playdateList))
+		if(gewaUtil.getRequestParams("cinemaIntruduceTab") == 'true'){
+			navTabsChanged('theatraIntruduceTab');
+		}else if(gewaUtil.getRequestParams("walaInfoBoxTab") == 'true'){
+			navTabsChanged('walaInfoBoxTab');
+		}else{
+			lazyPlayItem('$!fyrq','');
+		}
+	#else
+		if(gewaUtil.getRequestParams("walaInfoBoxTab") == 'true'){
+			navTabsChanged('walaInfoBoxTab');
+		}else if(!(gewaUtil.getRequestParams("cinemaMpiList") == 'true')){
+			navTabsChanged('theatraIntruduceTab');
+		}
+	#end
+	myTreasure('cinema','$cinema.id');
+});
+function showNotice(){
+	checkLogin(true,function(){
+		gewa.util.issure('','movieInfo','开放购票通知',500,'movieInfo',function(){
+			$('mform').submit();
+		});
+	});
+}
+lazyPlayItem = function (fyrq,element){
+	GewaraUtil.mask('cinemaPlayList');
+	var url = "${basePath}cinema/ajax/getCinemaPlayItem.xhtml";
+	var values = {'cid':'$!cinema.id','mid':'$!params.mid','fyrq':fyrq};
+	gewara.util.sendLoad('cinemaPlayList', url, values, function(result){
+		gewara.util.unmask();
+		if($('timeOutside')){
+		var elements = $('timeOutside').getElements('a');
+			elements.each(function(item,index){
+				/* 选中状态切换 */
+				if (item.get("id") == fyrq || (fyrq == "" && index == 0)){
+					item.addClass("select");
+				}else{
+					item.removeClass("select");
+				}
+				if(!item.hasEvent('click')){
+					item.addEvent('click',function(){
+						lazyPlayItem(this.get('id'),this);
+					})
+				}
+			});
+		}
+		if($$('.playItemContent').length > 0){
+			$$('.playItemContent').each(function(playitem,index){
+				nodeBindPlay(playitem);
+				nodeBindMove(playitem,index,'cinema');
+				if(index != 0)playitem.addClass('none');
+			})
+			var choice = $('choice');
+			if(choice){
+				choiceOpiList();
+				choice.getElements('a').addEvent('click',function(e){
+					e.preventDefault();
+					var isbind=true,count=0;
+					choice.getElements('a').removeClass('select');
+					filterElement(this.get('id'));
+					this.addClass('select');	
+				});
+			};
+			if(values.mid != ''){choice.getElements('a').removeClass('select');isMovieId(choice.getElements('a'),values.mid);}
+		}
+		playListPrivilege();
+		choiceRoomInfo();
+		var goPostion = gewaUtil.getRequestParams("goPostion");
+		if($(goPostion)){
+			$(goPostion).fireEvent("click");
+			gewa.util.pagePos(goPostion);
+		}
+	},fyrq);
+};
+
+lazySpePlayItem = function(fyt,element){
+	var element = $(element);
+	if(element){
+		GewaraUtil.mask(element);
+		var url = "${basePath}cinema/ajax/getSpePlayItem.xhtml";
+		var values = {'ctype':fyt,"cid":'$!{cinema.id}'};
+		gewara.util.sendLoad('cinemaSpePlayList', url, values, function(result){
+			gewara.util.unmask();
+			if($('roomOutside')){
+				var elements = $('roomOutside').getElements('a');
+				elements.each(function(item,index){
+					/* 选中状态切换 */
+					if (item.get("id") == fyt || (fyt == "" && index == 0)){
+						item.addClass("select");
+					}else{
+						item.removeClass("select");
+					}
+					if(!item.hasEvent('click')){
+						item.addEvent('click',function(){
+							lazySpePlayItem(this.get('id'),'cinemaSpePlayList');
+						})
+					}
+				});
+			};
+			if($$('.roomPlayItem').length > 0){
+				$$('.roomPlayItem').each(function(playitem,index){
+					nodeBindPlay(playitem);
+					nodeBindMove(playitem,index,'spe');
+					if(index != 0)playitem.addClass('none');
+				});
+				var choice = $('choiceDate');
+				if(choice){
+					choice.getElements('a').addEvent('click',function(e){
+						e.preventDefault();
+						var isbind=true,count=0;
+						choice.getElements('a').removeClass('select');
+						filterElement(this.get('id'),true);
+						this.addClass('select');	
+					});
+				};
+				//if(values.mid != ''){choice.getElements('a').removeClass('select');isMovieId(choice.getElements('a'),values.mid);}
+				//choice.getElements('a').removeClass('select');isMovieId(choice.getElements('a'),201311111);
+			};
+			playListPrivilege();
+			opiInfoToggle();
+			var goPostion = gewaUtil.getRequestParams("goPostion");
+			if($(goPostion)){
+				gewa.util.pagePos(goPostion);
+			}
+		},fyt)
+	}
+};
+
+function lazySpeRoomPics(fyt){
+	if($('speRoomBanner')){
+		var url = "${basePath}cinema/ajax/getCinemaSpeRoomPics.xhtml";
+		var values = {'ctype':fyt,"cid":'$!{cinema.id}'};
+		gewara.util.sendLoad('cinemaSpeRoomImgs', url, values, function(result){
+			if(result.success){
+				$('speRoomBanner').removeClass('none');
+			}
+		});
+		$('picListLeftMenuLi').getElements("a[data-config=configClick]").addEvent('click',function(e){
+			$('picListLeftMenuLi').getElements("a[data-config=configClick]").removeClass("select");
+			this.addClass("select");
+			gewara.util.sendLoad('cinemaSpeRoomImgs', "${basePath}cinema/ajax/getCinemaSpeRoomPics.xhtml",{'ctype':this.get('data-cytpe'),"cid":'$!{cinema.id}'});
+		});
+	}
+}
+
+function isMovieId(movieList,id){
+	movieList.each(function(item){
+		if(item.get('id') == id){
+			item.addClass('select');
+			filterElement(item.get('id'));
+		}
+	})
+};
+
+//绑定场次时间段 
+function nodeBindPlay(node){
+	var obj = node.getElements('li');
+	var oParent = node.getElement('div[lang=chooseOpi_head]');
+	var tagAfn = node.getElement('span[lang=afternoon]');
+	var tagNgt = node.getElement('span[lang=evening]');
+	obj.each(function(el){
+		if(el.get('config') == 'afternoon'){
+			var curTop = el.getPosition().y - oParent.getPosition().y;
+			tagAfn.setStyles({'display':'block','top':curTop});
+		}
+		else if(el.get('config') == 'evening'){
+			var curTop = el.getPosition().y - oParent.getPosition().y;
+			tagNgt.setStyles({'display':'block','top':curTop});
+		}
+	});
+	obj.addEvents({
+		'mouseenter':function(){this.addClass('hover');},
+		'mouseleave':function(){this.removeClass('hover');}
+	});
+};
+
+//时间段滚动事件
+
+function nodeBindMove(playitem,index,type){
+	var playitem = $(playitem);
+	if(playitem.getElements('li').length >= 7){
+		if(playitem.retrieve('slide') == null){
+			playitem.getElement('.chooseOpi_body').set('id','wrapper'+type+index);
+			playitem.getElement('ul').set('id','wrapped'+type+index);
+			var o = {};
+			o.el = $('wrapper'+type+index),
+			o.step = 60,
+			o.h = o.el.getDimensions().height,
+			o.timeline = document.getElements('span[data-type=timeLine'+index+']'),
+			o.list = o.el.getElements('li'),
+			o.after = o.el.getElements('li[config=afternoon]')[0],
+			o.even = o.el.getElements('li[config=evening]')[0],
+			o.afterEvent = document.getElements('span[data-type=timeLine'+index+'][lang=afternoon]'),
+			o.evenEvent = document.getElements('span[data-type=timeLine'+index+'][lang=evening]')
+			o.slide = new ScrollerBar('wrapper'+type+index,{wrapped:'wrapped'+type+index,step:o.step,callback:function(number){
+				if(number >= 0){
+					var et = 40,at = 0;
+					if(o.even && o.evenEvent){
+						et = o.step * (o.list.indexOf(o.even) + 1) - number - 20;
+						if(et>366)et = 400;
+						if(et <= 40) et = 40;
+						o.evenEvent.setStyle('top',et);
+					}
+					if(o.after && o.afterEvent){
+						at = o.step * (o.list.indexOf(o.after) + 1) - number - 20;
+						if(at >= o.h)at = 360;
+						if(at <= 40) at = 40;
+						if(et <= o.step + 20) at = 0;
+						o.afterEvent.setStyle('top',at);
+					}
+				}
+			}});
+			o.timeline.each(function(item){
+				item.addEvent('click',function(){
+					o.slide.slider.set(o.step * o.list.indexOf(this.get('lang') == 'evening'?o.even:o.after));
+				})
+			})
+			playitem.store('slide',true);
+		}
+	}else{
+		playitem.getElement('.chooseOpi_body').setStyles({'padding-right':0,'height':'auto'});
+		playitem.setStyle('height','auto');
+	}	
+}
+//查看影厅信息
+function choiceRoomInfo(){
+	var isView = true;
+	gewa.util.popo(document.getElements("*[config=roomType]"),'','','up',function(){
+		var args = arguments;
+		var width = 260;
+		if(args[0].retrieve('isRoom') == null){
+			var url = "${basePath}ajax/roomView.shtml?mpid="+args[0].get('data-mpid');
+			GewaraUtil.sendRequest(url, '', function(result){
+				if(result.success){
+					var div = new Element('div').addClass('viewRoomPanel');
+					div.innerHTML = result.viewPage;
+					if(result.viewPage.contains('isSpeRoomImg')){
+						width = 460;
+					}
+					args[0].store('isRoom',div);
+					gewa.util.tips(args[0],div,width,args[1],args[2],args[3]);
+				}
+			}.bind(this),'isRoom');
+		}else{
+			if(args[0].retrieve('isRoom').getElements('div[id=isSpeRoomImg]').length > 0){
+				width = 460;
+			}
+			gewa.util.tips(args[0],args[0].retrieve('isRoom'),width,args[1],args[2],args[3]);
+		}
+	},function(){
+		isView = !isView;
+	});
+}
+//查看排片优惠信息 
+function playListPrivilege(){
+	var oListTags = $$('.opiInfo em');
+	viewList = {};
+	oListTags.each(function(item,index){
+		if(!item.hasClass('y')){
+			new amTips(item,{position:'bottom',center:false});
+		}else{
+			viewList[index] = item.amTips({content:function(){return $('htmlcontent')},ispointer:false,position:'bottom',showDelay:200,center:false,mouseBandCallback:function(){
+				var url = "${basePath}movie/ajax/getSpdiscountList.xhtml";
+				var _this = arguments[0];
+				if(this.retrieve('key') == null){
+					GewaraUtil.sendRequest(url, {mpid:this.get('data-type')}, function(result){
+						if(result.success){
+							var div = new Element('div',{'id':'htmlcontent','html':result.retval,'class':'none'}).inject(document.body);
+							_this._this.options.content = function(){
+								return div;
+							};
+							viewList[index].amTipsShow(true);
+							this.store('key',div);
+						}
+					}.bind(this),'key');
+				}else viewList[index].amTipsShow();
+			}.bind(item)});
+		}
+	});
+};
+
+//优惠说明的收起
+function opiInfoToggle(){
+	document.getElements("*[config=opiInfo]").each(function(item){
+		var list = item.getElements('em');
+		if(list && list.length >2){
+			for(var i=2;i<=list.length-1;i++){
+				list[i].hide();
+			}
+			var tag = new Element('b',{'class':'openTag'});
+			tag.inject(item);
+			tag.addEvent('click',function(){
+				this.getSiblings().show();
+				this.addClass('none');
+			});
+		}
+	});
+}
+
+//查看座位图
+function choiceOpiList(){
+	//cinemaServe();
+	opiInfoToggle();
+	var isView = true;
+	gewa.util.popo(document.getElements("*[config=tirger]"),'','','up',function(){
+		var args = arguments;
+		if(args[0].retrieve('key') == null){
+			var url = GewaraUtil.basePath+"ajax/seatView.shtml?mpid="+args[0].get('mpid');
+			GewaraUtil.sendRequest(url, '', function(result){
+				if(result.success){
+					var div = new Element('div').addClass('viewSeatPanel');
+					div.innerHTML = result.viewPage;
+					if(args[0].retrieve('isher') != null){
+						args[0].store('isher',null);
+						args[0].store('key',div);
+						var width = div.getFirst().getComputedSize().totalWidth+40;
+						gewa.util.tips(args[0],div,width,args[1],args[2],args[3]);
+					}else{
+						args[0].store('isher',null);
+						args[0].store('key',div);
+					}
+				}
+			}.bind(this),'key');
+		}else{
+			var width = args[0].retrieve('key').getFirst().getComputedSize().totalWidth+40;
+			gewa.util.tips(args[0],args[0].retrieve('key'),width,args[1],args[2],args[3]);
+		}
+	},function(){
+		isView = !isView;
+	});
+};
+
+function filterElement(obj,isSpe){
+	var isSpe = isSpe || false;
+	if(isSpe){
+		$$('.roomPlayItem').each(function(item,index){
+			if(item.hasClass(obj)){
+				item.removeClass('none');
+			}else{
+				item.addClass('none');
+			}
+		});
+	}else{
+		$$('.playItemContent').each(function(item,index){
+			if(item.hasClass(obj)){
+				item.removeClass('none');
+			}else{
+				item.addClass('none');
+			}
+		});
+	}
+	
+};
+function navTabsChanged(el){
+	$('nav_tabsDiv').getElements("li").each(function(item,index){
+		if(item.id != el){
+			item.removeClass('select');
+		}else{
+			item.addClass('select');
+		}
+	});
+	//$(el.substring(0, el.length -3)).show();
+	if ("theatraInfoBoxTab" == el){
+		$("theatraInfoBox").show();
+		$("walaInfoBox").hide();
+		$("theatraIntruduce").hide();
+		$("walaCon").show();
+		$("walaheader").hide();
+		lazyPlayItem('$!fyrq','')
+	}else if("speRoomPlayItemTab" == el){
+		$("theatraInfoBox").show();
+		$("walaInfoBox").hide();
+		$("theatraIntruduce").hide();
+		$("walaCon").show();
+		$("walaheader").hide();
+		$("cinemaDatePlayItemList").addClass("none");
+		$("cinemaSpeRoomPlayItemList").removeClass("none");
+		lazySpePlayItem('$!{firstCtype}','cinemaSpePlayList');
+		lazySpeRoomPics('$!{firstCtype}');
+	}else if ("walaInfoBoxTab" == el){
+		$("walaCon").show();
+  		$("palayitemheader").hide();
+		$("theatraInfoBox").hide();
+		$("theatraIntruduce").hide();
+		var url = "${basePath}cinema/cinemaCommentList.xhtml";
+		var values = {'cid':$!{cinema.id}};
+		GewaraUtil.sendLoad('walaInfoBox', url, values, function(result){
+			if(result.success){
+				$("walaheader").show();
+				$('walaInfoBox').show();
+			}
+		});
+	}else {
+		$("walaCon").hide();
+		$("theatraInfoBox").hide();
+		$("walaInfoBox").hide();
+		$("theatraIntruduce").show();
+		var url = "${basePath}cinema/ajax/cinemaIntroduce.xhtml";
+		var values = {"cid":$cinema.id};
+		gewara.util.sendLoad('theatraIntruduce', url, values, function(result){
+		});
+	}
+};
+</script>
+<script type="text/javascript">
+var isScroll = true,marks='';
+
+function getWalaList(el, el2,order){
+	el = $(el),	el2 = $(el2);
+	var tmpElment = el.getElements('li');
+	tmpElment.removeClass('select');
+	if(el2){
+		el2.getParent('li').addClass('select');
+	}
+	getWala(order);
+};
+function getWala(order){
+	$('cinemaWalaDetail').empty();
+	Asset.javascript("${staticPath}scripts/gewara.js?n=wide_wala,slimbox&v=$VmUtils.jsVersion", {
+		'id':'walaDynaScript',
+		'isScroll':false,//用于控制是否支持鼠标滚动事件
+		'isTicket':true,
+		'bindWala':'cinemaWalaDetail',//把加载的哇啦放在什么位置
+		onLoad:function(){
+			Asset.css('${staticPath}css/wide_wala.css?v=$VmUtils.jsVersion',{'id':'walasCss'});
+			gewa.util.pageNumber = 0;
+	    	var _body = $(document.body);
+	    	gewa.util.requestUrl = 'ajax/common/qryComment.xhtml';
+	    	gewa.util.values = {
+    			pageNumber:gewa.util.pageNumber,//自动加载时的分页数
+    			relatedid:'$!cinema.id',//关联对象的ID
+    			title:'',//话题的标题
+    			issue:true,//是否有发表框
+    			hasMarks:true,//是否支持评分
+    			tag:'cinema',//关联那个板块的内容
+    			isPic:true,//是否支持传图片
+    			isVideo:false,//是否支持传视频
+	    		maxCount:6,//如果设置，即是单页显示N条
+				userLogo:gewara.util.member.headUrl,//用户的头像
+				order:order,
+				isCount:true
+	    	};
+	    	gewa.util.init();
+		}
+	});
+};
+
+window.addEvent('domready',function(){
+	(function(){
+		getWala('flowernum');
+	}).delay(5000);
+});
+</script>
+#parse('include/newMarkDialog.vm')
+</body><!-- SUCCESS_BOTTOM -->
+</html>

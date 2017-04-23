@@ -1,0 +1,207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>${subject.title}_格瓦拉生活网</title>
+	<meta name="keywords" content="${subject.title}活动"/>
+	<meta name="description" content="${subject.title}活动"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global&v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/ac.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,index_even&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.subject-logo{background:url($VmUtils.randomPic('',$!{subject.limg})) no-repeat;height:${subject.picheight}px;}
+		.n1{width:960px;height:${subject.picheight}px;text-indent: -9999px;position:absolute;top:0px;}
+		.sub-right-box{padding:10px;width:406px;}
+		.sub-box2{margin:auto; width:960px;border:0;padding-bottom:10px;*padding-bottom:5px;}
+		
+		/*轮换广告*/
+		.publicize{width:660px;height:80px;overflow:hidden;position: relative;z-index: 0}
+		.publicize .navControl{position: absolute;right:0px;bottom:5px;height:16px;z-index: 9}
+		.publicize img{width:660px;height:80px;position: absolute;left:0px;top:0px;z-index: 1}
+		.publicize .nav,.publicize .choice{display:inline-block;height:16px;width:16px;}
+		.publicize .nav{background:#666;opacity:0.5;filter: alpha(opacity = 50);float:left;margin-right:5px;color:#fff !important;text-align:center;line-height:16px;font-weight:bold;text-decoration: none !important;}
+		.publicize .choice{background:#FF4000;position: absolute;bottom:5px;z-index:7;}
+		
+		.banner{width:960px;height:100px;overflow:hidden;margin:0 auto;background:#fff;}
+		.banner .publicize,.banner .publicize img{width:960px;height:100px;}
+	</style>
+</head>
+<body class="c">
+#set($cfgHeader='subject')#parse('include/subject/header.vm')
+<h1>${subject.title}</h1>
+<div class="banner none" style="padding-bottom:5px;" id="activtyBanner">
+	#parse('include/ad/ad_ticketorder.vm')
+</div>
+<div class="subject-logo"><a class="n1" href="#n1">&nbsp;</a></div>
+<div class="sub-top">
+	<em class="m1"></em><em class="m2"></em>
+	<div class="m">
+		<div class="sub-left-box">
+			<h2><a href="${basePath}service/integral.dhtml" class="q" target="_blank">怎样获取积分？</a><a href="${basePath}register.xhtml" class="q" target="_blank">立即注册</a></h2>
+			<div id="height0"></div>
+			$!subject.description
+		</div>
+		<div class="sub-right-box">
+			<div class="mt10">
+				<h2><strong class="yellow">抢票时间：$!DateUtil.format($!subject.starttime,'yyyy年MM月dd日 HH:mm')</strong></h2>
+			</div>
+			<div class="mt10 fs14">
+				#if($VmUtils.eq($subject.status,'stop'))
+				<strong class="fs20 white">本次$!{subject.title}活动已结束，敬请期待下一轮抢票活动！</strong>
+				#else
+				<span id="CountMsg">
+					<strong class="fs20 yellow">离抢票开始时间还有：</strong>
+					<strong id="RemainD" class="fs20 white">XX</strong>天 <strong id="RemainH" class="fs20 white">XX</strong>时<strong id="RemainM" class="fs20 white">XX</strong>分<strong id="RemainS" class="fs20 white">XX</strong>秒
+				</span>
+				#end
+			</div>
+		</div>
+		<div id="height0"></div>
+	</div>
+	<em class="m2"></em><em class="m1"></em>
+</div>
+
+<div id="n1"></div>
+#if(!$VmUtils.isEmptyList($movieList))
+#foreach($movie in $movieList)
+<div class="sub-box">
+	<em class="m1"></em><em class="m2"></em>
+	<div class="m" id="f$movie.id"> 
+		<h2><span style="float:left"><strong class="fs20"><a href="${basePath}movie/$movie.id" class="white" target="_blank" title="$movie.name">《$movie.name》</a></strong><strong class="white">抢票影院：</strong></span><span style="float:right;font-size:12px;">电影开映信息以影院当日排片表为准</span><div id="height0"></div></h2>
+		#set($opiList=$!movieOpiMap.get($movie.id))
+		#foreach($opi in $opiList)
+		#set($cinema=$!cinemaMap.get($opi.cinemaid))
+		<div class="sub-right-box">
+			<div class="sub-content-box">
+				<div class="sub-logo">
+					<a href="${basePath}cinema/$cinema.id" target="_blank"><img src="$VmUtils.randomPic('sw110h40',$cinema.limg)" class="img1"/></a><br/>
+					<strong><a href="${basePath}cinema/$cinema.id" class="blue" target="_blank">$cinema.name</a></strong>
+				</div>
+				<ul class="sub-mode">
+					<li>放映时间：$DateUtil.format($opi.playtime,'M月d日 HH:mm')($DateUtil.getCnWeek($opi.playtime)) </li>
+					<li class="sy">版本/语言：$!opi.edition/$!opi.language</li>
+					<li class="sy">原价：<strong class="yellow">$!opi.price元</strong></li>
+					<li class="tal mt10">
+						#if($VmUtils.eq($subject.status,'stop'))
+						<span>
+							#if($opi.isOrder())
+							<a href="${basePath}cinema/order/step1.shtml?mpid=$opi.mpid&price=$!opi.gewaprice" class="button redBt minBt"><span>$!opi.gewaprice元特价</span></a>
+							<span class="whiteBt button minBt"><span>已停止</span></span>
+							#else
+							<span class="whiteBt button minBt"><span>$!subject.price元特价</span></span>
+							<span class="whiteBt button minBt"><span>已停止</span></span>
+							#end
+						</span>
+						#else
+						<span class="n">
+							#if($opi.isOrder())
+							<a href="${basePath}cinema/order/step1.shtml?mpid=$opi.mpid&price=$!opi.gewaprice" class="redBt button minBt"><span>$!opi.gewaprice元特价</span></a>
+							#else
+							<span class="whiteBt button minBt"><span>$!opi.gewaprice元特价</span></span>
+							#end
+							<span class="whiteBt button minBt"><span>$!subject.price元抢票</span></span>
+						</span>
+						<span class="y none">
+							#if($VmUtils.eq($subject.status,'open'))
+							<a href="${basePath}cinema/order/step1.shtml?mpid=$opi.mpid&price=$!opi.gewaprice" class="redBt button minBt"><span>$!opi.gewaprice元特价</span></a>
+							<a href="${basePath}cinema/order/step1.shtml?mpid=$opi.mpid&price=$!subject.price" class="redBt button minBt"><span>$!subject.price元抢票</span></a>
+							#else
+							#if(!$opi.isOrder())
+							<span class="whiteBt button minBt"><span>$!opi.gewaprice元特价</span></span>
+							#end
+							#if($opi.isOrder())<a href="${basePath}cinema/order/step1.shtml?mpid=$opi.mpid&price=$!opi.gewaprice" class="redBt button minBt"><span>$!opi.gewaprice元特价</span></a>#end
+							<span class="whiteBt button minBt"><span>已停止</span></span>
+							#end
+						</span>
+						#end
+					</li>
+				</ul>
+				<div id="height0"></div>
+			</div>
+		</div>
+		#end
+		<div class="height0"></div>
+	</div>
+	<em class="m2"></em><em class="m1"></em>
+</div>
+#end
+#end
+<div class="sub-box">
+	<em class="m1"></em><em class="m2"></em>
+	<div class="m">
+		$!subject.content
+	</div>
+	<em class="m2"></em><em class="m1"></em>
+</div>
+<div id="yaoqing"></div>
+
+#parse('include/bottom.vm')
+	<script language="JavaScript">
+var remain, pfun;
+window.addEvent('domready', function(){
+	data();
+});
+function getRTime(){
+	var dD = Math.floor(remain/(1000*60*60*24)) % 30;
+	var nH = Math.floor(remain/(1000*60*60)) % 24;
+	var nM = Math.floor(remain/(1000*60)) % 60;
+	var nS = Math.floor(remain/1000) % 60;
+	$("RemainD").innerHTML = (dD < 10 ? "0" : "") + dD;
+	$("RemainH").innerHTML = (nH < 10 ? "0" : "") + nH;
+	$("RemainM").innerHTML = (nM < 10 ? "0" : "") + nM;
+	$("RemainS").innerHTML = (nS < 10 ? "0" : "") + nS;
+	remain -= 1000;
+	if(((remain/1000).toInt()*1000)%60000==0){
+		$clear(pfun);
+		data();
+	}
+	if(remain<=0){
+		if(pfun) $clear(pfun);
+		data();
+		return;
+	}
+};
+function data(){
+	var random = GewaraUtil.rtime();
+	new Request({
+		url: '${basePath}subject/time.xhtml?sid=$subject.id&time=$subject.starttime.time&v='+random,
+		method:'get',
+		onSuccess: function(responseText) {
+			remain = responseText * 1;
+			if(remain <= 0){
+				#if($VmUtils.eq($subject.status,'open'))
+				$("CountMsg").empty();
+				$("CountMsg").setStyles({"font-size":"22px","color":"#ffffff","font-weight":"bold"});
+				$("CountMsg").innerHTML = "抢票进行中...";
+				#end
+				$$(".n").addClass("none");
+				$$(".y").removeClass("none");
+			}else{
+				pfun = getRTime.periodical(1000);
+			}
+		}
+	}).send();
+}
+</script>
+<script type="text/javascript">
+	window.addEvent('domready', function(){
+			adIndexOther();
+	});
+	function adIndexOther(){
+		var url = '${basePath}ajax/common/getIndexOtherRandomAd.xhtml';
+		var values = {'pid':'topics'};
+		GewaraUtil.sendLoad('ajaxLoadAD', url, values, function(result){
+			if(result.success){
+				if(result.html.length != 0){
+					$('ajaxLoadAD').removeClass('none');
+					new adSoild('publicize','navControl',{'position':{x:960,y:100}});
+					$('ajaxLoadAD').getElements('a').addEvent('click',function(e){e.preventDefault();});
+					$('activtyBanner').removeClass('none');
+				}
+			}
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>商品订单处理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="currs"><a href="${basePath}admin/gewapay/goodsOrder.xhtml?gid=$goods.id"><span>商品订单处理</span></a></li>
+		</ul>
+	</div>
+</div>
+<div class="manageItemList">
+	<em class="b1f"></em><em class="b2f"></em>
+	<div class="contentInfoList"> 
+		<div class="aboutMovie">
+		<form action="${basePath}admin/goods/goodsOrderList.xhtml">
+			<input type="hidden" name="gid" value="$!goods.id" />
+			<span class="i black bold">查询条件<input type="hidden" name="tag" id="tag" value="point"/></span>
+			<label class="ml10">下单时间：</label><input type="text" name="timeFrom" value="$!{timeFrom}" class="pubinput" size="20" style="height:20px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+			<input type="text" name="timeTo" value="$!{params.timeTo}" class="pubinput" size="20" style="height:20px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd 00:00:00'})" readonly="readonly"/>
+			<label class="ml10">订单号：<input type="text" name="tradeNo" value="$!{params.tradeNo}" class="pubinput" size="18" style="height:20px;"/></label>
+			<label class="ml10">手机号：<input type="text" name="mobile" value="$!{params.mobile}" class="pubinput" size="12" style="height:20px;"/></label>
+			<input type="submit" value="查  询" class="bt1"/>
+		</form>
+		</div>
+		<ul class="orderSet mt20">
+			<li id="all" #if($VmUtils.isBlank($params.status))class="seeOrder"#end><a href="${basePath}admin/goods/goodsOrderList.xhtml?gid=$goods.id" class="blue">全部</li>
+			<li id="paid" #if($params.status eq 'paid_success')class="seeOrder"#end><a href="${basePath}admin/goods/goodsOrderList.xhtml?gid=$goods.id&status=paid_success" class="blue">已成功</a></li>
+			<li id="new" #if($params.status eq 'new')class="seeOrder"#end><a href="${basePath}admin/goods/goodsOrderList.xhtml?gid=$goods.id&status=new" class="blue">处理中</a></li>
+		</ul>
+		<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+			<thead><tr>
+				<th style="width:150px;">订单号</th>
+				<th style="width:120px;">下单时间</th>
+				<th style="width:80px;">联系电话</th>
+				<th>用户</th>
+				<th>数量</th>
+				<th>总积分</th>
+				<th>地址</th>
+				<th style="width:100px;">状态</th>
+				<th>操作</th>
+			</tr></thead>
+			<tbody id="tbody">
+				#foreach($order in $orderList)
+				#set($points=${order.quantity}*${goods.realpoint})
+				#set($descMap=$VmUtils.readJsonToMap($order.description2))
+				<tr class="grayBg h" id="row${order.id}">
+					<td title="$order.description2">$order.tradeNo</td>
+					<td>$DateUtil.format(${order.addtime},'MM-dd HH:mm:ss')</td>
+					<td title="$order.text('remark')">${order.mobile}</td>
+					<td><a href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$order.memberid">$cacheMemberMap.get($order.memberid).nickname</a></td>
+					<td>${order.quantity}</td>
+					<td>$!points</td>
+					<td>$!descMap.get('contactor')&nbsp;&nbsp;$!descMap.get('address')</td>
+					<td>#if($order.status eq 'paid_success')成功#elseif($order.status eq 'new')处理中#else失败#end</td>
+					<td>
+						#if($goods.isNeedDeliver() && $order.status eq 'paid_success')
+							#if($descMap.get('deliver') ne 'entity')
+							<input type="button" class="cbt2" value="送货" onclick="deliver($order.id)" />
+							#else已送货
+							#end
+						#else&nbsp;
+						#end
+					</td>
+				</tr>
+				#end
+				<tr class="grayBg h" id="row${order.id}">
+				<td colspan="9">共有订单：$VmUtils.size($orderList)</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<em class="b2f"></em><em class="b1f"></em>
+</div>
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+});
+function deliver(orderId){
+	var myRequest = new Request({url: "${basePath}admin/gewapay/goodsDeliver.xhtml", method: 'post',
+		onSuccess: function(resText){
+			alert('已送货');
+		}
+	});
+	myRequest.send({'data':{'orderId':orderId}});
+}
+</script>
+</body>
+</html>

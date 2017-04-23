@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>改进建议，服务评价，其它</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		.inputradio{vertical-align: middle;}
+		.OkMsg {
+			background: url(${staticPath}styles/images/standard_msg_ok.gif) #e6ffe6 no-repeat 5px 0px; color: #000;
+			border: #00be00 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.WarningMsg {
+			background: url(${staticPath}styles/images/standard_msg_warning.gif) #e2f5ff no-repeat 5px 0px; color: #000;
+			border: #00a8ff 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.ErrorMsg {
+			background: url(${staticPath}styles/images/standard_msg_error.gif) #fff2e9 no-repeat 5px 0px; color: #000;
+				border: #f60 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.orderSet li{width:auto;padding:0 8px;}
+	</style>
+</head>
+<body>
+#set($cururl='customerQM')
+<div class="logoPanel"></div>
+<div class="menu">
+	<div class="menuInner">
+		#parse("admin/blog/customerMenu.vm")
+	</div>
+</div>
+<div class="manageItemList">
+	<em class="b1f"></em><em class="b2f"></em>
+	<div class="contentInfoList">
+		<ul class="orderSet">
+			<li class="seeOrder"><a href="javascript:void(0);" onclick="queryQList('advise', 'Y_NEW', this)" class="blue" id="TmpThis">网站建议</a></li>
+			<li class=""><a href="javascript:void(0);" onclick="queryQList('adviseDrama', 'Y_NEW', this)" class="blue">演出反馈建议</a></li>
+			<li class=""><a href="javascript:void(0);" onclick="queryQList('adviseSport', 'Y_NEW', this)" class="blue">运动反馈建议</a></li>
+			<li class=""><a href="javascript:void(0);" onclick="queryQList('evaluate', 'Y_NEW', this)" class="blue">服务反馈</a></li>
+			<li class=""><a href="javascript:void(0);" onclick="queryQList('mobile', 'Y_NEW', this)" class="blue">手机客户端</a></li>
+			<li class=""><a href="javascript:void(0);" onclick="queryQList('other', 'Y_NEW', this)" class="blue">其它问题</a></li>
+		</ul>
+		<hr />
+		<ul class="orderSet mt10">
+			<li class="seeOrder">
+				<input type="hidden" name="status" id="status" value=""/>
+				<input type="hidden" name="tag" id="tag" value=""/>
+				<a href="javascript:void(0);" onclick="subQueryQList('Y_NEW', this)" class="blue" id="subTmpThis">待解决</a>
+			</li>
+			<li class=""><a href="javascript:void(0);" onclick="subQueryQList('Y_TREAT', this)" class="blue">已回复</a></li>
+			<li class=""><a href="javascript:void(0);" onclick="subQueryQList('Y_STOP', this)" class="blue">已关闭</a></li>
+			<li onclick="javascript:download();">导出excls</li>
+		</ul>
+		<div style="right:10px;top:35px;" id="alertmsg" ></div>
+		<div id="loadapplyTableDIV">
+		
+		</div>
+	</div>
+	<em class="b2f"></em><em class="b1f"></em>
+</div>
+
+	<script type="text/javascript">
+	window.addEvent('domready', function(){
+		queryQList('advise', 'Y_NEW', 'TmpThis');
+	})
+	function initSelected(obj){
+		$(obj).getParent().getParent().getChildren().removeClass('seeOrder');
+		$(obj).getParent().addClass('seeOrder');
+	}
+	function ajaxLoadTable(tag, status){
+		var url = '${basePath}admin/blog/customerQTable.xhtml';
+		var values = {'tag':tag, 'status':status};
+		gewaUtil.loadData('loadapplyTableDIV', url, values, function(result){});
+	}
+	
+	function queryQList(tag, status, obj){
+		$('tag').value=tag;
+		$('status').value=status;
+		initSelected(obj);
+		initSelected('subTmpThis');
+		ajaxLoadTable(tag, status);
+	}
+	
+	function subQueryQList(status, obj){
+		$('status').value=status;
+		initSelected(obj);
+		ajaxLoadTable($('hTag').value, status);
+	}
+	function download(){
+		var pageNo = prompt('请输入第几页：');
+		if(pageNo){
+			pageNo = pageNo - 1;
+			document.location="${basePath}admin/blog/customerQTable.xhtml?xls=xls&status="+$('status').value+"&tag="+$('tag').value+"&pageNo="+pageNo;
+		}
+	}
+</script>
+</body>
+</html>

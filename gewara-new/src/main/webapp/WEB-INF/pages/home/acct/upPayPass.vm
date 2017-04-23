@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>修改账户支付密码_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content="账户充值"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}formcheck/formcheck.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}formcheck/formcheck.js"></script>
+</head>
+
+<body>
+#set($orderManage=true)#set($myAccount = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/myAccount.vm')
+			<div class="mt30 fs14 ml30">
+				为了你的账户安全请设置支付密码并牢记!
+			</div>
+			<form id="upPayPassFrm" name="upPayPassFrm" action="javascript:upPayPass();" method="post">
+			<input type="hidden" name="validtime" value="$!{validtime}"/>
+			<input type="hidden" name="encode" value="$!{encode}"/>
+				<ul class="ul-150">
+					#if($tag eq 'idcard')
+					<li class="list_h"><span class="left_150">真实姓名：</span><input type="text" name="realname" class="text left validate['required','length[2,15]']" value="$!memberAccount.realname"/><b class="fc_b ml10">*</b><font class="gray" style="font-size:12px;">该信息验证身份时使用，请务必填写真实信息</font></li>
+					<li class="list_h"><span class="left_150">证件号码：</span><input type="text" maxlength="30" name="idcard"  class="text left validate['required','%checkCardLength']" value="$!memberAccount.encryidcard"/><b class="fc_b ml10">*</b><font class="gray" style="font-size:12px;">该信息验证身份时使用，请务必填写真实信息</font></li>
+					#end
+					<li class="list_h"><span class="left_150">支付密码：</span><input id="password" type="password" maxlength="18" class="text left validate['required','length[6,18]']" id="password" name="password" value=""/><span class="fc_b ml10">*</span></li>
+					<li class="list_h"><span class="left_150">确认支付密码：</span><input id="password2" type="password" class="text left validate['confirm[password]']" maxlength="18" name="password2" value=""/><span class="fc_b ml10">*</span></li>
+					<li>
+						<div class="clear"></div>
+						<span class="gray">以上信息仅作为验证身份使用，格瓦拉会严格保密</span>
+					</li>
+					<li>
+						<div class="clear"></div>
+						<label class="button minBt redBt" style="margin-left:146px;"><input type="submit" value="确&nbsp;&nbsp;定" /></label>
+					</li>
+				</ul>
+			</form>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	new FormCheck('upPayPassFrm', {
+		tipsClass : 'fc-tbx',
+		display : {
+			scrollToFirst : true
+		}
+	});
+});
+function upPayPass(){
+	var url="${basePath}home/acct/upPayPass.xhtml";
+	GewaraUtil.mask('disBtn');
+	var values = GewaraUtil.getValues("upPayPassFrm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			gewaUtil.alert('设置成功！', function(){
+				document.location = '${basePath}home/charge.xhtml';
+			});
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function idcardValid(el){
+	if (!el.value.test(/^(\d{18,18}|\d{15,15}|\d{17,17}(x|X))$/)) {
+        el.errors.push("请填写有效的身份证号!");
+        return false;
+    } else {
+        return true;
+    }
+}
+function checkCardLength(el){
+	if(!el.value.test(/^[A-Za-z0-9_]*$/g)){
+		el.errors.push("证件号码格式不正确,只能是字母，数字，下划线，长度6—30位！");
+		return false;
+	}
+	if(el.value.length<6){
+		el.errors.push("证件号码格式不正确,只能是字母，数字，下划线，长度6—30位！");
+        return false;
+	}
+}
+
+</script>
+</body>
+
+</html>

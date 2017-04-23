@@ -1,0 +1,135 @@
+<!-- SUCCESS_HEAD -->
+#set($isCityParam=true)
+#parse('include/constant/cityParam.vm')
+#foreach($movie in $movies)
+#set($gmark=$VmUtils.getLastMarkStar($movie, "general",$markCountMap.get($movie.id),$!markData))
+#set($gmark1=$gmark/10) #set($gmark2=$gmark % 10) 
+#if(!$movieIdList.contains($movie.id))
+	#set($addMId = $movieIdList.add($movie.id))
+#end 
+	<div class="ui_media movieListBox #if($foreach.count % 2 eq 0) ml20 #end" id="hotMovie$!pageNo">
+		<div class="ui_pic" style="margin-right:20px;">
+			<a href="$!{basePath}movie/$movie.id" target="_blank" class="ui_movieType" title="$!movie.moviename">
+				<img width="120" height="160" alt="$!movie.moviename" src="$VmUtils.randomPic('cw120h160',$movie.limg)"/>
+			</a>
+			#if($movie.edition)
+				#set($editionList = $VmUtils.split($movie.edition,','))
+				#set($mEdition = '')
+				#set($mEdition1 = '')
+				#if($editionList.size() gt 0)
+					#set($mEdition = $editionList.get(0))
+				#end
+				#if($editionList.size() gt 1)
+					#set($mEdition1 = $editionList.get(1))
+				#end
+				<p class="ui_movieType_line mt5" style="width:120px;">
+					#if($mEdition)
+						#if($VmUtils.contains($mEdition, '4D'))
+							<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=4D" target="_blank"> 
+								<span class="ui_type4d"></span>
+							</a>
+						#elseif($VmUtils.contains($mEdition, 'IMAX3D'))
+							<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=IMAX" target="_blank"> 
+								<span class="ui_typeImax3d"></span>
+							</a>
+						#elseif($VmUtils.contains($mEdition, 'IMAX2D'))
+							<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=IMAX" target="_blank"> 
+								<span class="ui_typeImax"></span>
+							</a>
+						#elseif($VmUtils.contains($mEdition, '双机3D'))
+							<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=DOUBLE3D" target="_blank"> 
+								<span class="ui_type3d2"></span>
+							</a>
+						#elseif($VmUtils.contains($mEdition, '3D'))
+							<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=REALD" target="_blank"> 
+								<span class="ui_type3d"></span>
+							</a>
+						#end
+					#end
+					#if($mEdition1)
+						#if($VmUtils.contains($mEdition1, '4D'))
+						<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=4D" target="_blank"> 
+							<span class="ui_type4d"></span>
+						</a>
+						#elseif($VmUtils.contains($mEdition1, 'IMAX3D'))
+							<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=IMAX" target="_blank"> 
+								<span class="ui_typeImax3d"></span>
+							</a>
+						#elseif($VmUtils.contains($mEdition1, 'IMAX2D'))
+							<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=IMAX" target="_blank"> 
+								<span class="ui_typeImax"></span>
+							</a>
+						#elseif($VmUtils.contains($mEdition1, '双机3D'))
+							<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=DOUBLE3D" target="_blank"> 
+								<span class="ui_type3d2"></span>
+							</a>
+						#elseif($VmUtils.contains($mEdition1, '3D'))
+							<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=REALD" target="_blank"> 
+								<span class="ui_type3d"></span>
+							</a>
+						#end
+					#end
+				</p>
+			#end
+		</div>
+		<div class="ui_text">
+			<h2>
+				<a class="c333" href="$!{basePath}movie/$movie.id" target="_blank" title="$!movie.moviename">$!VmUtils.escabbr($!movie.moviename,16)</a>
+				<span class="left"><sub data-keynum="$!{movie.id}_mark1">$!gmark1</sub><sup data-keynum="$!{movie.id}_mark2">.$!gmark2</sup></span>
+				#if($movie.releasedate)
+					#if($DateUtil.after($DateUtil.currentTime(),$movie.releasedate) lt 0)
+					<span class="ui_reSale"></span>
+					#elseif($DateUtil.after($DateUtil.addDay($DateUtil.currentTime(), -3),$movie.releasedate) le 0)
+					<span class="ui_onShow"></span>
+					#end
+				#end
+			</h2>
+			<div class="cls"></div>
+			#if($VmUtils.isNotBlank($movie.highlight))
+				<p class="ui_summary">
+					<em>“</em>$!VmUtils.escabbr($!movie.highlight,55)<em>”</em>
+				</p>
+			#end
+			<p>$!{movie.type}</p>
+			#*
+			#set($key1 = $!movie.id + "movie")
+			<p>
+			#if($videoCountMap.get($key1) && $videoCountMap.get($key1) gt 0)
+				<a href="$!{basePath}movie/$!movie.id?videoList=true" target="_blank" class="prevue">预告片($videoCountMap.get($key1))</a>
+			#end
+			#if($commentCountMap.get($key1) && $commentCountMap.get($key1) gt 0)
+				<a href="$!{basePath}movie/$!movie.id?comment=true" target="_blank" class="review">哇啦($commentCountMap.get($key1))</a>
+			#end
+			*#
+			</p>
+			#if($movie.boughtcount)
+			<p><span class="cF60" data-keynum="$!{movie.id}_boughtcount">$!movie.boughtcount</span>人购票</p>
+			#end
+			#if($opiMovieList.contains($movie.id))
+			<p class="mt10"><a href="$!{basePath}movie/$movie.id" target="_blank" class="button minBt redBt"><span>选座购票</span></a></p>
+			#end
+		</div>
+		
+	</div>
+#end
+#if(!$movieIndex)
+<script type="text/javascript">
+window.addEvent('domready',function(){
+#if(!$VmUtils.isEmptyList($movieIdList))
+	var keys = "movieDetail_$!VmUtils.join($movieIdList, '@')";
+	GewaraUtil.sendRequest('${basePath}ajax/loadIndexKeyNumber.xhtml', {"keys":keys}, function(result){
+		if(result.success) {
+			#if(!$VmUtils.isEmptyList($movieIdList))
+				#foreach($id in $movieIdList)
+					document.getElements('*[data-keynum=$!{id}_mark1]').set("text",(result.mark_$!{id}/10 + "").toInt());
+					document.getElements('*[data-keynum=$!{id}_mark2]').set("text","." + result.mark_$!{id}%10);
+					document.getElements('*[data-keynum=$!{id}_boughtcount]').set("text",result.boughtcount_$!{id});
+				#end
+			#end
+		}
+	});
+#end
+});
+</script>
+#end
+<!-- SUCCESS_BOTTOM -->

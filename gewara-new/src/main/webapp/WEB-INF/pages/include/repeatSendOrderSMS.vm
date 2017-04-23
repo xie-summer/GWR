@@ -1,0 +1,60 @@
+<div id="repeatSendOrderSMSWindow" style="display: none;"></div>  
+<span id="qryResult" class="brown"></span>
+<script type="text/javascript">
+function sendOrderSMS(orderid, mobile,checkpass){
+	var values = {"orderid":orderid};
+	if($('mbnum')){
+		$('mbnum').innerHTML = mobile;
+			gewa.util.core({
+				'content':'repeatSendOrderSMSWindow',//内容数据
+				'title':'发送取票短信',
+				'width':360,
+				'callback':function(){
+					$('sendSMSForm').submit();
+				},
+				'def': 'repeatSendOrderSMSWindow',
+				'sureBt':'发送取票短信',
+				'issure':true
+			});
+	}else{
+		GewaraUtil.sendLoad("repeatSendOrderSMSWindow", "${basePath}home/qryOrderCheckpass.xhtml", values,function(result){
+			if(result.success){
+				gewa.util.maskContent('','repeatSendOrderSMSWindow','查看取票短信',500,'repeatSendOrderSMSWindow');
+			}else{
+				if(result.msg) gewaUtil.alert(result.msg);
+			}
+		})
+	}
+}
+function sendOrderPWD(orderid){
+	GewaraUtil.mask("repeatSendOrderSMSWindow");
+	var values = {"orderid":orderid};
+	GewaraUtil.sendRequest('${basePath}home/repeatSendOrderSMS.xhtml', values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			if(gewa.util.container['repeatSendOrderSMSWindow']){
+				gewa.util.container['repeatSendOrderSMSWindow'].dispose('repeatSendOrderSMSWindow');
+			}
+			gewa.util.maskContent('',result.retval,'取票短信',180);
+		}else{
+			if(result.msg) gewaUtil.alert(result.msg);
+		}
+	});
+}
+
+function sendOrderNote(orderid){
+	GewaraUtil.mask("repeatSendOrderSMSWindow");
+	var values = {"noteid":orderid};
+	GewaraUtil.sendRequest('${basePath}home/order/repeatSendOrderSMS.xhtml', values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			if(gewa.util.container['repeatSendOrderSMSWindow']){
+				gewa.util.container['repeatSendOrderSMSWindow'].dispose('repeatSendOrderSMSWindow');
+			}
+			gewa.util.maskContent('',result.retval,'取票短信',180);
+		}else{
+			if(result.msg) gewaUtil.alert(result.msg);	
+		}
+	});
+}
+</script>

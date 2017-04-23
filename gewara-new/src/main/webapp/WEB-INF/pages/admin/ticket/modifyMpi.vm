@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>编辑场次</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline-block;width:100px; text-align:right; padding:1px 0 1px 0; margin-top:3px;}
+		input,textarea { width:500px; display:inline-block;}
+	</style>
+</head>
+<body style="width:750px;margin:auto" class="yui-skin-sam">
+<div style="width:650px; margin: 20px auto;">编辑场次</div>
+<div id="mpiDialog" class="yui-panel" style="width:650px; margin: auto;">
+	<div class="hd" id="title">编辑场次数据<span style="color:blue">火凤凰场次：$opi.seqNo</span></div>
+	<div class="bd">
+	<form name="mpiDialog" id="opiForm">
+		<input type="hidden" name="opid" value="${opi.id}"/>
+		<div>
+			<label>原价：</label>
+			<input name="price" type="text" value="${opi.price}"/>
+		</div>
+		<div>
+			<label>版本：</label>
+			<select name="edition" style="width:400px;">
+				<option value="">请选择...</option>
+				#foreach($edition in $editionList)<option value="$edition" #if($edition eq $opi.edition)selected="selected"#end>$edition</option>#end
+			</select>
+			<span>原始数据：$!{opi.edition}</span>
+		</div>
+		<div>
+			<label>语言：</label>
+			<input name="language" type="text" value="$!{opi.language}"/>
+		</div>
+		<div>
+			<label>时间：</label>
+			<input name="playtime" type="text" value="$DateUtil.format(${opi.playtime},'HH:mm')" onclick="WdatePicker({dateFmt:'HH:mm'})" readonly="readonly"/>
+		</div>
+		<div>
+			<label>每日开放时间：</label>
+			<input type="text" name="dayotime" value="$!opi.dayotime"/>
+		</div>
+		<div>
+			<label>每日关闭时间：</label>
+			<input type="text" name="dayctime" value="$!opi.dayctime"/>
+		</div>
+		<div>
+			<label>取票帖子ID：</label>
+			<input type="text" name="topicid" value="$!opi.topicid"/>
+		</div>
+		<div>
+			<label>总数限制：</label>
+			<input type="text" name="asellnum" value="$!opi.asellnum" style="width:200px;"/>
+			<span style="color:red">当前已卖出：$opi.gsellnum，座位总数：$opi.seatnum</span>
+		</div>
+		<div>
+			<label>单笔数量：</label>
+			<input type="text" name="buylimit" value="$!opi.buylimit" style="width:200px;"/>
+			<span style="color:red">如：只能买2张或4张，填写24</span>
+		</div>
+		<div>
+			<label>特殊标题：</label>
+			<input style="width:250px;" type="text" name="sptitle" id="sptitle" value="$!VmUtils.getJsonValueByKey($opi.otherinfo, 'sptitle')" />
+			<label style="width:90px;cursor: pointer;" for="seestar" onclick="$('sptitle').value='明星见面会'">明星见面会</label>
+			<label style="width:70px;cursor: pointer;" for="holiday" onclick="$('sptitle').value='节日场'">节日场</label>
+		</div>
+		<div>
+			<label>指定场次编号：</label>
+			<input style="width:250px;" type="text" name="smpno" id="smpno" value="$!VmUtils.getJsonValueByKey($opi.otherinfo, 'smpno')" />
+			<label style="width:90px;cursor: pointer;">电影节场次编号</label>
+		</div>
+		<div>
+			<label>连映电影id：</label>
+			<input style="width:250px;" type="text" name="lymovieids" id="lymovieids" value="$!VmUtils.getJsonValueByKey($opi.otherinfo, 'lymovieids')" />
+			<label style="width:90px;cursor: pointer;">多个电影用逗号分隔</label>
+		</div>
+		<div>
+			<label>特殊说明：</label>
+			<textarea rows="5" name="remark">$!opi.remark</textarea>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" style="width:100px" value="确定" onclick="saveOpi()"/>
+		</div>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+var checkList = document.getElements('input[type=checkbox]');
+var otherinfo = $('sptitle').value;
+window.addEvent('domready', function(){
+	checkList.each(function(item,index){
+		item.addEvent('click',function(){
+			if(this.checked){
+				if(otherinfo != ""){
+					otherinfo = otherinfo + "," + this.value;
+				}else{
+					otherinfo = otherinfo + this.value;
+				}
+			}else{
+				if(otherinfo != "" && otherinfo.contains(this.value)){
+				 	start = otherinfo.indexOf(this.value,0)
+					if(start >= 0 && otherinfo != this.value){
+						if(start > 0){
+							otherinfo = otherinfo.replace(","+this.value,"");
+						}else{
+							otherinfo = otherinfo.replace(this.value+",","");
+						}
+					}else{
+						otherinfo = "";
+					}
+				}
+			}
+			$('sptitle').value=otherinfo;
+		});
+	});
+});
+
+function saveOpi(){
+	var url = "${basePath}admin/ticket/saveMpi.xhtml";
+	var values = GewaraUtil.getValues('opiForm');
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('保存成功');
+			refreshPage();
+		}else alert(result.msg);
+	});
+}
+
+</script>
+
+</body>
+</html>

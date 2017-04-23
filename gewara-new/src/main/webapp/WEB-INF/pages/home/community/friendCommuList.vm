@@ -1,0 +1,96 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>#if($!logonMember.id eq $member.id)我#else$!member.nickname#end的圈子_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($tag="home")#set($community=true)#set($friendCommunity=true)
+#set($isShow=false)
+#if($!rights.get(3) eq 'commu_public')
+#set($isShow=true)
+#elseif($!rights.get(3) eq 'commu_friend'&& $isMyFriend)
+#set($isShow=true)
+#end
+#if(!$!rights)
+	#set($isShow=true)
+#end
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+		#if($!logonMember.id ne $member.id)<div class="gui-title"><h2>$!member.nickname的圈子</h2></div><br/>#end
+		#if($isShow)
+		#if(!$isFriend)
+		#parse('include/home/communityMenu.vm')
+		#end
+		#foreach($commu in $commuList)
+		#set($diaryCount=$diaryCountMap.get($commu.id))
+		#set($activityCount=$activityCountMap.get($commu.id))
+		#set($albumCount=$albumCountMap.get($commu.id))
+		#set($commuMember=$memberMap.get($commu.id))
+		<ul class="ui_abeam btLine">
+			<li class="abeam">
+				<div class="uipic"><a href="${basePath}quan/${commu.id}" target="_blank"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw100h100',$!{commu.rlogo})) center 0 no-repeat;" width="100" height="100" alt=""/></a></div>
+					<div class="uiText gewa_outer_text">
+					      <div class="title">
+								<h2>
+									<a href="${basePath}quan/${commu.id}" target="_blank">$!commu.name</a>
+									#if($VmUtils.eq($relateMap.get($commu.id), 'Y'))
+									<img src="${picPath}css/images/quan_cert.gif" />
+									#end
+								</h2>
+						   </div>
+							<p>当前人数：$!mapCommuCount.get($commu.id)人&nbsp;&nbsp;&nbsp;</p>
+							<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$commuMember.id">$!{commuMember.nickname}</a>
+							&nbsp;&nbsp; #if($member.id eq $commu.adminid)<b class="fc_b">创建者</b>#else成员#end</p>
+							#if($!commu.info)<p><img src="${picPath}css/global/ml.png" class="mr5"/>$!VmUtils.escabbr($!commu.info,100)<img src="${picPath}css/global/mr.png" class="ml5"/></p>#end
+							<p class="mt10">
+								<a href="${basePath}quan/getCommuDiaryList.xhtml?commuid=${commu.id}" class="mr5 ml5" target="_blank">圈内话题#if($!diaryCount)($!diaryCount)#end</a>|
+								<!--  <a href="${basePath}quan/getCommuActivityList.xhtml?commuid=${commu.id}" class="mr5 ml5" target="_blank">圈内活动#if($!activityCount)($!activityCount)#end</a>| -->
+								<a href="${basePath}quan/albumList.xhtml?commuid=${commu.id}" class="mr5 ml5" target="_blank">圈内相册#if($!albumCount)($!albumCount)#end</a>
+				         </p>
+			     </div>
+			</li>
+		</ul>
+		#set($diaryCount='')
+		#set($activityCount='')
+		#set($albumCount='')
+		#set($memberCount='')
+		#end
+		<div id="page">#parse('include/pageUtil.vm')</div>
+		#else
+		<div class="outside-box">
+			<div class="inside-box">
+				<div class="gui-content topBg">
+				#if($!rights.get(3) eq 'commu_private')
+					【$member.nickname】加入的圈子设置了权限为【全体不可见】
+				#elseif($!rights.get(3) eq 'commu_friend')
+					【$member.nickname】加入的圈子设置了权限为【仅好友可见】,<a href="${basePath}home/friend/addFriend.xhtml?memberid=$member.id" class="brown">加为好友</a>即可一睹为快!
+				#end
+				</div>
+			</div>
+		</div>
+		#end
+	</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+<!--  
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$(".adopt-user-in").each(function(item){
+		item.addEvents({
+			'mouseenter':function(){this.addClass('my_select');this.getElement(".rsv").removeClass("hidden");},
+			'mouseleave':function(){this.removeClass('my_select');this.getElement(".rsv").addClass("hidden");}
+		});
+	});
+});
+</script>
+-->
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>格瓦商家管理系统</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/newadmin.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<style type="text/css">
+		body,html{height:100%;width:100%;overflow:hidden;}
+	</style>
+</head>
+<body>
+<div class="header">
+	<span>商家管理系统</span>
+	<span class="rootDesin">
+		你好，$!{user.username}！$!DateUtil.format($DateUtil.getCurDate(),'yyyy年MM月dd日 ') &nbsp;
+		$!DateUtil.getCnWeek($DateUtil.getCurDate())&nbsp;&nbsp;<a href="#" class="m5">帮助</a>|<a href="${basePath}cas/logout.xhtml" class="m5" target="_top">退出</a>
+	</span>
+</div>
+<div class="oaLayout clear" id="oaLayout">
+	<div class="oaMenu">
+		<div class="plugs_menu" id="menu">
+			#foreach($menu in $treeMap.keySet())
+			<h2>$menu.menutitle</h2>
+			<ul style="display:none;">#set($subMenuList=$treeMap.get($menu))
+				#foreach($sub in $subMenuList)
+				<li><a href="$sub.href" target="$sub.target" onclick="selStyle(this);">$sub.menutitle</a></li>
+				#end
+			</ul>
+			#end
+		</div>
+	</div>
+	<div class="plugsLeft">
+		<div class="toggleBar">
+			<iframe id="mainFrame" name="mainFrame" frameborder="0" scrolling="auto" width="100%;" height="100%" ></iframe>
+		</div>
+	</div>
+</div>
+<script>
+var initLayoutHeight = function() {
+	H = function(n){
+		n = isNaN(n)?n<0?0:n:n;
+		return n;
+	};
+	$('oaLayout').setStyle('height', H(window.getSize().y - 40));
+	$('menu').setStyle('height',H(window.getSize().y - 40));
+	$('mainFrame').setStyle('height',H(window.getSize().y - 66));
+};
+
+function selStyle(obj){
+	$$('.plugs_menu a.choice').removeClass('choice');
+	$(obj).addClass('choice');
+}
+window.addEvent('domready',function(){
+	initLayoutHeight();
+	document.id('menu').getElements('h2').each(function(item){
+		item.addEvents({
+			'mouseenter':function(){this.toggleClass('navHover')},
+			'mouseleave':function(){this.toggleClass('navHover')}
+		})
+		new Collapsable(item,item.getNext(),null,function(){
+			this.clicker.toggleClass('choice')
+		});
+	})
+})
+window.addEvent('resize',function() {
+	initLayoutHeight();
+});
+
+</script>
+
+</body>
+</html>

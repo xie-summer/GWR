@@ -1,0 +1,871 @@
+<!Doctype html>
+<html xmlns:wb=“http://open.weibo.com/wb”>
+<head><!-- SUCCESS_HEAD -->
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>#if($ott)${ott.sportname}-${ott.itemname}-$DateUtil.format($ott.playdate,"M月d日")#else ${sport.name}-${item.name}-$!DateUtil.format($playDate,"M月d日")#end按场次在线预定场馆_格瓦拉生活网</title>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_pay&v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${basePath}scripts/gewara.js?n=gewara-util,tips,scrollerbar&v=$VmUtils.jsVersion"></script>
+<style type="text/css">
+.seatGroup{overflow:hidden;}
+.ui_left,.ui_right{float:left;}
+.ui_left{width:870px;}
+.ui_right{width:310px; background:#f1fbff; margin-bottom:-30000px; padding-bottom:30000px;}
+.ui_right .inner{padding:20px 15px;}
+
+.toggleMore,.toggleMoreUp,.noticeMe,.new_fast_inner em,.isSellOut{background:url(/css/sport_wide/ico_pub.gif) no-repeat;}
+.ui_cinemaDesc em{background:url(/css/sport_wide/ico_sportList.jpg) no-repeat;}
+.ui_cinemaDesc em.ser_p{background-position:-18px -18px; width:24px;}
+.ui_cinemaDesc em.ser_pay{background-position:-18px -48px; width:24px;}
+.ui_cinemaDesc em.ser_zu{background-position:-18px -78px; width:24px;}
+.ui_cinemaDesc em.ser_card{background-position:-18px -107px; width:24px;}
+
+.seatView{min-height:350px; border:1px solid #bee5f2; padding:25px;}
+.seatView .mod_tabs .mod_hd ul.nav_tabs{height:30px; line-height:30px; background:#fff;}
+.seatView .mod_tabs .mod_hd ul.nav_tabs li,.moreDate ul li{display:inline-block; position:relative; cursor:pointer; width:75px; padding:0 5px; text-align:center; border:1px solid #2b7e9e; border-bottom:none; height:29px; line-height:29px; margin-right:3px;}
+.seatView ul.nav_tabs li.select,.seatView ul.nav_tabs li.select:hover,.seatView .moreDate ul li.select,.seatView .moreDate ul li.select:hover{background:#2b7e9e; color:#fff;}
+.seatView ul.nav_tabs li:hover,.seatView .moreDate ul li:hover{background:#ddf4ff; color:#2f7fba;}
+.seatView .mod_hd{padding-right:130px; height:30px; position:relative; border-bottom:2px solid #2b7e9e; z-index:5;}
+.seatView .moreDate{position:absolute; overflow:hidden; top:30px; right:100px; width:364px; background:#f2f8f9; border:1px solid #1885ae; z-index:5;}
+.seatView .moreDate ul li{margin:2px; border-bottom:1px solid #2B7E9E; background:#fff; float:left;}
+
+.seatViewTitle{position:relative; padding:15px 0; margin-bottom:20px; height:32px;}
+.seatViewTitle b{font-size:14px; float:left;}
+.seatViewTitle label{float:left; margin-right:20px; cursor:pointer;}
+.seatViewTitle label input{vertical-align:-2px; margin-right:6px;}
+.seatViewTitle label span{display:inline-block; padding:0 5px; text-align:center; border:1px solid #bdbdbd; width:60px; height:30px; line-height:30px;}
+.vipType span{background:#00deff;}
+.auctionType span{background:#fff600;}
+.isSellOut{display:block; width:23px; height:23px; position:absolute; left:0; top:0; background-position:0 -448px; }
+
+.seatViewInfo{display:block; width:180px; padding:5px 10px; height:50px; background:#f7f7f7; position:absolute; right:0; top:0;}
+.seatViewInfo ul li{float:left; width:60px; text-align:center;}
+.seatViewInfo span{cursor:default; width:45px;}
+
+.hasSeat,.checkSeat,.vipSeat,.actSeat,.sellSeat,.overSeat{display:block; cursor:pointer; border:1px solid #bdbdbd; height:24px; line-height:24px; margin:2px auto;}
+.vipSeat{background:#00deff;}
+.actSeat{background:#fff600;}
+.sellSeat{background:#ff573f; cursor:default;}
+.checkSeat{background-image:url(/css/sport_wide/cheakSeat.gif); background-position:center 4px; background-repeat:no-repeat;}
+.overSeat{background:#f2f2f2; border:#f2f2f2;}
+.isSite{width:180px; border:1px solid #39c; color:#39c; background:#fff; float:left; height:26px; line-height:26px; text-align:center; margin:0 5px 5px 0;}
+
+.disable .hasSeat,.disable .actSeat,.disable .vipSeat{cursor:default;}
+.disable .hasSeat{background-color:#f2f2f2; border-color:#efefef;}
+.disable .actSeat{background-color:#fffed8; border-color:#f5f5f5;}
+.disable .vipSeat{background-color:#baf1f9; border-color:#efefef;}
+.disable .sellSeat{background-color:#e7a59c; border-color:#efefef;}
+
+.hashover{border-color:#39c}
+
+.leftBox{padding:15px; border:1px solid #bee5f2; border-top:0; line-height:24px;}
+.rightBox{border-top:1px solid #d0ecf5; padding:15px 0; margin-top:20px;}
+.ui_layout h2{font-size:14px; font-weight:bold; padding-bottom:5px; display:inline-block;}
+p em,.ui_media .ui_pic{color:#666;}
+.mobileInfo{margin:15px 0 5px;}
+.mobileInfo .text{width:150px; font-size:16px; font-weight:bold; color:#333; font-family:verdana;}
+.pewSeat p{line-height:28px;}
+.pewSeat p em{font-size:12px; font-weight:normal;}
+.ui_price{color:#39c}
+.pews{border:1px solid #39c; color:#39c; background:#fff; float:left; width:96px; height:26px; line-height:26px; text-align:center; margin:0 5px 5px 0;}
+.timeTitle{padding:30px 10px;}
+.timeTitle .ui_media{margin-bottom:20px;}
+.timeTitle .ui_pic{width:120px; text-align:right; color:#333; margin-right:0;}
+.duration span{float:left; width:104px;padding:5px 0;display:block;border:1px solid #B7D2E7;color:#000;text-align:center;cursor:pointer;margin:0 10px 10px 0;overflow:hidden;
+	background: #ddf4ff; /* Old browsers */
+	background: -moz-linear-gradient(top, #ffffff 0%, #ddf4ff 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#ddf4ff)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #ffffff 0%,#ddf4ff 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #ffffff 0%,#ddf4ff 100%); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #ffffff 0%,#ddf4ff 100%); /* IE10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ddf4ff',GradientType=0 ); /* IE6-9 */
+	background: linear-gradient(top, #ffffff 0%,#ddf4ff 100%); /* W3C */
+}
+.duration span.select{border-color:#f60;color:#f60;font-weight:bold;}
+.duration span:hover{border-color:#f60;}
+.new_fast_inner{background-color:#fff; border:1px solid #828282; color:#999; position:relative; cursor:pointer; float:left; height:22px; overflow:hidden; padding-right:17px; text-indent:8px; width:155px; *width:150px;}
+.new_fast_inner em{display:block; width:7px; height:4px; line-height:0px; font-size:0; background-position:-24px -306px; position:absolute; right:6px; top:10px;}
+.toggleMore{background-position:-1px -262px; background-color:#1885ae; position:absolute; right:100px; top:0; width:30px; height:30px; cursor:pointer;}
+.toggleMoreUp{background-position:-1px -520px!important;}
+.noticeMe{height:30px; line-height:14px; cursor:pointer; width:50px; padding-left:20px; background-position:0 -481px; color:#39c; position:absolute; right:0; top:0;}
+span.ui_warning{height:22px;line-height:22px;display:inline-block;margin:0 0 0 10px;_margin:0;color:#666;}
+
+.inningTable{position:relative; clear:both; padding-bottom:12px; width:100%;}
+.has_pk{padding-left:80px; position:relative;}
+.has_pk dt{float:left; margin-left:-80px; _margin-left:-40px; width:75px; text-align:right; margin-top:30px; zoom:1;}
+.has_pk dt span{display:block; width:70px; height:30px; line-height:30px; margin-bottom:8px;}
+.pk_rows{height:30px; line-height:30px; overflow:hidden;}
+.pk_cols{float:left; width:45px; text-align:center; margin-right:8px;}
+.has_pk dd,.pk_table{width:100%;height:100%;overflow:hidden;float:left;}
+.table_rows{margin-bottom:8px;}
+.table_cols_1{width:45px}
+.table_cols_2{width:98px}
+.table_cols_3{width:151px}
+.table_cols_4{width:204px}
+
+.vipCardList{padding-left:75px; position:relative; margin-top:10px;}
+.vipCardList span.info{position:absolute; left:0; _left:-75px; top:3px;}
+.ui_simulate{width:200px;}
+.ui_simulate .simulate_options{width:198px;}
+.ui_simulate .simulate_options li{width:192px;}
+
+.notVipNotice{padding:10px 30px; color:#333;}
+.notVipNotice h2{font:normal 24px/30px "微软雅黑","黑体",Arial; text-align:center; display:block;}
+.notVipNotice ul{margin:20px 0;}
+.notVipNotice ul li{background:url(/css/movie_wide/ico_dot.gif) no-repeat 0 11px; padding-left:10px; line-height:24px; font-size:12px;}
+.ui_price b{margin:0 3px;}
+.openNotice{padding:20px;}
+</style>
+</head>
+<body class="ui_sport">
+#set($issport=true)#set($isOrder2=true)
+#set($orderStr1='场馆')#set($orderStr2='场次')#set($orderStr3='预订')
+#parse('include/wide_header.vm')
+<div class="ui_layout clear">
+	<div class="inner">
+		#parse('sport/menu.vm')
+		<div class="seatGroup mt20 clear">
+			<div class="ui_left">
+				<div class="seatView clear">
+					<div class="seatViewTitle clear" id="seatViewTitle">
+						<b class="mt5 none" id="textSeat">筛选：</b>
+						<label class="none" id="allSeat"><input value="allSeat" name="inningType" type="radio" checked/><span>所有场次</span></label>
+						<label class="none" id="hasSeat"><input value="hasSeat" name="inningType" type="radio"/><span>普通场次</span></label>
+						<label class="vipType none" id="vipSeat"><input value="vipSeat" name="inningType" type="radio"/><span>会员场次</span></label>
+						<label class="auctionType none" id="actSeat"><input value="actSeat" name="inningType" type="radio"/><span>竞拍场次</span></label>
+						<div class="seatViewInfo">
+							<ul>
+								<li><span class="hasSeat"></span>可预订</li>
+								<li><span class="sellSeat"></span>已占用</li>
+								<li><span class="checkSeat"></span>已选场次</li>
+							</ul>
+						</div>
+					</div>
+					<div class="mod_tabs">
+						<div class="mod_hd">
+							<ul class="nav_tabs">
+								#foreach($item in $itemList)
+								#if($foreach.count le 8)
+								<li #if($item.id eq $ott.id) class="select" #else onclick="changeOtt($item.id)" #end>#if($VmUtils.eq($otiCountMap.get($item.id), 0))<span class="isSellOut"></span>#end #if($DateUtil.getCurDate() eq $item.playdate)今天#elseif($DateUtil.isTomorrow($item.playdate))明天#{else}$DateUtil.format($item.playdate,'M/d') $DateUtil.getCnWeek($item.playdate)#end</li>
+								#end
+								#if($foreach.count eq $VmUtils.size($itemList))
+								#set($messagedate = $item.playdate)
+								#end
+								#end
+							</ul>
+							#if($VmUtils.size($itemList) gt 8)
+							<div class="moreDate">
+								<div id="isMoreDate" class="inner">
+									<ul>
+										#foreach($item in $itemList)
+										#if($foreach.count gt 8)
+										<li #if($item.id eq $ott.id) class="select" #else onclick="changeOtt($item.id)" #end>
+											#if($VmUtils.eq($otiCountMap.get($item.id), 0))<span class="isSellOut"></span>#end
+											$DateUtil.format($item.playdate,'M/d') $DateUtil.getCnWeek($item.playdate)
+										</li>
+										#end
+										#end
+									</ul>
+								</div>
+							</div>
+							<span class="toggleMore" id="toggleMore"></span>
+							#end
+							#*暂时隐藏
+							<span class="noticeMe" onclick="javascript:openNotice();">场次开放短信通知</span>
+							*#
+						</div>
+						<div class="mod_bd">
+							#if($sp.hasPretype('E'))
+							<div class="ui_warning" style="margin-bottom:0;">
+								<b class="ico_g"></b>
+								#if($VmUtils.isNotBlank($sp.premessage))
+									$!sp.premessage
+								#else
+								代售场馆发票仅由场馆提供，且不可享受格瓦拉提供的积分、优惠券、活动、瓦币支付等各类会员特权。
+								#end
+							</div>
+							#end
+							<div class="inner">
+								<div id="wrapper" class="inningTable">
+									#set($otiMap=$itemHelper.getOtiMap())
+									#set($maxwidth=53*$VmUtils.size($playHourList)+80)
+									<dl class="has_pk clear">
+										<dt>
+											#foreach($field in $fieldList)
+											<span>${field.name}</span>
+											#end
+										</dt>
+										<dd id="pk_table">
+											<div id="wrapperd" class="pk_table" style="width:${maxwidth}px;">
+												<div class="pk_rows">
+													#foreach($hour in $playHourList)
+													<div class="pk_cols"><em>$hour</em></div>
+													#end
+												</div>
+												#foreach($field in $fieldList)
+												<div class="pk_rows table_rows">
+													#foreach($hour in $playHourList)
+													#set($key=$field.id + $hour)
+													#set($oti=$!otiMap.get($key))
+													#if($oti)
+														#set($ots=$otsMap.get($oti.otsid))
+														#if($VmUtils.isNotBlank($oti.saleInd) && !$VmUtils.eq($oti.saleInd, '0') && !$VmUtils.eq($oti.itemtype, '2'))
+															#set($bindOtiList=$saleIndOtiMap.get($oti.saleInd))
+															#set($allprice=0)
+															#set($ids='')
+															#set($fromhour='')
+															#set($tohour='')
+															#set($num=$bindOtiList.size())
+															#foreach($bindOti in $bindOtiList)
+																#if($foreach.count eq 1) #set($fromhour=$bindOti.hour) #set($ids=$bindOti.id) #else #set($ids=$ids+','+$bindOti.id) #end
+																#if($foreach.count eq $bindOtiList.size()) #set($tohour=$bindOti.endhour) #end
+																#set($allprice=$allprice+$bindOti.price)
+															#end
+														#elseif($VmUtils.isNotBlank($oti.saleInd) && !$VmUtils.eq($oti.saleInd, '0') && $VmUtils.eq($oti.itemtype, '2') && $ots.hasBooking())
+															#set($bindOtiList=$saleIndOtiMap.get($oti.saleInd))
+															#set($allprice=0)
+															#set($ids='')
+															#set($fromhour='')
+															#set($tohour='')
+															#set($num=$bindOtiList.size())
+															#foreach($bindOti in $bindOtiList)
+																#if($foreach.count eq 1) #set($fromhour=$bindOti.hour) #set($ids=$bindOti.id) #else #set($ids=$ids+','+$bindOti.id) #end
+																#if($foreach.count eq $bindOtiList.size()) #set($tohour=$bindOti.endhour) #end
+																#set($allprice=$allprice+$bindOti.price)
+															#end
+														#else
+															#if($VmUtils.isNotBlank($oti.bindInd) && !$VmUtils.eq($oti.bindInd, '0'))
+																#set($bindOtiList=$bindOtiMap.get($oti.bindInd))
+																#set($allprice=0)
+																#set($ids='')
+																#set($fromhour='')
+																#set($tohour='')
+																#set($num=$bindOtiList.size())
+																#foreach($bindOti in $bindOtiList)
+																	#if($foreach.count eq 1) #set($fromhour=$bindOti.hour) #set($ids=$bindOti.id) #else #set($ids=$ids+','+$bindOti.id) #end
+																	#if($foreach.count eq $bindOtiList.size()) #set($tohour=$bindOti.endhour) #end
+																	#set($allprice=$allprice+$bindOti.price)
+																#end
+															#else
+																#set($num=0)
+																#set($ids=$oti.id)
+																#set($allprice=$oti.price)
+																#set($fromhour=$oti.hour)
+																#set($tohour=$oti.endhour)
+															#end
+														#end
+														#if($VmUtils.eq($oti.status,'delete')) #set($oti.status = 'S_GW')  #end
+															#if($VmUtils.contains($ids, ','))
+																#if($VmUtils.eq($oti.id, $VmUtils.substring($ids, 0, $VmUtils.indexOf($ids, ','))))
+																	#set($showDiv=true)
+																#else
+																	#set($showDiv=false)
+																#end
+															#else
+																#set($showDiv=true)
+															#end
+															#if($oti && $oti.status ne 'delete' && $showDiv)
+															<div class="pk_cols table_cols_$num">
+																<span name="$!oti.otsid" times="$num" money="${allprice}" lang="${fromhour}-${tohour} ${field.name} ${allprice}元" id="$ids" 
+																	#if($oti.hasAvailable())
+																		#if($VmUtils.eq($oti.itemtype, '1'))
+																			class="vipSeat" title="${fromhour}-${tohour} ${field.name} ${allprice}元【限会员】" config="vipSeat"
+																		#elseif($VmUtils.eq($oti.itemtype, '2') && $ots.hasBooking())
+																			class="actSeat" title="该场次为竞拍场次，点击参与竞拍" config="actSeat"
+																		#else
+																			class="hasSeat" title="${fromhour}-${tohour} ${field.name} ${allprice}元" config="hasSeat"
+																		#end
+																	#else
+																		#if($myOtiList.contains($oti))
+																			class="hasSite" title="${fromhour}-${tohour} ${field.name} ${allprice}元" 
+																		#else
+																			class="sellSeat" title="该场次已售出"
+																		#end
+																	#end>
+																</span>
+															</div>
+															#end
+														#else
+														<div class="pk_cols table_cols_0 disable">
+															<span title="该场次已过期" class="overSeat"></span>
+														</div>
+														#end
+													#end
+												</div>
+												#end
+											</div>
+										</dd>
+									</dl>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="leftBox clear">
+					<div class="clear">
+						<h2 class="left">场次说明：</h2>
+						<span class="ui_privilege">
+							#if($ott.isOpenPointPay())<em title="支持积分抵值" class="j">积</em>#end
+							#if($ott.isOpenCardPay())<em title="支持票券抵值" class="q">券</em>#end
+							#if($ott.isDisCountPay())<em title="支持支付优惠" data-type="$!ott.id" class="y">惠</em>#end
+						</span>
+					</div>
+					<p>$!ott.remark</p>
+				</div>
+				<div class="leftBox clear">
+					<h2>场馆信息：</h2>
+					<dl class="ui_media">
+						<dt class="ui_pic mr0">场馆特色：</dt>
+						<dd class="ui_text">
+							<div class="ui_cinemaDesc">
+								#set($sportOtherinfo = $!VmUtils.readJsonToMap($!sport.otherinfo))
+								#if($VmUtils.isNotBlank($!sportOtherinfo.get('park')))
+								<em class="ser_p" title="$!sportOtherinfo.get('park')"></em>
+								#end
+								#if($VmUtils.isNotBlank($!sportOtherinfo.get('visacard')))
+								<em class="ser_pay" title="$!sportOtherinfo.get('visacard')"></em>
+								#end
+								#if($VmUtils.isNotBlank($!sportOtherinfo.get('lease')))
+								<em class="ser_zu" title="$!sportOtherinfo.get('lease')"></em>
+								#end
+								#if($VmUtils.isNotBlank($!sportOtherinfo.get('membercard')))
+								<em class="ser_card" title="$!sportOtherinfo.get('membercard')"></em>
+								#end
+							</div>
+						</dd>
+					</dl>
+					#if(!$VmUtils.isBlank($!sport.address))<p><em>详细地址：</em>$!sport.countyname$!VmUtils.getLight($!sport.address, $queryString)</p>#end
+					#if(!$VmUtils.isBlank($!sport.contactphone))<p><em>联系电话：</em>$!{sport.contactphone}</p>#end
+					#if(!$VmUtils.isBlank($!sport.opentime))<p><em>营业时间：</em>$!sport.opentime</p>#end
+				</div>
+				<div class="leftBox clear">
+					<h2>温馨提示：</h2>
+					<p>1、订单提交后请在15分钟完成支付，超时系统将自动释放你选择的时段和人数。</p>
+					<p>2、支付成功后，你将在15分钟内收到短信通知，接收短信完全免费。</p>
+					<p>3、请自觉遵守场馆的相关规定，如佩带防护器具、注意安全等。</p>
+				</div>
+			</div>
+			<div class="ui_right">
+				<form id ="orderForm" name="myform" method="post">
+				<div class="inner">
+					<div class="pewSeat">
+						<p class="bold fs14"><a href="${basePath}sport/$!sport.id">$!sport.name</a></p>
+						<p class="mt10"><em>预订项目：</em><b>$!item.itemname</b></p>
+						<p><em>日期：</em><span class="cred fs14 bold">$!DateUtil.format($playDate,'yyyy-MM-dd')($DateUtil.getCnWeek($playDate))</span></p>
+						<div class="ui_media mt10">
+							<div class="ui_pic mr0">场次：</div>
+							<div class="ui_text">
+								<div id="cancelSite">
+									<div class="clear"><span class="pews">还未选择场次</span></div>
+									<p>请<span class="cf60 ml5 mr5">单击左侧选择场次</span>，再次单击取消。</p>
+								</div>
+								<div id="hasSiteBox" style="display:none;" class="clear"></div>
+								<div id="hasSiteInfo" style="display:none;"></div>
+							</div>
+						</div>
+						#if(!$VmUtils.isEmptyList($cardInfoList))
+						#set($selectCard=$cardInfoList.get(0))
+						#set($mct=$mctMap.get($selectCard.typeid))
+						<div class="vipCardList">
+							<span class="info">选择会员卡：</span>
+							<div class="ui_simulate">
+								<div class="simulate_select">
+									<div class="select_value">$!{selectCard.memberCardCode}$!{mct.cardtypeText}</div>
+									<a class="select_arrow" href="javascript:void(0);"></a>
+									<input id="curVipCard" class="simulate_value" type="hidden" lang="" value="$!selectCard.id" name="cardid">
+								</div>
+								<ul class="simulate_options" id="cardBox">
+									<li><a href="javascript:void(0);" data-value="">不使用会员卡</a></li>
+									#foreach($cardInfo in $cardInfoList)
+									#set($mct=$mctMap.get($cardInfo.typeid))
+									<li><a title="$!{cardInfo.memberCardCode}$!{mct.cardtypeText} 剩余$!{cardInfo.overMoney}/$!{mct.money}" overplus="$!{cardInfo.overMoney}" type="$!{mct.cardType}" href="javascript:void(0);" data-value="$cardInfo.id">$!{cardInfo.memberCardCode}$!{mct.cardtypeText}</a></li>
+									#end
+								</ul>
+							</div>
+						</div>
+						#end
+						<div class="mt15 none" id="pubType">
+							<p><em>总计：</em><span class="ui_price countPrice">¥<b>0</b></span></p>
+						</div>
+						
+						<div class="mt15 none" id="priceType">
+							<p><em>会员卡余额：</em><span class="ui_price">¥<b id="overplusB"></b></span></p>
+							<p class="mt5"><em>本次扣除：</em><span class="ui_price countPrice">¥<b>0</b></span></p>
+						</div>
+						
+						<div class="mt15 none" id="timesType">
+							<p><em>会员卡余额：</em><span class="ui_price"><b id="overplusA"></b>次</span></p>
+							<p class="mt5"><em>本次扣除：</em><span class="ui_price countPrice"><b>0</b>次</span></p>
+						</div>
+					</div>
+						<input type="hidden" name="fieldid" id="fieldid" value="" mustTxt="请先选择时间段！"/>
+						<input type="hidden" name="ottid" id="ottid" value="$!ott.id" />
+						<input type="hidden" name="timesInput" id="timesInput" value="0"/>
+						<input type="hidden" name="priceInput" id="priceInput" value="0"/>
+						#if($!spkey)
+						<input type="hidden" name="spkey" id="spkey" value="$!spkey"/>
+						#end
+						<div class="rightBox">
+							<p>输入接收短信的手机号码</p>
+							<div class="mobileInfo">
+								<p><em>手机号：</em><input type="text" value="$!member.mobile" class="text" maxlength="11" onkeyup="GewaraUtil.replaceStr(this);" id="mobile" name="mobile"/><span class="cred ffst ml5">*</span></p>
+								<p class="mt10">
+									#set($captchaId=$VmUtils.randomCaptchaId)
+									<input type="hidden" name="captchaId" id="captcha" value="$!captchaId"/>
+									<em>验证码：</em><input style="width:70px;" type="text" class="text" id="captchaInput" name="captcha" /><span class="cred ffst ml5">*</span>
+									<img id="captchaImg" src="${basePath}captcha.xhtml?captchaId=$!captchaId&r=$math.random" style="cursor: pointer;" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清楚，请双击换一张图片"/>
+								</p>
+							</div>
+						</div>
+						<p style="padding-left:49px;">
+							<a class="button redBt maxBt left" onclick="submitOrder(this);"><span>提交订单</span></a>
+						</p>
+				</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="notVipNotice" class="notVipNotice" style="display:none;">
+	<h2>你还不是场馆会员？</h2>
+	<ul>
+		<li>你正在尝试选择一个会员专享场次。会员专享场次仅供场馆会员预订。</li>
+		<li>如你已在线下购买了该场馆的会员卡，可至<a href="${basePath}home/acct/memberCard/cardList.xhtml?tagNo=$VmUtils.getRandom()" class="cSport" target="_blank">账户中心进行会员卡绑定</a>后再继续预订会员专享场次。</li>
+		<li>如你还不是该场馆的会员，也可返回场馆页面购买会员卡，或继续预订其它普通场次。</li>
+	</ul>
+	<p class="center">
+		<a class="button redBt bigBt" href="${basePath}sport/$!sport.id"><span>返回购买会员卡</span></a>
+		<a class="button redBt bigBt ml5" href="javascript:gewa.util.container['notVipNotice'].dispose('notVipNotice');"><span>确定</span></a>
+	</p>
+</div>
+<div id="openNotice" class="openNotice" style="display:none;">
+	<p class="fs14 bold">该场馆开放新场次时，我们将发送免费短信通知你。</p>
+	<p style="padding:10px 0;">请确认你绑定的手机号：</p>
+	<p>手机号：
+		<input maxlength="11" onkeyup="GewaraUtil.replaceStr(this);" id="msgMobile" class="text" style="width:150px;" type="text"/><span class="ffst cMovie ml5">*</span>
+	</p>
+	#if(!$messagedate)#set($messagedate=$DateUtil.getCurDate()) #end
+	<p class="mt10">日　期：
+		<select id="msgDate">
+			#foreach($x in [1..30])
+			#set($mgdate=$DateUtil.format($DateUtil.addDay($messagedate, $x),'yyyy-MM-dd'))
+			<option value="$mgdate">$mgdate</option>
+			#end
+		</select>
+	</p>
+	<p class="mt10">验证码：
+		#set($captcha2Id=$VmUtils.randomCaptchaId)
+		<input type="hidden" name="captcha2Id" id="captcha2" value=""/>
+		<input style="width:80px;" class="text" type="text" id="captcha2Input" name="captcha2"/><span class="ffst cMovie ml5">*</span>
+		<img id="captcha2Img" src="${basePath}captcha.xhtml?captchaId=$captcha2Id&r=$math.random" style="cursor: pointer;" onclick="GewaraUtil.refreshCaptcha('captcha2')" title="看不清楚，请双击换一张图片"/>
+	</p>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+var unminute = $ott.unitMinute/60;
+window.addEvent('domready',function(){
+	showTips();
+	new ScrollerBar('wrapper',{mode:'horizontal',wrapped:'wrapperd',step:60,flag:true});
+	toggleMoreDate();
+	new rows_cols({'lunm':'1'});
+	chooseType();
+	$('fieldid').value = "";
+	showType();
+	if($('cardBox')){
+		var oLis = $('cardBox').getElements('a');
+		oLis[1].fireEvent('click');
+	}
+	synchOti();
+	playListPrivilege();
+});
+function showType(){
+	var vip = $('pk_table').getElements('.vipSeat');
+	var act = $('pk_table').getElements('.actSeat');
+	if(vip.length != 0 || act.length != 0){
+		$('textSeat').removeClass('none');
+		$('allSeat').removeClass('none');
+		$('hasSeat').removeClass('none');
+	}
+	if(vip.length != 0){
+		$('vipSeat').removeClass('none');
+	}
+	if(act.length != 0){
+		$('actSeat').removeClass('none');
+	}
+	
+}
+
+var rows_cols = new Class({
+	Implements:[Options, Events],
+	initialize: function(options){
+		this.setOptions({
+			table:'pk_table',
+			onceSelect:[],
+			pk:".hasSeat",
+			pka:".hasSeat,.vipSeat,.actSeat",
+			hasPk:'checkSeat',
+			cancel:'cancelSite',
+			toel:'hasSiteBox',
+			toelInfo:'hasSiteInfo',
+			creatEl:'',
+			arraList:[],
+			cloneArray:[],
+			input:'fieldid',
+			money:0,
+			times:0,
+			lunm:1,
+			flag:false,
+			cardBox:'cardBox'
+		}, options);
+		this.toel = $(this.options.toel);
+		this.toelInfo = $(this.options.toelInfo);
+		this.cancel =  $(this.options.cancel);
+		this.pka = $(this.options.pka);
+		if($(this.options.cardBox) != null){
+			this.cardBoxList = $(this.options.cardBox).getElements('a');
+		}
+		this._construct();
+		this.selectBar();
+	},
+	_construct:function(){
+		var self = this;
+		this.table = $(this.options.table);
+		this.table.getElements(this.options.pka).addEvents({
+			'click':function(){
+				if($('logins')){
+					showLogin(refreshPage);
+				}else if(this.hasClass(self.options.hasPk)){
+					self.cancelSeat(this);
+				}else{
+					if(this.get('id').split(',').length + $(self.options.input).value.split(',').length > 4){
+						var seatCount = self.table.getElements('span[class*="checkSeat"]').length;
+						gewaUtil.alert("当前场次组合最多可选"+seatCount+"片场地！","","",350);
+						return;
+					}
+					if(this.hasClass("vipSeat")){
+						var curSeat = this;
+						if(self.isVip()){
+							#*
+							var isCheckSeat = self.table.getElements('span[class*="'+self.options.hasPk+'"][config="hasSeat"]');
+							if(isCheckSeat.length > 0){
+								gewa.util.issure('','<p style="padding:20px; font-size:14px;">选择会员专享场次，将释放普通场次，是否继续？</p>','格瓦拉提示你',420,'keys',function(){
+									isCheckSeat.each(function(item){
+										item.fireEvent('click');
+									});
+									self.chooseSeat(curSeat);
+									gewa.util.container['keys'].dispose('keys');
+								});
+							}
+							*#
+							if($('curVipCard').get('value') == ''){
+								self.cardBoxList[1].fireEvent('click');
+							}
+							self.chooseSeat(curSeat);
+						}else{
+							gewa.util.maskContent('','notVipNotice','格瓦拉提醒你',500,'notVipNotice');
+							return;
+						}
+					}else if(this.hasClass("actSeat")){
+						var curSeat = this;
+						gewa.util.issure('','<p style="padding:20px; font-size:14px;">你刚刚点选了一个竞拍场次，参与竞拍将跳转至竞拍页面，是否继续？</p>','格瓦拉提示你',520,'keys',function(){
+							location.href='${basePath}sport/open/getOpenTimeSale.xhtml?otsid='+curSeat.get('name');
+							gewa.util.container['keys'].dispose('keys');
+						},'参与竞拍');
+					}
+					else{
+						self.chooseSeat(this);
+					}
+				}
+			},
+			'mouseover':function(){this.addClass('hashover')},
+			'mouseout':function(){this.removeClass('hashover')}
+		});
+	},
+	chooseSeat:function(el){
+		var self = this;
+		el.addClass(self.options.hasPk);
+		self.setValue(el.id);
+		self.toel.show();
+		self.toelInfo.set('html','已选择<b class="m5 cf60">'+self.options.arraList.length+"</b>个场地，再次单击取消");
+		self.toelInfo.show();
+		self.cancel.hide();
+		self.options.money = el.get('money').toInt() + self.options.money;
+		var times = el.get('times').toInt() == 0?1:el.get('times').toInt();
+		if(unminute == times){
+			times = 1;
+		}else{
+			times = times / unminute;
+		}
+		self.options.times = times + self.options.times;
+		$('priceInput').set('value',self.options.money);
+		$('timesInput').set('value',self.options.times);
+		if($('curVipCard')){
+			if($('curVipCard').get('lang') == 1){
+				$('seatSumPrice').set('html',$('timesInput').value);
+			}else{
+				$('seatSumPrice').set('html',$('priceInput').value);
+			}
+		}
+		self.createElement(el);
+	},
+	cancelSeat:function(el){
+		var self = this;
+		el.removeClass(self.options.hasPk);
+		self.deleteValue(el.id);
+		if(self.options.arraList == 0){
+			self.toel.hide();
+			self.toelInfo.hide();
+			self.cancel.show();
+		}
+		self.toelInfo.set('html','已选择<b class="m5 cf60">'+self.options.arraList.length+"</b>个场地，再次单击取消");
+		self.options.money -= el.get('money').toInt();
+		var times = el.get('times').toInt() == 0?1:el.get('times').toInt();
+		if(unminute == times){
+			times = 1;
+		}else{
+			times = times / unminute;
+		}
+		self.options.times -= times;
+		$('priceInput').set('value',self.options.money);
+		$('timesInput').set('value',self.options.times);
+		if($('curVipCard')){
+			if($('curVipCard').get('lang') == 1){
+				$('seatSumPrice').set('html',$('timesInput').value);
+			}else{
+				$('seatSumPrice').set('html',$('priceInput').value);
+			}
+		}
+		if(el.retrieve('key') != null){
+			el.retrieve('key').dispose();
+			el.store('key',null);
+		}
+	},
+	createElement:function(el){
+		var self = this,pos = el.getPosition();
+		this.toel.getParent().show();
+		this.cancel.hide();
+		var issite = new Element('div',{'styles':{'top':pos.y,'left':pos.x,'position':'absolute'}}).addClass('isSite').inject(document.body);
+		new Element('span',{'html':el.get('lang')}).inject(issite);
+		var my = new Element('span',{'class':'cs'}).inject(issite);
+		my.addEvent('click',function(){
+			var keyel = this.retrieve('key');
+			keyel.set('class',self.options.pk.replace('.',''));
+			keyel.store('key',null);
+			self.deleteValue(keyel.id);
+			keyel.getFirst().hide();
+			if(self.options.arraList == 0){
+				self.toel.getParent().hide();
+				self.cancel.show();
+			}
+			self.options.money -= el.get('money').toInt();
+			self.toel.set('html','已选择<b class="m5 cf60">'+self.options.arraList.length+"</b>个场地，共计<b>"+self.options.money+"</b>元");
+			this.getParent('.isSite').dispose();
+		});
+		my.store('key',el);
+		el.store('key',issite);
+		issite.set('move', {duration: '400',onComplete:function(){
+			if(el.retrieve('key') != null){
+				var isel = el.retrieve('key');
+				isel.inject(this.toel);
+				isel.set('style','');
+			}
+		}.bind(this)}).move({
+			relativeTo:this.toel,
+			position:"center",
+	   	offset:{x:90,y:0}
+	   })
+	},
+	setValue:function(val){
+		this.input = $(this.options.input);
+		this.options.arraList.push(val);
+		this.input.value = this.options.arraList.join(",");
+	},
+	deleteValue:function(val){
+		this.options.arraList.erase(val);
+		this.input.value = this.options.arraList.join(",");
+	},
+	isVip:function(){
+		var vipCardList = this.cardBoxList;
+		if(vipCardList == undefined) return false;
+		if(vipCardList.length > 1) return true;
+		else return false;
+	},
+	selectBar:function(){
+		var self = this;
+		var simulateSelect = $$('.simulate_select');
+		simulateSelect.each(function(item){
+			item.addEvent('click',function(){
+				item.getNext().toggle();
+			})
+			item.getParent().addEvent('mouseleave',function () {
+				item.getNext().hide();
+			})
+			item.getNext().getElements('a').addEvent('click',function (e){
+				if(e)e.preventDefault();
+				item.getElement('.select_value').set('html',this.get('html'));
+				item.getElement('.simulate_value').set('value',this.get('data-value'));
+				item.getElement('.simulate_value').set('lang',this.get('type'));
+				item.getNext().hide();
+				self.modifyCardArea(this);
+				self.judgeCardType(this);
+			});
+		});
+	},
+	modifyCardArea:function(el){
+		var self = this;
+		var vipCardList = this.cardBoxList;
+		if(vipCardList && (el.get('data-value') == null || el.get('data-value') == '')){
+			var isCheckVipSeat = $(this.options.table).getElements('span[class*="'+this.options.hasPk+'"][config="vipSeat"]');
+			if(isCheckVipSeat.length > 0){
+				curSeat = this;
+				gewa.util.issure('','<p style="padding:20px; font-size:14px;">选择此选项将释放你已选择的会员专享场次，是否继续？</p>','格瓦拉提示你',430,'keys',function(){
+					isCheckVipSeat.each(function(item){
+						item.fireEvent('click');
+					});
+					gewa.util.container['keys'].dispose('keys');
+				});
+			}
+		}
+	},
+	judgeCardType:function(el){
+		var vipCardList = this.cardBoxList;
+		var cardType = el.get('type');
+		var countBox = $$('#pubType','#priceType','#timesType');
+		var countPrice = countBox.getElements('span[class*="countPrice"]');
+		countBox.addClass('none');
+		countPrice.each(function(item){
+			item.getElement('b').removeProperty('id');
+		});
+		if(vipCardList && cardType == 1){
+			$('timesType').removeClass('none');
+			$('timesType').getElements('span[class*="countPrice"] b').set('id','seatSumPrice');
+			$('seatSumPrice').set('html',$('timesInput').value);
+			$('overplusA').set('html',el.get('overplus'));
+		}else if(vipCardList && cardType == 2){
+			$('priceType').removeClass('none');
+			$('priceType').getElements('span[class*="countPrice"] b').set('id','seatSumPrice');
+			$('seatSumPrice').set('html',$('priceInput').value);
+			$('overplusB').set('html',el.get('overplus'));
+		}else{
+			$('pubType').removeClass('none');
+			$('pubType').getElements('span[class*="countPrice"] b').set('id','seatSumPrice');
+			$('seatSumPrice').set('html',$('priceInput').value);
+		}
+	}
+});
+
+function openNotice(){
+	checkLogin(true, function(){
+		gewa.util.issure('','openNotice','格瓦拉提示你',420,'openNotice',function(){
+			addPlayItemMessage();
+		});	
+	})
+}
+function addPlayItemMessage(){
+	if(!GewaraUtil.isMobile($('msgMobile').value)){
+		gewaUtil.alert('手机号码不正确！');
+		return;
+	}
+	var url = '${basePath}sport/ajax/addPlayItemMessage.xhtml';
+	var values = {'tag':'sport', 'relatedid':$!sport.id, 'categoryid':$!item.id, 'mobile':$('msgMobile').value, 'playDate':$('msgDate').value, 'captchaId':$('captcha2').value, 'captcha':$('captcha2Input').value};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.alert("添加成功！");
+			gewa.util.container['openNotice'].dispose('openNotice');
+		}else{
+			GewaraUtil.refreshCaptcha('captcha2');
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function showTips(){
+	var oListTags = $$('.ui_cinemaDesc em,#pk_table .pk_cols span');
+	oListTags.each(function(item){
+		var isCenter = item.nodeName.toLowerCase() == "span"?true:false;
+		new amTips(item,{position:'top',center:isCenter,width:600});
+	});
+}
+
+function toggleMoreDate(){
+	if($('isMoreDate') == null) return;
+	var moreDate = new Fx.Slide('isMoreDate').hide();
+	$('toggleMore').addEvent('click', function(){
+		moreDate.toggle();
+		this.toggleClass('toggleMoreUp');
+	  });
+}
+
+function chooseType(){
+	var o = $('seatViewTitle').getElements('input');
+	var oSeat = $('pk_table').getElements('.hasSeat,.vipSeat,.actSeat,.sellSeat');
+	o.addEvent('click',function(item){
+		var curValue = this.get('value');
+		if(curValue == 'allSeat'){oSeat.getParent('.pk_cols').removeClass('disable'); return;}
+		oSeat.getParent('.pk_cols').addClass('disable');
+		var curSeat = $('pk_table').getElements('span[config ='+curValue+']');
+		curSeat.getParent('.pk_cols').removeClass('disable');
+	});
+}
+
+function changeOtt(ottid){
+	location.href='${basePath}sport/order/step1.xhtml?ottid='+ottid#if($spkey)+"&spkey=$!spkey"#end;
+}
+function submitOrder(el){
+	checkLogin(true, function(){
+		if(!GewaraUtil.baseValidForm('orderForm'))return;
+		var url = '${basePath}sport/order/step2.xhtml';
+		var values = GewaraUtil.getValues("orderForm");
+		var err = "",val=$("mobile").value.trim();
+		if(val == ""){err += "请输入你的电话号码！"}
+		if((!GewaraUtil.isNumber(val) || val.length != 11) && val != "") err += "请输入正确的手机号码！";
+		if(err.length>0){gewaUtil.alert(err); return;}
+		gewa.util.mask({'element': el,'title':'正在提交，请稍等...'});
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				document.location.href="${basePath}gewapay/order.xhtml?orderId=" + result.retval;
+			}else{
+				GewaraUtil.refreshCaptcha('captcha');
+				gewaUtil.alert(result.msg);
+				
+			}
+		});
+	});
+}
+function synchOti(){
+	var url = '${basePath}sport/order/synchOti.xhtml';
+	GewaraUtil.sendRequest(url, {"ottid":$ott.id}, function(result){}, 'get');
+}
+//查看优惠信息 
+function playListPrivilege(){
+	var oListTags = $$('.ui_privilege em');
+	viewList = {};
+	oListTags.each(function(item,index){
+		if(item.hasClass('y')){
+			viewList[index] = item.amTips({content:function(){return $('htmlcontent')},ispointer:false,position:'bottom',showDelay:200,center:false,mouseBandCallback:function(){
+				var url = "${basePath}sport/ajax/getSpdiscountList.xhtml";
+				var _this = arguments[0];
+				if(this.retrieve('key') == null){
+					if(this.get('data-type')){
+						GewaraUtil.sendRequest(url, {'ottid':this.get('data-type')}, function(result){
+							if(result.success){
+								var div = new Element('div',{'id':'htmlcontent','html':result.retval,'class':'none'}).inject(document.body);
+								_this._this.options.content = function(){
+									return div;
+								};
+								viewList[index].amTipsShow(true);
+								this.store('key',div);
+							}
+						}.bind(this),'key');
+					}
+				}else viewList[index].amTipsShow();
+			}.bind(item)});
+		}else{
+			var isCenter = item.nodeName.toLowerCase() == "span"?true:false;
+			new amTips(item,{position:'top',center:isCenter,width:600});
+		}
+	});
+}
+</script>
+</body>
+</html>

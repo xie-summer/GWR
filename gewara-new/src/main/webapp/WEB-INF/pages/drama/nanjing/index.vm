@@ -1,0 +1,431 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	#set($isCityParam=true)
+	#parse('include/constant/cityParam.vm')
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>话剧票购买_话剧订票_经典搞笑话剧_话剧表演_剧院演出 - 格瓦拉生活网</title>
+	<meta name="keywords" content="话剧,话剧查询,话剧演出,话剧购票,话剧院,话剧院查询,话剧院购票"/>
+	<meta name="description" content="话剧票购买,格瓦拉提供经典搞笑话剧,话剧表演在线订票.话剧剧院演出信息查询,各类话剧演员,导演作品及动态."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,noobSlide,index_even,scrollerbar&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#if($headInfo)
+		html{background:$!headInfo.css url($VmUtils.randomPic('',$!headInfo.logosmall)) 0 78px repeat-x;}
+		body{background:transparent url($VmUtils.randomPic('',$!headInfo.logobig)) center 78px no-repeat;}
+		#end
+		.ui_layout{background:#f2f2f2;}
+		.switch_ui_c{padding-right:2px;}
+		.title h2{font-weight:bold;}
+		.ruse{+width:80px; text-align:right;}
+		.ruse .a_color3{+margin:0;}
+		.p_color{color:#87620A}
+		.p_wd{width:100%;height:20px;overflow:hidden;clear:both;}
+		.noahover a{color:#000;text-decoration:none !important;}
+		.title h2{font-family:'微软雅黑','宋体'; font-size:16px;}
+		.switch_ui_c .inner{padding:6px 15px!important}
+		.list_wala .inner,.percent-wd50 .inner,.switch_ui_c .ptb0,.ptb0{padding:0 10px!important;}
+		.tweeter{height:220px;}
+		.drama_review{height:220px;}
+	</style>
+</head>
+<body>
+#set($dramaHeadFlag='isDramaIndex')#set($relatedtag='drama')
+#set($isIndexBigAd = true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout">
+	#if($dramaNotice)<div class="dramaNotice">$!dramaNotice</div>#end
+	<div class="ui_left">
+		#if(!$VmUtils.isEmptyList($infoList))
+		<div class="ju-slidershowheader-wrap" id="ju_slideshow8_121">
+			<div class="ju-slidershowheader-group">
+				<span class="but_pre"></span>
+				<div class="ju-group">
+					<ul id="trego_menu121">
+						#foreach($info in $infoList)
+						<li class="item item_trego" title="$!info.title "><span></span>
+						$!info.title 
+						</li>
+						#end
+					</ul>
+				</div>
+				<span class="but_next"></span>
+			</div>
+			<div class="ju-trego loading">
+				#foreach($info in $infoList)
+				<div class="ju-trego-display">
+				 	<a href="$!info.link" target="_blank" title="$!info.title"><img src="$VmUtils.randomPic('',$!info.logo)" alt="$!info.title" /></a>
+				</div>
+				<div class="ju-trego-intro">
+					#*<div class="ju-trego-intro-bb png">
+						<div class="ju-trego-intro-bt png">                  
+							<div class="ju-trego-intro-inner">
+								<h3 title="$!info.title">$VmUtils.escabbr($!info.title,36)</h3>
+								<p title="$!info.summary">
+								$!VmUtils.escabbr($!info.summary,70)
+								<a class="brown" href="$!info.link">详情»</a>
+								</p>
+							</div>                  
+						</div>
+					</div>*#          
+				</div> 
+				#end
+			</div>
+		</div>
+		#end
+		<div class="inner">
+			<div class="switch_ui_outside mt10">
+				<div class="switch_ui_t"><div class="switch_ui_t"></div></div>
+				<div class="switch_ui_c">
+					<div class="switch_ui_c">
+						<div class="inner onshowList">
+							<div class="title">
+								<h2>上演剧目</h2>
+							</div>
+							<ul class="clear">
+								#foreach($drama in $dramaList)
+								#set($hotDrama=$relatedHelper.getR1("dramaList",$drama.id))
+								<li>
+									<a href="${basePath}drama/$hotDrama.id" class="img_wrap" target="_blank">
+										<img src="$VmUtils.randomPic('cw150h200', $!hotDrama.limg)" width="150" height="200" alt=""/>
+										#if($VmUtils.eq($hotDrama.hotvalue, 30000))<span class="mark_remen"></span>#elseif($VmUtils.eq($hotDrama.hotvalue, 50000))<span class="mark_tuijian"></span>#end
+									</a>
+									#if($priceMap.get($hotDrama.id).size() gt 0 || $isBookingMap.get($hotDrama.id))<b class="mark_text"></b>#end
+									#if($priceMap.get($hotDrama.id).size() gt 0)
+									#set($s=$priceMap.get($hotDrama.id).size()+(-1))
+									#set($minprice=$priceMap.get($hotDrama.id).get(0))
+									#set($maxprice=$priceMap.get($hotDrama.id).get($s))
+									<b class="mark_price">#if($minprice eq $maxprice)¥$!{minprice}#else¥$!{minprice}~$!{maxprice}#end</b>
+									#end
+									#if($isBookingMap.get($hotDrama.id))<a target="_blank" style="width:43px;" class="left button minBt redBt mark_btn" href="${basePath}drama/$hotDrama.id"><span>购票</span></a>#end
+									<p><b>[#if($VmUtils.equals($hotDrama.dramatype, 'drama'))话剧#else演出#end]<a href="${basePath}drama/$hotDrama.id" target="_blank">$!VmUtils.escabbr($!hotDrama.dramaname, 16)#if($VmUtils.length($hotDrama.dramaname) gt 16)...#end</a></b></p>
+									<p class="noahover"><a href="${basePath}drama/$hotDrama.id" target="_blank">$!DateUtil.format($!hotDrama.releasedate, 'MM月dd日') #if($hotDrama.enddate) - $!DateUtil.format($!hotDrama.enddate, 'MM月dd日') #end#if($isOpenseatMap.get($hotDrama.id))</a><a href="${basePath}drama/$hotDrama.id" title="本剧目支持在线选座/选区哦！" class="onlineSeat"  target="_blank"></a>#end</p>
+									<p class="noahover"><a href="${basePath}drama/$hotDrama.id" target="_blank">$!VmUtils.escabbr($!drama.summary, 22)</a></p>
+								</li>
+								#end
+							</ul>
+							<div class="title"><a href="${basePath}drama/dramaList.xhtml" class="more brown ffst" target="_blank">更多剧目&gt;&gt;</a></div>
+						</div>
+					</div>
+				</div>
+				<div class="switch_ui_b"><div class="switch_ui_b"></div></div>
+			</div>
+		
+			<div class="switch_ui_outside mt20">
+				<div class="switch_ui_t"><div class="switch_ui_t"></div></div>
+				<div class="switch_ui_c">
+					<div class="switch_ui_c">
+						<div class="inner">
+							<div class="percent-wd50">
+								<div class="title"><h2>哇啦</h2></div>
+								<div class="tweeter" >
+									<ul class="ui_abeam" id="element">
+										#foreach($comment in $commentList)
+										<li class="clear mt10 items">
+											<div class="uipic"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank" class="picmin"><img src="$VmUtils.randomPic('cw30h30', $!cacheMemberMap.get($comment.memberid).headpicUrl)" width="30" height="30" alt=""/></a></div>
+											<div class="uiText">
+												<div class="switch_ui_inside">
+													<div class="switch_plugs"><span class="pl"></span>
+														<div class="switch_uis_t"><div class="switch_uis_t"></div></div>
+														<div class="switch_uis_c">
+															<div class="switch_uis_c">
+																<div class="inner">
+																	<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!cacheMemberMap.get($comment.memberid).nickname</a>：<span id="comments$comment.id">$!VmUtils.getWebBody($!comment.body,$picPath)</span>
+																	<div class="t">
+																		<span class="rtime">$DateUtil.getTimeDesc($!comment.addtime) 来自$!comment.fromFlag</span><span class="ruse">
+																		<a class="cite a_color3" title="转载" href="javascript:void(0);" onclick="showMicro('micro','转：'+$('comments$comment.id').get('text'),#if($tranferCommentMap.get($comment.transferid))'@$comment.nickname:'+$('comments$comment.id').get('text')#else''#end,#if($tranferCommentMap.get($comment.transferid))$tranferCommentMap.get($comment.transferid).id#else$comment.id#end)">$!comment.transfercount</a>
+																		<a class="reply a_color3" title="搭话" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.replycount</a></span>
+																	</div>
+																</div>
+															</div>
+														</div>
+														<div class="switch_uis_b"><div class="switch_uis_b"></div></div>
+													</div>
+												</div>
+											</div>
+										</li>
+										#end
+									</ul>
+									<div class="tweeter_bt"></div>
+								</div>
+								<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=microblogGroun.xhtml" class="right brown ffst" target="_blank">更多&gt;&gt;</a></p>
+							</div>
+							<div class="percent-wd50">
+								<div class="title"><h2>剧评</h2></div>
+								<ul class="ui_abeam drama_review">
+									#foreach($dramaHotDiary in $dramaHotDiaryList)
+									#if($foreach.count le 2)
+									#set($relate=$relatedHelper.getR1("dramaHotDiaryList",$dramaHotDiary.id))
+									#set($relate2=$relatedHelper.getR1("categoryIdList",$relate.categoryid))
+									<li class="mt10 clear">
+										<div class="uipic"><a href="${basePath}drama/$relate2.id?topos=dramaDiary" target="_blank"><img width=72" height="96" src="$VmUtils.randomPic('cw72h96',$relate2.limg)" /></a></div>
+										<div class="uiText">
+											<h3><a href="${basePath}blog/t$relate.id" target="_blank">$!VmUtils.escabbr($relate.subject, 26)#if($VmUtils.getByteLength($relate.subject) gt 26)...#end</a></h3>
+											<p class="p_wd"><span class="mr5 p_color"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!relate.memberid" target="_blank">$!relate.membername</a></span> 评论：<a href="${basePath}drama/$relate2.id" target="_blank">$!relate2.dramaname</a></p>
+											<p>$!VmUtils.htmlabbr($relate.summary, 76)#if($VmUtils.getByteLength($relate.summary) gt 76)...#end</p>
+										</div>
+									</li>
+									#end
+									#end
+								</ul>
+								<p><a href="${basePath}blog/theatre" class="right brown ffst" target="_blank">更多&gt;&gt;</a></p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="switch_ui_b"><div class="switch_ui_b"></div></div>
+			</div>
+		</div>
+	</div>
+	<div class="ui_right">
+		<div class="inner ptb0">
+			<a class="drama_steps" href="${basePath}blog/t3202713" target="_blank" title="点击查看详细指南"></a>
+			<div class="switch_ui_outside mt10">
+				<div class="switch_ui_t"><div class="switch_ui_t"></div></div>
+				<div class="switch_ui_c">
+					<div class="switch_ui_c">
+						<div class="inner ptb0" style="z-index:2; position:relative; height:168px;">
+							<div class="title"><h2>话剧资讯</h2></div>
+							<ul class="ul-dot ul-24">
+								#foreach($news in $dramaNewsList)
+								#set($relate=$relatedHelper.getR1("dramaNewsList",$news.id))
+								<li><a href="${basePath}news/$!relate.id" target="_blank" title="$!relate.title">$!VmUtils.escabbr($!relate.title, 32)#if($VmUtils.getByteLength($relate.title) gt 32)...#end</a></li>
+								#end
+							</ul>
+							<div class="title"><a href="${basePath}news/theatre" class="more brown ffst" target="_blank">更多&gt;&gt;</a></div>
+						</div>
+						<div class="ui_d_flowBg"></div>
+					</div>
+				</div>
+				<div class="switch_ui_b"><div class="switch_ui_b"></div></div>
+			</div>
+			<div class="switch_ui_outside mt10">
+				<div class="ui_d_activityBg"></div>
+				<div class="switch_ui_t"><div class="switch_ui_t"></div></div>
+				<div class="switch_ui_c">
+					<div class="switch_ui_c">
+						<div class="inner" style="padding-top:0px!important;">
+							<div class="title" style="padding-bottom:10px; color:#fff;"><h2>近期活动</h2></div>
+							#if(!$VmUtils.isEmptyList($activityList))
+							#set($relate=$relatedHelper.getR1("activityList",$activityList.get(0).id))
+							#end
+							<a href="${basePath}activity/$!activityList.get(0).relatedid" target="_blank" title="$!relate.title"><img width="228" height="100" src="$VmUtils.randomPic('', $activityList.get(0).logo)" /></a>
+							<ul class="ul-dot ul-24 mt5">
+								#foreach($activity in $activityList)
+								#if($foreach.count gt 1)
+								#set($relate=$relatedHelper.getR1("activityList",$activity.id))
+								<li><a href="${basePath}activity/$!activity.relatedid" target="_blank" title="$!relate.title">$!VmUtils.escabbr($!relate.title, 32)#if($VmUtils.getByteLength($relate.title) gt 32)...#end</a></li>
+								#end
+								#end
+							</ul>
+							<div class="title">
+								<a class="more brown ffst" target="_blank" href="${basePath}activity/activityList.xhtml">更多&gt;&gt;</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="switch_ui_b"><div class="switch_ui_b"></div></div>
+			</div>
+			<div class="switch_ui_outside mt10">
+				<div class="ui_d_activityBg"></div>
+				<div class="switch_ui_t"><div class="switch_ui_t"></div></div>
+				<div class="switch_ui_c">
+					<div class="switch_ui_c">
+						<div class="inner" id="blog_content" style="padding-top:0px!important;">
+							<div class="title" style="padding-bottom:10px; color:#fff;"><h2>论坛</h2></div>
+							<ul class="ul-dot ul-24">
+								#foreach($dramaDiary in $dramaDiaryList)
+								#set($relate=$relatedHelper.getR1("dramaDiaryList",$dramaDiary.id))
+								<li><a href="${basePath}blog/t$relate.id" target="_blank" title="$!relate.subject">$!VmUtils.escabbr($!relate.subject, 32)#if($VmUtils.getByteLength($relate.subject) gt 32)...#end</a></li>
+								#end
+							</ul>
+							<div class="title"><a href="${basePath}blog/theatre" class="more brown ffst" target="_blank">更多&gt;&gt;</a></div>
+						</div>
+					</div>
+				</div>
+				<div class="switch_ui_b"><div class="switch_ui_b"></div></div>
+			</div>
+			<div class="switch_ui_outside mt10">
+				<div class="switch_ui_t"><div class="switch_ui_t"></div></div>
+				<div class="switch_ui_c">
+					<div class="switch_ui_c">
+						<div class="switch_tab">
+							<span class="l select" id="theatre">场馆</span>
+							<span class="r" id="quan">圈子</span>
+						</div>
+						<div class="inner" id="theatre_content" style="height:170px; *height:161px; _height:165px; overflow:hidden;">
+							<ul class="percent_33 mt30 clear">
+								#foreach($theatre in $theatreList)
+								#set($relate=$relatedHelper.getR1("theatreList",$theatre.id))
+								<li>
+									<a href="${basePath}theatre/$relate.id" target="_blank"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw100h100', $relate.firstpic))  center center no-repeat" width="66" height="66"/></a><br/>
+									<a href="${basePath}theatre/$relate.id" target="_blank">$!{relate.name}($!curDramaCountMap.get($relate.id))</a>
+								</li>
+								#end
+							</ul>
+							<div class="title"><a href="${basePath}theatre/theatreList.xhtml" class="more brown ffst" target="_blank">更多&gt;&gt;</a></div>
+						</div>
+						<div class="inner none" id="quan_content" style="height:170px; *height:161px; _height:165px; overflow:hidden;">
+							<div class="tab_silde">
+								<div class="tab_silde_m" id="run_tag">
+									#foreach($x in [1..$commuList.size()])<span #if($foreach.index eq 0)class="select"#end></span>#end
+								</div>
+								<div class="tab_silde_c">
+									<div class="tab_silde_c_plugs" id="sildeBox">
+										#foreach($commu in $commuList)
+										#set($relate=$relatedHelper.getR1("commuList",$commu.id))
+										<dl class="tab_silde_o ui_abeam">
+											<dt class="uipic"><a href="${basePath}quan/$!relate.id" target="_blank"><img src="$VmUtils.randomPic('sw60h60', $relate.rlogo)"/></a></dt>
+											<dd class="uiText">
+												<a href="${basePath}quan/$!relate.id" target="_blank">$!VmUtils.escabbr($!relate.name, 24)#if($VmUtils.getByteLength($relate.name) gt 24)...#end</a>
+												<p>$!VmUtils.escabbr($relate.info, 72)</p>
+												<span class="gray">成员：$!commuMemberMap.get($relate.id)<span class="ml20">人气：$!relate.clickedtimes</span></span>
+											</dd>
+										</dl>
+										#end
+									</div>
+								</div>
+							</div>
+							<div class="title"><a href="${basePath}quan/index.xhtml?tag=theatre" class="more brown ffst" target="_blank">更多&gt;&gt;</a></div>
+						</div>
+					</div>
+				</div>
+				<div class="switch_ui_b"><div class="switch_ui_b"></div></div>
+			</div>
+		</div>
+	</div>
+	<div class="cls"></div>
+	#if(!$VmUtils.isEmptyList($partnerList))
+	<div class="drama_ad_c">
+		#foreach($partner in $partnerList)
+		<a href="$partner.link" #if($foreach.count eq 4) style="margin-right:0;" #end target="_blank" title="$partner.title"><img width="230" height="60" src="$VmUtils.randomPic('sw230h60', $partner.logo)" /></a>
+		#end
+	</div>
+	#end
+	<div class="inner">
+		<div class="switch_ui_outside">
+			<div class="switch_ui_t"><div class="switch_ui_t"></div></div>
+			<div class="switch_ui_c">
+				<div class="switch_ui_c">
+					<div class="inner">
+						<div class="percent-wd50">
+								<div class="title"><h2>近期演出的明星/导演/剧社</h2></div>
+								<ul class="drama_actor mt5">
+								#if(!$VmUtils.isEmptyList($dramastarList))
+									#set($relate=$relatedHelper.getR1("dramastarList",$dramastarList.get(0).id))
+									<li class="a1">
+										<img width="150" height="201" src="$VmUtils.randomPic('cw150h200', $dramastarList.get(0).logo)" />
+										<a href="${basePath}drama/star/$relate.id" target="_blank"><b>$!relate.name</b><br />#if($starDramaCountMap.get($relate.id) gt 0)最近有$!starDramaCountMap.get($relate.id)场#else最近没有#end<br />演出</a>
+									</li>
+									#end
+									#foreach($dramastar in $dramastarList)
+									#if($foreach.count gt 1)
+									#set($relate=$relatedHelper.getR1("dramastarList",$dramastar.id))
+									<li class="a$foreach.count">
+										<img width="100" height="100" src="$VmUtils.randomPic('cw100h100', $dramastar.logo)" />
+										<a href="${basePath}drama/star/$relate.id" target="_blank"><b>$!relate.name</b><br />#if($starDramaCountMap.get($relate.id) gt 0)最近有$!starDramaCountMap.get($relate.id)场#else最近没有#end<br />演出</a>
+									</li>
+									#end
+									#end
+								</ul>
+							</div>
+							<div class="percent-wd50">
+								<div class="title" style="padding-left:8px;"><h2>经典剧目</h2></div>
+								<ul class="jdjm ml10 clear mt5">
+									#foreach($dramaHot in $dramaHotList)
+									#set($relate=$relatedHelper.getR1("dramaHotList",$dramaHot.id))
+									<li>
+										<a href="${basePath}drama/$relate.id" target="_blank" title="$!hotsubject.title"><img src="$VmUtils.randomPic('cw96h128', $relate.limg)" width="90" height="120" /></a>
+										<p style="height:28px; line-height:14px;" class="mt5"><a href="${basePath}drama/$relate.id" target="_blank">$!VmUtils.escabbr($relate.dramaname, 32)#if($VmUtils.getByteLength($relate.dramaname) gt 32)...#end</a></p>
+									</li>
+									#end
+								</ul>
+								<ul class="mt10 ml10 clear">
+									#foreach($hotsubject in $hotsubjectList)
+									<li class="jdjm_list"><a class="brown" href="$hotsubject.link" target="_blank" title="$!hotsubject.title"><span class="ff">[专题]</span>$!VmUtils.escabbr($!hotsubject.title, 24)#if($VmUtils.getByteLength($!hotsubject.title) gt 24)...#end</a></li>
+									#end
+								</ul>
+							</div>
+					</div>
+				</div>
+			</div>
+			<div class="switch_ui_b"><div class="switch_ui_b"></div></div>
+		</div>
+	</div>
+</div>
+#parse('wala/useOtherMicroBlog.vm')
+#parse('include/bottom.vm')
+<!-- SUCCESS_BOTTOM -->
+<script type="text/javascript">
+var startSlideshow121 = function() {
+var mySlideShow8121  = new JUSlideShow8({
+		juSlide8Bg:'#ju_slideshow8_121 div.ju-trego-display',
+		juSlide8Menu:'#ju_slideshow8_121 .item_trego',
+		juSlide8Info:'#ju_slideshow8_121 div.ju-trego-intro',
+		juSlideMenuImg:'#trego_menu121 li',
+		transaction:5000,
+		durationSlide8:500,
+		juSlide:'ju_slideshow8_121',
+		butPre:'#ju_slideshow8_121 .but_pre',
+		butNext:'#ju_slideshow8_121 .but_next',
+		count:4
+	})
+};
+
+window.addEvent('domready',function(){
+	#if(!$VmUtils.isEmptyList($infoList))setTimeout(startSlideshow121,1000);#end
+	var oLis = $$('.onshowList').getElements('li');
+	var oActors = $$('.drama_actor').getElements('li');
+	if(oLis != null){
+		oLis[0].addEvents({
+			'mouseenter':function(){this.addClass('select')},
+			'mouseleave':function(){this.removeClass('select')}
+		});
+	}
+	if(oActors != null){
+		oActors[0].addEvents({
+			'mouseenter':function(){this.getElement('a').show()},
+			'mouseleave':function(){this.getElement('a').hide()}
+		});
+	}
+	#if(!$VmUtils.isEmptyList($theatreList))new PanelGroup(['theatre', 'quan'], 'theatre', "select", "none", "mouseover");#end
+	new marquee('element');
+	#if(!$VmUtils.isEmptyList($commuList))
+	var nS4 = new noobSlide({
+		box: $('sildeBox'),
+		items: $$('#sildeBox dl'),
+		size: 238,
+		autoPlay: true,
+		handles: $$('#run_tag span'),
+		button_event:'mouseout',
+		handle_event:'mouseenter',
+		addButtons:{stop: $('sildeBox')},
+		onWalk: function(currentItem,currentHandle){
+			this.handles.removeClass('select');
+			currentHandle.addClass('select');
+		}
+	});
+	#end
+})
+
+function searchQuestion(e,value){
+	$('searchForm').getElements('input').each(function(item){item.value=''});
+	$(e).value = value;
+	$('searchForm').submit();
+}
+
+function changeDate(date,item){
+	var values = {'date':date}
+	var item = $(item);
+	GewaraUtil.sendLoad('wrapper', '${basePath}ajax/drama/dramaCalendar.xhtml', values, function(result){
+		if(result.success){
+			$('allDays').getElements('li').removeClass('select');
+			item.getParent().addClass('select');
+			if($('wrapped').getElement('ul') != null && $('wrapped').getElement('ul').getDimensions().y > 208)new ScrollerBar('wrapper',{wrapped:'wrapped'});
+		}
+	});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>订单查询</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/layout.css"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/bms.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js"></script>
+	<style type="text/css">
+		.tablist .trbg td{padding:0; height:40px; line-height:40px;}
+		#page,.rowCount{margin:5px 0;}
+		.useCao label{color:#555555;font-weight:bold;font-size:12px;}
+		.useCao .init-text{width:160px;padding:2px 1px;vertical-align:middle;border:1px solid #ccc;margin-right:40px;}
+		.useCao .fline{font-size:15px;margin:0 5px;}
+		.useCao .btn{padding:2px 8px;cursor:pointer;}
+		.useCao .t_ico{background:url(${staticPath}css/sport/cus_icon.png?v=4545) no-repeat right -159px;}
+		.tablist .trbg{background:#efefef;color:#555;}
+		.tablist .trbg:hover{background:#f1f5ff;}
+		.tablist .trbg td{height: 30px;line-height: 30px;padding: 0;}
+		.redBt input {width: 50px;}
+		.orderSet{height:26px;line-height: 26px;padding:0 10px;clear: left;}
+		.orderSet li{width:60px;float:left;text-align:center;cursor: pointer;}
+		.seeOrder{background:#bbb;font-weight:bold}
+	</style>
+</head>
+<body class="ui_orange">
+<div class="maintop">健身卡订单查询管理</div>
+<div class="main">
+	#set($keyList=["类型","场次/名称","订单号","取票密码","第三方密码", "下单/付款时间", "联系电话", "用户[ID]", "总价", "支付方式", "支付状态", "操作"])
+	#set($keyTypeMap={'ticket':'影票','drama':'演出','sport':'运动','gym':'键身','goods':'物品','membercard':'会员卡','pubsale':'竞拍'})
+    <div class="useCao">
+    	#if($command.errorMsg)<div style="color:red;font-size:24px;font-weight:bolder;margin:0px 0px 10px;">$command.errorMsg</div>#end
+    	<form id="searchOrderForm"  action="${basePath}admin/order/gymOrderList.xhtml">
+    		<input type="hidden" name="status" id="status" value="$!command.status" />
+    		<input type="hidden" name="relatedid" id="relatedid"/>
+			<input type="hidden" name="xls" id="xls" value="" />
+			<input type="hidden" name="placeid" id="placeid" value="$!command.placeid"/>
+			<input type="hidden" name="level" id="level" value="$!command.level" />
+	    	<div>
+		    	<label>场&nbsp;&nbsp;馆：</label>
+		    	<select name="splaceid" id="splaceid" class="mr20" onchange="queryOrder('placeid', this.value)">
+					<option value="" #if($VmUtils.isNull($!command.placeid))selected#end>--全部场馆--</option>
+					#foreach($gym in $gymList)
+						<option value="$gym.id" #if($VmUtils.eq($!command.placeid, $gym.id))selected#end>$!{gym.name}</option>
+					#end
+				</select>
+			</div>
+			<div class="mt15">
+				<label>交易时段：</label>
+		    	<input class="init-text t_ico" type="text" name="starttime" id="starttime" style="margin-right:0;" value="$!DateUtil.formatTimestamp($!command.starttime)"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>
+		    	<span class="fline">-</span>
+		    	<input class="init-text t_ico" type="text" name="endtime" id="endtime" value="$!DateUtil.formatTimestamp($!command.endtime)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>
+	    	
+			</div>
+	    	<div class="mt15">
+		    	<label>订单号：</label>
+		    	<input class="init-text" type="text" name="tradeno" id="tradeno" value="$!command.tradeno"/>
+		    	<label>手机号码：</label>
+		    	<input class="init-text" type="text" name="mobile" id="mobile" value="$!command.mobile"/>
+		    	<!-- <span class="button minBt redBt"><input onclick="submitQuery(this)" value="查&nbsp;&nbsp;询" /></span> -->
+		    	<span class="button minBt redBt"><input onclick="submitQuery(this)" value="查询订单" /></span>
+	    	</div>
+    	</form>
+    </div>
+    <ul class="orderSet mt20">
+		<li id="all" #if($VmUtils.isBlank($!command.status))class="seeOrder"#end><a href="javascript:queryOrder('status','')" class="blue">全部</li>
+		<li id="new" #if($VmUtils.eq($!command.status,'new'))class="seeOrder"#end><a href="javascript:queryOrder('status','new')" class="blue">待付款</a></li>
+		<li id="paid" #if($VmUtils.eq($!command.status,'paid'))class="seeOrder"#end><a href="javascript:queryOrder('status','paid')" class="blue">已付款</a></li>
+		<li id="paid_success" #if($VmUtils.eq($!command.status,'paid_success'))class="seeOrder"#end><a href="javascript:queryOrder('status','paid_success')" class="blue">交易成功</a></li>
+		<li id="paid_unconfirm" #if($command.status eq 'paid_unconfirm')class="seeOrder"#end style="width:65px;"><a href="javascript:queryOrder('status','paid_unconfirm')" class="blue">付款待确认</a></li>
+		<li id="paid_failure" #if($VmUtils.eq($!command.status,'paid_failure'))class="seeOrder"#end><a href="javascript:queryOrder('status','paid_failure')" class="blue">交易失败</a></li>
+		<li id="cancel" #if($VmUtils.eq($!command.status,'cancel'))class="seeOrder"#end><a href="javascript:queryOrder('status','cancel')" class="blue">已取消</a></li>
+		<li><a href="${basePath}admin/message/smsList.xhtml?status=failure" class="blue" target="_blank"><b>失败短信</b></a></li>
+		<li><a href="javascript:getXls()">导出EXCEL</a></li>
+	</ul>
+    <div class="info">
+      <table class="tablist mt10" id="all_content" width="100%">
+			<tbody id="tbody">
+				<tr class="trbg">
+					<td>&nbsp;</td>
+					<td>健身卡</td>
+					<td>卡类型</td>
+					<td>订单号</td>
+					<td>取票密码</td>
+					<td>下单时间</td>
+					<td>用户</td>
+					<td>数量</td>
+					<td>总价</td>
+					<td>联系电话</td>
+					<td>选择课程</td>
+					<td>有效天数</td>
+					<td>状态</td>
+					<td>同步订单</td>
+				</tr>
+				#foreach($order in $orderList)
+				#set($descMap=$VmUtils.readJsonToMap($order.description2))
+				<tr id="row${order.id}">
+					<td>$foreach.count</td>
+					<td title="$!descMap.get('详细')">$!descMap.get('详细')</td>
+					<td>$!descMap.get('卡类型')</td>
+					<td>#if($VmUtils.isBlank($xls))<a href="${basePath}admin/order/orderDetail.xhtml?tradeNo=$order.tradeNo" target="_blank" title="$!order.description2">#end[$order.tradeNo]#if($VmUtils.isBlank($xls))</a>#end</td>
+					<td>$order.checkpass</td>
+					#if($VmUtils.isBlank($xls))<td>$DateUtil.format(${order.addtime},'MM-dd HH:mm:ss')</td>#end
+					<td><a href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$order.memberid" target="_blank">$order.membername</a></td>
+					<td>$order.quantity</td>
+					<td>#if($order.discount gt 0)<span style="color:red;font-weight: bold;" title="$order.disreason">${order.totalAmount}</span>#else${order.totalAmount}#end</td>
+					#*<td>#if($VmUtils.isNotBlank($descMap.get('收件人'))) $!descMap.get('收件人') #else $!descMap.get('真实姓名') #end</td>*#
+					<td #if($VmUtils.isNotBlank($order.remark))title="$order.remark" style="color:red"#end onclick="showMobile($order.id,$order.mobile)"><span name="demobile" id="order$order.id" title="$VmUtils.getSmobile($order.mobile)">#if($VmUtils.isBlank($xls))$VmUtils.getSmobile($order.mobile) #else ${order.mobile}#end</span></td>
+					#*<td>#set($addressText=$descMap.get('详细地址'))#if($VmUtils.isNotBlank($addressText))$addressText#else$!descMap.get('联系地址')#end</td>*#
+					<td>$!descMap.get('关联课程')</td>
+					<td>$!descMap.get('有效期天数')</td>
+					<td>${order.statusText}
+						#if($order.paidFailure || $order.paidUnfix)
+						<input type="button" class="bt1" value="确认成功" onclick="confirmOrder($order.tradeNo, this)"/>
+						#end
+					</td>
+					<td>
+					#if($VmUtils.eq($order.status,'paid_success'))
+					#set($status=$synchStatusMap.get($order.id))
+						#if($VmUtils.eq($status,'Y'))
+						<span class="yellow">已同步</span>
+						#elseif($VmUtils.eq($status,'N'))
+						<input type="button" onclick="gymConfirm($order.id)" value="同步"/>
+						#else
+						--
+						#end
+					#else
+					--
+					#end
+					</td>
+					#set($seatText='')
+				</tr>
+				#end
+			</tbody>
+		</table>
+    </div>
+    <div class="clear">#parse('include/pageUtil.vm')</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+	if($("curList")) $("curList").getParent().removeClass("shrink");
+	$$(".aboutMovie").getElements(".controlPoint").each(function(item){
+		item.addEvent("click",function(){
+			this.getNext().getElement("ul").toggleClass("shrink");
+		});
+	});
+});
+
+function submitQuery(el){
+	var tradeno = $('tradeno').value.trim();
+	var mobile = $('mobile').value.trim();
+	if (tradeno.length == 0 && mobile.length == 0) {
+		var start = $('starttime').value;
+		if (start == null || start == "") {
+			alert("开始日期不得为空!");
+			return;
+		}
+		var end = $('endtime').value;
+		if (end == null || end == "") {
+			alert("结束日期不得为空!");
+			return;
+		}
+		var startdate = Date.parse(start);
+		var enddate = Date.parse(end);
+		if (enddate.getTime() - startdate.getTime() > 1000*60*60*24*5) {
+			alert("时间间隔不得超过5天!");
+			return;
+		}
+	}
+	$('xls').value='false';
+	$('searchOrderForm').submit();
+}
+
+function queryOrder(field, value){
+	$(field).value=value;
+	var tradeno = $('tradeno').value.trim();
+	var mobile = $('mobile').value.trim();
+	if (tradeno.length == 0 && mobile.length == 0) {
+		var start = $('starttime').value;
+		if (start == null || start == "") {
+			alert("开始日期不得为空!");
+			return;
+		}
+		var end = $('endtime').value;
+		if (end == null || end == "") {
+			alert("结束日期不得为空!");
+			return;
+		}
+		var startdate = Date.parse(start);
+		var enddate = Date.parse(end);
+		if (enddate.getTime() - startdate.getTime() > 1000*60*60*24*5) {
+			alert("时间间隔不得超过5天!");
+			return;
+		}
+	}
+	$('xls').value='false';
+	$('searchOrderForm').submit();
+}
+
+var item = "";
+function showMobile(orderid, mobile){
+	$('tbody').getElements('span[name=demobile]').each(function(item){
+		item.set('html', item.title);
+		item.removeClass('yellow');
+		$('order' + orderid).set('html', mobile);
+		$('order' + orderid).addClass('yellow');
+	});
+}
+
+function confirmOrder(tradeNo, el){
+	el.dispose();
+	var url = "${basePath}admin/gymTicket/failConfirm.xhtml";
+	GewaraUtil.sendRequest(url, {"tradeNo":tradeNo}, function(result){
+		if(result.success){
+			refreshPage();
+		}else alert(result.msg);
+	})
+}
+
+function gymConfirm(orderid){
+	if(confirm('确实要同步吗')==false) return;
+	var url = "${basePath}admin/gymTicket/gymConfirm.xhtml";
+	GewaraUtil.sendRequest(url, {"orderid":orderid},function(result){
+		if(result.success) refreshPage();
+		else alert(result.msg);
+	});
+}
+
+function getXls(){
+	$('xls').value='true';
+	$('searchOrderForm').submit();
+}
+</script>
+</body>
+</html>

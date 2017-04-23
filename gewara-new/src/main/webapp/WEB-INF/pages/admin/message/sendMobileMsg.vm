@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>发送短信</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width: 750px; margin:auto" class="yui-skin-sam">
+<form action="javascript:sendMsg('dissubmitbtn')" name="msgForm" id="msgForm" >
+<table class="table">
+	<thead>
+	<tr>
+		<th>发送通道:</th>
+		<th><select name="channel" id="channel">
+			<option value="mlink">移通[全国]</option>
+			<option value="mas">MAS</option>
+			<option value="xuanwu">玄武网关</option>
+			<option value="gewamail">GewaMail</option>
+			</select>
+		</th>
+	</tr>
+	<tr>
+		<th>手机号码:</th>
+		<th><input type="text" name="mobile" id="mobile" /></th>
+	</tr>
+	<tr>
+		<th>发送内容:<br />
+			<span id="wordcount"></span>
+		</th>
+		<th>
+			<textarea name="msg" id="msg" style="width:420px; height:150px;" onchange="calculate()"></textarea>
+		</th>
+	</tr>
+	<tr>
+		<th colspan="2"><input type="submit" value="发送" id="dissubmitbtn"/></th>
+	</tr>
+	</thead>
+</table>
+</form>
+	<script type="text/javascript">
+	function sendMsg(el){
+		if($("mobile").value==""){alert("请填写手机号码！");return}
+		if($("msg").value==""){alert("请填写短信内容！");return}
+		gewa.util.mask({'element': el,'title':'正在提交，请稍等...'});
+		var url = "${basePath}admin/message/sendMobileMsg.xhtml"
+		GewaraUtil.sendRequest(url, {"mobile":$("mobile").value, "msg":$("msg").value,"channel":$("channel").value}, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				alert(result.retval);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function calculate(){
+		$("wordcount").set("text", $("msg").value.length+"字");
+		if($("msg").value.length>70) alert("超过70字，系统会分两条短信发送！");
+	}
+</script>
+</body>
+</html>

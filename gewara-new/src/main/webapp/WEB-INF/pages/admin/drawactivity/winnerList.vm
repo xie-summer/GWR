@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>获奖用户信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script> 
+	
+	<style>
+			.mb5{margin-bottom:5px;}
+			.bt{width:50px;}
+			.w100{width:100px;}
+			body{font-size:13px;}
+			.tales60{padding-left:60px;overflow:hidden;clear:both;}
+			.tales60 dt{width:60px;margin-left:-60px;_margin-left:-30px;float:left;}
+			.tales60 dd{margin:0;}
+	</style>
+</head>
+<body style="width:850px;margin:auto" class="yui-skin-sam">
+<div style="width:850px;margin-top:5px;">
+	<form id="winnerForm" name="winnerForm" action="${basePath}admin/draw/winnerList.xhtml">
+		<span style="float:left;margin-right: 10px;">
+			搜索: 活动信息:<select name="activityid" style="width: 100px;" id="activityid" onchange="activityChange(this.value)">
+			<option value="" >选择活动...</option>
+			#foreach($drawActivity in $drawActivityMap.values())
+			<option #if($!params.activityid eq $!drawActivity.id) selected="selected" #end value="$!drawActivity.id" lang="$!drawActivity.tag">$!drawActivity.name</option>
+			#end
+		</select>
+	</span>
+	<span style="display: none;margin-right:5px;float:left;" id="prizeinfo">奖品信息：<select style="width: 100px;" id="prizeid" name="prizeid"></select></span>
+	获奖方式：<select name="tag" id="tag" >
+				<option #if($params.tag eq 'system')selected="selected"#end value="system">系统</option>
+				<option #if($params.tag eq 'user')selected="selected"#end value="user">管理员添加</option>
+		</select>
+		用户编号：<input class="w100" value="$!params.memberid" name="memberid" id="memberid" maxlength="19"/><br/>
+		<span style="margin-left: 35px;">
+		用户昵称：<input class="w100" value="$!params.nickname" name="nickname" id="nickname"/>
+		手机号：<input class="w100" value="$!params.mobile" name="mobile" id="mobile" maxlength="12"/>
+		时间：<input type="text" name="startTime" value="$!params.startTime" class="w100"  id="startTime" onfocus="new WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'2006-01-01 00:00:00',maxDate:'2100-03-10 00:00:00'})" /> -- 
+	<input name="endTime" value="$!params.endTime" id="endTime" type="text" class="w100" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'2006-01-01 00:00:00',maxDate:'2100-03-10 00:00:00'})"  /></span>
+	<input type="button" style="width:50px;" onclick="searchWinner()"  value="查询"/>
+	</form>
+</div>
+<div style="clear:both;"></div>
+#if($winnerInfoMap)
+<div style="border: 1px solid #cccccc;width: 600px;height: 50px;font-size: 13px;">
+	#set($sumcount = 0)
+	#foreach($prizeid in $winnerInfoMap.keySet())
+		#set($prizeSize=$VmUtils.size($winnerInfoMap.get($prizeid)))
+		#set($sumcount = $math.add($sumcount,$prizeSize))
+		<label>$prizeMap.get($prizeid).plevel</label><label>[中奖人数【$!{prizeSize}】]</label>
+		#if($foreach.count%3 eq 0)<br/>#end
+	#end
+	中奖人数：【$!sumcount】
+</div>
+#end
+此次查询#if($!prizeMap.get($prizeid).plevel)【$!prizeMap.get($prizeid).plevel】#end共有：$pageUtil.rowsCount条记录<br/>
+#if($VmUtils.isNotBlank($!params.memberid))
+	编号【$params.memberid】用户当前已经邀请了【<b style="color: red;">$!inviteCount</b>】人,剩余抽奖次数为【<b style="color:red;">$!chanceNum</b>】
+#end
+
+<div style="float:right">
+<button id="batch-send-gift-btn">批量送礼</button>
+</div>
+<table width="780px" border="1" cellspacing="0" class="table" style="margin-top:10px;">
+	<thead>
+	<tr>
+		<th><input type="checkbox" title="全选" id="send-gift-ck-all-btn"/></th>
+		<th>活动名称</th>
+		<th style="width:8%;">用户ID</th>
+		<th style="width:12%;">昵称</th>
+		<th style="width:12%;">手机号</th>
+		<th style="width:15%;">奖品</th>
+		<th>奖品状态</th>
+		<th>备注</th>
+		<th>中奖时间</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="roomTable">
+	#foreach($winner in $winnerList)
+		<tr>
+			<td >#if($!prizeMap.get($!winner.prizeid).ptype ne 'P' && $!winner.status eq 'N')<input type="checkbox" value="$winner.id" name="send-gift-ck" />#end</td>
+			<td>$!{drawActivityMap.get($winner.activityid).name}</td>
+			<td >$!winner.memberid</td>
+			<td>$!winner.nickname</td>
+			<td onclick="showMobile($winner.id,$winner.mobile)"><span name="demobile" id="order$!winner.id" title="$!winner.enmobile">$!{winner.enmobile}</span></td>
+			<td>$!prizeMap.get($!winner.prizeid).plevel</td>
+			<td>#if($!winner.status eq 'Y')已送出#else 未送出 #end</td>
+			<td>$!winner.remark</td>
+			<td>$DateUtil.format($!winner.addtime,'yyyy-MM-dd HH:mm:dd')</td>
+			<td>#if($!prizeMap.get($!winner.prizeid).ptype ne 'P' && $!winner.status eq 'N')<input type="button" onclick="sendDrawSms($winner.id, this)" value="重发"/>#end #if($!prizeMap.get($!winner.prizeid).ptype eq 'drama' || $!prizeMap.get($!winner.prizeid).ptype eq 'remark')<a href="javascript:showAddress($!winner.memberid);">查看收货地址</a>#end</td>
+		</tr>
+	#end
+	</tbody>
+</table>
+<div id="infos" style="display:none;">
+		<dl class="tales60">
+			<dt>姓名：</dt>
+			<dd id="realname"></dd>
+		</dl>
+		<dl class="tales60" id="sexDL" style="display:none;">
+			<dt>性别：</dt>
+			<dd id="sex"></dd>
+		</dl>
+		<dl class="tales60">
+			<dt>联系电话：</dt>
+			<dd id="telephone"></dd>
+		</dl>
+		<dl class="tales60" id="emailDL" style="display:none;">
+			<dt>电子邮箱：</dt>
+			<dd id="email"></dd>
+		</dl>
+		<dl class="tales60">
+			<dt>收货地址：</dt>
+			<dd id="address"></dd>
+		</dl>
+</div>
+#parse('include/pageUtil.vm')  
+<script type="text/javascript">
+#if($!params.activityid)
+	activityChange($!params.activityid);
+#end
+function searchWinner(){
+	var memberid = $('memberid').value;
+	if(!$chk(memberid) && isNaN(memberid)){
+		alert("用户编号只能输入数字！");
+		return;
+	}
+	$('winnerForm').submit();
+}
+function showAddress(memberid){
+	var tags = $('activityid').getElements('option[selected]').get('lang');
+	var values = {"memberid" : memberid , "tag" : tags[0]};
+	GewaraUtil.sendRequest("${basePath}admin/draw/winningReceiptInfo.xhtml", values , function(result){
+		if(result.success){
+			$('realname').innerHTML = result.realName;
+			$('telephone').innerHTML = result.telephone;
+			$('address').innerHTML = result.receiptAddress;
+			if(result.email){
+				$('email').innerHTML = result.email;
+				$('emailDL').show();
+			}
+			if(result.sex){
+				$('sex').innerHTML = result.sex;
+				$('sexDL').show();
+			} 
+			gewa.util.maskContent('','infos','收货信息',300,'ckepopShow');
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function activityChange(obj){
+	var values = {'did':obj};
+	var url = "${basePath}admin/draw/winnerPrizeList.xhtml";
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.removeAllOptions("prizeid");
+		if(result.prizeLists){
+			$('prizeinfo').setStyle('display','block');
+			$("prizeid").options.add(new Option('请选择奖品',''));
+			GewaraUtil.addOptions("prizeid", result.prizeLists, 'id', 'plevel');
+			#if($VmUtils.isBlank($params.prizeid))  
+				$("prizeid").value='';
+			#else
+				$("prizeid").value=$params.prizeid;
+			#end
+		}else{
+			$('prizeinfo').setStyle('display','none');
+		}
+	});
+}
+
+function sendDrawSms(wid, el){
+	el.dispose();
+	GewaraUtil.sendRequest('${basePath}admin/draw/sendDrawSms.xhtml',{'wid':wid},function(result){
+		if(!result.success) alert("发送失败！");
+	});
+}
+function showMobile(orderid, mobile){
+	$('roomTable').getElements('span[name=demobile]').each(function(item){
+		item.set('html', item.title);
+		item.removeClass('yellow');
+		$('order' + orderid).set('html', mobile);
+		$('order' + orderid).addClass('yellow');
+	});
+}
+
+window.addEvent('domready', function(){
+	
+	//全选/全不选
+	$("send-gift-ck-all-btn").addEvent('click', function(){
+		$$("input[name='send-gift-ck']").set("checked",this.checked);
+	});
+	
+	//批量送礼
+	$("batch-send-gift-btn").addEvent('click', function(){
+		var winnerids="";
+		Array.each($$("input[name='send-gift-ck']"),function(item){
+			if(item.checked==true){
+				winnerids+=item.value+";";
+			}
+		});
+		if(winnerids==""){
+			alert("请勾选要送礼的用户");
+			return;
+		}
+		GewaraUtil.sendRequest('${basePath}admin/draw/batchSendDraw.xhtml',{'wids':winnerids},function(result){
+			if(!result.success){
+				alert("送礼失败！");
+			}else{
+				alert("送礼成功！");
+				location.reload();
+			}
+		});
+	});
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+#parse('include/constant/home.vm')
+#set($pageFun='_ajaxAutoPage')
+<table cellpadding="0" cellspacing="0" border="0" class="table">
+	<thead>
+		<tr>
+			<th width="120px;">编号</th><th width="220px;">时间</th><th>获取积分</th><th>积分说明</th>
+		</tr>
+	</thead>
+	<tbody>
+	#foreach($point in $pointList)
+		#if($point.point ne 0)
+		<tr #if($foreach.index%2 eq 1)class="tdHover"#end>
+			<td>$!point.id</td>
+			<td>$!DateUtil.format($!point.addtime, 'yyyy-MM-dd HH:mm:ss')</td>
+			<td>$!point.point</td>
+			<td>#if($point.tag eq 'fivefriend' || $point.tag eq 'bindmobile' || $point.tag eq 'moviecomment' || $point.tag eq 'sendwala' || $point.tag eq 'joincommu' || $point.tag eq 'headpic' ||$point.tag eq 'content' || $point.tag eq 'commentdrama' || $point.tag eq 'commentsport' || $point.tag eq 'pay' || $point.tag eq 'share_order')$!point.reason #else $!REASON_MAP.get($!point.tag)#end</td>
+		</tr>
+		#end
+	#end
+	</tbody>
+</table>
+<div class="clear">#parse('include/scriptPageUtil.vm')</div>
+<script>
+_ajaxAutoPage = function(pageNo){
+	gewaUtil.loadData('ajaxAutoPage', '${basePath}ajax/acct/pointListTable.xhtml?pageNo=' + pageNo, {});
+}
+</script>

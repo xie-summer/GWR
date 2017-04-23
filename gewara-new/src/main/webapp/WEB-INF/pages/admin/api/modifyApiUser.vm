@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>API用户管理</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<style>
+		label {display:inline-block;width:100px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:550px; display:inline}
+	</style>
+</head>
+<body class="yui-skin-sam" style="margin:auto">
+<div id="movieDialog" class="yui-panel" style="width:700px;margin:auto">
+	<div class="hd">[API账户管理]</div>
+	<div class="bd">
+	<form name="apiUserForm" id="apiUserForm" action="${basePath}admin/api/saveApiUser.xhtml" method="post">
+		<input type="hidden" name="uid" value="$!{apiUser.id}"/>
+		<div>
+			<label for="partnername">公司名称：</label>
+			<input name="partnername" type="text" value="$!{apiUser.partnername}" style="width:150px;" />
+			<label for="briefname">简称：</label>
+			<input name="briefname" type="text" value="$!{apiUser.briefname}" style="width:100px;" />
+		</div>
+		<div>
+			<label for="分类">分类：</label>
+			<select name="category" style="width:100px;">
+				<option value="ticket">电影订票</option>
+				<option value="sport" #if($apiUser.category eq 'sport')selected="selected"#end>运动订票</option>
+				<option value="drama" #if($apiUser.category eq 'drama')selected="selected"#end>演出订票</option>
+				<option value="synch" #if($apiUser.category eq 'synch')selected="selected"#end>同步数据</option>
+				<option value="other" #if($apiUser.category eq 'other')selected="selected"#end>其他</option>
+			</select>
+			<label for="usertype">用户类型：</label>
+			<select name="usertype" style="width:100px;">
+				<option value="">请选择</option>
+				<option value="gewa" #if($apiUser.usertype eq 'gewa')selected="selected"#end>格瓦拉用户</option>
+				<option value="partner" #if($apiUser.usertype eq 'partner')selected="selected"#end>合作商用户</option>
+			</select>
+		</div>
+		<div>
+			<label for="loginname">登录账号：</label>
+			<input name="loginname" type="text" value="$!{apiUser.loginname}"  style="width:220px;"/>
+			<label for="passwd">登录密码：</label>
+			<input name="passwd" type="text"  style="width:220px;"/>
+		</div>
+		<div>
+			<label for="citycode">开通城市：</label>
+			<input name="citycode" type="text" value="$!{apiUser.citycode}" style="width:220px;"/><span class="req" style="">*</span>
+			<label for="defaultCity">默认城市：</label>
+			<input name="defaultCity" type="text" value="$!{apiUser.defaultCity}" style="width:220px;"/><span class="req" style="">*</span>
+		</div>
+		<div>
+			<label for="partnerkey">公司KEY：</label>
+			<input name="partnerkey" type="text" value="$!{apiUser.partnerkey}" style="width:220px;"/><span class="req" style="">*</span>
+			<label for="privatekey">数据校验KEY：</label>
+			<input name="privatekey" type="text" value="$!{apiUser.privatekey}" style="width:220px;"/><span class="req" style="">*</span>
+		</div>
+		<div>
+			<label for="status">开通状态：</label>
+			<select name="status">
+				<option value="pause" #if('pause' eq $apiUser.status) selected="selected"#end>暂停使用</option>
+				<option value="open" #if('open' eq $apiUser.status) selected="selected"#end>正常使用</option>
+				<option value="stop" #if('stop' eq $apiUser.status) selected="selected"#end>停止使用</option>
+			</select>
+			<label for="secretKey">3DES密钥：</label>
+			<input name="secretKey" type="text" value="$!{apiUser.secretKey}" style="width:360px;"/><span class="req" style="">*</span>
+		</div>
+		<div>
+			<label for="logo">Logo：</label>
+			<input name="logo" value="$!{apiUser.logo}"/>
+		</div>
+		<div>
+			<label for="roles">角色：</label>
+			<input name="roles" id="roles" value="$!{apiUser.roles}"/><span class="req" style="">*</span>
+		</div>
+		<div>
+			<label for="partnerip">公司IP：</label>
+			<input name="partnerip" value="$!{apiUser.partnerip}" style="width:220px;"/>
+			<label for="phone">联系电话：</label>
+			<input name="phone" value="$!{apiUser.phone}" style="width:220px;"/>
+		</div>
+		<div>
+			<label for="addOrderUrl">下单url：</label>
+			<input name="addOrderUrl" id="payurl" value="$!{apiUser.addOrderUrl}"/>
+		</div>
+		<div>
+			<label for="notifyurl">付款url：</label>
+			<input name="notifyurl" id="notifyurl" value="$!{apiUser.notifyurl}"/>
+		</div>
+		<div>
+			<label for="qryurl">查询url：</label>
+			<input name="qryurl" id="qryurl" value="$!{apiUser.qryurl}"/>
+		</div>
+		<div>
+			<label for="pushurl">推送url：</label>
+			<input name="pushurl" id="pushurl" value="$!{apiUser.pushurl}"/>
+		</div>
+		<div>
+			<label for="pushflag">推送状态：</label>
+			<input name="pushflag" id="pushflag" value="$!{apiUser.pushflag}" style="width:220px;"/><span style="color:red">可以是：new,paid,success,refund</span>
+		</div>
+		<div>
+			<label for="otherinfo">其他设置：</label>
+			<textarea name="otherinfo">$!{apiUser.otherinfo}</textarea>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<span style="color:red">json格式，key有：msg1:disable,msg2:disable,msg3:disable</span>
+		</div>
+		<div>
+			<label for="content">公司说明：</label>
+			<textarea name="content">$!{apiUser.content}</textarea>
+		</div>
+		<div>
+			<label>&nbsp;</label><input type="submit" class="button" style="width:100px" value="保存数据"/>
+		</div>
+		</form>
+	</div>
+</div>
+</body>
+</html>

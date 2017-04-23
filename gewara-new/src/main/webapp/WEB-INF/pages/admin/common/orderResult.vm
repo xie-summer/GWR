@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>查看订单取票状态</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=template&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.itemsList dl dt{margin-left: 30px;}
+		.itemsList dl dd{margin-left: 60px;}
+	</style>
+</head>
+<body>
+<div class="panel">
+	<div class="itemsList mt5">
+		<dl>
+			<form action="${basePath}admin/common/qryOrderResult.xhtml">
+			<dt>
+				请输入订单号：<input name="tradeno" type="text" value="$!params.tradeno"/>
+				<input type="submit" value="查询"/>
+			</dt>
+			</form>
+			<dt class="black bold">取票信息</dt>
+			#if($VmUtils.isNotBlank($msg))<dd class="yellow" style="font-size: 16px;">>>$msg</dd>
+			#end
+			<hr style="margin:10px 20px;border:1px solid #EFE1DA;height:1px"/>
+			<dd>
+					<table class="roomManageTable" id="all_content" cellpadding="0" width="85%" cellspacing="0" border="1" style="margin:0">
+						<tr>
+							<td class="bold">订单号</td>
+							<td>是否同步</td>
+							<td>同步次数</td>
+							<td>同步时间</td>
+							<td class="bold">是否取票</td>
+							<td class="bold">取票方式</td>
+							<td class="bold">取票时间</td>
+							<td class="bold">更新时间</td>
+						</tr>
+						#foreach($ti in $takeInfoList)
+						<tr>
+							<td>$ti.serialno</td>
+							<td>#if($ti.callbacktime || $!ti.taketime)已同步#else未同步#end</td>
+							<td>$!ti.synchNum</td>
+							<td>$!DateUtil.formatTimestamp($ti.synchtime)</td>
+							<td>#if($ti.taketime)已取#else 未取#end</td>
+							<td>#if($ti.taketime)#if($ti.type eq '1')二维码取票#else密码取票#end#end</td>
+							<td>$!DateUtil.formatTimestamp($ti.taketime)</td>
+							<td>$!DateUtil.formatTimestamp($ti.updatetime)</td>
+						</tr>
+						#end
+					</table>
+			</dd><br/>
+			<dd id="showTake">
+						
+			</dd>
+		</dl>
+	</div>
+</div>
+<script type="text/javascript">
+
+</script>
+</body>
+</html>

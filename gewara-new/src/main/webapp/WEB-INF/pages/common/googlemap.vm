@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>格瓦拉-路线查询</title>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=framework,gym&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="http://ditu.google.cn/?file=api&v=2.x&key=ABQIAAAAYudc4zhQsoXevWVqIbF59xRYp5uUen7Q-Ucsh4vNkiagxUFHEhTeRfku8EaC4bpbinkv6a7vJ5rb5A"></script>
+	<script type="text/javascript">
+var map;
+var gdir;
+var geocoder = null;
+var addressMarker;
+#if($VmUtils.isNotBlank($!object.pointx))
+var centerRoute ='$!object.pointy, $!object.pointx';
+#else
+var centerRoute ='$cityData.getCenter($citycode).get(0), $cityData.getCenter($citycode).get(1)';
+#end
+function initialize() {
+	#if($VmUtils.isNotBlank($!from))
+		if(GBrowserIsCompatible()) {      
+			map = new GMap2(document.getElementById("map_canvas"));
+			gdir = new GDirections(map, document.getElementById("directions"));
+			//GEvent.addListener(gdir, "load", onGDirectionsLoad);
+			GEvent.addListener(gdir, "error", handleErrors);
+			geocoder = new GClientGeocoder();
+			setDirections('$!from', '$!{object.countyname}$!{object.address}', "zh-CN");
+			map.addControl(new GLargeMapControl());
+			map.addControl(new GMapTypeControl());
+			map.addControl(new GOverviewMapControl());
+			map.addControl(new GScaleControl());
+			//加入搜索框
+			map.enableGoogleBar();
+		}
+	#else
+		map = new GMap2(document.getElementById("map_canvas"));
+		#if($VmUtils.isNotBlank($!object.pointx))
+		map.setCenter(new GLatLng($!object.pointy, $!object.pointx), 13);
+		var point = new GLatLng($!object.pointy, $!object.pointx);
+		var marker = new GMarker(point);
+		var info = "$object.name";
+		var address= '$!{object.countyname}$!{object.address}';
+		marker.bindInfoWindowHtml(info+"<br/>"+address);
+		marker.openInfoWindowHtml(info+"<br/>"+address);
+		map.addOverlay(marker);
+		map.addControl(new GLargeMapControl());
+		map.addControl(new GMapTypeControl());
+		map.addControl(new GOverviewMapControl());
+		map.addControl(new GScaleControl());
+		map.enableGoogleBar();
+		#else
+		map.setCenter(new GLatLng($cityData.getCenter($citycode).get(0), $cityData.getCenter($citycode).get(1)), 13);
+		#end
+	#end
+}
+function setDirections(fromAddress, toAddress, locale) {
+	geocoder.getLocations(fromAddress, function(json){
+        if (!json){
+            alert("解析\""+fromAddress+"\"错误");
+        }else{
+            //地址解析为坐标可能有多个结果，这里只取查询结果的第一个json.Placemark[0]
+            //有兴趣扩展可以通过遍历json输出所有查询结果，让使用者选择最符合的结果。
+            var addressRoute ="from:"+fromAddress+"@"+json.Placemark[0].Point.coordinates[1]
+            +","+json.Placemark[0].Point.coordinates[0]
+            +" to: "+toAddress+"@"+centerRoute;
+            gdir.load(addressRoute,{travelMode:G_TRAVEL_MODE_DRIVING});
+        }
+    });
+	//gdir.load("from: " + fromAddress + " to: " + toAddress, { "locale": locale });
+}
+function initMap(){
+	#if($VmUtils.isNotBlank($!object.pointx))
+		map.setCenter(new GLatLng($object.pointy, $object.pointx), 13);
+			var point = new GLatLng($object.pointy, $object.pointx);
+			var marker = new GMarker(point);
+			var info = "$object.name";
+			marker.bindInfoWindowHtml(info);
+			marker.openInfoWindowHtml(info);
+			map.addOverlay(marker);
+	#else
+		map.setCenter(new GLatLng($cityData.getCenter($citycode).get(0), $cityData.getCenter($citycode).get(1)), 13);
+	#end
+}
+function handleErrors(){
+	var status = gdir.getStatus();
+	switch(status.code) {
+		case G_GEO_BAD_REQUEST :
+			gewaUtil.alert("路线规划查询条件设定有误");
+			initMap();
+			break;
+		case G_GEO_SERVER_ERROR :
+			gewaUtil.alert("服务器不能正确解析你输入的地址");
+			initMap();
+			break;
+		case G_GEO_MISSING_QUERY :
+		case G_GEO_MISSING_ADDRESS :
+			gewaUtil.alert("查询条件（地址）不能为空");
+			initMap();
+			break;
+		case G_GEO_UNKNOWN_ADDRESS :
+			gewaUtil.alert("查询地址未知,请输入详细地址");
+			initMap();
+			break;
+		case G_GEO_UNAVAILABLE_ADDRESS :
+			gewaUtil.alert("因当地法律或其他原因不能解析给出地址");
+			initMap();
+			break;
+		case G_GEO_UNKNOWN_DIRECTIONS :
+			gewaUtil.alert("给出的两地之间无路可走或我们的现有的数据中缺少路线规划路线");
+			initMap();
+			break;
+		case G_GEO_BAD_KEY :
+			gewaUtil.alert("导入类库是指定的密钥有误");
+			initMap();
+			break;
+		case G_GEO_TOO_MANY_QUERIES :
+			gewaUtil.alert("查询太过频繁，超出密钥允许的查询次数");
+			initMap();
+			break;
+	}
+}
+</script>
+</head>
+<body onload="initialize()" onunload="GUnload()">
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div id="panel">
+	<form action="${basePath}common/baiduMap.xhtml" method="post">
+	<input type="hidden" name="tag" id="tag" value="$!VmUtils.escapeHtml($params.tag)" />
+	<input type="hidden" name="id" id="id" value="$!VmUtils.escapeHtml($params.id)" />
+	<div class="mapSeach">
+		<dl>
+			<dd><a href="${basePath}$object.url" class="fs14 bolder gray" target="_blank">$object.name</a></dd>
+			<dd class="">$!{object.countyname}$!{object.address}</dd>
+			<dd class="yellow fs14 bolder">交通驾车查询</dd>
+			<dd>从：<input type="text" size="25" id="fromAddress" name="from" value="$!from"/></dd>
+			<dd>到：<input type="text" size="25" id="toAddress" name="to" value="$!object.name" disabled/></dd>
+			<dd class="center"><input name="submit" type="submit" value="驾车查询" /></dd>
+		</dl>
+		<div id="directions" style="width: 190px; padding-right:10px; height: %00; overflow:auto;"></div>
+	</div>
+	</form>
+	<div id="height0"></div>
+</div>
+#parse('include/bottom.vm')
+</body>
+</html>

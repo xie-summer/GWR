@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>编辑培训机构数据</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label{width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px;}
+		input, textarea, span {width:550px;}
+		#dramaForm div{padding:3px;}
+		#dramadata li{width:300px;display:inline-block; float:left;}
+		div input{width:230px;}
+		.container{
+			border:1px solid blue;
+			min-height:150px;
+			_height:150px;
+			margin:10px 30px; 
+		}
+		.buttonclass{
+			width: 90px;
+		}
+		.containerUL li{
+			float: left;
+			padding-right: 15px;
+		}
+		.containerUL li input{width: 10px;}
+		.tclist{display:inline-block;height:16px;inline-height:16px;padding:0 3px;}
+		.tc{background: #FFFFDD;border: 1px solid #FFE3BB;padding:3px;display:inline-block;width:auto;}
+		.cc{margin-left:5px;height:}
+		/* 弹窗CSS */
+		#teacher{width:300px;height:120px;background:#FFFFDD;border: 1px solid #FFE3BB;position:relative;}
+		#teacher h2{width:280px;height:20px;background:#1885AE;font-size:14px;color:#fff;padding:0 10px;}
+		#teacher h2 a:link{color:#fff;line-height:14px;padding:3px;}
+		#teacher .btn{width:26px;height:14px;background:#1885AE;display:block;padding:8px 20px;position:absolute;left:110px;bottom:10px;border-radius:5px;}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:750px;margin:auto">
+<div id="dramaDialog" class="yui-panel" style="width:750px;margin:auto">
+<div class="hd">[编辑培训机构数据]#if($!trainingGoods)<a href="javascript:void(0);" onclick="showMark('teacher')">添加教练</a>#end</div>
+	<div class="bd" id="agencyForm">
+		<form  id="dataForm" method="post" >
+			<div>
+				<span>项目：</span>
+				<select style="width: 100px;" name="itemid" id="itemid" mustTxt="培训项目不能为空！">
+					<option value="">请选择项目</option>
+					#foreach($sportItem in $sportItemList)
+					<option #if($VmUtils.eq($!trainingGoods.itemid,$!sportItem.id))selected="selected"#end value="$!sportItem.id">$!sportItem.itemname</option>
+					#end
+				</select>
+			</div>
+			<div>
+				<input type="hidden" name="id" id="id" value="$!trainingGoods.id"/>
+				<input type="hidden" name="relatedid" id="relatedid" value="$!agency.id"/>
+				<input type="hidden" name="tag" id="tag" value="agency"/>
+				<input type="hidden" name="itemtype" id="itemtype" value="sportitem"/>
+				<span>课程名称：</span><input class="w400" type="text" name="goodsname" id="goodsname" value="$!trainingGoods.goodsname" mustTxt="课程名称不能为空！"/>
+			</div>
+			<div>
+				<span>适宜人群：</span>
+				<select style="width: 100px;" name="fitcrowd" id="fitcrowd" mustTxt="适宜人群不能为空！">
+					<option value="">请选择</option>
+					<option #if($VmUtils.eq($!trainingGoods.fitcrowd,'child'))selected="selected"#end value="child">幼儿</option>
+					<option #if($VmUtils.eq($!trainingGoods.fitcrowd,'youngster'))selected="selected"#end value="youngster">青少年</option>
+					<option #if($VmUtils.eq($!trainingGoods.fitcrowd,'adult'))selected="selected"#end value="adult">成人</option>
+					<option #if($VmUtils.eq($!trainingGoods.fitcrowd,'elderly'))selected="selected"#end value="elderly">中老年</option>
+				</select>
+				<input type="text" id="summary" style="width: 300px" name="summary" value="$!trainingGoods.summary"/>
+			</div>
+			#set($otherinfoMap=$VmUtils.readJsonToMap($!trainingGoods.otherinfo))
+			<div>
+				<span>时间类型：</span>
+				<select style="width: 100px;" name="timetype" id="timetype" mustTxt="时间类型不能为空！">
+					<option value="">请选择</option>
+					<option #if($VmUtils.eq($!trainingGoods.timetype,'weekend'))selected="selected"#end value="weekend">周末班</option>
+					<option #if($VmUtils.eq($!trainingGoods.timetype,'nighttime'))selected="selected"#end value="nighttime">夜间班</option>
+					<option #if($VmUtils.eq($!trainingGoods.timetype,'fulltime'))selected="selected"#end value="fulltime">寒暑班</option>
+					<option #if($VmUtils.eq($!trainingGoods.timetype,'summerwinter'))selected="selected"#end value="summerwinter">全日制</option>
+				</select>
+			</div>
+			<div>
+				<span>招生人数：</span>
+				<input type="text" id="minquantity" name="minquantity" value="$!trainingGoods.minquantity" style="width: 50px"/>~<input type="text" id="quantity" name="quantity" value="$!trainingGoods.quantity" style="width: 50px"/>
+			</div>
+			#if($!trainingGoods)
+			<div>
+				<span>教练：</span>
+				#foreach($tcDts in $tcDtsList)
+				#set($tcStar=$starMap.get($tcDts.starid))
+					<p class="tclist"><span class="tc">$tcStar.name</span><span class="cc" onclick="del($tcDts.id)">×</span></p>
+				#end
+			</div>
+			#end
+			<div>
+				<span>场馆：</span>
+				<select style="width: 200px;" name="placeid" id="placeid">
+					<option value="">根据学员要求就近安排</option>
+					#foreach($atv in $atvList)
+					#set($sport=$sportMap.get($atv.venueId).get(0))
+					<option #if($VmUtils.eq($trainingGoods.placeid, $!sport.id))selected="selected"#end value="$!sport.id">$!sport.name</option>
+					#end
+				</select>
+			</div>
+			<div>
+				<span>开课时间：</span>
+				<input type="text" name="fromvalidtime" id="fromvalidtime" value="$!DateUtil.format($!trainingGoods.fromvalidtime, 'yyyy-MM-dd HH:mm:ss')" style="width:140px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00',minDate:'$minStr'})" readonly="readonly"/>~<input type="text" name="tovalidtime" id="tovalidtime" value="$!DateUtil.format($!trainingGoods.tovalidtime, 'yyyy-MM-dd HH:mm:ss')" style="width:140px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00',minDate:'$minStr'})" readonly="readonly"/>
+				<input class="w400" type="text" name="showtime" id="showtime" style="width:200px" value="$!otherinfoMap.showtime"/>
+			</div>
+			<div>
+				<span>课程内容：</span>
+				<textarea style="display:none" id="description" name="description" mustTxt="课程内容不能为空！">	$!trainingGoods.description</textarea>
+			</div>
+			<div>
+				<span>seotitle：</span>
+				<input class="w400" type="text" name="seotitle" id="seotitle" value="$!trainingGoods.seotitle" />
+			</div>
+			<div>
+				<span>seodescription：</span>
+				<input class="w400" type="text" name="seodescription" id="seodescription" value="$!trainingGoods.seodescription" />
+			</div>
+			<div>
+				<input type="button" class="cbt1" value="保存" onclick="saveItem()"/>
+				<input type="button" class="cbt1" onclick="GewaraUtil.hideDialog('dialog')" value="取消"/>
+			</div>
+		</form>
+	</div>
+</div>
+<div style="display:none;" id="teacher">
+	<h2><span>添加教练</span><a class="caca right" href="javascript:gewara.util.hideDialog('teacher')">×</a></h2>
+	<span>教练：</span>
+	<select id="starid">
+		<option value="">请选择</option>
+		#foreach($dts in $agencyDtsList)
+		#set($star=$starMap.get($dts.starid))
+		<option value="$star.id">$star.name</option>
+		#end
+	</select>
+	<a class="btn" href="javascript:save();" style="color:#fff;text-decoration:none;">提交</a>
+</div>
+<script type="text/javascript">
+var ckeditor1;
+window.addEvent('domready',function(){
+	ckeditor1 = CKEDITOR.replace("description");
+});
+saveItem = function(){
+	$("description").value=ckeditor1.getData();
+	var url = "${basePath}admin/training/saveTrainingGoods.xhtml";
+	if(!GewaraUtil.baseValidForm('dataForm')) return;
+	var values = GewaraUtil.getValues('dataForm');
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('保存成功！');
+			location.href="${basePath}admin/training/getTrainingGoods.xhtml?agencyId=$!agency.id&id="+result.retval;
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function showMark(obj){
+	GewaraUtil.showDialog(obj,400);
+}
+function save(){
+	var url = "${basePath}admin/agency/saveSporStar.xhtml";
+	var values = {'type':'training','starId':$('starid').value,'relatedId':'$!trainingGoods.id'};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('保存成功！');
+			location.href="${basePath}admin/training/getTrainingGoods.xhtml?agencyId=$!agency.id&id=$!trainingGoods.id";
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function del(id){
+	if(!window.confirm('确认删除吗? 请谨慎操作！')) return;
+	var url = "${basePath}admin/agency/delDts.xhtml";
+	var values = {'id':id};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('删除成功！');
+			location.href="${basePath}admin/training/getTrainingGoods.xhtml?agencyId=$!agency.id&id=$!trainingGoods.id";
+		}else alert(result.msg);
+	});
+}
+</script>
+</body>
+</html>

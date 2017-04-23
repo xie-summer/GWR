@@ -1,0 +1,36 @@
+#if(!$VmUtils.isEmptyList($jsonMapList))
+<div class="topBanner">
+	<ul id="banner_slide_box">
+		#foreach($jsonmap in $jsonMapList)
+			#if($jsonmap.adtype eq 'picture')
+			<li>
+				<a href="$jsonmap.link" target="_blank" title="!jsonmap.title" onclick="_gaq.push(['_trackEvent', 'AD', '$!jsonmap.pid', '$!jsonmap.logicaldir']);">
+					<img src="$VmUtils.randomPic('',$!jsonmap.adpath)" date_href="$VmUtils.randomPic('',$!jsonmap.adpath)" alt="$jsonmap.title" width="260" height="235" />
+				</a>
+			</li>
+			#end
+		#end
+	</ul>
+	<div class="even_tips" id="banner_run_tag">
+		#foreach($x in $jsonMapList)
+		<span></span>
+		#end
+	</div>
+</div>
+<script type="text/javascript">
+	window.addEvent('domready', function(){
+		new noobSlide({
+			box: $('banner_slide_box'),
+			items:$$('#banner_slide_box li'),
+			size:260,
+			autoPlay:true,
+			handles:$$('#banner_run_tag span'),
+			handle_event:'click',
+			onWalk: function(currentItem,currentHandle){
+				this.handles.removeClass('select');
+				currentHandle.addClass('select');
+			}
+		});
+	});
+</script>
+#end

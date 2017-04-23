@@ -1,0 +1,87 @@
+<div class="full_percent">
+	#if($VmUtils.contains($agtag, 'P'))
+	<span id="provinceHTML">
+	<input type="hidden" id="agtag" name="agtag" value="$!agtag" />
+	<select style="width: 100px;" name="liveprovince" id="liveprovince" #if($VmUtils.contains($agtag, 'C')) onchange="changeValue(this, 'province', 'cityHTML');" #end>
+		<option value="">
+			省市选择...
+		</option>
+		#foreach($province in $provinceMap)
+		<option value="$province.provincecode"	lang="$province.provincename"
+			#if($VmUtils.eq($province.provincecode,$provincecode))selected="selected" #end>
+			$province.provincename
+		</option>
+		#end
+	</select>
+	</span>
+	#end
+	
+	#if($VmUtils.contains($agtag, 'C'))
+	<span id="cityHTML">
+	<select class="ml20" style="width: 100px;" name="livecity" id="livecity" #if($VmUtils.contains($agtag, 'R')) onchange="changeValue(this, 'city', 'countyHTML');" #end>
+		<option value="">
+			城市选择...
+		</option>
+		#foreach($city in $cityMap)
+		<option value="$city.citycode" lang="$city.cityname"
+			#if($VmUtils.eq($city.citycode,$ctcode))selected="selected" #end>
+			$city.cityname
+		</option>
+		#end
+	</select>
+	</span>
+	#end
+	
+	#if($VmUtils.contains($agtag, 'R'))
+	#if($VmUtils.eq($agtag, 'RI'))
+	<input type="hidden" id="agtag" name="agtag" value="$!agtag" />
+	#end
+	<span id="countyHTML">
+	<select #if(!$VmUtils.eq($agtag, 'RI')) class="ml20" #end style="width: 100px;" name="livecounty" id="livecounty"	#if($VmUtils.contains($agtag, 'I')) onchange="changeValue(this, 'county', 'indexareaHTML');" #end>
+		<option value="" selected="selected">
+			区域选择...
+		</option>
+		#foreach($county in $countyMap)
+		<option value="$county.countycode" lang="$county.countyname"
+			#if($VmUtils.eq($county.countycode,$countycode))selected="selected" #end>
+			$county.countyname
+		</option>
+		#end
+	</select>
+	</span>
+	#end
+	
+	#if($VmUtils.contains($agtag, 'I'))
+	<span id="indexareaHTML">
+	<select class="ml20" style="width: 100px;" name="liveindexarea" id="liveindexarea">
+		<option value='' selected="selected">
+			商圈选择...
+		</option>
+		#foreach($indexarea in $indexareaMap)
+		<option value="$indexarea.indexareacode"
+			#if($VmUtils.eq($indexarea.indexareacode,$indexareacode))selected="selected" #end>
+			$indexarea.indexareaname
+		</option>
+		#end
+	</select>
+	</span>
+	#end
+</div>
+
+<script type="text/javascript">
+	changeValue = function(obj, tag, destid){
+		var code = $(obj).value; 
+		var values;
+		if(tag == 'province'){
+			values = {'provincecode':code};
+		}else if(tag == 'city'){
+			values = {'citycode':code};
+		}else if(tag == 'county'){
+			values = {'countycode':code};
+		}
+		values['tag'] = tag;
+		values['agtag'] = $('agtag').value;
+		var url = "${basePath}ajaxLoadAddress.xhtml#"+destid;
+		GewaraUtil.sendLoad(destid, url, values, function(result){});
+	}
+</script>

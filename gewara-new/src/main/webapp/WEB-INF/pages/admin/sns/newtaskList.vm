@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>用户新手任务列表</title>   
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		html,body{background: none;}
+		form label{display:inline-block;width:90px;text-align:right;}
+		form div{margin-top:5px;}
+		.add,.add_order{background: red; color: white;}
+	</style>
+</head>
+<body style="margin:auto;" class="yui-skin-sam">
+<div style="padding:1px;">
+	<form action="${basePath}admin/sns/taskList.xhtml" id="newTaskForm" method="post" style="margin:3px; width:100%; float: left;">
+		用户编号：<input type="text" name="memberid" id="memberid" style="width:50px" value="$!params.memberid"/>
+					用户昵称:<input type="text" name="nickname" id="nickname" style="width: 100px;" value="$!params.nickname"/>
+					手机号:<input type="text" name="mobile" id="mobile" style="width: 100px;" value="$!params.mobile"/>
+					邮箱:<input type="text" name="email" id="email" style="width: 100px;" value="$!params.email"/>
+		<input type="button" value="查 询" class="bt1" onclick="sbt()"/>
+	</form>
+</div>
+<div><input type="button" value="添加用户新手任务积分" onclick="applyInvoice()"/></div>
+<div class="height0"></div>
+<table class="table">
+	<thead>
+	<tr>
+		<th>用户编号</th>
+		<th>用户名</th>
+		<th>完成更新头像</th>
+		<th>关注5位好友</th>
+		<th>成功在线购票</th>
+		<th>完成发表电影影评</th>
+		<th>邮件高级确认</th>
+		<th>绑定手机</th>
+		<th>发表哇啦</th>
+		<th>加入圈子</th>
+		<th>刷新</th>
+	</tr>
+	</thead>
+	#foreach($member in $memberList)
+	#set($member_isTask =$!member.id+"_isTake")
+	#set($headpic=$headPicMap.get("$!member.id"))
+	
+	#set($headpic_isTake=$headPicMap.get($!member_isTask))
+	
+	#set($buyticket=$buyticketMap.get("$!member.id"))
+	#set($buyticket_isTake=$buyticketMap.get($!member_isTask))
+	
+	#set($moviecomment=$movieCommentMap.get("$!member.id"))
+	#set($moviecomment_isTake=$movieCommentMap.get($!member_isTask))
+
+	#set($confirmreg=$confirmRegMap.get("$!member.id"))
+	#set($confirmreg_isTake=$confirmRegMap.get($!member_isTask))
+	
+	#set($fivefriend=$fiveFriendMap.get("$!member.id"))
+	#set($fivefriend_isTake=$fiveFriendMap.get($!member_isTask))
+	
+	#set($bindMoile=$bindMoileMap.get("$!member.id"))
+	#set($bindMoile_isTake=$bindMoileMap.get($!member_isTask))
+	
+	#set($sendWala=$sendWalaMap.get("$!member.id"))
+	#set($sendWala_isTake=$sendWalaMap.get($!member_isTask))
+	
+	#set($joincommu=$joincommuMap.get("$!member.id"))
+	#set($joincommu_isTake=$joincommuMap.get($!member_isTask))
+	<tr height="26">
+		<td>$!member.id</td>
+		<td>$!member.nickname</td>
+		<td><font #if(!$headpic)style="color:red;"#end>#if($headpic)完成#else未完成#end</font>(<font  style="color:#if($!headpic_isTake) green #else red #end ;">#if($!headpic_isTake)已领取 #else 未领取 #end</font>)</td>
+		<td><font #if(!$fivefriend)style="color:red;"#end>#if($fivefriend)完成#else未完成#end</font>(<font  style="color:#if($!fivefriend_isTake) green #else red #end ;">#if($!fivefriend_isTake)已领取 #else 未领取 #end</font>)</td>
+		<td><font #if(!$buyticket)style="color:red;"#end>#if($buyticket)完成#else未完成#end</font>(<font  style="color:#if($!buyticket_isTake) green #else red #end ;">#if($!buyticket_isTake)已领取 #else 未领取 #end</font>)</td>
+		<td><font #if(!$moviecomment)style="color:red;"#end>#if($moviecomment)完成#else未完成#end</font>(<font  style="color:#if($!moviecomment_isTake) green #else red #end ;">#if($!moviecomment_isTake)已领取 #else 未领取 #end</font>)</td>
+		<td><font #if(!$confirmreg)style="color:red;"#end>#if($confirmreg)完成#else未完成#end</font>(<font  style="color:#if($!confirmreg_isTake) green #else red #end ;">#if($!confirmreg_isTake)已领取 #else 未领取 #end</font>)</td>
+		<td><font #if(!$bindMoile)style="color:red;"#end>#if($bindMoile)完成#else未完成#end</font>(<font  style="color:#if($!bindMoile_isTake) green #else red #end ;">#if($!bindMoile_isTake)已领取 #else 未领取 #end</font>)</td>
+		<td><font #if(!$sendWala)style="color:red;"#end>#if($sendWala)完成#else未完成#end</font>(<font  style="color:#if($!sendWala_isTake) green #else red #end ;">#if($!sendWala_isTake)已领取 #else 未领取 #end</font>)</td>
+		<td><font #if(!$joincommu)style="color:red;"#end>#if($joincommu)完成#else未完成#end</font>(<font  style="color:#if($!joincommu_isTake) green #else red #end ;">#if($!joincommu_isTake)已领取 #else 未领取 #end</font>)</td>
+		<td><a href="javascript:void(0)" onclick="refreshTask('$member.id')">点击此处更新</a></td>
+	</tr>
+	#end
+</table>
+#parse('include/pageUtil.vm')
+<!-- apply newtask start -->
+<div id="newTaskDialog" class="yui-panel" style="width:340px; margin: auto; margin-top:15px; z-index:30; visibility: hidden;">
+	<div class="hd" id="title">添加用户新手任务积分</div>
+	<div class="bd">
+	<form name="newTaskForm" id="newTaskForm">
+		<div>
+			<label for="memberid2">用户ID：</label>
+			<input id="memberid2" type="text" class="text" name="memberid2"/>*
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="saveApply();" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="GewaraUtil.hideDialog('newTaskDialog');" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+<!-- apply newtask end  -->
+	<script type="text/javascript">
+function sbt(){
+	$('newTaskForm').submit();
+}
+function applyInvoice(){
+	GewaraUtil.showDialog("newTaskDialog");
+}
+function saveApply(){
+	var memberid = $('memberid2').value;
+	if(memberid=='') {
+		alert('用户ID不能为空！');
+		return;
+	}
+	var url="${basePath}admin/sns/addMemberNewTask.xhtml";
+	var values = {'memberid':memberid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert(result.retval);
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function refreshTask(el){
+	var url="${basePath}admin/sns/refreshTask.xhtml";
+	GewaraUtil.sendRequest(url, {'memberid':el}, function(result){
+		if(result.success){
+			gewaUtil.alert(result.msg, function(){
+				refreshPage();
+			});
+		}else{
+			gewaUtil.alert(result.msg);
+			gewa.util.clearMask();
+		}
+	});
+}
+</script>
+</body>
+</html>

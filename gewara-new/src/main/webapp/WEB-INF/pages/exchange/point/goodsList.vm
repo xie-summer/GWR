@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>格瓦拉生活网--积分兑换</title>
+	<meta name="keywords" content="电影,KTV,酒吧,健身,运动,话剧,电影购票,电影票,电影排片,热门电影,最新电影,电影资讯,在线选座,在线购票,预订电影票"/>
+	<meta name="description" content="格瓦拉生活网提供查询电影资讯，在线购买电影票，查询电影排片，酒吧资讯，KTV唱歌价格查询，健身课程表，健体运动场馆及资讯查询等方面的休闲生活信息，格瓦拉生活是国内首家支持在线选座购买电影票的网站。"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,goods&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	html{background:#fff;}
+	</style>
+</head>
+<body>
+#set($isToday=true)#set($isSubject=true)#set($exchange=true)
+#set($goodsLen=$VmUtils.size($goodsList))
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+#parse('include/home/pointHeader.vm')
+<div class="widCen" style="margin-top:15px;">
+	<div class="p-left left">
+		<div class="topBox" style="width:680px;">
+			<h1 class="topTit02"></h1>
+			#foreach($goods in $goodsList)
+			#if($foreach.index%5 eq 0)
+			<ul class="ul-20 clear">
+			#end
+				<li class="li20">
+				<a href="javascript:void(0)" onclick="buy($goods.id)">
+				<img src="$VmUtils.randomPic('sw90h120',$!goods.limg)" title="$goods.goodsname"/></a><br/>
+				<a class="brown" href="javascript:void(0)" onclick="buy($goods.id)" title="$goods.goodsname">$!VmUtils.escabbr($goods.goodsname,14)</a>
+				<p style="color:#999;">积分：<b>$!goods.realpoint</b>分</p>
+				#if($goods.hasBooking())<a href="javascript:void(0)" onclick="buy($goods.id)" class="button redBt minBt mt10"><span>立即兑换</span></a>#end
+				</li>
+			#if($foreach.count%5 eq 0 || $foreach.count eq $goodsLen)
+			</ul>
+			#end
+			#end
+			<div class="height0"></div>
+			#parse('include/pageUtil.vm')
+			<div class="height0"></div>
+		</div>
+	</div>
+	<div class="p-right right">
+		<div class="horn" id="login1" style="display:none">
+		<div class="topLogin"><a href="#" class="button whiteBt minBt" style="margin:22px 0 0 84px;"><span>登陆格瓦拉 </span></a></div>
+		<div class="botLogin">
+			<ul class="pt10" style="border:none;">
+				<li>登陆后您可以: </li>
+				<li><a href="#">· 参加积分体验、兑换、抽奖活动 </a></li>
+				<li><a href="#">· 查询积分余额、交易记录 </a></li>
+			</ul>
+		</div>
+		<em class="m2"></em><em class="m1"></em>
+	</div>
+	#parse('include/home/point.vm')
+	</div>
+	<div class="height0"></div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+function buy(gid){
+	checkLogin(true, function(){
+		document.location='${basePath}exchange/point/buyGoods.xhtml?gid='+gid;
+	});
+}
+</script>
+</body>
+</html>

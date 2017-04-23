@@ -1,0 +1,304 @@
+<div class="body_nav_tags">
+	<div class="navs">
+		<a class="select" href="javascript:void(0);"><em style="background-position:0 -1393px;">列表显示</em></a>
+		<a href="javascript:getLifeData('date','','')"><em style="background-position:0 -1363px;">月历显示</em></a>
+	</div>
+	<div class="modules">
+		<a href="javascript:getLifeData('addLive','','');" class="addnew">安排娱乐生活</a>
+	</div>
+</div>
+#set($keyList = ["nextMonthAgenda","playMonthAgenda"])
+<div class="bodys">
+	<div class="ui_plugs_actions ui_plugs_eLiving" id="actionsCantainer">
+		<div class="ui_plugs_time" id="_time">&nbsp;</div>
+		#foreach($key in $keyList)
+		<div class="messgeManager clear" lang="messgeManager" style="display:block;">
+			#if($agMap.size() == 0 && $foreach.count == 1)<span class="date_axis">$!DateUtil.format($!playDate, 'M月')</span>#end
+			#foreach($agenda in $agMap.get($key))
+			#set($otherinfo = $VmUtils.readJsonToMap($agenda.otherinfo))
+			#if($foreach.count eq 1)<span class="date_axis">$!DateUtil.format($agenda.startdate, 'M月')</span>#end
+			<div class="ui_plugs_data col#if($foreach.count % 2 == 1)1#{else}2#end" style="visibility:visible; opacity:1;">
+				<div class="ui_plugs_outside">
+					<div class="ui_plugs_inside">
+						<span class="tagcol#if($foreach.count % 2 == 1)1#{else}2#end"><span>◆</span><em>◆</em></span>
+						<span class="pm"></span>
+						<div class="inner">
+							<div class="eLiving">
+								<div class="mod_date #if(!$DateUtil.isAfter($DateUtil.parseDate($agenda.agendTime, 'yyyy-MM-dd HH:mm')))mod_date_end#end">
+									<em>$!DateUtil.format($agenda.startdate, 'M月')</em>
+									<span>$!DateUtil.format($agenda.startdate, 'dd日')</span>
+								</div>
+								#if($VmUtils.eq($agenda.action, 'ticket'))#*电影*#
+								<p>$!agenda.title</p>
+								<div class="tickets ismovieShare">
+									<h2>分享电影票</h2>
+									<div class="tickets_c">
+										<div class="inner">
+											<a target="_blank" href="${basePath}cinema/$!agenda.relatedid" title="$!otherinfo.relatedname">$!otherinfo.relatedname</a>
+											<span>影厅：$!otherinfo.roomname</span><em>日期：$agenda.startdate</em>
+											<span>影片：$!otherinfo.categoryname</span><em>时间：$agenda.starttime</em>
+										</div>
+									</div>
+									<div class="sfoot"></div>
+								</div>
+								#elseif($VmUtils.eq($agenda.action, 'drama'))#*话剧*#
+								<p>$!agenda.title</p>
+								<div class="tickets isdramaShare">
+									<h2>分享演出票</h2>
+									<div class="tickets_c">
+										<div class="inner">
+											<a target="_blank" href="${basePath}theatre/$!agenda.relatedid" title="$!otherinfo.relatedname">$!otherinfo.relatedname</a>
+											<span>区域：$!otherinfo.roomname</span><em>时间：$agenda.starttime</em>
+											<p>剧目：$!otherinfo.categoryname</p>
+											<p>日期：$agenda.startdate</p>
+										</div>
+									</div>
+									<div class="sfoot"></div>
+								</div>
+								#elseif($VmUtils.eq($agenda.action, 'sport'))#*运动*#
+								<p>$!agenda.title</p>
+								<div class="tickets issportShare">
+									<h2>分享$!otherinfo.categoryname电子票</h2>
+									<div class="tickets_c">
+										<div class="inner">
+											<a target="_blank" href="${basePath}sport/$!agenda.relatedid" title="$!otherinfo.relatedname">$!otherinfo.relatedname</a>
+											<span>场地：</span><em>项目：$!otherinfo.categoryname</em>
+											<p>时间：$!agenda.starttime #if($!agenda.endtime)- $!agenda.endtime #end</p>
+										</div>
+									</div>
+									<div class="sfoot"></div>
+								</div>
+								#elseif($VmUtils.eq($agenda.action, 'createreserve') || $VmUtils.eq($agenda.action, 'joinreserve'))#*约战活动*#
+								<p><span class="ffst c999">[约战]</span> <a href="${basePath}activity/$!agenda.actionid" target="_blank" title="$!agenda.title">$!agenda.title</a></p>
+								<p>地点：$!agenda.address</p>
+								#elseif($VmUtils.eq($agenda.action, 'agenda'))
+								<p>$!agenda.title</p>
+								<p>地点：$!agenda.address</p>
+								<p>时间：$!DateUtil.format($DateUtil.parseDate($!agenda.agendTime, 'yyyy-MM-dd HH:mm'), 'MM月dd日 HH:mm')</p>
+								#else #*活动*#
+								<p>#if($VmUtils.eq($agenda.action, 'createactivity'))发起了#else参与了 #end <a href="${basePath}activity/$!agenda.actionid" target="_blank" title="$!agenda.title">$!agenda.title</a> 活动。</p>
+								#if($!otherinfo.logo)
+								<div class="relationBody">
+									<img width="250" src="$!VmUtils.randomPic('',$!otherinfo.logo)" />
+								</div>
+								#end
+								#end
+							</div>
+							<div class="loadup">
+								<span class="left">$!DateUtil.getTimeDesc($agenda.addtime)</span>
+								<span class="right rMore">
+									#if($DateUtil.isAfter($DateUtil.parseDate($agenda.agendTime, 'yyyy-MM-dd HH:mm')))
+									<a href="javascript:gewa.util.deleteMessage($!agenda.id);" class="mr10" >删除</a>
+									#*
+									<a href="javascript:gewa.util.smsMessage($!agenda.id);" class="mr10" >短信提醒</a>
+									<a href="javascript:gewa.util.inventMessage($!agenda.id);" >邀请</a>
+									*#
+									#else
+										#if($VmUtils.eq($agenda.action, 'ticket'))
+										<a href="${basePath}movie/$!agenda.categoryid" target="_blank" >写影评</a>
+										#elseif($VmUtils.eq($agenda.action, 'drama'))
+										<a href="${basePath}drama/$!agenda.categoryid" target="_blank" >写剧评</a>
+										#elseif($VmUtils.eq($agenda.action, 'sport'))
+										<a href="${basePath}sport/item/$!agenda.categoryid" target="_blank" >写心得</a>
+										#elseif($VmUtils.eq($agenda.action, 'createreserve') || $VmUtils.eq($agenda.action, 'joinreserve'))
+										<a href="${basePath}activity/$!agenda.actionid" class="mr10" target="_blank" >写比分</a>
+										<a href="${basePath}activity/$!agenda.actionid" target="_blank" >上传图片</a>
+										#elseif($VmUtils.eq($agenda.action, 'createactivity') || $VmUtils.eq($agenda.action, 'joinactivity'))
+										<a href="${basePath}activity/$!agenda.actionid" target="_blank">查看</a>
+										#end
+									#end
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			#end
+	</div>
+	#end
+</div>
+<!-- 免费短信提醒弹层 -->
+<div style="display:none; padding:5px 10px;" id="smsMessage">
+	<div class="messageBox">
+		<span id="font" class="font"></span>
+		<label for="inventFdText" id="smsMessageTips" style="top:35px;" class="wala_defV">最多不超过60个字</label>
+		<textarea class="textAreaBox" id="remindText" style="width:486px;"></textarea>
+		<div class="ui_abeam mt10">
+			<div class="uipic tal" style="width:200px;">
+				<div>
+					<p class="left">我的手机：<input type="text" id="mobile" value="$!mobile" class="textBox" style="width:100px;"/></p>
+				</div>
+			</div>
+			<div class="uiText" style="width:200px;">
+				 提醒时间：
+				<select id="sendtime" name="sendtime">
+					<option value="1">提前一小时</option>
+					<option value="2">提前二小时</option>
+					<option value="3">提前三小时</option>
+				</select>
+			</div>
+		</div>
+		<label for="captcha" class="ml10">验证码：</label><input type="hidden" name="captchaId" id="captcha" />
+		<input id="captchaInput" class="text captcha" type="text" style="width:60px;font-size:12px" size="18" name="captcha" alt="点击获取" autocomplete="off"  onfocus="GewaraUtil.refreshCaptcha('captcha');"/>
+		<span style="overflow:hidden;"class="ml10 mr5">
+			<img class="ml5 mr5" id="captchaImg" title="看不清楚，请点击换一张图片" onclick="GewaraUtil.refreshCaptcha('captcha');" style="cursor: pointer;" src="${staticPath}css/images/blank.gif" height="30" width="80"/>
+		</span>
+		<p class="tar mt10"><a href="javascript:gewa.util.saveLiveSMS();" class="button minBt redBt"><span>发&nbsp;&nbsp;布</span></a></p>
+	</div>
+</div>
+<!-- 免费短信提醒弹层 -->
+
+<!-- 免费邀请好友弹层 -->
+<div style="display:none; padding:5px 10px;" id="inventMessage">
+	<div class="messageBox">
+		<span id="font2" class="font"></span>
+		<label for="inventFdText" id="inventMessageTips" style="top:35px;" class="wala_defV">最多不超过60个字</label>
+		<textarea class="textAreaBox" id="inventText" style="width:486px;"></textarea>
+		<div class="ui_abeam mt10">
+			<div class="uipic tal" style="width:200px;">
+				<p>我的姓名：<input type="text" name="nickname" id="nickname" class="textBox" style="width:100px;"/></p>
+			</div>
+			<div class="uiText" id="voptions" style="width:200px;">
+				<div>
+					<p class="left">好友手机：<input type="text" name="phonenum" class="textBox" style="width:100px;"/></p>
+					<p class="right"><span class="oAddPhone" id="addFont"></span></p>
+				</div>
+			</div>
+		</div>
+		<label for="captcha" class="ml10">验证码：</label><input type="hidden" name="inviteId" id="invite" />
+		<input id="inviteInput" class="text captcha" type="text" style="width:60px;font-size:12px" size="18" name="invite" alt="点击获取" autocomplete="off"  onfocus="GewaraUtil.refreshCaptcha('invite');"/>
+		<span style="overflow:hidden;"class="ml10 mr5">
+			<img class="ml5 mr5" id="inviteImg" title="看不清楚，请点击换一张图片" onclick="GewaraUtil.refreshCaptcha('invite');" style="cursor: pointer;" src="${staticPath}css/images/blank.gif" height="30" width="80"/>
+		</span>
+		<p class="tar mt10"><a href="javascript:gewa.util.saveLiveSMS('invite');" class="button minBt redBt"><span>发&nbsp;&nbsp;布</span></a></p>
+	</div>
+</div>
+<!-- 免费邀请好友弹层 -->
+<input type="hidden" value="" id="aid" name="aid" />
+<script type="text/javascript">
+gewa.util.smsMessage = function(aid){
+	gewa.util.maskContent('','smsMessage','免费短信提醒',550,'smsMessage');
+	$('aid').value = aid;
+}
+gewa.util.inventMessage = function(aid){
+	gewa.util.maskContent('','inventMessage','免费邀请好友',550,'smsMessage');
+	$('aid').value = aid;
+}
+gewa.util.saveLiveSMS = function(tag){
+	var mobile = "", err = "", content = "", captcha="", captchaId="";
+	if(tag == 'invite'){
+		content = $('inventText').value;
+		var phonelist = $('voptions').getElements('input[name=phonenum]');
+		Array.each(phonelist,function(item,index){
+			if(index > 0){
+				mobile += "," + item.value;
+				if(!gewara.util.isMobile(item.value)) err = "请输入正确的电话号码！";
+			}else{
+				mobile += item.value;
+				if(!gewara.util.isMobile(item.value)) err = "请输入正确的电话号码！";
+			}
+		});
+		if(mobile == "") err = "好友手机号码不能为空！";
+		if($('nickname').value == '') err = "我的姓名不能为空！";
+		captcha=$('inviteInput').value;
+		captchaId=$('invite').value;
+	}else{
+		content = $('remindText').value;
+		if($('mobile').value == "") err = "手机号码不能为空！";
+		else if(!gewara.util.isMobile($('mobile').value)) err = "请输入正确的电话号码！";
+		mobile = $('mobile').value;
+		captcha=$('captchaInput').value;
+		captchaId=$('captcha').value;
+	}
+	if(content == '') err = "短信内容不能为空！";
+	if(err.length>0){gewaUtil.alert(err); return;}
+	GewaraUtil.sendRequest('${basePath}home/sns/ajax/saveLiveSMS.xhtml', {'aid':$('aid').value,'nickname':$('nickname').value,'content':content,'mobile':mobile,'sendtime':$('sendtime').value, "captcha":captcha,'captchaId':captchaId}, function(result){
+		if(result.success){
+			gewaUtil.alert("短信添加成功！");
+			gewa.util.container['smsMessage'].dispose('smsMessage');
+		}else{
+			gewaUtil.alert(result.msg);
+			if(tag == 'invite') GewaraUtil.refreshCaptcha('invite');
+			else GewaraUtil.refreshCaptcha('captcha');
+		}
+	});
+}
+gewa.util.deleteMessage = function(aid){
+	gewaUtil.confirm('确定删除？', function (){
+		GewaraUtil.sendRequest('${basePath}home/sns/ajax/deleteMyLive.xhtml', {'aid':aid}, function(result){
+			if(result.success){
+				gewaUtil.alert("删除成功！");
+				getLifeData();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});		
+	});
+}
+var vcount = 0;
+addOpation = function(){
+	if(vcount == 3){
+		$('addFont').hide();
+		return;
+	}
+	var ap = new Element('div',{
+		'html':'<p class="left mt5">好友手机：<input type="text" name="phonenum" class="textBox" style="width:100px;"/></p><p class="right mt5"><span class="oDelPhone"></span></p>'
+	}).inject('voptions');
+	var aspan = ap.getElement('*[class=oDelPhone]');
+	aspan.addEvent('click',function(){
+		this.getParent('div').dispose();
+		vcount--;
+		if(vcount > 0)$('addFont').show();
+	})
+	vcount++;
+}
+
+var issue = new Class({
+	Implements: [Options,Events],
+	options:{
+		font:'',
+		subt:'',
+		tips:'',
+		num:50
+	},
+	initialize:function(element,options){
+		this.setOptions(options);
+		this.element = $(element);
+		this.count();
+		this.tips();
+		this.work();
+	},
+	count:function(){
+		var curCount = this.element.value.length,countel = $(this.options.font);
+		var count = this.options.num - this.element.value.length,countel = $(this.options.font);
+		if(count < 0){
+			countel.innerHTML = '<b class="red">'+count+'</b>/'+this.options.num
+		}else{
+			countel.innerHTML = curCount+'/'+this.options.num;
+		}
+	},
+	work:function(){
+		var self = this;
+		this.element.addEvents({
+			'focus':function(){$(self.options.tips).hide();},
+			'blur':function(){
+				if(!$chk(this.value))$(self.options.tips).show();
+				self.count();
+			},
+			'keyup':function(){
+				self.count();
+			}
+		})
+	},
+	tips:function(){
+		if($chk(this.element.value))$(this.options.tips).hide();
+	}
+})
+window.addEvent('domready',function(){
+	new issue('remindText',{'font':'font','tips':'smsMessageTips','num':60});
+	new issue('inventText',{'font':'font2','tips':'inventMessageTips','num':60});
+	$('addFont').addEvent('click',function(){
+		addOpation();
+	})
+});
+</script>

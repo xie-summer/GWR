@@ -1,0 +1,133 @@
+<!Doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Expires" content="0" />    
+	<meta http-equiv="Cache-Control" content="no-cache" />
+	<meta http-equiv="Pragma" content="no-cache" />    
+	<title>选择支付方式_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_pay&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,raphael,svg&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.c80{color:#cc8800!important;}
+		.bold{font-weight:bold;}
+		
+		/*图文布局*/
+		.ui_media{border:1px solid #ffefdf;}
+		.ui_media .ui_pic{border-bottom:1px solid #ffefdf; width:260px; border-right:1px solid #ffefdf;;}
+		.ui_media,.ui_text{overflow:hidden; *overflow:visible; zoom:1;}
+		.ui_media .ui_pic img,.ui_media .ui_picR img{display:block;}
+		.ui_media .ui_pic{float:left;}
+		.ui_media .ui_picR{margin-left:10px; float:right;}
+		.ui_media .ui_media{margin-top:10px; color:#666;}
+		
+		.mod_kong .mod_hd{padding-bottom:8px; height:24px; line-height:24px;}
+		.mod_kong .mod_hd h2{font-family:'微软雅黑','宋体'; font-size:16px; font-weight:bold;}
+		
+		.areaList{margin-top:15px;}
+		.areaList dt{font-size:12px; font-weight:bold;}
+		.areaList dd{display:inline-block;color:#999; padding:0 5px; margin:3px 0;line-height:23px; color:#999;}
+		.areaList dd span{white-space:nowrap;word-warp:break-word;}
+		.mapBox{overflow-x:auto;width:100%; height:auto !important;min-height:600px;height:600px; }
+		
+		.maskLeft{padding-top:120px;}
+		.maskLeft .s_img{width:283px;height:112px;background:url("/css/drama_wide/navArea.png") no-repeat 0 0;_background:url("/css/drama_wide/navArea.gif") no-repeat 0 0;display:block;}
+		.maskRight{width:880px;height:580px;border:5px dashed #F60;background:#fff url($!VmUtils.randomPic('',$!field.limg)) no-repeat center center;}
+	</style>
+</head>
+<body>
+<div id="showShadowbg" style="display:none;"></div>
+<div id="maskArea" class="clear" style="display:none;left:120px;top:135px;">
+	<div class="left maskLeft">
+		<span class="s_img"></span>
+		<a href="javascript:closeArea('maskArea');" class="button maxBt mt30" ><span>好呢，知道了</span></a>		
+	</div>
+	<div class="left maskRight"></div>
+</div>
+#set($relatedtag='drama')
+#set($isDramaOrder=true)
+#set($cfgHeader='header')#parse('include/wide_header.vm')
+#set($stepCount='payStep02')
+#set($isPay=true)
+<form id="payForm" action="${basePath}gewapay/saveOrder.xhtml" method="post">
+<input type="hidden" name="orderId" value="$!order.id"/>
+<div class="ui_layout" style="position:relative;">
+	<div class="inner">
+		<div class="payStep02">
+			#parse('include/drama/wide_stepmenu.vm')
+		</div>
+		<div class="ui_media mt10">
+			<div class="ui_pic">
+				<div class="inner">
+					<div class="mod_kong">
+						<div class="mod_hd">
+							<h2>选择座位区域</h2>
+						</div>
+						<div class="mod_bd">
+							#foreach($seatArea in $seatAreaList)
+							<dl class="areaList clear">
+								<dt>$!seatArea.name </dt>
+								#set($priceLen=$VmUtils.size($seatPriceMap.get($seatArea.id)))
+								#foreach($seatPrice in $seatPriceMap.get($seatArea.id))
+								<dd #if($VmUtils.eq($priceLen,$foreach.count))style="border-right:none" #end>票价：<span class="c80 bold">¥$!{seatPrice.price}元</span><em class="ml5 mr5">|</em><span class="c80 bold">¥$!{seatPrice.price}元</span></dd>
+								#end
+							</dl>
+							#end
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="ui_text">
+				<div class="inner">
+					<div class="mapBox" id="img"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</form>
+<script type="text/javascript">
+ 	function showShadow(el,zIndex){
+ 		if(!zIndex) zIndex = $(el).getStyle("z-index");
+ 		var winSize = $(document.body).getScrollSize();
+ 	 	$('showShadowbg').setStyles({
+ 			"position":"absolute",
+ 			"background-color":"#000",
+ 			"opacity":"0.7",
+ 			"z-index":zIndex-1,
+ 			"width":winSize.x,
+ 			"height":winSize.y
+ 		}) 
+ 		$(el).setStyles({
+ 			"position":"absolute",
+ 			"display":"",
+ 			"z-index":zIndex,
+ 			"visibility":"visible"
+ 		}).show();
+ 		$('showShadowbg').show();
+ 	}
+ 	function hideDialog(el){
+ 		if($("showShadowbg")) $("showShadowbg").setStyles({"visibility":"hidden","height":"0px"});
+ 		if($(el)) $(el).setStyles({"display":"none","visibility":"hidden","top":"0px"});
+ 		$(document.body).setStyle('overflow-y','auto');
+ 	};
+	window.addEvent('domready',function(){
+		#if($VmUtils.isNotBlank($!field.limg))
+			var data = $!{areaZoneMap} || {};
+			SVG.init({'defualtImg':"$!VmUtils.randomPic('',$!field.limg)",'defualtData':data,isDrow:true,sale:1,'link':"${basePath}drama/order/step1.xhtml?itemid=$!{item.id}&areaid="});
+		#end
+		var maskArea = Cookie.read('maskArea');
+		if(!maskArea && maskArea != "true"){
+			showShadow("maskArea",100);
+		}
+	});
+	function closeArea(el)
+	{
+		hideDialog(el);
+		Cookie.write('maskArea',"true");
+	}
+</script>
+#parse('include/wide_footer.vm')
+</body>
+</html>

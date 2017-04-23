@@ -1,0 +1,115 @@
+<!Doctype html>
+<html>
+<head>
+	<!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>演出后台电话售票下单平台 - 格瓦拉生活网</title>
+	<meta name="keywords" content="演唱会门票,展会门票,话剧票"/>
+	<meta name="description" content="格瓦拉生活网提供各类展会,展览,赛事,话剧,演唱会等演出在线门票预订.是国内领先的城市生活娱乐票务订购平台."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_drama,dramaTicket&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,inits_admin_drama,scrollerbar,base_home,tips&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	.formsList{padding:0 15px;}
+	</style>
+</head>
+<body>
+#parse('include/admin_header.vm')
+#set($showSearch=true)
+<div class="ui_layout">
+	<div class="w_draD">
+		#parse('admin/drama/ticket/include/forms.vm')
+		<div id="formsList" class="formsList"></div>
+		<div id="dramaPlayItem" class="dramaPlayItem none"></div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready', function(){
+	var dramaid = gewaUtil.getRequestParams('dramaid');
+	rollback.mobile = gewaUtil.getRequestParams('mobile');
+	if($chk(dramaid)){
+		getDramaList(dramaid);
+	}
+});
+
+function getPlayItem(dramaid,fieldid, show){
+	var url = '${basePath}admin/drama/agent/getItemList.xhtml';
+	var values = {'dramaid':dramaid};
+	if(fieldid){
+		values.fieldid = fieldid;
+	}
+	$('dramaPlayItem').empty();
+	GewaraUtil.sendLoad('dramaPlayItem', url, values, function(result){
+		if(result.success){
+			if($('wrapper') != null && $('wrapper').getElements('li') != null){
+				var elements = $('wrapped').getElements('div[configShow=unShow]');
+				if(elements){
+					if(!show && show == ""){
+						elements.each(function(item){
+							item.getParent('li').dispose();
+						});
+					}
+				}
+				var odiElements = $('wrapper').getElements('li');
+				if(odiElements && odiElements.length>0){
+					$('dramaPlayItem').removeClass('none');
+					if($('wrapped').getElement('ul') != null && $('wrapped').getElement('ul').getDimensions().y > 219){
+						$('wrapper').setStyle('height','219px');
+						new ScrollerBar('wrapper',{wrapped:'wrapped',step:70});
+					}
+					$$('#playTimeList div,#playPriceList div').each(function(item){
+						new amTips(item,{position:'top',width:250,content:function(){return item.get('istips')}});
+					});
+					pageInit();
+				}else{
+					$('dramaPlayItem').addClass('none');
+				}
+			}else{
+				$('dramaPlayItem').addClass('none');
+			}
+		}else{
+			$('dramaPlayItem').addClass('none');
+		}
+	}.bind(this),$(dramaid));
+}
+
+function getDramaList(dramaname) {
+	if (dramaname.trim() == "") {
+		alert("查询条件不得为空!");
+		return;
+	}
+	var url = '${basePath}admin/drama/agent/getDramaList.xhtml';
+	var values = {'dramanameOrId':dramaname};
+	GewaraUtil.mask('dramaname');
+	GewaraUtil.sendLoad('formsList', url, values, function(result){
+		GewaraUtil.unmask();
+		if(!result.success){
+			gewaUtil.alert(result.json.msg);
+		}else{
+			pageItemList();
+		}
+	});
+}
+
+function pageItemList(){
+	var dramaList = $('dramaList');
+	if(dramaList){
+		var liElement = dramaList.getElements('li');
+		if(liElement && liElement.length>0){
+			liElement.addEvent('click',function(){
+				rollback.removeContrainer();
+				liElement.removeClass('select');
+				this.addClass('select');
+				getPlayItem(this.id);
+			});
+			liElement[0].fireEvent('click');
+		}else{
+			$('dramaPlayItem').addClass('none');
+		}
+	}
+}
+
+</script>
+</body>
+</html>

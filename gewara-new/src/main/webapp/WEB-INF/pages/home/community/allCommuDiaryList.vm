@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>圈内话题_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($commentList=true)#set($community=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/communityMenu.vm')
+			<table cellpadding="0" cellspacing="0" border="0" class="titleTable" style="margin:0px;text-align: left;">
+				<thead>
+					<tr>
+						<th width="35%">主题</th>
+						<th>圈子</th>
+						<th>发表</th>
+						<th>浏览/回复</th>
+						<th>最后回复</th>
+					</tr>
+				</thead>
+				<tbody>
+					#if($VmUtils.size($listCommuDiary) ne 0)
+					#foreach($topic in ${listCommuDiary})
+					#if($!topic.flag && $topic.flag.indexOf('hot') ge 0)#set($hotClass='jt')
+						#elseif($!topic.clickedtimes gt 100)#set($hotClass='rt')
+						#else#set($hotClass='ptt')#end
+					<tr class="#if($foreach.index%2 eq 0) odd #else even #end">
+						<td><a href="${basePath}blog/t$topic.id"  class="$hotClass brown"  target="_blank" title="$!topic.subject">$!VmUtils.escabbr($!topic.subject,50)</a></td>
+						<td ><a href="${basePath}quan/$!topic.communityid" title="$mapCommuDiary.get($!topic.communityid).name">$!VmUtils.escabbr($mapCommuDiary.get($!topic.communityid).name,20)</a></td>
+						<td>$DateUtil.format($topic.addtime,'MM-dd HH:mm')<span class="mr5 ml5">/</span><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!topic.memberid" class="brown" target="_blank" title="$!topic.membername">$VmUtils.escabbr($!topic.membername,10)</a></td>
+						<td style="text-align: center;">${topic.clickedtimes}/${topic.replycount}</td>
+						<td>#if($topic.replytime)$DateUtil.format($topic.replytime,'MM-dd HH:mm')
+							#else $DateUtil.format($topic.addtime,'MM-dd HH:mm')#end
+							<span class="mr5 ml5">/</span>
+							#if($!topic.replyid)
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!topic.replyid" class="brown" target="_blank" title="$!topic.replyname">$VmUtils.escabbr($!topic.replyname,8)</a>
+							#else
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!topic.memberid" class="brown" target="_blank" title="$!topic.membername">$VmUtils.escabbr($!topic.membername,10)</a>
+							#end
+						</td>
+					</tr>
+					#end
+					#else
+						<tr>
+							<td colspan="5" style="border:0px;">圈子暂无话题！</td>
+						</tr>
+					#end
+				</tbody>
+			</table>
+		</div>
+	</div>
+	#parse('include/pageUtil.vm')
+	<div class="height0"></div>
+</div>
+#parse('include/bottom.vm')
+</body>
+</html>

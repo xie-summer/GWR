@@ -1,0 +1,33 @@
+#if(!$!VmUtils.isEmptyList($!activityList))
+<div class="mod_kong">
+	<div class="mod_hd">
+		<h2>电影活动</h2>
+		<a href="$!{basePath}activity/activityList.xhtml" class="more" target="_blank">更多</a>
+	</div>
+	<div class="mod_bd">
+		<ul>
+			#foreach($activity in $!activityList)
+			#set($relate=$relatedHelper.getR1("activityList",$activity.id))
+			#if(!$relate)
+				#set($relate = $activity)
+			#end
+			<li #if($foreach.count gt 1)class="mt30"#end>
+				<dl class="ui_media">
+					<dt class="ui_pic">
+						<a href="${basePath}activity/$!relate.id" title="$!relate.title" target="_blank">
+							<img src="$VmUtils.randomPic('cw96h128',$!relate.limg)" alt="$!relate.title" width="96" height="128"/>
+						</a>
+					</dt>
+					<dd class="ui_text">
+						#if($!relate.atype eq "gewa")<span class="official mr5" title="格瓦拉官方认证活动"></span>#end
+						<a href="${basePath}activity/$!relate.id" title="$!relate.title" target="_blank" class="c333">$!VmUtils.escabbr($!relate.title,40)</a>
+						<p class="mt10 c999">$!DateUtil.format($!relate.startdate,'M月d日')#if($!relate.enddate)--$DateUtil.format($!relate.enddate,'M月d日')#end</p>
+						<p title=" $!relate.clickedtimes人关注了该活动" class="c999 mt10 acFloico"> $!relate.clickedtimes关注<span title="$!relate.membercount人参加了该活动" class="join">$!relate.membercount</span></p>
+					</dd>
+				</dl>
+			</li>
+			#end
+		</ul>
+	</div>
+</div>
+#end

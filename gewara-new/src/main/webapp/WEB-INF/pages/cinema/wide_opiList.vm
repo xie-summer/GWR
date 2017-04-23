@@ -1,0 +1,631 @@
+<!Doctype html>
+<html>
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>在线电影票预订_电影优惠订票 - 格瓦拉生活网</title>
+	<meta name="keywords" content="" />
+	<meta name="description" content="格瓦拉生活网提供在线电影票预订.网上快速选座.热门影院,最新热门影片优惠订票.影片最新影院排片信息" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_movie&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,scrollerbar,tips,opi&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.cur_w{width:270px; margin:0 30px; display:inline;}
+		.cur_w div a{color:#333; font-size:14px; font-weight:bold;}
+		.cur_w div em{color:#999;}
+		#cur_w{width:270px;}
+		.opiMapList{width:850px;}
+		.ui_abeam {overflow: hidden;position: relative;width: 100%;z-index: 0;}
+		.uipic,.uiText{margin-bottom: -30000px;padding-bottom: 30000px;}
+		#movieSiteHeight a{color:#cc3300;}
+		#movieSiteHeight a:hover,#movieSiteHeight a.select{color:#fff;}
+		.chooseInnerBox #cinemaPanel a img{vertical-align:-1px;}
+		.ticket_choose_con{padding:10px;font-size:12px;}
+		.ticket_choose_con a{padding:0 5px; display:inline-block;margin:2px 11px 2px 0;float:left;height:20px;line-height:20px;color:#333333;text-decoration:none !important; white-space:nowrap;}
+		.ticket_choose_con .ui_pic {color:#999;line-height:24px;margin-right:0;}
+		.ticket_choose_con a.select, .ticket_choose_con a:hover{background:#F88630;color:#fff;}
+		.chooseOpi{display:block; width:847px; _width:844px;}
+		.chooseOpi_caption{text-indent:0;}
+		.chooseOpi_body{border-right:1px solid #f3f3f3;}
+		/*快速购票*/
+		.adressDown span.button_off,#movieSiteHeight span.button_off{background:url(/css/movie_wide/quickIco.gif) no-repeat 0 0;}
+		#movieSiteHeight{position:relative; margin-right:100px; zoom:1;}
+		#movieSiteHeight span.button_off{position:absolute; top:0; right:-80px; line-height:25px;display:inline-block;margin:2px 0;padding-left:20px;cursor:pointer;float:left;background-position:0 4px;background-position:0 3px;white-space:nowrap;}
+		#movieSiteHeight span.button_on{background-position:0 -27px;}
+		.adressDown{text-align:center; width:140px;height:26px; line-height:26px; color:#cc3300; cursor:pointer; margin:0 auto; background:#ffddcc;}
+		.adressDown span.button_off{background-position:right -57px;*background-position:right -57px;padding-right:12px;}
+		.adressDown span.button_on{background-position:right -87px;*background-position:right -87px;}
+		#cinemaPanel{padding:10px 10px 8px;background:#fff;border:1px solid #ffbb99;}
+		.cinemaP{}
+		.chooseOpi{margin-bottom:30px;}
+		.chooseOpi_footer{background:#f3f3f3;}
+		
+		/*影院服务*/
+		.S1{background:url("/css/movie_wide/cinemaico24.png") no-repeat 0 0;_background: url("/css/movie_wide/cinemaico.jpg") no-repeat 0 0;display:inline-block;height:20px;float:left;margin:0 5px 0 0;}
+		.cinemaP .Park{background-position:-60px -151px;width:21px;}
+		.cinemaP .Imax{background-position:-60px -25px;width:42px;}
+		.cinemaP .D3{background-position:-58px -58px;width:30px;}
+		.cinemaP .Lovers{background-position:-60px -90px;width:25px;}
+		.cinemaP .Child{background-position:-60px -120px;width:23px;}
+		.cinemaP .Linecombo{background-position:-60px -1px;width:21px;}
+		
+		.qpic a:hover .Park,.qpic a.select .Park{background-position:-59px -758px;}
+		.qpic a:hover .Imax,.qpic a.select .Imax{background-position:-60px -628px;}
+		.qpic a:hover .D3,.qpic a.select .D3{background-position:-58px -661px;}
+		.qpic a:hover .Lovers,.qpic a.select .Lovers{background-position:-60px -693px;}
+		.qpic a:hover .Child,.qpic a.select .Child{background-position:-60px -723px;}
+		.qpic a:hover .Linecombo,.qpic a.select .Linecombo{background-position:-60px -604px;}
+		
+		.ui_opi_control{background:#f4f4f4; height:24px; line-height:24px; padding:13px 10px; font-size:12px;}
+		.ui_opi_control span{display:inline-block; float:left; margin-right:5px; padding:0 5px; height:24px; line-height:24px; background:#cd3301; color:#fff;}
+		#movieSiteHeight a,#cinemaPanel a{width:120px; text-overflow:ellipsis; overflow:hidden;}
+	</style>
+	<script type="text/javascript">
+	var loadCinemaList = [];
+	function pushLoadCinemaList(value){
+		loadCinemaList.push(value);
+	}
+	</script>
+</head>
+<body>
+#set($tag="movie") #set($ismovie=true) #set($movieFlag="buyticket") #set($googleSpeedPageTag='/cinema/searchOpi.xhtml')
+#set($cfgHeader='header')
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	#if($adspdiscount.banner && !$VmUtils.isBlank($adspdiscount.banner))
+	<div class="banner"><img src="$VmUtils.randomPic('',$adspdiscount.banner)"/></div>
+	#else
+	<div class="banner none" id="ticketBanner">#parse('include/ad/ad_ticketorder.vm')</div>
+	#end
+	<div class="inner">
+		<div class="mod_tabs mod_tabs_movie" style="margin-bottom:10px;">
+			<div class="mod_hd">
+				<form id="searchForm" action="${basePath}cinema/searchOpi.xhtml">
+					<input type="hidden" name="movieid" id="smovieid" value="$!movieid"/>
+					<input type="hidden" name="cinemaid" id="cinemaid" value="$!VmUtils.escapeHtml($params.cinemaid)"/>
+					<input type="hidden" name="fyrq" id="fyrq" value="$!fyrq"/>
+					<input type="hidden" name="spkey" id="spkey" value="$!spkey"/>
+					<input type="hidden" name="edition" id="edition" value="$!VmUtils.escapeHtml($params.edition)" />
+					<input type="hidden" name="language" id="language" value="$!VmUtils.escapeHtml($params.language)" />
+					<input type="hidden" name="cinemaname" id="cinemaname" value="$!VmUtils.escapeHtml($params.cinemaname)" />
+				</form>
+				<ul class="nav_tabs">
+					#foreach($pdate in $dateList) #set($pdateStr=$DateUtil.formatDate($pdate))
+						#if($foreach.count le 8)
+							<li #if($VmUtils.eq($pdateStr, $fyrq) || (!$fyrq && $foreach.index eq 0))class="select"#end>
+								<a href="${basePath}cinema/searchOpi.xhtml?movieid=$!movieid&fyrq=$pdateStr&spkey=$!spkey&cid=$!{params.cid}" id="$pdateStr" config="opi" rel="fyrq">${DateUtil.format($pdate, 'M月d日')}($DateUtil.getCnWeek($pdate))</a>
+							</li>
+						#end
+					#end
+				</ul>
+			</div>
+			<div class="mod_bd clear">
+				<div class="ticket_choose_box">
+					<div class="ticket_choose_con">
+						<dl class="ui_media">
+							<dt class="ui_pic">选择影片：</dt>
+							<dd class="ui_text">
+								<div id="movieSiteHeight" data-type="toggle">
+									#foreach($movie in $movieList)
+									<a title="$!{movie.name}" #if($VmUtils.eq($movie.id,$movieid)) class="select" #set($curMovieName=$!{movie.name})#end href="${basePath}cinema/searchOpi.xhtml?movieid=$movie.id&fyrq=$!fyrq&spkey=$!spkey&cid=$!{params.cid}" id="$movie.id" rel="smovieid" config="opi" #if($foreach.count gt 7)style="display:none;"#end>
+										$!{movie.name}
+									</a>
+									#end
+									#if($movieList.size() gt 7)
+									<span class="button_off">展开$movieList.size()部</span>
+									#end
+								</div>
+							</dd>
+						</dl>
+						<dl class="ui_media mt10">
+							<dt class="ui_pic">查找影院：</dt>
+							<dd class="ui_text">
+								<div class="clear">
+									<a title="我常去" data-config="condition" data-funtion="filterBuyTicketCinema()" href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&spkey=$!spkey" id="myBuyTicketCinema" class="none">我常去</a>
+									#if(!$VmUtils.isEmptyList($countyList))
+									<a class="select" title="行政区域" data-config="condition" data-area="countyArea" data-funtion="filterCounty()" href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&spkey=$!spkey" id="areaCondition">行政区域</a>
+									#end
+									#if(!$VmUtils.isEmptyList($subwayLineList))
+									<a title="地铁沿线" data-config="condition"  data-area="subwayArea" data-funtion="filterSubway()" href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&spkey=$!spkey" id="subwayCondition">地铁沿线</a>
+									#end
+									#if(!$VmUtils.isEmptyList($fetures))
+									<a title="特色筛选" data-config="condition" data-area="feturesArea" data-funtion="filterFeture()" href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&spkey=$!spkey" id="fetureCondition">特色筛选</a>
+									#end
+								</div>
+								#if(!$VmUtils.isEmptyList($countyList))
+								<div class="clear none" id="countyArea" data-config="area">
+										<a class="select" href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&spkey=$!spkey" data-config="area"  title="">全部影院</a>
+									#foreach($county in $countyList)
+										<a href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&spkey=$!spkey" id="$county.countycode" data-config="area">$county.briefname</a>
+									#end
+								</div>
+								#end
+								#if(!$VmUtils.isEmptyList($subwayLineList))
+								<div class="cinemaP clear none" id="subwayArea" data-config="area">
+									#foreach($subway in $subwayLineList)
+										<a href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&spkey=$!spkey" id="$!subway.id" data-config="subway">$!subway.linename</a>
+									#end
+								</div>
+								#end
+								#if(!$VmUtils.isEmptyList($fetures))
+								<div class="qpic cinemaP clear none" id="feturesArea" data-config="area">
+									#if($fetures.contains("imax"))
+									<a data-id="imax" href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&spkey=$!spkey" data-config="feture">
+										<em class="S1 Imax" ></em>
+										<span>IMAX场次</span>
+									</a>
+									#end
+									#if($fetures.contains("free3D"))
+									<a data-id="free3D" href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&spkey=$!spkey" data-config="feture">
+										<em class="S1 D3"></em>
+										<span>3D眼镜免押金</span>
+									</a>
+									#end
+									#if($fetures.contains("pairseat"))
+									<a data-id="pairseat" href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&spkey=$!spkey" data-config="feture">
+										<em class="S1 Lovers" ></em>
+										<span>情侣座</span>
+									</a>
+									#end
+									#if($fetures.contains("popcorn"))
+									<a data-id="popcorn" href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&spkey=$!spkey" data-config="feture">
+										<em class="S1 Linecombo" ></em>
+										<span>线上套餐</span>
+									</a>
+									#end
+									#if($fetures.contains("freePack"))
+									<a data-id="freePack" href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&spkey=$!spkey" data-config="feture">
+										<em class="S1 Park" ></em>
+										<span>免费停车</span>
+									</a>
+									#end
+								</div>
+								#end
+								#if(!$VmUtils.isEmptyList($cinemaList))
+								<div class="chooseInnerBox mt10 clear" data-type="toggle">
+									<div id="cinemaPanelOutside">
+										<div id="cinemaPanel" class="clear" data-type="filter">
+											#foreach($cinema in $cinemaList)
+											<a href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&spkey=$!spkey&cid=$cinema.id" 
+												data-rel="$cinema.countycode" data-config="cinema" id="$cinema.id" data-line="$!{cinema.lineidlist}" 
+												data-feture="$!{cinemaOtherinfoMap.get($cinema.id)}"
+												title="$!cinema.realBriefname" #if($foreach.count gt 12)style="display:none;"#end>$!cinema.realBriefname</a>
+											<script type="text/javascript">
+											pushLoadCinemaList({"id":"$!{cinema.id}"});
+											</script>
+											#end
+										</div>
+									</div>
+									#if($cinemaList && $cinemaList.size() gt 12)
+									<div class="adressDown" id="cinemaPanelOutsideClick">
+										<span class="button_off" >展开全部影院$cinemaList.size()家</span>
+									</div>
+									#end
+								</div>
+								#end
+							</dd>
+						</dl>
+						#if($VmUtils.size($languageList) gt 0)
+						<dl class="ui_media mt10">
+							<dt class="ui_pic">影片语言：</dt>
+							<dd class="ui_text" data-type="filter">
+								<a href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&cid=$!{params.cid}" class="select" data-config="language" >全部</a>
+								#foreach($language in $languageList)
+								<a href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&cid=$!{params.cid}&language=$language" data-config="language" id="$language">$language</a>
+								#end
+							</dd>
+						</dl>
+						#end
+						#if($VmUtils.size($editionList) gt 0)
+						<dl class="ui_media mt10">
+							<dt class="ui_pic">选择版本：</dt>
+							<dd class="ui_text" data-type="filter">
+								<a href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&cid=$!{params.cid}&language=$!{params.language}" class="select" data-config="edition">全部</a>
+								#foreach($edition in $editionList)
+								<a href="${basePath}cinema/searchOpi.xhtml?movieid=$movieid&fyrq=$!fyrq&cid=$!{params.cid}&language=$!{params.language}&edition=$edition" data-config="edition" id="$edition">$edition</a>
+								#end
+							</dd>
+						</dl>
+						#end
+					</div>
+				</div>
+			</div>
+		</div>
+		#*
+		<div class="ui_opi_control">
+			<dl class="ui_media">
+				<dt class="ui_pic mr0">已选条件：</dt>
+				<dd class="ui_text" id="delFilter">
+					<span>#if($dFyrq)$!{DateUtil.format($dFyrq, 'M月d日')}<em class="ffst">[$!DateUtil.getCnWeek($dFyrq)]</em> #elseif($fyrqDate)$!{DateUtil.format($fyrqDate, 'M月d日')}<em class="ffst">[$!DateUtil.getCnWeek($fyrqDate)]</em>#end</span>
+					<span>$!curmovie.moviename</span>
+				</dd>
+			</dl>
+		</div>
+		*#
+		<div class="ui_abeam mt10 index_wrap" style="min-height:600px;">
+		#if($curmovie)
+			<div class="uipic cur_w left">
+				<div id="cur_w" style="padding-top:10px;margin-left: 40px;width:220px">
+					<a href="${basePath}movie/$curmovie.id" title="$!{curmovie.name}" target="_blank">
+						<img width="150" height="200" alt="$!{curmovie.name}" src="$VmUtils.randomPic('cw150h200',$curmovie.limg)"/>
+					</a>
+					#set($gmark=$VmUtils.getLastMarkStar($curmovie,"general",$curMarkCountMap.get($curmovie.id),$!markData)) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+					<div class="mt20">
+						<a class="fs14 bold" href="${basePath}movie/$curmovie.id" title="$!{curmovie.name}" target="_blank">
+							$!VmUtils.escabbr($curmovie.name,15)
+						</a>
+						<em>($!{curmovie.clickedtimes}关注)</em>
+						<span>
+							<sub>$gmark1</sub>
+							<sup style="margin-left:-3px">.$gmark2</sup>
+						</span>
+					</div>
+					<div class="c666 mt10">
+						#if($curmovie.videolen)
+							#set($videoHour = $curmovie.videolen/60)
+							#set($videoM = $curmovie.videolen%60)
+							<p>片长： #if($videoHour gt 0)$!{videoHour}小时#end$!{videoM}分钟</p>
+						#end
+						#if($!curmovie.type)
+							<p>类型：$!curmovie.type</p>
+						#end
+						#if($!curmovie.language)
+							<p>语言：$!curmovie.language</p>
+						#end
+						<p>导演：$!curmovie.director</p>
+						<dl class="ui_media">
+							<dt class="ui_pic mr0">主演：</dt>
+							<dd class="ui_text">$!curmovie.actors</dd>
+						</dl>
+					</div>
+				</div>
+			</div>
+		#end
+			<div class="uiText opiMapList right" id="chooseOpiPanel">
+				<div class="notPlay" #if($VmUtils.size($cinemaList) gt 0)style="display:none;"#end id="notOpi">
+					<div class="notPlayList" style="width:400px;">
+						<h2>很抱歉，影院暂无《$!{curMovieName}》的排片</h2>
+						<ul>
+							<li>当前所选日期：#if($fyrq)$!fyrq #else $!{DateUtil.format($fyrqDate, 'yyyy-MM-dd')} #end</li>
+							<li>请尝试更改筛选条件，再试一次！ </li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="playItemMessage"></div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+#if($languageCinema)
+var languageCinema = $!languageCinema;
+#end
+#if($editionCinema)
+var editionCinema = $!editionCinema;
+#end
+
+function filterLanguageAndEdition(){
+	var language = "";
+	var edition = "";
+	document.getElements('a[data-config=language]').each(function(item){
+		if(item.hasClass('select')){
+			if(item.id){
+				language = item.id;
+			}
+		}
+	});
+	document.getElements('a[data-config=edition]').each(function(item){
+		if(item.hasClass('select')){
+			if(item.id){
+				edition = item.id;
+			}
+		}
+	});
+	document.getElements('div[data-type=cinema]').hide();
+	if(language == "" && edition != ""){
+		if(editionCinema && editionCinema[edition]){
+			loadCinemaList = [];
+			var editionCinemaList = editionCinema[edition];
+			for(var index = 0 ;index < editionCinemaList.length;index++){
+				loadCinemaList.push({"id":editionCinemaList[index] + ''});
+			}
+			cacheList.loadIndex = 0;
+			if(loadCinemaList.length == 0){
+				$("notOpi").show();
+			}else{
+				excuteLoadOpi(2);
+			}
+		}
+	}else if(language != "" && edition == ""){
+		if(languageCinema && languageCinema[language]){
+			loadCinemaList = [];
+			var languageCinemaList = languageCinema[language];
+			for(var index = 0 ;index < languageCinemaList.length;index++){
+				loadCinemaList.push({"id":languageCinemaList[index] + ''});
+			}
+			cacheList.loadIndex = 0;
+			if(loadCinemaList.length == 0){
+				$("notOpi").show();
+			}else{
+				excuteLoadOpi(2);
+			}
+		}
+	}else if(language != "" && edition != ""){
+		if(languageCinema && languageCinema[language] && editionCinema && editionCinema[edition]){
+			loadCinemaList = [];
+			cacheList.loadIndex = 0;
+			var languageCinemaList = languageCinema[language];
+			var editionCinemaList = editionCinema[edition];
+			for(var index = 0 ;index < languageCinemaList.length;index++){
+				for(var j = 0;j < editionCinemaList.length;j++){
+					if(languageCinemaList[index] == editionCinemaList[j]){
+						loadCinemaList.push({"id":languageCinemaList[index] + ''});
+					}
+				}
+			}
+			if(loadCinemaList.length == 0){
+				$("notOpi").show();
+			}else{
+				excuteLoadOpi(2);
+			}
+		}
+	}else{
+		filterCounty();
+	}
+}
+
+var cacheList = new Hash();
+cacheList.srcollLoadCinemaList = loadCinemaList;
+cacheList.loadIndex = 0;
+
+var initCounty = true;
+var initSubway = true;
+var initFeture = true;
+var buyTicketCinema = [];
+function excuteLoadOpi(maxnum){
+	$("notOpi").hide();
+	if(loadCinemaList.length == 0 || cacheList.loadIndex == loadCinemaList.length){
+		return;
+	}
+	var length = cacheList.loadIndex + maxnum;
+	if(loadCinemaList.length < length){
+		length = loadCinemaList.length;
+	}
+	for(var i = cacheList.loadIndex;i < length;i++){
+		if($(loadCinemaList[i].id)){
+			var el = document.getElement('div[cinema='+loadCinemaList[i].id+']');
+			if(el){
+				el.show();
+			}else{
+				opis.taskCinemaList.push(loadCinemaList[i].id);
+				if(opis.flag){
+					opis.loadCinemaOpi();
+				}
+			}
+		}
+	}
+	cacheList.loadIndex = length;
+}
+
+window.addEvent('domready',function(){
+	#if(!$VmUtils.isEmptyList($cinemaList))
+		GewaraUtil.sendRequest('${basePath}ajax/cinema/getMemberAllOrderCinemaid.xhtml', {}, function(result){
+			if(result.success && result.cinemaidlist.length > 0){
+				$('myBuyTicketCinema').removeClass('none');
+				for(var i = 0;i < result.cinemaidlist.length;i++){
+					var el = $(result.cinemaidlist[i] + '');
+					if(el){
+						el.inject(el.parentNode,"top");
+						new Element("img",{"src":'$!{staticPath}css/movie/bount_new.png'}).inject(el);
+					}
+				}
+				buyTicketCinema = result.cinemaidlist;
+			}
+		});
+	#end
+	opis.movieid = '$!{curmovie.id}';
+	opis.date = '$!{fyrq}';
+	opis.spkey = '$!{spkey}';
+	opis.init();
+	excuteLoadOpi(3);
+	var conditionList = document.getElements('a[data-config=condition]');
+	var areaList = document.getElements('div[data-config=area]');
+	conditionList.addEvent('click',function(e){
+		e.preventDefault();
+		conditionList.each(function(item){item.removeClass("select")});
+		this.addClass('select');
+		areaList.each(function(item){item.addClass("none")});
+		if(this.get('data-area')){
+			$(this.get('data-area')).removeClass('none');
+		}
+		if(this.get('data-funtion')){
+			eval(this.get('data-funtion'));
+		}
+	});
+	nodeBindPlay();
+	filterCounty();
+	window.addEvent('scroll',function(){
+		var last = document.getElements('div[data-type=cinema]').filter(function(cinema){return cinema.getStyle('display') == 'block'});
+		if(last.length <= 0)return;
+		if(this.getScroll().y + 220 > last.getLast().getPosition().y){
+			excuteLoadOpi(1);
+		}
+	});
+})
+
+function filterBuyTicketCinema(){
+	if($('cinemaPanelOutsideClick')){
+		$('cinemaPanelOutsideClick').hide();
+	}
+	var cinemaList = document.getElements('a[data-config=cinema]').hide().removeClass('select');
+	loadCinemaList = [];
+	cacheList.loadIndex = 0;
+	for(var i = 0;i < buyTicketCinema.length;i++){
+		if($(buyTicketCinema[i] + '')){
+			$(buyTicketCinema[i] + '').show();
+			loadCinemaList.push({"id":buyTicketCinema[i] + ''});
+		}
+	}
+	document.getElements('div[data-type=cinema]').hide();
+	excuteLoadOpi(1);
+}
+function filterFeture(){
+	var fetureList = document.getElements('a[data-config=feture]');
+	fetureList.removeClass('select');
+	if(initFeture){
+		fetureList.addEvent('click',function(e){
+			if(e){
+				e.preventDefault();
+			}
+			document.getElements('a[data-config=feture]').removeClass('select');
+			this.addClass('select');
+			if($('cinemaPanelOutsideClick')){
+				$('cinemaPanelOutsideClick').hide();
+			}
+			var feture = this.get('data-id');
+			loadCinemaList = [];
+			cacheList.loadIndex = 0;
+			var cinemaList = document.getElements('a[data-config=cinema]').hide().removeClass('select').each(function(item){
+				var fetures = item.get('data-feture');
+				if(fetures){
+					if(fetures.contains(feture,',')){
+						item.show();
+						loadCinemaList.push({"id":item.id});
+					}
+				}
+			});
+			document.getElements('div[data-type=cinema]').hide();
+			excuteLoadOpi(1);
+		});
+		initFeture = false;
+	}
+	if(fetureList.length > 0){
+		fetureList[0].fireEvent("click");
+	}
+}
+
+function filterSubway(){
+	var subWayList = document.getElements('a[data-config=subway]');
+	subWayList.removeClass('select');
+	if(initSubway){
+		subWayList.addEvent('click',function(e){
+			if(e){
+				e.preventDefault();
+			}
+			document.getElements('a[data-config=subway]').removeClass('select');
+			this.addClass('select');
+			if($('cinemaPanelOutsideClick')){
+				$('cinemaPanelOutsideClick').hide();
+			}
+			var lineId = this.id;
+			loadCinemaList = [];
+			cacheList.loadIndex = 0;
+			var cinemaList = document.getElements('a[data-config=cinema]').hide().removeClass('select').each(function(item){
+				var line = item.get('data-line');
+				if(line){
+					if(line.contains(lineId,',')){
+						item.show();
+						loadCinemaList.push({"id":item.id});
+					}
+				}
+			});
+			document.getElements('div[data-type=cinema]').hide();
+			excuteLoadOpi(1);
+		});
+		initSubway = false;
+	}
+	if(subWayList.length > 0){
+		subWayList[0].addClass('select');
+		subWayList[0].fireEvent("click");
+	}
+}
+
+function filterCounty(){
+	var cList = document.getElements('a[data-config=area]');
+	cList.removeClass('select');
+	if(cList.length > 0){
+		cList[0].addClass('select');
+	}
+	if(initCounty && $('countyArea')){
+		cList.addEvent('click',function(e){
+			e.preventDefault();
+			document.getElements('a[data-config=area]').removeClass('select');
+			this.addClass('select');
+			filterCountyCinema(this.id);
+		});
+		initCounty = false;
+	}else{
+		filterCountyCinema();
+	}
+	if($('countyArea'))$('countyArea').removeClass('none');
+}
+function filterCountyCinema(id){
+	var cinemaList = document.getElements('a[data-config=cinema]').removeClass('select');
+	loadCinemaList = [];
+	cacheList.loadIndex = 0;
+	if(id){
+		cinemaList.hide();
+		if($('cinemaPanelOutsideClick')){
+			$('cinemaPanelOutsideClick').hide();
+		}
+		document.getElements('a[data-rel=' + id + ']').show().each(function(item){
+			loadCinemaList.push({"id":item.id});
+		});
+	}else{
+		if(cinemaList.length > 6){
+			for(var i = 0 ;i < cinemaList.length;i++){
+				if(i < 6){
+					cinemaList[i].show();
+				}else{
+					cinemaList[i].hide();
+				}
+			}
+			if($('cinemaPanelOutsideClick')){
+				$('cinemaPanelOutsideClick').show();
+			}
+		}else{
+			cinemaList.show();
+			if($('cinemaPanelOutsideClick')){
+				$('cinemaPanelOutsideClick').hide();
+			}
+		}
+		cinemaList.each(function(item){
+			loadCinemaList.push({"id":item.id});
+		});
+	}
+	document.getElements('div[data-type=cinema]').hide();
+	excuteLoadOpi(1);
+}
+
+function nodeBindPlay(){
+		var obj = document.getElements('div[data-type=cinema]');
+		obj.each(function(node){
+			var obj = node.getElements('li');
+			var oParent = node.getElement('div[lang=chooseOpi_head]');
+			var tagAfn = node.getElement('span[lang=afternoon]');
+			var tagNgt = node.getElement('span[lang=evening]');
+			obj.each(function(el){
+				if(el.get('config') == 'afternoon'){
+					var curTop = el.getPosition().y - oParent.getPosition().y;
+					tagAfn.setStyles({'display':'block','top':curTop});
+				}
+				else if(el.get('config') == 'evening'){
+					var curTop = el.getPosition().y - oParent.getPosition().y;
+					if(tagNgt)tagNgt.setStyles({'display':'block','top':curTop});
+				}
+			});
+			obj.addEvents({
+				'mouseenter':function(){this.addClass('hover');},
+				'mouseleave':function(){this.removeClass('hover');}
+			});
+	});
+}
+function getTemplate(){
+	var url = "${basePath}movie/ajax/getCountyBooking.xhtml";
+	var values = {'movieid':'$!curmovie.id'};
+	GewaraUtil.sendLoad('playItemMessage', url, values, function(result){},'playItemMessage');
+}
+</script>
+</body>
+<!-- SUCCESS_BOTTOM -->
+</html>

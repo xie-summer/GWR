@@ -1,0 +1,348 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>运动场所详细信息</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<script type="text/javascript">
+		var defaultOption=new Array(1);
+		defaultOption[0] = new Object();
+		defaultOption[0].value="";
+		defaultOption[0].text="请选择...";
+		function queryIndexarea(){
+			var countyCode = $('county').value;
+			GewaraUtil.removeAllOptions("indexarea");
+			GewaraUtil.addOptions("indexarea",defaultOption,"value","text");
+			var url = "${basePath}admin/common/ajax/getIndexareaByCountyCode.xhtml";
+			GewaraUtil.sendRequest(url, {"countycode":countyCode}, function(result){
+				GewaraUtil.addOptions("indexarea",result.indexareaList,'indexareacode','indexareaname');
+			});
+		}
+	</script>
+	<style>
+		label {display:inline;float:left;width:108px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:550px; display:inline}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:720px;margin:auto">
+<div id="sportDialog" class="yui-panel" style="width:710px;margin:auto">
+	<div class="hd">编辑运动场所数据&nbsp;&nbsp;[<a href="${basePath}admin/common/mappoint.xhtml?id=$sport.id&tag=sport" target="_blank">地图标注</a>]</div>
+	<div class="bd">
+	<form name="sportForm" id="sportForm" action="javascript:saveSport()" method="post">
+		<input type="hidden" name="sportId" id="sportId" value="$!{sport.id}"/>
+		<input type="hidden" name='stationid' id="stationid" value='$!sport.stationid'/>
+		<input type="hidden" name='lineidlist' id="lineidlist" value='$!sport.lineidlist'/>
+		<div>
+			<label for="name">场所名称：</label>
+			<input name="name" id="name"  style="width:230px" type="text" value="$!{sport.name}"/>
+			<label for="englishname" style="float:none; width:90px;text-align:right;">英文名称：</label>
+			<input name="englishname" style="width:240px" type="text" value="$!{sport.englishname}" />
+		</div>
+		<div>
+		<div>
+		<label for="briefname">简&nbsp;&nbsp;称：</label>
+			<input name="briefname" id="briefname" type="text" value="$!{sport.briefname}" />
+		</div>
+		<div>
+		<label for="briefaddress">地址简称：</label>
+			<input name="briefaddress" id="briefaddress" type="text" value="$!{sport.briefaddress}" />
+		</div>
+		<div>
+			<label for="brandname">品牌名称：</label>
+			<input name="brandname" type="text" style="width:230px" value="$!{sport.brandname}"/>
+			<label for="website" style="float:none; width:90px;text-align:right;">官方主页：</label>
+			<input name="website" type="text" style="width:240px" value="$!{sport.website}" />
+		</div>
+		<div>
+			<label for="opentime">营业时间：</label>
+			<input name="opentime" type="text" value="$!{sport.opentime}"/>
+		</div>
+		<div>
+			<label for="contactphone">联系电话：</label>
+			<input name="contactphone" type="text" value="$!{sport.contactphone}" />
+		</div>
+		<div>
+			<label for="email">E-Mail：</label>
+			<input name="email" type="text" style="width:150px" value="$!{sport.email}" />
+			<label for="fax" style="float:none; width:70px;text-align:right;">传真：</label>
+			<input name="fax" type="text" style="width:150px" value="$!{sport.fax}" />
+			<label for="postalcode" style="float:none; width:63px;text-align:right;">邮政编码：</label>
+			<input name="postalcode" type="text" style="width:120px"  value="$!{sport.postalcode}" />
+		</div>
+		#set($sportDataMap = $!VmUtils.readJsonToMap($!sport.otherinfo))
+		<div>
+			<label for="heightvenue">场馆挑高：</label>
+			<input type="text" name="heightvenue" value="$!sportDataMap.get('heightvenue')" />
+		</div>
+		<div>
+			<label for="flooring">地板材料：</label>
+			<input type="text" name="flooring" value="$!sportDataMap.get('flooring')" />
+		</div>
+		<div style="text-align:center;">------------------------------下面为场馆小图标------------------------------</div>
+		<div>
+			<label for="park">停车位：</label>
+			#if($VmUtils.isBlank($!sportDataMap.get('park')))
+			#set($park=$!sport.park)
+			#else
+			#set($park=$!sportDataMap.get('park'))
+			#end
+			<input type="text" name="park" value="$!park"  style="width:500px;" />
+			<input type="checkbox" name="parkRecommend" #if($!sportDataMap.get('parkRecommend')) checked="checked" #end style="width:20px;"/>
+		</div>
+		<div>
+			<label for="visacard">刷卡结算：</label>
+			#if($VmUtils.isBlank($!sportDataMap.get('visacard')))
+			#set($visacard=$!sport.visacard)
+			#else
+			#set($visacard=$!sportDataMap.get('visacard'))
+			#end
+			<input type="text" name="visacard" value="$!visacard"  style="width:500px;" />
+			<input type="checkbox" name="visacardRecommend" #if($!sportDataMap.get('visacardRecommend')) checked="checked" #end style="width:20px;" />
+		</div>
+		<div>
+			<label for="restregion">休息区域：</label>
+			<input type="text" name="restregion" value="$!sportDataMap.get('restregion')"  style="width:500px;" />
+			<input type="checkbox" name="restregionRecommend" #if($!sportDataMap.get('restregionRecommend')) checked="checked" #end style="width:20px;" />
+		</div>
+		<div>
+			<label for="cupboard">柜子租凭：</label>
+			<input type="text" name="cupboard" value="$!sportDataMap.get('cupboard')"  style="width:500px;" />
+			<input type="checkbox" name="cupboardRecommend" #if($!sportDataMap.get('cupboardRecommend')) checked="checked" #end style="width:20px;" />
+		</div>
+		<div>
+			<label for="membercard">会员卡：</label>
+			<input type="text" name="membercard" value="$!sportDataMap.get('membercard')"  style="width:500px;" />
+			<input type="checkbox" name="membercardRecommend" #if($!sportDataMap.get('membercardRecommend')) checked="checked" #end style="width:20px;" />
+		</div>
+		<div>
+			<label for="bathe">洗浴设施：</label>
+			<input type="text" name="bathe" value="$!sportDataMap.get('bathe')"  style="width:500px;" />
+			<input type="checkbox" name="batheRecommend" #if($!sportDataMap.get('batheRecommend')) checked="checked" #end style="width:20px;" />
+		</div>
+		#*
+		<div>
+			<label for="indoor">室内：</label>
+			<input type="text" name="indoor" value="$!sportDataMap.get('indoor')" />
+		</div>
+		<div>
+			<label for="outdoor">室外：</label>
+			<input type="text" name="outdoor" value="$!sportDataMap.get('outdoor')" />
+		</div>
+		*#
+		<div>
+			<label for="meal">优惠信息：</label>
+			<input type="text" name="meal" value="$!sportDataMap.get('meal')"  style="width:500px;" />
+			<input type="checkbox" name="mealRecommend" #if($!sportDataMap.get('mealRecommend')) checked="checked" #end style="width:20px;" />
+		</div>
+		<div>
+			<label for="sale">场馆卖品：</label>
+			<input type="text" name="sale" value="$!sportDataMap.get('sale')"  style="width:500px;" />
+			<input type="checkbox" name="saleRecommend" #if($!sportDataMap.get('saleRecommend')) checked="checked" #end style="width:20px;" />
+		</div>
+		<div>
+			<label for="train">专业培训：</label>
+			<input type="text" name="train" value="$!sportDataMap.get('train')"  style="width:500px;" />
+			<input type="checkbox" name="trainRecommend" #if($!sportDataMap.get('trainRecommend')) checked="checked" #end style="width:20px;" />
+		</div>
+		<div>
+			<label for="lease">器材租借：</label>
+			<input type="text" name="lease" value="$!sportDataMap.get('lease')"  style="width:500px;" />
+			<input type="checkbox" name="leaseRecommend" #if($!sportDataMap.get('leaseRecommend')) checked="checked" #end style="width:20px;" />
+		</div>
+		<div>
+			<label for="maintain">器材维护：</label>
+			<input type="text" name="maintain" value="$!sportDataMap.get('maintain')"  style="width:500px;" />
+			<input type="checkbox" name="maintainRecommend" #if($!sportDataMap.get('maintainRecommend')) checked="checked" #end style="width:20px;" />
+		</div>
+		<div style="text-align:center;">------------------------------上面为场馆小图标------------------------------</div>
+		<div>
+			<label for="sitecount">场地数量：</label>
+			<input type="text" name="sitecount" value="$!sportDataMap.get('sitecount')" />
+		</div>
+		<div>
+			<label for="subwaylineid">地铁线路：</label>
+			<a href="${basePath}admin/common/subwayList.xhtml?stationid=$!sport.stationid&lineidlist=$!sport.lineidlist" target="_blank">[修改地铁线路]</a>
+			<label for="exitnumber" style="float:none; width:70px;text-align:right;">地铁出口：</label>
+			<input name="exitnumber" style="width:125px" type="text" value="$!{sport.exitnumber}" />
+		</div>
+		<div>
+			<label for="transport">乘车路线：</label>
+			<input name="transport" type="text" size="65" value="$!{sport.transport}" />
+		</div>
+		<div>
+			<label for="countyCode">区县：</label>
+			<select name = "countyCode" id="county" onchange="queryIndexarea()" style="width:145px">
+				<option value="">请选择....</option>
+				#foreach($county in $countyList)
+				<option value="$!{county.countycode}" #if($defaultCountyCode eq $county.countycode)selected #end>$!{county.countyname}</option>
+				#end
+			</select>
+			<label for="indexareaCode" style="float:none; width:70px;text-align:right;">商圈：</label>
+			<select name="indexareaCode" id="indexarea" style="width:125px">
+				<option value="">请选择....</option>
+				#foreach($indexarea in $indexareaList)
+				<option value="$!{indexarea.indexareacode}" #if($defaultIndexareaCode eq $indexarea.indexareacode) selected #end>$!{indexarea.indexareaname}</option>
+				#end
+			</select>
+			<label for="openinfo" style="float:none; width:70px;text-align:right;">开放情况：</label>
+			<select name="openinfo" id="openinfo" style="width:125px">
+				<option value="">请选择....</option>
+				<option value="all" #if($VmUtils.eq('all' ,$sport.openinfo))selected#end>对所有人开放</option>
+				<option value="vip" #if($VmUtils.eq('vip' ,$sport.openinfo))selected#end>只对会员开放</option>
+				<option value="home" #if($VmUtils.eq('home', $sport.openinfo))selected#end>只对小区住户开放</option>
+			</select>
+		</div>
+		<div>
+			<label for="address">地址：</label>
+			<input type = "text" name = "address" value="$!{sport.address}" />
+		</div>
+		<div>
+			<label for="feature">特色：</label>
+			<textarea name="feature" id="featureid" cols="80" rows="2">$!{sport.feature}</textarea>
+		</div>
+		<div>
+			<label for="seotitle">seotitle：</label>
+			<input name="seotitle" id="seotitle" type="text" value="$!{sport.seotitle}" />
+		</div>
+		<div>
+			<label for="seodescription">descrip：</label>
+			<input name="seodescription" id="seodescription" type="text" value="$!{sport.seodescription}" />
+		</div>
+		<div>
+			<span for="content">简介：</span>
+			<textarea name="content" id="content">$!{sport.content}</textarea>
+		<div>
+			<label for="remark">备注：</label>
+			<textarea name="remark" rows="3">$!{sport.remark}</textarea>
+		</div>
+		<div>
+			<label for="firstpic">第一张图片：</label>
+			<input type="text" name="firstpic" id="firstpic" value="$!{sport.firstpic}" style="width:485px"/>
+		</div>
+		<div id="uploadDiv">
+			<label>LOGO：</label>
+			<input type="text" name="logo" id="logo" value="$!{sport.logo}" style="width:485px" />
+			#if($VmUtils.isNotBlank($!{sport.logo}))<img style="width:162px; height:57px;" id='logoimg' src='${basePath}$sport.logo' />#end
+		</div>
+		<div>
+			<label>上传：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/sport&callback=updateLogo"></iframe>
+		</div>
+		<div id="uploadPlan">
+			<label>平面图：</label>
+			<input type="text" name="floorplan" id="floorplan" value="$!{sport.floorplan}" style="width:485px" />
+			#if($VmUtils.isNotBlank($!{sport.floorplan}))<img style="width:162px; height:57px;" id='planimg' src='${basePath}$sport.floorplan' />#end
+		</div>
+		<div>
+			<label>上传平面图：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/sport&callback=updatePlan"></iframe>
+		</div>
+		<div id="uploadPlan">
+			<label>取票机现场图：</label>
+			<input type="text" name="machinepic" id="machinepic" value="$!{sport.machinepic}" style="width:485px" />
+			#if($VmUtils.isNotBlank($!{sport.machinepic}))<img style="width:162px; height:57px;" id='machineimg' src='${basePath}$sport.machinepic' />#end
+		</div>
+		<div>
+			<label>上传取票机现场图：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/sport&callback=updateMachine"></iframe>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="submit" class="button" style="width:100px" value="保存"/>
+		</div>
+	</form>
+	</div><!-- end of bd -->
+</div>
+<div id="msg" style="color:red;margin-left: 4px;"></div>
+<div style="color:blue;margin-left: 4px;">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+<script type="text/javascript">
+var ckeditor;
+window.addEvent('domready',function(){
+	ckeditor = CKEDITOR.replace("content");
+	var checklist = document.getElements('*[type=checkbox]');
+	checklist.addEvent('change',function(item,index){
+		var i = 0;
+		checklist.each(function(item){
+			if((item.checked)){
+				i++;
+			}
+		});
+		if(i >3 ){
+			gewa.util.alert('不要选择3个以上');
+			this.checked = false;
+		}
+	})
+});
+function updateLogo(params){
+	var picpath = params['picpath'];
+	$('logo').value = picpath;
+	$('logoimg').src='${basePath}' + picpath;
+}
+function updatePlan(params){
+	var picpath = params['picpath'];
+	$('floorplan').value = picpath;
+	$('planimg').src='${basePath}' + picpath;
+}
+function updateMachine(params){
+	var picpath = params['picpath'];
+	$('machinepic').value = picpath;
+	$('machineimg').src='${basePath}' + picpath;
+}
+function saveSport(){
+	var featurevalue=$('featureid').value;
+	if(featurevalue.length>100){
+		alert('特色内容不能大于50个汉字');
+	}else{
+		gewa.util.mask({'title':"正在保存数据..."});
+		$("content").value=ckeditor.getData();
+		var values = GewaraUtil.getValues("sportForm");
+		var url = "${basePath}admin/sport/ajax/saveSport.xhtml";
+		GewaraUtil.sendRequest(url, values , function(result){
+			if(result.success){
+				gewaUtil.alert('成功保存！');
+				$("msg").set("html", '');
+				gewa.util.clearMask();
+				$("sportId").value=result.retval;
+				#if($params.relatedid && $VmUtils.eq($params.tag,"agency"))
+					saveAgencyToVenue(result.retval);
+				#end
+			}else{
+				alert("保存失败！");
+				$("msg").set("html", result.msg);
+				gewa.util.clearMask();
+			}
+		});
+	}
+}
+function checkname(){
+	if('$params.sportId'!='' && $('name').value == '${sport.name}') return;
+	var url = "${basePath}admin/common/ajax/checkname.xhtml";
+	GewaraUtil.sendRequest(url, {"checkItem":'sportname', "name":$('name').value},function(result){
+		if(result){
+			alert('运动场所名称已存在！');
+			$('name').focus();
+		}
+	});
+}
+function saveAgencyToVenue(venueId){
+	var url = "${basePath}admin/agency/saveAgencyToVenue.xhtml";
+	var values = {"agencyId":'$!params.relatedid',"venueId":venueId,"type":"own"};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			location.href="${basePath}admin/agency/getAgencyToVenueList.xhtml?agencyId=$!params.relatedid";
+		}else alert(result.msg);
+	});
+}
+</script>
+</body>
+</html>

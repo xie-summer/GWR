@@ -1,0 +1,70 @@
+#if($!VmUtils.eq($!albumcomment,'albumcomment'))
+	#foreach($imagecomment in $!imageCommentList)
+	<dl id="a$!imagecomment.id">
+		<dt><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!imagecomment.memberid" class="picmin" target="_blank"><img src="$VmUtils.randomPic('cw150h200',$cacheMemberMap.get($imagecomment.memberid).headpicUrl)"/></a></dt>
+		<dd>
+			<div class="relationBody">
+				<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!imagecomment.memberid" target="_blank">$cacheMemberMap.get($imagecomment.memberid).nickname</a>：  $!VmUtils.getWebBody($!imagecomment.body,$picPath)
+			</div> 
+			<div class="loadup">
+			<span class="left">
+			$DateUtil.getTimeDesc($!imagecomment.addtime)  
+			</span>
+			#if($VmUtils.eq($logonMember.id,$imagecomment.memberid))
+			<span class="right"> 
+				<a href="javascript:void(0)" onclick="deleteAblmComment($!imagecomment.id)"><img src="/css/home/del.gif"></a>
+			</span>
+			#end
+			</div>
+		</dd>
+	</dl>
+	#end
+#else
+#set($recommentlist=$!reCommentList)
+#if($!replyOne eq 'replyOne')
+#set($recommentlist=$!reCommentList)
+#elseif(!$!VmUtils.isNull($!index))
+#set($recommentlist=$!reCommentList)
+#elseif($!replyOne eq 'recomment')
+#set($recommentlist=$!reCommentList)
+#else
+#set($recommentlist=$!recommentListMap.get($!comment.id))
+#end
+#foreach($recomment in $!recommentlist) 
+<div id="$!recomment.id">
+	<dl>
+		<dt><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!recomment.memberid" class="picmin" target="_blank" lang="$!recomment.memberid"><img src="$VmUtils.randomPic('cw150h200',$cacheMemberMap.get($recomment.memberid).headpicUrl)"/></a></dt>
+		<dd>
+			<div>
+				<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!recomment.memberid" target="_blank">$cacheMemberMap.get($recomment.memberid).nickname</a>： $!VmUtils.perlString($!recomment.body, $basePath, $picPath)
+			</div> 
+			<div class="loadup">
+				<span class="left">$DateUtil.getTimeDesc($!recomment.addtime)</span>
+				#if($!logonMember.id eq $recomment.memberid)
+				<span class="right">
+					<a href="javascript:void(0)" onclick="gewaUtil.deleteReComment($!recomment.id);"><img src="${staticPath}css/home/del.gif"/></a>
+				</span>
+				#else
+				<span class="right">
+					<button class="loadRp" id="$!comment.id" title="搭话"  lang="r" form="@$cacheMemberMap.get($recomment.memberid).nickname:"></button>
+				</span>
+				#end
+			</div>
+		</dd>
+	</dl>
+</div>
+#end
+#if($!replyOne eq 'recomment')
+	#if($comment.replycount gt 5)
+		<div class="replayAll" style="padding: 2px 102px;"><a href="${basePath}home/sns/walaDetail.xhtml?cid=$!comment.id" id="$!comment.id" target="_blank">查看全部</a></div>
+	#end
+#end
+#if($!VmUtils.isNull($!index) && $!replyOne ne 'replyOne')
+#if($VmUtils.gt($!recommentCountMap.get($!comment.id), 5))
+<div class="replayAll"><a href="${basePath}home/sns/walaDetail.xhtml?cid=$!comment.id" id="$!comment.id" target="_blank">查看全部$!recommentCountMap.get($!comment.id)条搭话</a></div>
+#end
+#end
+#end
+
+
+

@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width: 700px;">
+	<table class="table">
+	<thead>
+		<tr><th>KEY</th><th>当前值</th><th>设置</th><th>操作</th></tr>	
+	</thead>
+	<tbody>
+	#foreach($key in $config.keySet())
+		<tr>
+			<td>$key</td><td><textarea rows="1" readonly="readonly" style="height: 25px;width:300px;">$config.get($key)</textarea></td>
+			<td><input type="text" id="key$foreach.index" name="key$foreach.index" style="height: 25px;width:300px;"/></td>
+			<td><input type="button" value="确认" onclick="setConfig('$key', 'key$foreach.index')"/></td>
+		</tr>
+	#end
+	</tbody>
+	</table>
+	<br />
+	<br />
+	<div style="font-size: 24px;">其他配置测试</div>
+	<br />
+	<table class="table">
+		<tr>
+			<td><a href="${basePath}admin/sysmgr/configList.xhtml?cid=25" target="_blank">发影评短信</a></td>
+			<td><a href="${basePath}admin/sysmgr/configList.xhtml?cid=26" target="_blank">发话剧影评短信</a></td>
+			<td><a href="${basePath}admin/sysmgr/configList.xhtml?cid=27" target="_blank">发运动短信</a></td>
+			<td><a href="${basePath}admin/sysmgr/configList.xhtml?cid=40" target="_blank">火凤凰错误次数控制</a></td>
+		</tr>
+		<tr>
+			<td><a href="${basePath}admin/sysmgr/configList.xhtml?cid=60" target="_blank">影院暂停订票</a></td>
+			<td><a href="${basePath}admin/sysmgr/configList.xhtml?cid=81" target="_blank">运动暂停订票</a></td>
+			<td><a href="${basePath}admin/sysmgr/configList.xhtml?cid=200" target="_blank">支付服务配置[正式]</a></td>
+			<td><a href="${basePath}admin/sysmgr/configList.xhtml?cid=201" target="_blank">支付服务配置[测试]</a></td>
+		</tr>
+		<tr>
+			<td><a href="${basePath}admin/sysmgr/configList.xhtml?cid=102" target="_blank">图片服务[正式]</a>|<a href="${basePath}admin/sysmgr/batchInit.xhtml" target="_blank">刷新生效</a></td>
+			<td><a href="${basePath}admin/sysmgr/configList.xhtml?cid=41" target="_blank">满天星错误次数控制</a></td>
+			<td></td>
+			<td></td>
+		</tr>
+	</table>
+	<script>
+		function setConfig(name, valel){
+			var url = "${basePath}admin/sysmgr/changeConfig.xhtml";
+			GewaraUtil.sendRequest(url, {"name":name, "value":$(valel).value},function(result){
+				refreshPage();
+			});
+		}
+	</script>
+</body>
+</html>

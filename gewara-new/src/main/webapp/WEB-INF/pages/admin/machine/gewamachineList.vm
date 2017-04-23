@@ -1,0 +1,263 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>机器列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script> 
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.w120{width: 120px;}
+		.ml20{margin-left: 20px;}
+		.ml40{margin-left: 50px;}
+		.mt10{margin-top: 10px;}
+		.table tbody tr td,.table thead tr th{min-width:20px;padding:5px !important;text-align:center;max-width:100px;}
+		.displayElement{display: none;}
+		.showElement{display: block;}
+	</style>
+</head>
+<body style="width:850px; margin:auto">
+#set($machineMapData={'newhost':'主机','lcd':'显示器','vpn':'VPN','integration':'一体机','rpt':'拖线板','exchange':'交换机','router':'路由器','notebook':'笔记本','3gcard':'3G上网卡','phone':'移动座机','pos':'pos机'})
+#set($touchTypeMap={'new':'新触摸屏','old':'旧触摸屏'})
+#set($linemethodMap = {'wired':'有线','wireless':'无线'})
+<div style="width:840px;">
+<form action="${basePath}admin/machine/gewaMachineList.xhtml">
+	<div>
+	<span>搜索：</span>
+	<label for="machinename" >机器名称:</label>
+	<select name="machinename"  id="machinename" class="w120" onchange="changeMachName()">
+	<option value="">请选择...</option>
+			#foreach($machine in $machineMap.entrySet())
+			<option value="$machine.key" #if($VmUtils.eq($params.machinename, $machine.key)) selected="selected"#end>$machineMapData.get($machine.value)</option>
+			#end
+		</select>
+		<label for="machinenumber" class="ml20 mt10">机器编号:</label><input name="machinenumber" type="text" class="w120 mt10" value="$!params.machinenumber"/>
+	<span id="s_machinestatus" >
+	<label for="machinestatus" class="ml20 mt10">使用状态：</label>
+	<select name="machinestatus" id="machinestatus" class="w120 mt10">
+		<option value="">请选择...</option>
+		<option value="pend" #if($VmUtils.eq($params.machinestatus, 'pend')) selected="selected" #end>未使用</option>
+		<option value="use" #if($VmUtils.eq($params.machinestatus, 'use')) selected="selected" #end>使用中</option>
+		<option value="stop" #if($VmUtils.eq($params.machinestatus, 'stop')) selected="selected" #end>停止使用</option>
+	</select>
+	</span>
+	#if($VmUtils.eq($!citycode,'310000'))
+	<span id="s_citycode" >
+	<label for="citycode" class="ml20 mt10">城市：</label>
+	<select name="citycode" id="citycode" class="w120 mt10">
+		<option value="$citycode" #if(!$VmUtils.eq($params.citycode, '000000')) selected="selected" #end>默认</option>
+		<option value="000000"  #if($VmUtils.eq($params.citycode, '000000')) selected="selected" #end>全国</option>
+	</select>
+	</span>
+	#end
+	<div style="padding-left: 43px;">
+		<span class="displayElement" id="s_machineowner">
+		<label for="machineowner" class="mt10">使用者:</label>
+		<input name="machineowner" id="machineowner" type="text" class="w120 mt10" value="$!params.machineowner"/>
+	</span>
+	<span class="displayElement" id="s_linkmethod">
+		<label for="linkmethod" class="mt10">连接方式:</label>
+		<select name="linkmethod" id="linkmethod" class="w120 mt10">
+			<option value="">请选择...</option>
+			<option value="wired" #if($VmUtils.eq($params.linkmethod, 'wired')) selected="selected" #end>有线</option>
+			<option value="wireless" #if($VmUtils.eq($params.linkmethod, 'wireless')) selected="selected" #end>无线</option>
+		</select>
+	</span>
+	<span id="s_cinemaid" class="displayElement">
+			<label for="cinemaid" class="mt10">关联影院：</label>
+			<select name="cinemaid" id="cinemaid" class="w120 mt10">
+			<option value="">请选择...</option>
+			#foreach($cinema in $cinemaList)
+			<option value="$cinema.id" #if($VmUtils.eq($cinema.id, $params.cinemaid)) selected="selected"#end>$cinema.name</option>
+			#end
+		</select>
+	</span>
+	<span id="s_machinetype" class="displayElement">
+		<label for="machinetype" class="mt10">机器类型：</label>
+		<select name="machinetype" id="machinetype" class="w120 mt10">
+			<option value="">请选择...</option>
+			<option value="amachine" #if($VmUtils.eq($params.machinetype, 'amachine')) selected="selected" #end>A类型</option>
+			<option value="bmachine" #if($VmUtils.eq($params.machinetype, 'bmachine')) selected="selected" #end>B类型</option>
+		</select>
+	</span>
+	</div>
+	<input type="submit" class="button" value=" 查 询 "/><br/>
+	</div>
+</form>
+<div style="margin-top: 10px;">
+	<a href="${basePath}admin/machine/addGewaMachine.xhtml" target="_blank">添加数据</a> | 
+	<a href="javascript:refreshPage();">刷新</a>
+</div>
+<div id="" style="overflow: scroll;height:auto;">
+<table class="table" style="width:1400px;">
+	<thead>
+	<tr>
+		<th>序号</th>
+		<th>机器编码</th>
+		<th>机器名称</th>
+		<th>购买日期</th>
+		<th>使用日期</th>
+		<th>使用者</th>
+		#if($VmUtils.eq($params.citycode, '000000'))
+		<th>城市</th>
+		#end
+		<th>使用状态</th>
+		#if($VmUtils.isNull($params.machinename) || $VmUtils.eq($params.machinename,'integration'))
+		<th>机器类型</th>
+		<th>维修周期</th>
+		<th>票纸数</th>
+		<th>连接方式</th>
+		<th>触摸类型</th>
+		<th>签到人信息</th>
+		<th>签到时间</th>
+		#end
+		#if($VmUtils.isNull($params.machinename) || $VmUtils.eq($params.machinename,'vpn'))<th>性质</th>#end
+		#if($VmUtils.isNull($params.machinename) || ($VmUtils.eq($params.machinename,'integration') || $VmUtils.eq($params.machinename,'vpn')))<th>所在影院</th>#end
+		#if($VmUtils.isNull($params.machinename) || ($VmUtils.eq($params.machinename,'integration') || $VmUtils.eq($params.machinename,'vpn') || $VmUtils.eq($params.machinename,'newhost')))
+		<th>IP地址</th>
+		<th>IP备注</th>
+		#end
+		<th>配置</th>
+		<th>备注</th>
+		<th>编辑</th>
+	</tr>
+	</thead>
+	<tbody id="dramaTable">
+	#foreach($gewaMachine in $gewaMachineList)
+	#set($cinema=$cinemaMap.get($gewaMachine.id))
+	<tr>
+		<td>$foreach.count</td>
+		<td>$!gewaMachine.machinenumber</td>
+		<td>$!machineMapData.get($gewaMachine.machinename)</td>
+		<td>$!gewaMachine.buydate</td>
+		<td>$!gewaMachine.usedate</td>
+		<td>$!gewaMachine.machineowner</td>
+		#if($VmUtils.eq($params.citycode, '000000'))
+		<td>$!cityMap.get($gewaMachine.citycode)</td>
+		#end
+		<td>#if($VmUtils.eq($gewaMachine.machinestatus, 'use'))使用中 #elseif($VmUtils.eq($gewaMachine.machinestatus, 'stop'))暂停使用#else未使用#end</td>
+		#if($VmUtils.isNull($params.machinename) || $VmUtils.eq($params.machinename,'integration'))
+		<td>#if($VmUtils.eq($gewaMachine.machinetype, 'amachine'))A类型 #elseif($VmUtils.eq($gewaMachine.machinetype, 'bmachine'))B类型#end</td>
+		<td>$!gewaMachine.machineservice</td>
+		<td>$!gewaMachine.ticketcount</td>
+		<td>$!linemethodMap.get($!gewaMachine.linkmethod)</td>
+		<td>$!touchTypeMap.get($gewaMachine.touchtype)</td>
+		<td>$!gewaMachine.operMember</td>
+		<td>$!DateUtil.format($!gewaMachine.updatetime,'yyyy-MM-dd HH:mm:ss')</td>
+		#end
+		#if($VmUtils.isNull($params.machinename) || $VmUtils.eq($params.machinename,'vpn'))<td>$!gewaMachine.machineusage</td>#end
+		#if($VmUtils.isNull($params.machinename) || ($VmUtils.eq($params.machinename,'integration') || $VmUtils.eq($params.machinename,'vpn')))<td class="w120">$!cinema.name</td>#end
+		#if($VmUtils.isNull($params.machinename) || ($VmUtils.eq($params.machinename,'integration') || $VmUtils.eq($params.machinename,'vpn') || $VmUtils.eq($params.machinename,'newhost')))
+		<th>$!gewaMachine.ip</th>
+		<th>$!gewaMachine.ipremark</th>
+		#end
+		<td>$!gewaMachine.machinecontent</td>
+		<td>$!gewaMachine.remark</td>
+		<td><a href="${basePath}admin/machine/addGewaMachine.xhtml?gewamachineid=$!gewaMachine.id" target="_blank">编辑详细</a>&nbsp;&nbsp;
+		#if($VmUtils.eq($!gewaMachine.machinename,'integration'))<a href="javascript:void(0)" onclick="updateGewaMachine('${gewaMachine.id}')">签到</a>&nbsp;&nbsp;#end
+		<a href="javascript:void(0)" onclick="deleteGewaMachine(this,$gewaMachine.id)">删除</a></td>
+		</tr>
+	#end
+	<tr><td colspan="12">#parse('include/pageUtil.vm')</td></tr>
+	</tbody>
+</table>
+</div>
+</div>
+	<script type="text/javascript">
+	function deleteGewaMachine (obj,eid){
+		if(confirm("您确定删除吗？")){
+			var values={'gewamachineid':eid};
+			var url= '${basePath}admin/machine/deleteGewaMachine.xhtml';
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert('删除成功！');
+					$(obj).getParent('tr').dispose();
+				}else{
+					alert('操作失败!');
+				}
+			});
+		}
+	}
+	function updateGewaMachine(eid){
+		if(confirm("您确定要签到吗？")){
+			var values = {'machineId':eid};
+			var url = '${basePath}admin/machine/setGewaMachineByOperMember.xhtml';
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert('操作成功！');
+					refreshPage();
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+	}
+	function changeMachName(){
+		var value = $('machinename').value;
+		var s_machinetype = $('s_machinetype');
+		var s_linkmethod = $('s_linkmethod');
+		var s_cinemaid = $('s_cinemaid');
+		var s_machineowner = $('s_machineowner');
+		if(value == 'vpn'){
+			if(s_machinetype.hasClass('showElement')) s_machinetype.removeClass("showElement");
+			if(s_linkmethod.hasClass('showElement')) s_linkmethod.removeClass("showElement")
+			if(s_cinemaid.hasClass('displayElement')) s_cinemaid.removeClass("displayElement")
+			if(s_machineowner.hasClass('showElement')) s_machineowner.removeClass("showElement")
+			s_machinetype.addClass("displayElement");
+			s_linkmethod.addClass("displayElement");
+			s_cinemaid.addClass("showElemnt");
+			s_machineowner.addClass("displayElement");
+		}else if(value == 'integration'){
+			if(s_machinetype.hasClass('displayElement')) s_machinetype.removeClass("displayElement");
+			if(s_linkmethod.hasClass('displayElement')) s_linkmethod.removeClass("displayElement")
+			if(s_cinemaid.hasClass('displayElement')) s_cinemaid.removeClass("displayElement")
+			if(s_machineowner.hasClass('showElement')) s_machineowner.removeClass("showElement")
+			s_machinetype.addClass("showElemnt");
+			s_linkmethod.addClass("showElement");
+			s_cinemaid.addClass("showElement");
+			s_machineowner.addClass("displayElement");
+		}else if(value == 'newhost' || value == 'lcd'){
+			if(s_machinetype.hasClass('showElement')) s_machinetype.removeClass("showElement");
+			if(s_linkmethod.hasClass('showElement')) s_linkmethod.removeClass("showElement")
+			if(s_cinemaid.hasClass('showElement')) s_cinemaid.removeClass("showElement")
+			s_machineowner.addClass("showElement");
+			s_machinetype.addClass("displayElement");
+			s_linkmethod.addClass("displayElement");
+			s_cinemaid.addClass("displayElement");
+		}else{
+			s_machinetype.addClass("displayElement");
+			s_linkmethod.addClass("displayElement");
+			s_cinemaid.addClass("displayElement");
+			s_machineowner.addClass("displayElement");
+			if(s_machinetype.hasClass('showElement')) s_machinetype.removeClass("showElement");
+			if(s_linkmethod.hasClass('showElement')) s_linkmethod.removeClass("displayElement")
+			if(s_cinemaid.hasClass('showElement')) s_cinemaid.removeClass("showElement")
+			if(s_machineowner.hasClass('showElement')) s_machineowner.removeClass("showElement")
+		}
+		clearForm();
+	}
+	function clearForm(){
+		var value = $('machinename').value;
+		var machinetype = $('machinetype');
+		var linkmethod = $('linkmethod');
+		var cinemaid = $('cinemaid');
+		var machineowner = $('machineowner');
+		if(value == 'vpn'){
+			machinetype.value = '';
+			linkmethod.value = '';
+			machineowner.value = '';
+		}else if(value == 'integration'){
+			machineowner.value = '';
+		}else{
+			machinetype.value = '';
+			linkmethod.value = '';
+			machineowner.value = '';
+			cinemaid.value = '';
+		}
+	}
+	window.onload = changeMachName;
+</script>
+</body>
+</html>

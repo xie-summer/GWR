@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>导入电影放映时间</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util"></script>
+</head>
+<body style="width:750px; margin:auto">
+<div style="width:740px; border:2px solid #74B3DC;padding:2px;border-bottom:none;background:#d7e9f5;font-weight: bolder;font-size: 12px">导入放映时间</div>
+<div style="width:740px; border:2px solid #74B3DC;padding:2px;margin-top:-1px;">
+	<div style="color:blue;padding:3px">
+		<div>说明:</div>
+		<div>
+			1、导入的数据必须是Excel表格文件
+		</div><div>
+			2、导入结束后，可能有些数据没有导入，将错误记录copy出来，里面有详细的行号和出错信息。<br/>
+		</div><div>
+			3、如果有错误，将错误的行改正后重新导入这些<span style="color:red">[注意：一定要将没有错误的行删除]。</span>
+		</div><div>
+			4、<span style="color:red">如果要导入“专题活动”的排片，请从专题活动页面进入！</span>
+		</div><div style="color:green">
+			可以这样：先将所有错误的行背景颜色设置一下,再删除没有错误的行。模板文件对字体、颜色没有限制。
+		</div>
+	</div>
+</div>
+<form method="post" action="${basePath}admin/cinema/importPlayItems.xhtml" enctype="multipart/form-data" onsubmit="return validateForm(this)">
+	选择Excel文件#if($params.tag)[<span style="color:red">专题活动${params.tag}</span>]#end：<input type="file" class="input" name="file" size="50" onkeyup="this.value='';"/>
+	<input type="hidden" name="tag" value="$!params.tag" />
+	<input type="submit" value="导入" class="button" name="upload"/>
+</form>
+	<script type="text/javascript">
+	function validateForm(vForm){
+		if(vForm.file.value==null || vForm.file.value==""){
+			alert('请选择文件！');
+			return false;
+		}
+		if(vForm.file.value.toUpperCase().indexOf("XLS")==-1){
+			alert('必须选择Excel文件！');
+			return false;
+		}
+		return true;
+	}
+</script>
+</body>
+</html>

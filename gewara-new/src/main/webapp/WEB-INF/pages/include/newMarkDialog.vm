@@ -1,0 +1,261 @@
+ <div id="globalMark" class="newMovieMark" style="display:none">
+	<a href="javascript:hideMovieMark();" class="colseMark"></a>
+	<div class="title mt10">
+	#if($movie)
+		<h2>影片评分</h2>
+	#elseif($cinema)
+		<h2>影院评分</h2>
+	#elseif($agency)
+	<h2>机构评分</h2>
+	#elseif($sport)
+		<h2>场馆评分</h2>
+	#elseif($theatre)
+		<h2>剧院评分</h2>
+	#elseif($drama)
+		<h2>演出评分</h2>
+	#end
+	</div>
+	<div class="evaluate" style="padding-bottom:70px; margin-top:15px">
+	#if($movie)
+		<h2>看过这部电影？请为它打个分吧!</h2>
+	#elseif($cinema)
+		<h2>来过这里？为影院的环境和服务打个分吧!</h2>
+	#elseif($agency)
+		<h2>来过这里？为机构的服务打个分吧!</h2>
+	#elseif($sport)
+		<h2>来过这里？为场馆的环境和服务打个分吧!</h2>
+	#elseif($theatre)
+		<h2>来过这里？为剧院的环境和服务打个分吧!</h2>
+	#elseif($drama)
+		<h2>看过这部话剧？请为它打个分吧!</h2>
+	#else
+	<h2 class="space"></h2>
+	#end
+		<ul id="generalmark">
+			#foreach($x in [1..10])
+			<li style="cursor:pointer;" id="$x" lang=""></li>
+			#end
+		</ul>
+		<sub style="display:none;" id="generalmarkPoint" class="ml10 mr10 left"></sub>
+		<span style="display:none;" class="brown left" id="generalmarkDesc"></span>
+		<div class="evaluateBg"></div>
+		<div class="evalDes">
+		#if($cinema||$sport||$theatre||$agency)
+			<span>糟糕<br/><em>1-2分</em></span>
+			<span>坑爹<br/><em>3-4分</em></span>
+			<span>一般般<br/><em>5-6分</em></span>
+			<span>不错<br/><em>7-8分</em></span>
+			<span>很棒<br/><em>9-10分</em></span>
+		#else
+			<span>巨烂<br/><em>1-2分</em></span>
+			<span>坑爹<br/><em>3-4分</em></span>
+			<span>一般般<br/><em>5-6分</em></span>
+			<span>给力<br/><em>7-8分</em></span>
+			<span>神作<br/><em>9-10分</em></span>
+		#end
+		</div>
+	</div>
+	<div id="evaluateWala" style="background-color:#f8f8f8;overflow:hidden;padding:15px 0;margin-top:20px; display:none;">
+		<div class="evaluateWala">
+			<p>你为它打了<em id="gradeNum" class="cMovie"></em>分</p>
+			<textarea class="text mt5" onkeyup="microChange(this)" id="yingping" name="commentText"  style="width:480px;height:53px;resize:none;"></textarea>
+			<div class="title clear mt5" style="position:relative;width:492px;height:30px;line-height:30px;">
+				<span onclick="submitComment()" class="redBt minBt button right" id="dispan">
+					<span>发&nbsp;布</span>
+				</span>
+				<div class="moved left">
+					<span class="face left" style="padding-left:20px; line-height:18px;" id="myIcon">表情<span class="dmore"></span></span>
+					<span class="tSina left ml10">
+						<input type="checkbox" lang="${basePath}home/bind/sina/userApp.xhtml?source=close" style="margin-top:2px;*margin:-2px;" title="新浪微博" id="isWb" class="left"/>
+						<label for="isWb">新浪微博</label>
+					</span>
+				</div>
+				<span class="more num" id="microText" style="top:-3px;right:70px;">最多输入<b>140</b>字符</span>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+var marks = {};
+var num = 0;
+var isWbOpen=true;
+function showMovieMark(){
+	checkLogin(true,function(){
+		gewa.util.maskContent('','globalMark','',600,'globalMark');
+	});
+}
+function submitComment(){
+	if($('yingping').value.length > 140){
+		gewaUtil.alert("哇啦内容长度不可以超过140个字！");
+		return false;
+	}
+#if($movie)
+	if($('yingping').value=="分享你对这部影片的观影感受！"){
+		$('yingping').value ='';
+	}
+	#set($marktag='movie') #set($markrelatedid=$movie.id);
+#elseif($cinema)
+	if($('yingping').value=="分享你到此影院的体验！"){
+		$('yingping').value ='';
+	}
+	#set($marktag='cinema') #set($markrelatedid=$cinema.id);
+#elseif($agency)
+	if($('yingping').value=="分享你对此机构的看法！"){
+		$('yingping').value ='';
+	}
+	#set($marktag='agency') #set($markrelatedid=$agency.id);
+#elseif($sport)
+	if($('yingping').value=="分享你到此场馆的运动体验！"){
+		$('yingping').value ='';
+	}
+	#set($marktag='sport') #set($markrelatedid=$sport.id);
+#elseif($theatre)
+	if($('yingping').value=="分享你在该剧院的观剧体验！"){
+		$('yingping').value ='';
+	}
+	#set($marktag='theatre') #set($markrelatedid=$theatre.id);
+#elseif($coach)
+	if($('yingping').value=="分享你对此教练的印象！"){
+		$('yingping').value ='';
+	}
+	#set($marktag='coach') #set($markrelatedid=$coach.id);
+#elseif($drama)
+	if($('yingping').value=="分享你的观剧的感受！"){
+		$('yingping').value ='';
+	}
+	#set($marktag='drama') #set($markrelatedid=$drama.id);
+#elseif($gym)
+	if($('yingping').value=="分享你的健身场馆的感受！"){
+		$('yingping').value ='';
+	}
+	#set($marktag='gym') #set($markrelatedid=$gym.id);
+#end
+
+	if($('yingping').value.length == 0){
+		gewaUtil.alert("您还没有写评论哦!");
+		return false;
+	}
+	
+	var url="${basePath}ajax/common/saveComent.xhtml";
+	var values = {'micrbody':$('yingping').value,'relatedid': '$!markrelatedid','tag':'$!marktag','marks':Hash.toQueryString(marks),'isJson':true};
+	GewaraUtil.mask('dispan');
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			gewaUtil.alert("发表成功！", hideMovieMark);
+			$('yingping').value = '';
+			//reloadSeeMember('$!markrelatedid', '$!marktag');
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+};
+function myTreasure(tag, relatedid, el){
+	var url="${basePath}ajax/common/getMemberTreasure.xhtml?t="+GewaraUtil.rtime(),values={'tag':tag,'relatedid':relatedid},result=0;
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){//评分值
+			if(result.xqTreasure){//想去
+				if($('nTResult') && $('hTResult')){
+					$('nTResult').addClass('none');
+					$('hTResult').removeClass('none');
+				}
+			}
+			if(result.cTreasure){//关注
+				if($('nCollect') && $('hCollect')){
+					$('nCollect').addClass('none');
+					$('hCollect').removeClass('none');
+				}
+			}
+			if($('mark_mark_integer') && $('mark_decimal')){
+				$('mark_mark_integer').set('text',result.total.toInt()/10);
+				$('mark_decimal').set('text',result.total.toInt()%10)
+			}
+			showMark(result, tag, relatedid);
+			generalmarkStar(result);
+			if(el && $(el)){
+				if(gewara.util.member.login){
+					$(el).href='${basePath}home/sns/othersPersonIndex.xhtml?memberid='+gewara.util.member.memberid;
+					$(el + 'Pic').setStyle('background','url(${picPath}cw50h50/'+gewara.util.member.headUrl+') 0 center no-repeat'); 
+				}else{
+					$(el).href='${basePath}home/sns/othersPersonIndex.xhtml?memberid=microblogGroun.xhtml';
+					$(el + 'Pic').setStyle('background','url(${picPath}cw50h50/img/default_head.png) center center no-repeat'); 
+				}
+			}
+		}
+	}, 'get');
+}
+function showMark(markResult, tag, relatedid){
+	#if($movie)
+	new DefaultValue("yingping","分享你对这部影片的观影感受！");
+	#elseif($cinema)
+	new DefaultValue("yingping","分享你到此影院的体验！");
+	#elseif($sport)
+	new DefaultValue("yingping","分享你到此场馆的运动体验！");
+	#elseif($theatre)
+	new DefaultValue("yingping","分享你在该剧院的观剧体验！");
+	#elseif($drama)
+	new DefaultValue("yingping","分享你的观剧的感受！");
+	#end
+	
+	if($('generalmark'))new RatingGroup('generalmark', markResult.generalmark, tag, relatedid, marks);
+	gewa.util.mymarks = markResult.generalmark;
+	var point = $('generalmarkPoint').get('text').split('.',1);
+	if(point!=''){
+		pingfeng(point);
+	}
+	
+	//分享与表情
+	var myIcon = new Icon();
+	$('myIcon').addEvent('click',function(){
+		myIcon.innerHTML(this,'yingping');
+	});
+	$('isWb').addEvent('click',function(){
+		if(isWbOpen){
+			this.checked = '';
+			syscData(this.get('lang'),this.get('title'),'sina',this);
+		}
+	});
+}
+function generalmarkStar(item){
+	num = item.generalmark;
+	var mark = document.getElementById('generalmark').getElementsByTagName('li');
+	for(var i=1;i<=mark.length;i++){
+		mark[i-1].index = i;
+		mark[i-1].addEvents({
+			'mouseover':function(){
+				pingfeng(this.index);
+			},
+			'mouseout':function(){
+				pingfeng(num);
+			},
+			'click':function(){
+				num = this.index;
+				pingfeng(num);
+				clickPingfeng();
+			}
+		})
+	}
+}
+function clickPingfeng(){
+	$$('.evaluate').setStyle('padding-bottom','0');
+	$('evaluateWala').setStyle('display','block');
+}
+function pingfeng(el){
+	el = el || num;
+	$('gradeNum').set('text',el);
+	if(el==0){
+		$$('.evaluateBg').setStyle('display','none');
+	}else{
+		$$('.evaluateBg').setStyle('display','block');
+	}
+	if(el<10){
+		$$('.evaluateBg').addClass('bR');
+	}else{
+		$$('.evaluateBg').removeClass('bR');	
+	}
+	$$('.evaluateBg').setStyle('width',el*49+'px');
+}
+var hideMovieMark = function(){
+	gewa.util.container['globalMark'].dispose('globalMark');
+}
+</script>

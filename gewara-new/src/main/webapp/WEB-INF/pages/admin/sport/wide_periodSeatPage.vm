@@ -1,0 +1,253 @@
+#if($ott)
+#if($sp.hasPretype('E'))
+<div class="ui_warning">
+	<b class="ico_g"></b>
+	#if($VmUtils.isNotBlank($sp.premessage))
+		$!sp.premessage
+	#else
+	代售场馆发票仅由场馆提供，且不可享受格瓦拉提供的积分、优惠券、活动、瓦币支付等各类会员特权。
+	#end
+</div>
+#end
+<div class="timeTitle">
+	<dl class="ui_media">
+		<dt class="ui_pic">选择时段：</dt>
+		<dd class="ui_text duration">
+			<input type="hidden" name="otiid" alt="durationTxt" value="$!curOti.id"/>
+			#foreach($oti in $otiList)
+			<span lang="$!oti.id" #if($VmUtils.eq($oti.id,$curOti.id)) class="select" #end>
+				$!oti.fieldname<br />$!{oti.hour}-$!{oti.endhour}<br />$!{oti.price}元#if($VmUtils.eq($oti.unitType,'time'))/${oti.unitMinute}分钟 #{else}不限时#end
+			</span>
+			#end
+		</dd>
+	</dl>
+	<dl class="ui_media">
+		<dt class="ui_pic">预计到达时间：</dt>
+		<dd class="ui_text">
+			<input type="hidden" name="starttime" alt="timeInterval_1" id="starttime" mustTxt="请选择时间" />
+			<span lang="timeInterval_1" class="new_fast_inner">请选择时间<em></em></span>
+			<span class="ui_warning">仅作为提醒短信发送及人数限制的依据。</span>
+		</dd>
+	</dl>
+	<dl class="ui_media #if($curOti.hasUnitWhote()) none #end">
+		<dt class="ui_pic">选择时长(分钟)：</dt>
+		<dd class="ui_text">
+			<input type="hidden" name="time" alt="timeInterval_2" id="time" #if(!$curOti.hasUnitWhote()) mustTxt="请选择时长" #end/>
+			<span lang="timeInterval_2" class="new_fast_inner">请选择时长<em></em></span>
+		</dd>
+	</dl>
+	<dl class="ui_media">
+		<dt class="ui_pic">选择人数：</dt>
+		<dd class="ui_text">
+			<input type="hidden" name="quantity" alt="timeInterval_3" id="quantity" mustTxt="请选择人数"/>
+			<span lang="timeInterval_3" class="new_fast_inner">请选择人数<em></em></span>
+		</dd>
+	</dl>
+</div>
+<div class="optionsPanel timeInterval" id="timeInterval_1" style="display:none;padding:10px 0; width:510px;">
+	<div style="right:auto;left:-1px;width:172px;*width:167px;" class="optionOver"></div>
+	<div class="penweb" style="margin-top:0px;">
+		<div>
+			<ul class="hasOption">
+				#foreach($time in $timeList)
+				<li >
+					<a href="javascript:void(0)" id="$time" onclick="changeTime(this);">$time</a>
+				</li>
+				#end
+			</ul>
+		</div>		
+	</div>
+</div>
+<div class="optionsPanel timeInterval" id="timeInterval_2" style="display:none;padding:10px 0; width:510px;">
+	<div style="right:auto;left:-1px;width:172px;" class="optionOver"></div>
+	<div class="penweb" style="margin-top:0px;">
+		<div>
+			<ul class="hasOption">
+				#if($curOti.hasUnitTime())
+				#foreach($period in $periodList)
+				<li>
+					<a href="javascript:void(0)" id="$period" onclick="changeHour(this);">$period</a>
+				</li>
+				#end
+				#else
+				<li>
+					<a href="javascript:void(0)" id="$!curOti.unitMinute" onclick="changeHour(this);">$!curOti.unitMinute</a>
+				</li>
+				#end
+			</ul>
+		</div>		
+	</div>
+</div>
+<div class="optionsPanel timeInterval" id="timeInterval_3" style="display:none;padding:10px 0; width:510px;">
+	<div style="right:auto;left:-1px;width:172px;" class="optionOver"></div>
+	<div class="penweb" style="margin-top:0px;">
+		<div>
+			<ul class="hasOption">
+				#foreach($x in [1..4])
+				<li>
+					<a href="javascript:void(0)" id="$x" onclick="changeQuantity(this)">$x</a>
+				</li>
+				#end
+			</ul>
+		</div>		
+	</div>
+</div>
+#else
+<div class="notPlay">
+	#if($playDate)
+	<p>当前<span>$!DateUtil.format($playDate,"M月d日")</span>没有购票场地，请选择其它日期！</p>
+	#else
+	<p>当前<span>$!item.itemname</span>项目没有购票场地，请选择其它项目！</p>
+	#end
+</div>
+#end
+<script type="text/javascript">
+var playdateStr = '$DateUtil.format($!{ott.playdate},"yyyy-MM-dd")',globalEndHour = '$!curOti.endhour',tmpTimestamp;
+var endTimestamp = Date.parse(playdateStr + ' ' + globalEndHour);
+var endtimes = globalEndHour.replace(':','.');
+endtimes = endtimes.toInt()<endtimes.toFloat()? (endtimes.toInt()+0.5):endtimes.toFloat();
+var unithour = $!curOti.unitMinute;
+var price = $!curOti.price, unitType = $!curOti.hasUnitTime();
+window.addEvent('domready',function(){
+	duration();
+	ReservationTime();
+	#if($VmUtils.eq($curOti.unitType,'time'))
+		$('showup').innerHTML=price+'元/$!curOti.unitMinute分钟';
+	#else
+		$('showup').innerHTML=price+'元不限时';
+	#end
+});
+changeTime = function(obj){
+	var num = peroidFunction(obj, unithour);
+	changePerent(obj);
+	var time = $('timeInterval_2').getElement('ul.hasOption');
+	createSelect(time, num);
+}
+duration = function(){
+	var duration = $$('.duration span');
+	duration.addEvent('click',function(){
+		loadOtiData(this.get('lang'));
+	});
+}
+loadOtiData = function(oti){
+	var url = '${basePath}ajax/sport/getSeatPage.shtml';
+	var values = {'otiid':oti};
+	GewaraUtil.sendLoad('otiData', url, values, function(result){
+		if(!result.success)gewaUtil.alert(result.json.msg);
+	});
+}
+peroidFunction = function(obj, sumhour){
+	var times = $(obj).value || $(obj).id;
+	tmpTimestamp = Date.parse(playdateStr + ' ' + times);
+	var num = tmpTimestamp.diff(endTimestamp, 'minute')/sumhour;
+	var count = 1;
+	var tmpEndStr = '';
+	if(unitType){
+		count= (sumhour/unithour).toInt();
+		tmpEndStr = tmpTimestamp.increment('minute',sumhour).format('%H:%M');
+		$$('.hour').set('html',sumhour);
+	}else{
+		tmpEndStr = globalEndHour;
+	}
+	$('peroid').set('html', times + "-" + tmpEndStr);
+	if($('quantity').value != ''){
+		$('showPrice').set('html',$('quantity').value.toInt()*price*count);
+	}
+	
+	showMsg();
+	return num;
+}
+createSelect = function(el, num){
+	$(el).empty();
+	if(unitType){
+		for(var i =1;i<=num; i++){
+			var tmphour = unithour*i;
+			var tmpLi = new Element('li').inject(el);
+			if(i%2===0){
+				tmpLi.setStyle('margin-right',0);
+			}
+			new Element('a',{'html':tmphour,'id':tmphour,'href':'javascript:void(0)'}).addEvent('click',function(){//触发项目确认
+				changeHour(this);
+			}).inject(tmpLi);
+		}
+	}else{
+		var times = $('starttime').value;
+		tmpTimestamp = Date.parse(playdateStr + ' ' + times);
+		var tmphour = tmpTimestamp.diff(endTimestamp, 'minute');
+		var tmpLi = new Element('li').inject(el);
+		new Element('a',{'html':tmphour,'id':tmphour,'href':'javascript:void(0)'}).addEvent('click',function(){//触发项目确认
+			changeHour(this);
+		}).inject(tmpLi);
+	}
+	if($(el).getFirst('li a')){
+		$(el).getFirst('li a').fireEvent('click');
+	}
+}
+changeHour = function(obj){
+	var sumhour = $(obj).id.toFloat();
+	var tmpHour = sumhour/unithour;
+	var tmpPrice = price * tmpHour;
+	changePerent(obj);
+	peroidFunction('starttime', sumhour);
+}
+
+changeQuantity = function(obj){
+	var quantity = $(obj).id;
+	var tmpHourPrice = price;
+	if(unitType){
+		var tmpHour = $('time').value.toFloat()/unithour;
+		tmpHourPrice = price * tmpHour;
+	}
+	var tmpPrice = quantity.toInt()* tmpHourPrice;
+	changePerent(obj);
+	$$('.sum').set('html',quantity);
+	$('showPrice').set('html',tmpPrice);
+	$('showpn').innerHTML = $('quantity').value;
+	showMsg();
+}
+showMsg = function(){
+	if($('starttime').value !='' && $('quantity').value != '' && $('time').value !=''){
+		$('summarize').removeClass('none');
+	}
+}
+changePerent = function(obj){
+	var els = {};
+	els.parent = $(obj).getParent('.optionsPanel');
+	els.text = document.getElement('*[lang='+els.parent.id+']');
+	els.value = document.getElement('*[alt='+els.parent.id+']');
+	els.text.set('text',$(obj).get('text'));
+	els.value.value=($(obj).id);
+	trigerHide(els.parent);
+}
+
+ReservationTime = function(){
+	$$('.new_fast_inner').addEvent('click',function(){//触发选择项目
+		var el = $(this.get('lang'));
+		if(el.getStyle('display')=='none'){
+			gewa.util.selectOptionsPosition(el,this,true);
+			gewa.util.removeBodyClick(el,this);
+			gewa.util.show(el);
+		}else{
+			$$('.optionsPanel').hide();
+			document.removeEvents('click');
+		}
+	})
+}
+trigerHide = function(panel){
+	document.removeEvents('click');
+	$(panel).hide();
+}
+gewa.util.selectOptionsPosition = function(){
+	var left = $(arguments[0]).getDimensions().x;
+	$(arguments[0]).position({
+		relativeTo:arguments[1],//触发源id
+		position:'bottomLeft',
+		offset:{x:1,y:arguments[2]?1:1}
+	});
+}
+#if($VmUtils.isNotBlank($curOti.remark))
+closeNotice = function(){
+	$('ottNotice').addClass('none');
+}
+#end
+</script>

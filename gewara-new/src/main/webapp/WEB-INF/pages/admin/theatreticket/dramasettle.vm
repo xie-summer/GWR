@@ -1,0 +1,49 @@
+<div style="width:350px;margin:10px;background:#FFF;">
+	<div style="text-align:center;height:20px;line-height: 20px;">
+		<strong>修改价格数据</strong>
+	</div>
+	<div class="bd" style="text-align:center;">
+		<form name="priceForm" id="settleForm">
+			<input type="hidden" name="id" id="id" value="$!settle.id"/>
+			<input type="hidden" name="dramaid" id="dramaid" value="$!drama.id"/>
+			<div style="padding:5px 40px;text-align:left;">
+				<label for="distype" class="left">结算类型：</label>
+				<select name="distype" mustTxt="结算类型不能为空！">
+					<option value="">选择结算类型</option>
+					#foreach($key in $discountTypeMap.keySet())
+						<option value="$!key">$discountTypeMap.get($key)</option>
+					#end
+				</select>
+			</div>
+			<div style="padding:5px 40px;text-align:left;">
+				<label for="discount" class="left">结算比率：</label>
+				<input type="text" name="discount" id="discount" class="left" style="width: 50px" value="$!settle.discount" mustTxt="结算比率不能为空！"/>
+				<span class="req left" style="color: red;"></span>
+				<div class="height0"></div>
+			</div>
+			<div style="padding:5px 40px;text-align:left;">
+				<label for="remark" class="left">描&nbsp;&nbsp;述：</label>
+				<textarea name="remark" id="remark" cols="20" rows="3">$!settle.remark</textarea>
+			</div>
+			<div>
+				<label>&nbsp;</label>
+				<input type="button" class="cbt1"  value="保存" onclick="saveSettle()"/>
+				<input type="button" class="cbt1" onclick='GewaraUtil.hideDialog("settleDialog")' value="取消"/>
+			</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+	saveSettle = function(){
+		if(!GewaraUtil.baseValidForm('settleForm')) return;
+		var url = "${basePath}admin/dramaTicket/saveDramaSettle.xhtml";
+		var values = GewaraUtil.getValues('settleForm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>

@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>格瓦拉生活网</title>
+#parse('partner/bestv/style.vm')
+</head>
+
+<body>
+#parse('partner/bestv/header.vm')
+<div class="mainContent">
+	<aside>
+		<ul id='left_list'>
+			<li><a href="${basePath}partner/bestv/cinemaList.xhtml?movieid=$!movieid&playdate=$!playdate&countyCode=$!countyCode&countyname=$!countyname&pageNo=0&pageSize=3">返　　回</a></li>
+			<li><a href="${basePath}partner/bestv/movieDetail.xhtml?movieid=$!movieid">影片详情</a></li>
+			<li><span>排　　片</span></li>
+		</ul>
+	</aside>
+	<div class="content">
+		<div class="inner">
+			<div class="panel" id="panel">
+				<div class="panelInner">
+					<div class="inner">
+						<h2>排　　片</h2>
+						<section>
+							<div class="title">
+								<h3>$!cinema.name</h3>
+								<h4>地址：$!cinema.address</h4>
+								<span class="more fs80"><sub>$!cinema.getGeneral().substring(0,$cinema.getGeneral().indexOf('.'))</sub><sup>$!cinema.getGeneral().substring($cinema.getGeneral().indexOf('.'))</sup></span>
+							</div>
+							<article class="chooseDay">
+								<div class="btn playList">
+									#foreach($date in $openDateList)
+									#if($playdate eq $!DateUtil.format($date,'yyyy-MM-dd'))
+									<span>$!DateUtil.getCnWeek($date)<em></em></span>
+									#else
+									<a href="${basePath}partner/bestv/playList.xhtml?cinemaId=$!cinema.id&movieid=$!movieid&playdate=$!DateUtil.format($date,'yyyy-MM-dd')&countyCode=$!countyCode&countyname=$!countyname">$!DateUtil.getCnWeek($date)</a>
+									#end
+									#end
+								</div>
+								<span class="right specBtm">
+									<a href="${basePath}partner/bestv/unopened.xhtml?cinemaId=$!cinema.id&movieid=$!movieid&playdate=$!playdate&countyCode=$!countyCode&countyname=$!countyname">
+										<b></b>
+										<b></b>
+										<span>购买影票</span>
+									</a>
+								</span>
+							</article>
+							<article class="playItems">
+								<ul>
+									#foreach($pItem in $curMpiList)
+									<li>
+										<span>$!{pItem.playtime}</span>
+										<span>$!{pItem.language}/$!pItem.edition</span>
+										<span>$!{pItem.playroom}</span>
+										<span>￥#if($pItem.price)$!{pItem.price}#{else}0.0#end</span>
+										<span>￥#if($pItem.gewaprice)$!{pItem.gewaprice}#{else}0.0#end</span>
+									</li>
+									#end
+								</ul>
+							</article>
+						</section>
+					</div>
+				</div>
+			</div>
+			<footer>
+				如需购票，请访问格瓦拉生活网：www.Gewara.com 手机用户可直接访问：m.Gewara.com
+			</footer>
+		</div>
+	</div>
+</div>
+</body>
+</html>

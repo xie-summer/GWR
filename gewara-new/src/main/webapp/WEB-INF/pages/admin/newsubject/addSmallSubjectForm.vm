@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>编辑专题</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label{width:120px;text-align:right;padding:1px 0 1px 0;margin-top:3px;}
+		#subjectForm input, textarea, span {width:550px;}
+		#subjectForm div{padding:4px;}
+		.ErrorMsg {
+			background: url(${staticPath}styles/images/standard_msg_error.gif) #fff2e9 no-repeat 5px 0px; color: #000;
+				border: #f60 1px solid; padding: 1px 25px;
+		}
+		.OkMsg {
+			background: url(${staticPath}styles/images/standard_msg_ok.gif) #e6ffe6 no-repeat 5px 0px; color: #000;
+			border: #00be00 1px solid; padding: 1px 25px;
+		}
+		.disabled{
+			background-color: #D4D0C8;
+			color: #808080;
+		}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:750px;margin:auto">
+<div id="movieDialog" class="yui-panel" style="width:750px;margin:auto">
+	<div class="hd">[编辑专题数据]</div>
+	<div class="bd">
+	<div id="subjectForm">
+		<input type="hidden" name="id" value="$!data.id" />
+		<div>
+			<label for="tag">&nbsp;&nbsp;&nbsp;&nbsp;组标签：</label>
+			<input name="tag" id='tag'  style="width:120px;" type="text" mustTxt="组标签必填!" value="#if($!params.tag)$!params.tag#else$!data.tag#end"/>
+			<span id="errtag" ></span>
+		</div>
+		<div>
+			<label for="title">&nbsp;&nbsp;专题标题：</label>
+			<input name="title" id='title'  style="width:320px;" type="text" mustTxt="专题标题必填!" value="$!data.title"/>
+		</div>
+		<div>
+			<label for="relatedid">关联影片ID：</label>
+			<input name="relatedid" id='relatedid'  style="width:120px;" type="text" onblur="checkData('relatedid', this);" mustTxt="关联影片ID必填!" value="$!data.relatedid"/>
+			<span id="errrelatedid" ></span>
+		</div>
+		
+		<div>
+			<label for="newstitle">主新闻标题：</label>
+			<input name="newstitle" id="newstitle" type="text" mustTxt="主新闻标题必填!" value="$!data.newstitle"/>
+		</div>
+		<div>
+			<label for="newssubject">主新闻简介：</label>
+			<textarea cols="45" rows="2" name="newssubject" id="newssubject" mustTxt="主新闻简介必填!">$!data.newssubject</textarea>
+		</div>
+		<div>
+			<label for="newslink">主新闻链接：</label>
+			<input name="newslink" id="newslink" type="text" mustTxt="主新闻链接必填!" value="$!data.newslink" />
+		</div>
+		<div id="uploadDiv">
+			<label>主新闻图片：</label>
+			<input type="text" name="newslogo" id="newslogo" readonly="readonly" class="disabled" value="$!data.newslogo"/>
+			<img style="width:162px; height:57px;" id='logoimg' src="$VmUtils.randomPic('',$!data.newslogo)" onerror="this.src='${basePath}img/default_head.png'"/>
+		</div>
+		<div>
+			<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;上传：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updateLogo"></iframe>
+		</div>
+		<div>
+			<label>&nbsp;</label><input type="button" class="button" style="width:100px" value="保存数据" onclick="saveSubject();"/>
+			<span id="sucinfo"></span>
+		</div>
+	</div>
+	</div>
+</div>
+
+<script>
+	function checkData(flag, obj){
+		var url = '', values = '';
+		if(flag == 'relatedid'){
+			url = '${basePath}admin/newsubject/checkSubjectRelatedid.xhtml';
+			values = {'relatedid':$(obj).get('value')};
+		}
+		GewaraUtil.sendRequest(url, values, function(result){
+			var err = $('err'+flag);
+			if(!result.success){
+				err.addClass('ErrorMsg');
+				err.set('html', result.msg);
+				$(obj).set('value', '');
+			}else{
+				err.removeClass('ErrorMsg');
+				$('err'+flag).set('html', '');
+			}
+		})
+	}
+	
+	function saveSubject(){
+		if(!GewaraUtil.baseValidForm('subjectForm')) return false;
+		var url = '${basePath}admin/newsubject/saveSmallSubject.xhtml';
+		var values = GewaraUtil.getValues('subjectForm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功!');
+				$('sucinfo').addClass('OkMsg');
+				$('sucinfo').set('html', '保存成功!');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function updateLogo(params){
+		var picpath1 = params['picpath'];
+		$('newslogo').value = picpath1;
+		$('logoimg').src='${picPath}' + picpath1;
+	}
+</script>
+</body>
+</html>

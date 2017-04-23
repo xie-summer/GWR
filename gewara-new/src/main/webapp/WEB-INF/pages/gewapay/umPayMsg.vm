@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>短信回复_格瓦拉生活网</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ui_layout{background:#fff;}
+	</style>
+</head>
+<body>
+#set($ismovie=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout">
+	<div style="padding:50px 0">
+		<p class="ems center" style="font-size:14px;"><strong>系统已向您的手机：<b style="color:#ff5809">$!order.mobile</b>发送一条短信，请按照短信提示进行回复，完成支付！</strong><br /></p>
+		<div style="width:100%;height:91px;padding:20px 0;background:url(${picPath}css/buss/cmpay_step.png) center center no-repeat"></div>
+		<div class="center mt20">
+			<input type="button" value="" onclick="orderResult()" style="width:177px;height:37px;border:0px;background:url(${picPath}css/buss/cmpay_bt.png) no-repeat;cursor: pointer;"/>
+		</div>
+		<div style="width:840px;height:74px;padding:10px;margin:30px auto 0;border:1px solid #cdcdcd;background:#f2f2f2;color:gray;line-height:22px;">
+			<p>1、如未收到短信，请咨询中国移动通信账户客服中心：<b style="color:#ff5809">4006125880</b><br/>（只收市话费，无长途费），125880只支持中国移动手机，0.3元/分，无长途话费</p>
+			<p class="mt5">2、有短信签名功能的手机，请回复前去掉签名的自动附件功能，以免回复系统无法识别拒绝支付</p>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	function orderResult(){
+		var values = {"tradeNo": $order.tradeNo};
+		GewaraUtil.sendRequest('${basePath}umpay/qryOrder.xhtml', values, function(result){
+			if(result.success){
+				document.location = '${basePath}gewapay/orderResult.xhtml?tradeNo=$order.tradeNo';
+			}else{
+				gewaUtil.alert('请确认订单是否支付成功！');
+			}
+		});
+	}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

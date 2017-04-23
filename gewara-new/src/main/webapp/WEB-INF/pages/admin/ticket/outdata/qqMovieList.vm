@@ -1,0 +1,86 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width:750px; margin:auto">
+<div style="width:740px;">
+<div><a href="javascript:synMovie()"><b>同步电影</b></a></div>
+<table class="table">
+	<thead>
+	<tr>
+		<th>格瓦拉电影ID</th>
+		<th>格瓦拉电影ID</th>
+		<th>格瓦拉电影名称</th>
+		<th>对应</th>
+		<th>QQ电影名称</th>
+		<th>QQ电影ID</th>
+		<th>删除</th>
+	</tr>
+	</thead>
+	<tbody id="movieTable">
+	#foreach($pm in $movieList)
+	#set($movie=$movieMap.get($pm.id))
+	<tr>
+		<td style="width: 110px;" title="$pm.id"><input type="text" value="$!movie.id" id="pm$pm.id" style="width: 100px;" /></td>
+		<th>$!movie.id</th>
+		<td>$!movie.moviename</td>
+		<td><a href="javascript:toSure($pm.id)">对应</a></td>
+		<td id="n$pm.id" title="$pm.pmname"><a href="http://piao.qq.com/dianying/movie_detail.html?movie_name=$pm.pmname" target="_blank">$pm.pmname</a></td>
+		<td>$pm.pmid</td>
+		<td><a href="javascript:delMovie($pm.id)">删除</a></td>
+		</tr>
+	#set($movie='')
+	#end
+	</tbody>
+</table>
+</div>
+<script type="text/javascript">
+	function setUnion(pmid){
+		var url = "${basePath}admin/qq/setMovieUnion.xhtml";
+		var values = {'id':pmid, 'movieid':$('pm'+pmid).value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) { 
+				refreshPage();
+			}else alert(result.msg);
+		});
+	}
+	function toSure(pmid){
+		var url = "${basePath}admin/qq/getObject.xhtml";
+		var values = {'relatedid':$('pm'+pmid).value, 'tag':'movie'};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) { 
+				var nm = $('n'+pmid).get('title');
+				var rs = confirm('确认要对应：' + result.retval + '<--->' + nm +' 吗?');
+				if(rs) {
+					setUnion(pmid);
+				}
+			}else alert(result.msg);
+		});
+	}
+	function synMovie(){
+		var url = "${basePath}admin/qq/movies.xhtml";
+		var values = {};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) { 
+				refreshPage();
+			}
+		});
+	}
+	function delMovie(id){
+		var url = "${basePath}admin/qq/delObject.xhtml";
+		var values = {"id":id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) { 
+				refreshPage();
+			}
+		});
+	}
+</script>
+</body>
+</html>

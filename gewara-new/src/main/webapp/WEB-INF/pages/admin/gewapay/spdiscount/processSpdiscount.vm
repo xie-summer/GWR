@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>数据统计</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#fff;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		td, th{
+			text-align: center;
+			height: 23px;
+		}
+	</style>
+</head>
+<body>
+<form action="${basePath}admin/gewapay/spdiscount/processSpdiscount.xhtml">
+<div>
+	<div>$sd.description</div>
+	<div>$sd.remark</div>
+	<input type="hidden" name="sid" value="$params.sid"/>
+	城市：<select name="citycode">
+		<option value="" #if($VmUtils.isBlank($!params.citycode))selected#end>全国</option>
+		#foreach($cy in $cityMap.keySet())
+			<option value="$cy" #if($cy eq $!params.citycode)selected#end>$cityMap.get($cy)</option>
+		#end
+	</select>
+	<input type="submit" value="提交"/>
+</div>
+</form>
+#set($keyList=["订单号", "手机号", "用户名", "用户ID", "下单时间","订单金额","影票数量","余额支付","网络支付","优惠金额","支付方式"])
+<table cellpadding="0" cellspacing="0" width="100%" border="1" style="border-collapse: collapse" id="orderTable">
+	<tr>
+		<th>编号</th>
+		#foreach($key in $keyList)
+		<th>$key</th>
+		#end
+		#if($sd.rebates gt 0 && $sd.rebatestype eq 'Y')<td>操作</td>#end
+	</tr>
+	#foreach($qryMap in $qryMapList)
+	<tr>
+		<td>$foreach.count</td>
+		#foreach($key in $keyList)
+		#if($key eq '支付方式')
+		<td>$paytextMap.get($!qryMap.get($key))</td>
+		#else
+		<td>$!qryMap.get($key)</td>
+		#end
+		#end
+		#if($sd.rebates gt 0 && $sd.rebatestype eq 'Y')
+			#if($rebatesList.contains($qryMap.get('订单号')))
+			<td><span style="color:red">已返利</span><input type="button" value="取消返利" onclick="toggleRebates('cancel','$qryMap.get('订单号')','$checkMap.get($qryMap.get('订单号'))', this)"/></td>
+			#elseif($checkMap.containsKey($qryMap.get('订单号')))
+			<td>未返利<input type="button" value="增加返利" onclick="toggleRebates('add','$qryMap.get('订单号')','$checkMap.get($qryMap.get('订单号'))', this)"/></td>
+			#else
+			<td>超出名额限制</td>
+			#end
+		#elseif($sd.rebatestype eq 'D')
+			#if($rebatesList.contains($qryMap.get('订单号')))
+			<td><span style="color:red">已返券</span><input type="button" value="取消返券" onclick="toggleRebates('cancel','$qryMap.get('订单号')','$checkMap.get($qryMap.get('订单号'))', this)"/></td>
+			#elseif($checkMap.containsKey($qryMap.get('订单号')))
+			<td>未返券<input type="button" value="增加返券" onclick="toggleRebates('add','$qryMap.get('订单号')','$checkMap.get($qryMap.get('订单号'))', this)"/></td>
+			#else
+			<td>超出名额限制</td>
+			#end
+		#end
+	</tr>
+	#end
+</table>
+
+<script type="text/javascript">
+	$$("tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+	#if(($sd.rebates gt 0 && $sd.rebatestype eq 'Y') || $sd.rebatestype eq 'D')
+	function toggleRebates(optype,tradeNo, check, el){
+		var url="${basePath}admin/gewapay/spdiscount/toggleRebates.xhtml";
+		el.dispose();
+		GewaraUtil.sendRequest(url, {'sid': '$sd.id', 'optype':optype, 'tradeNo':tradeNo, 'check':check}, function(result){
+			if(result.msg) alert(result.msg);
+		});
+	}
+	#end
+</script>
+</body>
+</html>

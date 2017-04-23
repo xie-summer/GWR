@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>开放场次编辑-$sport.name</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		html,body{background: none;}
+		select{width:120px;_width:117px;}
+		.myinput{
+			width: 38px;margin-top: 4px;
+		}
+		.new{
+			width: 50px;
+		}
+		.wait{
+			width: 50px;
+			color: #FFA238;
+		}
+		.lock{
+			width: 50px;
+			color: blue;
+		}
+		.locklf{
+			width: 50px;
+			color: blue;
+		}
+		.sole{
+			width: 50px;
+			color: red;
+		}
+		.del{
+			width: 50px;
+			color: #FEC5A1;
+		}
+		label{
+			text-align: left;
+		}
+		.match{
+			border: 1px solid green;
+		}
+		.btn{
+			border: 1px solid #cdf;
+		}
+		.match2{
+			border: 1px solid red;
+		}
+		.zero{
+			background-color: #EAF6FD
+		}
+	</style>
+</head>
+<body>
+#set($width=702)
+<div class="manageItemList">
+	<form action="${basePath}admin/sport/open/ottDetail.xhtml" id="form" method="post">
+	<input type="hidden" name="ordertype" id="ordertype" value="$!ordertype" />
+	<input type="hidden" name="ottid" id="ottid" value="$!ottid" />
+	<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>场地名称</th>
+					<th>日期</th>
+					<th>开始时间</th>
+					<th>结束时间</th>
+					<th>修改</th>
+					<th>统一卖价</th>
+					<th>成本价</th>
+					<th>场馆价</th>
+					<th>优惠券</th>
+					<th>前台</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				#foreach($item in $itemList)
+				<tr class="grayBg">
+					<td>$!{item.fieldname}[$!{item.fieldid}]</td>
+					<td>$DateUtil.format($ott.playdate, 'yyyy-MM-dd')&nbsp;$DateUtil.getCnWeek($ott.playdate)&nbsp;</td>
+					<td>$!item.hour</td>
+					<td>$!item.endhour</td>
+					<td><a href="${basePath}admin/sport/open/otiForm.xhtml?otiid=$!item.id" target="_blank">修改</a></td>
+					<td>$!item.price</td>
+					<td>$!item.costprice</td>
+					<td>$!item.norprice</td>
+					<td><input type="text" value="$!item.elecard" style="width: 40px;" onchange="setElecard($item.id, this)"/></td>
+					<td><a href="$!{absPath}${basePath}sport/order/step1.xhtml?ottid=$ott.id" target="_blank">前台</a></td>
+					<td>
+						<select id="book$item.id" onchange="setStatus($item.id,this)">
+							<option value="A" #if($VmUtils.eq($item.status,'A'))selected#end>接受预定</option>
+							<option value="D" #if($VmUtils.eq($item.status,'D'))selected#end>人工废弃</option>
+						</select>
+						<!--  <input type="button" value="废弃" onclick="dropOTT($ott.id)" /> -->
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	<br/>
+	<ul class="orderSet mt20">
+			<li id="all" #if($VmUtils.isBlank($ordertype))class="seeOrder"#end><a href="javascript:queryOrder('ordertype','')" class="blue">全部</li>
+			<li id="new" #if($ordertype eq 'new')class="seeOrder"#end><a href="javascript:queryOrder('ordertype','new')" class="blue">待付款</a></li>
+			#*<li id="paid" #if($ordertype eq 'paid')class="seeOrder"#end><a href="javascript:queryOrder('ordertype','paid')" class="blue">已付款</a></li>*#
+			<li id="paid_success" #if($ordertype eq 'paid_success')class="seeOrder"#end><a href="javascript:queryOrder('ordertype','paid_success')" class="blue">交易成功</a></li>
+			<li id="paid_failure" #if($ordertype eq 'paid_failure')class="seeOrder"#end><a href="javascript:queryOrder('ordertype','paid_failure')" class="blue">交易失败</a></li>
+			<li id="cancel" #if($ordertype eq 'cancel')class="seeOrder"#end><a href="javascript:queryOrder('ordertype','cancel')" class="blue">取消订单</a></li>
+			#*<li id="cancel" #if($ordertype eq 'cancel')class="seeOrder"#end><a href="javascript:queryOrder('ordertype','cancel')" class="blue">已退订单</a></li>
+			<li><a href="${basePath}admin/message/smsList.xhtml?status=failure" class="blue" target="_blank"><b>失败短信</b></a></li>*#
+	</ul>
+	</form>
+	<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+			<thead><tr>
+				<th>场次</th>
+				<th style="width:100px;">订单号</th>
+				<th style="width:60px;">取票密码</th>
+				<th style="width:90px;">下单时间</th>
+				<th style="width:75px;">联系电话</th>
+				<th>用户</th>
+				<th style="width:230px;">场地</th>
+				<th>总价</th>
+				<th style="width:80px;">状态</th>
+				<th style="width:80px;">场馆确认</th>
+			</tr></thead>
+			<tbody id="tbody">
+				#foreach($order in $orderList)
+				#set($dmap=$VmUtils.readJsonToMap($order.description2))
+				#set($buytimes=$VmUtils.getJsonValueByKey($order.changehis, "buytimes"))
+				<tr class="grayBg h" id="row${order.id}">
+					<td>$order.ottid</td>
+					<td><a href="${basePath}admin/gewapay/orderDetail.xhtml?tradeNo=$order.tradeNo" target="_blank">$order.tradeNo</a></td>
+					<td>$!order.checkpass</td>
+					<td>$DateUtil.format(${order.addtime},'MM-dd HH:mm:ss')</td>
+					<td #if($VmUtils.isNotBlank($order.remark))title="$order.remark" style="color:red"#end onclick="showMobile($order.id,$order.mobile)"><span name="demobile" id="order$order.id" title="$VmUtils.getSmobile($order.mobile)">$VmUtils.getSmobile($order.mobile)</span></td>
+					<td><a href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$order.memberid" target="_blank">$order.membername</a></td>
+					<td>$!VmUtils.getJsonValueByKey($!order.description2, '详细')</td>
+					<td>#if($order.discount gt 0)<span style="color:red;font-weight: bold;" title="$order.disreason">${order.totalAmount}</span>#else${order.totalAmount}#end</td>
+					<td>$!{order.statusText}</td>
+					<td>
+						#if($order.status eq 'paid_success')
+							#if($order.assertConfirmed())
+							<span class="yellow">已确认</span>
+							#else
+							<input type="button" onclick="sportConfirm($order.id)" value="场馆确认"/>
+							#end
+						#else
+						--
+						#end
+						#if($resMap.get($order.id))
+						<input type="button" onclick="fixOrder($order.id)" value="重新确认"/>
+						#end
+					</td>
+				</tr>
+				#end
+			</tbody>
+	</table>
+</div>
+<script type="text/javascript">
+function setStatus(ottid, el){
+	el.style.backgroundColor = 'red';
+	var values = {"otiid":ottid,"status":el.value};
+	GewaraUtil.sendRequest('${basePath}admin/sport/open/setOTIStatus.xhtml', values, function(result){
+		if(result.success){
+			el.style.backgroundColor = '#fff';
+		}else alert(result.msg);
+	});
+}
+
+function setElecard(otiid, el){
+	el.setStyle("background","red");
+	var values = {"otiid":otiid,"elecard":el.value};
+	GewaraUtil.sendRequest('${basePath}admin/sport/open/setOtiElecard.xhtml', values, function(result){
+		if(result.success) el.setStyle("background","");
+		else alert(result.msg);
+	});
+}
+
+function fixOrder(orderid){
+	var values = {"orderid":orderid};
+	GewaraUtil.sendRequest('${basePath}admin/sport/open/fixOrder.xhtml', values, function(result){
+		if(result.success) refreshPage();
+		else alert(result.msg);
+	});
+}
+function queryOrder(field, value){
+	$(field).value=value;
+	$('form').submit();
+}
+function sportConfirm(orderid){
+	if(confirm('确实要确认吗')==false) return;
+	var url = "${basePath}admin/sport/open/sportConfirm.xhtml";
+	GewaraUtil.sendRequest(url, {"orderid":orderid},function(result){
+		if(result.success) refreshPage();
+		else alert(result.msg);
+	});
+}
+</script>
+</body>
+</html>

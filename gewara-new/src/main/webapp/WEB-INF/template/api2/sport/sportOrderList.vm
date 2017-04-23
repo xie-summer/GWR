@@ -1,0 +1,43 @@
+<data>
+	<orderList>
+		#foreach($order in $orderList)
+		#set($orderStatus=$orderStatusMap.get($order.id))
+		#set($descMap=$VmUtils.readJsonToMap($order.description2))
+		#set($address=$addressMap.get($order.sportid))
+		<order>
+			<orderId>$!order.id</orderId>
+			<tradeno>$order.tradeNo</tradeno>
+			<mobile>$order.mobile</mobile>
+			<unitprice>$order.unitprice</unitprice>
+			<quantity>$order.quantity</quantity>
+			<discount>$order.discount</discount>
+			#if($order.discount gt 0)
+			<disreason>$order.disreason</disreason>
+			#end
+			<amount>$order.due</amount>
+			<addtime>$DateUtil.format($order.createtime,'yyyy-MM-dd HH:mm:ss')</addtime>
+			<validtime>$DateUtil.format($order.validtime,'yyyy-MM-dd HH:mm:ss')</validtime>
+			<sportid>$!order.sportid</sportid>
+			<itemid>$!order.itemid</itemid>
+			<ottid>$!order.ottid</ottid>
+			<sportname><![CDATA[$!descMap.get('运动馆名')]]></sportname >
+			<itemname><![CDATA[$!descMap.get('运动项目')]]></itemname>
+			<playtime><![CDATA[$!descMap.get('时间')]]></playtime >
+			<field><![CDATA[$!descMap.get('详细')]]></field>
+			<status>$orderStatus</status>
+			<ukey>$!order.gainUkey()</ukey>
+			#if($order.allPaid)
+			<paidtime>$!DateUtil.format($order.paidtime,'yyyy-MM-dd HH:mm:ss')</paidtime>
+			<paidAmount>$order.alipaid</paidAmount>
+			<alipaid>$!order.alipaid</alipaid>
+			<gewapaid>$!order.gewapaid</gewapaid>
+			<payseqno>$!order.payseqno</payseqno>
+			#end
+			#if($order.status eq 'paid_return')
+			<refundtime>$!DateUtil.formatTimestamp($order.updatetime)</refundtime>
+			#end
+			<address>$!address</address>
+		</order>
+		#end
+	</orderList>
+</data>

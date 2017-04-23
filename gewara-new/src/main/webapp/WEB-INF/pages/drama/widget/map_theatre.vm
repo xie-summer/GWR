@@ -1,0 +1,141 @@
+<div class="mod_kong" style="margin-bottom:0;">
+#parse('include/constant/cityPoint.vm')
+#set($globalCurPoint=$globalCityPoint.get($cookieCitycode))
+	<div class="mod_hd" style="line-height:20px;">
+		<h2 class="left">地图</h2>
+		<input type="hidden" id="bpointx" value="#if(!$VmUtils.isNull($!sign))$!sign.bpointx#else$!pointList[1]#end"/>
+		<input type="hidden" id="bpointy" value="#if(!$VmUtils.isNull($!sign))$!sign.bpointy#else$!pointList[0]#end"/>
+		<span class="more" style="right:50px; top:0;">
+			<input type="text" id="addressname" class="text left"/>
+			<a class="left button whiteBt minBt ml5" onclick="query()" id="addressname"><span>查询</span></a>
+			<a class="left button redBt minBt ml5" onclick="savaMongoPoint();"><span>确认标注</span></a>
+		</span>
+		<a class="more closeTag" style="top:0;" onclick="gewa.util.container['theatreMap'].dispose('theatreMap')" href="javascript:void(0);">×关闭</a>
+	</div>
+	<div class="mod_bd">
+		<div class="mapDetails" id="mapDetails"></div>
+	</div>
+	<div id="theatres">
+		#foreach($theatre in $theatreListPoint)
+		<input type="hidden" alt="$!theatre.id" value="$!theatre.bpointy" lang="$!theatre.bpointx" title="$!theatre.name" name="$!{theatre.countyname}$!{theatre.address}" />
+		#end
+	</div>
+<script type="text/javascript">
+var maps = new Hash();
+Map = function(){
+	var map = new BMap.Map("mapDetails");
+	maps.set(1,map);
+	
+	map.centerAndZoom(new BMap.Point($globalCurPoint[1], $globalCurPoint[0]), 15);
+	#if($VmUtils.isNotBlank($!pointx) && $VmUtils.isNotBlank($!pointy))
+		var myIcon = new BMap.Icon("${picPath}css/gym/marker_green_sprite.png",new BMap.Size(25,39));
+		var mypoint = new BMap.Point($!pointx,$!pointy);
+		var marker = new BMap.Marker(mypoint,{icon:myIcon});
+		marker.setTitle('我的位置');
+		marker.enableDragging(true); //设置标注可拖拽
+		marker.addEventListener('dragend', function(e){
+			$("bpointx").value=e.point.lng;
+			$("bpointy").value=e.point.lat;  
+		}) 
+		map.addOverlay(marker);
+		map.centerAndZoom(mypoint, 15);
+	#end
+	map.enableScrollWheelZoom();	// 启用滚轮放大缩小
+	var myGeo = new BMap.Geocoder();
+	var address=$("addressname").value;
+	var local = new BMap.LocalSearch(map, {
+	  	renderOptions:{map: map}
+	});
+	local.search(address);
+	map.addEventListener("click", function(e){
+		$("bpointx").value=e.point.lng;
+		$("bpointy").value=e.point.lat;
+		//清除地图上的覆盖物
+		map.clearOverlays();
+		//添加一个标点
+		var myIcon = new BMap.Icon("${picPath}css/gym/marker_green_sprite.png",new BMap.Size(25,39));
+		var marker=new BMap.Marker(e.point,{icon:myIcon});
+		marker.setTitle('我的标注')
+		marker.enableDragging(true); //设置标注可拖拽
+		marker.addEventListener('dragend', function(e){
+			$("bpointx").value=e.point.lng;
+			$("bpointy").value=e.point.lat;  
+		}) 
+		map.addOverlay(marker);
+	});
+}
+
+//自动生成
+// 创建地理编码服务实例  
+var myGeo = new BMap.Geocoder();
+query = function(){		
+	var map=maps.get(1);
+	map.clearOverlays();
+	var address=$("addressname").value;
+	var local = new BMap.LocalSearch(map, {
+	  	renderOptions:{map: map}
+	});
+	local.search(address);
+}
+
+//创建坐标
+createMarker = function(map, theatreid, bpointx, bpointy, name, html){
+	var point=new BMap.Point(bpointx, bpointy);
+	var marker=new BMap.Marker(point);
+	marker.setTitle(name);
+	map.addOverlay(marker);
+	var opts = {
+	  		width : 200     // 信息窗口宽度
+		}
+	var infoWindow = new BMap.InfoWindow(html,opts);
+	marker.addEventListener("click",function(){
+		marker.openInfoWindow(infoWindow);
+	});
+}
+
+signMap = function(){
+	var map = new BMap.Map("mapDetails");
+	maps.set(1,map);
+	#if($VmUtils.isBlank($!pointx) ||$VmUtils.isBlank($!pointy))
+	map.centerAndZoom(new BMap.Point($globalCurPoint[1], $globalCurPoint[0]), 15);
+	#else
+		var myIcon = new BMap.Icon("${picPath}css/gym/marker_green_sprite.png",new BMap.Size(25,39));
+		var marker = new BMap.Marker(new BMap.Point($!pointy,$!pointx),{icon:myIcon});
+		marker.setTitle('我的位置');
+		map.addOverlay(marker);
+		map.centerAndZoom(new BMap.Point($!pointy,$!pointx), 14);
+	#end
+	map.enableScrollWheelZoom();	//启用滚轮放大缩小，默认禁用。
+	$('theatres').getElements('input').each(function(item){
+		var html = "<b><span style='color: red;font-size: 15px;'><a target='_blank' href='${basePath}theatre/"+item.alt+"'>"+item.title+"</a></span></b><br/>"+item.name+"<br/>";
+		createMarker(map, item.alt, item.value, item.lang, item.title, html);
+	}); 
+}
+
+validate = function(){
+	if($('bpointx').value=="" || $('bpointy').value==""){
+		gewaUtil.alert("请在地图上标注");
+		return false;
+	}
+	return true;
+}
+
+savaMongoPoint = function (){
+	if(validate()){
+		gewa.util.mask({'title':"正在保存数据..."});
+		var values = "";
+		values={'bpointx':$('bpointx').value,'bpointy':$('bpointy').value};
+		var url = "${basePath}ajax/common/setMemberPoint.xhtml";
+		GewaraUtil.sendRequest(url, values , function(result){
+			if(result.success){
+				gewa.util.container['theatreMap'].dispose('theatreMap');
+				refreshPage();
+			}else{
+				alert(result.msg);
+				gewa.util.clearMask();
+			}
+		});
+	}
+}
+</script>
+</div>

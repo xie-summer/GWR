@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>建设银行对账数据</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<link rel="stylesheet" type="text/css" media="all" href="/component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#fff;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		td, th{
+			text-align: center;
+			height: 23px;
+		}
+	</style>
+</head>
+<body>
+<div style="width:850px;margin:2px;background:#FFF;text-align: center;">
+<div class="bd ml20" style="text-align:left;">
+	<form name="openForm" id="openForm" action="${basePath}admin/balance/ccbpos/settleOrderList.xhtml" method="get">
+		<div class="clear">
+			订单号：<input type="text" name="tradeno" value="$!params.tradeno" />&nbsp;&nbsp;
+			卡号：<input type="text" name="cardpan" value="$!params.cardpan" />&nbsp;&nbsp;
+			开始日期：<input type="text"  readonly="readonly" name="startdate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" value="$!params.startdate"/>&nbsp;&nbsp;
+			结束日期：<input type="text"  readonly="readonly" name="enddate" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" value="$!params.enddate"/>&nbsp;&nbsp;
+			状态：<input type="radio" name="settle" value="N" #if($VmUtils.eq($params.settle,'N'))checked#end/>未结账
+				<input type="radio" name="settle" value="Y" #if($VmUtils.eq($params.settle,'Y'))checked#end/>已结账
+				<input type="radio" name="settle" value="N_P" #if($VmUtils.eq($params.settle,'N_P'))checked#end/>价格异常
+			<input type="submit" class="cbt1"  value="查询" />
+		</div>
+	</form>
+</div>
+#set($keyList=["序号", "卡号","结算日期", "授权号", "交易金额", "格瓦拉订单号", "格瓦拉日期","网络付款", "流水号", "结账状态"])
+<table cellpadding="0" cellspacing="0" width="800" border="1" style="border-collapse: collapse">
+	<tr>
+		#foreach($key in $keyList)
+		<th>$key</th>
+		#end
+	</tr>
+	#set($sumamount=0)#set($sumalipaid=0)
+	#foreach($cps in $orderList)
+	#set($sumamount=$sumamount + $cps.amount)
+	#if($cps.alipaid)
+		#set($sumalipaid=$sumalipaid + $cps.alipaid)
+	#end
+	<tr>
+		<td>$foreach.count</td>
+		<td>$!cps.cardpan</td>
+		<td #if($cps.neDate)style="color: red"#end>$!DateUtil.formatDate($cps.settledate)</td>
+		<td>$!cps.preno</td>
+		<td>$!cps.amount</td>
+		<td><a href="${basePath}admin/gewapay/orderDetail.xhtml?tradeNo=$!cps.tradeNo" target="_blank">$!cps.tradeno</a></td>
+		<td #if($cps.neDate)style="color: red"#end>$!DateUtil.formatDate($cps.paiddate)</td>
+		<td>$!cps.alipaid</td>
+		<td>$!cps.payseqno</td>
+		<td>$!{cps.settle}[$cps.settleText]</td>
+	</tr>
+	#end
+	<tr>
+		<tr>
+			<td>合计</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+			<td><b>$sumamount</b></td>
+			<td>&nbsp;</td>
+			<td><b>$sumalipaid</b></td>
+			<td>&nbsp;</td>
+		</tr>
+	</tr>
+</table>
+<div id='page'>#parse('include/pageUtil.vm')</div>
+</div>
+<script type="text/javascript">
+	$$("tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+</script>
+</body>
+</html>

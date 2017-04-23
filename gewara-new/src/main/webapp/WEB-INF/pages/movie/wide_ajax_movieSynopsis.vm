@@ -1,0 +1,45 @@
+<div class="mod_tabs mod_tabs_movie">
+	<div class="mod_hd">
+		<ul class="nav_tabs">
+			<li><a href="${basePath}movie/$!movie.id?movieMpiList=true">排片购票</a></li>
+			<li class="select"><a href="javascript:void(0)" onclick="loadUiLeft('movie/movieInfoDetail.xhtml',{'mid':'$movie.id'})">剧情介绍</a></li>
+			<li><a href="javascript:void(0)" onclick="loadUiLeft('movie/movieWala.xhtml',{'mid':'$movie.id'})">哇啦<em>#if($commentCount gt 0)($!{commentCount})#end</em></a></li>
+			<li><a href="javascript:void(0)" onclick="loadUiLeft('movie/ajax/movieDiaryList.xhtml',{'mid':'$movie.id'})">影评<em>#if($diaryCount gt 0)($!{diaryCount})#end</em></a></li>
+			<li><a href="javascript:void(0)" onclick="loadUiLeft('movie/movieNewsList.xhtml',{'mid':'$movie.id'})" >资讯<em>#if($newsCount gt 0)($!{newsCount})#end</em></a></li>
+		</ul>
+	</div>
+	<div class="mod_bd clear">
+	</div>
+</div>
+<div class="synopsis">
+		<p>
+			$!movie.content
+		</p>
+</div>
+#if($pictureCount gt 0)
+<div class="mod_kong mt30 synPic">
+	<div class="mod_hd">
+		<h2>剧照</h2><span>($!pictureCount)</span>
+	</div>
+	<div class="mod_bd" id="pictureDetail">
+	</div>
+</div>
+#end
+<script type="text/javascript">
+	window.addEvent('domready', function(){
+		moviePictureDetail('apic');
+		moviePictureDetail('mpic');
+	})
+	function moviePictureDetail(el){
+		var url="${basePath}movie/ajax/moviePictureList.xhtml";
+		
+		if(el == 'apic'){
+			var values={'relatedid':'$movie.id','type':el};
+			gewaUtil.loadData('pictureDetail', url, values, function(result){});
+		}
+		if(el == 'mpic' && $('memberPictureDetail')){
+			var values={'relatedid':'$movie.id','type':el};
+			gewaUtil.loadData('memberPictureDetail', url, values, function(result){});
+		}
+	}
+</script>

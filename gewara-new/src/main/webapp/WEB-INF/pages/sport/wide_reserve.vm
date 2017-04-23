@@ -1,0 +1,98 @@
+#set($sportDataMap = $!VmUtils.readJsonToMap($sport2Item.description))
+#if($VmUtils.gt($VmUtils.size($sportDataMap), 0) || !$VmUtils.isBlank($sport2Item.sporttype))
+<div class="detail_introBg">
+	#if(!$VmUtils.isBlank($sport2Item.sporttype))
+	<span>地理位置：#if($VmUtils.eq($sport2Item.sporttype, 'indoor'))室内#elseif($VmUtils.eq($sport2Item.sporttype, 'outdoor'))室外#else室内和室外#end</span>
+	#end
+	#foreach($dataKey in $sportDataMap.keySet())
+	<span>$!dataKey：$!VmUtils.escabbr($!sportDataMap.get($dataKey),10)</span>
+	#end
+</div>
+#end
+#if(!$VmUtils.isEmptyList($ottList))
+<div lang="chooseOpi_head" class="chooseOpi_head">
+	<span class="opitime">预订日期</span>
+	<span class="opiPrice">价格(元)</span>
+	<span class="opiInfo">支持</span>
+	<span class="opiurl">操作</span>
+</div>
+<div class="chooseOpi_body" id="wrapper">
+	<ul class="clear" style="height:auto" id="wrapped">
+		#foreach($ott in $ottList)
+		#set($priceMap=$ottPriceMap.get($ott.id))
+		<li lang="$ott.openType">
+			<span class="opitime">
+				<b>$!DateUtil.format($ott.playdate, 'MM-dd')&nbsp;$!DateUtil.getCnWeek($ott.playdate)</b>
+			</span>
+			<span class="opiPrice">
+				#if($priceMap.get('norpricemin') && $priceMap.get('norpricemax'))
+				<em>(
+					#if($VmUtils.eq($priceMap.get('norpricemin'), $priceMap.get('norpricemax')))
+						$!priceMap.get('norpricemin')
+					#else
+						$!priceMap.get('norpricemin')-$priceMap.get('norpricemax')
+					#end
+				)</em>
+				#end
+				#if($ott.isBooking())
+				<b>
+					#if($VmUtils.eq($priceMap.get('pricemin'), $priceMap.get('pricemax')))
+						$!priceMap.get('pricemin')
+					#else
+						$!priceMap.get('pricemin')-$priceMap.get('pricemax')
+					#end
+				</b>
+				#end
+			</span>
+			<span class="opiInfo">
+				#if($ott.isOpenPointPay())<em title="支持积分抵值" class="j">积</em>#end
+				#if($ott.isOpenCardPay())<em title="支持票券抵值" class="q">券</em>#end
+				#if($ott.isDisCountPay())<em data-type="$!ott.id" class="y">惠</em>#end
+			</span>
+			<span class="opiurl">
+				#if($ott.isBooking() && $sport.isEnableBook())
+				<a target="_blank" class="button bigBt redBt " href="${basePath}sport/order/step1.xhtml?ottid=$ott.id#if($spkey)&spkey=$!spkey#end"><span><em>立即预订</em></span></a>
+				#else
+				<em class="c999">暂不支持预订</em>
+				#end
+			</span>
+		</li>
+		#end
+	</ul>
+</div>
+<script>
+var cacheList = new Hash();
+window.addEvent('domready',function(){
+	#if($ottList.size() gt 5)
+	new ScrollerBar('wrapper',{wrapped:'wrapped',step:60});
+	#else
+	$('wrapper').setStyles({'padding-right':0,'height':'auto'});
+	#end
+	viewList = {};
+	$$('.opiInfo em').each(function(item,index){
+		if(item.hasClass('y')){
+			viewList[index] = item.amTips({content:function(){return $('htmlcontent')},ispointer:false,position:'bottom',showDelay:200,center:false,mouseBandCallback:function(){
+				var url = "${basePath}sport/ajax/getSpdiscountList.xhtml";
+				var _this = arguments[0];
+				if(this.retrieve('key') == null){
+					if(this.get('data-type')){
+						GewaraUtil.sendRequest(url, {'ottid':this.get('data-type')}, function(result){
+							if(result.success){
+								var div = new Element('div',{'id':'htmlcontent','html':result.retval,'class':'none'}).inject(document.body);
+								_this._this.options.content = function(){
+									return div;
+								};
+								viewList[index].amTipsShow(true);
+								this.store('key',div);
+							}
+						}.bind(this),'key');
+					}
+				}else viewList[index].amTipsShow();
+			}.bind(item)});
+		}else{
+			new amTips(item,{position:'bottom',center:false});
+		}
+	})
+});
+</script>
+#end

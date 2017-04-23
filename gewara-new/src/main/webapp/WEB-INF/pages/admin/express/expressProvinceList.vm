@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>配送方式列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="margin:auto">
+<div style="padding:1px;">
+	<span>配送区域</span>&gt;&gt;
+	<span style="float:right;"><a href="${basePath}admin/express/getExpressProvince.xhtml?expressid=$!params.expressid" >新增配送区域</a></span>
+</div>
+<table class="table clear">
+	<thead>
+	<tr>
+		<th>编号</th>
+		<th>配送区域名称</th>
+		<th>所辖区域</th>
+		<th>寄件费用</th>
+		<th>免费额度</th>
+		<th>添加时间</th>
+		<th>修改时间</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="cinemaTable">
+	#foreach($expressProvince in $expressProvinceList)
+	<tr>
+		<td>$!{expressProvince.id}</td>
+		<td>$!{expressProvince.name}</td>
+		<td>$!{expressProvince.provincename}</td>
+		<td>$!expressProvince.expressfee</td>
+		<td>$!expressProvince.freelimit</td>
+		<td>$!DateUtil.formatTimestamp(${expressProvince.addtime})</td>
+		<td>$!DateUtil.formatTimestamp(${expressProvince.updatetime})</td>
+		<td>
+			<a href="${basePath}admin/express/getExpressProvince.xhtml?id=$!expressProvince.id">编辑</a>
+			<a href="javascript:void(0)" onclick="delExpressProvince('$!expressProvince.id',this)" >删除</a>
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<script type="text/javascript">
+	function delExpressProvince(id, el){
+		if(!window.confirm('确定要删除该配送区域？'))return;
+		var url = "${basePath}admin/express/delExpressProvince.xhtml";
+		var values = {"id": id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("删除成功！");
+				$(el).getParent('tr').dispose();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

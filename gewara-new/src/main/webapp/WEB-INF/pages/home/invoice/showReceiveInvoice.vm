@@ -1,0 +1,80 @@
+<div class="mt10">
+	<span  class="ml20 list_mh">申请金额：<span class="fc_b bold" id="showAmount" name="showAmount">0</span>&nbsp;元</span>
+	<span class="ml20 list_mh">已开金额：$openAmount &nbsp;元</span>
+	<span class="ml20 list_mh">可开金额：$applyAmount &nbsp;元</span>
+</div>
+<div class="mt10" style="height:300px;overflow-y:auto;">
+<table cellpadding="0" cellspacing="0" class="table">
+	<thead>
+		<tr>
+			<th width="20%">订单号</th>
+			<th width="20%">购买日期</th>
+			<th width="30%">物品名称</th>
+			<th>抵扣价格</th>
+			<th>总价</th>
+			<th>申请状态</th>
+			<th width="5%">选择</th>
+		</tr>
+	</thead>
+	#foreach($order in $orderList)
+	#set($applied=$appliedList.contains($order.tradeNo))
+	#if(!$applied)
+	#if(!$VmUtils.eq($!order.getDue(),'0'))
+	#set($descMap=$VmUtils.readJsonToMap($order.description2))
+	#set($due=$order.due)
+	#if($order.paymethod eq 'gewaPay')#set($due=${order.gewapaid}-${order.wabi})#end
+	#if($due gt 0)
+	<tbody>
+		<tr>
+			<td><a href="${basePath}gewapay/showOrder.xhtml?orderId=$order.id" target="_blank">$!order.tradeNo</a></td>
+			<td>&nbsp;$DateUtil.format($order.paidtime, 'yyyy-MM-dd HH:mm')</td>
+			<td>&nbsp;#if($descMap.get('影片'))《$descMap.get('影片')》#else $order.ordertitle #end</td>
+			<td>&nbsp;<span class="fc_b">$!order.discount</span>&nbsp;元</td>
+			<td>&nbsp;<span class="fc_b">$!due</span>&nbsp;元</td>
+			<td>&nbsp;可申请&nbsp;</td>
+			<td>&nbsp;#if(!$opened && !$apply)<input type="checkbox" name="chkorders" id="$!{order.tradeNo}" lang="$!extraMap.get($order.id).pretype" value="$!{order.due}" onclick="addTotal(this, $!order.tradeNo);"/>#end</td>
+		</tr>
+	</tbody>
+	#end
+	#end
+	#end
+	#end
+	
+	#foreach($charge in $chargeList)
+	<tbody>
+		<tr>
+			<td>$!charge.tradeNo</td>
+			<td>&nbsp;$DateUtil.format($charge.addtime, 'yyyy-MM-dd HH:mm')</td>
+			<td>&nbsp;瓦币</td>
+			<td>&nbsp;<span class="fc_b">0</span>&nbsp;元</td>
+			<td>&nbsp;<span class="fc_b">$!charge.totalfee</span>&nbsp;元</td>
+			<td>&nbsp;可申请&nbsp;</td>
+			<td>&nbsp;<input type="checkbox" name="chkorders" id="$!{charge.tradeNo}" value="$!{charge.totalfee}" 
+			onclick="addTotal(this,$!charge.tradeNo);"/></td>
+		</tr>
+	</tbody>
+	#end
+	
+</table>
+</div>
+<div class="mt10">
+	<table>
+		<tr>
+		<td colspan="7">
+			<input id="amount" type="hidden" class="text" name="amount" value="0"/>
+			<span class="gray ml20">说明：目前只提供180天内的订单发票，若超出日期请联系客服开据：4000-406-506</span>
+		</td>
+	</tr>
+	</table>
+</div>
+<script type="text/javascript">
+	checkAccout = function(){
+		if($('amount').value<100){
+			gewaUtil.alert('申请金额不能小于100元！若申请的发票金额低于100元，可以直接联系在线客服。');
+			$('account').value='';
+			return false;
+		}
+		$('account').value=$('amount').value;
+		return true;
+	}
+</script>

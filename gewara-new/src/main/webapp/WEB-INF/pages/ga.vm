@@ -1,0 +1,250 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>建设银行信用卡支付首页 - 格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_movie,new_play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${basePath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${basePath}scripts/gewara.js?n=gewara-util,scrollerbar&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		html{background:#fff;}
+		.cYellow{color:#e66218;}
+		.pay_header{height:80px; position:relative;}
+		.pay_header h1.logo{display:block; float:left; width:230px; height:60px; margin:10px 0; text-indent:-9999px; overflow:hidden; background:url(${staticPath}css/home/pay_logo.jpg) 0 0 no-repeat;}
+		.pay_header .userTag{position:absolute; right:0; top:10px;}
+		.pay_box{border:2px solid #f89470; -moz-border-radius:3px;	-webkit-border-radius:3px; border-radius:3px;}
+		.pay_orderInfo{font-size:14px; background:#fdfaf5; height:40px; line-height:40px;} 
+		.pay_orderInfo ul{width:900px; margin:0 auto;}
+		.pay_orderInfo ul li{color:#676664; width:300px; float:left;}
+		.pay_orderInfo ul li b{color:#141213;}
+		.pay_orderInfo ul li em{font-size:16px; font-weight:bold;}
+		
+		.pay_content{padding:15px;}
+		.pay_tips{border:1px solid #C6D3F2; background:#F0F4FA; padding:8px 10px; width:570px;}
+		.pay_table th,.pay_table td{padding:10px 0;}
+		.pay_table th{font-size:14px; text-align:right; font-weight:normal;}
+		.payway label.icon_jsyh{background-position:0px -40px; margin:0;}
+		.pay_table em{color:#ccc; font-family:"微软雅黑","黑体",Arial; font-size:14px;}
+	</style>
+</head>
+<body>
+<div class="ui_layout">
+	<div class="pay_header">
+		<h1 class="logo">格瓦拉收银台</h1>
+		<span class="userTag"><b>$!member.nickname</b>你好，欢迎来到格瓦拉生活网！</span>
+	</div>
+	<div class="pay_box pay_orderInfo clear">
+		<ul>
+			<li><b>订单编号：</b>$!{order.tradeNo}</li>
+			<li><b>收款方：</b>格瓦拉生活网</li>
+			<li><b>订单金额：</b><em class="cYellow">$!{order.due}</em>元</li>
+		</ul>
+	</div>
+	<div class="pay_box pay_content mt20 clear" id="payForm">
+		<input type="hidden" name="captchaId"  id="dialogCaptcha"/>
+		<table cellpadding="0" class="pay_table" cellspacing="0" border="0" width="100%">
+			<tr>
+				<th>付款方式：</th>
+				<td colspan="2">
+					<input type="hidden" name="orderId" value="$!order.id" />
+					<div class="payway"><label class="icon_jsyh"></label></div>
+				</td>
+			</tr>
+			<tr>
+				<th>&nbsp;</th>
+				<td colspan="2">
+					<div class="pay_tips">您正在使用格瓦拉信用卡支付服务，为了保障您的资金安全，请输入一下带“<span class="red ffst">*</span>”的信息，我们将与银行核对</div>
+				</td>
+			</tr>
+			<tr>
+				<th><span class="red ffst mr5">*</span>信用卡卡号：</th>
+				<td>
+					#if($ccbCardno)$ccbCardno#else<input class="text" style="width:200px;" id="creditCard" name="creditCard" type="text" mustTxt="请信用卡卡号！" maxlength="16"/>#end
+				</td>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<th><span class="red ffst mr5">*</span>请输入卡有效期：</th>
+				<td>
+					<select id="expire_month" name="expire_month">
+#set($monthList=["01","02","03","04","05","06","07","08","09","10","11","12"])
+#set($yearList=["11","12","13","14","15","16","17","18","19","20","21","22"])
+<option value="">月份</option>
+#foreach($month in $monthList)
+<option value="$month">$month</option>
+#end
+					</select>/
+					<select id="expire_year" name="expire_year">
+<option value="">年份</option>
+#foreach($year in $yearList)
+<option value="$year">$year</option>
+#end
+					</select>
+				</td>
+				<td><em>&nbsp;</em></td>
+			</tr>
+			<tr>
+				<th><span class="red ffst mr5">*</span>请输入CVV2码：</th>
+				<td>
+					<input class="text" style="width:100px;" id="cvv2" name="cvv2" mustTxt="请输入CVV2码！" type="text" maxlength="3"/>
+				</td>
+				<td><em>请输入信用卡背面的CVV2码</em></td>
+			</tr>
+			<tr>
+				<th valign="top"><span class="red ffst mr5">*</span>银行存留手机：</th>
+				<td colspan="2">
+					<input class="text" style="width:100px;" id="mobile" name="mobile" mustTxt="请输入正确的手机号码！" type="text"/>
+					<label class="button whiteBt minBt"><input type="button" value="发送动态码" id="botton_count_on" onclick="resend();"/></label>
+					<p id="showCaptcha" class="mt5" style="display:none;">
+<input class="text" style="width:100px;" id="dialogCaptchaInput" name="captcha" type="text"/>
+<img width="80" height="30" title="看不清楚，请点击换一张图片" onclick="GewaraUtil.refreshCaptcha('dialogCaptcha')" 
+	src="${staticPath}css/images/blank.gif" style="cursor: pointer;" class="ml10 mt5" id="dialogCaptchaImg" />
+					</p>
+				</td>
+			</tr>
+			<tr>
+				<th><span class="red ffst mr5">*</span>手机验证码：</th>
+				<td>
+					<input class="text" style="width:100px;" id="checkpass" name="checkpass" mustTxt="请输入手机验证码！" type="text"/>
+				</td>
+				<td></td>
+			</tr>
+			<tr>
+				<th>&nbsp;</th>
+				<td>
+					<input type="checkbox" id="isConfirm" /> 同意 (重要提示：请仔细阅读快捷支付服务协议，同意并勾选后付款)<a href="javascript:showTreaty();" class="blue">《格瓦拉快捷支付服务协议》</a>
+					<div style="width:590px;height:200px;overflow:hidden;position: relative;border:1px solid #ddd;margin-top:10px;display:none;" id="wrapper">
+						<div style="overflow:hidden;padding:5px 14px 5px 5px;" id="wrapped">
+							格瓦拉快捷支付服务协议（以下简称“本协议”）是格瓦拉生活网（以下简称“格瓦拉”）<br/>
+							与格瓦拉用户(以下简称“用户”或“您”)就信用卡快捷支付服务（以下简称“本服务”）的使用等相关事项所订立的有效合约。用户通过网络页面点击确认或以其他方式选择接受本协议，即表示用户与格瓦拉已达成协议并同意接受本协议的全部约定内容。<br/><br/> 
+							在接受本协议之前，请您仔细阅读本协议的全部内容（特别是以粗体下划线标注的内容）。如果您不同意本协议的任意内容，或者无法准确理解格瓦拉对条款的解释，请不要进行后续操作。 <br/><br/>
+							您应确保您在使用本服务时的信用卡为您本人的银行卡，确保您使用信用卡的行为合法、有效，未侵犯任何第三方合法权益；否则因此造成格瓦拉、持卡人损失的，您应负责赔偿并承担全部法律责任，包括但不限于冻结您的格瓦拉账户及资金、从您的格瓦拉账户扣除相应的款项等。<br/><br/>
+							您应妥善保管信用卡、卡号、密码以及格瓦拉账号、密码等与信用卡或与格瓦拉账户有关的一切信息。如您遗失信用卡、泄格瓦拉账户密码或相关信息的，您应及时通知发卡行及/或格瓦拉，以减少可能发生的损失。因泄露密码、数字证书、丢失信用卡或支付盾等所致损失需由您自行承担。<br/><br/>
+							您不应将本服务用于任何非法的或违反本协议的目的。<br/><br/>
+							您如使用本服务进行支付的，应当在认真填写信用卡卡号、（身份证号码）、入卡有效期、CVV2码、银行留存手机号码等相关信息后跳转至支付页面进行支付。您认可和同意：输入密码即视为您确认交易和交易金额并已不可撤销地向格瓦拉发出指令，
+							格瓦拉有权根据用户的该指令委托银行或第三方从用户信用卡中划扣资金至格瓦拉银行账户。<br/><br/>
+							届时您不应以未在交易单据中签名、签名不符、非本人意愿交易等原因要求格瓦拉退款或承担其他责任。<br/><br/> 
+							您在对使用本服务过程中发出指令的真实性及有效性承担全部责任；您承诺，格瓦拉依照您的指令进行操作的一切风险由您承担。<br/><br/>
+							您认可格瓦拉账户的使用记录数据、交易金额数据等均以格瓦拉系统平台记录的数据为准。<br/><br/>
+							同时您授权格瓦拉有权留存您在格瓦拉官网上填写的相应信息，以供后续向您持续性地提供相应服务（包括但不限于将本信息用于向您推广、提供其他更加优质的产品或服务）。<br/><br/> 
+							您同意并授权格瓦拉依据其自身判断对涉嫌欺诈或被他人控制并用于欺诈目的的格瓦拉账户采取相应的措施，上述措施包括但不限于冻结账户及资金、处置涉嫌欺诈的资金。<br/><br/>
+							出现下列情况之一的，格瓦拉有权立即终止您使用格瓦拉相关服务而无需承担任何责任：（1）违反本协议的约定；（2）违反格瓦拉/或其他关联公司网站的条款、协议、规则、通告等相关规定，而被上述任一网站终止提供服务的；（3）格瓦拉认为向您提供本服务存在风险的（4）您的信用卡有效期届满。<br/><br/> 
+							在不违反本协议约定的前提下，您可以就使用本服务时因不能归责于您的原因造成的信用卡内资金损失申请格瓦拉的补偿。您同意，您能否得到补偿及具体金额取决于格瓦拉自身独立的判断。您同意并认可格瓦拉最终的补偿行为并不代表前述资金损失应归责于格瓦拉，亦不代表格瓦拉须为此承担其他任何责任。您同意，格瓦拉在向您支付补偿的同时，即刻取得您可能或确实存在的就前述资金损失而产生的对第三方的所有债权及其他权利，包括但不限于就上述债权向第三方追偿的权利，且您不再就上述已经让渡给格瓦拉的债权向该第三方主张任何权利，亦不再就资金损失向格瓦拉主张任何权利。此外，在接受补偿的同时或之后，您从其它渠道挽回了前述资金损失的，或有新证据证明您涉嫌欺诈的，或者发生您应当自行承担责任的其他情形，您应在第一时间返还格瓦拉向您支付的补偿款项，否则格瓦拉有权采取包括但不限于从您格瓦拉账户划扣等方式向您进行追偿。<br/><br/>
+							您同意，本协议适用中华人民共和国大陆地区法律。因格瓦拉与您就本协议的签订、履行或解释发生争议，双方应努力友好协商解决。如协商不成，格瓦拉和用户同意由格瓦拉住所地法院管辖审理双方的纠纷或争议。<br/><br/>
+							本协议内容包括协议正文及所有格瓦拉已经发布的或将来可能发布的格瓦拉服务的使用规则。所有规则为本协议不可分割的一部分，与协议正文具有相同法律效力。若您在本协议内容发生修订后，继续使用本服务的，则视为您同意最新修订的协议内容；否则您须立即停止使用本服务。<br/><br/> 
+							本协议未尽事宜，您需遵守格瓦拉网站上公布的《格瓦拉服务协议》及相关规则。
+						</div>
+					</div>
+				</td>
+				<td></td>
+			</tr>
+			<tr>
+				<th>&nbsp;</th>
+				<td><a class="button bigBt redBt" onclick="saveFastPay(this);"><span>提&nbsp;&nbsp;交</span></a></td>
+				<td></td>
+			</tr>
+		</table>
+	</div>
+</div>
+<script type="text/javascript">
+function saveFastPay(el){
+	if(!GewaraUtil.baseValidForm('payForm')) return;
+	if(!$('isConfirm').checked){
+		$('isConfirm').focus();
+		$('isConfirm').getParent().toggleClass('yellow');
+		return false;
+	}
+	var url = 'https://www.gewara.com/gewapay/saveFastPay.xhtml';
+	var values = GewaraUtil.getValues('payForm');
+	GewaraUtil.mask(el);
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			document.location.href="${absPath}/gewapay/orderResult.xhtml?orderId=" + result.retval;
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+
+function showTreaty(){
+	$('wrapper').show();
+	new ScrollerBar('wrapper',{wrapped:'wrapped'});
+}
+</script>
+<script type="text/javascript">
+var second = 60, isPhnoeCode = false;
+GetRTime = function (){  
+	if(second>=0){
+		var txt = '';
+		if($('botton_count_on')){
+			if(second == 0){
+				txt = '重新获取动态码';
+				$('botton_count_on').removeClass('DTPTUn');
+			}else{
+				txt = second + '秒后重新获取';
+				$('botton_count_on').addClass('DTPTUn');
+			}
+			$('botton_count_on').value = txt;
+		}
+		second = second-1;
+		setTimeout("GetRTime()",1000);
+	}else {  
+		if($('botton_count_on')){
+			$("botton_count_on").set("disabled", false); 
+			$("botton_count_on").setStyle("cursor","pointer"); 
+		}
+	}  
+} 
+resend = function(){
+	if($('mobile').value == '' || $('mobile').value.length != 11){
+		GewaraUtil.showValidateErr('mobile',($('mobile').value == '')?'请输入手机号码！':'请输入正确的手机号码！');
+		return false;
+	}
+	if(isPhnoeCode && $('showCaptcha').getStyle('display') == 'none'){
+		GewaraUtil.refreshCaptcha('dialogCaptcha');
+		$('showCaptcha').show();
+		return false;
+	}
+	if(isPhnoeCode && $('dialogCaptchaInput').value == ''){
+		GewaraUtil.showValidateErr('dialogCaptchaInput','请输入验证码！');
+		return false;
+	}
+	#if(!$ccbCardno)
+		if($('creditCard').value == '' || $('creditCard').value.length != 16){
+			GewaraUtil.showValidateErr('creditCard',($('creditCard').value == '')?'请输入信用卡卡号！':'请输入正确的信用卡卡号！');
+			return false;
+		}
+	#end
+	if($('cvv2').value == '' || $('cvv2').value.length != 3){
+		GewaraUtil.showValidateErr('cvv2',($('cvv2').value == '')?'请输入CVV2！':'请输入正确的CVV2！');
+		return false;
+	}
+	gewa.util.mask({'element': "botton_count_on",'title':'正在提交，请稍等...'});
+	var values = {"mobile":$('mobile').value,'captchaId':$('dialogCaptcha').value,'captcha':$('dialogCaptchaInput').value};
+	GewaraUtil.sendRequest('${basePath}ajax/mobile/ccbcode.xhtml', values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			retime();
+			GewaraUtil.refreshCaptcha('dialogCaptcha');
+			$('showCaptcha').hide();
+		}else{
+			if(result.refreshCaptcha){
+				$('showCaptcha').show();
+				GewaraUtil.refreshCaptcha('dialogCaptcha');
+				isPhnoeCode = true;
+			}
+			if(result.msg)GewaraUtil.showValidateErr('dialogCaptchaInput',result.msg);
+		}
+	}, 'get');
+}
+retime = function(){
+	$("botton_count_on").set("disabled", true);
+	$("botton_count_on").setStyle("cursor","text"); 
+	second = 60;
+	GetRTime();
+}
+</script>
+</body>
+</html>

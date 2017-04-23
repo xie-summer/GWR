@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>微信运营后台</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/layout.css"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/bms.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		.yellow{
+			color: #CC3300;
+		}
+		label{
+			width: 40px;
+		}
+		#machineDetail ul{width:600px;}
+		#machineDetail ul li{float:left; width:300px;}
+		.bigWhiteBt {background-position: 0 -696px;}
+	</style>
+</head>
+<body class="ui_orange">
+<div class="maintop">当前位置：微信运营后台  |  当前数据时间： $!DateUtil.curTimeStr |  <a href="javascript:getWala('','new')">添加哇啦</a></div>
+<div class="main">
+    <div class="info" id="info">
+      <table class="tablist mt10 " id="myTable" width="100%">
+      	<thead>
+      		<tr class="trbg">
+				<th style="width: 70px;">编号</th>
+				<th>类型</th>
+				<th>缩略图</th>
+				<th>标题</th>
+				<th>创建时间</th>
+				<th>操作</th>
+			</tr>
+      	</thead>
+      	<tbody>
+      	#set($walaMap={'noLimit':'哇啦无下限', 'everyDay':'观影指南'})
+      		#foreach($wala in $walaList)
+      		<tr>
+      	   		<td style="padding: 4px">$foreach.count</td>
+      	   		
+      	   		<td>$!walaMap.get($!wala.walaType)</td>
+      	   		<td>
+      	   			<a href="${staticPath}$!wala.picUrl" target="_bank"><img src="${staticPath}$!wala.picUrl" alt="" width="160" height="100"/></a>
+      	   		</td>
+      	   		<td>$!wala.title</td>
+      	   		<td>$!wala.addTime</td>
+      	   		<td><a href="javascript:getWala('$wala.id', 'detail')">详情</a>
+					<a href="javascript:getWala('$wala.id', 'modify')">修改</a>
+					<a href="javascript:delWala('$wala.id', 'del')">删除</a>
+				</td>
+      		</tr>
+      		#end
+      	</tbody>
+      </table>
+    </div>
+    #parse('include/pageUtil.vm')
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<div id="walaOpera"></div>
+
+<script type="text/javascript">
+	function saveWala(){
+		var url = '${basePath}admin/weixin/saveWala.xhtml';
+		$("context").value=ckeditor.getData();
+		var values = GewaraUtil.getValues($("walaModify"));
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else {
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function delWala(id){
+		var url = '${basePath}admin/weixin/saveWala.xhtml';
+		var values = {'id':id, 'docType':'del'}
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				refreshPage();
+			}else {
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function getWala(id, optionType){
+		var url = '${basePath}admin/weixin/getWala.xhtml';
+		var values={'id':id, 'optionType':optionType};
+		GewaraUtil.sendLoad('walaOpera', url, values, function(result){
+			if(!ckeditor){
+				ckeditor = CKEDITOR.replace("context");
+			}
+			if(!result.success){
+				var msg = result.json.msg;
+				gewa.util.maskContent("walaOpera", '<span style="cursor:pointer">'+msg+'</span>');
+			}else{
+				gewa.util.maskContent("","walaOpera","哇啦信息",550,"walaOpera");
+			}
+		});
+	}
+	
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('picUrl').value = picpath;
+		$('picUrlImg').src='${basePath}' + picpath;
+	}
+	
+	var ckeditor;
+</script>
+</body>
+</html>

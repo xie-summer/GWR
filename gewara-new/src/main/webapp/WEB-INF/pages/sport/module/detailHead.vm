@@ -1,0 +1,125 @@
+<div class="detail_head isTheatre new_detail_head clear">
+	<div class="detail_head_pic">
+		<div class="slideshow">
+			<img width="120" src="$VmUtils.randomPic('sw120h60',$!sport.limg)" title="$!sport.name" class="bp" />
+		</div>
+	</div>
+	<div class="detail_head_desc">
+		<div class="detail_head_name">
+			<span class="right" style="height:24px;margin-top:6px;">
+			 	<span onclick="collection($sport.id, 'sport', 'collection')" id="nCollect" class="freeTag0 f_bt"></span>
+				<span id="nTResult"></span><span id="hTResult"></span>
+				<span id="hCollect" class="cancelBox clear none">
+					<span class="mr5">已添加</span>|
+					<a onclick="cancelTreasure('sport', $sport.id)" href="javascript:void(0)">取消</a>
+				</span>				
+			</span>
+			<h1>$!sport.name</h1>
+		</div>
+		<dl class="clear">
+			<dt><em>详细地址：</em></dt>
+			<dd>
+				#if(!$VmUtils.isBlank($!sport.countyname))<a class="cSport" href="${basePath}sport/sportList.xhtml?countycode=$sport.countycode" title="$!sport.countyname" target="_blank">$!sport.countyname</a>#end
+				$!{sport.address}
+				[<a target="_black" href="${basePath}common/baiduMap.xhtml?id=$sport.id&tag=sport" class="blue">地图</a>]
+				<a title="免费发送信息到手机" href="javascript:void(0)" onclick="showTemplate();" class="freeTag0 i_note"></a>
+			</dd>
+		</dl>
+		<dl>
+			<dt><em>联系电话：</em></dt>
+			<dd>$!sport.contactphone</dd>
+			#if(!$VmUtils.isEmptyList($sport.opentime))
+			<dt><em>营业时间：</em></dt>
+			<dd>$!sport.opentime</dd>
+			#end
+			#if(!$VmUtils.isEmptyList($sportItemList))
+			<dt><em>运动项目：</em></dt>
+			<dd>
+				#foreach($sportitem in $sportItemList)
+				$!sportitem.name&nbsp;
+				#end
+			</dd>
+			#end
+		</dl>
+		<p class="mt10 clear">
+			<span class="right">
+				<a class="freeTag0 i_inf" title="信息纠错" href="javascript:void(0);" onclick="showCorr();">信息纠错</a>
+				#if($sport.feature)
+					#set($titles='场馆特色：'+$!VmUtils.escbr($!sport.feature))
+				#else
+					#set($titles='')
+				#end
+				#set($ctitle="我在格瓦拉生活网看到一个很不错的运动场馆“" + $!sport.name + "”跟大家分享一下 "+$titles+" ——来自格瓦拉生活网" )
+				<span id="ckepop" style="float:left;">
+					<a class="jiathis_button_tsina" style="padding:2px 0;display:inline-block;">分享到新浪微博</a>
+				</span>
+			</span>
+			#if($booking && $sport.isEnableBook())
+			<label class="sport_btn"><a href="${basePath}sport/$sport.id/pricetable#if($itemId)?itemId=$itemId#end" class="button bigBt redBt"><span>立即预订</span></a></label>
+			#end
+		</p>
+	</div>
+	<div class="detail_head_ratings">
+		<dl class="clear">
+			<!-- <dt>评分：</dt> -->
+			<dd>
+				#set($gmark=$VmUtils.getSingleMarkStar($sport, "general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+				<div class="ratingsSide clear">
+					#set($isBigStaticRating=true)
+					#parse('include/global/staticRating.vm')
+					<span><sub id="mark_integer">$gmark1</sub><sup id="mark_decimal">.$gmark2</sup></span>
+				</div>
+				<div class="ratingsGo">
+					<div class="mt10 center">
+						<a onclick="showMovieMark();" class="button minBt whiteBt" href="javascript:void(0);"><span><em>我要评分</em></span></a>
+					</div>
+					<div class="gray center mt10">来自<span class="brown fs14"><strong>$!sport.generalmarkedtimes</strong></span>位瓦友推荐</div>
+				</div>
+				<div class="ratingsCount">
+					<span><b>$!sport.clickedtimes</b>关注</span>|
+					<span><b>$!commnetCount</b>点评</span>
+				</div>
+			</dd>
+		</dl>
+	</div>
+</div>
+
+<div class="detail_nav">
+<ul>
+	<li #if($isDetail)class="select" #end><a href="${basePath}sport/$sport.id#if($itemId)?itemId=$itemId#end">首页</a></li>
+	<li class="navline"></li>
+	<li #if($isPrice)class="select" #end><a href="${basePath}sport/$sport.id/pricetable#if($itemId)?itemId=$itemId#end">价格信息</a></li>
+	<li class="navline"></li>
+	<li #if($isAct)class="select" #end>#if($VmUtils.gt($activityCount, 0))<a href="${basePath}sport/$sport.id/activitylist">#end活动<span>($!activityCount)</span>#if($VmUtils.gt($activityCount, 0))</a>#end</li>
+	<li class="navline"></li>
+	<li #if($isComment)class="select" #end>#if($VmUtils.gt($commentCount, 0))<a href="${basePath}sport/$sport.id/commentlist">#end哇啦<span>($!commentCount)</span>#if($VmUtils.gt($commentCount, 0))</a>#end</li>
+	<li class="navline"></li>
+	<li #if($isPicture)class="select" #end>#if($VmUtils.gt($picCount, 0))<a href="${basePath}sport/$sport.id/picturelist">#end场馆图片<span>($!picCount)</span>#if($VmUtils.gt($picCount, 0))</a>#end</li>
+	<li class="navline"></li>
+	<li #if($isNavNews)class="select" #end>#if($VmUtils.gt($newsCount, 0))<a href="${basePath}sport/$sport.id/newslist">#end资讯<span>($!newsCount)</span>#if($VmUtils.gt($newsCount, 0))</a>#end</li>
+	<li class="navline"></li>
+	<li #if($isTrain)class="select" #end>#if($VmUtils.gt($trainCount, 0))<a href="${basePath}sport/$sport.id/trainlist">#end培训<span>($!trainCount)</span>#if($VmUtils.gt($trainCount, 0))</a>#end</li>
+</ul>
+<a target="_blank" class="goblog" href="${basePath}blog/sport">运动论坛</a>
+</div>
+#parse('sport/new_tele.vm')
+#parse('include/mistake.vm')
+<script type="text/javascript">
+function showCorr(){
+	showCorrDialog('sport','$!sport.id');
+	GewaraUtil.refreshCaptcha('corrCaptcha');
+}
+</script>
+<script type="text/javascript">
+	window.addEvent('load', function(){
+	Asset.javascript('http://v1.jiathis.com/code_mini/jia.js?uid=1518302', {
+		onLoad: function(){
+			jiathis_config = {
+				data_track_clickback:true,
+				url: document.location.href,
+				title: "$!ctitle"
+			}
+		}
+	});
+});
+</script>

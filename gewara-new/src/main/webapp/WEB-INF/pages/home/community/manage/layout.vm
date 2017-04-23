@@ -1,0 +1,122 @@
+#set($diaryCount = 5)
+#set($diaryCount1 = 10)
+#set($diaryCount2 = 15)
+#set($diaryCount3 = 30)
+<div id="stModel_content">
+	<form action="" name="layoutForm" id="layoutForm" method="post">
+	<div class="ml20 mt20"><label><input type="radio" onchange="changeDiary(this)" id="diarytemplate" #if($!layoutMap.diarytemplate eq 1) checked="checked"#end #if(!$!layoutMap.diarytemplate) checked="checked" #end  name="diarytemplate" value="1"/>单话题分类</label></div>
+	<ul class="ul-60">
+		<li class="mt10"><strong>设置每个栏目显示条数</strong></li>
+		<li class="mt10">圈内投票<input type="text" class="text" name="vote" id="vote" value="#if($!layoutMap.diarytemplate eq 1)$!layoutMap.vote#else$!diaryCount#end"  style="width:50px"/>条（可设置0-10条，0为不显示，默认5）</li>
+		<!--  <li class="mt10">圈内活动<input type="text" class="text" name="activity" id="activity" value="#if($!layoutMap.diarytemplate eq 1)$!layoutMap.activity#else$!diaryCount1#end" style="width:50px"/>条（可设置0-20条，0为不显示，默认5）</li> -->
+		<li class="mt10">圈内照片<input type="text" class="text" name="album" id="album" value="#if($!layoutMap.diarytemplate eq 1)$!layoutMap.album#else$!diaryCount2#end" style="width:50px"/>条（可设置0-16条，0为不显示，默认8）</li>
+		<li class="mt10">圈内话题<input type="text" class="text" name="diary" id="diary" value="#if($!layoutMap.diarytemplate eq 1)$!layoutMap.diary#else$!diaryCount3#end" style="width:50px"/>条（可设置0-30条，0为不显示，默认10）</li>
+	</ul>
+	<div class="ml20 mt20"><label><input type="radio" id="diarytemplate" onchange="changeDiary(this)" #if($!layoutMap.diarytemplate eq 2) checked="checked"#end name="diarytemplate" value="2"/>多话题分类<span class="gray">（前台显示多个话题分类）</span></label></div>
+	<ul class="ul-60">
+		<li class="mt10"><strong>设置每个栏目显示条数</strong></li>
+		<li class="mt10">圈内投票<input type="text" class="text" name="votes" id="votes" value="#if($!layoutMap.diarytemplate eq 2)$!layoutMap.get('votes')#else$!diaryCount#end" style="width:50px"/>条（可设置0-10条，0为不显示，默认5）</li>
+		<!--  <li class="mt10">圈内活动<input type="text" class="text" name="activitys" id="activitys" value="#if($!layoutMap.diarytemplate eq 2)$!layoutMap.activitys#else$!diaryCount1#end" style="width:50px"/>条（可设置0-20条，0为不显示，默认5）</li> -->
+		<li class="mt10">圈内照片<input type="text" class="text" name="albums" id="albums" value="#if($!layoutMap.diarytemplate eq 2)$!layoutMap.albums#else$!diaryCount2#end" style="width:50px"/>条（可设置0-16条，0为不显示，默认8）</li>
+	</ul>
+	</form>
+	<div class="mt20 center">
+		<label class="redBt button minBt ml5"><input type="button" onclick="saveLayOut()" value="修改布局"/></label>
+	</div>
+	<div class="clear"></div>
+</div>
+	<script type="text/javascript">
+	window.addEvent('domready',function(){
+		#if($!layoutMap.diarytemplate==1)
+			change(false,true);
+		#elseif($!layoutMap.diarytemplate==2)
+			change(true,false);
+		#elseif($!layoutMap.diarytemplate!=2&&$!layoutMap.diarytemplate!=1)
+			change(false,true);
+		#end
+	});
+	function saveLayOut(){
+		var dataMap = null;
+		var b = false;
+		var rediodiary = document.getElementsByName('diarytemplate');
+		for(var i = 0 ;i<rediodiary.length;i++){
+			if(rediodiary[i].checked){
+				b = true;
+				if(rediodiary[i].value==1){
+					if($('vote').value >5){
+						gewaUtil.alert('圈内投票数量不能超过10条！');
+						return;
+					}
+					if($('activity').value > 10){
+						gewaUtil.alert('圈内活动数量不能超过20条！');
+						return;
+					}
+					if($('album').value > 15){
+						gewaUtil.alert("群内照片数量不能超过16条！");
+						return;					
+					}
+					if($('diary').value > 30){
+						gewaUtil.alert("圈内话题数量不能超过30条！");
+						return;					
+					}
+				}else if(rediodiary[i].value == 2){
+					if($('votes').value >5){
+						gewaUtil.alert('圈内投票数量不能超过10条！');
+						return;
+					}
+					if($('activitys').value > 10){
+						gewaUtil.alert('圈内活动数量不能超过20条！');
+						return;
+					}
+					if($('albums').value > 15){
+						gewaUtil.alert("圈内照片数量不能超过16条！");
+						return;					
+					}
+				}
+			}
+		}
+		if(!b){
+			gewaUtil.alert('请选择你的圈子的布局方式！');
+			return;
+		}else{
+			var dataMap = GewaraUtil.getValues('layoutForm');
+			var layouts = Hash.toQueryString(dataMap);
+			var values = {"commuid":$!params.commuid,'layouts':layouts};
+			GewaraUtil.sendRequest('${basePath}home/commu/saveLayout.xhtml', values, function(result){
+				if(result.success){
+					gewaUtil.alert('设置成功');
+				}else{
+					if(result.msg) gewaUtil.alert(result.msg);
+				}
+			});
+		}
+	}
+	
+	function changeDiary(obj){
+		if(obj.checked){
+			if(obj.value == 1){
+				$('votes').value = 5;
+				$('activitys').value = 5;
+				$('albums').value = 8;
+				change(false,true);
+			}else{
+				$('vote').value = 5;
+				$('activity').value = 5;
+				$('album').value = 8;
+				$('diary').value = 10;
+				change(true,false);
+			}
+		}
+	}
+	
+	function change(value,values){
+		$('vote').set('disabled',value);
+		$('activity').set('disabled',value);
+		$('album').set('disabled',value);
+		$('diary').set('disabled',value);
+		$('votes').set('disabled',values);
+		$('activitys').set('disabled',values);
+		$('albums').set('disabled',values);
+	}
+	
+</script>

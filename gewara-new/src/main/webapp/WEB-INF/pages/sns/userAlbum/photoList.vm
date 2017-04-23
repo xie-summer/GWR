@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>${album.subject}_相册_格瓦拉社区</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/default.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,Autocompleter,page,noobSlide&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div id="snsHeader"></div>
+<div class="ui_layout">
+	#set($menuTag = 'photo')
+	#parse('sns/common/left.vm')
+<div class="body_right">
+#set($photo=true)
+#set($isShow=false)
+#if($!rights.get(1) eq 'album_public')
+#set($isShow=true)
+#elseif($!rights.get(1) eq 'album_friend'&& $isMyFriend)
+#set($isShow=true)
+#end
+#if(!$!rights)
+	#set($isShow=true)
+#end
+#parse('sns/userAlbum/common_menu.vm')
+<div class="bodys" id="_body">
+	<div class="ablum_wrap">
+		
+		#if($isShow)
+		#if($isCanShow)
+		<div class="ablum_opt">
+			<ul class="ui_abeam">
+					<li>
+						<div class="uipic"><img width="120" height="120" style="background:url($VmUtils.randomPic('cw120h120',$album.limg)) center center no-repeat;" src="${staticPath}css/images/blank.gif"></div>
+						<div class="uiText">
+							<b>$album.subject</b>
+							<p class="user_name">创建者：
+							#if($!logonMember.id eq $member.id)
+								<a href="${basePath}home/sns/personIndex.xhtml">$!member.nickname</a>
+							#else
+								<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$member.id">$!member.nickname</a>
+							#end
+							</p>
+							#if($!album.description)
+							<p>描述：$!album.description</p>
+							#end
+							<div class="title ablumOpt">
+								#set($ta = 'TA')
+								#if(!$isFriend)
+									<a href="${basePath}home/new/uploadPicture.xhtml?tag=member&relatedid=$!logonMember.id&albumid=$!albumid">上传图片</a>
+									<a href="javascript:void(0)" onclick="javascript:getAlbum($album.id)">编辑相册</a>
+									<a href="javascript:void(0)" onclick="javascript:delAlbum($album.id)">删除相册</a>
+								#end
+								<a href="${basePath}home/new/album/albumList.xhtml?memberid=$!member.id">返回#if($!logonMember.id eq $member.id)我#else$ta#end的相册</a>
+							</div>
+						</div>
+					</li>
+			</ul>
+		</div>
+			#set($albumImageLen=$VmUtils.size($albumImageList))
+			#if(!$VmUtils.isEmptyList($albumImageList))
+			<div class="photo_list mt10">
+				<ul class="clear">
+					#foreach($albumImage in $albumImageList)
+					<li>
+						#if($commu)
+							<a href="${basePath}quan/commu/imageDetailList.xhtml?albumid=$!album.id&curAlbumPicId=$albumImage.id"><img src="$VmUtils.randomPic('sw120h120',$albumImage.limg)"  alt="$!albumImage.imagedescription"/></a>
+						#else
+							<a href="${basePath}home/new/album/imageDetailList.xhtml?albumid=$!album.id&curAlbumPicId=$albumImage.id"><img src="$VmUtils.randomPic('sw120h120',$albumImage.limg)" alt="$!albumImage.imagedescription"/></a>
+						#end
+						#if($isShowCommuAlbum)
+							<div class="phone_name">
+								<input id="ds$albumImage.id" type="text" class="center" value="$!albumImage.name" onblur="blurSave($albumImage.id);" readonly="readonly" />
+							</div>
+							<div class="photo_opt vishide">
+								<a href="javascript:void(0)" onclick="editd('ds$albumImage.id')">编辑</a><a href="javascript:void(0)" onclick="delImage($albumImage.id, this)" >删除</a>
+							</div>
+						#else
+							<div class="phone_name">
+							<input id="ds$albumImage.id" type="text" class="center" value="$!albumImage.name" onblur="blurSave($albumImage.id)" readonly="readonly" />
+							</div>
+						#end
+						
+					</li>
+					#end
+				</ul>
+				#parse('include/pageUtil.vm')
+			</div>
+			#else
+			<div class="showList center clew">
+				暂无图片
+				#if($isCommuMember),你可以点击
+					<a href="${basePath}home/new/uploadPicture.xhtml?tag=commu&relatedid=$commu.id&albumid=$!albumid" class="ml10 bt"><span>+添加图片</span></a>
+				#end	
+			</div>
+			#end
+		
+		#else
+			<div class="clew mt20">
+				#if($!album.rights eq 'private')
+					[$member.nickname]的相册【$!album.subject】设置了权限为【全体不可见】
+				#elseif($!album.rights eq 'friend')
+					[$member.nickname]的相册【$!album.subject】设置了权限为【仅好友可见】<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$member.id" class="brown">加为关注</a>即可一睹为快!
+				#end
+			</div>
+		#end
+		
+		#else
+			<div class="clew mt20">
+				#if($!rights.get(1) eq 'album_private')
+					【$member.nickname】的相册设置了权限为【全体不可见】
+				#elseif($!rights.get(1) eq 'album_friend')
+					【$member.nickname】的相册设置了权限为【仅好友可见】<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$member.id" class="brown">加为关注</a>即可一睹为快!
+				#end
+			</div>
+		#end
+		
+	</div>
+</div>
+<script type="text/javascript">
+	window.addEvent("domready", function() {
+		var k = $$(".photo_list ul li");
+		k.addEvent("mouseover",function(){
+			this.getElement(".photo_opt").removeClass("vishide");
+		});
+		k.addEvent("mouseout",function(){
+			this.getElement(".photo_opt").addClass("vishide");
+		});
+	});
+	
+	#if($isShowCommuAlbum)
+	function editd(tis){
+		var es = $(tis);
+		es.readOnly=false;
+		es.focus();
+		es.setStyle("border","1px solid #000");
+	}
+	function blurSave(id){
+		if($('ds'+id).value){
+			var url = '${basePath}home/album/updateAlbumImage.xhtml';
+			var values = {'imageid':id,  'name':$('ds'+id).value}
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			})
+			$('ds'+id).readOnly=true;
+			$('ds'+id).setStyle("border","1px solid #fff");
+		}
+	}
+	function delImage(id, obj){
+		gewaUtil.confirm('确认要删除吗?', function(){
+			var url = '${basePath}home/album/delAlbumImage.xhtml';
+			var values = { 'imageid':id};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewaUtil.dispose($(obj).getParent('li'));
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		});
+	}
+	#end
+</script>
+#parse('include/home/adoptAlbum.vm')
+</div>
+</div>
+<div class="ui_view_menu"></div>
+<div class="footer_warp">
+	<div class="isFooter"></div>
+</div>
+#parse('include/innerLogin.vm')
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=snsUtil,index_even&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	if($('publicize'))new adSoild('publicize','navControl',{'position':{'x':#if($!params.memberid)280#{else}180#end,'y':#if($!params.memberid)80#{else}70#end},'width':14});
+	if($('slidePanel'))new noobSlide({
+		box: $('slidePanel'),
+		size:180,
+		items: $$('#slidePanel li'),
+		handle_event:'click',
+		addButtons: {
+			previous:$('eventL'),
+			next:$('eventR')
+		}
+	});
+});
+</script>
+#parse('sns/common/ga.vm')
+</body>
+</html>

@@ -1,0 +1,123 @@
+<div class="performInfo">
+	#if(!$VmUtils.isEmptyList($curDramaList))
+	<div class="mod_kong xgpeo1">
+		<div class="mod_hd">
+			<h2>近期演出</h2>
+		</div>
+		<div class="mod_bd">
+			<div class="picFocusScroll1 clear" id="picPlay">
+				<div class="starShowList">
+					<ul id="picPlayList">
+						#foreach($curDrama in $curDramaList)
+						#set($playitem = $odiMap.get($curDrama.id))
+						#set($gmark=$VmUtils.getSingleMarkStar($curDrama,"general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+						<li>
+							<div class="ui_abeam clear">
+								<div class="uipic">
+									<a href="${basePath}drama/$!curDrama.id" target="_blank" class="imgBox"><img src="$VmUtils.randomPic('cw150h200',$!curDrama.limg)" width="120" height="160"/></a><br/>
+									<p class="mt20 drBt" style="text-align:center;">
+										<a class="button bigBt #if($bookingList.contains($curDrama.id))redBt #else bigWhiteBt #end" target="_blank" href="${basePath}drama/$!curDrama.id">
+											<span>
+												#if($openseatList.contains($curDrama.id))<em class="bt_seat">选座购票 </em>#elseif($bookingList.contains($curDrama.id))立即购票 #{else}查看评论 #end
+											</span>
+										</a>
+									</p>
+								</div>
+								<div class="uiText ml10">
+									<h2 class="fs14">$!curDrama.realBriefname</h2>
+									#if($VmUtils.isNotBlank($curDrama.highlight))
+									<p class="ryjm_t"><span class="q"></span>$curDrama.highlight<span class="h"></span></p>
+									#end
+									#if(!$VmUtils.isNull($curDrama.releasedate))
+									<p class="c999"><em>首演日期：</em>$!DateUtil.format($!curDrama.releasedate, 'yyyy-M-d')</p>
+									#end
+									#if(!$VmUtils.isNull($curDrama.enddate))
+									<p class="c999"><em>结束日期：</em>$!DateUtil.format($!curDrama.enddate, 'yyyy-M-d')</p>
+									#end
+								</div>
+							</div>
+						</li>
+						#end
+					</ul>	
+				</div>
+				#if($VmUtils.gt($VmUtils.size($curDramaList),2))
+				<div class="slide">
+					<span class="slideL"><em class="orientation">左滑动</em></span>
+					<span class="slideR"><em class="orientation">右滑动</em></span>
+				</div>
+				#end
+			</div>
+		</div>
+	</div>
+	#end
+	<div class="mod_kong starIntroduce">
+		<div class="mod_hd">
+			<h2>个人简介</h2>
+		</div>
+		<div class="mod_bd starS">
+			$!dramaStar.content
+		</div>
+	</div>
+	<div class="mod_tabs mod_tabs_drama">
+		<div class="mod_hd" id="walaData">
+			<ul class="nav_tabs">
+				<li class="walaCur" lang=""><a href="javascript:void(0);">最新哇啦</a></li>
+				<li class="walaCur" lang="flowernum"><a href="javascript:void(0);">热门哇啦</a></li>
+			</ul>
+		</div>
+		<div class="mod_bd">
+			<div id="WalaDetail" class="mt20"></div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	#if($VmUtils.size($curDramaList) gt 2)
+	new sigleLeep('picPlay','picPlayList',{isNode:'li','disable':'disable','size':370,'length':2,'screen':370});
+	#end
+	getWalaList();
+});
+getWalaList = function(){
+	if($('walaData')){
+		var tmpWala = $('walaData').getElements('li');
+		if(tmpWala && tmpWala.length>0){
+			tmpWala.addEvent('click', function(){
+				tmpWala.removeClass('select');
+				this.addClass('select');
+				getWala('WalaDetail', this.get('lang'));
+			});
+			tmpWala[0].fireEvent('click');
+		}
+	}
+}
+function getWala(el, order,listNum){
+	el = $(el);
+	el.innerHTML = '';
+	Asset.javascript("${staticPath}scripts/gewara.js?n=wide_wala,slimbox&v=$VmUtils.jsVersion", {
+		'id':'walaDynaScript',
+		'isScroll':false,//用于控制是否支持鼠标滚动事件
+		'bindWala':el.get('id'),//把加载的哇啦放在什么位置
+		onLoad:function(){
+			Asset.css('${staticPath}css/wide_wala.css?v=$VmUtils.jsVersion',{'id':'walasCss'});
+			gewa.util.pageNumber = 0;
+			var _body = $(document.body);
+			gewa.util.requestUrl = 'ajax/common/qryComment.xhtml';
+			gewa.util.values = {
+				pageNumber:gewa.util.pageNumber,//自动加载时的分页数
+				relatedid:'$!dramaStar.id',//关联对象的ID
+				title:'',//话题的标题
+				issue:true,//是否有发表框
+				hasMarks:true,//是否支持评分
+				tag:'dramastar',//关联那个板块的内容
+				isPic:true,//是否支持传图片
+				isVideo:false,//是否支持传视频
+				maxCount:listNum || 6,//如果设置，即是单页显示N条
+				userLogo:gewara.util.member.headUrl,//用户的头像
+				order:order,
+				isCount:true
+			};
+			gewa.util.init();
+		}
+	});
+}
+</script>

@@ -1,0 +1,53 @@
+<div class="mod_tabs thatraWala">
+	<div class="mod_hd">
+		<ul class="tabs clear">
+			<li class="select walaCur" id="hotwala"><a onclick="getWalaList(this,'flowernum');" href="javascript:void(0);">热门哇啦</a></li>
+			<li class="walaCur" id="newwala"><a onclick="getWalaList(this,'flowernum');" href="javascript:void(0);">最新哇啦</a></li>
+		</ul>
+	</div>
+	<div class="mod_bd">
+		<div id="WalaDetail" class="mt20"></div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+//	new PanelGroup(['hotwala', 'newwala'], 'hotwala', "select", "none", "mouseover");
+	getWala('flowernum',20);
+});
+function getWalaList(e,order){
+	var e = $(e);
+	$$('.walaCur').removeClass('select');
+	if(e)e.getParent('li').addClass('select');
+	else $$('.walaCur')[0].addClass('select');
+	getWala(order);
+}
+function getWala(order,listNum){
+	$('WalaDetail').innerHTML = '';
+	Asset.javascript("${staticPath}scripts/gewara.js?n=wide_wala,slimbox&v=$VmUtils.jsVersion", {
+		'id':'walaDynaScript',
+		'isScroll':false,//用于控制是否支持鼠标滚动事件
+		'bindWala':'WalaDetail',//把加载的哇啦放在什么位置
+		onLoad:function(){
+			Asset.css('${staticPath}css/wide_wala.css?v=$VmUtils.jsVersion',{'id':'walasCss'});
+			gewa.util.pageNumber = 0;
+	    	var _body = $(document.body);
+	    	gewa.util.requestUrl = 'ajax/common/qryComment.xhtml';
+	    	gewa.util.values = {
+    			pageNumber:gewa.util.pageNumber,//自动加载时的分页数
+    			relatedid:'$!theatre.id',//关联对象的ID
+    			title:'',//话题的标题
+    			issue:true,//是否有发表框
+    			hasMarks:true,//是否支持评分
+    			tag:'theatre',//关联那个板块的内容
+    			isPic:true,//是否支持传图片
+    			isVideo:false,//是否支持传视频
+	    		maxCount:listNum || 6,//如果设置，即是单页显示N条
+				userLogo:gewara.util.member.headUrl,//用户的头像
+				order:order,
+				isCount:true
+	    	};
+	    	gewa.util.init();
+		}
+	});
+}
+</script>

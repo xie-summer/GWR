@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>特殊折扣列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore">特殊折扣设置&nbsp;</li>
+			<li class="currs"><a><span>商户价格</span></a></li>
+			<li><a href="${basePath}admin/gewapay/spdiscount/spcounterList.xhtml"><span>计数器设置</span></a></li>
+			<li><a href="${basePath}admin/gewapay/scalperList.xhtml"><span>黄牛黑名单设置</span></a></li>
+			<li><a href="${basePath}admin/gewapay/suspectList.xhtml"><span>涉嫌黑名单</span></a></li>
+		</ul>
+	</div>
+</div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+		<div><a href="${basePath}admin/gewapay/spdiscount/spdiscountList.xhtml">当前</a>|<a href="${basePath}admin/gewapay/spdiscount/spdiscountList.xhtml?status=timeout">过时</a>|<a href="${basePath}admin/gewapay/spdiscount/spdiscountList.xhtml?status=all">全部</a></div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>标志</th>
+					<th>排序</th>
+					<th>开始/截止时间</th>
+					<th>金额</th>
+					<th>折扣方式</th>
+					<th>限定支付方式</th>
+					<th>限定周期</th>
+					<th>限定订单数量</th>
+					<th>简要说明</th>
+					<th>链接参数</th>
+					<th>记数器</th>
+					<th>卖出数量</th>
+					<th>操作&nbsp;&nbsp;<a style="color: blue;" target="_blank" href="${basePath}admin/gewapay/spdiscount/modifySpdiscount.xhtml">增加</a></th>
+				</tr>
+			</thead>
+			<tbody id="tbody">#set($distypeMap={"order":"按订单折扣","uprice":"按单价折扣","percent":"按百分比折扣","fprice":"按固定单价折扣", "one2one":"买1送1", "exp":"公式"})
+				#foreach($spdiscount in $spdiscountList)
+				<tr class="grayBg">
+					<td>$!spdiscount.flag</td>
+					<td>$!spdiscount.sortnum</td>
+					<td>$DateUtil.formatTimestamp($spdiscount.timefrom)<br />
+						$DateUtil.formatTimestamp($spdiscount.timeto)</td>
+					<td>$spdiscount.discount</td>
+					<td>$distypeMap.get($spdiscount.distype)</td>
+					<td><div style="width:100px;word-wrap:break-word;">$!spdiscount.paymethod</div></td>
+					<td>$spdiscount.limitperiod</td>
+					<td>$spdiscount.limitnum</td>
+					<td><div style="width:100px;word-wrap:break-word;">$!spdiscount.enableRemark</div></td>
+					<td>$spidMap.get($spdiscount.id)</td>
+					<td><a href="${basePath}admin/gewapay/spdiscount/getSpcounter.xhtml?spid=$spdiscount.spcounterid" target="_blank">$spdiscount.spcounterid</a></td>
+					<td><span id="sell$spdiscount.id">$spdiscount.sellcount</span><br />
+						<input type="button" value="刷新" onclick="refreshSellnum($spdiscount.id, this)"/><a href="${basePath}admin/gewapay/spdiscount/refreshSellnum.xhtml?sid=$spdiscount.id" target="_blank">查看</a>
+					</td>
+					<td>
+						<a style="color: blue;" target="_blank" href="${basePath}admin/gewapay/spdiscount/modifySpdiscount.xhtml?discountId=$spdiscount.id">修改</a>
+						<a style="color: blue;" target="_blank" href="${basePath}admin/gewapay/spdiscount/modifySpdiscount.xhtml?copyFrom=$spdiscount.id">复制</a>
+						#if($spdiscount.verifyType)
+						<a style="color: blue;" target="_blank" href="${basePath}admin/gewapay/spdiscount/spcode/manage.xhtml?sid=$spdiscount.id" target="_blank">电子码管理</a>
+						#end
+						#if($!VmUtils.equals($spdiscount.tag,'sport'))
+						<a href="${absPath}${basePath}sport/sportList.xhtml?spkey=$spidMap.get($spdiscount.id)" target="_blank">测试</a>
+						#else
+						<a href="${absPath}${basePath}cinema/searchOpi.xhtml?spkey=$spidMap.get($spdiscount.id)" target="_blank">测试</a>
+						#end
+						<a href="${basePath}admin/datacount/specialDiscountOrderList.xhtml?sid=$spdiscount.id" target="_blank">查看</a><br />
+						<a href="${basePath}admin/gewapay/spdiscount/processSpdiscount.xhtml?sid=$spdiscount.id" target="_blank">后期处理</a>
+						<a href="${basePath}admin/gewapay/spdiscount/spotherOrderList.xhtml?sid=$spdiscount.id" target="_blank">类似订单</a>
+						<a href="${basePath}admin/gewapay/spdiscount/spFailOrderList.xhtml?sid=$spdiscount.id" target="_blank">待处理订单</a>
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<script type="text/javascript">
+	function refreshSellnum(sid, el){
+		var url = "${basePath}admin/gewapay/spdiscount/refreshSellnum.xhtml";
+		GewaraUtil.sendRequest(url, {"sid":sid,"uptype":"update"}, function(result){
+			if(result.success) {
+				$(el).dispose();
+				$("sell"+sid).set("text", result.retval);
+			}
+			else alert(result.msg);
+		});
+	}
+</script>
+</body>
+</html>

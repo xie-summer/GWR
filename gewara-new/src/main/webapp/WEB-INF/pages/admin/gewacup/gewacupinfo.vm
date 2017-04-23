@@ -1,0 +1,283 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>gewaCup列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script> 
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+#set($matchMapData={'mansignle':'男单','mandouble':'男双','womansignle':'女单','womandouble':'女双','mixed':'混双'})
+<body style="width:1000px; margin:auto">
+<div style="width:1000px;">
+<table class="table">
+	<thead>
+		<tr>
+			<th>编号</th>
+			<th>用户名</th>
+			<th>报名类型</th>
+			<th>参赛类型</th>
+			<th>活动状态</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody id="dramaTable">
+		<tr height="30">
+			<td>$!dataMap.get('cupid').substring(3,16)</td>
+			<td>$!member.nickname</td>
+			<td style="color:red"><strong>#if($VmUtils.eq($dataMap.get('joinmethod'), 'club'))俱乐部#elseif($VmUtils.eq($dataMap.get('joinmethod'), 'personal'))个人#end</strong></td>
+			<td style="color:red">$!matchMapData.get($!dataMap.get('matchtype'))</td>
+			<td>#if($VmUtils.eq($dataMap.get('cupstatus'),'y'))<span style="color:red">审核通过</span>#elseif($VmUtils.eq($dataMap.get('cupstatus'),'n'))审核未通过#elseif($VmUtils.eq($dataMap.get('cupstatus'),'a'))申请中#end</td>
+			<td>&nbsp;</td>
+		</tr>
+	</tbody>
+	
+	#if($VmUtils.eq($!dataMap.get('joinmethod'), 'club'))
+	<thead>
+		<tr>
+			<th>俱乐部</th>
+			<th>俱乐部联系人</th>
+			<th>俱乐部身份证</th>
+			<th>俱乐部联系方式</th>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody id="dramaTable">
+		<tr height="30">
+			<td>$!commu.name &nbsp;</td>
+			<td>$!dataMap.get('clubcontactor') &nbsp;</td>
+			<td>$!dataMap.get('clubcardnumber') &nbsp;</td>
+			<td>$!dataMap.get('clubcontactmethod') &nbsp;</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+	</tbody>
+	#end
+	
+	#if($VmUtils.eq($!dataMap.get('matchtype'), 'mansignle') || $VmUtils.eq($!dataMap.get('joinmethod'), 'club'))
+	<thead>
+		<tr>
+			<th>男单姓名</th>
+			<th>男单身份证</th>
+			<th>男单联系方式</th>
+				<th>男单(二)姓名</th>
+			<th>男单(二)身份证</th>
+			<th>男单(二)联系方式</th>
+		</tr>
+	</thead>
+	<tbody id="dramaTable">
+		<tr height="30">
+			<td>$!dataMap.get('mansignlename') &nbsp;</td>
+			<td>$!dataMap.get('mansignlecard') &nbsp;</td>
+			<td>$!dataMap.get('mansignlemethod') &nbsp;</td>
+			<td>$!dataMap.get('partnermansignlename') &nbsp;</td>
+			<td>$!dataMap.get('partnermansignlecard') &nbsp;</td>
+			<td>$!dataMap.get('partnermansignlemethod') &nbsp;</td>
+		</tr>
+	</tbody>
+	#end
+	#if($VmUtils.eq($!dataMap.get('matchtype'), 'mandouble') || $VmUtils.eq($!dataMap.get('joinmethod'), 'club'))
+	<thead>
+		<tr>
+			<th>男双姓名</th>
+			<th>男双身份证</th>
+			<th>男双联系方式</th>
+				<th>男双partner姓名</th>
+			<th>男双partner身份证</th>
+			<th>男双partner联系方式</th>
+		</tr>
+	</thead>
+	<tbody id="dramaTable">
+		<tr height="30">
+		<td>$!dataMap.get('mandoublename') &nbsp;</td>
+		<td>$!dataMap.get('mandoublecard') &nbsp;</td>
+		<td>$!dataMap.get('mandoublemethod') &nbsp;</td>
+		<td>$!dataMap.get('partnermandoublename') &nbsp;</td>
+		<td>$!dataMap.get('partnermandoublecard') &nbsp;</td>
+		<td>$!dataMap.get('partnermandoublemethod') &nbsp;</td>
+		</tr>
+	</tbody>
+	#end
+	#if($VmUtils.eq($!dataMap.get('matchtype'), 'womansignle') || $VmUtils.eq($!dataMap.get('joinmethod'), 'club'))
+	<thead>
+		<tr>
+			<th>女单姓名</th>
+			<th>女单身份证</th>
+			<th>女单联系方式</th>
+				<th>&nbsp;</th>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody id="dramaTable">
+		<tr height="30">
+			<td>$!dataMap.get('womansignlename') &nbsp;</td>
+			<td>$!dataMap.get('womansignlecard') &nbsp;</td>
+			<td>$!dataMap.get('womansignlemethod') &nbsp;</td>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+		</tr>
+	</tbody>
+	#end
+	#if($VmUtils.eq($!dataMap.get('matchtype'), 'womandouble') || $VmUtils.eq($!dataMap.get('joinmethod'), 'club'))
+	<thead>
+		<tr>
+			<th>女双姓名</th>
+			<th>女双身份证</th>
+			<th>女双联系方式</th>
+				<th>女双partner姓名</th>
+			<th>女双partner身份证</th>
+			<th>女双partner联系方式</th>
+		</tr>
+	</thead>
+	<tbody id="dramaTable">
+		<tr height="30">
+			<td>$!dataMap.get('womandoublename') &nbsp;</td>
+			<td>$!dataMap.get('womandoublecard') &nbsp;</td>
+			<td>$!dataMap.get('womandoublemethod') &nbsp;</td>
+			<td>$!dataMap.get('partnerwomandoublename') &nbsp;</td>
+			<td>$!dataMap.get('partnerwomandoublecard') &nbsp;</td>
+			<td>$!dataMap.get('partnerwomandoublemethod') &nbsp;</td>
+		</tr>
+	</tbody>
+	#end
+	#if($VmUtils.eq($!dataMap.get('matchtype'), 'mixed') || $VmUtils.eq($!dataMap.get('joinmethod'), 'club'))
+	<thead>
+		<tr>
+			<th>混双姓名</th>
+			<th>混双身份证</th>
+			<th>混双联系方式</th>
+				<th>混双partner姓名</th>
+			<th>混双partner身份证</th>
+			<th>混双partner联系方式</th>
+		</tr>
+	</thead>
+	<tbody id="dramaTable">
+		<tr height="30">
+			<td>$!dataMap.get('mixedname') #if(!$!dataMap.get('mixedname'))(男) #end &nbsp;</td>
+			<td>$!dataMap.get('mixedcard') &nbsp;</td>
+			<td>$!dataMap.get('mixedmethod') &nbsp;</td>
+			<td>$!dataMap.get('partnermixedname') #if(!$!dataMap.get('partnermixedname'))(女) #end &nbsp;</td>
+			<td>$!dataMap.get('partnermixedcard') &nbsp;</td>
+			<td>$!dataMap.get('partnermixedmethod') &nbsp;</td>
+		</tr>
+	</tbody>
+	#end
+	#if($VmUtils.eq($!dataMap.get('matchtype'), 'mansignle'))
+	<thead>
+		<tr>
+			<th>男单头像</th>
+			<th>男单身份证扫描件</th>
+			<th>&nbsp;</th>
+				<th>&nbsp;</th>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody id="dramaTable">
+		<tr height="30">
+			<td><img src="$VmUtils.randomPic('sw120h120',$!dataMap.get('mansignleheadpic'))"/> &nbsp;</td>
+			<td><img src="$VmUtils.randomPic('sw400h400',$!dataMap.get('mansignlecardpic'))"/> &nbsp;</td>
+			<td> &nbsp;</td>
+			<td> &nbsp;</td>
+			<td> &nbsp;</td>
+			<td> &nbsp;</td>
+		</tr>
+	</tbody>
+	#end
+	#if($VmUtils.eq($!dataMap.get('matchtype'), 'mandouble'))
+	<thead>
+		<tr>
+			<th>男双头像</th>
+			<th>男双身份证扫描件</th>
+			<th>男双搭档头像&nbsp;</th>
+				<th>男双身份证扫描件&nbsp;</th>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody id="dramaTable">
+		<tr height="30">
+			<td><img src="$VmUtils.randomPic('sw120h120',$!dataMap.get('mandoubleheadpic'))"/> &nbsp;</td>
+			<td><img src="$VmUtils.randomPic('sw400h400',$!dataMap.get('mandoublecardpic'))"/> &nbsp;</td>
+			<td><img src="$VmUtils.randomPic('sw120h120',$!dataMap.get('partnermandoubleheadpic'))"/> &nbsp;</td>
+			<td><img src="$VmUtils.randomPic('sw400h400',$!dataMap.get('partnermandoublecardpic'))"/> &nbsp;</td>
+			<td> &nbsp;</td>
+			<td> &nbsp;</td>
+		</tr>
+	</tbody>
+	#end
+	#if($VmUtils.eq($!dataMap.get('matchtype'), 'womansignle'))
+	<thead>
+		<tr>
+			<th>女单头像</th>
+			<th>女单身份证扫描件</th>
+			<th>&nbsp;</th>
+				<th>&nbsp;</th>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody id="dramaTable">
+		<tr height="30">
+			<td><img src="$VmUtils.randomPic('sw120h120',$!dataMap.get('womansignleheadpic'))"/> &nbsp;</td>
+			<td><img src="$VmUtils.randomPic('sw400h400',$!dataMap.get('womansignlecardpic'))"/> &nbsp;</td>
+			<td> &nbsp;</td>
+			<td> &nbsp;</td>
+			<td> &nbsp;</td>
+			<td> &nbsp;</td>
+		</tr>
+	</tbody>
+	#end
+	#if($VmUtils.eq($!dataMap.get('matchtype'), 'womandouble'))
+	<thead>
+		<tr>
+			<th>女双头像</th>
+			<th>女双身份证扫描件</th>
+			<th>女双搭档头像&nbsp;</th>
+				<th>女双身份证扫描件&nbsp;</th>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody id="dramaTable">
+		<tr height="30">
+			<td><img src="$VmUtils.randomPic('sw120h120',$!dataMap.get('womandoubleheadpic'))"/> &nbsp;</td>
+			<td><img src="$VmUtils.randomPic('sw400h400',$!dataMap.get('womandoublecardpic'))"/> &nbsp;</td>
+			<td><img src="$VmUtils.randomPic('sw120h120',$!dataMap.get('partnerwomandoubleheadpic'))"/> &nbsp;</td>
+			<td><img src="$VmUtils.randomPic('sw400h400',$!dataMap.get('partnerwomandoublecardpic'))"/> &nbsp;</td>
+			<td> &nbsp;</td>
+			<td> &nbsp;</td>
+		</tr>
+	</tbody>
+	#end
+	#if($VmUtils.eq($!dataMap.get('matchtype'), 'mixed'))
+	<thead>
+		<tr>
+			<th>混双头像</th>
+			<th>混双身份证扫描件</th>
+			<th>混双搭档头像&nbsp;</th>
+				<th>混双身份证扫描件&nbsp;</th>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+		</tr>
+	</thead>
+	<tbody id="dramaTable">
+		<tr height="30">
+			<td><img src="$VmUtils.randomPic('sw120h120',$!dataMap.get('mixedheadpic'))"/> &nbsp;</td>
+			<td><img src="$VmUtils.randomPic('sw400h400',$!dataMap.get('mixedcardpic'))"/> &nbsp;</td>
+			<td><img src="$VmUtils.randomPic('sw120h120',$!dataMap.get('partnermixedheadpic'))"/> &nbsp;</td>
+			<td><img src="$VmUtils.randomPic('sw400h400',$!dataMap.get('partnermixedcardpic'))"/> &nbsp;</td>
+			<td> &nbsp;</td>
+			<td> &nbsp;</td>
+		</tr>
+	</tbody>
+	#end
+</table>
+</div>
+</body>
+</html>

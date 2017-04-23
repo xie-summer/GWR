@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:beans xmlns="http://camel.apache.org/schema/spring"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:b="http://www.springframework.org/schema/beans"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd">
+	<camelContext id="camel">
+		<route>
+			<from uri="activemq:queue:shareQueue"/>
+			<to uri="bean:jmsMsgConsumer?method=share2Out"/>
+		</route>
+		<route>
+			<from uri="activemq:queue:addOrderQueue"/>
+			<to uri="bean:jmsMsgConsumer?method=addOrder"/>
+		</route>
+		<route>
+			<from uri="activemq:queue:paidOrderQueue"/>
+			<to uri="bean:jmsMsgConsumer?method=processOrder"/>
+		</route>
+		<route>
+			<from uri="activemq:queue:paidChargeQueue"/>
+			<to uri="bean:jmsMsgConsumer?method=processCharge"/>
+		</route>
+		<route>
+			<from uri="activemq:queue:spiderPlayItemQueue"/>
+			<to uri="bean:jmsMsgConsumer?method=updateMoviePlayItemFromSpider"/>
+		</route>
+		<route>
+			<from uri="activemq:queue:gpticketRemoteOrderQueue"/>
+			<to uri="bean:jmsMsgConsumer?method=backGpticketRemoteOrder"/>
+		</route>
+		<route>
+			<from uri="activemq:queue:ticketPlayItemQueue"/>
+			<to uri="bean:jmsMsgConsumer?method=updateMoviePlayItem"/>
+		</route>
+		<!--
+		<route>
+			<from uri="activemq:queue:updateCacheQueue"/>
+			<to uri="bean:jmsMsgConsumer?method=updatePageCache"/>
+		</route>
+		<route>
+			<from uri="activemq:queue:ticketRemoteOrderQueue"/>
+			<to uri="bean:jmsMsgConsumer?method=correctOrder"/>
+		</route>
+		-->
+		<route>
+			<from uri="activemq:queue:smsMOQueue"/>
+			<to uri="bean:jmsMsgConsumer?method=handleSmsMO"/>
+		</route>
+	</camelContext>
+	<camelContext id="camelBackup">
+		<route>
+			<from uri="activemqBack:queue:addOrderQueue"/>
+			<multicast>
+				<to uri="bean:jmsMsgConsumer?method=addOrder"/>
+				<to uri="activemqBack:queue:otherMsgQueue"/>
+			</multicast>
+		</route>
+		<route>
+			<from uri="activemqBack:queue:paidOrderQueue"/>
+			<multicast>
+				<to uri="bean:jmsMsgConsumer?method=processOrder"/>
+				<to uri="activemqBack:queue:otherMsgQueue"/>
+			</multicast>	
+		</route>
+		<route>
+			<from uri="activemqBack:queue:paidChargeQueue"/>
+			<multicast>
+				<to uri="bean:jmsMsgConsumer?method=processCharge"/>
+				<to uri="activemqBack:queue:otherMsgQueue"/>
+			</multicast>
+		</route>
+		<route>
+			<from uri="activemqBack:queue:smsMOQueue"/>
+			<multicast>
+				<to uri="bean:jmsMsgConsumer?method=handleSmsMO"/>
+				<to uri="activemqBack:queue:otherMsgQueue"/>
+			</multicast>
+		</route>
+	</camelContext>
+	<b:bean id="jmsFactoryBack" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop">
+		<b:property name="connectionFactory">
+			<b:bean class="org.apache.activemq.ActiveMQConnectionFactory">
+				<b:property name="sendTimeout" value="10000" />
+				<b:property name="clientIDPrefix">
+					<util:constant static-field="com.gewara.Config.DEPLOYID"/>
+				</b:property>
+				<b:property name="connectionIDPrefix">
+					<util:constant static-field="com.gewara.Config.DEPLOYID"/>
+				</b:property>
+				<b:property name="brokerURL">
+					<b:value>${jms.brokeUrlBack}</b:value>
+				</b:property>
+			</b:bean>
+		</b:property>
+	</b:bean>
+	<b:bean id="activemqBack" class="org.apache.camel.component.jms.JmsComponent">
+		<b:property name="connectionFactory" ref="jmsFactoryBack" />
+	</b:bean>
+	<b:bean id="activemq" class="org.apache.camel.component.jms.JmsComponent">
+		<b:property name="connectionFactory" ref="jmsFactory" />
+	</b:bean>
+	<b:bean id="jmsMsgConsumer" class="com.gewara.jms.JmsMsgConsumer"/>
+</b:beans>

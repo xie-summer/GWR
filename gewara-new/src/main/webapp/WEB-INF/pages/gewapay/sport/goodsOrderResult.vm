@@ -1,0 +1,333 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>支付成功_格瓦拉生活网</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.blue{color:#2c8eca;}
+		.coffee{color:#876009;}
+		.payBox_header{border:0;color:#000;}
+		.payBox_header h3{font-size:14px;font-weight:bold;}
+		.orderResult_info{background:#eaf6fd;}
+		.orderResult_info .inner{padding:25px 10px;}
+		.orderResult_info h1 a{color:#3798cd;text-decoration:none !important;}
+		.orderResult_tab_info p{background:#fff;color:#999;}
+		.orderResult_tab_info .m{border-color:#C2BDBA;}
+		.orderResult_tab_bord{padding:4px;background:#dce9e9;display:inline-block;}
+		.orderResult_tab_con{border:1px solid #cbdff3;background:#fff;padding:15px 10px;width:440px;}
+		.resultPhone{background-position:-922px -322px;}
+		.line{border-bottom:1px dashed #ccc;}
+		.orderResult_tab_info{width:370px;}
+		.sinaicon{background:url(${picPath}css/home/sina_icon.png) 0 4px no-repeat;display:inline-block;padding-left:20px;font-size:12px;}
+		.payBox_body_let{overflow:hidden;clear:both;position:relative;}
+		.payBox_body_let .inner{padding:10px 40px;}
+		.repic a{width:104px;height:104px;padding:4px;display:inline-block;}
+		.repic img{border:1px solid #c6c6c6;}
+		.repic a:hover{background:#e6e6e6;}
+		.reText{width:57.5%;}
+		.result_pay_box{width:578px;height:130px;z-index:2;padding:20px 40px;}
+		.result_pay{position:relative;width:580px;height:100%;z-index:1;overflow:hidden;}
+		.result_pay ul{width:100%;height:130px;overflow:hidden;clear:both;position:absolute;top:0;left:0;z-index:2;}
+		.result_pay li{width:290px;height:100%;float:left;overflow:hidden;}
+		.result_left,.result_right{width:19px;height:21px;display:inline-block;vertical-align:middle;position:absolute;top:50px;cursor:pointer;z-index:3;}
+		.result_left{background:url(${picPath}css/sport/result_left2.png) no-repeat;left:10px;}
+		.result_right{background:url(${picPath}css/sport/result_right2.png) no-repeat;right:10px;}
+		.boxBg{background:#f7f7f7;}
+		.payBox h4{font-size:12px;font-weight:bold;}
+		.Rline{background:url(${picPath}css/sport/sportBg.png) no-repeat;background-position:right -1552px;display:inline-block;width:240px;height:10px;}
+		.reBox input{margin-top:-2px;_margin-top:-4px;cursor:pointer;}
+		
+		.redBt{background-position:0 -4745px;}
+		.redBt span,.redBt input{background-position:right -4770px;color:#fff;}
+	</style>
+</head>
+<body>
+#set($isPay = true)#set($isOrder3=true)
+#set($cfgHeader='ticketHeader')#parse('include/navigation.vm')
+<div class="ui_layout">
+	<div class="inner">
+		#parse('sport/menu.vm')
+		<div class="clear mt20">
+			<div class="orderSuccessLeft left">
+				<div class="orderResult_info clear">
+					<div class="inner">
+						<ul class="ui_abeam">
+							<li>
+								<div class="uipic"><img src="${staticPath}css/images/blank.gif" style="background:url(${staticPath}css/buss/succ_i.png) center center no-repeat;" width="155"height="105" alt="购买成功"/></div>
+								<div class="uiText" style="width:460px;">
+									<h1>订单已完成支付 !<a href="${basePath}blog/t3197957" target="_blank">查看取票帮助»</a></h1>
+									<p class="fs14 coffee"> 预计<span style="color:#0c8a05; font-weight:bold;">15分钟</span>内将取票密码通过手机短信发送给你，请稍后... </p>
+									<p>订单号：<span class="blue mr10"><a href="${basePath}gewapay/showOrder.xhtml?orderId=$!sportorder.id" target="_blank" class="blue">$!sportorder.tradeNo</a></span>#if($order.paymethod eq 'gewaPay') #set($point=${order.due}-${order.wabi}) #else #set($point=$order.due) #end #if($point gt 0) 本次消费你获得<b class="fs14">$!point</b>积分 #end</p>
+									<div class="orderResult_tab_bord mt20">
+										<div class="orderResult_tab_con clear">
+											<div class="title line"><span class="resultPhone fs14">免费短信通知好友</span></div>
+											<div class="clear">
+												<div class="left mt20">短信内容：</div>
+												<div class="orderResult_tab_info mt10 left">
+													<em class="m1"></em>
+													<em class="m2"></em>
+													#set($description=$!VmUtils.getJsonValueByKey($!order.description2, '详细'))
+													#set($des=$VmUtils.split($description, ';'))
+													#set($d=$VmUtils.split($des[0], ' '))
+													<p class="m" id="msgContent">我预定了$!DateUtil.format($!goods.releasetime,"MM月dd日")$!{sport.name}$!goods.hours点，$item.name畅打/培训，邀请您一起参加，不要迟到哦！</p>
+													<em class="m2"></em>
+													<em class="m1"></em>
+												</div>
+											</div>
+											<div class="ui_abeam mt5">
+												<div class="uipic">
+													<p class="mt5"><label>我的名字：</label><input type="text" class="text" id="membername" maxlength="5" style="width:60px;"/></p>
+												</div>
+												<div class="uiText" style="width:260px;" id="voptions">
+													<div>
+														<p class="mt5 left"><label class="ml10">好友手机：</label><input class="text" type="text" name="" maxlength="11" style="width:150px;"/></p>
+														<p class="mt5 right"><span class="oAddPhone" id="addFont"></span></p>
+													</div>
+												</div>
+											</div>
+											<div class="mt10" style="z-index: 1;">
+							      			<label for="captcha" class="ml10">验证码：</label><input type="hidden" name="captchaId" id="captcha" />
+							      			<input id="captchaInput" class="text captcha" type="text" style="width:60px;font-size:12px" size="18" name="captcha" alt="点击获取" autocomplete="off"  onfocus="GewaraUtil.refreshCaptcha('captcha');"/>
+												<span style="overflow:hidden;"class="ml10 mr5">
+													<img class="ml5 mr5" id="captchaImg" title="看不清楚，请点击换一张图片" onclick="GewaraUtil.refreshCaptcha('captcha');" style="cursor: pointer;" src="${staticPath}css/images/blank.gif" height="30" width="80"/>
+												</span>
+												<a href="javascript:void(0);" class="button redBt minBt right mr30" onclick="sendMsg($order.id)"><span style="width:50px; font-size:14px">发送</span></a>
+							      		</div>
+										</div>
+									</div>
+									<div class="mt10 title">
+										<span class="bold">分享到：</span>
+										<span id="ckepop">
+											<span class="bt4" style="width:87px;display:inline-block;vertical-align:middle;"><a class="jiathis_button_tsina"style="margin:4px 0 0 4px;display:inline-block;">新浪微博</a></span>
+										</span>
+									</div>
+								</div>
+							</li>
+						</ul>	
+					</div>
+				</div>				
+				#if(!$VmUtils.isEmptyList($goodsList))
+				<div class="payBox mt10">
+					<div class="payBox_header">
+						<h3>场馆在线卖品</h3>
+					</div>
+					<div class="payBox_body_let result_pay_box" id="scrollSport">
+						#if($goodsList.size() gt 2)<div class="result_left eventses"></div>#end
+						<div class="result_pay">
+							<ul>
+								#foreach($goods in $goodsList)
+								<li>
+									<div class="uipic repic"><a href="${basePath}goods/buyGoods.xhtml?gid=$goods.id" target="_blank" title="$!goods.goodsname"><img src="$VmUtils.randomPic('cw90h90',$!goods.logo)" width="100"height="100"/></a></div>
+									<div class="uiText reText">
+										<a href="${basePath}goods/buyGoods.xhtml?gid=$goods.id" class="blue bold" target="_blank" title="$!goods.goodsname">$VmUtils.escabbr($!goods.goodsname, 20)</a>
+										<p>场馆价：$!goods.oriprice元</p>
+										<p class="yellow">格瓦拉价：$!goods.unitprice元</p>
+										<a href="${basePath}goods/buyGoods.xhtml?gid=$goods.id" class="button redBt minBt mt5" target="_blank"><span>我要购买</span></a>
+									</div>
+								</li>
+								#end
+							</ul>
+						</div>
+						#if($goodsList.size() gt 2)<div class="result_right eventses"></div>#end
+					</div>
+				</div>
+				#end
+				<div class="payBox mt10">
+					<div class="payBox_header">
+						<h3>场馆预订流程</h3>
+					</div>
+					<div class="payBox_body_let">
+						<div class="inner">
+							<img src="${picPath}css/sport/sport_list.jpg" width="558"height="76"/>
+						</div>
+					</div>
+				</div>
+				<div class="payBox mt10">
+					<div class="payBox_header">
+						<h3>取票机的位置</h3>
+					</div>
+					<div class="payBox_body_let">
+						<div class="inner">
+							<p class="mt10">取票方式：凭手机号码和短信中的取票密码在自助取票机上取票</p>
+							<p class="bold">取票机位置图</p>
+							#if($sport.machinepic)<img src="$VmUtils.randomPic('sw280h190', $!sport.machinepic)" class="mt20"/>#else <div class="gray">暂无取票机位置</div>#end
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="orderSuccessRight right">
+				<div class="payBox boxBg">
+					<div class="inner">
+						<h4>场馆平面图</h4>
+						<div class="Rline mt5"></div>
+						#if($sport.floorplan)<a href="$VmUtils.randomPic('', $!sport.floorplan)" class="mt5" style="display:inline-block;" target="_blank"><img src="$VmUtils.randomPic('sw280h190', $!sport.floorplan)" width="240"height="130"/></a>#else <div class="gray">暂无场馆平面图</div> #end
+					</div>
+				</div>
+				<div class="payBox boxBg mt10">
+					<div class="inner">
+						<h4 class="bdsi">用户调查</h4>
+						<div class="Rline mt5"></div>
+						<div class="payBox_body reBox">
+							<p>你对本次场馆预订流程是否满意？</p>
+							<p><input type="radio" id="iyes" class="ml10 mr5" name="ismy"/><label for="iyes">满意</label>
+								<input type="radio" id="ino" class="ml30 mr5" name="ismy" onclick/><label for="ino">不满意</label>
+							</p>
+							<div class="mt10 retext" id="ino_content" style="display:none"><textarea rows="" cols="" id="markText">请写你不满意的原因、建议！</textarea><span class="up"></span><span class="down"></span></div>
+							<div class="mt10 center"><a class="bt3" href="javascript:void(0);" onclick="addSurveyResult();" id="survey">提交</a><span class="bt5 none" id="unSurvey">提交</span></div>
+						</div>
+					</div>
+				</div>
+				<div class="payBox boxBg mt10">
+					<div class="inner">
+						<h4>预订该场馆的其他用户</h4>
+						<div class="Rline mt5"></div>
+						<ul class="percent_33">
+							#foreach($memberInfo in $memberInfoList)
+							<li>
+								<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$memberInfo.id" class="pubpic" target="_blank"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$memberInfo.headpic)) center center no-repeat;" width="50"height="50"/></a><br/>
+								<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$memberInfo.id" target="_blank" title="$!memberInfo.nickname" class="blue">$VmUtils.escabbr($!memberInfo.nickname, 8)</a>
+								<p class="gray">$DateUtil.getDateDesc($memberList.get($foreach.index).get('paidtime'))</p>
+							</li>
+							#end
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#set($pageTrack=${basePath} + 'sport/order/success.html')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	#if($VmUtils.size($goodsList) > 2)new evengo({'parent':'scrollSport','times':1,'width':290,'allwidth':580});#end
+	$('markText').addEvents({
+		focus:function(){
+				if ($('markText').value.contains('请写你不满意的原因、建议！')){
+					$('markText').set('value','');
+				}
+		},
+		blur:function(){
+				if ($('markText').value==""){
+					$('markText').set('value','请写你不满意的原因、建议！');
+				}	
+		   }
+	});
+	$('addFont').addEvent('click',function(){
+		addOpation();
+	})
+	showRe();
+})
+var vcount = 0;
+function addOpation(){
+	if(vcount == 1){
+		$('addFont').hide();
+		return;
+	}
+	var ap = $('voptions').getFirst().clone();
+	ap.getElement('input').value = "";
+	var aspan = ap.getElement('*[class=oAddPhone]');
+	aspan.set('class','oDelPhone');
+	aspan.set('id','');
+	aspan.removeEvents('click');
+	aspan.addEvent('click',function(){
+		this.getParent('div').dispose();
+		vcount--;
+		if(vcount > 0)$('addFont').show();
+	})
+	ap.inject('voptions');
+	vcount++;
+}
+function showRe(){
+	$('ino').addEvent('click',function(){
+		$('ino_content').show();
+	});
+	$('iyes').addEvent('click',function(){
+		$('ino_content').hide();
+	});
+}
+
+function sendMsg(orderId){
+	var mobile = '';
+	var err = '';
+	if($('membername').value == ''){gewaUtil.alert("请输入您的名字！");}
+	var mobileDiv = $('voptions').getElements('input').each(function(el){
+		var val = el.value;
+		if((!isNumber(val) || val.length != 11) || val == ""){
+			el.value == '';
+			err = '部分手机号码格式错误，短信未发送！';
+		}else{
+			mobile = mobile + ',' + el.value;
+		}
+	});
+	if(err.length > 0){
+		gewaUtil.alert(err);
+		return false;
+	}
+	if(mobile == ''){
+		gewaUtil.alert("好友手机号码不能为空");
+		return false;
+	}
+	if($('captchaInput').value == ''){
+		gewaUtil.alert("请输入验证码！");
+		return false;
+	}
+	var msgContent = $('msgContent').innerHTML;
+	msgContent = msgContent.replace('我', $('membername').value);
+	gewa.util.mask({'title':'正在提交，请稍等...'});
+	var values = {"orderId":orderId, "mobile":mobile, "msgContent":msgContent, "captcha":$('captchaInput').value,'captchaId':$('captcha').value};
+	GewaraUtil.sendRequest('${basePath}sport/ajax/newsportSendMsg.xhtml', values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			gewaUtil.alert("发送成功！");
+		}else{
+			$('captcha').value='';
+			GewaraUtil.refreshCaptcha('captcha');
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+
+function isNumber(str){return /^\d+$/.test(str);}
+
+function addSurveyResult(){
+	var optionid = 0;
+	var mark = '';
+	if($('iyes').checked){
+		optionid = 1;
+	}else	if($('ino').checked){
+		optionid = 2;
+		if($('markText').value != '请写你不满意的原因、建议！') mark = $('markText').value;
+	}else{
+		gewaUtil.alert('请选择用户调查选项！');
+		return;
+	}
+	var url = '${basePath}survey/ajax/addSurveyResult.xhtml';
+	var values = {"surveyid":2,"itemid":1,"optionid":optionid,"memberid":$sportorder.memberid,"mark":mark};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.alert("提交成功！");
+			$('survey').addClass('none');
+			$('unSurvey').removeClass('none');
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+window.addEvent('load', function(){
+	Asset.javascript('http://v1.jiathis.com/code_mini/jia.js?uid=1518302', {
+		onLoad: function(){
+			jiathis_config = {
+				data_track_clickback:true,
+				url: document.location.href,
+				title: $('msgContent').innerHTML
+			}
+		}
+	});
+});
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

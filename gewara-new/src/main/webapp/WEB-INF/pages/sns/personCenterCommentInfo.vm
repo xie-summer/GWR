@@ -1,0 +1,1569 @@
+#if($commentList)
+#foreach($comment in $commentList)
+
+#*发表活动产生的哇啦，并且不是转载的*#
+#if($!VmUtils.eq($!comment.tag ,'member_activity') && ($!comment.transferid eq 0 || $!VmUtils.isNull($!comment.transferid)))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" class="pubpic" lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							#if(!$!type)<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank">$!comment.nickname</a>：#end $!VmUtils.perlString($!comment.body, $basePath, $picPath)<br/>
+							#set($otherInfo = $!VmUtils.readJsonToMap($!comment.otherinfo))
+							#if(!$!VmUtils.isNull($otherInfo.get('activityDate')))活动时间：<span class="gray">$otherInfo.get('activityDate')</span>#end
+						</dd>
+					</dl>
+					<div class="relationBody">
+						#if(!$!VmUtils.isNull($!comment.link))
+						<img src="$VmUtils.randomPic('cw300h300',$!comment.link)" width="300" id="$!comment.id"/>
+						#end
+					</div>
+					#if(!$VmUtils.isEmptyList($!activityJoinMemberMap.get($!comment.id)))
+					<div class="party">
+						#foreach($ap in $!activityJoinMemberMap.get($!comment.id))
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$ap.memberid" class="picmin" lang="$ap.memberid" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($ap.memberid).headpicUrl)" width="30" height="30"/></a>
+						#end
+					</div>
+					#end
+					
+					#if(!$VmUtils.isEmptyList($!activityJoinOrderMemberMap.get($!comment.id)))
+					<div class="party">
+						#foreach($ap in $!activityJoinOrderMemberMap.get($!comment.id))
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$ap.memberid" class="picmin" lang="$ap.memberid" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($ap.memberid).headpicUrl)" width="30" height="30"/></a>
+						#end
+					</div>
+					#end
+					<div class="review">
+						<span class="personCount">#if(!$!VmUtils.isNull($otherInfo.get('clickedtimes'))) $otherInfo.get('clickedtimes') #else 0 #end</span>
+						<a href="$!{basePath}activity/$!comment.relatedid" target="_blank">活动详情</a>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" lang="f" id="$!comment.id" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" lang="r" accesskey="" id="$!comment.id" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#*当场馆产生一个活动的时候产生的哇啦,不是转载*#
+#elseif(($!VmUtils.eq($!comment.tag,'sport_activity') || $!VmUtils.eq($!comment.tag,'cinema_activity') || $!VmUtils.eq($!comment.tag,'theatre_activity') || $!VmUtils.eq($!comment.tag,'ktv_activity') || $!VmUtils.eq($!comment.tag,'bar_activity') || $!VmUtils.eq($!comment.tag,'gym_activity')) && ($!comment.transferid eq 0 || $!VmUtils.isNull($!comment.transferid)))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+	#set($otherInfo = $!VmUtils.readJsonToMap($!comment.otherinfo))
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_interest">
+				<div class="inner">
+					<dl class="ui_abeam">
+						<dt class="uipic"><a href="$!{basePath}activity/$!otherInfo.get('id')" target="_blank"><img src="$VmUtils.randomPic('cw96h128',$comment.link)" width="96" height="128"/></a></dt>
+						<dd class="uiText">
+							<div class="relationBody">
+								你感兴趣的场馆正在举行活动<br/>
+								<a href="$!{basePath}movie/$!comment.relatedid" target="_blank">$!VmUtils.perlString($!comment.body, $basePath, $picPath)</a><br/>
+								#if(!$!VmUtils.isNull($otherInfo.get('activitysportdate')))活动时间：<span class="gray">$otherInfo.get('activitysportdate')</span>#end
+							</div>
+						</dd>
+					</dl>
+					<div class="relationBody">
+						#if(!$!VmUtils.isNull($!comment.link))
+						<img src="$VmUtils.randomPic('cw300h300',$!comment.link)" width="300" id="$!comment.id"/>
+						#end
+					</div>
+					#if(!$VmUtils.isEmptyList($!activityJoinMemberMap.get($!comment.id)))
+					<div class="party">
+						#foreach($ap in $!activityJoinMemberMap.get($!comment.id))
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$ap.memberid" class="picmin" lang="$ap.memberid" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($ap.memberid).headpicUrl)" width="30" height="30"/></a>
+						#end
+					</div>
+					#end
+					
+					#if(!$VmUtils.isEmptyList($!activityJoinOrderMemberMap.get($!comment.id)))
+					<div class="party">
+						#foreach($ap in $!activityJoinOrderMemberMap.get($!comment.id))
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$ap.memberid" class="picmin" lang="$ap.memberid" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($ap.memberid).headpicUrl)" width="30" height="30"/></a>
+						#end
+					</div>
+					#end
+					<div class="review">
+						<span class="personCount">#if(!$!VmUtils.isNull($otherInfo.get('clickedtimes'))) $otherInfo.get('clickedtimes') #else 0 #end</span>
+						<a href="$!{basePath}activity/$!otherInfo.get('id')" target="_blank">活动详情</a>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" lang="f" id="$!comment.id" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" lang="r" id="$!comment.id" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+#*当用户发表一条帖子产生的哇啦，并且不是转载的*#
+#elseif($!VmUtils.eq($!comment.tag ,'member_diary') && ($!comment.transferid eq 0 || $!VmUtils.isNull($!comment.transferid)))
+#set($otherInfo = $!VmUtils.readJsonToMap($!comment.otherinfo))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" class="pubpic" target="_blank" lang="$!comment.memberid"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							#if(!$!type)<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank">$!comment.nickname</a>：#end $!VmUtils.perlString($!comment.body, $basePath, $picPath)<br/>
+							#if(!$!VmUtils.isNull($otherInfo.get('diaryContent')))<span class="gray">$otherInfo.get('diaryContent')</span>#end
+						</dd>
+					</dl>
+					<div class="relationBody">
+					#if(!$!VmUtils.isNull($!comment.link))
+					<img src="$VmUtils.randomPic('cw300h300',$!comment.link)" width="300"  id="$!comment.id"/>
+					#end
+					</div>
+					<div class="party">
+						<span class="personCount">
+						#if(!$!VmUtils.isNull($otherInfo.get('clickedtimes'))) $otherInfo.get('clickedtimes') #else 0 #end
+							<span>◆</span>
+							<em>◆</em>
+						</span>
+						#if(!$VmUtils.isEmptyList($!activityJoinMemberMap.get($!comment.id)))
+						#foreach($ap in $!activityJoinMemberMap.get($!comment.id))
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$ap.memberid" class="picmin" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($ap.memberid).headpicUrl)" width="30" height="30"/></a>
+						#end
+						#end
+						
+						#if(!$VmUtils.isEmptyList($!activityJoinOrderMemberMap.get($!comment.id)))
+						#foreach($ap in $!activityJoinOrderMemberMap.get($!comment.id))
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$ap.memberid" class="picmin" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($ap.memberid).headpicUrl)" width="30" height="30"/></a>
+						#end
+						
+						#end
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!comment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+#*圈子里面产生的一个活动产生的哇啦,不是转载的*#
+#elseif($!VmUtils.eq($!comment.tag ,'commu_activity') && ($!comment.transferid eq 0 || $!VmUtils.isNull($!comment.transferid)))
+#set($otherInfo = $!VmUtils.readJsonToMap($!comment.otherinfo))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						<dt class="uipic"><a href="${basePath}quan/$!comment.relatedid" class="pubpic" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$otherInfo.get('logo'))" width="50" height="50"/></a></dt>
+						<dd class="uiText">
+							$!VmUtils.perlString($!comment.body, $basePath, $picPath)<br/>
+							#if(!$!VmUtils.isNull($otherInfo.get('activityDate')))活动时间：<span class="gray">$otherInfo.get('activityDate')</span>#end
+							<br/>
+							#if(!$!VmUtils.isNull($otherInfo.get('from')))<span class="gray">$otherInfo.get('from')</span>#end
+						</dd>
+					</dl>
+					<div class="relationBody">
+						#if(!$!VmUtils.isNull($!comment.link))
+						<img src="$VmUtils.randomPic('cw300h300',$!comment.link)" width="300"  id="$!comment.id"/>
+						#end
+					</div>
+					#if(!$VmUtils.isEmptyList($!activityJoinMemberMap.get($!comment.id)))
+					<div class="party">
+						#foreach($ap in $!activityJoinMemberMap.get($!comment.id))
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$ap.memberid" class="picmin" lang="$ap.memberid" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($ap.memberid).headpicUrl)" width="30" height="30"/></a>
+						#end
+					</div>
+					#end
+					
+					#if(!$VmUtils.isEmptyList($!activityJoinOrderMemberMap.get($!comment.id)))
+					<div class="party">
+						#foreach($ap in $!activityJoinOrderMemberMap.get($!comment.id))
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$ap.memberid" class="picmin" lang="$ap.memberid" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($ap.memberid).headpicUrl)" width="30" height="30"/></a>
+						#end
+					</div>
+					#end
+					<div class="review">
+						<span class="personCount">#if(!$!VmUtils.isNull($otherInfo.get('clickedtimes'))) $otherInfo.get('clickedtimes') #else 0 #end</span>
+						<a href="$!{basePath}activity/$!comment.relatedid" target="_blank">活动详情</a>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!comment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+#*一个用户加入某个圈子以后产生的哇啦*#
+#elseif($!VmUtils.eq($!comment.tag ,'member_commu'))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						<dt class="uipic"><a href="${basePath}quan/$comment.relatedid" class="pubpic" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$comment.link)" width="50" height="50"/></a></dt>
+						<dd class="uiText">
+							<p>$!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>
+							#set($otherInfo = $!VmUtils.readJsonToMap($!comment.otherinfo))
+							#if(!$!VmUtils.isNull($otherInfo.get('info')))<span class="gray">$otherInfo.get('info')</span>#end
+							<div class="review">
+								<span class="isMenber">$!otherInfo.get('commumembercount')</span>
+								<span class="accost">$!otherInfo.get('commuDiaryCount')</span>
+							</div>
+						</dd>
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+					</dl>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+#*给场院评论的时候产生的哇啦,不是转载的*#
+#elseif(($!VmUtils.eq($!comment.tag ,'member_cinema')||$!VmUtils.eq($!comment.tag ,'member_sport')||$!VmUtils.eq($!comment.tag ,'member_theatre')||$!VmUtils.eq($!comment.tag ,'member_gym')) && ($!comment.transferid eq 0 || $!VmUtils.isNull($!comment.transferid)))
+#set($otherInfo = $!VmUtils.readJsonToMap($!comment.otherinfo))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a lang="$!comment.memberid" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" class="pubpic" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							#if(!$!type)<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank">$!comment.nickname</a>：#end $!VmUtils.perlString($!comment.body, ${basePath}, ${picPath})<br/>#*有问题*#
+							<div class="clear">
+								#set($isMinStaticRating=true)
+								#set($gmark=$math.abs($!otherInfo.get('gmark1'))*10)
+								#parse('include/global/staticRating.vm')#*有问题*#
+								<sub>$!otherInfo.get('gmark1')</sub><sup>.$!otherInfo.get('gmark2')</sup>
+							</div>
+							#if(!$!VmUtils.isNull($otherInfo.get('content')))<span class="gray">$!VmUtils.getWebBody($otherInfo.get('content'),$picPath)</span>#end
+							<div class="relationBody">
+								#if(!$!VmUtils.isNull($!comment.picturename))
+								<img src="$VmUtils.randomPic('cw300h300',$!comment.picturename)" width="300" />
+								#end
+							</div>
+							<div class="review">
+							#if($!VmUtils.eq($!comment.tag ,'member_cinema'))
+							<a href="$!{basePath}cinema/$!comment.relatedid" target="_blank">场馆详情</a>
+							#elseif($!VmUtils.eq($!comment.tag ,'member_sport'))
+							<a href="$!{basePath}sport/$!comment.relatedid" target="_blank">场馆详情</a>
+							#elseif($!VmUtils.eq($!comment.tag ,'member_theatre'))
+							<a href="$!{basePath}theatre/$!comment.relatedid" target="_blank">场馆详情</a>
+							#elseif($!VmUtils.eq($!comment.tag ,'member_gym'))
+							<a href="$!{basePath}gym/$!comment.relatedid" target="_blank">场馆详情</a>
+							#end
+							</div>
+						</dd>
+					</dl>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!comment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp"  id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+#*用户发表一个提问产生的哇啦，不是转载的哇啦*#
+#elseif($!VmUtils.eq($!comment.tag ,'member_qa') && ($!comment.transferid eq 0 || $!VmUtils.isNull($!comment.transferid)))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" lang="$comment.memberid" class="pubpic" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							#if(!$!type)<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank">$!comment.nickname</a>：#end $!VmUtils.perlString($!comment.body, $basePath, $picPath)<br/>
+							#set($otherInfo = $!VmUtils.readJsonToMap($!comment.otherinfo))
+							#if(!$!VmUtils.isNull($otherInfo.get('reward'))) <span class="isqa">悬赏分：</span><b class="brown">$otherInfo.get('reward')</b>#end
+							   #if(!$!VmUtils.isNull($otherInfo.get('timeinfo'))) <span class="gray ml10">$otherInfo.get('timeinfo')</span>#end
+							<br/>
+						</dd>
+					</dl>
+					
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!comment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+#*用户写了一个生活安排产生的哇啦，不是转载的哇啦*#
+#elseif($!VmUtils.eq($!comment.tag ,'member_agenda') && ($!comment.transferid eq 0 || $!VmUtils.isNull($!comment.transferid)))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" lang="$comment.memberid" class="pubpic" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							#if(!$!type)<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank">$!comment.nickname</a>：#end $!VmUtils.perlString($!comment.body, $basePath, $picPath)<br/>
+						</dd>
+					</dl>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!comment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+#*用户写了一个生活安排产生的哇啦，是转载的哇啦*#
+#elseif($!VmUtils.eq($!comment.tag,'member_agenda') && $!comment.transferid ne 0 && !$!VmUtils.isNull($!comment.transferid))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+	#set($transfercomment = $!transferCommentMap.get($!comment.id))
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" class="pubpic" lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							<p>#if(!$!type)<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.nickname</a>：#end $!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>
+						</dd>
+					</dl>
+					<div class="relationship_act">
+						<dl class="ui_abeam">
+							<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!transfercomment.memberid" class="picmin" lang="$transfercomment.memberid" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($transfercomment.memberid).headpicUrl)" width="30" height="30"/></a></dt>
+							<dd class="uiText">
+							<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!transfercomment.memberid" target="_blank">@$!transfercomment.nickname</a>：$!VmUtils.perlString($!transfercomment.body, $basePath, $picPath)<br/>
+							</dd>
+						</dl>
+						<div class="loadup">
+							<span class="left">$DateUtil.getTimeDesc($!transfercomment.addtime) 来自 $!transfercomment.fromFlag</span>
+							<span class="right">
+								<span class="loadRo unLoadRo">$!transfercomment.transfercount</span>
+								<span class="loadRp unLoadRp">$!transfercomment.replycount</span>
+							</span>
+						</div>
+					</div>
+				</div>
+				<div class="loadup">
+					<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+					<span class="right">
+						<button class="loadRo" id="$!transfercomment.id" lang="f" title="转发">$!comment.transfercount</button>
+						<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+					</span>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+#*用户发表一个提问产生的哇啦，是转载的哇啦*#
+#elseif($!VmUtils.eq($!comment.tag,'member_qa') && $!comment.transferid ne 0 && !$!VmUtils.isNull($!comment.transferid))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+	#set($transfercomment = $!transferCommentMap.get($!comment.id))
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" class="pubpic" lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							<p>#if(!$!type)<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.nickname</a>：#end $!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>
+						</dd>
+					</dl>
+					<div class="relationship_act">
+						<dl class="ui_abeam">
+							<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$transfercomment.memberid" lang="$transfercomment.memberid" class="picmin" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($transfercomment.memberid).headpicUrl)" width="30" height="30"/></a></dt>
+							<dd class="uiText">
+							<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$transfercomment.memberid" target="_blank">@$!transfercomment.nickname</a>：$!VmUtils.perlString($!transfercomment.body, $basePath, $picPath)<br/>
+							#set($otherInfo = $!VmUtils.readJsonToMap($!transfercomment.otherinfo))
+							#if(!$!VmUtils.isNull($otherInfo.get('reward'))) 悬赏分：<span class="gray">$otherInfo.get('reward')</span>#end
+							   #if(!$!VmUtils.isNull($otherInfo.get('timeinfo'))) <span class="gray">$otherInfo.get('timeinfo')</span>#end
+							<br/>
+							</dd>
+						</dl>
+						<div class="loadup">
+							<span class="left">$DateUtil.getTimeDesc($!transfercomment.addtime) 来自 $!transfercomment.fromFlag</span>
+							<span class="right">
+								<span class="loadRo unLoadRo">$!transfercomment.transfercount</span>
+								<span class="loadRp unLoadRp">$!transfercomment.replycount</span>
+							</span>
+						</div>
+					</div>
+				</div>
+				<div class="loadup">
+					<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+					<span class="right">
+						<button class="loadRo" id="$!transfercomment.id" lang="f" title="转发">$!comment.transfercount</button>
+						<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+					</span>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+#*电影上下映提示产生的哇啦*#
+#elseif($!VmUtils.eq($!comment.tag,'movie_release') || $!VmUtils.eq($!comment.tag,'movie_down'))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+	#set($otherInfo = $!VmUtils.readJsonToMap($!comment.otherinfo))
+	#if($!VmUtils.eq($!otherInfo.get('release'),'release') || $!VmUtils.eq($!otherInfo.get('downrelease'),'downrelease'))
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_interest">
+				<img src="${staticPath}css/images/blank.gif" class="#if($!VmUtils.eq($!otherInfo.get('downrelease'),'downrelease'))willdo #elseif($!VmUtils.eq($!otherInfo.get('release'),'release')) lastdo#end"/>
+				<div class="inner">
+					<dl class="ui_abeam">
+						<dt class="uipic"><a href="$!{basePath}movie/$!comment.relatedid" target="_blank"><img src="$VmUtils.randomPic('cw96h128',$comment.link)" width="96" height="128"/></a></dt>
+						<dd class="uiText">
+							<div class="relationBody">
+								$!comment.body<br/><a href="$!{basePath}movie/$!comment.relatedid" target="_blank">$!otherInfo.get('moviename')</a><br/>
+								<div class="clear">
+									#set($isMinStaticRating=true)
+									#set($gmark=$math.abs($!otherInfo.get('gmark1'))*10)
+									#parse('include/global/staticRating.vm')#*有问题*#
+									<sub>$!otherInfo.get('gmark1')</sub><sup>.$!otherInfo.get('gmark2')</sup>
+									#if(!$!VmUtils.isNull($!otherInfo.get('commentNum')))<span class="ml10"><em class="red">$!otherInfo.get('commentNum')</em>条哇啦</span>#end
+								</div>
+								#if(!$!VmUtils.isNull($!otherInfo.get('highlight')))<div class="mt5">精彩看点：$!otherInfo.get('highlight')</div>#end
+							</div>
+							<div class="review mt5"><a href="$!{basePath}movie/$!comment.relatedid/playtable" target="_blank">查看排期</a></div>
+						</dd>
+					</dl>
+					<div class="gray mt5">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</div>
+				</div>
+			</div>
+		</div>
+		#end
+	</div>
+</div>
+
+#*感兴趣的电影被评论以后产生的哇啦，不是转载的*#
+#elseif($!VmUtils.eq($!comment.tag,'movie_comment') && ($!comment.transferid eq 0 || $!VmUtils.isNull($!comment.transferid)))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+		#set($otherInfo = $!VmUtils.readJsonToMap($!comment.otherinfo))
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_interest">
+				<div class="inner">
+					<dl class="ui_abeam">
+						<dt class="uipic"><a href="$!{basePath}movie/$!comment.relatedid" target="_blank"><img src="$VmUtils.randomPic('cw96h128',$comment.link)" width="96" height="128"/></a></dt>
+						<dd class="uiText">
+							<div class="relationBody">$!VmUtils.perlString($!comment.body, $basePath, $picPath)<br/>
+						    $!otherInfo.get('diaryContent')..  </div>
+						</dd>
+					</dl>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime)来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!comment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+#*发表活动产生的哇啦，并且是转载的*#
+#elseif($!VmUtils.eq($!comment.tag,'member_activity') && $!comment.transferid ne 0 && !$!VmUtils.isNull($!comment.transferid))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+	#set($transfercomment = $!transferCommentMap.get($!comment.id))
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" class="pubpic" lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							<p>
+							#if(!$!type)<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.nickname</a>：#end
+							$!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>
+						</dd>
+					</dl>
+					<div class="relationship_act">
+						<dl class="ui_abeam">
+							<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!transfercomment.memberid" class="picmin" target="_blank" lang="$!transfercomment.memberid"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($transfercomment.memberid).headpicUrl)" width="30" height="30"/></a></dt>
+							<dd class="uiText">
+								<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!transfercomment.memberid" target="_blank">@$!transfercomment.nickname</a>：$!VmUtils.perlString($!transfercomment.body, $basePath, $picPath)<br/>
+								#set($otherInfo = $!VmUtils.readJsonToMap($!transfercomment.otherinfo))
+								#if(!$!VmUtils.isNull($otherInfo.get('activityDate')))活动时间：<span class="gray">$otherInfo.get('activityDate')</span>#end
+							</dd>
+						</dl>
+						<div class="relationBody">
+							#if(!$!VmUtils.isNull($!transfercomment.link))
+							<img src="$VmUtils.randomPic('cw300h300',$!transfercomment.link)" width="300" id="$!transfercomment.id"/>
+							#end
+							<div class="party">
+								#if(!$VmUtils.isEmptyList($!activityJoinMemberMap.get($!comment.id)))
+								 #set($count = 0)
+						   		 #set($A = 0)
+								#foreach($ap in $!activityJoinMemberMap.get($!comment.id))
+									#set($count = $count + 1)
+									<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$ap.memberid" lang="$ap.memberid" class="picmin" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($ap.memberid).headpicUrl)" width="30" height="30"/></a>
+								#end
+								
+								#end
+							
+								#if(!$VmUtils.isEmptyList($!activityJoinOrderMemberMap.get($!comment.id)))
+								 #set($count = 0)
+						   		 #set($A = 0)
+								#foreach($ap in $!activityJoinOrderMemberMap.get($!comment.id))
+									#set($count = $count + 1)
+									<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$ap.memberid" class="picmin" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($ap.memberid).headpicUrl)" width="30" height="30"/></a>
+								#end
+								#end
+							</div>
+						</div>
+						<div class="review">
+							<span class="personCount">#if(!$!VmUtils.isNull($otherInfo.get('clickedtimes'))) $otherInfo.get('clickedtimes') #else 0 #end
+								<span>◆</span>
+								<em>◆</em>
+							</span>
+							<a href="$!{basePath}activity/$!transfercomment.relatedid" target="_blank">活动详情</a>
+						</div>
+						<div class="loadup">
+							<span class="left">$DateUtil.getTimeDesc($!transfercomment.addtime) 来自 $!transfercomment.fromFlag</span>
+							<span class="right">
+								<span class="loadRo unLoadRo">$!transfercomment.transfercount</span>
+								<span class="loadRp unLoadRp">$!transfercomment.replycount</span>
+							</span>
+						</div>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!transfercomment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+						#parse('sns/replyComment.vm')
+				</div>
+			</div>	
+		</div>
+	</div>
+</div>
+
+#*感兴趣的电影有影评的时候产生的哇啦，并且是转载的*#
+#elseif($!VmUtils.eq($!comment.tag,'movie_comment') && $!comment.transferid ne 0 && !$!VmUtils.isNull($!comment.transferid))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+	#set($transfercomment = $!transferCommentMap.get($!comment.id))
+	#set($otherInfo = $!VmUtils.readJsonToMap($!transfercomment.otherinfo))
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" class="pubpic" lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							<p>
+							#if(!$!type)<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.nickname</a>：#end
+							$!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>
+						</dd>
+					</dl>
+					<div class="relationship_act">
+						<dl class="ui_abeam">
+							<dt class="uipic"><a href="$!{basePath}movie/$!comment.relatedid" target="_blank"><img src="$VmUtils.randomPic('cw96h128',$transfercomment.link)" width="96" height="128"/></a></dt>
+							<dd class="uiText" style="width:196px;">
+								<div class="relationBody">
+									$!VmUtils.perlString($!transfercomment.body, $basePath, $picPath)<br/>
+								    $!otherInfo.get('diaryContent')..  
+							    </div>
+							</dd>
+						</dl>
+						<div class="loadup">
+							<span class="left">$DateUtil.getTimeDesc($!transfercomment.addtime)来自 $!transfercomment.fromFlag</span>
+							<span class="right">
+								<span class="loadRo unLoadRo">$!transfercomment.transfercount</span>
+								<span class="loadRp unLoadRp">$!transfercomment.replycount</span>
+							</span>
+						</div>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!transfercomment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>	
+		</div>
+	</div>
+</div>
+
+#*上传图片的时候产生的哇啦，并且是转载的*#
+#elseif(($!VmUtils.eq($!comment.tag ,'member_picture') || $!VmUtils.eq($!comment.tag ,'member_memberpicture')) && $!comment.transferid ne 0 && !$!VmUtils.isNull($!comment.transferid))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+	#set($transfercomment = $!transferCommentMap.get($!comment.id))
+	#set($otherInfo = $!VmUtils.readJsonToMap($!transfercomment.otherinfo))
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" class="pubpic" lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							<p>
+							#if(!$!type)<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.nickname</a>：#end
+							$!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>
+						</dd>
+					</dl>
+					<div class="relationship_act">
+						<dl class="ui_abeam">
+							#if(!$!type)<dt class="uipic"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$transfercomment.memberid" class="pubpic" lang="$transfercomment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($transfercomment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+							<dd class="uiText">
+								#if(!$!type)<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$transfercomment.memberid" target="_blank">@$!transfercomment.nickname</a>：#end $!VmUtils.perlString($!transfercomment.body, $basePath, $picPath)<br/>
+							</dd>
+						</dl>
+						<div class="relationBody">
+							#if(!$!VmUtils.isNull($!otherInfo.get('image1')))
+							<img src="$VmUtils.randomPic('cw300h300',$!otherInfo.get('image1'))" class="isBig" config="isBig" width="306"  id="$!otherInfo.get('imageid1')"/>#*有问题*#
+							#end
+						</div>
+						<div class="relationBody">
+							#if(!$!VmUtils.isNull($!otherInfo.get('image2')))
+							<a href="$!{basePath}home/new/album/albumList.xhtml?albumid=$!otherInfo.get('albumid')&memberid=$!transfercomment.memberid" lang="$!otherInfo.get('imageid2')" target="_blank"><img src="$VmUtils.randomPic('cw100h100',$!otherInfo.get('image2'))" width="100" height="100" id="$!otherInfo.get('imageid2')"/></a>#*有问题*#
+							#end
+							#if(!$!VmUtils.isNull($!otherInfo.get('image3')))
+							<a href="$!{basePath}home/new/album/albumList.xhtml?albumid=$!otherInfo.get('albumid')&memberid=$!transfercomment.memberid" lang="$!otherInfo.get('imageid3')" target="_blank"><img src="$VmUtils.randomPic('cw100h100',$!otherInfo.get('image3'))" width="100" height="100" id="$!otherInfo.get('imageid3')"/></a>#*有问题*#
+							#end
+							#if(!$!VmUtils.isNull($!otherInfo.get('image4')))
+							<a href="$!{basePath}home/new/album/albumList.xhtml?albumid=$!otherInfo.get('albumid')&memberid=$!transfercomment.memberid" lang="$!otherInfo.get('imageid4')" target="_blank"><img src="$VmUtils.randomPic('cw100h100',$!otherInfo.get('image4'))" width="100" height="100" id="$!otherInfo.get('imageid4')"/></a>#*有问题*#
+							#end
+						</div>
+						<div class="review">
+							<span class="personCount">#if(!$!VmUtils.isNull($otherInfo.get('clickedtimes'))) $otherInfo.get('clickedtimes') #else 0 #end</span>#*有问题*#
+							<a href="$!{basePath}home/new/album/albumList.xhtml?albumid=$!otherInfo.get('albumid')&memberid=$!transfercomment.memberid" target="_blank">$!otherInfo.get('imagecount')张新照片</a>
+						</div>
+						<div class="loadup">
+							<span class="left">$DateUtil.getTimeDesc($!transfercomment.addtime) 来自 $!transfercomment.fromFlag</span>
+							<span class="right">
+								<span class="loadRo unLoadRo">$!transfercomment.transfercount</span>
+								<span class="loadRp unLoadRp">$!transfercomment.replycount</span>
+							</span>
+						</div>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!transfercomment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>	
+		</div>
+	</div>
+</div>
+
+#*评论场馆的时候产生的哇啦，并且是转载的*#
+#elseif(($!VmUtils.eq($!comment.tag ,'member_cinema')||$!VmUtils.eq($!comment.tag ,'member_sport')||$!VmUtils.eq($!comment.tag ,'member_theatre')||$!VmUtils.eq($!comment.tag ,'member_gym')) && $!comment.transferid ne 0 && !$!VmUtils.isNull($!comment.transferid))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+	#set($transfercomment = $!transferCommentMap.get($!comment.id))
+	#set($otherInfo = $!VmUtils.readJsonToMap($!transfercomment.otherinfo))
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" class="pubpic" lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							<p>
+							#if(!$!type)<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.nickname</a>：#end
+							$!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>
+						</dd>
+					</dl>
+					<div class="relationship_act">
+						<dl class="ui_abeam">
+							#if(!$!type)<dt class="uipic"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$transfercomment.memberid" lang="$transfercomment.memberid" class="pubpic" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($transfercomment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+							<dd class="uiText">
+								#if(!$!type)<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$transfercomment.memberid" target="_blank">@$!transfercomment.nickname</a>：#end $!VmUtils.perlString($!transfercomment.body, $basePath, $picPath)<br/>
+								<div class="clear">
+									#set($isMinStaticRating=true)
+									#set($gmark=$math.abs($!otherInfo.get('gmark1'))*10)
+									#parse('include/global/staticRating.vm')#*有问题*#
+									<sub>$!otherInfo.get('gmark1')</sub><sup>.$!otherInfo.get('gmark2')</sup>
+								</div>
+								#if(!$!VmUtils.isNull($otherInfo.get('content')))<span class="gray">$otherInfo.get('content')</span>#end
+								<br/>
+								<div class="review">
+							#if($!VmUtils.eq($!transfercomment.tag ,'member_cinema'))
+							<a href="$!{basePath}cinema/$!transfercomment.relatedid" target="_blank">场馆详情</a>
+							#elseif($!VmUtils.eq($!transfercomment.tag ,'member_sport'))
+							<a href="$!{basePath}sport/$!transfercomment.relatedid" target="_blank">场馆详情</a>
+							#elseif($!VmUtils.eq($!transfercomment.tag ,'member_theatre'))
+							<a href="$!{basePath}theatre/$!transfercomment.relatedid" target="_blank">场馆详情</a>
+							#elseif($!VmUtils.eq($!transfercomment.tag ,'member_gym'))
+							<a href="$!{basePath}gym/$!transfercomment.relatedid" target="_blank">场馆详情</a>
+							#end
+							</div>
+							</dd>
+						</dl>
+						
+						<div class="loadup">
+							<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+							<span class="right">
+								<span class="loadRo unLoadRo">$!transfercomment.transfercount</span>
+								<span class="loadRp unLoadRp">$!transfercomment.replycount</span>
+							</span>
+						</div>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!transfercomment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>	
+		</div>
+	</div>
+</div>
+
+#*发起圈子活动的时候产生的哇啦，并且是转载的*#
+#elseif($!VmUtils.eq($!comment.tag,'commu_activity') && $!comment.transferid ne 0 && !$!VmUtils.isNull($!comment.transferid))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+	#set($transfercomment = $!transferCommentMap.get($!comment.id))
+	#set($otherInfo = $!VmUtils.readJsonToMap($!transfercomment.otherinfo))
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" class="pubpic" lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							<p>
+							#if(!$!type)<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.nickname</a>：#end
+							$!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>
+						</dd>
+					</dl>
+					<div class="relationship_act">
+						<dl class="ui_abeam">
+							<dt class="uipic"><a href="${basePath}quan/$!transfercomment.relatedid" class="pubpic" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$otherInfo.get('logo'))" width="50" height="50"/></a></dt>
+							<dd class="uiText">
+								$!VmUtils.perlString($!transfercomment.body, $basePath, $picPath)<br/>
+								#if(!$!VmUtils.isNull($otherInfo.get('activityDate')))活动时间：<span class="gray">$otherInfo.get('activityDate')</span>#end
+								<br/>
+								#if(!$!VmUtils.isNull($otherInfo.get('from')))<span class="gray">$otherInfo.get('from')</span>#end
+							</dd>
+						</dl>
+						<div class="relationBody">
+						#if(!$!VmUtils.isNull($!transfercomment.link))
+						<img src="$VmUtils.randomPic('cw300h300',$!transfercomment.link)" width="300"  id="$!comment.id"/>
+						#end
+						</div>
+						#if(!$VmUtils.isEmptyList($!activityJoinMemberMap.get($!comment.id)))
+						<div class="party">
+					   		#set($count = 0)
+						    #set($A = 0)
+							#foreach($ap in $!activityJoinMemberMap.get($!comment.id))
+							#set($count = $count + 1)
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$ap.memberid" class="picmin" lang="$ap.memberid" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($ap.memberid).headpicUrl)" width="30" height="30"/></a>
+							#end
+						</div>
+						#end
+						
+						#if(!$VmUtils.isEmptyList($!activityJoinOrderMemberMap.get($!comment.id)))
+						<div class="party">
+					   		#set($count = 0)
+						    #set($A = 0)
+							#foreach($ap in $!activityJoinOrderMemberMap.get($!comment.id))
+							#set($count = $count + 1)
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$ap.memberid" class="picmin" lang="$ap.memberid" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($ap.memberid).headpicUrl)" width="30" height="30"/></a>
+							#end
+						</div>
+						#end
+						<div class="review">
+							<span class="personCount">#if(!$!VmUtils.isNull($otherInfo.get('clickedtimes'))) $otherInfo.get('clickedtimes') #else 0 #end</span>
+							<a href="$!{basePath}activity/$!comment.relatedid" target="_blank">活动详情</a>
+						</div>
+						<div class="loadup">
+							<span class="left">$DateUtil.getTimeDesc($!transfercomment.addtime) 来自 $!transfercomment.fromFlag</span>
+							<span class="right">
+								<span class="loadRo unLoadRo">$!transfercomment.transfercount</span>
+								<span class="loadRp unLoadRp">$!transfercomment.replycount</span>
+							</span>
+						</div>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!transfercomment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>	
+		</div>
+	</div>
+</div>
+
+#*感兴趣的场馆有活动的时候产生的哇啦，并且是转载的*#
+#elseif(($!VmUtils.eq($!comment.tag,'sport_activity') || $!VmUtils.eq($!comment.tag,'cinema_activity') || $!VmUtils.eq($!comment.tag,'theatre_activity') || $!VmUtils.eq($!comment.tag,'ktv_activity') || $!VmUtils.eq($!comment.tag,'bar_activity') || $!VmUtils.eq($!comment.tag,'gym_activity')) && $!comment.transferid ne 0 && !$!VmUtils.isNull($!comment.transferid))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+	#set($transfercomment = $!transferCommentMap.get($!comment.id))
+	#set($otherInfo = $!VmUtils.readJsonToMap($!transfercomment.otherinfo))
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" class="pubpic" lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							<p>
+							#if(!$!type)<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.nickname</a>：#end
+							$!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>
+						</dd>
+					</dl>
+					<div class="relationship_act">
+						<dl class="ui_abeam">
+							<dt class="uipic"><a href="$!{basePath}activity/$!otherInfo.get('id')" target="_blank"><img src="$VmUtils.randomPic('cw96h128',$transfercomment.link)" width="96" height="128"/></a></dt>
+							<dd class="uiText" style="width:196px;">
+								<div class="relationBody">
+									你感兴趣的场馆正在举行活动<br/>
+									<a href="$!{basePath}movie/$!transfercomment.relatedid" target="_blank">$!VmUtils.perlString($!transfercomment.body, $basePath, $picPath)</a><br/>
+									#if(!$!VmUtils.isNull($otherInfo.get('activitysportdate')))活动时间：<span class="gray">$otherInfo.get('activitysportdate')</span>#end
+								</div>
+							</dd>
+						</dl>
+						<div class="relationBody">
+						#if(!$!VmUtils.isNull($!transfercomment.link))
+						<img src="$VmUtils.randomPic('cw300h300',$!transfercomment.link)" width="300"  id="$!comment.id"/>
+						#end
+						</div>
+						#if(!$VmUtils.isEmptyList($!activityJoinMemberMap.get($!comment.id)))
+						<div class="party">
+					   		#set($count = 0)
+						    #set($A = 0)
+							#foreach($ap in $!activityJoinMemberMap.get($!comment.id))
+							#set($count = $count + 1)
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$ap.memberid" class="picmin" lang="$ap.memberid" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($ap.memberid).headpicUrl)" width="30" height="30"/></a>
+							#end
+						</div>
+						#end
+						
+						#if(!$VmUtils.isEmptyList($!activityJoinOrderMemberMap.get($!comment.id)))
+						<div class="party">
+					   		#set($count = 0)
+						    #set($A = 0)
+							#foreach($ap in $!activityJoinOrderMemberMap.get($!comment.id))
+							#set($count = $count + 1)
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$ap.memberid" class="picmin" lang="$ap.memberid" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($ap.memberid).headpicUrl)" width="30" height="30"/></a>
+							#end
+						</div>
+						#end
+						<div class="review">
+							<span class="personCount">#if(!$!VmUtils.isNull($otherInfo.get('clickedtimes'))) $otherInfo.get('clickedtimes') #end</span>
+							<a href="$!{basePath}activity/$!otherInfo.get('id')" target="_blank">活动详情</a>
+						</div>
+						<div class="loadup">
+							<span class="left">$DateUtil.getTimeDesc($!transfercomment.addtime) 来自 $!transfercomment.fromFlag</span>
+							<span class="right">
+								<span class="loadRo unLoadRo">$!transfercomment.transfercount</span>
+								<span class="loadRp unLoadRp">$!transfercomment.replycount</span>
+							</span>
+						</div>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!transfercomment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>	
+		</div>
+	</div>
+</div>
+
+#*当用户发表一条帖子产生的哇啦，并且是转载的*#
+#elseif($!VmUtils.eq($!comment.tag,'member_diary') && $!comment.transferid ne 0 && !$!VmUtils.isNull($!comment.transferid))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+	#set($transfercomment = $!transferCommentMap.get($!comment.id))
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" class="pubpic" target="_blank" lang="$!comment.memberid"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							<p>#if(!$!type)<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.nickname</a>：#end $!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>
+						</dd>
+					</dl>
+					<div class="relationship_act">
+						<dl class="ui_abeam">
+							<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!transfercomment.memberid" class="picmin" target="_blank" lang="$!transfercomment.memberid"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($transfercomment.memberid).headpicUrl)" width="30" height="30"/></a></dt>
+							<dd class="uiText">
+							<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!transfercomment.memberid" target="_blank">@$VmUtils.escabbr($!transfercomment.nickname,8)</a>：$!VmUtils.perlString($!transfercomment.body, $basePath, $picPath)<br/>
+							#set($otherInfo = $!VmUtils.readJsonToMap($!transfercomment.otherinfo))
+							#if(!$!VmUtils.isNull($otherInfo.get('diaryContent')))<span class="gray">$otherInfo.get('diaryContent')</span>#end
+							</dd>
+						</dl>
+						<div class="relationBody">
+						#if(!$!VmUtils.isNull($!transfercomment.link))
+						<img src="$VmUtils.randomPic('cw300h300',$!transfercomment.link)" width="300"  id="$!transfercomment.id"/>
+						#end
+							<div class="party">
+								<span class="personCount">
+								#if(!$!VmUtils.isNull($otherInfo.get('clickedtimes'))) $otherInfo.get('clickedtimes') #else 0 #end
+									<span>◆</span>
+									<em>◆</em>
+								</span>
+								#if(!$VmUtils.isEmptyList($!activityJoinMemberMap.get($!comment.id)))
+								 #set($count = 0)
+						   		 #set($A = 0)
+								#foreach($ap in $!activityJoinMemberMap.get($!comment.id))
+									#set($count = $count + 1)
+									<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$ap.memberid" class="picmin" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($ap.memberid).headpicUrl)" width="30" height="30"/></a>
+								#end
+								#end
+								
+								
+								#if(!$VmUtils.isEmptyList($!activityJoinOrderMemberMap.get($!comment.id)))
+								#foreach($ap in $!activityJoinOrderMemberMap.get($!comment.id))
+									<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$ap.memberid" class="picmin" target="_blank"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($ap.memberid).headpicUrl)" width="30" height="30"/></a>
+								#end
+								#end
+							</div>
+							<div class="loadup">
+								<span class="left">$DateUtil.getTimeDesc($!transfercomment.addtime) 来自 $!transfercomment.fromFlag</span>
+								<span class="right">
+									<span class="loadRo unLoadRo">$!transfercomment.transfercount</span>
+									<span class="loadRp unLoadRp">$!transfercomment.replycount</span>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!transfercomment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+#*用户手动自主发表的哇啦，是转载的哇啦*#
+#elseif($!VmUtils.eq($!comment.tag,'topic') && $!comment.transferid ne 0 && !$!VmUtils.isNull($!comment.transferid))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+	#set($transfercomment = $!transferCommentMap.get($!comment.id))
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" class="pubpic" lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							<p>#if(!$!type)<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.nickname</a>：#end $!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>
+						</dd>
+					</dl>
+					<div class="relationship_act">
+						<dl class="ui_abeam">
+							<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!transfercomment.memberid" class="picmin" target="_blank" lang="$transfercomment.memberid"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($transfercomment.memberid).headpicUrl)" width="30" height="30"/></a></dt>
+							<dd class="uiText">
+							<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!transfercomment.memberid" target="_blank">@$!transfercomment.nickname</a>：$!VmUtils.perlString($!transfercomment.body, $basePath, $picPath)<br/>
+							</dd>
+						</dl>
+						<div class="relationBody">
+							#if(!$!VmUtils.isNull($!transfercomment.picturename))
+							<img src="$VmUtils.randomPic('cw300h300',$!transfercomment.picturename)" width="300"  id="$!transfercomment.id"/>
+							#end
+							<div class="loadup">
+								<span class="left">$DateUtil.getTimeDesc($!transfercomment.addtime) 来自 $!transfercomment.fromFlag</span>
+								<span class="right">
+									<span class="loadRo unLoadRo">$!transfercomment.transfercount</span>
+									<span class="loadRp unLoadRp">$!transfercomment.replycount</span>
+								</span>
+							</div>
+						</div>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!transfercomment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+			  </div>
+			  <div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+		   </div>
+		</div>
+	</div>
+</div>
+
+#*用户手动自主发表的哇啦，不是转载的哇啦*#
+#elseif($!VmUtils.eq($!comment.tag ,'topic') && ($!comment.transferid eq 0 || $!VmUtils.isNull($!comment.transferid)))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" class="pubpic" lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							#if(!$!type)<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank">$!comment.nickname</a>：#end $!VmUtils.perlString($!comment.body, $basePath, $picPath) <br/>
+						</dd>
+					</dl>
+					<div class="relationBody">
+						#if(!$!VmUtils.isNull($!comment.picturename))
+						<img src="$VmUtils.randomPic('cw300h300',$!comment.picturename)" width="300" />
+						#end
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!comment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+#*上传图片产生的哇啦,不是转载的*#
+#elseif(($!VmUtils.eq($!comment.tag ,'member_picture') || $!VmUtils.eq($!comment.tag ,'member_memberpicture')) && ($!comment.transferid eq 0 || $!VmUtils.isNull($!comment.transferid)))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" class="pubpic" lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							#if(!$!type)<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank">$!comment.nickname</a>：#end $!VmUtils.perlString($!comment.body, $basePath, $picPath)<br/>
+							#set($otherInfo = $!VmUtils.readJsonToMap($!comment.otherinfo))
+						</dd>
+					</dl>
+					<div class="relationBody">
+					#if(!$!VmUtils.isNull($!otherInfo.get('image1')))
+					<img src="$VmUtils.randomPic('cw300h300',$!otherInfo.get('image1'))" width="306"  class="isBig" config="isBig" id="$!otherInfo.get('imageid1')"/>#*有问题*#
+					#end
+					</div>
+					<div class="relationBody">
+						#if(!$!VmUtils.isNull($!otherInfo.get('image2')))
+						<a href="$!{basePath}home/new/album/albumList.xhtml?albumid=$!otherInfo.get('albumid')&memberid=$!comment.memberid" lang="$!otherInfo.get('imageid2')" target="_blank"><img src="$VmUtils.randomPic('cw100h100',$!otherInfo.get('image2'))" width="100" height="100" id="$!otherInfo.get('imageid2')"/></a>#*有问题*#
+						<!--  <a href="" class="picmin" lang="$ap.memberid" target="_blank"><img src="$VmUtils.randomPic('cw100h100',$ap)" width="100" height="100" id="$!otherInfo.get('imageid2')"/></a>-->
+						#end
+						#if(!$!VmUtils.isNull($!otherInfo.get('image3')))
+						<a href="$!{basePath}home/new/album/albumList.xhtml?albumid=$!otherInfo.get('albumid')&memberid=$!comment.memberid" lang="$!otherInfo.get('imageid3')" target="_blank"><img src="$VmUtils.randomPic('cw100h100',$!otherInfo.get('image3'))" width="100" height="100" id="$!otherInfo.get('imageid3')"/></a>#*有问题*#
+						#end
+						#if(!$!VmUtils.isNull($!otherInfo.get('image4')))
+						<a href="$!{basePath}home/new/album/albumList.xhtml?albumid=$!otherInfo.get('albumid')&memberid=$!comment.memberid" lang="$!otherInfo.get('imageid4')" target="_blank"><img src="$VmUtils.randomPic('cw100h100',$!otherInfo.get('image4'))" width="100" height="100" id="$!otherInfo.get('imageid4')"/></a>#*有问题*#
+						#end
+					</div>
+					<div class="review">
+						<span class="personCount">#if(!$!VmUtils.isNull($otherInfo.get('clickedtimes'))) $otherInfo.get('clickedtimes') #else 0 #end</span>#*有问题*#
+						<a href="$!{basePath}home/new/album/albumList.xhtml?albumid=$!otherInfo.get('albumid')&memberid=$!comment.memberid" target="_blank">$!otherInfo.get('imagecount')张新照片</a>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!comment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+#*购电影票成功以后产生哇啦,不是转载的*#
+#elseif($!VmUtils.eq($!comment.tag ,'member_movieagenda') && ($!comment.transferid eq 0 || $!VmUtils.isNull($!comment.transferid)))
+#*
+#set($otherInfo = $!VmUtils.readJsonToMap($!comment.otherinfo))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						<dt class="uipic"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" class="pubpic"  lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>
+						<dd class="uiText">
+							<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank">$cacheMemberMap.get($comment.memberid).nickname</a>:$!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>#*有问题*#
+						</dd>
+					</dl>
+					<div class="tickets ismovieShare">
+						<h2>分享电影票</h2>
+						<div class="tickets_c">
+							<div class="inner">
+								<a href="$!{basePath}cinema/$!otherInfo.get('影院ID')" target="_blank">$!otherInfo.get('影院')</a>
+								<span>影厅：$!otherInfo.get('影厅')</span><em>日期：$!otherInfo.get('日期')</em>
+								<span>影片：$!otherInfo.get('影片')</span><em>时间：$!otherInfo.get('时间')</em>
+							</div>
+						</div>
+						<div class="sfoot"></div>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!comment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+				#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+*#
+#*购买话剧票成功以后产生的哇啦，不是转载的*#
+#elseif($!VmUtils.eq($!comment.tag ,'member_dramaagenda') && ($!comment.transferid eq 0 || $!VmUtils.isNull($!comment.transferid)))
+#*
+#set($otherInfo = $!VmUtils.readJsonToMap($!comment.otherinfo))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						<dt class="uipic"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" class="pubpic"  lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>
+						<dd class="uiText">
+							<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank">$cacheMemberMap.get($comment.memberid).nickname</a>: $!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>#*有问题*#
+						</dd>
+					</dl>
+					<div class="tickets isdramaShare">
+						<h2>分享演出票</h2>
+						<div class="tickets_c">
+							<div class="inner">
+								<a href="$!{basePath}theatre/$!otherInfo.get('剧院ID')" target="_blank">$!otherInfo.get('剧院')</a>
+								<span>区域：$!otherInfo.get('区域')</span><em>时间：$!otherInfo.get('时间')</em>
+								<p>演出：$!otherInfo.get('话剧')</p>
+								<p>日期：$!otherInfo.get('日期')</p>
+							</div>
+						</div>
+						<div class="sfoot"></div>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!comment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+				#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+*#
+#*购买话剧票成功以后产生的哇啦，是转载的*#
+#elseif($!VmUtils.eq($!comment.tag,'member_dramaagenda') && $!comment.transferid ne 0 && !$!VmUtils.isNull($!comment.transferid))
+#*
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+	#set($transfercomment = $!transferCommentMap.get($!comment.id))
+	#set($otherInfo = $!VmUtils.readJsonToMap($!transfercomment.otherinfo))
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" class="pubpic" lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							<p>#if(!$!type)<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.nickname</a>：#end $!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>
+						</dd>
+					</dl>
+					<div class="relationship_act">
+						<dl class="ui_abeam">
+						<dt class="uipic"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$transfercomment.memberid" class="pubpic"  lang="$transfercomment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($transfercomment.memberid).headpicUrl)" width="50" height="50"/></a></dt>
+						<dd class="uiText">
+							<p><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$transfercomment.memberid" target="_blank">@$cacheMemberMap.get($transfercomment.memberid).nickname</a>: $!VmUtils.perlString($!transfercomment.body, $basePath, $picPath)</p>
+						</dd>
+					</dl>
+					<div class="tickets isdramaShare">
+						<h2>分享演出票</h2>
+						<div class="tickets_c">
+							<div class="inner">
+								<a href="$!{basePath}theatre/$!otherInfo.get('剧院ID')" target="_blank">$!otherInfo.get('剧院')</a>
+								<span>区域：$!otherInfo.get('区域')</span><em>时间：$!otherInfo.get('时间')</em>
+								<p>演出：$!otherInfo.get('话剧')</p>
+								<p>日期：$!otherInfo.get('日期')</p>
+							</div>
+						</div>
+						<div class="sfoot"></div>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!transfercomment.addtime) 来自 $!transfercomment.fromFlag</span>
+						<span class="right">
+							<span class="loadRo unLoadRo">$!transfercomment.transfercount</span>
+							<span class="loadRp unLoadRp">$!transfercomment.replycount</span>
+						</span>
+					</div>
+				</div>
+				<div class="loadup">
+					<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+					<span class="right">
+						<button class="loadRo" id="$!transfercomment.id" lang="f" title="转发">$!comment.transfercount</button>
+						<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+					</span>
+				</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+*#
+#*购电影票成功以后产生哇啦,是转载的*#
+#elseif($!VmUtils.eq($!comment.tag,'member_movieagenda') && $!comment.transferid ne 0 && !$!VmUtils.isNull($!comment.transferid))
+#*
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+	#set($transfercomment = $!transferCommentMap.get($!comment.id))
+	#set($otherInfo = $!VmUtils.readJsonToMap($!transfercomment.otherinfo))
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" class="pubpic" lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							<p>#if(!$!type)<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.nickname</a>：#end $!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>
+						</dd>
+					</dl>
+					<div class="relationship_act">
+						<dl class="ui_abeam">
+						<dt class="uipic"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$transfercomment.memberid" class="pubpic"  lang="$transfercomment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($transfercomment.memberid).headpicUrl)" width="50" height="50"/></a></dt>
+						<dd class="uiText">
+							<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$transfercomment.memberid" target="_blank">@$cacheMemberMap.get($transfercomment.memberid).nickname</a>: $!VmUtils.perlString($!transfercomment.body, $basePath, $picPath)</p>
+						</dd>
+						</dl>
+					<div class="tickets ismovieShare">
+						<h2>分享电影票</h2>
+						<div class="tickets_c">
+							<div class="inner">
+								<a href="$!{basePath}cinema/$!otherInfo.get('影院ID')" target="_blank">$!otherInfo.get('影院')</a>
+								<span>影厅：$!otherInfo.get('影厅')</span><em>座位：$!otherInfo.get('影票')</em>
+								<span>影片：$!otherInfo.get('影片')</span><em>时间：$!otherInfo.get('时间')</em>
+								<p>日期：$!otherInfo.get('日期')</p>
+							</div>
+						</div>
+						<div class="sfoot"></div>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!transfercomment.addtime) 来自 $!transfercomment.fromFlag</span>
+						<span class="right">
+							<span class="loadRo unLoadRo">$!transfercomment.transfercount</span>
+							<span class="loadRp unLoadRp">$!transfercomment.replycount</span>
+						</span>
+					</div>
+				</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!transfercomment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+					<div class="replayNode" root="replay">
+						#parse('sns/replyComment.vm')
+					</div>
+			</div>
+		</div>
+	</div>
+</div>
+*#
+#*购买完运动票以后产生的哇啦，不是转载的*#
+#elseif($!VmUtils.eq($!comment.tag ,'member_sportagenda') && ($!comment.transferid eq 0 || $!VmUtils.isNull($!comment.transferid)))
+#*
+#set($otherInfo = $!VmUtils.readJsonToMap($!comment.otherinfo))
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" class="pubpic"  lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>
+						<dd class="uiText">
+							<p><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.nickname</a>：$!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>
+						</dd>
+					</dl>
+					<div class="tickets issportShare">
+						<h2>分享羽毛球电子票</h2>
+						<div class="tickets_c">
+							<div class="inner">
+								<a href="$!{basePath}sport/$!otherInfo.get('场馆ID')" target="_blank">$!otherInfo.get('场馆')</a>
+								<span>场地：</span><em>项目：$!otherInfo.get('项目')</em>
+								<p>时间：$!otherInfo.get('时间')</p>
+							</div>
+						</div>
+						<div class="sfoot"></div>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!comment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+				#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+*#
+#*购买完运动票以后产生的哇啦,是转载的*#
+#elseif($!VmUtils.eq($!comment.tag,'member_sportagenda') && $!comment.transferid ne 0 && !$!VmUtils.isNull($!comment.transferid))
+#*
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+	#set($transfercomment = $!transferCommentMap.get($!comment.id))
+	#set($otherInfo = $!VmUtils.readJsonToMap($!transfercomment.otherinfo))
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" class="pubpic" lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							<p>#if(!$!type)<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank">$!comment.nickname</a>：#end $!VmUtils.perlString($!comment.body, $basePath, $picPath)</p>
+						</dd>
+					</dl>
+					<div class="relationship_act">
+						<dl class="ui_abeam">
+							<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!transfercomment.memberid" class="pubpic"  lang="$transfercomment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($transfercomment.memberid).headpicUrl)" width="50" height="50"/></a></dt>
+							<dd class="uiText">
+								<p><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!transfercomment.memberid" target="_blank">@$!transfercomment.nickname</a>：$!VmUtils.perlString($!transfercomment.body, $basePath, $picPath)</p>
+							</dd>
+						</dl>
+						<div class="tickets issportShare">
+							<h2>分享羽毛球电子票</h2>
+							<div class="tickets_c">
+								<div class="inner">
+									<a href="$!{basePath}sport/$!otherInfo.get('场馆ID')" target="_blank">$!otherInfo.get('场馆')</a>
+									<span>场地：</span><em>项目：$!otherInfo.get('项目')</em>
+									<p>时间：$!otherInfo.get('时间')</p>
+								</div>
+							</div>
+							<div class="sfoot"></div>
+						</div>
+						<div class="loadup">
+							<span class="left">$DateUtil.getTimeDesc($!transfercomment.addtime) 来自 $!transfercomment.fromFlag</span>
+							<span class="right">
+								<span class="loadRo unLoadRo">$!transfercomment.transfercount</span>
+								<span class="loadRp unLoadRp">$!transfercomment.replycount</span>
+							</span>
+						</div>
+					</div>
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!transfercomment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+				#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+*#
+#*项目及其他的哇啦*#
+#else
+<div class="ui_plugs_data" date='$DateUtil.format($!comment.addtime,"yyyy-MM")'>
+	<div class="ui_plugs_outside">
+		<div class="ui_plugs_inside">
+			<span class="tagcol1"><span>◆</span><em>◆</em></span><span class="pm"></span>
+			<div data="isvalid" class="relationship_act">
+				<div class="inner">
+					<dl class="ui_abeam">
+						#if(!$!type)<dt class="uipic"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" class="pubpic" lang="$comment.memberid" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a></dt>#end
+						<dd class="uiText">
+							#if(!$!type)<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank">$!comment.nickname</a>：#end $!VmUtils.perlString($!comment.body, $basePath, $picPath)<br/>
+						</dd>
+					</dl>
+					<div class="relationBody">
+						#if(!$!VmUtils.isNull($!comment.picturename))
+						<img src="$VmUtils.randomPic('cw300h300',$!comment.picturename)" width="300" />
+						#end
+					</div>
+					#if(!$VmUtils.isNull($!comment.transferid) && !$VmUtils.eq($!comment.transferid, 0 ))
+					#set($transfercomment = $!transferCommentMap.get($!comment.id))
+					#if($VmUtils.isBlank($!transfercomment.nickname) && $VmUtils.isBlank($!transfercomment.body))
+					<div class="relationship_act">	
+						<div class="ui_warning"><b class="ico_g"></b>该哇啦已删除！</div>
+					</div>
+					#else
+					#set($otherInfo = $!VmUtils.readJsonToMap($!transfercomment.otherinfo))
+					<div class="relationship_act">
+						<dl class="ui_abeam">
+							<dt class="uipic"><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!transfercomment.memberid" class="picmin" target="_blank" lang="$transfercomment.memberid"><img src="$VmUtils.randomPic('sw30h30',$cacheMemberMap.get($transfercomment.memberid).headpicUrl)" width="30" height="30"/></a></dt>
+							<dd class="uiText">
+							<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!transfercomment.memberid" target="_blank">@$!transfercomment.nickname</a>：$!VmUtils.perlString($!transfercomment.body, $basePath, $picPath)<br/>
+							</dd>
+						</dl>
+						<div class="relationBody">
+							#if(!$!VmUtils.isNull($!transfercomment.picturename))
+							<img src="$VmUtils.randomPic('cw300h300',$!transfercomment.picturename)" width="300"  id="$!transfercomment.id"/>
+							#end
+							<div class="loadup">
+								<span class="left">$DateUtil.getTimeDesc($!transfercomment.addtime) 来自 $!transfercomment.fromFlag</span>
+								<span class="right">
+									<span class="loadRo unLoadRo">$!transfercomment.transfercount</span>
+									<span class="loadRp unLoadRp">$!transfercomment.replycount</span>
+								</span>
+							</div>
+						</div>
+					</div>
+					#end
+					#end
+					<div class="loadup">
+						<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自 $!comment.fromFlag</span>
+						<span class="right">
+							<button class="loadRo" id="$!comment.id" lang="f" title="转发">$!comment.transfercount</button>
+							<button class="loadRp" id="$!comment.id" lang="r" title="搭话">$!comment.replycount</button>
+						</span>
+					</div>
+				</div>
+				<div class="replayNode" root="replay">
+					#parse('sns/replyComment.vm')
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#end
+#end
+#end
+<script>
+</script>

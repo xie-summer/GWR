@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>$movie.moviename - 用户评分明细</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_movie,slideshow,admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+		<div>
+			<b>
+			#if($VmUtils.equals($queryModel, 'N'))
+				直接连接业务数据库，建议避开业务繁忙时间查询
+			#else
+				#if($msg)
+					$msg
+				#else
+					#set($boughtMap={'N':'未购票','Y':'购票'})
+					$movie.moviename $!boughtMap.get($flag)的用户评分明细,共$memberMarkCount条
+				#end
+			#end
+			</b>
+			<form action="$!{basePath}admin/trends/memberMarkList.xhtml" method="post">
+				是否购票：<select name="flag">
+					<option value="">所有</option>
+					<option value="Y" #if ($VmUtils.equals($flag, 'Y')) selected="true" #end>购票</option>
+					<option value="N" #if ($VmUtils.equals($flag, 'N')) selected="true" #end>未购票</option>
+				</select>
+				<input type="hidden" name="movieid" value="$!{movieid}"/>
+				<input type="hidden" name="queryDate" value="$!queryDate"/>
+				<input type="submit" value="查询"></input>
+			</form>
+		</div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>影片ID</th>
+					<th>影片名称</th>
+					<th>用户ID</th>
+					<th>用户名称</th>
+					<th>评分数</th>
+					<th>是否购票</th>
+					<th>评分的时间</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+			#if(!$VmUtils.isEmptyList($memberMarkList))
+				#foreach($memberMark in $memberMarkList)
+				<tr>
+					<td>$movie.id</td>
+					<td>$movie.moviename</td>
+					<td>$memberMark.memberid</td>
+					<td>$memberMark.nickname</td>
+					<td>$memberMark.markvalue</td>
+					<td>$!memberMark.flag</td>
+					<td>$DateUtil.formatTimestamp($memberMark.addtime)</td>
+				</tr>
+				#end
+			#end
+			</tbody>
+		</table>
+		#parse('include/pageUtil.vm')
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+</body>
+</html>

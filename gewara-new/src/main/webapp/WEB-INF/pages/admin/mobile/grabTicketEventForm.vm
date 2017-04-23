@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>编辑抢票活动</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		label{width:120px;text-align:right;padding:1px 0 1px 0;margin-top:3px;}
+		#subjectForm input, textarea, span {width:550px;}
+		#subjectForm div{padding:4px;}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:750px;margin:auto">
+<form id="reward-config-form">
+<div id="movieDialog" class="yui-panel" style="width:750px;margin:auto">
+	<div class="hd">[编辑抢票活动]</div>
+	<div class="bd">
+	<div id="subjectForm">
+		
+		<input type="hidden" name="id" value="$!event.id" />
+		
+		<div>
+		<label for="title">活动标题<span class="req">*</span>：</label>
+		<input name="title" value="$!event.title" style="width:220px;" type="text"  />
+		</div>
+		
+		<div>
+			<label for="starttime">抢票时间<span class="req">*</span>：</label>
+			<input type="text" style="width:180px;" size="14" value="$!event.starttime" class="Wdate" name="starttime" onclick="WdatePicker({minDate:'${DateUtil.curDateStr}',dateFmt:'yyyy-MM-dd HH:mm:ss'})" readonly="readonly"/>
+		</div>
+		
+		<div>
+		<label for="price">秒杀价格<span class="req">*</span>：</label>
+		<input name="price" value="$!event.price" style="width:120px;" type="text"  />
+		</div>
+		
+		<div>
+			<div>
+			<label for="citycode">活动城市<span class="req">*</span>：</label>
+			<ul>
+			<li style="width:70px;float:left"><input type="checkbox" style="width:20px;" id="city-check-all-btn" />全国</li>
+			#foreach($city in $cityMap.keySet())
+				<li style="width:70px;float:left"><input type="checkbox" name="citycode" style="width:20px;"  value="$city" />$cityMap.get($city)</li>
+			#end
+			</ul>
+			</div>
+			<div style="clear:both"></div>
+		</div>
+		
+		<div>
+		<label for="status">状态<span class="req">*</span>：</label>
+		<ul>
+			<li style="width:70px;float:left"><input type="radio" id="status_open" name="status" style="width:20px;"   #if($!event.status eq 'open')checked="checked"#end  value="open" />开启</li>
+			<li style="width:70px;float:left"><input type="radio" id="status_close" name="status" style="width:20px;" #if(!$event)checked="checked"#end  #if($!event.status eq 'close')checked="checked"#end value="close" />关闭</li>
+			<li style="width:100px;float:left"><input type="radio" id="status_booked" name="status" style="width:20px;" #if($!event.status eq 'booked')checked="checked"#end value="booked" />名额已满</li>
+		</ul>
+		<div style="clear:both"></div>
+		</div>
+		
+		
+		<div>
+			<label>&nbsp;</label><input type="button" id="save-form-btn" class="button" style="width:100px" value="保存数据"/>
+		</div>
+		
+		
+	</div>
+	</div>
+</div>
+</form>
+
+
+<script>
+
+
+window.addEvent('domready', function(){
+	
+	//城市全选
+	var cityCheckAllBtn=$("city-check-all-btn");
+	if(cityCheckAllBtn){
+		var citycodes=$$("input[name='citycode']");
+		citycodes.set("checked",false);
+		cityCheckAllBtn.addEvent('click', function(){
+				citycodes.set("checked",this.checked);
+		});
+		citycodes.addEvent('click', function(){
+			if(this.checked==false){
+				cityCheckAllBtn.set("checked",false);
+			}
+		});
+	}
+	
+	#if($event)
+	//选中城市
+	var selectCitys=$!event.citycodeList;
+	$$("input[name='citycode']").each(function(item){
+		selectCitys.each(function(v){
+			if(v==item.value){
+				item.set("checked",true);
+			}
+		});
+	});
+	#end
+	
+	
+	//表单提交
+	$("save-form-btn").addEvent('click', function(){
+	
+		var form=$("reward-config-form");
+		var id=form.id.value.trim();
+		var title=form.title.value.trim();
+		var starttime=form.starttime.value.trim();
+		var price=form.price.value.trim();
+		
+		var citycode="";
+		$$("input[name='citycode']").each(function(item){
+			if(item.checked==true){
+				citycode+=item.value+","
+			}
+		});
+		
+		var status="open";
+		if($("status_open").checked==true){
+			status="open";
+		}else if($("status_close").checked==true){
+			status="close";
+		}else if($("status_booked").checked==true){
+			status="booked";
+		}
+		
+		var params="id="+id+"&title="+title+"&starttime="+starttime+"&price="+price+"&status="+status+"&citycode="+citycode;
+		    
+	    var postRQ = new Request({
+			    url: '${basePath}admin/mobile/saveGrabTicketEvent.xhtml',
+			    method: 'post',
+			    onRequest: function(){
+			        GewaraUtil.mask();
+			    },
+			    onSuccess: function(responseHTML){
+			    	eval(responseHTML);
+			    	GewaraUtil.unmask();
+			    	alert(data.retval);
+			    }
+		});
+		postRQ.send(params);
+	
+	});
+
+});
+</script>
+</body>
+</html>

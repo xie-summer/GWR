@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>收费项目管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline-block; width:70px;text-align:right;padding:1px 0 1px 0; }
+		input,textarea {width:450px;}
+		a{text-decoration: none; white-space: nowrap;}
+	</style>
+</head>
+<body style="width:1000px; margin:auto" class="yui-skin-sam">
+<div>
+	<form action="${basePath}admin/goods/goodsListToBMH.xhtml">
+	<a href="${basePath}admin/goods/addGoods.xhtml?tag=bmh" target="_blank">增加</a><br/>
+	类型：<select name="type">
+			<option value="" #if($VmUtils.isBlank($!params.type))selected#end>全部</option>
+			<option value="gift" #if($VmUtils.eq($!params.type,'gift'))selected#end>赠品</option>
+		</select>
+		<input type="radio" name="datetype" value="cur" style="width: 15px;" #if($VmUtils.isBlank($!params.datetype) || $VmUtils.eq($!params.datetype,'cur'))checked#end/>未过期
+		<input type="radio" name="datetype" value="over" style="width: 15px;" #if($VmUtils.eq($!params.datetype,'over'))checked#end/>已过期|
+		<a href="${basePath}admin/goods/delGoodsList.xhtml" target="_blank">已删除的物品</a>
+		<input type="submit" value="查询" style="width: 50px;"/>
+	</form>
+</div>
+<table class="table" style="width:1000px">
+	<thead>
+	<tr>
+		<th>ID</th>
+		<th>商品名称</th>
+		<th>影院</th>
+		<th>卖价</th>
+		<th>成本价</th>
+		<th>排序</th>
+		<th>有效时间</th>
+		<th>购买链接</th>
+		<th>查看订单</th>
+		<th>是否为关联</th>
+		<th>操作</th>
+		<th>其他</th>
+	</tr>
+	</thead>
+	<tbody id="goodsTable">
+		#foreach($goods in $goodsList)
+		#set($model=$cinemaMap.get($goods.id))
+		#set($gift=$giftMap.get($goods.id))
+
+		#set($sportgift=$sportGiftMap.get($goods.id))
+
+		#set($tgift=$tgiftMap.get($goods.id))
+
+		<tr>
+			<td>${goods.id}</td>
+			<td>${goods.goodsname}</td>
+			#if($goods.tag eq 'bmh')
+			<td><a href="$!{absPath}${basePath}cinema/$model.id" target="_blank">$!{model.name}</a></td>
+			#elseif($goods.tag eq 'bmh_sport')
+			<td><a href="$!{absPath}${basePath}sport/$model.id" target="_blank">$!{model.name}</a></td>
+			#elseif($goods.tag eq 'bmh_theatre')
+			<td><a href="$!{absPath}${basePath}theatre/$model.id" target="_blank">$!{model.name}</a></td>
+			#elseif($goods.tag eq 'bmh_bar')
+			<td><a href="$!{absPath}${basePath}bar/$model.id" target="_blank">$!{model.name}</a></td>
+			#end
+			<td>$!{goods.unitprice}#if($!{goods.unitprice} eq 0)(<font color="red">赠品</font>)#end</td>
+			<td>$!{goods.costprice}</td>
+			<td><input type="text" name="goodssort" id="goodssort" style="width:60px;" onchange="changeGoodsSort($!goods.id, this.value);" value="$!goods.goodssort"/></td>
+			<td>$DateUtil.format($!{goods.fromtime},'MM-dd HH:mm')
+				至$DateUtil.format($!{goods.totime},'MM-dd HH:mm')</td>
+			<td>
+				<a href="$!{absPath}${basePath}goods/buyGoods.xhtml?gid=$goods.id" target="_blank">购买链接</a>
+			</td>
+			<td>
+				#if($!gift.cinemaid && $goods.unitprice eq 0)
+				<a href="${basePath}admin/goods/order/giftOrderList.xhtml?gid=$goods.id" target="_blank">查看订单</a>
+					#else
+					<a href="${basePath}admin/goods/order/goodsOrderList.xhtml?gid=$goods.id" target="_blank">查看订单</a>
+					#end
+			</td>
+
+			#if($goods.tag eq 'bmh')
+				<td width="100px">#if($!gift.cinemaid)<font color="red">是</font>|<a href="javascript:delGoodsGift($goods.id)">取消关联</a>#else <font color="red">否</font>#end</td>
+			#elseif($goods.tag eq 'bmh_sport')
+				<td width="100px">#if($sportgift)<font color="red">是</font>|<a href="javascript:delGoodsSportGift($goods.id)">取消关联</a>#else <font color="red">否</font>#end</td>
+			#else
+			<td width="100px">#if($!tgift.theatreid)<font color="red">是</font>|<a href="javascript:void()">取消关联</a>#else <font color="red">否</font>#end</td>
+			#end
+			<td width="150px">
+				<a href="${basePath}admin/goods/addGoods.xhtml?id=$goods.id" target="_blank">修改</a>|
+				<a href="javascript:delGoods($goods.id)">删除</a>|
+				#if(!$VmUtils.eq($goods.tag,'bmh_bar'))<a href="${basePath}admin/goods/goodsGift.xhtml?goodsid=$goods.id">设置属性</a>#end
+			</td>
+			<td>
+				<a href="${basePath}admin/goods/goodsOther.xhtml?goodsid=$goods.id" target="_blank">其他</a>
+			</td>
+		</tr>
+		#set($gift='')
+		#end
+	</tbody>
+</table>
+<div>说明：影院套餐排序大于零且序号最小的套餐显示在选座页面。绑定场次的套餐优先显示。</div>
+	<script type="text/javascript">
+	function changeGoodsSort(goodsid, value){
+		var url = '${basePath}admin/goods/ajax/changeGoodsSort.xhtml'
+		var values = {"goodsId":goodsid,"num":value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("操作成功！");
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}			
+		});
+	}
+	function delGoods(gid){
+		if(confirm('确认要删除吗?')==false) return;
+		var values = {"gid":gid};
+		GewaraUtil.sendRequest('${basePath}admin/goods/ajax/delgoods.xhtml', values, function(result){
+			if(result.success){
+				alert('删除成功！');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function delGoodsGift(gid){
+		if(confirm('确认要删除吗?')==false) return;
+		var values = {"goodsid":gid};
+		GewaraUtil.sendRequest('${basePath}admin/goods/ajax/delGoodsGift.xhtml', values, function(result){
+			if(result.success){
+				alert('删除成功, ' + result.retval);
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+		function delGoodsSportGift(gid){
+		if(confirm('确认要删除吗?')==false) return;
+		var values = {"goodsid":gid};
+		GewaraUtil.sendRequest('${basePath}admin/goods/ajax/delSportGoodsGift.xhtml', values, function(result){
+			if(result.success){
+				alert('删除成功, ' + result.retval);
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

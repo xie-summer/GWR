@@ -1,0 +1,157 @@
+<style>
+<!--
+	.S_condition ul li{margin-bottom:20px;}
+	.S_condition dl{margin-right:30px;}
+	.S_condition dl,.S_condition dt,.S_condition dd{float:left;}
+	.S_condition dl dt{width:80px;text-align:right;color:#4b4b4b;font-weight:bold;margin-top:7px;}
+	.S_condition dl dd{width:150px;}
+	.S_condition dl dd select,.S_condition dl dd input{width:160px;padding:2px 5px;border:1px solid #e2e2e2;}
+	.S_condition dl dd input{height:23px;line-height:23px;box-shadow:1px 1px 2px 0 #eaeaea inset;}
+	.S_condition li input.cbt1{margin-left:17px;width:60px;height:25px;line-height:25px;background:#000;border-radius:3px;border:0 none;cursor:pointer;color:#fff;}
+	.S_condition li input.cbt1:hover{background:#5c5c5c;}
+-->
+</style>
+<div class="S_condition">
+	<form id="dataForm" method="post" >
+		<input type="hidden" name="id" id="id" value="$!item.id"/>
+		<input type="hidden" name="theatreid" id="theatreid" value="$theatre.id"/>
+		<ul>
+			<li class="clear">
+				<dl>
+					<dt>场次类型：</dt>
+					<dd>
+						<select name="period" id="period" onchange="changePeriod(this)" mustTxt="固定时间选项不能为空！">
+							<option value="">请选择</option>
+							<option value="Y" #if($item.hasPeriod('Y'))selected#end>固定时间</option>
+							<option value="N" #if($item.hasPeriod('N'))selected#end>非固定时间</option>
+						</select>
+					</dd>
+				</dl>
+				<dl id="showname" #if($item.hasPeriod('N')) style="display: block;" #else style="display:none;" #end>
+					<dt>场次名称：</dt>
+					<dd><input name="name" id="name" value="$!item.name"/></dd>
+				</dl>
+				<dl id="showtype" #if($item.hasPeriod('Y')) style="display: block;" #else style="display:none;" #end>
+					<dt>座位类型：</dt>
+					<dd>
+						<select name="opentype" id="opentype" #if($odi) disabled="disabled" #end>
+							<option value="">请选择</option>
+							#foreach($key in $opentypeTextMap.keySet())
+							<option value="$!key" #if($!key eq $!item.opentype) selected #end>$opentypeTextMap.get($key)</option>
+							#end
+						</select>
+					</dd>
+				</dl>
+			</li>
+			<li class="clear">
+				<dl>
+					<dt>演出项目：</dt>
+					<dd>
+						<select name="dramaid" id="dramaid" onchange="changeStar(this.value)" mustTxt="演出项目不能为空！">
+							<option value="">请选择</option>
+							#foreach($drama in $dramaList)
+							<option value="$!drama.id" #if($drama.id eq $item.dramaid)selected#end>$!{drama.realBriefname} 【$!DateUtil.format($drama.releasedate, 'yyyy-MM-dd')】</option>
+							#end
+						</select>
+					</dd>
+				</dl>
+				<dl>
+					<dt>演出剧社：</dt>
+					<dd>
+						<select name="dramaStarId" id="dramaStarId">
+							#foreach($star in $starList)
+							<option value="$!star.id" #if($star.id eq $item.dramaStarId)selected#end>$!star.name</option>
+							#end
+						</select>
+					</dd>
+				</dl>
+			</li>
+			<li class="clear">
+				<dl>
+					<dt>演出场地：</dt>
+					<dd>
+						<select name="roomid" id="roomid" mustTxt="场地选项不能为空！" #if($item) disabled="disabled" #end>
+							<option value="">请选择</option>
+							#foreach($field in $fieldList)
+							<option value="$!field.id" #if($field.id eq $!item.roomid)selected#end>$!{field.name}</option>
+							#end
+						</select>
+					</dd>
+				</dl>
+			</li>
+			<li class="clear">
+				<dl id="showplaytime">
+					<dt>开始日期：</dt>
+					<dd>
+						<input name="playtime" id="playtime" value="$!DateUtil.format($!item.playtime, 'yyyy-MM-dd HH:mm:ss')" style="width:140px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00',minDate:'$minStr'})" readonly="readonly" mustTxt="演出或入场时间不能为空！"/>
+					</dd>
+				</dl>
+				<dl id="showendtime" #if($item.hasPeriod('N')) style="display: block;" #else style="display:none;" #end>
+					<dt>结束日期：</dt>
+					<dd><input type="text" name="endtime" id="endtime" value="$!DateUtil.format($!item.endtime, 'yyyy-MM-dd HH:mm:ss')" style="width:140px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00',minDate:'$minStr'})" readonly="readonly" /></dd>
+				</dl>
+			</li>
+			<li style="margin-bottom:0;"><input type="button" onclick="saveItem()" class="cbt1" value="保存" /><input type="button" class="cbt1" onclick="hiddenDialog();" value="取消"/></li>
+		</ul>
+	</form>
+</div>
+<script type="text/javascript">
+	saveItem = function(){
+		if(!GewaraUtil.baseValidForm('dataForm'))return;
+		var url = '${basePath}admin/drama/dramaPlayItem/saveItem.xhtml';
+		var values = GewaraUtil.getValues("dataForm");
+		GewaraUtil.mask();
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert("保存成功！");
+				document.location='${basePath}admin/drama/dramaPlayItem/itemList.xhtml?theatreid=$!theatre.id&date='+result.retval;
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	changeStar = function(dramaid){
+		$('dramaStarId').empty();
+		if(dramaid != ''){
+			var url = '${basePath}admin/drama/dramaPlayItem/getDramaStar.xhtml';
+			var values = {'dramaid':dramaid};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					if(result.starList){
+						if(result.starList.length>0){
+							result.starList.each(function(item){
+								new Element('option',{'value':item.id,'html':item.name}).inject('dramaStarId');
+							});
+						}else{
+							new Element('option',{'value':'','html':''}).inject('dramaStarId');
+						}
+					}
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+	}
+	
+	changePeriod = function(el){
+		el = $(el);
+		if(el){
+			if(el.value == 'Y'){
+				$('showtype').show();
+				$('showname').hide();
+				$('showendtime').hide();
+			}else if(el.value == 'N'){
+				$('showtype').hide();
+				$('showname').show();
+				$('showendtime').show();
+			}else{
+				$('showtype').hide();
+				$('showname').hide();
+				$('showendtime').hide();
+			}
+			
+		}
+	}
+</script>

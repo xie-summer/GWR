@@ -1,0 +1,71 @@
+<div id="wrapper_P${odi.dpid}" class="wrapper_P">
+	<div id="wrapped_P${odi.dpid}">
+	#if(!$VmUtils.isEmptyList($tspList))
+	#set($priceList=$tspHelper.getTspListBySno())
+	#set($areaSize=$VmUtils.size($areaMap))
+	<ul class="clear">
+		#foreach($tsp in $tspList)
+		#set($seatArea=$areaMap.get($tsp.areaid))
+		#if($tsp.hasShowPrice())
+		#if($tsp.hasAllowBooking())
+		<li>
+			<div config="playBox" id="$tsp.id" lang="$!tsp.maxbuy" stocknum="$tsp.allowaddnum" area="$tsp.areaid" istips="$!{odi.remark}" rel="$!{tsp.price}" class="playPriceBox" #if($VmUtils.eq($!{tsp.theatreprice},$!tsp.price)&&$VmUtils.isNull($tsp.remark))style="line-height:40px" #end>
+				<div class="priseP">
+					<p class="bold">$!{tsp.price}元#if($VmUtils.gt($areaSize,1))<em class="ml5" style="font-weight:normal; color:#999;">($!{seatArea.name})</em>#end</p>
+					#if(!$VmUtils.isNull($tsp.remark))<span class="mr5" style="font-weight:normal; color:#999;">($!{tsp.remark})</span>#end#if(!$VmUtils.eq($!{tsp.theatreprice},$!tsp.price))<em class="lineThrough c999">$!{tsp.theatreprice}元</em>#end
+				</div>	
+				<i class="i_on"></i>
+			</div>
+		</li>
+		#elseif($VmUtils.eq($tsp.status, 'N') || !$tsp.hasAllownum())
+		<li>
+			<div id="$tsp.id" lang="$!tsp.maxbuy" stocknum="$tsp.allowaddnum" area="$tsp.areaid" istips="$!{tsp.price}已售完" rel="$!{tsp.price}" class="playPriceBox disable pr_1" #if($VmUtils.eq($!{tsp.theatreprice},$!tsp.price) && $VmUtils.isNull($tsp.remark))style="line-height:40px" #end>
+				<div #if(!$tsp.hasAllownum())class="priseP" #end>
+					<p class="bold">$!{tsp.price}元#if($VmUtils.gt($areaSize,1))<em class="ml5" style="font-weight:normal; color:#999;">($!{seatArea.name})</em>#end</p>
+					#if(!$VmUtils.isNull($tsp.remark))<span class="mr5" style="font-weight:normal; color:#999;">($!{tsp.remark})</span>#end#if(!$VmUtils.eq($!{tsp.theatreprice},$!tsp.price))<em class="lineThrough c999">$!{tsp.theatreprice}元</em>#end
+				</div>
+				#if(!$tsp.hasAllownum())
+				<b title="卖光了" class="sale1"></b>
+				#else
+				<i class="i_on"></i>
+				#end
+			</div>
+		</li>
+		#end
+		#end
+		#if($tsp.hasBooking())
+		#foreach($disQuantity in $tspHelper.getDiscountList($tsp))
+			#if($tsp.hasAllownum() && $disQuantity.hasBooking())
+			<li>
+				<div config="playBox" id="$!disQuantity.id" lang="$!disQuantity.maxbuy" stocknum="$tsp.allowaddnum" area="$tsp.areaid" istips="$!{odi.remark}" rel="$!{tsp.price}" class="isPack pr_1 playPriceBox" #if($VmUtils.eq($areaSize,1) && $VmUtils.eq($!{disQuantity.theatreprice},$!disQuantity.price)) style="line-height:40px" #end>
+					<div class="priseP">
+						<p class="bold">${disQuantity.price}元<em class="ml5" style="font-weight:normal; color:#999;">(含$!{tsp.price}元票x$!{disQuantity.quantity}张)</em></p>
+						#if($VmUtils.gt($areaSize,1))<span class="mr5" style="font-weight:normal; color:#999;">($!{seatArea.name})</span>#end#if(!$VmUtils.eq($!{disQuantity.theatreprice},$!disQuantity.price))<em class="lineThrough c999">$!{disQuantity.theatreprice}元</em>#end
+					</div>	
+					<b title="该价格为套票" class="ticket_tp"></b>
+					<i class="i_on"></i>
+				</div>
+			</li>
+			#else
+			<li>
+				<div id="$!disQuantity.id" lang="$!disQuantity.maxbuy" stocknum="$disQuantity.allownum" area="$tsp.areaid" title="#if(!$tsp.hasAllownum())${disQuantity.price}元 ($!{tsp.price} x $!{disQuantity.quantity})已售完#{else}套票时间为$!{DateUtil.formatTimestamp($disQuantity.starttime)} - $!{DateUtil.formatTimestamp($disQuantity.endtime)}#end" rel="$!{tsp.price}" class="playPriceBox pr_1 disable" >
+					<div class="priseP">
+						<p class="bold">${disQuantity.price}元<em class="ml5" style="font-weight:normal; color:#999;">(含$!{tsp.price}元票x$!{disQuantity.quantity}张)</em></p>
+						#if($VmUtils.gt($areaSize,1))<span class="mr5" style="font-weight:normal; color:#999;">($!{seatArea.name})</span>#end#if(!$VmUtils.eq($!{disQuantity.theatreprice},$!disQuantity.price))<em class="lineThrough c999">$!{disQuantity.theatreprice}元</em>#end
+					</div>
+					#if(!$tsp.hasAllownum())
+					<b title="卖光了" class="sale1"></b>
+					#else
+					<b title="该价格为套票" class="ticket_tp"></b>
+					#end
+					<i class="i_on"></i>
+				</div>
+			</li>
+			#end
+		#end
+		#end
+		#end
+	</ul>
+	#end
+	</div>
+</div>

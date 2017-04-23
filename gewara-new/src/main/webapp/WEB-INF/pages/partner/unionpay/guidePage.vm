@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>格瓦拉电影、电影列表-$partner.partnername</title>
+<meta name="keywords" content="电影排片表查询,电影放映时间查询" />
+<meta name="description" content="近期各大影院上映电影的排片表、放映时间查询。" />
+<link rel="stylesheet" type="text/css" href="${basePath}css/gewara.css?n=new_partner&v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${basePath}scripts/gewara.js?n=mootools,gewara-util,Autocompleter&v=$VmUtils.jsVersion"></script>
+<style type="text/css">
+	.ontitle{
+		background:url("${basePath}css/partner/chinapay_main.png") no-repeat scroll -591px -26px transparent;
+	    font-family: 微软雅黑;
+	    font-size: 18px;
+	    display: inline-block;
+	    line-height: 39px;
+	    padding-left: 25px;
+	    float:left;
+	}
+</style>
+</head>
+<body>
+#set($page='unionpay/movieList')
+#parse('partner/unionpay/citiyLink.vm')
+<div class="ui_layout" style="width:535px">
+	<div class="i_title" style="margin-top: 0px;">
+		<div class="ontitle">正在上映</div>
+		<div style="float:right;padding-right:10px;padding-top:10px;">
+			<dd class="ui_area left">
+				<span style="color:#000">$!cookieCityname</span>
+				<em id="areaTrigger">切换城市</em>
+			</dd>
+		</div>
+	</div>
+	#foreach($movie in $movieList)
+	#set($vgmark=$VmUtils.getSingleMarkStar($movie, "general"))
+	#set($gmark1=$vgmark/10) #set($gmark2=$vgmark % 10)
+	#if($foreach.index%3 eq 0)
+	<div class="clear mt20">
+	#end
+		<div class="wtp3 movie_list">
+			<div class="isImg">
+				<a href="${unionpayUrl}movie/movieDetail.do?movieid=$movie.id" title="$movie.name" onclick="javascript:if(window.top){window.top.location='${unionpayUrl}movie/movieDetail.do?movieid=$movie.id';}" target="_top">
+					<img width="120" height="160" src="${basePath}css/images/blank.gif" style="background:url(${basePath}cw120h160/$movie.limg) center center no-repeat;" alt=""/>
+				</a>
+			</div>
+			<a href="${unionpayUrl}movie/movieDetail.do?movieid=$movie.id" tilte="$movie.name" onclick="javascript:if(window.top){window.top.location='${unionpayUrl}movie/movieDetail.do?movieid=$movie.id';}" target="_top">$movie.name</a><br/>
+			<span class="gray">上映日期：$!DateUtil.format(${movie.releasedate},"yyyy年M月d日")</span><br/>
+			<span class="ui_grades ui_grade9" style="margin:5px 0;" title="$gmark1.$gmark2分">$gmark1.$gmark2</span>
+		</div>
+	#if($foreach.count % 3 eq 0 || $movieList.size() eq $foreach.count)
+	</div>
+	#end
+	#end
+</div>
+<script src="${basePath}scripts/loaderProxy.js?v=$VmUtils.jsVersion" data-frameid="gewala_movie"  data-timer="600" data-proxy="${unionpayUrl}movie/page/movie/proxy.html"></script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	var areaBarLeft = $('areaBar').offsetLeft - 320;
+	$('areaBar').style.left = areaBarLeft + "px";
+})
+</script>
+</body>
+</html>

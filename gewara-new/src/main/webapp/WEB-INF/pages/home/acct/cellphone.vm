@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>手机绑定_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($cellphone=true)#set($isBase=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/userInfo.vm')
+			<div id="showBind"></div>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+#parse('home/acct/bindMemberInfo.vm')
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		GewaraUtil.sendRequest('${basePath}home/ajax/getBindMobile.xhtml?tagNo=$VmUtils.getRandom()',{},function(result){
+			if(result.success){
+				$('showBind').innerHTML=result.retval;
+				$$('label.button,span.button').addEvents({
+					'mouseenter':function(){if(this.hasClass('bigBt')){this.addClass('bg_hover')}else{this.addClass('hover')}},
+					'mouseleave':function(){if(this.hasClass('bigBt')){this.removeClass('bg_hover');}else{this.removeClass('hover');}}
+				});
+			}
+		});
+	});
+	
+	bindMobile = function (tag){
+		var url = '${basePath}home/ajax/getBindMobile.xhtml?tagNo=$VmUtils.getRandom()';
+		var values = {'tag':tag};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$('showBind').innerHTML=result.retval;
+				$$('label.button,span.button').addEvents({
+					'mouseenter':function(){if(this.hasClass('bigBt')){this.addClass('bg_hover')}else{this.addClass('hover')}},
+					'mouseleave':function(){if(this.hasClass('bigBt')){this.removeClass('bg_hover');}else{this.removeClass('hover');}}
+				});
+				if($('umobile')){
+					$('umobile').addEvent('keyup',function(){
+						this.value = this.value.replace(/[^\d]/g,'');
+					});
+				}
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		}, 'get');
+	}
+</script>
+<script type="text/javascript">
+	upMobile = function(tag){
+		if($('umobile')){
+			if(!$('umobile').value){
+				gewaUtil.alert('请输入手机号码！');
+				return;
+			}
+		}
+		var values = GewaraUtil.getValues("mform");
+		if(values.tag == 'change' && !$('tag').value){
+			gewaUtil.alert('请输入支付密码！');
+			return;
+		}
+		if(!$('mobile2').value){
+			gewaUtil.alert('请输入手机验证码！');
+			return;
+		}
+		var url = '';
+		if(tag=='del') url = '${basePath}home/acct/relieveMobile.xhtml';
+		else url = '${basePath}home/acct/sendExchangeMobile.xhtml';
+		GewaraUtil.mask("disBtnMobile");
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				$clear(GetRTime);
+				gewaUtil.alert("保存成功！", function(){
+					GewaraUtil.sendRequest('${basePath}home/ajax/getBindMobile.xhtml?tagNo=$VmUtils.getRandom()', {}, function(result){
+						if(result.success){
+							$('showBind').innerHTML=result.retval;
+						}
+						$$('label.button,span.button').addEvents({
+							'mouseenter':function(){if(this.hasClass('bigBt')){this.addClass('bg_hover')}else{this.addClass('hover')}},
+							'mouseleave':function(){if(this.hasClass('bigBt')){this.removeClass('bg_hover');}else{this.removeClass('hover');}}
+						});
+					});
+				});
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	var second = 60;
+	GetRTime = function (){  
+		if(second>=0){
+			if($('showMessage'))$('showMessage').setStyle('display','block');  
+			if($('timecount'))$('timecount').set('html', second);
+			second = second-1;
+			setTimeout("GetRTime()",1000);
+		}else {  
+			if($('btn2'))$("btn2").set("disabled", false); 
+			if($('showMessage'))$('showMessage').setStyle('display','none');
+			if($('btn2'))$("btn2").setStyle("cursor","pointer"); 
+		}  
+	} 
+	resend = function(tag){
+		checkLogin(true,function(){
+			gewa.util.mask({'element': "btn2",'title':'正在提交，请稍等...'});
+			var values = {"mobile":$('umobile').value,'tag':tag};
+			GewaraUtil.sendRequest('${basePath}home/bindmobile/receive.xhtml', values, function(result){
+				if(result.success){
+					gewa.util.clearMask();
+					retime();
+				}else{
+					gewa.util.clearMask();
+					if(result.msg) gewaUtil.alert(result.msg);
+				}
+			}, 'get');
+		});
+	}
+	retime = function(){
+		$("btn2").set("disabled", true);
+		$("btn2").setStyle("cursor","text"); 
+		second = 60;
+		GetRTime();
+	}
+	
+	sendEmail = function(mobile){
+		var url = '${basePath}home/acct/sendEmailReMobile.xhtml';
+		var values = {'mobile':mobile};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert('邮件已发送到您绑定的邮箱中，请接收邮件完成解除手机绑定!');
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!-- SUCCESS_HEAD -->
+#if(!$VmUtils.isEmptyList($dpiList))
+<div class="playDate" id="container$!drama.id">
+	<dl class="ui_media">
+		<dt class="ui_pic">场&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;馆：</dt>
+		<dd class="ui_text">
+			#foreach($field in $fieldList)
+			#set($theatre=$theatreMap.get($field.theatreid))
+			<span class="mr15 venue">
+			<a href="${basePath}drama/$!drama.id?fieldid=$!field.id#troupe" class="#if($VmUtils.eq($field.id,$!curField.id))select #set($curTheatre=$theatre)#end" title="$!{theatre.realBriefname} $!field.name" >$!{theatre.realBriefname} $!field.name</a>
+				#if($VmUtils.isNotBlank($field.logo))
+					<em class="ffst ml5 c999">[</em>
+					<a class="fs12 tips" href="javascript:void(0)" lang="tipsInfo$!field.id" style="margin-left:0;font-weight:normal;">座位图</a>
+					<em class="ffst c999">]</em>
+					<span style="display:none" id="tipsInfo$!field.id">
+						<span style="display:inline-block;padding:10px 0;"><img alt="$field.name" src="$VmUtils.randomPic('cw300h300',$field.limg)"></span>
+					</span>
+				#end
+			</span>
+			#end
+		</dd>
+	</dl>
+	<dl class="ui_media">
+		<dt class="ui_pic">选择场次：</dt>
+		<dd class="ui_text">
+			<div class="playTimeList clear">
+				<div id="wrapper${drama.id}" class="wrapper">
+					<div id="wrapped${drama.id}">
+						<ul class="clear playTimeList">
+							#foreach($dpi in $dpiList)
+							#set($isHidden=false)
+							#set($playDate=$DateUtil.formatDate($dpi.playtime))
+							#set($playTime=$DateUtil.format($dpi.playtime, 'HH:mm'))
+							#set($playWeek=$DateUtil.getCnWeek($dpi.playtime))
+							#set($odi=$!{odiMap.get($dpi.id)})
+							#if($odi.hasUnShowToGewa())#set($isHidden=true) #end
+							<li>
+								<div id="$dpi.id" data-drama="$dpi.dramaid" #if($isHidden) configShow="unShow" #end #if($odi.booking) config="playBox" lang="item" data-item="$dpi.id" istips="$!VmUtils.getText($!odi.remark)" #elseif(!$odi) istips="添加提醒，开放购票时通知我" #end class="palyTimeBox #if($odi.booking && $dpi.isOpenseat())iSeat #elseif(!$odi.booking) disable d_close d_sale #elseif(!$VmUtils.gt($odi.remainnum,0)) d_sale #end" itemname="#if($dpi.hasPeriod('N'))$!dpi.name#{else}$!playDate $!playWeek $!playTime#{end}">
+									<div #if($odi)class="seatP" #end>
+										#if($dpi.hasPeriod('N'))
+										<p class="bold fs14">$!dpi.name</p>
+										<span></span>
+										#else
+										<p class="bold fs14">$!playDate</p>
+										<span>$!playWeek $!playTime</span>
+										#end
+									</div>
+									<i class="i_on"></i>
+									#if($odi)
+										#if(!$odi.booking)
+										<b class="S_close" title="关闭售票"></b>
+										#elseif(!$VmUtils.gt($odi.remainnum,0))
+										<b class="S_sale" title="卖光了"></b>
+										#elseif($dpi.isOpenseat())
+										<b class="S_seat" title="该场次可在线选座"></b>
+										#end
+									#else
+										<i class="clock_off"></i>
+									#end
+									#if($odi.booking && $odi.hasDiscount() || $drama.hasPretype('E'))
+									<div class="clear opiInfo surAct1 S_surAct">
+										#if($drama.hasPretype('E'))
+										<em class="d" title="代售模式" plugs-tips="代售场不支持优惠，发票由演出主办方开据">代</em>
+										#end
+										#if($odi.openPointPay)
+										<em class="j" title="持积分抵值" plugs-tips="支持积分抵值">积</em>
+										#end
+										#if($odi.openCardPay)
+										<em class="q" title="" plugs-tips="支持票券抵值">券</em>
+										#end
+										#if($odi.disCountPay)
+										<em class="y" data-type="$odi.dpid">惠</em>
+										#end
+									</div>
+									#end
+								</div>
+							</li>
+							#end
+						</ul>
+					</div>
+				</div>
+			</div>
+		</dd>
+	</dl>
+	<dl class="ui_media none">
+		<dt class="ui_pic">选择票价：</dt>
+		<dd class="ui_text">
+			<div class="playPriceList clear" id="playPriceList$!drama.id"></div>
+		</dd>
+	</dl>
+	<dl class="ui_media none playChooseResult" id="playChooseResult$!drama.id">
+		<dt class="ui_pic" style="padding:0;">你选择了：</dt>
+		<dd class="ui_text">
+			<div id="chooseResult$!drama.id" class="chooseResult clear"></div>
+		</dd>
+	</dl>
+	<div class="buyBtn clear drBt" id="buyBtn">
+		<a data-type="submit" href="javascript:void(0);" class="button maxBt redBt buyNowBt"><span><em class="bt_price">立即购票</em></span></a>
+		<a data-type="submit" href="javascript:void(0);" class="button maxBt none onlineSeatBt"><span><em class="bt_seat ">在线选座</em></span></a>
+	</div>
+</div>
+#end
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$('.tips').each(function(item){
+		item.amTips({content:function(){return $(item.get('lang'))},ispointer:false,position:'top',center:true,showDelay:200,width:'auto'});
+	});
+});
+</script>
+<!-- SUCCESS_BOTTOM -->

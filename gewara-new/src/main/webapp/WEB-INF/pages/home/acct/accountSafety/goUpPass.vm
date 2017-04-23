@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>修改登录密码_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	#parse('home/acct/accountSafety/style.vm')
+</head>
+<body>
+#set($ishome=true)#set($safetyCenter = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			<div class="mod_tLine">
+				<div class="mod_hd"><h2>修改登录密码</h2></div>
+				<div class="mod_bd">
+					<div class="payStep01">
+						<ul class="payOrderSteps clear">
+							<li class="step1">1、验证身份</li>
+							<li class="step2">2、修改登录密码</li>
+							<li class="step3">3、完成</li>
+						</ul>
+					</div>
+					<div class="ui_warning">
+						<p>
+							<em>#if($!params.danger)<span class="ico_g" style="color:#CC3300;padding-left: 20px;background-position:-1px -422px;display:inline-block;float:left;">我们检测出你的账号存在风险，</span>#end为保障您的账号安全，将对您的身份验证后才能修改！确认是本人修改...</em>
+						</p>
+					</div>
+					<div  class="modifyBox">
+						<ul>
+							#if($VmUtils.contains($condition,"email") && $VmUtils.contains($condition,"mobile"))
+							<li>
+								<div class="ui_media">
+									<div class="ui_pic">请选择身份验证方式：</div>
+									<div class="ui_text">
+										<select id="selector" name="choice" onchange="gotoMobileCheck(this);"><option value="">默认注册邮件验证</option><option value="${basePath}home/acct/mbrMobileAuth.xhtml">默认手机动态码验证</option></select>
+									</div>
+								</div>
+							</li>
+							#end
+							#if($VmUtils.contains($condition,"email"))
+							<li class="line">
+								<div class="ui_media">
+									<div class="ui_pic">默认邮箱：</div>
+									<div class="ui_text">
+										<b class="photoNum">$!email</b><span><br/>如果短时间内，邮箱内收不到邮件；你还可以绑定手机后，通过手机号码修改！</span>
+									</div>
+								</div>
+							</li>
+							#end
+							<li>
+								<div class="ui_media">
+									<div class="ui_pic"><span id="showPassCaptchaText" style="display:none;">输入验证码：</span>&nbsp;</div>
+									<div class="ui_text">
+										#if($VmUtils.contains($condition,"email"))
+										<form name="saveForm" id="saveForm">
+											<div style="display:none;height:42px;" id="showPassCaptcha">
+												<input type="hidden" name="captchaId" id="captchaMobile" />
+												<span></span>
+												<label class="label" for="captchaMobileInput" style="width:90px;"><input type="text" class="text captcha" id="captchaMobileInput" name="captcha" alt="点击获取" autocomplete="off"  style="width:90px" onfocus="GewaraUtil.refreshCaptcha('captchaMobile');"/></label>
+												<img id="captchaMobileImg" width="80" height="30" src="${staticPath}css/images/blank.gif" style="cursor: pointer;" onclick="GewaraUtil.refreshCaptcha('captchaMobile');" title="看不清楚，请点击换一张图片"/>
+											</div>
+											<input type="button"  value="发送邮件" id="sendVDEmail" class="botton_count_on" style="margin-top:20px;"/><span id="sendMailText" style="margin-left:10px;vertical-align: -9px;"></span>
+										</form>
+										#end
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+var isPhnoeCode2 = false;
+window.addEvent('domready',function(){
+	if($('sendVDEmail')){
+		$('sendVDEmail').addEvent('click',function(){
+			resend();
+		});
+	}
+	#if($!needCaptcha)
+		GewaraUtil.refreshCaptcha('captchaMobile');
+		$('showPassCaptcha').show();
+		$('showPassCaptchaText').show();
+		isPhnoeCode2 = true;
+	#end
+});
+var second = 60;
+GetRTime = function (){  
+	if(second>=0){
+		var txt = '';
+		if($('sendVDEmail')){
+			if(second == 0){
+				txt = '可重新发送邮件啦！';
+				$("sendVDEmail").removeClass('botton_count_off');
+				$("sendVDEmail").addEvent('click',function(){resend();});
+				if(isPhnoeCode2 && $('showPassCaptcha').getStyle('display') == 'none'){
+					GewaraUtil.refreshCaptcha('captchaMobile');
+					$('showPassCaptcha').show();
+					$('showPassCaptchaText').show();
+				}
+			}else{
+				txt = '邮件已经发送，'+ second + '秒后可重新发送！';
+				$("sendVDEmail").addClass('botton_count_off');
+			}
+			$('sendMailText').innerHTML = txt;
+		}
+		second = second-1;
+		setTimeout("GetRTime()",1000);
+	}else {  
+		if($('sendVDEmail')){
+			$("sendVDEmail").addEvent('click',function(){resend();});
+			$("sendVDEmail").setStyle("cursor","pointer"); 
+		}
+	}  
+} 
+resend = function(){
+	if(isPhnoeCode2 && $('showPassCaptcha').getStyle('display') == 'none'){
+		GewaraUtil.refreshCaptcha('captchaMobile');
+		$('showPassCaptcha').show();
+		$('showPassCaptchaText').show();
+		return false;
+	}
+	if(isPhnoeCode2 && $('captchaMobileInput').value == ''){
+		GewaraUtil.showValidateErr('captchaMobileInput','请输入验证码！');
+		return false;
+	}
+	gewa.util.mask({'element': "sendVDEmail",'title':'正在提交，请稍等...'});
+	var values = {'captchaId':$('captchaMobile').value,'captcha':$('captchaMobileInput').value};
+	GewaraUtil.sendRequest('${basePath}home/acct/sendVDEmail.xhtml', values, function(result){
+		gewa.util.clearMask();
+		if(result.refreshCaptcha){
+			isPhnoeCode2 = true;
+		}
+		if(result.success){
+			gewaUtil.alert(result.retval);
+			retime();
+			$('showPassCaptcha').hide();
+			$('showPassCaptchaText').hide();
+		}else{
+			GewaraUtil.refreshCaptcha('captchaMobile');
+			if(result.msg) {
+				gewaUtil.alert(result.msg);
+			}else{
+				GewaraUtil.showErrorMsg('saveForm',result.errorMap);
+			}
+		}
+	}, 'get');
+}
+retime = function(){
+	$("sendVDEmail").removeEvents('click');
+	$("sendVDEmail").setStyle("cursor","text");
+	second = 60;
+	GetRTime();
+}
+
+function gotoMobileCheck(that){
+	if($(that).value != ''){
+		document.location.href = $(that).value;
+	}
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>#if($tag eq "movie")电影#elseif($tag eq "drama")话剧#elseif($tag eq "sport")运动#end站内信模板</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+	</style>
+</head>
+<body style="text-align: center;width: 80%; margin:auto;">
+<div style="clear:both">
+	<form id="defaultForm">
+		<div style="float: left;margin-left: 10px;margin-right: 10px;margin-top: 8px;">
+			<span>默认站内信模板</span><br/>
+			<textarea name="content" rows="5" cols="35" id="content">$!msgConfig.content</textarea><br/>
+			<div class="yellow">moviename=电影名称</div>
+			<div class="yellow">cinemaname=影院名称</div>
+			<div class="yellow">movieid=电影id</div>
+			<div class="yellow">cinemaid=影院id</div>
+			<div class="yellow">pointvalue=增加积分值</div>
+			<input type="button" value="保存！" onclick="saveDefault()"/>
+		</div>
+	</form>
+	<div style="float:right;">
+		<form action="${basePath}admin/message/movieMsgCustom.xhtml">
+			<input type="hidden" name="tag" id="tag" value="$tag"/>
+			<div>
+				#if($tag eq "movie")电影#elseif($tag eq "drama")话剧#elseif($tag eq "sport")运动#end ID:<input type="text" name="movieid" id="movieid" value="$!params.movieid"/>
+				<input type="submit" value="查询"/>
+			</div>
+		</form>
+		<table class="roomManageTable" id="all_content" cellpadding="0" cellspacing="0" border="0" style="margin:auto;">
+			<thead><tr>#set($ck=$cookieTool.admin_citycode.value)
+				<th style="width:20px;">&nbsp;</th>
+				<th style="width:40px;">首字母</th>
+				<th style="width:250px;">电影名称</th>
+				<th style="width:40px;">短信</th>
+			</tr></thead>
+			<tbody id="tbody">
+				#foreach($movie in $movieList)
+				<tr class="grayBg h" id="row${order.id}">
+					<td>$foreach.count</td>
+					<td>$VmUtils.getFirstSpell($movie.realBriefname)</td>
+					<td><a href="${basePath}#if($tag eq "movie")movie#elseif($tag eq "drama")drama#elseif($tag eq "sport")sport#end/$movie.id">$movie.realBriefname</a>
+					<td><input type="button" value="短信" style="width: 60px" onclick="getMsg($movie.id, '$movie.name')"/></td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+</div>
+<div id="openDialog" style="width:760px; visibility:hidden; z-index:20;background: #000">
+	<div style="width:740px;margin:10px;background:#FFF;">
+		<div style="text-align:center;height:20px;line-height: 20px;">
+			<strong id="movietitle" class="yellow"></strong>
+		</div>
+		<div class="bd ml20" style="text-align:left;">
+			<form name="openForm" id="openForm">
+				<input type="hidden" name="mid" id="mid" />
+				<textarea name="msg" id="msg" cols="35" rows="5"></textarea>
+				<div>
+					<label>&nbsp;</label>
+					<div class="yellow">moviename=电影名称</div>
+					<div class="yellow">cinemaname=影院名称</div>
+					<div class="yellow">movieid=电影id</div>
+					<div class="yellow">cinemaid=影院id</div>
+					<div class="yellow">pointvalue=增加积分值</div>
+					<input type="button" class="cbt1"  value="保存" onclick="saveCustom()"/>
+					<input type="button" class="cbt1" onclick="hiDialog();" value="取消"/>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	var ckeditor;
+	var ckeditor2;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("content");
+		ckeditor2 = CKEDITOR.replace("msg");
+	});
+	function getMsg(movieid, moviename){
+		$('movietitle').set('html', moviename);
+		$('mid').value = movieid;
+		getCustom(movieid);
+		showDialog();
+	}
+	function hiDialog(){
+		GewaraUtil.hideDialog("openDialog");
+	}
+	function showDialog(){
+		GewaraUtil.showDialog('openDialog');
+	}
+	function saveCustom(){
+		$('msg').value = ckeditor2.getData();
+		var values = GewaraUtil.getValues('openForm');
+		values.tag = "$tag";
+		GewaraUtil.sendRequest('${basePath}admin/message/saveMovieMsgAction.xhtml', values, function(result){
+			if(result.success){
+				alert('保存成功');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function getCustom(movieid){
+		var values = {'mid':movieid,'tag':"$tag"};
+		GewaraUtil.sendRequest('${basePath}admin/message/getMovieMsgAction.xhtml', values, function(result){
+			if(result.success){
+				$('msg').set('html', result.retval);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function saveDefault(){
+		$('content').value = ckeditor.getData();
+		var values = GewaraUtil.getValues('defaultForm');
+		values.tag = "$tag";
+		GewaraUtil.sendRequest('${basePath}admin/message/saveDefaultMsgAction.xhtml', values, function(result){
+			if(result.success){
+				alert('保存成功');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

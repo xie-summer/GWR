@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>小机器网络状态</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="margin:auto">
+<form action="${basePath}admin/synch/getEquipmentStatus.xhtml" method="post" style="width:740px;margin:3px">
+	<label for="releasetime">开始时间：</label>
+	<input name="starttime" id="releasetime" value="$!starttime" readonly="readonly" 
+	onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" type="text"/>
+	<label for="releasetime">结束时间：</label>
+	<input name="endtime" id="releasetime" value="$!endtime" readonly="readonly" 
+	onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" type="text"/>
+	<label for="equipmentType">设备类型：</label>
+	<select name="equipmentType">
+		<option value="pos" #if($equipmentType eq 'pos')selected="selected"#end >pos</option>
+		<option value="pad" #if($equipmentType eq 'pad')selected="selected"#end>pad</option>
+	</select>
+	<input type="submit" class="fdBt" id="urlBtn" value="确定"/>
+</form>
+
+    <table width="1055px" class="table">
+    	<thead>
+    	<tr>
+    		<th>设备ID</th>
+    		<th>场馆ID</th>
+    		<th>场馆名称</th>
+    		<th>最新请求时间</th>
+    		<th>软件版本</th>
+    		<th>总订单数</th>
+			#if($equipmentType eq 'pos')
+    		<th>已同步订单数</th>
+			#elseif($equipmentType eq 'pad')
+			<th>已验证订单</th>
+			#end
+			#if($equipmentType eq 'pos')
+    		<th>操作1</th>
+    		<th>操作2</th>
+			#elseif($equipmentType eq 'pad')
+				<th>操作</th>
+			#end
+    		<th>删除记录</th>
+    	</tr>
+    	</thead>
+    	<tbody id="picUrlTable">
+    	#foreach($map in $mapList)
+    	<tr id='tr$!map.get("id")' #if($!map.overTime)style="color:red"#end >
+    		#set($id = $!map.get("id"))
+    		<td>$!map.id</td>
+    		<td>$!map.sportid</td>
+    		<td>$!map.sportName</td>
+    		<td >$!map.synchTime</td>
+    		<td >$!map.appversion</td>
+    		<td>$!map.totalOrderNum</td>
+    		<td >$!map.synchTotalOrderNum</td>
+    		#set($noSynchNum = $!{map.totalOrderNum}-$!{map.synchTotalOrderNum})
+			#if($equipmentType eq 'pos')
+    		<td><a href='${basePath}admin/synch/getNoSynchSportOrder.xhtml?sportid=$!map.sportid&starttime=$!starttime&endtime=$!endtime&tag=$!map.type' target='_blank'>未同步订单($!noSynchNum)</a></td>
+    		<td><a href='${basePath}admin/synch/getNoTakeSportOrder.xhtml?sportid=$!map.sportid&starttime=$!starttime&endtime=$!endtime&tag=$!map.type' target='_blank'>未取票订单($!map.noTakeOrderNum)</a></td>
+			#elseif($equipmentType eq 'pad')
+    		<td><a href='${basePath}admin/synch/getNoTakeSportOrder.xhtml?sportid=$!map.sportid&starttime=$!starttime&endtime=$!endtime&tag=$!map.type' target='_blank'>未验证订单($!map.noTakeOrderNum)</a></td>
+			#end
+			<td><a href='javascript:del("$id")'>删除</a></td>
+    	</tr>
+    	#end
+    	</tbody>
+    </table>
+	
+<script type="text/javascript">
+	function del(vid){
+		var url = '${basePath}admin/synch/delEquipmentStatus.xhtml';
+		if(confirm('确认要删除此记录吗?')){
+			GewaraUtil.sendRequest(url, {id:vid}, function(result){
+				$('tr'+vid).addClass('none');
+			});
+		}
+	}
+	
+	
+	
+	
+</script>
+</body>
+</html>

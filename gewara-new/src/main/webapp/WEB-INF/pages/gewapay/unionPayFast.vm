@@ -1,0 +1,301 @@
+#set($addBankMap={"ICBC":"-143"})
+#set($tmp=$addBankMap.put("ABC","-269"))
+#set($tmp=$addBankMap.put("BOCSH","-479"))
+#set($tmp=$addBankMap.put("CCB","-185"))
+#set($tmp=$addBankMap.put("BOCOM","-857"))
+#set($tmp=$addBankMap.put("PSBC","-689"))
+#set($tmp=$addBankMap.put("CNCB","-395"))
+#set($tmp=$addBankMap.put("CMBC","-563"))
+#set($tmp=$addBankMap.put("BOS","-269"))
+#set($tmp=$addBankMap.put("CEB","-899"))
+#set($tmp=$addBankMap.put("CMB","-227"))
+#set($tmp=$addBankMap.put("SPDB","-437"))
+#set($tmp=$addBankMap.put("HXB","-647"))
+#set($tmp=$addBankMap.put("PAB","-773"))
+#set($tmp=$addBankMap.put("CIB","-353"))
+#set($tmp=$addBankMap.put("GDB","-311"))
+#set($tmp=$addBankMap.put("SRCB","-941"))
+#set($tmp=$addBankMap.put("BOC","-479"))
+#set($tmp=$addBankMap.put("PABASFB","-773"))
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>银联支付首页 - 格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_movie,new_play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,tips&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		html{background:#fff;}
+		a{color:#237fae}
+		.cYellow{color:#e66218;}
+		.pay_header{height:80px; position:relative;width:960px;margin:0 auto;}
+		.pay_header h1.logo{display:block; float:left; width:230px; height:60px; margin:10px 0; text-indent:-9999px; overflow:hidden; background:url(${staticPath}css/home/pay_logo.jpg) -7px 0 no-repeat;}
+		.pay_header .userTag{position:absolute; right:0; top:10px;}
+		.pay_tollbar{width:952px;border:4px solid #a1bee0;margin:10px auto;background:#ffffcd;}
+		.pay_tollbar li{height:28px;line-height:28px;border-bottom:1px dashed #d0d4d7; text-indent:1em;font-size:14px;color:#666;}
+		.pay_tollbar li span{display:inline-block;float:left;overflow:hidden;}
+		.pay_tollbar li span b{font-size:24px;color:#ff6600;vertical-align: -3px;}
+		.pay_body{width:840px;border:1px solid #93b4d7;background:#e9f4f6;padding:20px 59px;overflow:hidden;margin:0 auto;}
+		.pay_body .plogo,.checkBt,.formSureBt,.fromlink,.passBackList li{background:url(${staticPath}css/buss/chinaIndexPay.jpg?v=$!VmUtils.jsVersion) no-repeat;}
+		
+		.formT{height:32px;width:100%;overflow:hidden;line-height:32px;font-size: 14px;font-weight: bold;text-indent: 46px;background:#e2edef;margin-top:15px;}
+		.formT span{display:inline-block;width:50%;float:left;overflow:hidden;}
+		.formBody{width:100%;background:#f7fbfc;overflow:hidden;}
+		.formBody_bson{width:420px;float:left;overflow:hidden;padding:10px 0;}
+		.formBody_son,.formBody_son ul{overflow:hidden;float:left;padding:10px 48px;width:324px;}
+		.formBody_son p{width:250px;padding:30px 0;line-height: 20px;}
+		.formBody_bson ul{border-right:1px dashed #cbd7e3;padding:0px 48px 0px 47px;}
+		.formBody_bson ul li{height:36px;line-height:36px;width:100%;overflow:hidden;padding:5px 0;}
+		.formBody_bson a{color:#237fae;text-decoration: underline;margin-left:10px;}
+		.finput{width:180px;padding:4px;font-size:14px;border:1px solid #bbc3ce;background:#fff;outline: none;border-radius:3px;height:19px;}
+		.checkBt{height:29px;width:112px;background-position:0 -80px;border:0px;margin-left:10px;cursor: pointer;color:#237fae;}
+		.checkDisabled{background:#eee;color:#666;cursor: default;}
+		.formSureBt{width:108px;height:35px;border:0px;background-position:0 -46px;cursor: pointer;}
+		.fromlink{width:138px;height:34px;display:block;background-position:0 -109px;text-decoration: none !important;overflow:hidden;text-indent: -999px;}
+		.passLogo{height:40px;width:100%;text-indent: 10px;line-height:40px;font-weight: bold;}
+		.passBackList{width:100%;height:100%;overflow:hidden;}
+		.passBackList li{width:210px;height:42px;overflow:hidden;float:left;margin-bottom:20px;}
+		.redBt:link, label.link {background-position: 0 -47px;}
+		.redBt:link span, label.link input {background-position: right -70px;}
+	</style>
+</head>
+<body>
+<div class="pay_header">
+	<h1 class="logo">格瓦拉收银台</h1>
+	<span class="userTag"><b>$!member.nickname</b>你好，欢迎来到格瓦拉生活网！</span>
+</div>
+<ul class="pay_tollbar">
+	<li>
+		<span style="width:482px;">商户名称：上海格瓦商务信息咨询有限公司（格瓦拉生活网）</span>
+		<span style="width:270px;">订单编号：$!order.tradeNo</span>
+		<span>应付金额：<b>$!{order.due}.00</b>元</span>
+	</li>
+	<li>订单创建时间：$!{DateUtil.format($order.addtime,'yyyy-MM-dd HH:mm:ss')}（交易将在15分钟后关闭，请及时付款！）</li>
+</ul>
+<div class="pay_body">
+	<img src="${staticPath}css/images/blank.gif" width="126" height="32" class="plogo"/>
+	<div class="formT">
+		<span>银联卡直接付款</span>
+		#*<span>前往银联在线支付页面付款</span>*#
+	</div>
+	<div class="formBody clear">
+		<div class="formBody_bson">
+			<ul id="cardForm">
+				#if($payName.get('payName'))
+				<li><b>支付方式：</b>$payName.get('payName')</li>
+				#end
+				<li>
+					<input type="hidden" name="orderId" value="$!order.id"/>
+					#if($VmUtils.eq($!hasCardNumber,'Y'))
+					<input type="hidden" name="phoneNumber" value="$!phoneNumber" id="phoneNumber"/>
+					<input type="text" name="cardNumber" id="cardNumber" value="$!cardNumber"  class="finput" readonly="readonly" alt="请输入银行卡号"/>
+					#else
+					<input type="hidden" name="phoneNumber" value="" id="phoneNumber"/>
+					<input type="text" name="cardNumber" id="cardNumber" value=""  class="finput" alt="请输入银行卡号"/>
+					<a  href='javascript:bindCard()' id="linkTips" >首次使用请开通</a>
+					#end
+				</li>
+				<li><input type="text" name="smsCode" id="smsCode" onblur="if(this.value == '')GewaraUtil.showValidateErr('smsCode','短信验证码不能为空！'); return;" value="" class="finput" style="width:60px;" alt="短信验证码"/><input type="button" class="checkBt" id="sendSms" value="获取手机验证码"/></li>
+				<li><input type="button" value="" class="formSureBt" onclick="checkDataFormSubmit();"/></li>
+			</ul>
+		</div>
+		#*
+		<div class="formBody_son">
+			<p>支持网银、储值卡、IC卡支付等更多付款方式，可以使用全国大多数银行卡。</p>
+			<a href="javascript:toUnionpay()" class="fromlink">立即前往支付</a>
+		</div>
+		*#
+	</div>
+	<div class="passLogo">支持的银行：</div>
+	<ul class="passBackList">
+		#if($order.paybank)
+			<li style="background-position:center $!{addBankMap[$order.paybank]}px"></li>
+			#if($order.paybank eq 'PABASFB')
+			<li style="background-position:center -521px"></li>
+			#end
+		#else
+			#foreach($x in [1..20])
+				#set($position=143+42*$foreach.index)
+				<li style="background-position:center -${position}px"></li>
+			#end
+		#end
+	</ul>
+</div>
+<form name="bindcardForm" action="${basePath}gewapay/toBindUnionpayFastCard.xhtml" id="bindCardForm" target="_blank" >
+<input type="hidden" name="cardNumber" value="" id="bindCardnumber"></input>
+<input type="hidden" name="paymethod" value="$!{order.paymethod}"></input>
+</form>
+<form id="payForm" action="/gewapay/saveOrder.xhtml" method="post">
+<input type="hidden" name="orderId" value="$!{order.id}"/> 
+<input type="hidden" name="paymethod" value="unionPay"/> 
+<input type="hidden" name="checkGewaPay" value="Y"/> 
+</form>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	#if(!$VmUtils.eq($!hasCardNumber,'Y'))
+	$('cardNumber').addEvent('blur',function(){validateCard(this);});
+	#end
+	$('sendSms').addEvent('click',function(){sendSms(this);});
+	gewaUtil.textOver('.finput');
+	new amTips('#linkTips',{content:function(){return "首次使用该卡时，需要开通银联在线支付，<a href='javascript:bindCard()' >点击这里</a>"},automove:true,position:'top'});
+})
+
+function toUnionpay(){
+	GewaraUtil.sendRequest("${basePath}gewapay/saveOrder.xhtml", GewaraUtil.getValues("payForm"), function(result){
+		if(result.success){
+			document.location.href = result.url;
+		}else{
+			gewaUtil.alert(result.msg, function(){
+				gewa.util.clearMask();
+			}); 
+		}
+		
+	},'post');
+}
+
+function bindCard(){
+	if($('cardNumber').value == ''){
+		GewaraUtil.showValidateErr('cardNumber','银行卡号不能为空！')
+		return;
+	}
+	if($('cardNumber').value.length > 19 || $('cardNumber').value.length < 13){
+		GewaraUtil.showValidateErr('cardNumber','请输入正确位数的银行卡号！')
+		return;
+	}
+	bindNotice();
+	$('bindCardnumber').value = $('cardNumber').value
+	$('bindCardForm').submit();	
+}
+
+function bindNotice(){
+	var showTip = '<div class="cnotice"><b>请确保当前浏览器不会阻止打开新页面，并在新页面上开通银联在线支付！</b><br/><p>您将进入新页面进行开通验证，在后继支付时仅需输入卡号、手机验证完成支付。<br/>完成开通后请根据您的情况点击下面按钮。</p></div>';
+	showTip += '<div class="center"><a href="http://online.unionpay.com/static/help/detail_140.html" target="_blank" onclick="cancelBt();" class="button whiteBt minBt"><span>开通遇到问题</span></a><a href="javascript:cancelBt();" class="button redBt minBt ml20"><span>完成开通，继续支付</span></a></div>';
+	gewa.util.maskContent('','<div class="black">'+ showTip +'</div>','',360,'ispay');
+}
+function cancelBt(){
+	gewa.util.container['ispay'].dispose('ispay');
+	refreshPage();
+}
+function sureBt(){
+	gewa.util.container['ispay'].dispose('ispay');
+	var index = window.history.length;
+	window.history.go((!Browser.ie)?(-index+2):(-index));
+}
+#if($VmUtils.eq($!hasCardNumber,'Y'))
+var validateCardStatus = "$!validateCardStatus";
+#else
+var validateCardStatus = "";
+#end
+function validateCard(el){
+	el = $('cardNumber');
+	if(el.value == ''){
+		GewaraUtil.showValidateErr('cardNumber','银行卡号不能为空！')
+		return;
+	}
+	var f = $('cardForm').getElements('input[type=text]').filter(function(item){return item.value.test(/[^\d]/)})
+	if(f.length > 0){GewaraUtil.showValidateErr('cardNumber','卡号只能为数字,请输入正确的卡号！');return false;}
+	if(el.value.length > 19 || el.value.length < 13){
+		GewaraUtil.showValidateErr('cardNumber','请输入正确位数的银行卡号！')
+		return;
+	}
+	gewa.util.mask({'element': "subBt",'title':'正在验证卡号...'});
+	GewaraUtil.sendRequest("${basePath}ajax/cooperate/unionPayFastDiscount.xhtml", GewaraUtil.getValues("cardForm"), function(result){
+		if(result.success){
+			gewa.util.clearMask();
+			validateCardStatus = result.retval;
+			$('phoneNumber').value = result.phoneNumber;
+		}else{
+			validateCardStatus = "";
+			GewaraUtil.showValidateErr('cardNumber',result.msg);
+			gewa.util.clearMask();
+		}
+	});
+}
+
+function sendSms(el){
+	var cardNum = $('cardNumber');
+	if(cardNum.value == ''){
+		GewaraUtil.showValidateErr('cardNumber','银行卡号不能为空！')
+		return;
+	}
+	var f = $('cardForm').getElements('input[type=text]').filter(function(item){return item.value.test(/[^\d]/)})
+	if(f.length > 0){GewaraUtil.showValidateErr('cardNumber','卡号只能为数字,请输入正确的卡号！');return false;}
+	if(cardNum.value.length > 19 || cardNum.value.length < 13){
+		GewaraUtil.showValidateErr('cardNumber','请输入正确位数的银行卡号！')
+		return;
+	}
+	if(!(validateCardStatus == '0' || validateCardStatus == '1')){
+		GewaraUtil.showValidateErr('cardNumber',"不支持支付的卡片，请进行开通后 再进行发送短信!");
+		return;
+	}
+	gewa.util.mask({'element': "subBt",'title':'正在发送短信...'});
+	GewaraUtil.sendRequest("${basePath}ajax/cooperate/unionPayFastSendSms.xhtml", GewaraUtil.getValues("cardForm"), function(result){
+		if(result.success){
+			retime();
+			gewa.util.clearMask();
+		}else{
+			GewaraUtil.showValidateErr('smsCode',result.msg);
+			gewa.util.clearMask();
+		}
+	});
+}
+
+function checkDataFormSubmit(){
+	var values = GewaraUtil.getValues('cardForm');
+	if(values.cardNumber == ''){
+		GewaraUtil.showValidateErr('cardNumber','银行卡号不能为空！');
+		return;
+	}
+	if(values.cardNumber.length > 19 || values.cardNumber.length < 13){
+		GewaraUtil.showValidateErr('cardNumber','请输入正确位数的银行卡号！')
+		return;
+	}
+	if(!(validateCardStatus == '0'  || validateCardStatus == '1')){
+		GewaraUtil.showValidateErr('cardNumber',"不支持支付的卡片，请进行开通后 再进行发送短信!");
+		return;
+	}
+	if(values.smsCode == ''){
+		GewaraUtil.showValidateErr('smsCode','短信验证码不能为空！');
+		return;
+	}
+	GewaraUtil.sendRequest("${basePath}gewapay/toUnionpayFast.xhtml", GewaraUtil.getValues("cardForm"), function(result){
+		if(result.success){
+			document.location.href = result.url;
+		}else{
+			GewaraUtil.showValidateErr('cardNumber',result.msg);
+		}
+	});
+}
+var second = 60;
+GetRTime = function (){
+	if(second>=0){
+		var txt = '';
+		if($('sendSms')){
+			if(second == 0){
+				txt = '重新获取动态码';
+				$("sendSms").removeClass('checkDisabled');
+			}else{
+				txt = second + '秒后重新获取';
+				$("sendSms").addClass('checkDisabled');
+			}
+			$('sendSms').value = txt;
+		}
+		second = second-1;
+		setTimeout("GetRTime()",1000);
+	}else {
+		if($('sendSms')){
+			$("sendSms").set("disabled", false);
+			$("sendSms").setStyle("cursor","pointer");
+		}
+	}
+} 
+retime = function(){
+	$("sendSms").set("disabled", true);
+	$("sendSms").setStyle("cursor","text");
+	second = 60;
+	GetRTime();
+	} 
+</script>
+</body>
+</html>

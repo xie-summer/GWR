@@ -1,0 +1,118 @@
+<!-- SUCCESS_HEAD -->
+<div class="mod_hd">
+	<ul class="nav_tabs" id="facTab">
+		#foreach($date in $!dateList)
+			<li id="date$!{DateUtil.format($date, 'yyyyMMdd')}"><a href="javascript:void(0)">$!DateUtil.format($date, 'M月d日')$!DateUtil.getCnWeek($date)</a></li>
+		#end
+	</ul>
+</div>
+#foreach($date in $!dateList)
+<div class="mod_bd none" id="date$!{DateUtil.format($date, 'yyyyMMdd')}_content">
+	#foreach($mid in $!opiMap.get($date).keySet())
+		#set($movie = $movieMap.get($mid))
+		<div class="scrollList" data-date="date$!{DateUtil.format($date, 'yyyyMMdd')}">
+			<div class="ui_media pc-te-list">
+				<div class="ui_pic">
+					<div class="l-pt">
+						<a href="$!{basePath}movie/$movie.id" title="$!movie.moviename" target="_blank"><img src="$VmUtils.randomPic('cw180h240',$movie.limg)" width="180" height="240"/></a>
+						<div class="clear l-text">
+							<p class="left">
+								<a href="$!{basePath}movie/$movie.id" title="$!movie.moviename" target="_blank">$!movie.moviename</a>
+								#set($gmark=$VmUtils.getLastMarkStar($movie, "general",$markCountMap.get($movie.id),$!markData))
+								#set($gmark1=$gmark/10) #set($gmark2=$gmark % 10) 
+								<em class="grade">
+									<sub>$!{gmark1}</sub>
+									<sup>.$!{gmark2}</sup>
+								</em>
+							</p>
+							<a href="$!{basePath}movie/$movie.id" title="$!movie.moviename" target="_blank">
+								<em class="nor l_iv left"></em>
+							</a>
+						</div>
+					</div>
+				</div>
+				<div class="ui_text">
+					<div class="picFocusScroll clear" id="date$!{DateUtil.format($date, 'yyyyMMdd')}nowPlaying$foreach.count">
+					    <div class="xgpeo_pic">
+					        <ul id="date$!{DateUtil.format($date, 'yyyyMMdd')}nowPlayWidth$foreach.count">
+					        		#foreach($opi in $opiMap.get($date).get($mid))
+					            <li>
+										<div class="l_con">
+											<div class="time"><span>$!DateUtil.format($opi.playtime, 'HH:mm')</span>
+												#if($movie.videolen)
+													#set($closeTime = $DateUtil.addMinute($!opi.playtime,$movie.videolen))
+													<em class="c999"> ~ $!DateUtil.format($closeTime,'HH:mm')</em>
+												#end
+											</div>
+											<div class="mvType">
+												<p>
+													<em class="ui_movieType_line">
+														#set($mEdition = $opi.edition)
+														#if($VmUtils.contains($mEdition, '4D'))
+															<span class="ui_type4d"></span>
+														#elseif($VmUtils.contains($mEdition, 'IMAX3D'))
+															<span class="ui_typeImax3d"></span>
+														#elseif($VmUtils.contains($mEdition, 'IMAX2D'))
+															<span class="ui_typeImax"></span>
+														#elseif($VmUtils.contains($mEdition, '双机3D'))
+															<span class="ui_type3d2"></span>
+														#elseif($VmUtils.contains($mEdition, '3D'))
+															<span class="ui_type3d"></span>
+														#end
+													</em>
+													<em class="eng">$!opi.language</em>
+												</p>
+												#set($seanum = $!opi.seatnum)
+												<p>$!{opi.roomname}#if($seanum && $seanum ge 120)(#if($seanum ge 200)大厅#else中厅#end)#end</p>
+											</div>
+											<div class="mark_price">
+												<span>¥<b>$!{opi.gewaprice}</b></span>
+												<span class="through">$!{opi.price}</span>
+											</div>
+											<div class="l_btn">
+												<a class="mt10 button bigBt redBt" href="${basePath}$!VmUtils.getStep1Url($opi.mpid,$spkey)" target="_blank"><span>选座购票</span></a>
+											</div>
+										</div>
+									</li>
+					            #end
+					        </ul>
+					    </div>
+						<div class="slide">
+							<span class="slideL"><em class="nor orientation">左滑动</em></span>
+							<span class="slideR"><em class="nor orientation">右滑动</em></span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	#end
+</div>
+#end
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	#if(!$VmUtils.isEmptyList($dateList))
+		var dateArr = [];
+		#foreach($date in $!dateList)
+			dateArr.push("date$!{DateUtil.format($date, 'yyyyMMdd')}");
+		#end
+		new PanelGroup(dateArr, dateArr[0], "select", "none", "click");
+		try{
+			var scrollList = $$(".scrollList");
+			var count = 1;
+			if(scrollList && scrollList.length>0){
+				var oldIdPre = "";
+				scrollList.each(function(item, index){
+					var idPre = item.get("data-date");
+					if(oldIdPre == "" || oldIdPre != idPre){
+						count = 1;
+						oldIdPre = idPre;
+					}
+					new sigleLeep(idPre + 'nowPlaying' + count,idPre + 'nowPlayWidth' + count,{isNode:'li','disable':'disable','size':216,'length':3,'screen':216});
+					count++;
+				});
+			} 
+		}catch(e){}
+	#end
+})
+</script>
+<!-- SUCCESS_BOTTOM -->

@@ -1,0 +1,59 @@
+#set($pageFun='_ajaxAutoPage')
+<div align="left">站点名称：<input id="searchname" name="searchname" value="$!params.stationname" /> [<span style="color:blue; cursor: pointer" onclick="searchStation();">查询</span>]</div>
+<table style="width:100%" class="table">
+	<thead class="th">
+		<tr>
+			<th width="20%">站点ID</th>
+			<th width="50%">站点名称</th>
+			<th width="30%">操作[<span style="color:blue; cursor: pointer" onclick="newStation();" title='增加新站点'>增加</span>]</th>
+		</tr>
+	</thead>
+	<tbody>
+		#foreach($subwaystation in $subwaystationList)
+		<tr>
+			<td>$subwaystation.id</td>
+			<td>$subwaystation.stationname</td>
+			<td>[<span style="color:blue; cursor: pointer" onclick="updateStation('$subwaystation.id');" title='修改站点'>修改</span>]</td>
+		</tr>
+		#end
+	</tbody>
+</table>
+<div style="float: right;">#parse('include/scriptPageUtil.vm')</div>
+<script>
+_ajaxAutoPage = function(pageNo, params, url){
+	gewaUtil.loadData('station', url);
+}
+
+searchStation = function(){
+	var url ="${basePath}admin/common/ajax/getSubwaystationList.xhtml";
+	var values = {'stationname':$('searchname').value}
+	gewaUtil.loadData('station', url, values);
+}
+
+updateStation = function(id){
+	var url = "${basePath}admin/common/ajax/getSubwaystation.xhtml";
+	GewaraUtil.sendRequest(url, {'sid':id}, function(result){
+		if(result.success){
+			GewaraUtil.setValues(result);
+			show('stationDialog');
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+saveStation = function (){
+	var url = '${basePath}admin/common/ajax/addSubwaystation.xhtml';
+	var values = GewaraUtil.getValues('stationForm');
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('保存成功');
+			hide('stationDialog');
+			gewaUtil.loadData('station','${basePath}admin/common/ajax/getSubwaystationList.xhtml',{'pageNO':'$!params.pageNo','stationname':'$!params.stationname'});
+		}else{
+			alert(result.msg);
+		}
+	});
+};
+
+</script>

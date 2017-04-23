@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	#set($isCityParam=true)
+	#parse('include/constant/cityParam.vm')
+	<meta name="robots" content="noindex" />
+	<meta http-equiv="Cache-Control" content="no-store"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>提示—格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/layout.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<style type="text/css">
+		@CHARSET "UTF-8";
+		.ui_layout{height:238px;background:#f2f2f2 url(${picPath}css/global/backPage_bg.png) center center no-repeat;position: relative;width:600px;overflow:hidden;margin:88px auto;}
+		.backMsg{width:330px;height:60px;overflow:hidden;position: absolute;top:66px;right:50px;font-size:20px;font-family:'黑体','宋体';line-height:30px;}
+		.backNotice{height:22px;width:330px;line-height:22px;top:120px;right:35px;position: absolute;}
+		.backNotice a{color:#c03b0c;margin:0 3px;}
+		.backNotice b{color:red;margin-right:3px;}
+	</style>
+</head>
+<body>
+#set($cityLen=$VmUtils.size($cityMap))
+<div class="ui_nav ui_index_text">
+	<div class="ui_plugs_body">
+		<a href="/" class="logo"><img src="${staticPath}css/images/blank.gif" alt="格瓦拉生活网" width="102" height="40"/></a>
+	</div>
+</div>
+<div class="ui_layout">
+	#if($errorMsgs)
+		#foreach($msg in $VmUtils.splitByWholeSeparator($errorMsgs, '@@'))
+			<div class="backMsg">$VmUtils.escapeHtml($msg)</div>
+		#end
+	#end
+	#if($successMsgs)
+		#foreach($msg in $VmUtils.splitByWholeSeparator($successMsgs, '@@'))
+			<div class="backMsg">$VmUtils.escapeHtml($msg)</div>
+		#end
+	#end
+	#if($params.errorMsgs)
+		#foreach($msg in $VmUtils.splitByWholeSeparator($params.errorMsgs, '@@'))
+			<div class="backMsg">$VmUtils.escapeHtml($msg)</div>
+		#end
+	#end
+	#if($params.successMsgs)
+		#foreach($msg in $VmUtils.splitByWholeSeparator($params.successMsgs, '@@'))
+			<div class="backMsg">$VmUtils.escapeHtml($msg)</div>
+		#end
+	#end
+	#foreach($msg in $msgList)
+		<div class="backMsg">$VmUtils.escapeHtml($msg)</div>
+	#end
+	<div class="backNotice">
+		#if($!params.returnUrl)
+		#if($VmUtils.startsWith($!params.returnUrl,"http"))
+		<a href="$!params.returnUrl">点击返回</a>
+		#else
+		<a href="${basePath}$!params.returnUrl">点击返回</a>
+		#end
+		#elseif($forwardUrl)<a href="${basePath}$forwardUrl">点击此链接设置</a>
+		#elseif($returnUrl)
+		#if($VmUtils.startsWith($!returnUrl,"http"))
+		<a href="$!returnUrl">点击返回</a>
+		#else
+		<a href="${basePath}${returnUrl}">点击返回</a>
+		#end
+		#else
+		<a href="${basePath}">返回首页</a>
+		#end
+	</div>
+</div>
+#parse('include/bottom.vm')
+#if($sendGoogleAnalytics eq 'send')
+<script type="text/javascript">
+	var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+	document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E")); 
+	try{
+		var pageTracker = _gat._getTracker("UA-1810182-1");
+		pageTracker._trackPageview("/500.html?page=" + document.location.pathname + document.location.search + "&from=" + document.referrer);
+	} catch(err){}
+</script>
+#end
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>确认订单_格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.payBox_body_left{width:677px; _width:673px;}
+		.changeMobile{clear:both;}
+		.movieInfo{width:536px; _width:532px;}
+		.movieInfo239{width:269px;_width:265px;}
+		.movieInfo .movieInfo300 p,.movieInfo .movieInfo239 p{height:50px; line-height:50px;}
+		.payBox_body .bdr1{ padding-top:10px; padding-left:10px; padding-right:10px; margin-right:0;}
+		.service{width:212px; height:70px; border:1px solid #e1ddd1; background:#f0eade; border-radius:5px; text-align:center; color:#f56606; margin:10px 25px 16px;}
+		.service b{ font-size:20px; font-weight:normal;}
+		.service .phone{background:url(${staticPath}css/buss/phone.jpg) center center no-repeat; display:inline-block; width:20px; height:46px; float:left; margin:15px 0 0 20px;}
+		.service p{float:left; width:150px; margin-top:16px;}
+		.rCoop input{top:20px; *top:15px;}
+		.movieInfo300{width:266px;}
+	</style>
+</head>
+<body>
+#set($isPay = true) 
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout">
+	<div class="inner">
+		<div class="payStep03">
+			<ul class="payOrderSteps clear">
+				<li class="step1">1.选择商品</li>
+				<li class="step2">2.确认订购数量</li>
+				<li class="step3">3.在线支付</li>
+				<li class="step4">4.完成购买</li>
+			</ul>
+		</div>
+		<div class="payBox mt20">
+			<div class="payBox_header"><h2 class="conOrder">确认订单信息</h2></div>
+			<div class="payBox_body clear">
+				<div class="payBox_body_left">
+				<dl class="ui_abeam">
+					<dt class="uipic bdr1" style="width:120px;"><img width="120" height="90" src="$VmUtils.randomPic('sw120h90',${goods.limg})" alt="${goods.goodsname}" /></dt>
+					<dd class="uiText movieInfo">
+						#set($sum = ($goods.oriprice - $goods.unitprice)*${order.quantity})
+						<ul>
+							<li>
+								<p>活动名称：<b class="c333">${activity.name}</b></p>
+							</li>
+							<li>
+								<p>卖品名称：<b class="red">$!goods.goodsname</b></p>
+							</li>
+							<li class="movieInfo_body movieInfo300">
+								<p>购买数量：<b>${order.quantity}份</b></p>
+							</li>
+							<li class="movieInfo_body movieInfo239" style="border-left:1px solid #E8E8E8;">
+								<p>应付：<b class="yellow fs22">${order.totalAmount}</b>元#if($goods.oriprice && $sum gt 0)<span>（省$sum元）</span>#end</p>
+							</li>
+							
+						</ul>
+						#if($VmUtils.isNotBlank($opi.remark))
+						<div class="inner">$opi.remark</div>
+						#end
+						#*中国银行抽奖活动，支付不发送短信，暂时隐藏*#
+						<div class="inner changeMobile">参加活动用户手机号码：
+							<label for="mobile">
+								<span id="mobileText" class="fs16 bold">$order.mobile</span>
+								<input type="text" class="text none" id="mobile" name="mobile" style="width:100px;" #if($order.mobile)value="$order.mobile"#else value="$!account.mobile"#end />
+								<a id="elGet" class="yellow ml5 mr5" href="javascript:getOrderMobile()">修改号码</a>
+								<a id="elSave" class="yellow ml5 mr5 none" href="javascript:modOrderMobile()">保存</a>
+								支付成功后15分钟内收到成功短信<br/>
+								短信可能会被360安全卫士等软件拦截，请注意查看！
+							</label>
+						</div>
+					</dd>
+				</dl>
+				</div>
+				<div class="payBox_body_right bdl1"  style="background:#fffcf7;">
+					<p class="bold fs14" style="color:#f00; text-align:center; margin-top:30px;">请在15分钟内完成付款</p>
+					<div class="service bold fs14 ml5"><span class="phone"></span><p>格瓦拉客服电话：<br/><b>4000-406-506</b></p></div>
+				</div>
+			</div>
+		</div>
+		#if($VmUtils.size($spdiscountList) gt 0)
+		<div class="payBox mt20">
+			<div class="payBox_header"><h2 class="usePerf">使用优惠支付</h2><span class="gray ml5">(<span class="cred">*</span>以下优惠不能共用)</span></div>			
+			<div class="payBox_body">
+				<div class="inner">
+					#if($VmUtils.eq($goods.tag,'point'))
+					<input type="hidden" name="paymethod" id="paymethod" value="point"/>
+					#end
+					#if($VmUtils.size($spdiscountList) gt 0)
+					<div class="mt10"><strong>优惠活动</strong></div>
+					<div class="clear" id="discountPanel">
+						<input type="hidden" value="$order.id" name="orderId"/>
+						#if($partnerDiscount)
+						<div class="clew">
+							<span class="brown">几种优惠方式不能同时使用，若选择其他优惠，请先取消当前选择！</span><br/>
+							你已选择：$!curSpdiscount.remark<label class="minBt redBt button ml20"><input type="button" onclick="removeDiscount($partnerDiscount.id);" value="取消优惠"/></label>
+						</div>
+						#end
+						<div class="rCoop">
+							<div class="rText"><label for="radio0"><input type="radio" class="input" #if($order.discount eq 0)checked="checked"#else disabled="disabled" #end onclick="resetAmount()" value="none" name="discounttype" id="radio0" alt="不使用任何优惠"/>不使用任何优惠</label></div>
+						</div>
+						#foreach($spdiscount in $spdiscountList)
+						<div class="rCoop #if($foreach.index%2 eq 0)ml10 #end">
+							#if($disabledSdMap.containsKey($spdiscount.id))
+							<div class="rText"><span style="color:red">$disabledSdMap.get($spdiscount.id)</span></div>
+							#else
+							<input type="radio" class="input" value="$spdiscount.id" name="discounttype" id="checkBox$foreach.index" onclick="selSpdiscount($spdiscount.id, $discountAmountMap.get($spdiscount.id))"/>
+							#end
+							<div class="rText">
+								<label for="checkBox$foreach.index" style="cursor: pointer;">
+								#if($partnerDiscount.relatedid eq $spdiscount.id)折扣金额：$partnerDiscount.amount<br/>#end
+								$!spdiscount.remark
+								</label>
+							</div>
+						</div>
+						#end
+					</div>
+					#end
+				</div>
+			</div>
+		</div>
+		#end
+		<div class="payBox mt20">
+			<div class="peyments inner">
+				<div class="ml10 bold fs14 mt10">应付总额：<b class="yellow" style="font-size:2em">
+					<span id="payMoney">${order.due}</span>.00</b>元
+					<span id="totalDiscount">#if($order.discount gt 0)（总额：$order.totalfee，优惠：$order.discount）#end</span>
+				</div>
+				<div class="xuzi-box"><span class="bold">请仔细核对您的购买物品信息.</span></div>
+				<div class="mt20">
+					<label class="bigBt button ml10"><input type="button" onclick="gotoPay()" value="确认无误，去支付" id="subBt"/></label>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#set($pageTrack=${basePath} + 'goods/' + ${goods.tag} + '/pay.html')
+<script type="text/javascript">
+	function selSpdiscount(spid, discount){
+		var due = $order.due - discount;
+		$("payMoney").innerHTML = due;
+		$("totalDiscount").innerHTML = "（总额：$order.totalfee，优惠：" + discount + "）";
+	}
+	function gotoPay(){
+		#if($VmUtils.size($spdiscountList) gt 0)
+		gewa.util.mask({'element': "subBtParent",'title':'正在提交订单...'});
+		var values = GewaraUtil.getValues("discountPanel");
+		GewaraUtil.sendRequest("${basePath}ajax/trade/useGoodsDiscount.xhtml", values, function(result){
+			if(result.success){
+				document.location.href="${basePath}gewapay/confirmOrder.xhtml?orderId=$order.id";
+			}else{
+				gewaUtil.alert(result.msg, function(){
+					document.location.href="${basePath}gewapay/order.xhtml?orderId=$order.id";
+				});
+			}
+		});
+		#else
+		document.location.href="${basePath}gewapay/confirmOrder.xhtml?orderId=$order.id";
+		#end
+	}
+	function removeDiscount(did){
+		GewaraUtil.sendRequest("${basePath}ajax/trade/removeDiscount.xhtml",{"orderId":$order.id, "discountId":did}, function(result){
+			if(result.success){
+				document.location.href="${basePath}gewapay/order.xhtml?orderId=$order.id";
+			}else gewaUtil.alert(result.msg);
+		});
+	}
+	function getOrderMobile(){
+		$('mobile').removeClass('none');
+		$('mobileText').addClass('none');
+		$('elGet').addClass('none');
+		$('elSave').removeClass('none');
+	}
+	function modOrderMobile(){
+		var values = {"orderid":$order.id,"mobile":$('mobile').value};
+		GewaraUtil.sendRequest('${basePath}cinema/order/modOrderMobile.xhtml', values, function(result){
+			if(result.success){
+				$('mobile').addClass('none');
+				$('mobileText').set('html',$('mobile').value);
+				$('mobileText').removeClass('none');
+				$('elGet').removeClass('none');
+				$('elSave').addClass('none');
+			}else{
+				if(result.msg) gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	var totalDiscount = $order.discount;
+	function resetAmount(){
+		var due = $order.totalfee - totalDiscount;
+		$("payMoney").innerHTML = due;
+		if(totalDiscount >0) $("totalDiscount").innerHTML = "（总额：$order.totalfee，优惠：" + totalDiscount + "）";
+		else $("totalDiscount").innerHTML=""
+	}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>影评剧评推荐数</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+</head>
+<body>
+#set($isFlowerNum=true)   
+<div id="content">
+<div class="bc1"></div>
+<div id="content_left" style="width:98%;margin:auto;">
+	<div class="panelTop"><em></em></div>
+	<div class="panelMid">
+	#parse('admin/blog/diaryMenu.vm')
+	<div>
+		<form action="${basePath}admin/blog/getDiaryList.xhtml" method="get">
+			<label>请输入搜索：</label>
+			<select name="tag">
+				<option value="Movie" #if($VmUtils.eq($params.tag, 'Movie')) selected="selected" #end>影评</option>
+				<option value="Drama" #if($VmUtils.eq($params.tag, 'Drama')) selected="selected" #end>剧评</option>
+				#*<option value="SportItem" #if($VmUtils.eq($params.tag, 'SportItem')) selected="selected" #end>运动项目评论</option>*#
+			</select>
+			<input type="text" value="$!params.keyname" name="keyname" size="40"/>
+			<input type="submit" value="确定" />
+		</form>
+	</div>
+	#parse('include/pageUtil.vm')
+	<table id="blogtable" style="width:100%;" class="blogtable">
+		<thead>
+		<tr>
+			<th>主题</th>
+			<th>作者</th>
+			<th>推荐数</th>
+		</tr>
+	</thead>
+	#if($relate)
+	<tr>
+		<td colspan="3" style="font-size:15px;color:red">关联：$relate</td>
+	</tr>
+	#end
+	<tbody>
+		#foreach($diary in $diaryListMap)
+		<tr id="row$diary.id">
+			<td>
+				<a id="dt$diary.id" title="${diary.subject}" style="font-size: 14px;" href='$!{absPath}${basePath}blog/t$diary.id' target="_blank" title="${diary.subject}">$diary.subject</a>
+			</td>
+			<td style="text-align: center"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.memberid" target="_blank">$!diary.membername</a></td>
+			<td>
+				<input type="text" id="flowernum$diary.id" name="flowernnum" id="flowernnum" value="$diary.flowernum"/>
+				<input type="button" onclick="changeFlowerNum($diary.id)" value="确定"/>
+			</td>
+		</tr>
+		#end
+	</tbody>
+	</table>
+	#parse('include/pageUtil.vm')
+	</div><!-- end panelMid-->
+	<div class="panelBot"><em></em>
+</div>
+</div><!-- end content_left -->
+<div id="height0"></div>
+</div><!--end content-->
+<div id="panel_bottom"></div>
+<script type="text/javascript">
+	function changeFlowerNum(diaryid){
+		var flowernum=$('flowernum'+diaryid).value;
+		var url="${basePath}admin/blog/changeFlowerNum.xhtml";
+		var values={'diaryid':diaryid, 'flowernum':flowernum};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$('flowernum'+diaryid).innerText=result.retval;
+				alert('更改成功!');				
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>短信推送信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline;float:left;width:80px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:400px; display:inline}
+	</style>
+</head>
+<body style="width:980px;margin:auto;padding: 10px;" class="yui-skin-sam">
+<table width="980px" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th>序号</th>
+		<th>影院ID</th>
+		<th>电影ID</th>
+		<th>短信内容</th>
+		<th>场次ID</th>
+		<th>原因</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="roomTable">
+	#foreach($del in $delPimList)
+	<tr id="priceTable_$del.id">
+		<td>$foreach.count</td>
+		<td>$del.relatedid</td>
+		<td>$del.categoryid</td>
+		<td>$del.msg</td>
+		<td>$del.mpid</td>
+		<td>排片删除</td>
+		<td><a href="javascript:delpim('$del.id')" >删除</a></td>
+	</tr>
+	#end
+	#foreach($del in $moviePimList)
+	<tr id="priceTable_$del.id">
+		<td>$foreach.count</td>
+		<td>$del.relatedid</td>
+		<td>$del.categoryid</td>
+		<td>$del.msg</td>
+		<td>$del.mpid</td>
+		<td>影片变更</td>
+		<td><a href="javascript:delpim('$del.id')" >删除</a></td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<script>
+function delpim(id){
+	GewaraUtil.sendRequest("${basePath}admin/recommend/deleteFilmFestMessage.xhtml", {'id':id}, function(result){
+		if(result.success){
+			$("priceTable_"+id).dispose();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+</script>
+#parse('include/pageUtil.vm')
+</body>
+</html>

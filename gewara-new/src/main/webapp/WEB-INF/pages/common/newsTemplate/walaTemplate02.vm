@@ -1,0 +1,74 @@
+<style type="text/css">
+	.saleWala{padding:10px 5px;width:250px;}
+	.saleWala .issueBox{width:100%;height:150px;overflow:hidden;position: relative;}
+	.saleWala .tweents{width:100%;overflow:hidden;height:100%;}
+	.msgsbox{background:#F8F8F8;border:1px solid #DBDBDB;padding:10px 20px;position: absolute;left:180px;font-weight:bold;color:#ff9600;width:auto;top:120px;visibility: hidden;height:20px;}
+	.say_area{width:246px;*width:244px;height:80px;border:2px solid #ccc;overflow-x:hidden;overflow-y:auto;}
+	.sale_right .gewa_outer_text{width:70%;}
+	/*.walBt{width:100px;height:31px;background-position:right -542px;border:0px;position: absolute;bottom:0px;right:36px;cursor: pointer;}*/
+</style>
+<div class="title mt20"><h2>$!right.title</h2><span class="linet"></span></div>
+<div class="saleWala clear">
+	<div class="issueBox">
+		<div class="title">你要说点什么<span class="more" id="font">你还可以输入<b>140</b>字</span></div>
+		<label class="more" for="say_area" id="issueTips" style="left:10px;top:30px;color:gray;">哇啦一下关于#<span class="brown">$!moderate</span>#</label>
+		<textarea name="mobody" class="say_area" id="say_area"></textarea>
+		<label class="redBt minBt more button" style="top:auto;bottom:16px;right:0px;" for="diswara"><input type="button" value="发 布" id="diswara" onclick="submitMicro()"/></label>
+		<div class="dialogs">
+			<img src="${staticPath}css/images/blank.gif" class="left" style="background:url(${picPath}css/home/look.png) no-repeat;" width="48" height="15"/>
+			#parse('wala/uidialog.vm')
+		</div>
+	</div>
+	<div id="container">
+	
+	</div>
+	#if($VmUtils.isNotBlank($!right.newslink))
+	<div class="tar mt5 fs14"><a href="$!right.newslink" class="brown">更多»</a></div>
+	#end
+</div>
+<script type="text/javascript">
+var selector=$empty,delFun = $empty;
+window.addEvent('domready', function(){
+	selector = new selectpic('say_area','uidialog');
+	new issue('say_area',{'font':'font','tips':'issueTips'});
+	new dialogs('dialogs',{'width':'360px','flag':true});
+	showError = new ShowErrorTextArea();
+	#if($VmUtils.isNotBlank($!moderate))
+	new DynWaraTemplate({'preURL':'${basePath}', 'container':'container', 'moderator':'$!moderate', 'count':'5'});
+	#end
+});
+
+submitMicro = function(){
+	checkLogin(true,function(){
+		sendMicro();
+	});
+}
+function getWalaList(){
+	new DynWaraTemplate({'preURL':'${basePath}', 'container':'container', 'moderator':'$!moderate', 'count':'5'});
+}
+//发表哇啦
+sendMicro = function(){
+	var say_area = $('say_area').value;
+	if(!$chk(say_area)){
+		showError.show('say_area');
+		return false;
+	}
+	if(say_area.length>140){
+		showError.show('say_area');
+		return false;
+	}
+	GewaraUtil.mask('diswara');
+	var url = '${basePath}dnySendMicroModer.xhtml';
+	var values = {'micrbody':$('say_area').value, 'moderate':'$!moderate'};
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			var moderate = result.retval;
+			new DynWaraTemplate({'preURL':'${basePath}', 'container':'container', 'moderator':'$!moderate', 'count':'5'});
+			$('say_area').value = '';
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	})
+}
+</script>

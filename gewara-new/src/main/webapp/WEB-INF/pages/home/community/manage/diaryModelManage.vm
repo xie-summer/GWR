@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>分类管理_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script> 
+</head>
+<body>
+#set($community = true)
+#set($tag="home")#set($isDiaryModelManage=true)#set($isShow=false)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('home/community/manage/commuM.vm')
+			<div class="ui_rightInner_left">
+				<div class="inner">
+					<div class="mt20 title"><h2>话题分类</h2></div>
+					<div class="clew mt10">
+						<b>新建分类</b>
+						<ul class="ul-80">
+							<li>
+								<div class="ul-80Inner">分类名称：</div>
+								<input type="text" name="topic" id="topic" class="text left"/><font class="left">(最多不超过10个字)</font>
+							</li>
+							<li>
+								<label class="redBt button minBt"><input type="button" onclick="addCommuTopic()" value="添加分类"/></label>
+							</li>
+						</ul>
+					</div>
+					<div class="title mt30"><h2>设置分类</h2>(每一种分类的话题显示数范围0-30之间，设置0，话题分类不显示。)</div>
+					<form name = "commuTopicForm" id = "commuTopicForm">
+					<input type="hidden" value="$!commu.id" name="commuid" id="commuid" />#set($zero = 0)
+					<input type="hidden" name="commuTopicCount" value="#if(!$VmUtils.isEmptyList($!commuTopicList))$VmUtils.size($commuTopicList)#else$zero#end" />
+					<table cellpadding="0" cellspacing="0" class="titleTable" width="100%">
+						<thead>
+							<tr>
+								<th width="50%" style="text-indent: 30px;">分类名称</th>
+								<th width="20%">显示顺序</th>
+								<th>显示话题数</th>
+							</tr>
+						</thead>
+						<tbody>
+							#if(!$VmUtils.isEmptyList($commuTopicList))
+							#foreach($commuTopic in  $commuTopicList)
+							<tr class="#if($foreach.index%2 eq 1)odd#else even#end">
+								<td><input type="hidden" name="id$foreach.index" value="$!commuTopic.id" /><input type="text" class="text" name="topicname$foreach.index" value="$!commuTopic.topicname" style="height:22px;"/></td>
+								<td><input type="text" class="text" name="ordernum$foreach.index" value="$!commuTopic.ordernum" style="height:22px;width:40px"/></td>
+								<td><input type="text" class="text" name="displaynum$foreach.index" value="$!commuTopic.displaynum" style="height:22px;width:40px"/><a href="javascript:void(0);" onclick="delCommuTopic($!commuTopic.id,$!commu.id)" class="blue ml5">删除</a></td>
+							</tr>
+							#end
+							#else
+								<tr>
+									<td colspan="3" style="border:0px;"><div class="clew mt20	">暂无圈子分类</div></td>
+								</tr>
+							#end
+						</tbody>
+					</table>
+					#if(!$VmUtils.isEmptyList($commuTopicList))
+					<div class="mt10 tar">
+						<label class="redBt button minBt"><input type="button" onclick="updateCommuTopic()" value="保&nbsp;存"/></label>
+					</div>
+					#end
+					</form>
+				</div>
+			</div>	
+			#parse('home/community/manage/commuManageRight.vm')
+		</div>
+	</div>
+</div>
+	<script type="text/javascript">
+	function addCommuTopic(){
+		var topicvalue = $('topic').value; 
+		if(!$chk(topicvalue)){
+			gewaUtil.alert('分类名称不能为空！');
+			return;
+		}
+		if(topicvalue.length>10){
+			gewaUtil.alert('分类名称不能超过10个字！');
+			return;
+		}
+		var url = "${basePath}home/commu/addCommuTopic.xhtml";
+		var values = {'topicname':topicvalue,'commuid':$!commu.id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert('分类添加成功！', refreshPage);
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	
+	function updateCommuTopic(){
+		var url = "${basePath}home/commu/updateCommuTopic.xhtml";
+		var values = GewaraUtil.getValues("commuTopicForm");
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert("保存成功！");
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	
+	function delCommuTopic(id,commuid){
+		gewaUtil.confirm("确定删除吗？", function(){
+			var url = "${basePath}home/commu/delCommuTopic.xhtml";
+			var values = {'id':id,'commuid':commuid};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					refreshPage();
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		})
+	}
+	
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

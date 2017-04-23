@@ -1,0 +1,45 @@
+<!-- SUCCESS_HEAD -->
+#if($VmUtils.isEmptyList($sportList))
+<div lang="chooseOpi_head" class="chooseOpi_head">
+	<span class="opitime"><em>暂无</em></span>
+</div>
+#else
+<div lang="chooseOpi_head" class="chooseOpi_head">
+	<span class="opitime"><em>场馆名称</em></span>
+	<span class="opiEdition"><em>场馆评分</em></span>
+	<span class="opiRoom"><em>价格(元)</em></span>
+	<span class="opiPrice">区域</span>
+	<span class="opiInfo">说明</span>
+	<span class="opiurl">选座购票</span>
+</div>
+<div class="chooseOpi_body">
+	<ul class="clear" style="height:$!{height}px;">
+		#foreach($sport in $sportList)
+		#set($gmark=$VmUtils.getSingleMarkStar($sport, "general"))#set($gmark1=$gmark/10) #set($gmark2=$gmark % 10)
+		#set($price=$priceMap.get($sport.id))
+		#set($ott=$ottMap.get($sport.id))
+		<li config="morning">
+			<span class="opitime">
+				<a title="$!sport.name" target="_blank" href="${basePath}sport/$!sport.id" class="c333 bold">$!sport.name</a>
+			</span>
+			<span class="opiEdition"><sub style="margin-left:0;">$gmark1</sub><sup>.$gmark2</sup></span>
+			<span class="opiRoom"><b class="cSport">#if($!price.pricemin)$!price.pricemin#if(!$VmUtils.eq($price.pricemin,$price.pricemax) && $VmUtils.isNotBlank($!pricepricemax))-$!pricepricemax#end#{else}/#end</b></span>
+			<span class="opiPrice">$!sport.countyname</span>
+			<span class="opiInfo">
+				#if($ott.isOpenPointPay())<em title="支持积分抵值" class="j">积</em>#end
+				#if($ott.isOpenCardPay())<em title="支持票券抵值" class="q">券</em>#end
+				#if($ott.isDisCountPay())<em class="y" #if($ott) data-type="$!ott.id" #end>惠</em>#end
+			</span>
+			<span class="opiurl">
+				#if($ott)
+				<a target="_blank" class="button bigBt  redBt " href="${basePath}sport/order/step1.xhtml?ottid=$!ott.id#if($spkey)&spkey=$!spkey#end"><span><em>立即预订</em></span></a>
+				#else
+				<em class="c999">暂不支持预订</em>
+				#end
+			</span>
+		</li>
+		#end
+	</ul>
+</div>
+#end
+<!-- SUCCESS_BOTTOM -->

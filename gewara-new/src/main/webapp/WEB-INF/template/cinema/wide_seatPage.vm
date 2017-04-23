@@ -1,0 +1,82 @@
+<div class="inner">
+	<div class="seatInfo">
+		<span><img src="${staticPath}css/images/blank.gif" class="RJSZuO" align="middle"/>可选座位</span>
+		<span><img src="${staticPath}css/images/blank.gif" class="$!{ckSeat}" align="middle"/>已选座位</span>
+		<span><img src="${staticPath}css/images/blank.gif" class="osIyCa" align="middle"/>不可选座位</span>
+		#if($room.loveflag eq 'Y')<span><img src="${staticPath}css/images/blank.gif" class="loverSeat" align="middle"/>情侣座</span>#end
+	</div>
+</div>
+<div class="inner">
+	<div class="wrapper" id="wrapper">
+		#set($lineStart = 1)
+		#set($rowStart = 1)
+		#set($lineEnd = $lineNum)
+		#set($rowEnd = $rankNum)
+		#if($outerRingseats.contains('L0R'))
+			#set($lineStart = 0)
+			#set($lineNumt=$lineNum + 1)
+		#end
+		#set($lrMark = 'L' + ($lineNum + 1) + 'R')
+		#if($outerRingseats.contains($lrMark))
+			#set($lineEnd = $lineNum + 1)
+			#set($lineNumt=$lineNum + 1)
+		#end
+		#if($outerRingseats.contains('R0'))
+			#set($rowStart = 0)
+			#set($rankNum = $rankNum + 1)
+		#end
+		#set($lrMark = 'R' + ($rankNum + 1))
+		#if($outerRingseats.contains($lrMark))
+			#set($rowEnd = $rankNum + 1)
+			#set($rankNum = $rankNum + 1)
+		#end
+		
+		#set($maxwidth=30*$rankNum)
+		#set($maxoutwidth=30*$rankNum+120)
+		#set($pewHeight=$lineNum*26)
+		#set($hCenter=((30*$rankNum)/2)+32)
+		#set($vtop=((26*$lineNum)/3)+(-25))
+		#set($vbtm=((26*$lineNum)/3)+25)
+		<div class="pewNo" style="height:${pewHeight}px">
+			#foreach($row in [1..$lineNum])
+			<span #if($!rowMap.get($row))class="N"#end>$!rowMap.get($row)</span>
+			#end
+		</div>
+		<div id="wrapped" style="width: #if(${maxoutwidth} gt 848)${maxoutwidth}px;#else 848px #end; margin:0 auto; overflow:visible;">
+			<div class="room_screen" style="width: #if(${maxoutwidth} gt 800) ${maxoutwidth}px #else 800px#end;">${opi.cinemaname}$room.roomname银幕<span>#if($room.screenwidth && $room.screenwidth gt 0)$!{room.screenwidth}m宽 #end #if($room.screenheight && $room.screenheight gt 0)$!{room.screenheight}m高#end</span></div>
+			<div class="showSeat" style="margin:10px auto 0;width:${maxwidth}px">
+				<div class="seatlist" style="margin:0 auto;width:${maxwidth}px">
+					#set($classMap={'N':'noSeat','A':$!{hsSeat},'B':$!{slSeat},'C':$!{slSeat},'D':$!{slSeat},'S':$!{slSeat},'W':$!{slSeat}})
+					#foreach($row in [$lineStart..$lineEnd])
+					<dl class="clear">
+						#foreach($rank in [$rowStart..$rowEnd]) #set($sid='row'+${row}+'rank'+$rank)
+						#if($seatMap.get($sid))#set($seat=$seatMap.get($sid))
+						<dd id="$!priceMap.get($seat.id)" #if($seat.loveInd eq "1")class="lover_l"#elseif($seat.loveInd eq "2")class="lover_r" #end>
+							<div id="$seat.id"#if($mySeatList.contains($seat))class="$!{ckSeat}"#elseif($hfhLockList.contains($seat.key))class="$!{slSeat}"#else class="$classMap.get($seatStatusUtil.getFullStatus($seat))"#end seatPrice="$!priceMap.get($seat.id)" istips="${seat.seatLabel}$!priceMap.get($seat.id)元"></div>
+						</dd>
+						#else
+						#set($seatMark = 'L' + $row + 'R' + $!rank)
+						#set($outerSeat = $outerRingseatMap.get($seatMark))
+						#if($outerSeat && ($outerSeat eq 'inDoor' || $outerSeat eq 'inAndOutDoor' || $outerSeat eq 'outDoor'))
+							#if($row eq $lineEnd)
+								#set($outerSeat = 'D' + $outerSeat)
+							#elseif($rank eq $rowStart)
+								#set($outerSeat = 'L' + $outerSeat)
+							#elseif($rank eq $rowEnd)
+								#set($outerSeat = 'R' + $outerSeat)
+							#else
+								#set($outerSeat = 'D' + $outerSeat)
+							#end
+						#elseif($outerSeat && ($outerSeat eq 'bostacle' || $outerSeat eq 'startPoint' ))
+							#set($outerSeat = 'noSeat')
+						#end
+						<dd><div #if($outerSeat) class='$!outerSeat' #else class="noSeat" #end></div></dd>
+						#end
+						#end
+					</dl>
+					#end
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

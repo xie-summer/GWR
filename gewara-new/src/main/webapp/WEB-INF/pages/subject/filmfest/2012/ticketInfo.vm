@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>第十五届上海国际电影节观影日程 - 格瓦拉生活网</title>
+<meta name="keywords" content="第15届上海国际电影节_电影专题_电影节排片表下载_在线购票_格瓦拉生活网"/>
+<meta name="description" content="第15届上海国际电影节_电影专题_电影节排片表下载_在线购票_格瓦拉生活网"/>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout&v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,gewara-util,noobSlide,pagesNavigation,slimbox,base_home,index_even&v=$VmUtils.jsVersion"></script>
+#parse('subject/filmfest/2012/style.vm')
+<style type="text/css">
+	.opilist_lc{background:url(${staticPath}styles/filmfest/opilist_lc.jpg) no-repeat; width:940px;height:61px;}
+	.opilist_main{border:1px solid #ccc;clear:both;overflow:hidden;width:938px;border-radius:5px 5px 5px 5px;}
+	.opilist_main .inner{padding:15px 5px 10px 15px;}
+	.notice_title h2{color:#552822; font-size:18px; line-height:24px; font-family: "微软雅黑","黑体",Arial;}
+	.notice_title p{line-height:18px; margin-top:10px;}
+	.notice_title p b{font-size:16px; color:#c30;}
+	.notice_title p a{color:#c30;}
+	.t_container{margin:0 1px; width:936px;}
+	.t_red{color:#c30;}
+	.datetime{float:left;}
+	.datetime .no_line{border-right:none;}
+	.date_header{background:#1d0908; height:28px; line-height:28px; text-align:center; border-right:1px solid #fff; width:103px; color:#fff;}
+	.none_detail{width:103px; height:240px; border-right:1px solid #ded9d9; border-bottom:1px solid #f0eded; font-size:48px; text-align:center; line-height:233px; color:#dedede; background:#fafafa; position:relative;}
+	.film_detail{width:87px; height:210px; overflow:hidden; border-right:1px solid #ded9d9; border-bottom:1px solid #f0eded; text-align:center; padding:15px 8px;}
+	.film_detail a.s1{width:72px; height:96px; overflow:hidden; display:block; margin:0 auto;}
+	.iphone{background-position:left -303px; color:#666; cursor:pointer}
+	.addDateList{background:url(${staticPath}styles/filmfest/datelist.gif) no-repeat 0 0; position:absolute; top:160px; left:28px; display:block; width:45px; height:17px;}
+	/*提示*/
+	.ui_warning{text-align:center;}
+</style>
+</head>
+<body>
+#set($hasLogo = false)
+#set($tag = 'infoselect')
+#parse('subject/filmfest/2012/header.vm')
+<div id="ui_layout" class="ui_layout"> 
+	<div style="width:940px;padding:0 10px 90px 10px;background:#fff;overflow:hidden;">
+		<div class="opilist_lc mt20">
+		</div>
+		<div class="mt10" style="text-align:right;"><em class="c666">温馨提示：</em>先<a href="${basePath}home/charge.xhtml" target="_blank" class="cMovie">充值</a>，使用余额支付比使用网银支付节省<b class="cMovie">70%</b>时间</div>
+		<div class="opilist_main mt10">
+			<div class="inner">
+				<div class="notice_title">
+					<h2>安排我的观影日程</h2>
+					#if($logonMember)
+					<p class="tar">你共安排了<b>$!VmUtils.size($!pimList)</b>个购票提醒，计划购买<b>$!ticketNum</b>张，预计消费<b>$!priceNum</b>元，为节省购票时间建议你使用余额支付 <a href="${basePath}home/charge.xhtml" target="_blank" class="ffst">立即充值&gt;&gt;</a></p>
+					#end
+					
+				</div>
+			</div>
+			<div class="clear t_container">
+				#foreach($x in [16..24])
+				#set($showDate = '2012-06-'+$x)
+				<ul class="datetime clear">
+					<li class="date_header">$x日/$DateUtil.getCnWeek($DateUtil.parseDate($showDate))</li>
+					#if(!$logonMember || $VmUtils.isEmptyList($!pimList))
+					<li class="none_detail #if($x eq 24)no_line#end">
+						$x
+						<a title="选择影片添加到观影日程" href="${basePath}filmfest/fifteenMovieList.xhtml?date=$!showDate" class="addDateList none"></a>
+					</li>
+					#else
+						#foreach($pim in $pimMap.get($showDate))
+						#set($mpi = $mpiMap.get($pim.mpid))
+						#set($cinema = $!cinemaMap.get($pim.relatedid))
+						#set($movie = $!movieMap.get($pim.categoryid))
+						<li class="film_detail #if($x eq 24)no_line#end">
+							<a class="s1" href="${basePath}movie/$!movie.id" target="_blank" title="$!movie.moviename"><img width="72" height="96"src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw72h96',$movie.logo)) center center no-repeat;"/></a>
+							<p class="mt10" style="white-space:nowrap;">$mpi.playtime $!mpi.playroom</p>
+							<p title="$!cinemaMap.get($pim.relatedid).name">$!VmUtils.escabbr($cinema.name,12)</p>
+							#if($!mpi.gewaprice)<p>¥$!mpi.gewaprice * <em style="color:#ff6600;">$!pim.wantBuyNumber</em></p>#end
+							<p class="mt5">
+							<a #if($opiStatusMap.get($pim.mpid).booking) href="${basePath}cinema/order/step1.shtml?mpid=$!pim.mpid" target="_blank" class="button minBt redBt" #else href="javascript:void(0);" class="button minBt whiteBt" #end>
+								<span>#if($opiStatusMap.get($pim.mpid).booking)立即购票#elseif($opiStatusMap.get($pim.mpid).closed)已关闭#else等待开放#end</span>
+							</a>
+							</p>
+							<p title="取消短信通知" onclick="cancelTalkInfo('$pim.id')" class="iphone mt5 ml10">取消日程</p>
+						</li>
+						#end
+						#set($detail = $length - $VmUtils.size($!pimMap.get($showDate)))
+						#if(!$VmUtils.eq($detail,0))
+						#foreach($y in [1..$detail])
+						<li class="none_detail #if($x eq 24)no_line#end">
+							$x
+							<a title="选择影片添加到观影日程" href="${basePath}filmfest/fifteenMovieList.xhtml?date=$!showDate" class="addDateList none"></a>
+						</li>
+						#end
+						#end
+					#end
+				</ul>
+				#end
+			</div>
+			<p style="padding:15px; color:#ff6600;">温馨提示：我们致力于提供更好的购票体验，但不排除由于手机信号不稳定、手机防火墙、关机等原因导致你无法及时收到场次开放提醒短信，敬请谅解！请随时关注格瓦拉网站的最新场次开放情况，感谢你的支持！</p>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$('.none_detail').each(function(el){
+		el.addEvents({
+			'mouseover':function(){this.getElement('a').removeClass('none')},
+			'mouseout':function(){this.getElement('a').addClass('none')}
+		});
+	});
+});
+function cancelTalkInfo(id){
+	gewaUtil.confirm("确认删除日程，删除后不能恢复！", function(){
+		var url = "${basePath}filmfest/cancelTalkInfo.xhtml"
+		var values = {'id':id};
+		gewara.util.sendRequest(url,values,function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	},'',260);
+}
+</script>
+</body>
+</html>

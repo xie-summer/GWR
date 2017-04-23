@@ -1,0 +1,467 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>${subject.title}_格瓦拉生活网</title>
+	<meta name="keywords" content="${subject.title}活动"/>
+	<meta name="description" content="${subject.title}活动"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_movie&v=$VmUtils.jsVersion"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/price5.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,base_home,swfobject&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.isuss{height:150px;position: relative;overflow:hidden;font-size:14px;padding:20px 20px 0 20px;margin-top:20px;}
+		.isuss textarea{height:100px;width:594px;overflow-x:hidden;overflow-y:auto;border:2px solid #ccc;padding:3px;}
+		.walBt{width:100px;height:31px;background-position:right -542px;border:0px;position: absolute;bottom:0px;right:36px;cursor: pointer;}
+		.isuss b{font-size: 16px;font-family: Constantia,Georgia;color:#C03B0C}
+		.isuss .issueTips{position: absolute;top:26px;left:26px;color:#666}
+		.isuss .dialogs{position:absolute;left:20px;bottom:20px;}
+		.synch{display:inline-block;height:16px;line-height:16px;float:left;margin-left:10px;}
+		.synch{left:80px;bottom:19px;*bottom:19px;}
+		.price5Flash{width:650px;height:530px;overflow:hidden;}
+		.price5up,.price5down{width:auto;height:16px;line-height:16px;background:url($VmUtils.randomPic('','css/global/bar.png')) no-repeat;position:absolute;top:10px;right:10px;color:#fff;font-size:14px;text-align:center;cursor:pointer;padding-left:20px;}
+		.price5up{background-position:0 -171px;}
+		.price5down{background-position:0 -191px;}
+		.mNotice{background-position:0 -1210px;padding-left:16px;position:absolute;top:8px;right:140px;font-weight:normal;font-size:14px;width:auto;height:20px;line-height:20px;cursor: pointer;}
+	</style>
+</head>
+<body>
+#set($cfgHeader='header')#parse('include/navigation.vm')
+#set($ctitle="天上真的掉馅饼啦~5元就能看电影！格瓦拉生活网5元抢票活动每周五13：05准时开始~~")
+#set($moderate="5元抢票")
+<div class="ui_layout">
+	<div class="inner price5_ico1">
+		<div class="price5H1 clear">
+			<h1 class="left">${subject.title}</h1>
+			#*<h1 class="left">#if(!$VmUtils.isEmptyList($movieList))${movieList.get(0).name}#end</h1>*#
+		</div>
+		<div class="price5H1_dow color3 mt15 fs14">
+			#if($VmUtils.eq($subject.status,'stop'))
+			<span class="left bold" style="width:683px;">本次5元抢票活动已结束，敬请期待下一轮抢票活动！</span>
+			#else
+			<span id="CountMsg" class="left" style="width:683px;">
+				<span class="blod">抢票时间：每周五13:05</span>
+				<span class="ml10" style="font-size:12px;">距离开始还有：</span>
+				<span id="RemainD" class="p5TimeBox">2</span>
+				<span class="mr10">天</span>
+				<span id="RemainH" class="p5TimeBox">12</span>
+				<span class="mr10">时</span>
+				<span id="RemainM" class="p5TimeBox">12</span>
+				<span class="mr10">分</span>
+				<span id="RemainS" class="p5TimeBox">12</span>
+				<span class="mr10">秒</span>
+			</span>
+			#end
+			<div style="position:absolute; right: 210px;" id="bdshare" class="bdshare_t bds_tools get-codes-bdshare">
+		        <span class="bds_more">分享到：</span>
+		        <a class="bds_tsina"></a>
+		        <a class="bds_tqq"></a>
+		        <a class="bds_qzone"></a>
+		        <a class="bds_renren"></a>
+		    </div>
+		</div>
+	</div>
+</div>
+
+<div class="ui_layout crociBg">
+	<div class="crociBgLeft">
+		#if($movie)
+		#set($gmark=$VmUtils.getLastMarkStar($movie, "general", $markCount ,$!markData)) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+		<div class="inner">
+			<ul class="ui_abeam ui_mt10">
+				<li class="abeam">
+					<div class="uipic">
+						<a href="${basePath}movie/$!movie.id" target="_blank"><img src="$VmUtils.randomPic('cw150h200',$!movie.limg)"/></a>
+					</div>
+					<div class="uiTextA">
+						<div class="clear">
+							<a class="fs14 brown" href="${basePath}movie/$!movie.id" target="_blank">$!movie.name</a>
+							<sub class="ml10">$gmark1.</sub><sup>$gmark2</sup>
+						</div>
+						<div class="mt5">
+							<em>精彩看点：</em>$!movie.highlight
+						</div>
+						<p class="mt5"><em>导演：</em>$!movie.director</p>
+						<p><em>主演：</em>$!movie.actors</p>
+						<p class="clear">
+							<span class="left"><em>类型：</em>$!movie.type</span>
+							<span class="left ml30"><em>语言：</em>$!movie.language</span>
+						</p>
+						<p><em>片长：</em>#if($!movie.videolen)$!{movie.videolen}分钟#end</p>
+						<p><em>首映日期：</em>$!movie.playdate</p>
+					</div>
+				</li>
+			</ul>
+		</div>
+		#end
+	</div>
+	<div class="crociBgRight">
+		<div class="inner">
+			<div class="mt10 ml10">
+				<p class="fs14 bold">抢票规则：</p>
+				<ul class="ul-dot">
+					<li>所有Gewara注册用户均可参与5元抢票活动；<a class="button redBt minBt ml5 mr5" href="${basePath}register.xhtml" target="_blank"><span style="text-indent:0;">立即注册</span></a></li>
+					<li>抢票座位显示为10元，用户抢票后可抵扣500积分并支付5元，若积分不足可直接支付10元，完成抢票；</li>
+					<li>每个用户同一订单限购1张5元特价影票；</li>
+					<li>为公平起见，抢票成功后需在15分钟内支付订单，超时该座位将自动释放重新供他人抢票；</li>
+					<li>本活动不与网站其他优惠活动同时享受；</li>
+				</ul>
+				<div class="mt20">
+					<p class="fs14 bold">温馨提示：</p>
+					<p>1、成功抢票的用户，支付成功后可凭手机号码末四位和短信取票密码到影院的自助取票机上打印电影票；</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="ui_layout">
+	<div class="ui_left">
+		<div class="inner">
+			#if($VmUtils.eq($!subject.status,'open'))		
+			#if(!$VmUtils.isEmptyList($movieList))
+			#foreach($movie in $movieList)
+			<div class="price5TBg fs24">
+				<div class="titleLeftP2"></div>
+				<div class="colorF title1">$!movie.realBriefname</div>
+				<div class="color3 ml5 title1">抢票影院</div>
+				#if($foreach.index eq 0)<span class="price5up" id="showsBt">展开抢票攻略</span>#end
+				<a onclick="addAgend();" class="underLine mNotice ml10">开始前短信提醒</a>
+			</div>
+			#if($foreach.index eq 0)
+			<div style="display:none;position: relative;" id="myFlashShow">
+				<div id="myOtherFlash" class="mt20" style="height:530px;"></div>
+			</div>
+			#end
+			<ul class="btLine ui_abeam max50 percent_50">
+				#set($opiList=$!movieOpiMap.get($movie.id))
+				#foreach($opi in $opiList)
+				#set($cinema=$!cinemaMap.get($opi.cinemaid))
+				<li class="abeam">
+					<div class="uipic">
+						<a class="tcinema" href="${basePath}cinema/$cinema.id" target="_blank">
+							<img src="${staticPath}css/images/blank.gif" alt="" style="background:url($VmUtils.randomPic('sw120h60',$!cinema.limg)) center center no-repeat;" width="120"height="60"/>
+						</a>
+					</div>
+					<div class="uiTextA uiTextCinema">
+						<p><a class="fs14 brown" href="${basePath}cinema/$cinema.id" target="_blank">$!cinema.name</a></p>
+						<p>场次：$DateUtil.format($opi.playtime,'M月d日 HH:mm')($DateUtil.getCnWeek($opi.playtime)) </p>
+						<p>原价：<span class="through">$!opi.price元</span></p>
+						<p>
+							#if($VmUtils.eq($subject.status,'stop'))
+							<span>
+								#if($opi.isOrder())
+								<span class="button redBt minBt mr5 mt10"><span>已停止</span></span>
+								#*<a class="button redBt minBt mr5 mt10" href="${basePath}cinema/order/step1.shtml?mpid=$opi.mpid&price=10" target="_blank"><span>5元抢票</span></a>*#
+								<a class="button whiteBt minBt mt10" href="${basePath}cinema/order/step1.shtml?mpid=$opi.mpid&price=$!opi.gewaprice" target="_blank"><span>$!opi.gewaprice元特价</span></a>
+								#else
+								<span class="button redBt minBt mr5 mt10"><span>已停止</span></span>
+								<span class="button redBt minBt mr5 mt10"><span>$!opi.gewaprice元特价</span></span>
+								#end
+							</span>
+							#else
+							<span class="n">
+								<span class="whiteBt button minBt mt10"><span>5元抢票</span></span>
+								#if($opi.isOrder())
+								<a href="${basePath}cinema/order/step1.shtml?mpid=$opi.mpid&price=$!opi.gewaprice" class="redBt button minBt mt10"><span>$!opi.gewaprice元特价</span></a>
+								#else
+								<span class="whiteBt button minBt mt10"><span>$!opi.gewaprice元特价</span></span>
+								#end
+							</span>
+							<span class="y none">
+								#if($VmUtils.eq($subject.status,'open'))
+								<a href="${basePath}cinema/order/step1.shtml?mpid=$opi.mpid&price=10" target="_blank" class="button redBt minBt mr5 mt10"><span>5元抢票</span></a>
+								<a href="${basePath}cinema/order/step1.shtml?mpid=$opi.mpid&price=$!opi.gewaprice" target="_blank" class="button redBt minBt mr5 mt10"><span>$!opi.gewaprice元特价</span></a>
+								#else
+								#if(!$opi.isOrder())
+								<span class="button redBt minBt mr5 mt10"><span>$!opi.gewaprice元特价</span></span>
+								#end
+								#if($opi.isOrder())<a href="${basePath}cinema/order/step1.shtml?mpid=$opi.mpid&price=$!opi.gewaprice" class="button redBt minBt mr5 mt10" target="_blank"><span>$!opi.gewaprice元特价</span></a>#end
+								<span class="button redBt minBt mr5 mt10"><span>已停止</span></span>
+								#end
+							</span>
+							#end
+						</p>
+					</div>
+				</li>
+				#end
+			</ul>
+			#end
+			#end
+			<!-- 抢票攻略动画演示 ======================================-->
+			<div id="showVideo" class="mt10 none">
+				<div class="price5TBg fs24">
+					<div class="titleLeftP2"></div>
+					<div class="colorF title1">每周五13：05 五元抢票即将开始……</div>
+				</div>
+				<div class="ml10 mt30 bold fs14">
+					<span class="ml10 mr10">${subject.title}</span>周五13点05分五元抢票动画演示
+				</div>
+				<div class="price5Flash" id="myFlash"></div>
+			</div>
+			<!-- 抢票攻略动画演示 end        -------------------->
+			<!-- 抢票用户名单 ======================================-->
+			#else
+			#if(!$VmUtils.isEmptyList($orderList))
+			<div class="mr10">
+				<div class="price5TBg fs16">
+					<div class="titleLeftP2"></div>
+					<div class="colorF title1" title="${subject.title}">$!VmUtils.escabbr(${subject.title},50)抢票用户名单……</div>
+					<a href="${basePath}activity/activityList.xhtml?sign=price5" class="more underLine fs14 mt10" target="_blank">查看最新一期抢票</a>
+				</div>
+				<ul class="ul-80 mt44_pb128 clear">
+					#foreach($order in $orderList)
+					<li>
+						<div class="ul-80Inner"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=${order.memberid}" target="_blank" title="$order.membername">$!VmUtils.escabbr($order.membername, 10)</a></div>
+						$DateUtil.format($order.paidtime,'yyyy-MM-dd HH:mm')
+						<span class="ml10">以#if($order.discount&&$order.discount eq 5)5元票价+500积分#elseif($order.discount)10元票价#end成功购买<a href="${basePath}movie/$order.movieid" target="_blank">${order.ordertitle}《$!VmUtils.getJsonValueByKey($!order.description2, '影片')》</a>一张</span>
+					</li>
+					#end
+				</ul>
+				<div class="center fs16 pb105">
+					本期五元抢票已结束，<a class="" href="${basePath}activity/activityList.xhtml?sign=price5">查看最新一期</a>
+				</div>
+			</div>
+			#end
+			#end
+			#if(!$VmUtils.isEmptyList($activityList))
+			<div class="price5TBg">
+				<div class="titleLeftP2"></div>
+				<div class="colorF title2 bold fs14">热门活动</div>
+			</div>
+			<ul class="btLine ui_abeam max50 percent_50">
+				#set($activityLen=$VmUtils.size($activityList))
+				#foreach($activity in $activityList)
+				#if($foreach.count%2 eq 1)
+				<div class="clear">
+				#end
+				#set($relate=$relatedHelper.getR1("activityList",$!activity.id))
+				<li class="clear">
+					<div class="uipic">
+						<a href="${basePath}activity/$activity.id" target="_blank"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw96h128',$activity.limg)) center center no-repeat;" width="96" height="128" alt="$!activity.title" title="$!activity.title"/></a>
+					</div>
+					<div class="uiTextA">
+						<a class="fs14 brown" href="${basePath}activity/$!activity.id" target="_blank">$!VmUtils.escapeHtml($!activity.title)</a>
+						<p><em>时间：</em>$!DateUtil.format($!activity.startdate, 'MM月dd日')（$!DateUtil.getCnWeek($!activity.startdate)）#if($activity.starttime)$!activity.starttime#end</p>
+						<p><em>地点：</em>#if($relate || $activity.address)#if($relate)<a href="${basePath}${relate.url}" class="blue mr5" target="_blank">$!relate.name</a>#end$!activity.address#end</p>
+						<p><em>价格：</em>#if($!activity.priceinfo)$!activity.priceinfo#else免费#end</p>
+						<p><em>发起人：</em><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!activity.memberid" class="brown" target="_blank">$!{activity.membername}</a></p>
+						<p class="gray">$!{activity.clickedtimes}人关注<span class="ml20">$!{activity.membercount}人参加</span></p>
+					</div>
+				</li>
+				#if($foreach.count%2 eq 0 || $foreach.count eq $activityLen)
+				</div>
+				#end
+				#end
+			</ul>
+			#end
+			#if(!$VmUtils.isEmptyList($subjectList))
+			<div class="price5TBg">
+				<div class="titleLeftP2"></div>
+				<div class="colorF title2 fs14 bold">往期回顾</div>
+			</div>
+			<ul class="percent_16 mt20">
+				#foreach($subject in $subjectList)
+				<li>
+					<a href="${basePath}subject/qiangpiao.xhtml?sid=$!subject.id" target="_blank" title="$subject.title"><img src="${staticPath}css/images/blank.gif" style="background:url($!{picPath}w96h128/$!movieMap.get($!subject.id).limg) center center no-repeat;" width="96" height="128" /></a>
+					<p class="mt5"><a href="${basePath}subject/qiangpiao.xhtml?sid=$!subject.id" class="brown" target="_blank" title="$subject.title">$VmUtils.escabbr($!subject.title,16)</a></p>
+				</li>
+				#end
+			</ul>
+			#end
+		</div>
+	</div>
+	<div class="ui_right">
+		#parse('subject/price5/new_right.vm')
+	</div>
+</div>
+<div id="agenda" style="display:none;">
+	<ul class="ul-60">
+		<li><div style="margin-left:-60px;color:#666;">
+			活动开始前短信提醒我：
+		</div>
+		</li>
+		<li>
+			<div class="ul-60Inner">手机号码：</div>
+			<input type="text" class="text" name="mobile" id="mobile" value="请输入手机号码..." style="width:130px;"/>
+		</li>
+		<li>
+			<div class="ul-60Inner">提醒时间：</div>
+			<select name="sendtime" id="sendtime" style="width:140px;">
+				<option value="10">提前10分钟</option>
+				<option value="20">提前20分钟</option>
+				<option value="30">提前30分钟</option>
+				<option value="40">提前40分钟</option>
+				<option value="50">提前50分钟</option>
+				<option value="60">提前60分钟</option>
+			</select>
+		</li>
+	</ul>
+	<input type="hidden" name="agendaid" id="agendaid" value=""/>
+</div>
+#parse('include/bottom.vm')
+<script language="JavaScript">
+var remain, pfun,isFlashPlay = true;
+window.addEvent('domready', function(){
+	$('mobile').addEvents({
+		focus:function(){
+				if ($('mobile').value.contains('请输入手机号码...')){
+					$('mobile').set('value','');
+				}
+		},
+		blur:function(){
+				if ($('mobile').value==""){
+					$('mobile').set('value','请输入手机号码...');
+				}	
+		   }
+	});
+	
+	#if($VmUtils.eq($subject.status,'open'))
+	data();
+	#end
+	if($('showsBt')){
+		$('showsBt').addEvent('click',function(){
+			setFlash();
+		});
+	}
+});
+function getRTime(){
+	var dD = Math.floor(remain/(1000*60*60*24)) % 30;
+	var nH = Math.floor(remain/(1000*60*60)) % 24;
+	var nM = Math.floor(remain/(1000*60)) % 60;
+	var nS = Math.floor(remain/1000) % 60;
+	$("RemainD").innerHTML = (dD < 10 ? "0" : "") + dD;
+	$("RemainH").innerHTML = (nH < 10 ? "0" : "") + nH;
+	$("RemainM").innerHTML = (nM < 10 ? "0" : "") + nM;
+	$("RemainS").innerHTML = (nS < 10 ? "0" : "") + nS;
+	remain -= 1000;
+	if(((remain/1000).toInt()*1000)%60000==0){
+		$clear(pfun);
+		data();
+	}
+	if(remain<=0){
+		if(pfun) $clear(pfun);
+		data();
+		return;
+	}
+};
+function data(){
+	var random = GewaraUtil.rtime();
+	new Request({
+		url: '${basePath}subject/time.xhtml?sid=$subject.id&v='+random,
+		method:'get',
+		onSuccess: function(responseText) {
+			remain = responseText * 1;
+			if(remain <= 0){
+				#if($VmUtils.eq($subject.status,'open'))
+				$("CountMsg").empty();
+				$("CountMsg").setStyles({"font-size":"22px","font-weight":"bold"});
+				$("CountMsg").innerHTML = "抢票进行中...";//本次5元抢票活动已结束，敬请期待下一轮抢票活动！
+				#end
+				$$(".n").addClass("none");
+				$$(".y").removeClass("none");
+				if($('showVideo'))$('showVideo').addClass("none");
+			}else{
+				pfun = getRTime.periodical(1000);
+				#if($!VmUtils.isEmptyList($movieList))
+				if($('showVideo') && isFlashPlay){
+					isFlashPlay = false;
+					$('showVideo').removeClass("none");
+					var div = new Element('div',{'styles':{
+						'width':'650px',
+						'height':'500px',
+						'background':'url(${picPath}css/global/price5flash.png) center center no-repeat',
+						'position':'absolute',
+						'z-index':'10',
+						'cursor':'pointer'
+					}}).addEvent('click',function(){
+						this.dispose();
+						getFlash();
+					}).inject(document.body);
+					gewara.util.toCenter(div,'myFlash');
+				}
+				#end
+			}
+		}
+	}).send();
+}
+function getFlash(){
+	var swfPath = '${picPath}flash/price5.swf?v=13448';
+   var f=new SWFObject(swfPath, "flash", 650, 530, "10", "#fff",true);
+   f.addParam('wmode','transparent');
+   f.write("myFlash");
+}
+function getOtherFlash(){
+	var swfPath = '${picPath}flash/price5.swf?v=13448';
+   var f=new SWFObject(swfPath, "flash", 650, 530, "10", "#fff",true);
+   f.addParam('wmode','transparent');
+   f.write("myOtherFlash");
+}
+function setFlash(){
+	$('showsBt').set('html','收起抢票攻略');
+	$('showsBt').removeClass('price5up').addClass('price5down');
+	$('myFlashShow').show();
+	getOtherFlash();
+	$('showsBt').removeEvents('click').addEvent('click',function(){
+		closeFlash();
+	});
+}
+
+function closeFlash(){
+	$('showsBt').set('html','展开抢票攻略');
+	$('showsBt').removeClass('price5down').addClass('price5up');
+	$('myFlashShow').hide();
+	$('showsBt').removeEvents('click').addEvent('click',function(){
+		setFlash();
+	});
+}
+function addAgend(){
+	checkLogin(true,function(){
+		GewaraUtil.sendRequest("${basePath}exchange/subject/price5Agenda.xhtml",{"sid":$!subject.id,"aid":$!activity.id}, function(result){
+		if(result.success) {
+				$('agendaid').value=result.agendaid;
+				gewa.util.issure('','agenda','设置短信提醒',310,'agenda',function(){
+					saveAgenda();
+				});
+			}else{
+				if(result.errorMap){
+					gewaUtil.alert('你已设置提醒，请到'+'<a href="/home/agenda/agendaList.xhtml?memberid="'+result.memberid +' target="_blank">'+ '生活安排</a>'+'中查看或修改内容。','','',330);
+				}else{
+					gewaUtil.alert(result.msg,'','',310);
+				}
+			}
+		});
+	});
+}
+function saveAgenda(){
+	if($('mobile').value != ''){
+		values = {'agendaid':$('agendaid').value,'sendtime':$('sendtime').value,'mobile':$('mobile').value};
+		GewaraUtil.sendRequest("${basePath}exchange/subject/saveAgenda.xhtml",values, function(result){
+			if(result.success){
+				gewaUtil.container['agenda'].dispose('agenda');
+				gewaUtil.alert("提交成功！你可以在"+"<a href='/home/agenda/agendaList.xhtml?memberid=" +result.memberid + "' target='_blank' class='brown'>生活安排</a>"+"查看或修改内容。",'','',310);
+			}else{
+				gewaUtil.alert(result.msg,'','',310);
+			}
+		})
+	}else{
+		gewaUtil.alert('请填写短信通知的手机号码！','','',310);
+		return false;
+	}
+}
+</script>
+<script type="text/javascript">
+	var jiathis_config = {
+		data_track_clickback:true,
+		url: document.location.href,
+		title: "$ctitle"
+	}
+</script>
+<script type="text/javascript" src="http://v1.jiathis.com/code_mini/jia.js?uid=1518302" charset="utf-8"></script>
+<script type="text/javascript" id="bdshare_js" data="type=tools&amp;uid=560708" ></script>
+<script type="text/javascript" id="bdshell_js"></script>
+<script type="text/javascript">
+	document.getElementById("bdshell_js").src = "http://bdimg.share.baidu.com/static/js/shell_v2.js?cdnversion=" + new Date().getHours();
+</script>
+</body>
+</html>

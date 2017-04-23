@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>帐户退款管理</title>
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		table{border-collapse: collapse;}
+		th, thread{cursor: pointer;}
+		td, th{
+			text-align: left;
+			height: 23px;
+		}
+		label {display:inline-block; width:70px;text-align:right;padding:1px 0 1px 0; }
+		textarea {width:420px;}
+		
+		.showOrder{
+			border:1px solid #639BF9;padding:2px 4px;
+		}
+		.roomManageTable tbody td table{border:0px;border-bottom:1px solid #eee;}
+		.roomManageTable tbody td td{text-align: left;text-indent:10px;border-color:#eee;width:auto !important;}
+	</style>
+</head>
+<body style="width:800px; margin: auto;" class="yui-skin-sam">
+	<div class="yui-panel">
+		#if($order)
+		#parse("admin/refund/account/refundInfo.vm")
+		#end
+		#if($charge)
+		#parse("admin/refund/account/refundCharge.vm")
+		#end
+		<div class="hd" style="text-align:left;">帐户退款基本信息</div>
+		<div class="bd">
+			<fieldset style="text-align: center;">
+				<legend>原始金额</legend>
+				<table class="table clear" style="background: none repeat scroll 0 0 #DFE8F6;">
+					<tr>
+						<td><label for="oldamount">金额：</label></td>
+						<td><input type="text" name="oldamount" id="oldamount" style="width:80px" readonly value="$!account.banlance"/></td>
+						<td><label for="oldbankcharge">可退金额：</label></td>
+						<td><input type="text" name="oldbankcharge" id="oldbankcharge" style="width:80px" readonly value="$!account.bankcharge"/></td>
+						<td><label for="oldothercharge" style="width:80px;">不可退金额：</label></td>
+						<td><input type="text" name="oldothercharge" id="oldothercharge" style="width:80px" readonly value="$!account.othercharge"/></td>
+					</tr>
+				</table>
+			</fieldset>
+			<form id="orderForm" style="margin-left: 10px;">
+				<input type="hidden" name="rid" value="$!refund.id" />
+				<table class="table clear" style="background: none repeat scroll 0 0 #DFE8F6;">
+					#if($refund.origin eq 'apply' || !$refund)
+					<tr>
+						<td style="width:100px; text-align:right;">用户ID：</td>
+						<td><input type="text" name="memberid" value="$!refund.memberid" style="width: 100px;" mustTxt="请填写用户ID！" onchange="getInfo(this)"/></td>
+						<td style="width:100px; text-align:right;">手机号码：</td>
+						<td><input type="text" name="mobile" id="mobile" value="$!refund.mobile" style="width: 100px;" mustTxt="请填写手机号！" /></td>
+					</tr>
+					<tr>
+						<td style="width:100px; text-align:right;">订单号：</td>
+						<td><input type="text" name="tradeno" value="$!refund.tradeno" style="width: 100px;" /></td>
+						<td style="width:100px; text-align:right;">退款金额： </td>
+						<td><input type="text" name="amount" id="amount" value="$!refund.amount" style="width: 100px;" mustTxt="退款金额不能为空！"/></td>
+					</tr>
+					<tr>
+						<td style="width:100px; text-align:right;">支付方式：</td>
+						<td colspan="3">
+							<select name="paymethod" mustTxt="选择支付方式不能为空！">
+								<option value="">请选择支付方式</option>
+								#foreach($paymethod in $paymethodMap.keySet())
+								<option value="$!paymethod" #if($VmUtils.eq($refund.paymethod, $paymethod)) selected="selected" #end>
+									$paymethodMap.get($paymethod)
+								</option>
+								#end
+							</select>
+						</td>
+					</tr>
+					#else
+					<tr>
+						<td style="width:100px; text-align:right;">退款来源：</td><td colspan="3">订单退款</td>
+					</tr>
+					<tr>
+						<td style="width:100px; text-align:right;">用户ID：</td><td>$!refund.memberid</td>
+						<td style="width:100px; text-align:right;">手机号码：</td><td>$!refund.mobile</td>
+					</tr>
+					<tr>
+						<td style="width:100px; text-align:right;">订单号：</td><td>$!refund.tradeno</td>
+						<td style="width:100px; text-align:right;">退款金额：</td><td>$!refund.amount</td>
+					</tr>
+					<tr>
+						<td style="width:100px; text-align:right;">支付方式：</td><td colspan="3">$!paymethodMap.get($!refund.paymethod)</td>
+					</tr>
+					#end
+					<tr>
+						<td style="width:100px; text-align:right;">退款原因：</td>
+						<td colspan="3"><textarea name="reason" id="reason" rows="4" style="text-align: left;">$!refund.reason</textarea></td>
+					</tr>
+					<tr>
+						<td style="width:100px; text-align:right;">申请特别说明：</td>
+						<td colspan="3">(如：银行名称、银行账号、开户名)<br /><textarea name="remark" id="remark" rows="4" style="text-align: left;" mustTxt="申请特别说明不能为空！" >$!refund.remark</textarea></td>
+					</tr>
+					#if($refund.origin eq 'apply' || !$refund)
+					<tr>
+						<td colspan="4" style="text-align:right;"><input type="button" id="btns" value="保存" onclick="saveRefund()" /></td>
+					</tr>
+					#end	
+				</table>
+			</form>
+		</div>
+</div>
+<script type="text/javascript">
+	function saveRefund(){
+		if(!GewaraUtil.baseValidForm('orderForm','admin')) return;
+		var values = GewaraUtil.getValues($("orderForm"));	
+		var url = "${basePath}admin/refund/account/saveRefund.xhtml";
+		gewa.util.mask({'element': "btns",'title':'正在保存...', "opacity":"0.4"});
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				document.location.href='${basePath}admin/refund/account/modifyRefund.xhtml?rid='+result.retval;
+			}else {
+				var msg = result.msg;
+				alert(msg);			
+			}
+		});
+	}
+	
+	function getInfo(el){
+		if($(el).value=="") return;
+		var url = "${basePath}admin/account/ajax/getAdjustmentInfo.xhtml";
+		GewaraUtil.sendRequest(url, {"memberid":$(el).value}, function(result){
+			if(result.success){
+				$("oldamount").value=result.amount;
+				$("oldbankcharge").value=result.bankcharge;
+				$("oldothercharge").value=result.othercharge;
+			}else alert(result.msg);
+		})
+	}
+</script>
+</body>
+</html>

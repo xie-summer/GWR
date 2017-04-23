@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>跨场次更换座位</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.none{display:none;}
+	</style>
+</head>
+<body>
+	#if($showForm)
+	<form action="${basePath}admin/ticket/order/preCrossMpiChangeSeat.xhtml" method="post">
+		老订单号：<input type="text" name="tradeNo" value="$!{params.tradeNo}" /><br />
+		新场次(mpid)：<input type="text" name="newmpid" value="$!{params.newmpid}" /><br />
+		新座位号：<input type="text" name="newseat" value="$!{params.newseat}" /><br />
+		<input type="submit" value="提交验证"/>
+	</form>
+	#else
+	<form action="${basePath}admin/ticket/order/crossMpiChangeSeat.xhtml" id="changeForm" name="changeForm">
+		<input type="hidden" name="orderid" value="$!{oldOrder.id}" />
+		<input type="hidden" name="newmpid" value="$!{newmpid}" />
+		<input type="hidden" name="newseat" value="$!{newseat}" />
+		<table class="roomManageTable" cellpadding="0">
+			<tr><th></th><th>老订单</th><th>新订单</th></tr>
+			<tr #if($oldopi.moviename ne $newopi.moviename) style="background: red;"#end><td>影片</td><td>$oldopi.moviename</td><td>$newopi.moviename</td></tr>
+			<tr #if($oldopi.cinemaname ne $newopi.cinemaname) style="background: red;"#end><td>影院</td><td>$oldopi.cinemaname</td><td>$newopi.cinemaname</td></tr>
+			<tr><td>时间</td><td>$oldopi.playtime</td><td>$newopi.playtime</td></tr>
+			<tr><td>影厅</td><td>$oldopi.roomname</td><td>$newopi.roomname</td></tr>
+			<tr><td>mpid</td><td>$oldopi.mpid</td><td>$newopi.mpid</td></tr>
+			<tr><td>座位</td><td>$!VmUtils.getJsonValueByKey($!oldOrder.description2, "影票")</td><td>#foreach($seat in $newseatList)$seat.seatLabel,#end</td></tr>
+		</table>
+		<select name="forceReConfirm">
+			<option value="">一般处理</option>
+			<option value="true">二次重下订单</option>
+		</select><br />
+		<input type="button" onclick="submitForm()" value="提交换座"/>
+	</form>
+	#end
+	<script type="text/javascript">
+		function submitForm(){
+			if(confirm("确认换座？")){
+				GewaraUtil.sendRequest("${basePath}admin/ticket/order/crossMpiChangeSeat.xhtml",GewaraUtil.getValues("changeForm"), function(result){
+					if(result.success) alert("成功处理！");
+					else alert("处理失败：" + result.msg);
+				});
+			}
+		}
+	</script>
+</body>
+</html>

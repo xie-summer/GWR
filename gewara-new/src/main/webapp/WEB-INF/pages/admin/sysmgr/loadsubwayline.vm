@@ -1,0 +1,50 @@
+<table width="100%" class="table">
+	<thead>
+		<tr>
+			<th width="30%">路线名称</th>
+			<th width="50%">备注</th>
+			<th width="20%">操作[<span style="color:blue; cursor: pointer" onclick="newLine();" title='增加新路线'>增加</span>]</th>
+		</tr>
+	</thead>
+	<tbody>
+		#foreach($line in $lineList)
+			<tr>
+			<td width="30%">$line.linename</td>
+			<td width="40%">$line.remark</td>
+			<td width="30%">[<span style="color:blue; cursor: pointer" onclick="updateline('$!line.id');" title='修改路线'>修改</span>] [<a href="javascript:getStations('$!line.id','$!line.linename +')">$!line.linename </a>]</td>
+			</tr>
+		#end
+	</tbody>
+</table>
+<script type="text/javascript">
+	updateline = function (id){
+		var url = "${basePath}admin/common/ajax/getSubwayline.xhtml";
+		GewaraUtil.sendRequest( url, {'lid':id}, function(result){
+			if(result.success){
+				GewaraUtil.setValues(result);
+				show('lineDialog');
+			}else{
+			
+			}
+		});
+		
+	}
+	
+	saveLine = function (){
+		var url = '${basePath}admin/common/ajax/addSubwayline.xhtml';
+		var values = GewaraUtil.getValues('lineForm');
+		if (values.linename == "") {
+			alert("请输入线路名称！");
+			return;
+		}
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+				hide('lineDialog');
+				gewaUtil.loadData('table_line','${basePath}admin/common/ajax/getSubwaylinesByCityCode.xhtml',{'citycode':result.citycode});
+			}else{
+				alert(result.msg);
+			}
+		});
+	};
+</script>

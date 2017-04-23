@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>特殊折扣信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline-block;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea {display:inline-block;}
+		input{width:200px;}
+		a{text-decoration: none; white-space: nowrap;}
+	</style>
+</head>
+<body style="width:850px;margin:auto" class="yui-skin-sam">
+<div id="priceDialog" class="yui-panel" style="width:720px;">
+	<div class="hd" id="title">编辑特殊折扣计数器</div>
+	<div class="bd">
+	<form name="priceForm" id="priceForm">
+		<input type="hidden" name="id" id="id" value="$!sp.id"/>
+		#if($sdList)
+		<div class="mt10">
+			<label for="ctltype">共用计数：</label>
+			<span style="color:blue;">$sdList</span>
+		</div>
+		<div class="mt10">
+			<label for="ctltype">当前卖出：</label>
+			<span style="color:blue;">订单数：$sp.sellordernum，数量：$sp.sellquantity</span>
+			<label for="ctltype">总卖出数：</label>
+			<span style="color:blue;">订单数：$sp.allordernum，数量：$sp.allquantity</span>
+		</div>
+		#end
+		<div class="mt10">
+			<label for="ctltype">控制类型：</label>
+			<select name="ctltype" style="width:70px;">
+				<option value="order" #if($VmUtils.eq($sp.ctltype,'order')) selected="selected" #end>按订单</option>
+				<option value="quantity" #if($VmUtils.eq($sp.ctltype,'quantity')) selected="selected" #end>按数量</option>
+			</select>
+			<label for="ctlmember" style="font-weight: bolder;cursor: pointer;width:100px; " title="共用是指同一用户在多个活动中参与数量合计与“限够次数”比较，否则各活动自己控制“限够次数”">用户限够共用：</label>
+			<select name="ctlmember" style="width:40px;">
+				<option value="Y" #if($VmUtils.eq($sp.ctlmember,'Y')) selected="selected" #end>是</option>
+				<option value="N" #if($VmUtils.eq($sp.ctlmember,'N')) selected="selected" #end>否</option>
+			</select>
+			<label style="font-weight: bolder; width:100px; cursor: pointer;" title="此项付款前检查，超出数字则不能付款。实际数量可能会超出，请保留一定数量。">最大名额数量：</label>
+			<input name="limitmaxnum" id="limitmaxnum" style="width:50px;" maxlength="5" value="$!sp.limitmaxnum"/>
+			<span class="req">*</span>
+			<label style="width:100px; ">当期下单总数：</label>
+			<input name="allowaddnum" id="allowaddnum" style="width: 50px;" maxlength="5" value="$!sp.allowaddnum" />
+			<span class="req">*</span>
+		</div>
+		<div class="mt10">
+			<label for="periodtime">周期时间：</label>
+			<input name="periodtime" id="periodtime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:00:00'})" style="width:140px;" value="$!sp.periodtime"/>
+			<label for="periodDay">周期时长：</label>
+			<select name="periodDay">
+				<option value="1" #if($periodDay eq 1)selected="selected"#end>1天</option>
+				<option value="7" #if($periodDay eq 7)selected="selected"#end>1周</option>
+				<option value="30" #if($periodDay eq 30)selected="selected"#end>1月</option>
+				<option value="365" #if($periodDay eq 365)selected="selected"#end>1年</option>
+			</select>
+			<label style="font-weight: bolder;cursor: pointer;" title="每期最大成交数量，下期也会自动复制到“当期下单总数”中">周期数量：</label>
+			<input name="basenum" value="$!sp.basenum" style="width:80px;"/>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" style="width:100px" onclick="saveSpdiscount()" value="保存"/>
+		</div>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+	function saveSpdiscount(){
+		if($('limitmaxnum').value == ''){
+			alert('最大名额数量不能为空');
+			return;
+		}
+		var url = '${basePath}admin/gewapay/spdiscount/modifySpcounter.xhtml';
+		var values = GewaraUtil.getValues('priceForm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				document.location.href='${basePath}admin/gewapay/spdiscount/getSpcounter.xhtml?spid='+result.retval;
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

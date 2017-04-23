@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>格瓦拉生活网客户演出票详单</title>
+<style type="text/css">
+.contains{font-size:16px;}
+.gray{background:#eeeeee;}
+table{border-collapse:collapse;border-spacing:0;text-align:center;width:960px;}
+table thead tr{height:60px;font-weight:bold;}
+tr, td {border:1px solid #333333;padding:5px;text-align:center}
+td{width:100px;height:24px;}
+p{text-align:right;margin-top:5px;margin-right:100px;font-weight:bold;}
+</style>
+</head>
+<body>
+#set($orderSize=$VmUtils.size($orderList))
+#foreach ($orderMap in $orderList)
+	<div class="contains">
+	    <table>
+	      <thead style="height: 100px;">
+	        <tr>
+	          <td colspan="7" rowspan="2" style="width:80%;">格瓦拉生活网客户演出票详单</td>
+	          <td colspan="2" style="vertical-align: bottom;padding:0px;">
+	          	<img src="${absPath}${basePath}barcode.xhtml?msg=$!{orderMap.dramaOrder.tradeNo}" style="width:20%;height:68px;"/>
+	          </td>
+	        </tr>
+	        <tr style="height:20px;">
+	        	<td colspan="2" class="gray" style="text-align:left; vertical-align: bottom;">订单号：$!{orderMap.dramaOrder.tradeNo}</td>
+	        </tr>
+	      </thead>
+	      <tbody>
+	        <tr>
+	          <td rowspan="2">收货信息</td>
+	          <td>姓名</td>
+	          <td><div>$!{orderMap.orderAddress.realname}</div></td>
+	          <td colspan="2">电话</td>
+	          <td colspan="2">$!orderMap.dramaOrder.mobile</td>
+	          <td>客服热线</td>
+	          <td>4000-406-506</td>
+	        </tr>
+	        <tr>
+	          <td>地址</td>
+	          <td colspan="7" style="text-align:left;"><div>$!{orderMap.orderAddress.cityname}$!{orderMap.orderAddress.countyname}$!{orderMap.orderAddress.address}</div></td>
+	        </tr>
+	        #set($sizeLen=$VmUtils.size($orderMap.itemList))
+	        <tr>
+	          <td rowspan="$math.add($sizeLen,1)">订票信息</td>
+	          <td>场馆</td>
+	          <td>演出项目</td>
+	          <td>座位</td>
+	          <td>数量</td>
+	          <td>单价</td>
+	          <td>优惠金额</td>
+	          <td>总价</td>
+	          <td>演出时间</td>
+	        </tr>
+	        #set($orderDesc=$VmUtils.readJsonToMap($orderMap.dramaOrder.description2))
+	        #foreach($item in $orderMap.itemList)
+	        #set($dpi=$orderMap.itemMap.get($item.relatedid))
+	        #set($otherinfo=$VmUtils.readJsonToMap($item.otherinfo))
+	        #set($seatLabel=$otherinfo.get('seatLabel'))
+	        <tr>
+	          <td>$!orderMap.theatreMap.get($item.placeid).realBriefname</td>
+	          <td>$!orderMap.dramaMap.get($item.itemid).realBriefname</td>
+	            #if(!$dpi.isOpenseat() || $VmUtils.isNotBlank($seatLabel))
+	          #set($seatList=$VmUtils.split($seatLabel,','))
+	          <td>
+	          	<div>
+	          		#set($seatLen=$VmUtils.size($seatList))
+	          		#foreach($key in $seatList)
+	          			$!{orderMap.sellSeatMap.get($key).seatLabel} #if(!$VmUtils.eq($foreach.count,$seatLen)),#end
+	          		#end        		
+	          	</div>
+	          </td>
+	          #else
+	          <td rowspan="$sizeLen">
+	          	<div>
+	     			$!orderDesc.get('座位')
+	     		</div>
+	     	  </td>
+	     	  #end
+	          <td>$!item.quantity</td>
+	          <td>${item.unitprice}</td>
+	          <td>${item.disfee}</td>
+	          <td>${item.totalfee}</td>
+	          #if($dpi.hasPeriod('N'))
+	          <td>$DateUtil.format($dpi.playtime,'yyyy-MM-dd HH:mm') - $DateUtil.format($dpi.endtime,'yyyy-MM-dd HH:mm')#if($item.express eq 'N')(电)#end</td>
+	          #else
+	          <td>$DateUtil.formatTimestamp($dpi.playtime)#if($item.express eq 'N')(电)#end</td>
+	          #end
+	        </tr>
+	        #end
+	        <tr>
+	          <td>注意</td>
+	          <td colspan="8" style="text-align: left;">商品送达时请客户认真核对，若发现数量短缺或价格不符等问题，请及时联系我们客服，一旦确认收货，视为信息无误，无法退换，感谢您的配合！</td>
+	        </tr>
+	      </tbody>
+	    </table>
+	    <p>收件人签字：<span style="width:200px;"></span></p>
+	</div>
+	#if(!$VmUtils.eq($foreach.count,$orderSize))
+	<pd4ml:page.break />
+	#end
+#end
+</body>
+</html>

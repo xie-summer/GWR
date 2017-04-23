@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影院放映厅座位表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#set($maxwidth=163+30*$room.ranknum)
+		#content{ width: ${maxwidth}px; background:#fff;}
+	</style>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li class="selectMore">$cinema.name</li>
+			<li><a href="${basePath}admin/ticket/mpiManage.xhtml?cid=$cinema.id"><span>场次管理</span></a></li>
+			<li><a href="${basePath}admin/ticket/orderList.xhtml?cid=$cinema.id" class="admin"><span>订单管理</span></a></li>
+			<li class="currs"><a><span>影厅管理</span></a></li>
+		</ul>
+	</div>
+</div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+		<div class="contentInfoList">
+			<b class="m2"></b>
+			<div class="m">${cinema.name}：$room.roomname<font class="bold" color="#ff6220">${room.roomname}</font>共安排
+				<font class="bold" color="#ff6220">$room.seatnum</font>个座位
+				#if($room.hasGewaRoom())
+				<input type="button" value="使用整体编辑模式" onclick="useLazyUpdate(this);"/>
+				<input type="button" value="保存所有" disabled="disabled" id="saveAllBt" onclick="saveAll()"/>
+				<input type="button" value="填充座位" onclick="enableAllSeat()"/>
+				#end
+			</div>
+			<b class="m2"></b>
+			<div id="content" style="margin-left:40px;">
+				#set($mleft=170+18*${room.ranknum} - 360)
+				<div class="screen" style="margin-left:${mleft}px">银幕长$!{room.screenwidth}m 高$!{room.screenheight}m</div>
+				<ul class="seatlist">
+					#foreach($line in [1..$maxlinenum])
+					<li>
+						<dl class="seatpic">
+							<dt class="left">
+								<label>排号：<input type="text" class="pai" name="$line" id="L$line" value="$!rowMap.get($line)"/></label>
+								<input type="button" value="座位编号" class="bt1" onclick="toggleSeatNo('row$line');" />
+							</dt>
+							#foreach($rank in [1..$maxranknum]) #set($sid='row'+${line}+'rank'+$rank)
+							<dd><div id="L${line}R${rank}" #if($seatMap.get($sid))class="Aseat"#else class="Nseat"#end>#if($seatMap.get($sid).loveInd ne "0")$!seatMap.get($sid).loveInd#end</div></dd>
+							#end
+						</dl>
+						<dl id="row$line" class="none seatno">
+							<dt class="left"><input type="button" class="cbt1" value="保存此行"/></dt>
+							#foreach($rank in [1..$maxranknum]) #set($sid='row'+${line}+'rank'+$rank)
+							<dd><input type="text" name="L${line}R${rank}" id="IL${line}R${rank}" class="pubinput" value="$!seatMap.get($sid).seatrank"/></dd>
+							#end
+						</dl>
+					</li>
+					#end
+					<li class="head"><dl><dt>排编号</dt>#foreach($rank in [1..$maxranknum])<dd>${rank}</dd>#end</dl></li>
+				</ul>
+				<div id="height0"></div>
+			</div>
+		</div>
+	<b class="b2f"></b> <b class="b1f"></b>
+</div>
+<script type="text/javascript">
+	var lazyUpdate = false;
+	function useLazyUpdate(){
+		$("saveAllBt").disabled=false;
+		lazyUpdate = true;
+	}
+	function enableAllSeat(){
+		$$(".seatlist dd div.Nseat").each(function(el){
+			el.set("class", "Aseat");
+		});
+	}
+	function saveAll(){
+		$("saveAllBt").disabled=true;
+		lazyUpdate = false;
+		$$(".seatlist dd div.Aseat").each(function(el){
+			var pai = el.id.substr(1).split('R')[0];
+			var seatline = $("L"+pai).value;
+			var seatrank = $("I"+el.id).value;
+			if(seatline!='' && seatrank!='' && $("I"+el.id).getStyle("background-color")=='gray'){
+				var url = "${basePath}admin/ticket/mpi/addSeat.xhtml";
+				GewaraUtil.sendRequest(url, {"roomid":"$room.id","location":el.id, "seatline":seatline, "seatrank":seatrank}, function(result){
+					if(result.success){
+						$("I"+el.id).setStyle("background","transparent")
+					}
+				});
+			}
+		});
+	}
+	function toggleSeatNo(rowno){
+		$(rowno).toggleClass('none');
+	}
+	#if($room.roomtype ne 'hfh')
+	window.addEvent("domready", function(){
+		$$(".seatlist dd div").addEvent('click', function(){
+			var el=this;
+			if(this.hasClass('Nseat')){//原来无座位, 现在加上
+				var pai = this.id.substr(1).split('R')[0];
+				var seatline = $("L"+pai).value;
+				var seatrank = $("I"+this.id).value;
+				if(!lazyUpdate){
+					var url = "${basePath}admin/ticket/mpi/addSeat.xhtml";
+					GewaraUtil.sendRequest(url, {"roomid":"$room.id","location":this.id, "seatline":seatline, "seatrank":seatrank}, function(result){
+						if(result.success){
+							el.set("class", "Aseat");
+						}
+					});
+				}else{
+					el.set("class", "Aseat");
+				}
+			}else{//原来有座位，现在清除
+				var url = "${basePath}admin/ticket/mpi/clearSeat.xhtml";
+				GewaraUtil.sendRequest(url, {"roomid":"$room.id", "location":this.id}, function(result){
+					if(result.success){
+						el.set('class','Nseat');
+					}
+				});
+			}
+		});
+		$$(".seatlist dd input").addEvent('change', function(){
+			this.setStyle("background", "gray");
+			var el=this;
+			if(!lazyUpdate){
+				var url = "${basePath}admin/ticket/mpi/setSeatRankNo.xhtml";
+				GewaraUtil.sendRequest(url, {"roomid":"$room.id", "location":this.name, "rankno":this.value}, function(result){
+					if(result.success){el.setStyle("background","transparent");}
+				});
+			}
+		});
+		$$(".pai").addEvent('change', function(){
+			this.setStyle("background", "gray");
+			var el=this;
+			var url = "${basePath}admin/ticket/mpi/changeSeatLine.xhtml";
+			GewaraUtil.sendRequest(url, {"roomid":"$room.id", "lineno":this.name, "newline":this.value}, function(result){
+				if(result.success){el.setStyle("background","transparent");}
+				else alert("更改失败！");
+			});
+		});
+	});
+	#else
+	window.addEvent("domready", function(){
+		$$(".seatlist").addEvent('click',function(){alert("座位不能编辑，可能是与火凤凰对接！")});
+	});
+	#end
+</script>
+</body>
+</html>

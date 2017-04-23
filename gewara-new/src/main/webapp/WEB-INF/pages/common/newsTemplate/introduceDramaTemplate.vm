@@ -1,0 +1,81 @@
+<div class="title"><h2>$!right.title</h2><span class="linet"></span></div>
+#foreach($huaju in $RhuajuList)
+#set($obj=$huaju.get($huaju.boardrelatedid))
+#if($huaju.newsboard eq 'drama')
+#set($drama=$obj)
+#set($gmark=$VmUtils.getSingleMarkStar($drama,"general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+<dl class="ui_abeam mt15">
+	<dt class="uipic">
+		<a target="_blank" href="${basePath}drama/$!drama.id"><img width="96" height="128" src="$VmUtils.randomPic('cw96h128',$!drama.limg)"/></a>
+		#if($VmUtils.isNotEmpObj($dramaBookingMap) && $dramaBookingMap.get($!drama.id))
+		<br/><a href="${basePath}drama/$!drama.id" class="button minBt redBt mt5" target="_blank"><span>立即购票</span></a>
+		#end
+	</dt>
+	<dd class="uiText cmt">
+		<h2><a target="_blank" href="${basePath}drama/$!drama.id" title="$!drama.dramaname">$!drama.dramaname</a></h2>
+		#if($drama.highlight)<span style="display:inline-block;"><img class="mr5" src="/css/global/ml.png" />$!VmUtils.escabbr($!drama.highlight,38)...<img class="ml5" src="/css/global/mr.png" /></span>#end
+		#*
+		#if(!$VmUtils.isEmptyList($directorsList) || $!drama.directortext)
+		<p><em>导演：</em>
+			#if($VmUtils.size($directorsList) gt 0)
+				#foreach($directors in $directorsList)
+					#if($VmUtils.isNotBlank($directors.logo) && $VmUtils.isNotBlank($directors.content))
+						<a href="${basePath}drama/star/$directors.id" target="_blank" title="$!{directors.name}">$directors.name</a>
+					#else
+						$directors.name
+					#end
+				#end
+			#end
+			$!VmUtils.replaceSeparator($!drama.directortext,',',' ')
+		</p>
+		#end
+		*#
+		
+		<p><em>首演日期:</em>
+		$!DateUtil.format($!drama.releasedate,'yyyy年MM月dd日')</p>
+		
+		<p><em>结束日期:</em>
+		$!DateUtil.format($!drama.enddate,'yyyy年MM月dd日')</p>
+		
+		#if(!$VmUtils.isEmptyList($theatreMap.get($!drama.id)))
+		<p><em>演出剧院:</em>
+			#foreach($theatre in $theatreMap.get($!drama.id))
+				<a href="${basePath}theatre/$theatre.id" target="_blank">$!{theatre.name}</a><span class="ml5"></span>				
+			#end
+		</p>
+		#end
+		
+		#if(!$VmUtils.isEmptyList($dramaPriceMap.get($!drama.id)))
+			<p><em>票价(元):</em>
+					#foreach($price in $dramaPriceMap.get($!drama.id))
+						$price<span class="ml5"></span> 				
+					#end<span class="ml5"></span>
+			</p>
+		#end
+		
+		#*
+		#if(!$VmUtils.isEmptyList($actorsList) || $!drama.actorstext)
+		<p><em>主演：</em>
+			#if(!$VmUtils.isEmptyList($actorsList))
+				#foreach($actors in $actorsList)
+					#if($VmUtils.isNotBlank($actors.logo) && $VmUtils.isNotBlank($actors.content))
+						#if($foreach.index eq 0)
+							<a href="${basePath}drama/star/$actors.id" class="mr5" target="_blank" title="$!{actors.name}">$actors.name</a>
+						#else
+							<a href="${basePath}drama/star/$actors.id" target="_blank" title="$!{actors.name}">$actors.name</a>
+						#end
+					#else
+						$actors.name
+					#end
+				#end
+			#end
+			$!VmUtils.replaceSeparator($!drama.actorstext,',',' ')
+		</p>
+		#end
+		<p><em>首映时间：</em>
+		$!DateUtil.format($!drama.releasedate, 'yyyy年MM月dd日') - $!DateUtil.format($!drama.enddate, 'yyyy年MM月dd日')</p>
+		*#	
+	</dd>
+</dl>
+#end
+#end

@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电子票列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.D{background-color: red; color: white;}
+		ul li{width:350px; float: left;}
+	</style>
+</head>
+<body style="width: 850px; margin:auto">
+<div style="margin-top:20px;" id="operation">
+	<div>
+			<span>总数：$!batchInfo.get('cardcount')</span>
+			<span class="ml20">废弃数：$!batchInfo.get('delcount')</span>
+			<span class="ml20">待售：$!batchInfo.get('newcount')</span>
+			<span class="ml20">已使用：$!batchInfo.get('usedcount')</span>
+	</div>
+	<div>
+		<span>销售渠道:$!batch.channel</span>
+		<span class="ml20">有效时间:$!{DateUtil.format($batch.timefrom,'yyyy-MM-dd')}~$!{DateUtil.format($batch.timeto,'yyyy-MM-dd')}</span>
+		<span class="ml20">销售者:$!batch.seller.nickname</span>
+	</div>
+</div>
+<table class="table">
+	<thead><tr style="height: 30px">
+		<th>&nbsp;</th>
+		<th>卡号</th>
+		<th>状态</th>
+		<th>废弃人</th>
+		<th>废弃时间</th>
+		<th>拥有者</th>
+		<th>领用者</th>
+		<th>手机</th>
+	</tr></thead>
+	<tbody id="cardList">
+	#set($cn=1)
+	#foreach($card in $cardList)
+		<tr class="$card.status" id="r$card.id">
+			<td>$cn</td>#set($cn=$cn+1)
+			<td><a href="${basePath}admin/eticket/queryCard.xhtml?cardno=$card.cardno" target="_blank">$card.cardno</td>
+			<td>$card.gainStatusText()</td>
+			<td>$!card.deluserid</td>
+			<td>$!card.deltime</td>
+			<td>$!possessorMap.get($card.possessor).nickname</td>
+			<td>$!{card.gainer}</td>
+			<td>$!card.mobile</td>
+		</tr>
+	#end
+		<tr><td colspan="9"><div class="page">#parse('include/pageUtil.vm')</div></tr>
+	</tbody>
+</table>
+</body>
+</html>

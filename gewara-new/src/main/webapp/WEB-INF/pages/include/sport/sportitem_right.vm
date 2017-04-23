@@ -1,0 +1,90 @@
+<div class="gui-globalRight">
+	#if($VmUtils.isNotBlank($!params.itemid))
+	<div style="border-bottom:1px solid #aaaaaa;" class="gui-title mt20">
+		<span class="fs14 bold ml10">$!sportItem.itemname装备选购知识</span>
+		<a href="${basePath}sport/itemLibraryList.xhtml?orderType=sportequipment&itemid=$!sportItem.id" class="gui-more" target="_blank">更多>></a>
+	</div>
+	<ul class="gui-50">
+		#foreach($sportEquipment in $sportEquipmentList)
+		<li class="mt10" style="height:auto;">
+			<a href="${basePath}news/$!sportEquipment.id" target="_blank"><img src="${staticPath}css/images/blank.gif"style="background:url($VmUtils.randomPic('sw96h72',$sportEquipment.getLogo())) center center no-repeat;"width="96"height="72"/></a><br/>
+			<a href="${basePath}news/$!sportEquipment.id"  class="cyan" target="_blank" title="">$!sportEquipment.title</a>
+		</li>
+		#end
+	</ul>
+	#end
+	<div class="height0"></div>
+	
+	<div style="border-bottom:1px solid #aaaaaa;" class="gui-title mt20">
+		#if($VmUtils.isNotBlank($!params.itemid))
+			<span class="fs14 bold ml10">相关${sportItem.itemname}新闻</span>
+			<a href="${basePath}news/sport" class="gui-more" target="_blank">更多>></a>
+		#else 
+			<span class="fs14 bold ml10">相关运动新闻</span>
+			<a href="${basePath}news/sport" class="gui-more" target="_blank">更多>></a>
+		#end
+	</div>
+	<ul class="ul-28 ul-dot ul-line">
+		#foreach($news in $newsList2)
+			<li><a href="${basePath}news/$news.id" class="cyan" target="_blank" title="$news.title">$!VmUtils.escabbr($news.title,36)</a></li>
+		#end
+	</ul>
+	<div class="height0"></div>
+		
+	<div style="border-bottom:1px solid #aaaaaa;" class="gui-title mt20">
+		<span class="fs14 bold ml10">#if($!params.itemid)大家对$!sportItem.itemname说什么#else大家对运动说什么#end</span>
+		<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=index.xhtml" class="gui-more" target="_blank">更多>></a>
+	</div>
+	<ul class="ul-box ul-line">
+		#foreach($microcomment in $microcommentList)
+		#set($microCount=$!VmUtils.getByteLength($!VmUtils.getWebBody($!microcomment.body,$picPath)))
+		<li>
+			<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!microcomment.memberid" class="pubpic" target="_blank">
+				<img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($microcomment.memberid).headpicUrl)) center center"/></a>			
+			<p>
+				<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!microcomment.memberid" class="cyan" target="_blank">$!microcomment.nickname</a>说：
+				#if($microCount gt 140)$!VmUtils.getHtmlText($!VmUtils.getWebBody($!microcomment.body,$picPath),140)#else $!VmUtils.getWebBody($!microcomment.body,$picPath) #end
+				<br/><span class="gray">$!DateUtil.getTimeDesc($!microcomment.addtime)</span>
+			</p>
+			<div class="height0"></div>
+		</li>
+		#end
+	</ul>
+			
+	<div style="border-bottom:1px solid #aaaaaa;" class="gui-title mt10">
+	#if($VmUtils.isNotBlank($!params.itemid))
+		<span class="fs14 bold ml10">$!{sportItem.itemname}相关的圈子</span>
+		<a href="${basePath}home/commu/searchCommu.xhtml?tag=sport&itemid=$!sportItem.id" class="gui-more" target="_blank">更多>></a>
+	#else
+		<span class="fs14 bold ml10">运动圈子</span>
+		<a href="${basePath}home/commu/searchCommu.xhtml?tag=sport" class="gui-more" target="_blank">更多>></a>
+	#end
+	</div>
+	<ul class="ul-box">
+		#foreach($community in $communityList)
+		#set($commuMap=$commuMemberMap.get($community.id))
+		<li>
+			<a href="${basePath}quan/$community.id" class="pubpic" target="_blank">
+				<img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$community.headpicUrl)) center center"/></a>
+			<h2><a href="${basePath}quan/$community.id" class="cyan" target="_blank">$!VmUtils.escabbr($community.name,10)</a></h2>
+			<p>圈主：$cacheMemberMap.get($!community.adminid).nickname</p>
+			<p>成员：$!community.commumembercount</p>
+		</li>
+		#end
+	</ul>
+	#parse('include/qa/sport.vm')
+	#if($params.itemid)
+	<div style="border-bottom:1px solid #aaaaaa;" class="gui-title mt20">
+		<span class="fs14 bold ml10">关注$!{sportItem.itemname}的用户</span>
+	</div>
+	<ul class="ul-33">
+		#foreach($treasure in $treasureList)
+		<li>
+			<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!treasure.memberid" class="pubpic" target="_blank" title="$cacheMemberMap.get($!treasure.memberid).nickname"><img src="${staticPath}css/images/blank.gif" style="background: url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($treasure.memberid).headpicUrl)) no-repeat scroll center center rgb(255, 255, 255);"/></a>
+			<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!treasure.memberid" class="cyan" target="_blank" title="$cacheMemberMap.get($!treasure.memberid).nickname">$cacheMemberMap.get($!treasure.memberid).nickname</a>
+		</li>
+		#end
+	</ul>
+	#end
+	<div class="height0"></div>
+</div>

@@ -1,0 +1,209 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>运动畅打培训管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label {display:inline-block; width:100px;text-align:right;padding:1px 0 1px 0; }
+		input,textarea {width:450px;}
+		a{text-decoration: none; white-space: nowrap;}
+	</style>
+</head>
+<body style="width:850px; margin:auto" class="yui-skin-sam">
+<div id="goodsDialog" class="yui-panel" style="width:850px; position: absolute;z-index: 200; left:0px; top:0px;margin-left: 200px">
+	<div class="hd" id="title">编辑物品数据</div>
+	<div class="bd">
+	<form name="goodsForm" id="goodsForm" action="javascript:save()">
+		<input type="hidden" name="id" id="id" value="$!goods.id"/>
+		<input type="hidden" name="deliver" id="deliver" value="$!goods.deliver"/>
+		<input type="hidden" name="manager" id="manager" value="$!goods.manager"/>
+		<input type="hidden" name="clerkid" id="clerkid" value="$!goods.clerkid"/>
+		<input type="hidden" name="limitnum" id="limitnum" value="$!goods.limitnum"/>
+		<input type="hidden" name="goodssort" id="goodssort"  #if($goods.goodssort)value="$!goods.goodssort"#else value="0"#end/>
+		<div>
+			<label for="goodsname">商品名称：</label>
+			<input name="goodsname" type="text" id="goodsname" style="width: 350px" value="$!goods.goodsname"/>
+			<span class="req">*</span>建议名称不超过25个字。
+		</div>
+		<div>
+			<label for="shortname">商品名称：</label>
+			<input name="shortname" type="text" id="shortname" style="width: 50px" value="$!goods.shortname"/>
+			<span class="req">*如:</span>
+		</div>
+		<div>
+			<label for="spflag">特价活动：</label>
+			<input name="spflag" id="spflag" type="text" style="width: 150px" value="$!goods.spflag"/>
+			<span>（支付优惠活动）</span>
+		</div>
+		<div>
+			<label for="feetype">业务模式：</label>
+			<select name="feetype" id="feetype" onchange="chgft(this.value)">
+				<option value="" #if($VmUtils.isBlank($goods.feetype))selected#end>请选择</option>
+				<option value="P" #if($VmUtils.eq($goods.feetype,'P'))selected#end>代售平台（别人卖收佣金）</option>
+				<option value="C" #if($VmUtils.eq($goods.feetype,'C'))selected#end>预售(物品卖券方式实现)</option>
+				<option value="T" #if($VmUtils.eq($goods.feetype,'T'))selected#end>业务板块</option>
+			</select><span>*</span>
+			<span class="#if(!$VmUtils.eq($goods.feetype, 'T') || $VmUtils.isBlank($goods.feetype))none#end" id="dstype">
+				<label for="serviceype">服务板块：</label>
+				<select name="servicetype" id="servicetype">
+					<option value="" #if($VmUtils.isBlank($goods.servicetype))selected#end>请选择</option>
+					<option value="movie" #if($VmUtils.eq($goods.servicetype,'movie'))selected#end>电影板块</option>
+					<option value="drama" #if($VmUtils.eq($goods.servicetype,'drama'))selected#end>演出板块</option>
+					<option value="sport" #if($VmUtils.eq($goods.servicetype,'sport'))selected#end>运动板块</option>
+					<option value="gym" #if($VmUtils.eq($goods.servicetype,'gym'))selected#end>健身板块</option>
+				</select>*
+			</span>
+		</div>
+		<div>
+			<label for="oriprice">原&nbsp;&nbsp;&nbsp;&nbsp;价：</label>
+			<input name="oriprice" id="oriprice" type="text" maxlength="5" style="width: 70px" value="$!goods.oriprice"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="unitprice">现&nbsp;&nbsp;&nbsp;&nbsp;价：</label>
+			<input name="unitprice" id="unitprice" type="text" maxlength="5" style="width: 70px" value="$!goods.unitprice"/>
+			<span class="req">*(如果是赠品，需要填写0)</span>
+		</div>
+		<div>
+			<label for="costprice">成&nbsp;本&nbsp;价：</label>
+			<input name="costprice" id="costprice" type="text" maxlength="5" style="width: 70px" value="$!goods.costprice"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="relatedid">关联活动：</label>
+			<input name="relatedid" id="relatedid" type="text"  style="width: 120px" readonly="readonly" value="$!goods.relatedid"/>
+			<span class="req">*(填写场馆ID)</span>
+		</div>
+		<div>
+			<label for="allowaddnum">下单上限：</label>
+			<input name="allowaddnum" id="allowaddnum" type="text" style="width: 70px"  value="$!goods.allowaddnum"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="quantity">下单名额：</label>
+			<input name="quantity" id="quantity" type="text" style="width: 70px"  value="$!goods.quantity"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="maxpoint">使用积分上限：</label>
+			<input name="maxpoint" id="maxpoint" type="text" style="width: 70px"  value="$!goods.maxpoint"/>
+		</div>
+		<div>
+			<label for="minpoint">使用积分下限：</label>
+			<input name="minpoint" id="minpoint" type="text" style="width: 70px"  value="$!goods.minpoint"/>
+		</div>
+		<div>
+			<label for="releasetime">活动举行日期：</label>
+			<input name="releasetime" class="Wdate" type="text" id="releasetime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd 00:00:00'})" value="$!DateUtil.format($!goods.releasetime, 'yyyy-MM-dd')"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="totime">预订开始时间：</label>
+			<input name="fromtime" class="Wdate" type="text" id="fromtime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!goods.fromtime"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="totime">预订截止时间：</label>
+			<input name="totime" class="Wdate" type="text" id="totime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!goods.totime"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="ordermsg">接收短信：</label>
+			<textarea name="ordermsg" id="ordermsg" rows="2">$!goods.ordermsg</textarea>
+			<span class="req">*</span>
+			<div style="margin-left: 60px;">例如：套餐quantity份已定，凭password取票后至影院卖品部换取有效期time</div>
+			<br/>
+			<label for="ordermsg">&nbsp;&nbsp;</label>提示：<font color="red">接受短信内容要包含password字样</font>
+		</div>
+		<div>
+			<label for="summary">套餐摘要：</label>
+			<input type="text" name="summary" id="summary" value="$!goods.summary"/>
+			<span class="req">*</span><br/>
+			<label for="printcontent">&nbsp;&nbsp;</label>例如：爆米花(大桶)两桶,可口可乐(中杯)两瓶,茶饮料(500ml)*两瓶<br/>
+		</div>
+		<div>
+			<label for="description">物品描述：</label>
+			<textarea name="description" id="description">$!goods.description</textarea>
+			<span class="req">*</span>
+		</div>
+			<div>
+			<label for="logo">上传图片[150*150]:</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+					src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/point&callback=updateLogo"></iframe>
+				<input type="hidden" name="logo" id="logo" value="$!goods.logo"/>
+			<div><img style="height:80px; margin-left:70px;" id='logoimg1' src="${staticPath}css/images/blank.gif"/></div>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="submit" class="button" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+		
+		<div id="msg" style="color:red;"></div>
+		<div style="color:blue;">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	var ckeditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("description");
+	});
+	function save(){
+		if($('goodsname').value=='') {alert('请输入名称');return;}
+		if($('shortname').value=='') {alert('请输入简称');return;}
+		if($('quantity').value=='') {alert('请输入下单名额');return;}
+		if($('releasetime').value=='') {alert('请输入发布时间');return;}
+		if($('totime').value=='') {alert('请输入结束时间');return;}
+		if($('oriprice').value=='') {alert('请输入原价');return;}
+		if($('unitprice').value=='') {alert('请输入现价');return;}
+		if($('costprice').value=='') {alert('请输入成本价');return;}
+		if($('feetype').value==''){alert('请选择业务模式');return;}
+		if($('feetype').value=='T' && $('servicetype').value==''){
+			alert('请选择服务板块');
+			return;
+		}
+		if($('feetype').value!='T'){
+			$('servicetype').value='';
+		}
+		if($('ordermsg').value=='') {alert('请输入接收短信');return;}
+		if($('description').value=='') {alert('请输入详细说明');return;}
+		$("description").value=ckeditor.getData();
+		var values = GewaraUtil.getValues($("goodsForm"));
+		var url = "${basePath}admin/goods/ajax/updateActivityGoods.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("保存成功");
+				$("msg").set("html", '');
+				$('id').value=result.id;
+			} else{
+				alert("保存失败");
+				$("msg").set("html", result.msg);
+			}
+		});
+	}
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg1').src='${basePath}' + picpath;
+	}
+	function chgft(value){
+		if(value=='T'){
+			$('dstype').removeClass('none');
+		}else {
+			$('dstype').addClass('none');
+		}
+	}
+</script>
+</body>
+</html>

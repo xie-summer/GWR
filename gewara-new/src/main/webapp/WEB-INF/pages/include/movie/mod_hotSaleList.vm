@@ -1,0 +1,25 @@
+#if(!$VmUtils.isEmptyList($saleMovieList))
+<div class="mod_kong hotSaleList">
+	<div class="mod_hd">
+		<h2>一周购票排行</h2>
+		<span class="more c999">更新日期：昨天24点</span>
+	</div>
+	<div class="mod_bd">
+		<ul>
+			#foreach($movie in $!saleMovieList)
+			#set($gmark=$VmUtils.getLastMarkStar($movie, "general",$markCountMap.get($movie.id),$!markData))
+			#set($gmark1=$gmark/10) #set($gmark2=$gmark % 10)
+			#if(!$movieIdList.contains($movie.id))
+				#set($addMId = $movieIdList.add($movie.id))
+			#end  
+			<li #if($foreach.count le 3)class="topThree"#end>
+				<span class="num">#if($foreach.count lt 10)0#end$foreach.count</span>
+				<span class="mName"><a href="$!{basePath}movie/$!movie.id" title="$!movie.moviename" target="_blank">$!movie.moviename</a></span>
+				<span class="point"><sub class="min" data-keynum="$!{movie.id}_mark1">$!gmark1</sub><sup class="min" data-keynum="$!{movie.id}_mark2">.$!gmark2</sup></span>
+				<em class="$!saleMovieMap.get($movie.id).get('orderRelatively')" title="#if($saleMovieMap.get($movie.id).get('orderRelatively') eq 'drop')下降#elseif($saleMovieMap.get($movie.id).get('orderRelatively') eq 'rise')上升#else保持#end" ></em>
+			</li>
+			#end
+		</ul>
+	</div>
+</div>
+#end

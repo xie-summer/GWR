@@ -1,0 +1,104 @@
+<input type="hidden" name="id" id="id" value="$!programItemTime.id" />
+<input type="hidden" name="sportid" id="sportid" value="$!cursport.id"/>
+<input type="hidden" name="itemid" id="itemid" value="$!sportItem.id"/>
+<ul>
+	<li id="voptions" style="margin-top:10px;">
+		<span>日期：</span>
+		#if(($programItemTime))
+		<select name="week" id="week" style="width:80px;" mustTxt="请选择星期">
+		<option value="1" #if($VmUtils.eq($programItemTime.week,1)) selected="selected" #end>星期一</option>
+		<option value="2" #if($VmUtils.eq($programItemTime.week,2)) selected="selected" #end>星期二</option>
+		<option value="3" #if($VmUtils.eq($programItemTime.week,3)) selected="selected" #end>星期三</option>
+		<option value="4" #if($VmUtils.eq($programItemTime.week,4)) selected="selected" #end>星期四</option>
+		<option value="5" #if($VmUtils.eq($programItemTime.week,5)) selected="selected" #end>星期五</option>
+		<option value="6" #if($VmUtils.eq($programItemTime.week,6)) selected="selected" #end>星期六</option>
+		<option value="7" #if($VmUtils.eq($programItemTime.week,7)) selected="selected" #end>星期日</option>
+		</select>
+		#else
+		<input type="checkbox" name="week" value="1" #if($VmUtils.eq($programItemTime.week,1)) checked="checked" #end />周一
+		<input type="checkbox" name="week" value="2" #if($VmUtils.eq($programItemTime.week,2)) checked="checked" #end />周二
+		<input type="checkbox" name="week" value="3" #if($VmUtils.eq($programItemTime.week,3)) checked="checked" #end />周三
+		<input type="checkbox" name="week" value="4" #if($VmUtils.eq($programItemTime.week,4)) checked="checked" #end />周四
+		<input type="checkbox" name="week" value="5" #if($VmUtils.eq($programItemTime.week,5)) checked="checked" #end />周五
+		<input type="checkbox" name="week" value="6" #if($VmUtils.eq($programItemTime.week,6)) checked="checked" #end />周六
+		<input type="checkbox" name="week" value="7" #if($VmUtils.eq($programItemTime.week,7)) checked="checked" #end />周日
+		#end
+	</li>
+	<li style="margin-top:10px;">
+		<span>时间段：</span>
+		<select id="starttime" name="starttime" style="width: 80px;" mustTxt="请选择开始时间">
+			#foreach($i in [0..23])
+			#if($i lt 10) #set($time = '0'+$i)
+			#else #set($time = $i) #end
+			#set($time1 = $time+':00')
+			#set($time2 = $time+':30')
+			#if($i ne 24)
+			<option value="$!time1" #if($VmUtils.eq($!programItemTime.starttime,$!time1)) selected="selected" #end>$!time1</option>
+			<option value="$!time2" #if($VmUtils.eq($!programItemTime.starttime,$!time2)) selected="selected" #end>$!time2</option>
+			#end
+			#end
+		</select>
+		<span class="ml5 mr5">至</span>
+		<select onchange="changeCloseTime(this)" name="endtime" id="endtime" style="width: 80px;" mustTxt="请选择结束时间">
+			#foreach($i in [1..23])
+			#if($i lt 10) #set($time = '0'+$i)
+			#else #set($time = $i) #end
+			#set($time1 = $time+':00')
+			#set($time2 = $time+':30')
+			#if($i ne 24)
+			<option value="$time1" #if($VmUtils.eq($!programItemTime.endtime,$!time1)) selected="selected" #end>$time1</option>
+			<option value="$time2" #if($VmUtils.eq($!programItemTime.endtime,$!time2)) selected="selected" #end>$time2</option>
+			#else
+			<option value="$time1" #if($VmUtils.eq($!programItemTime.endtime,$!time1)) selected="selected" #end>$time1</option>
+			#end
+			#end
+		</select>
+		#if(!$VmUtils.eq($sport2Item.opentype,'field'))
+		<span>同时预约上限：</span>
+		<input type="text"  name="quantity" id="quantity" style="width:80px;" mustTxt="可预订人数不能为空！" value="$!programItemTime.quantity"/>人
+		#end
+	</li>
+	<li style="margin-top:10px;">
+		<span>默认价格:</span>
+		<span>网站卖价</span>
+		<input type="text" name="price" id="price" style="width:60px;" mustTxt="网站售价不能为空！" value="$!programItemTime.price"/>
+		<span>成本价：</span>
+		<input type="text" name="costprice" id="costprice" style="width:80px;" mustTxt="成本价格不能为空！" value="$!programItemTime.costprice"/>
+		<span>场馆原价</span>
+		<input type="text" name="sportprice" id="sportprice" style="width:60px;" mustTxt="场馆价不能为空！" value="$!programItemTime.sportprice"/>	
+	</li>
+	<li style="margin-top:10px;">
+		#if($VmUtils.eq($sport2Item.opentype,'field'))
+		<input type="hidden" name="unitType" id="unitType" value="time"/>
+		#else
+		<span>是否限时：</span>
+		<select name="unitType" id="unitType" onchange="getMinute(this.value)">
+			<option value="time" #if($VmUtils.eq($programItemTime.unitType,'time')) selected="selected" #end>限时</option>
+			<option value="whole" #if($VmUtils.eq($programItemTime.unitType,'whole')) selected="selected" #end>不限时</option>
+		</select>
+		#end	
+		#if($programItemTime)
+		<span id="minute" #if($VmUtils.eq($programItemTime.unitType,'time')) style="display:inline" #else style="display:none"#end>	
+		<span>计时单位：</span>
+		<input type="text" name="unitMinute" id="unitMinute" style="width:60px;" value="$!programItemTime.unitMinute"/>分钟
+		</span>
+		#else
+		<span  id="minute">
+		<span>计时单位：</span>
+		<input type="text" name="unitMinute" id="unitMinute" style="width:60px;" value="$!programItemTime.unitMinute"/>分钟
+		</span>		
+		#end
+	</li>
+	<li style="margin-top:10px;">
+		<span>场地数据：</span>
+		#foreach($field in $fieldList)
+		#if($VmUtils.eq($field.status, 'Y'))
+		<input #if($programItemTime) type="radio" #if($VmUtils.eq($sport2Item.opentype,'field')) disabled="disabled" #end #if($VmUtils.eq($programItemTime.fieldid,$field.id)) checked="checked" #end #else type="checkbox" #if($VmUtils.eq($sport2Item.opentype,'field'))checked="checked" disabled="disabled"#end #end name="fieldids" class="fieldids" value="$!field.id" /> $field.name
+		#end
+		#end
+	</li>
+	<li>
+		<input type="button" onclick="saveupdate(this)" value="保存修改" />
+		<input type="button" onclick="hideProgramItem('programData')" value="取消"/>
+	</li>
+</ul>

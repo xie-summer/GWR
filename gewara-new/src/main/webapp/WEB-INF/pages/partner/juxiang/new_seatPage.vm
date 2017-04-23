@@ -1,0 +1,40 @@
+<div class="mod_hd">
+	<h2>选择影片</h2>
+    <ul class="seatInfo">
+    	<li><em class="hasSeat"></em>可选位置</li>
+        <li><em class="sellSeat"></em>已售位置</li>
+        <li><em class="checkSeat"></em>您已选的位置</li>
+        #if($room.loveflag eq 'Y')<li><img align="middle" style="background-position: -1px -832px;" class="hasSeat" src="${staticPath}css/images/blank.gif"><img align="middle" style="background-position:-23px -832px" class="hasSeat" src="${staticPath}css/images/blank.gif">情侣座</li>#end                                               
+    </ul>
+</div>
+<div class="mod_bd">
+<div class="stage">
+   	<span class="text">全景图</span>
+       <span class="eventTags eventTop">上</span>
+       <span class="eventTags eventRight">右</span>
+       <span class="eventTags eventDown">下</span>
+       <span class="eventTags eventLeft">左</span>
+       <div class="screen">$!{opi.cinemaname} 银幕 #if($!room.screenwidth)长$!{room.screenwidth}米#end  #if($!room.screenheight)高$!{room.screenheight}米#end </div>
+      #set($rowList=$VmUtils.split($room.seatmap,"@@"))
+       <div class="wrapper" id="wrapper">
+       <div class="wrapped" id="wrapped" style="">
+         <div class="seatlist">
+         #set($classMap={'N':'noSeat','A':'hasSeat','B':'sellSeat','C':'sellSeat','D':'sellSeat','S':'sellSeat','W':'sellSeat','N':'noSeat'})
+		#foreach($row in [1..$room.linenum])
+	        <dl class="clear">
+	        	#foreach($rank in [1..$room.ranknum]) #set($sid='row'+${row}+'rank'+$rank)
+				#if($seatMap.get($sid))#set($seat=$seatMap.get($sid))
+	            <dd id="$!priceMap.get($seat.id)" #if($seat.loveInd eq "1")class="lover_l"#elseif($seat.loveInd eq "2")class="lover_r" #end>
+	            	<div id="$seat.id" #if($mySeatList.contains($seat))class="checkSeat"#elseif($hfhLockList.contains($seat.key))class="sellSeat"#else class="$classMap.get($seatStatusUtil.getFullStatus($seat))"#end price="$!priceMap.get($seat.id)" istips="${seat.seatLabel}$!priceMap.get($seat.id)元" title="${seat.seatLabel}$!priceMap.get($seat.id)元"></div>
+	            </dd>
+	            #else
+	            <dd><div class="noSeat"></div></dd>
+				#end
+	            #end
+	        </dl>
+	     #end
+	       </div>
+		</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>运动订单处理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/admin.css?v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+	</style>
+</head>
+<body>
+#set($isOrder=true)
+#parse('admin/sport/open/menu.vm')
+<div class="manageItemList">
+	<em class="b1f"></em><em class="b2f"></em>
+	<div class="contentInfoList"> 
+		<div class="checkOrder"><h2>运动订单处理</h2></div>
+		<div class="aboutMovie">
+		
+			<form action="${basePath}admin/sport/open/memberCard/orderList.xhtml" id="form" method="post">
+			<table cellpadding="0" cellspacing="0" width="100%">
+				<div style="margin-left: 140px;width: 960px;background-color: #fff;height: auto;">
+					<input type="hidden" name="mctid" id="mctid" value="$!params.mctid"/>
+					<input type="hidden" name="minute" id="minute" value="$!params.minute"/>
+				<div>
+				
+				<tr valign="middle" style="height:40px;">
+					<th><a href="javascript:queryOrder('minute','')" class="bold">时间：</a></th>
+					<td>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'30'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','30')">半小时前</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'60'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','60')">1小时</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'120'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','120')">2小时</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'180'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','180')">3小时</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'240'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','240')">4小时</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'360'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','360')">6小时</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'480'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','480')">8小时</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'720'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','720')">12小时</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'1440'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','1440')">1天</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'2880'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','2880')">2天</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'7200'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','7200')">5天</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'10080'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','10080')">7天</a></span>
+						<span class="mr20"><a #if($VmUtils.eq($params.minute,'14400'))class="match" #else class="blue" #end href="javascript:queryOrder('minute','14400')">10天</a></span>
+					</td>
+				</tr>
+				
+				<tr valign="middle" style="height:40px;">
+					<th>精确查询:</th>
+					<td>
+							<input type="hidden" name="ordertype" id="ordertype" value="$!ordertype" />
+							<label>订单号：<input type="text" name="tradeNo" value="$!params.tradeNo" class="pubinput" size="18" style="height:20px;"/></label>
+							<label class="ml10">手机号（模糊）：<input type="text" name="mobile" value="$!params.mobile" class="pubinput" size="18" style="height:20px;"/></label>
+							<input type="button" value="查询订单" onclick="queryOrder('minute','$!params.minute')"/>
+					</td>
+				</tr>
+			</table>
+			</form>
+		</div>
+		<ul class="orderSet mt20">
+			<li id="all" #if($VmUtils.isBlank($ordertype))class="seeOrder"#end><a href="javascript:queryOrder('ordertype','')" class="blue">全部</li>
+			<li id="new" #if($ordertype eq 'new')class="seeOrder"#end><a href="javascript:queryOrder('ordertype','new')" class="blue">待付款</a></li>
+			<li id="paid_success" #if($ordertype eq 'paid_success')class="seeOrder"#end><a href="javascript:queryOrder('ordertype','paid_success')" class="blue">交易成功</a></li>
+			<li id="paid_failure" #if($ordertype eq 'paid_failure')class="seeOrder"#end><a href="javascript:queryOrder('ordertype','paid_failure')" class="blue">交易失败</a></li>
+			<li id="cancel" #if($ordertype eq 'cancel')class="seeOrder"#end><a href="javascript:queryOrder('ordertype','cancel')" class="blue">取消订单</a></li>
+		</ul>
+		<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+			<thead><tr>
+				<th>类型</th>
+				<th style="width:100px;">订单号</th>
+				<th style="width:60px;">取票密码</th>
+				<th style="width:90px;">下单时间</th>
+				<th style="width:75px;">联系电话</th>
+				<th>用户</th>
+				<th>场馆</th>
+				<th style="width:230px;">场地</th>
+				<th>场次数量</th>
+				<th>总价</th>
+				<th>优惠金额</th>
+				<th>实付金额</th>
+				<th>支付方式</th>
+				<th style="width:60px;">状态</th>
+				<th style="width:60px;">确认成功</th>
+			</tr></thead>
+			<tbody id="tbody">#set($T=0)#set($Q=0)#set($D=0) #set($P=0)
+				#foreach($order in $orderList)
+				#set($T=$T+$order.amount)#set($Q=$Q+$order.quantity)#set($D=$D+$order.discount) #set($P=$P+$order.due)
+				#set($dmap=$VmUtils.readJsonToMap($order.description2))
+				#set($buytimes=$VmUtils.getJsonValueByKey($order.changehis, "buytimes"))
+				#set($descMap=$VmUtils.readJsonToMap($order.description2))
+				<tr class="grayBg h" id="row${order.id}">
+					<td><a href="javascript:queryOrder('ottid','$order.ottid')">$order.mctid</a>
+					<td><a href="${basePath}admin/gewapay/orderDetail.xhtml?tradeNo=$order.tradeNo" target="_blank">$order.tradeNo</a></td>
+					<td>$!order.checkpass</td>
+					<td>$DateUtil.format(${order.addtime},'MM-dd HH:mm:ss')</td>
+					<td #if($VmUtils.isNotBlank($order.remark))title="$order.remark" style="color:red"#end onclick="showMobile($order.id,$order.mobile)"><span name="demobile" id="order$order.id" title="$VmUtils.getSmobile($order.mobile)">$VmUtils.getSmobile($order.mobile)</span></td>
+					<td><a href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$order.memberid" target="_blank">$order.membername</a></td>
+					<td>$!descMap.get('场馆名称')</td>
+					<td>$!descMap.get('详细')</td>
+					<td>$!order.quantity</td>
+					<td>#if($order.discount gt 0)<span style="color:red;font-weight: bold;" title="$order.disreason">${order.totalAmount}</span>#else${order.totalAmount}#end</td>
+					<td>$!order.discount</td>
+					<td>$!order.due</td>
+					<td>$!order.paymethodText</td>
+					<td>$!{order.statusText}</td>
+					<td>
+						#if($order.paidFailure || $order.paidUnfix)
+						<input type="button" class="bt1" value="确认成功" onclick="confirmOrder('$order.tradeNo', this)"/>
+						#else
+						--
+						#end
+					</td>
+				</tr>
+				#end
+			</tbody>
+		<td colspan="7">合计</td>
+		<td>$!Q</td>
+		<td></td>
+		<td>$!T</td>
+		<td>$!D</td>
+		<td>$!P</td>
+		<td></td>
+		<td></td>
+		<td></td>
+		</table>
+	</div>
+	<em class="b2f"></em><em class="b1f"></em>
+</div>
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+	if($("curList")) $("curList").getParent().removeClass("shrink");
+	$$(".aboutMovie").getElements(".controlPoint").each(function(item){
+		item.addEvent("click",function(){
+			this.getNext().getElement("ul").toggleClass("shrink");
+		});
+	});
+});
+function queryOrder(field, value){
+	$(field).value=value;
+	$('form').submit();
+}
+function showMobile(orderid, mobile){
+	$('tbody').getElements('span[name=demobile]').each(function(item){
+		item.set('html', item.title);
+		item.removeClass('yellow');
+		$('order' + orderid).set('html', mobile);
+		$('order' + orderid).addClass('yellow');
+	});
+}
+
+function confirmOrder(tradeNo, el){
+	el.dispose();
+	var url = "${basePath}admin/sport/open/memberCard/failOrder.xhtml";
+	GewaraUtil.sendRequest(url, {"tradeNo":tradeNo}, function(result){
+		if(result.success){
+			alert(result.retval);
+		}
+	})
+}
+
+</script>
+</body>
+</html>

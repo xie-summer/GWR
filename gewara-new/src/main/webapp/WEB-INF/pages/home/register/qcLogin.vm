@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>用户登录_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,slimbox,page&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($tag="home")
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="gui-layout">
+	<div class="gui-h1 mt20"><h1>登录庆春电影院圈子</h1></div>
+	<div style="padding:20px;">
+		<div class="registerBox">
+			<form action="${basePath}cas/check_user.xhtml" method="post" id="miForm" onsubmit="return submitForm();">
+				<input type="hidden" name="ptn" value="qc"/>
+				<ul class="registerItem" id="Index_show">
+					#if($VmUtils.isNotBlank($params.error) || $requestScope.error)
+					<li>
+						<div style="color:#FF9900;background:#EFEFEF;font-weight:bold;width:200px;">无效的用户名或密码，请重试</div>
+					</li>
+					#end
+					#if($VmUtils.isNotBlank($params.msg))
+					<li>
+						<div style="color:#FF9900;background:#EFEFEF;font-weight:bold;width:200px;">$params.msg</div>
+					</li>
+					#end
+					<li><span class="tdes">登录：</span><input type="text" name="j_username" id="j_username" class="text" onchange="nameLower(this)"/>&nbsp;&nbsp;<span class="yellow" id="msg1"></span></li>
+					<li><span class="tdes">密码：</span><input type="password" class="text" name="j_password" id="j_password"/>&nbsp;&nbsp;<span class="yellow" id="msg2"></span></li>
+					<li><input type="submit" value="登 录" class="subBt"/>&nbsp;<span class="ml10"><a href="${basePath}forgetPassword.xhtml" class="q">忘记密码？</a></span></li>
+					<li style="text-align:center">我还没注册账号，<a href="${basePath}qc/register.xhtml" class="blue" target="_blank">立即注册</a></li>
+				</ul>
+			</form>
+			<img src="${staticPath}css/images/qcLogo.jpg"/>
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	new DefaultValue("j_username","邮箱/手机号码");
+});
+function loginTo(){
+	$("miForm").submit();
+}
+function submitForm(){
+	vForm = $("miForm");
+	var isValid = validateForm(vForm);
+	if(isValid) $("miForm").submit();
+	return false;
+}
+function validateForm(form) {	
+	if($('j_username').value==''){
+		$("j_username").focus();
+		$("msg1").innerHTML = "用户名不能为空！";
+		return false;
+	}
+	if($("j_password").value==''){
+		$("j_password").focus();
+		$("msg2").innerHTML = "密码不能为空！";
+		return false;
+	}
+	return true;
+}
+</script>
+</body>
+</html>

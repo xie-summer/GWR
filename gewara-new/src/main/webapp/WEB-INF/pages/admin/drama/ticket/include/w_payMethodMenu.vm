@@ -1,0 +1,457 @@
+#set($orderPaymethod = $order.paymethod)
+#if($VmUtils.isNotBlank($order.paybank)) #set($orderPaymethod=$order.paymethod + ":" + $!order.paybank) #end
+#set($paymethod=$valHelp.getDefMethod($orderPaymethod))
+#parse('include/pay/bankList.vm')
+#set($chinaUnion=$VmUtils.getUnionPayPaymethod($order.paymethod,$order.citycode))
+#set($chinaUnionPayFast=$VmUtils.getUnionPayFastPaymethod($order.paymethod,$order.citycode))
+
+#if($order.due gt 0 && !$valHelp.denyAll())
+#if(!$account)#set($notPassCheck=true)#elseif($account.isIncomplete()||$account.isNopassword())#set($notPassCheck=true)#else#set($notPassCheck=false)#end
+<div class="mt20 paymenu_head" id="menu_ck">
+	#if($valHelp.supportPaymethod('gewaPay'))
+	<a #if($paymethod eq 'gewaPay')class="select"#end  for="n3" lang="gewaPay">
+		<input type="radio" value="gewaPay" id="n3" name="paymethod" #if($paymethod eq "gewaPay") checked="checked"#end />
+		格瓦拉余额支付
+	</a>
+	#end
+	#if($valHelp.supportAny('unionPay,unionPay_activity,unionPay_js,pnrPay,china2Pay,directPay,cmPay,spsdo2Pay,tempusPay,yeePay,cmbPay,bcPay,gdbPay,onetownPay,yagaoPay,payecoDNAPay'))
+	<a #if($VmUtils.contains('unionPay,unionPay_activity,unionPay_js,pnrPay,china2Pay,directPay,cmPay,spsdo2Pay,tempusPay,yeePay,cmbPay,bcPay,gdbPay,onetownPay,yagaoPay,payecoDNAPay,jsbChina',$paymethod))class="select"#end  lang="netPay" for="emptyPay1">
+		<input type="radio" value="" id="emptyPay1" name="paymethod">
+		网上支付
+	</a>
+	#end
+	<a #if(!$valHelp.supportPaymethod($chinaUnion))class="none"#end lang="china2PayCredit" for="n5">
+		<input type="radio" value="$chinaUnion" id="n5" name="paymethod">
+		信用卡支付
+	</a>
+	#if(($valHelp.supportPaymethod('umPay') && ($order.citycode eq '110000' || $order.citycode eq '420100')) || ($valHelp.supportPaymethod('umPay_sh') && $order.citycode eq '310000'))
+	<a lang="umPay" for="emptyPay2"  #if($paymethod eq 'umPay')class="select"#end >
+		<input type="radio" value="" id="emptyPay2" name="paymethod">
+		移动话费支付
+	</a>
+	#end
+	#if($valHelp.supportPaymethod('telecomPay,telecomMobilePay'))
+	<a lang="telecomPay" for="emptyPay3" #if($VmUtils.contains('telecomPay,telecomMobilePay',$paymethod))class="select"#end>
+		<input type="radio" value="" id="emptyPay3" name="paymethod">
+		电信话费支付
+	</a>
+	#end
+	#if($valHelp.supportPaymethod('yeePay'))
+	<a #if($VmUtils.contains('yeePay',$order.paymethod) && !$VmUtils.isBlank($order.paybank))class="select"#end  lang="yeePay" for="emptyPay4">
+		<input type="radio" value="" id="emptyPay4" name="paymethod">
+		预付费卡支付
+	</a>
+	#end
+	#if($valHelp.supportPaymethod('memberCardPay') && $VmUtils.eq($paymethod, 'memberCardPay'))
+	<a #if($VmUtils.contains('memberCardPay',$order.paymethod))class="select"#end  lang="memberCardPay" for="memberCardPay_1">
+		<input type="radio" value="memberCardPay" id="memberCardPay_1" name="paymethod" #if($paymethod eq "memberCardPay") checked="checked"#end>
+		会员卡支付
+	</a>
+	#end
+</div>
+#end
+<div class="payBox" style="margin-top:-1px;">
+	<div class="paymenu_body">
+	#if($order.due gt 0 && !$valHelp.denyAll())
+		<!-- 网上支付 -->
+		<div id="netPay" tab="true" #if($paymethod eq 'gewaPay'  || $paymethod eq 'umPay' || $paymethod eq 'telecomMobilePay' || $paymethod eq 'telecomPay' || ($order.paymethod eq 'yeePay' && !$VmUtils.isBlank($order.paybank)))style="display:none;"#end>
+			<div class="paymenu_body_t lineB">选择付款方式</div>
+			#if($valHelp.supportAny('unionPay,unionPay_activity,unionPay_js,unionPay_activity_js,directPay,spsdo2Pay,cmPay,china2Pay,tempusPay,payecoDNAPay'))
+			
+			#set($kjCount = 0)
+			#if($valHelp.supportPaymethod($chinaUnionPayFast))
+			<dl class="clear" #if($order.ordertype ne 'drama' && $valHelp.supportPaymethod($chinaUnion))style="margin-top:10px;"#end>							
+			<dt>快捷支付：</dt>
+				<dd class="lineB payway clear">
+					#if($valHelp.supportPaymethod($chinaUnionPayFast))
+					<div class="clear">
+						#set($kjCount = $kjCount + 1)
+						<label style="background-position:30px -2143px; width:156px;" for="unionPayFast_no1"><input type="radio" name="paymethod" value="$chinaUnionPayFast" id="unionPayFast_no1" #if($paymethod eq "$chinaUnionPayFast") checked="checked"#end/></label>
+						<span style="display:inline-block;margin-left:-25px;margin-top:10px;">(该服务由银联在线支付提供，支持各大银行；支付信息经过加密保护，保障资金安全)</span>
+					</div>
+					#end
+				</dd>
+				</dl>
+			#end
+			
+			<dl #if($order.ordertype ne 'drama' && $valHelp.supportPaymethod($chinaUnion))style="margin-top:60px;"#end class="clear">
+				<dt>支付平台支付：</dt>
+				<dd class="lineB payway clear">
+					#if($valHelp.supportPaymethod($chinaUnion) || $valHelp.supportPaymethod("china2Pay:9999"))
+						#if($order.ordertype ne 'drama' && $valHelp.supportPaymethod($chinaUnion))
+						#set($toppx=($kjCount * 65) + 85)
+						<div style="left:117px;top:${toppx}px;_left:123px;" class="paytips">
+							<img src="${picPath}css/movie/picdow.gif">
+							支持所有银行，无需开通网银，关联一张银行卡即可轻松支付。
+						</div>
+						#end
+						<div class="clear">
+							#if($order.ordertype eq 'drama')
+							<label style="background-position:30px -800px;">
+								<input type="radio" name="paymethod" value="$chinaUnion" #if($paymethod eq $chinaUnion) checked="checked"#end id="china2Pay"/>
+							</label>
+							#else
+								#if($valHelp.supportPaymethod($chinaUnion))
+								<label style="background-position:30px -800px;" title="您仅需持有一张银联卡，无需开通网上银行，即享安全、便捷的支付体验。">
+									<input type="radio" name="paymethod" value="$chinaUnion" #if($paymethod eq $chinaUnion) checked="checked"#end id="china2Pay"/>
+								</label>
+								#end
+							#end
+							#if($valHelp.supportPaymethod("china2Pay:9999"))
+							<label style="background-position:30px -840px;width:156px;">
+								<input type="radio" name="paymethod" value="china2Pay:9999"/>
+							</label>
+							#end
+						</div>
+					#end
+					<div class="clear">
+						#if($valHelp.supportPaymethod("directPay"))
+							<label style="background-position:30px -880px;" for="directPay_no1">
+								<input type="radio" name="paymethod" value="directPay" id="directPay_no1" #if($paymethod eq "directPay") checked="checked"#end/>
+							</label>
+						#end
+						#if($valHelp.supportPaymethod("cmPay"))
+							<label style="background-position:30px -920px;" for="cmPay_no1">
+								<input type="radio" name="paymethod" value="cmPay" id="cmPay_no1" #if($paymethod eq "cmPay") checked="checked"#end/>
+							</label>
+						#end
+						#if($valHelp.supportPaymethod("spsdo2Pay"))
+							<label style="background-position:30px -960px;;" for="spsdo2Pay_no1">
+								<input type="radio" name="paymethod" value="spsdo2Pay" id="spsdo2Pay_no1" #if($paymethod eq "spsdo2Pay") checked="checked"#end/>
+							</label>
+						#end
+						#if($valHelp.supportPaymethod("tempusPay"))
+							<label style="background-position:30px -1385px; width:156px;" for="tempusPay_no1">
+								<input type="radio" name="paymethod" value="tempusPay" id="tempusPay_no1" #if($paymethod eq "tempusPay") checked="checked"#end/>
+							</label>
+						#end
+						#if($valHelp.supportPaymethod("payecoDNAPay"))
+							<label style="background-position:30px -2094px;" for="payecoDNAPay_no1">
+								<input type="radio" name="paymethod" value="payecoDNAPay" id="payecoDNAPay_no1" #if($paymethod eq "payecoDNAPay") checked="checked"#end/>
+							</label>
+						#end
+						#*
+						#if($valHelp.supportPaymethod("bestPay"))
+							<label style="background-position:30px -2094px;" for="bestPay_no1">
+								<input type="radio" name="paymethod" value="bestPay" id="bestPay_no1" #if($paymethod eq "bestPay") checked="checked"#end/>
+							</label>
+						#end
+						
+						#if($valHelp.supportPaymethod($chinaUnionPayFast))
+							<label style="background-position:30px -2143px; width:156px;" for="unionPayFast_no1">
+								<input type="radio" name="paymethod" value="$chinaUnionPayFast" id="unionPayFast_no1" #if($paymethod eq "$chinaUnionPayFast") checked="checked"#end/>
+							</label>
+						#end
+						*#
+					</div>
+				</dd>
+			</dl>
+			#end
+			#if($valHelp.supportAny('icbcPay,pnrPay,china2Pay,cmbPay,cmPay,bcPay,gdbPay,directPay,psbcPay,hzbankPay,spdPay,ccbposPay,spdPay_activity,pnrfastPay,pnrfastPay2,pnrfastabcPay,jsbChina,bocPay,unionPayFast,unionPayFast_activity_js,unionPayFast_activity_bj,unionPayFast_activity_sz,unionPayFast_activity_gz,unionPayFast_activity_zj,njcbPay,abchinaPay'))
+			<dl class="clear">
+				<dt>#if($order.paymethod eq 'yeePay' && !$valHelp.paymethodList.isEmpty())预付费卡支付： #else银行支付：#end</dt>
+				<dd class="lineB payway clear">
+					#foreach($bank in $bankPayList) #set($pair=$VmUtils.split($bank, ","))
+						#if($valHelp.supportPaymethod($pair[2]) && ($VmUtils.isBlank($orderOtherinfo.get('discountByPaymethod')) || (!$VmUtils.isBlank($orderOtherinfo.get('discountByPaymethod')) && $VmUtils.eq($orderOtherinfo.get('discountByPaymethod'),$pair[2]))))
+							<label class="$pair[1]" title="$pair[0]" for="$pair[3]">
+								<input type="radio" name="paymethod" id="$pair[3]" value="$!pair[2]" #if($paymethod eq $pair[2])checked="checked"#end/>
+							</label>
+						#end
+					#end
+					#if($valHelp.supportPaymethod('pnrPay') && $paymethod eq 'pnrPay' && $VmUtils.isBlank($order.paybank))
+						<input type="radio" name="paymethod" id="pnrOther" value="pnrPay" checked="checked" style="display:none;"/>
+					#end
+				</dd>
+			</dl>
+			#end
+			#if($valHelp.supportAny('onetownPay,yagaoPay'))
+			<dl class="clear">
+				<dt>行业卡支付：</dt>
+				<dd class="lineB payway clear">
+					<label style="background-position:30px -1000px;"><input type="radio" name="paymethod" value="onetownPay" #if($paymethod eq "onetownPay") checked="checked"#end/></label>
+					<label style="background-position:30px -1040px;"><input type="radio" name="paymethod" value="yagaoPay" #if($paymethod eq "yagaoPay") checked="checked"#end/></label>
+				</dd>
+			</dl>
+			#end
+		</div>
+		#if($valHelp.supportAny('$chinaUnion,ccbposPay'))
+		<!-- 信用卡支付 -->
+		<div id="china2PayCredit" tab="true" style="display:none;">
+			<div class="paymenu_body_t">&nbsp;</div>
+			<div style="left:48px;*top:20px;_left:12px;" class="paytips">
+				<img src="${picPath}css/movie/picdow.gif">
+				信用卡支付无需开通网银，只要拥有以下银行的信用卡即可支付。
+			</div>
+			<dl class="clear mt10">
+				<dt>信用卡支付：</dt>
+				<dd class="lineB payway clear">
+					<label style="background-position:30px -800px;" title="您仅需持有一张银联卡，无需开通网上银行，即享安全、便捷的支付体验。">
+						<input type="radio" name="paymethod" value="$chinaUnion" id="chinaUnion"/>
+					</label>
+					<label class="icon_jsyh" title="建行信用支付">
+						<input type="radio" name="paymethod" value="ccbposPay" id="ccbposPay2"/>
+					</label>
+				</dd>
+			</dl>
+			<dl>
+				<dd><img width="762" height="148" src="${staticPath}css/buss/ico_ipsPay.png"></dd>
+			</dl>
+		</div>
+		#end
+		#if($valHelp.supportAny('umPay,umPay_sh') && ($order.citycode eq '310000' || $order.citycode eq '110000' || $order.citycode eq '420100'))
+		<!-- 移动话费支付 -->
+		<div id="umPay" tab="true" #if($paymethod ne 'umPay')style="display:none" #end>
+			#set($umFeeRate=$umPayRate.data)
+			#set($totalNotOtherfee=$order.totalAmount - $order.discount - $order.otherfee)
+			#set($umDue=$totalNotOtherfee + $otherfee)
+			<div class="paymenu_body_t">&nbsp;</div>
+			<dl class="clear">
+				<dt>话费支付：</dt>
+				<dd class="lineB payway clear">
+					<label class="icon_hf" for="umPay_for" style="margin-right:5px;">
+						<input type="radio" name="paymethod" #if($order.citycode eq '310000') value="umPay_sh" #else value="umPay" #end id="umPay_for" #if($paymethod eq "umPay") checked="checked"#end onclick="choiceUmPay(this)"/>
+					</label>
+					<span class="cf60" style="padding-top:10px; display:inline-block;">本支付方式不支持"退款"服务，如有相关退款问题请拨打客服电话！</span>
+				</dd>
+			</dl>
+			<dl>
+				<dd class="umPay">
+					实付总额：<span class="ui_price">¥<b>$totalNotOtherfee</b></span>
+					<span class="#if($paymethod ne 'umPay')none#end" id="umPayFeeInfo">&nbsp;+ &nbsp;
+					<b class="yellow fs20">$!{otherfee}</b>元(话费支付服务费)&nbsp;=&nbsp;<b class="yellow fs20">$!umDue</b>元
+					</span>
+				</dd>
+			</dl>
+			<div style="_left:24px;" class="paytips">
+				<img src="${picPath}css/movie/picdow.gif">
+				移动用户，可选择通过手机话费支付，同时需要额外支付话费支付服务费。
+			</div>
+		</div>
+		#end
+		#if($valHelp.supportAny('telecomPay,telecomMobilePay') )
+		<!-- 电信话费支付 -->
+		<div id="telecomPay" tab="true" #if($paymethod ne 'telecomPay' && $paymethod ne 'telecomMobilePay' )style="display:none" #end>
+			#set($totalNotOtherfee=$order.totalAmount - $order.discount - $order.otherfee)
+			#set($telecomDue=$totalNotOtherfee + $telecomOtherFee)
+			<div class="paymenu_body_t">&nbsp;</div>
+			<dl style="margin-top:36px" class="clear">
+				<dt>支付方式：</dt>
+				<dd class="lineB payway clear">
+					<label for="telecomMobilePay_for" style="background-position: 30px -1253px;width:150px" title="电信天翼手机支付">
+						<input type="radio" name="paymethod" value="telecomMobilePay" id="telecomMobilePay_for" #if($paymethod eq "telecomMobilePay") checked="checked"#end onclick="choiceTelecomPay(this)"/>
+					</label>
+					<label for="telecomPay_for" style="background-position: 30px -1297px;width:150px" title="电信固定电话支付">
+						<input type="radio" name="paymethod" value="telecomPay" id="telecomPay_for" #if($paymethod eq "telecomPay") checked="checked"#end onclick="choiceTelecomPay(this)"/>
+					</label>
+				</dd>
+			</dl>
+			<dl>
+				<dd class="umPay">
+					实付总额：<span class="ui_price">¥<b>$totalNotOtherfee</b></span>
+					<span class="#if($paymethod ne 'telecomPay' && $paymethod ne 'telecomMobilePay')none#end" id="telecomPayFeeInfo">
+						<b style="font-size:2em" class="yellow">&nbsp;+ &nbsp;$!{telecomOtherFee}</b>元(话费支付服务费)
+						<b style="font-size:2em" class="yellow">&nbsp;=&nbsp;$!telecomDue</b>元
+					</span>
+				</dd>
+			</dl>
+			<div style="_left:24px;width:610px;height:38px;background-position:-274px -226px" class="paytips">
+				<img src="${picPath}css/movie/picdow.gif">
+				上海电信的用户可选择通过上海电信固定电话支付和上海电信天翼手机支付，同时需要额外支付话费支付服务费。<br />
+				电信后付费为次月电信帐单出帐，预付费用户在支付成功以后即扣费。
+			</div>
+		</div>
+		#end
+		#if($valHelp.supportAny('yeePay') )
+		<!-- 预付费卡支付 -->
+		<div id="yeePay" tab="true" #if(!($order.paymethod eq 'yeePay' && !$VmUtils.isBlank($order.paybank)))style="display:none" #end>
+			<dl class="clear">
+				<dt>预付费卡支付： </dt>
+				<dd class="lineB payway clear">
+					<label class="icon_ask" title="奥斯卡" for="icon_ask">
+						<input type="radio" name="paymethod" id="icon_ask" value="yeePay:AllScore-NET" #if($order.paymethod eq 'yeePay' && $order.paybank eq 'AllScore-NET')checked="checked"#end/>
+					</label>
+					<label class="icon_aixin" title="爱心卡" for="icon_aixin">
+						<input type="radio" name="paymethod" id="icon_aixin" value="yeePay:Aixin-NET" #if($order.paymethod eq 'yeePay' && $order.paybank eq 'Aixin-NET')checked="checked"#end/>
+					</label>
+					<label class="icon_zft" title="城市通卡" for="icon_zft">
+						<input type="radio" name="paymethod" id="icon_zft" value="yeePay:Zhongfutong-NET" #if($order.paymethod eq 'yeePay' && $order.paybank eq 'Zhongfutong-NET')checked="checked"#end/>
+					</label>
+					<label class="icon_yitong" title="1039易通卡" for="icon_yitong">
+						<input type="radio" name="paymethod" id="icon_yitong" value="yeePay:Yitong-NET" #if($order.paymethod eq 'yeePay' && $order.paybank eq 'Yitong-NET')checked="checked"#end/>
+					</label>
+					<label class="icon_edenred" title="雅高e卡" for="icon_edenred">
+						<input type="radio" name="paymethod" id="icon_edenred" value="yeePay:Edenred-NET" #if($order.paymethod eq 'yeePay' && $order.paybank eq 'Edenred-NET')checked="checked"#end/>
+					</label>
+					<label class="icon_ybtnet" title="中欣银宝通卡" for="icon_ybtnet">
+						<input type="radio" name="paymethod" id="icon_ybtnet" value="yeePay:Ybt-NET" #if($order.paymethod eq 'yeePay' && $order.paybank eq 'Ybt-NET')checked="checked"#end/>
+					</label>
+					<label class="icon_yikahui" title="壹卡会" for="icon_yikahui">
+						<input type="radio" name="paymethod" id="icon_yikahui" value="yeePay:Yikahui-NET" #if($order.paymethod eq 'yeePay' && $order.paybank eq 'Yikahui-NET')checked="checked"#end/>
+					</label>
+					<label class="icon_yisheng" title="易生如意卡" for="icon_yisheng">
+						<input type="radio" name="paymethod" id="icon_yisheng" value="yeePay:Bohaiyisheng-NET" #if($order.paymethod eq 'yeePay' && $order.paybank eq 'Bohaiyisheng-NET')checked="checked"#end/>
+					</label>
+					<label class="icon_shangmeng" title="商盟统统付" for="icon_shangmeng">
+						<input type="radio" name="paymethod" id="icon_shangmeng" value="yeePay:Shangmeng-NET" #if($order.paymethod eq 'yeePay' && $order.paybank eq 'Shangmeng-NET')checked="checked"#end/>
+					</label>
+					<label class="icon_slsy" title="商联商用" for="icon_slsy">
+						<input type="radio" name="paymethod" id="icon_slsy" value="yeePay:Slsy-NET" #if($order.paymethod eq 'yeePay' && $order.paybank eq 'Slsy-NET')checked="checked"#end/>
+					</label>
+					<label class="icon_dazhong" title="大众e通卡" for="icon_dazhong">
+						<input type="radio" name="paymethod" id="icon_dazhong" value="yeePay:Dazhong-NET" #if($order.paymethod eq 'yeePay' && $order.paybank eq 'Dazhong-NET')checked="checked"#end/>
+					</label>
+					<label class="icon_jxjft" title="江西缴费通卡" for="icon_jxjft">
+						<input type="radio" name="paymethod" id="icon_jxjft" value="yeePay:JXJiaofeitong-NET" #if($order.paymethod eq 'yeePay' && $order.paybank eq 'JXJiaofeitong-NET')checked="checked"#end/>
+					</label>
+				</dd>
+			</dl>
+		</div>
+		#end
+		
+		#if($valHelp.supportPaymethod('memberCardPay') && $VmUtils.eq($paymethod, 'memberCardPay'))
+			#set($countUnit = $ott.unitMinute/60)
+			#set($amountCount = $order.quantity/$countUnit)
+			<div #if($paymethod ne 'memberCardPay')style="display:none" #end tab="true" id="memberCardPay">
+				<div class="paymenu_body_t">&nbsp;</div>
+				<p>
+					<em class="changeMobile">会员卡：</em>
+					<b class="sh">$mct.title 剩余$memberCard.overMoney/$mct.money</b>
+				</p>
+				<p style="position:relative;height:16px; line-height:16px; margin:10px 0 0 88px;">
+					<span class="ml20">使用会员卡抵扣<b>#if($mct.hasNumCard())$amountCount次#elseif($mct.hasAmountCard())$!cardDue元#end</b></span>
+				</p>
+				<p class="mt30" style="poaition:relative;">
+					<em class="changeMobile">手机号码：$!{memberCard.mobile}</em>
+					<input type="hidden" name="captchaId" id="captcha" />
+					<input style="width:80px;" name="captcha" autocomplete="off"  id="captchaInput" class="text" type="text"/>
+					<img id="captchaImg" src="${staticPath}css/images/blank.gif" style="cursor:pointer;height:32px;width:80px; margin-left:20px;" align="middle" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清楚，请点击换一张图片"/>
+					<label class="button whiteBt minBt ml5" style="position:absolute;">
+						<input type="button" onclick="sendCardPaypass();" value="发送动态码" id="btn1"></input>
+					</label>
+					<span id="showMessage" class="cSport" style="display:none;">
+						没有收到短信验证码，可在<span class="ml5 mr5" id="timecount"></span>秒后重新发送
+					</span>
+				</p>
+				<p class="mt30" style="poaition:relative;">
+					<em class="changeMobile">动态码：</em>
+					<input class="text cf_text" type="text" name="smspass" id="smspass" style="width:100px;">
+				</p>
+			</div>
+		#end
+					
+		<!-- 格瓦拉余额支付 -->
+		<div id="gewaPay" tab="true" #if($paymethod ne 'gewaPay')style="display:none;"#end>
+			#parse('include/pay/bankwabi.vm')
+		</div>
+		#elseif($order.paymethod eq "elecardPay")
+			<input type="hidden" name="paymethod" value="elecardPay" />
+		#else
+			<input type="hidden" name="paymethod" value="gewaPay" />
+		#end
+		<dl class="clear">
+			<dd>
+				<span id="submitSpan" ><label for="subBt" class="button maxBt redBt" style="vertical-align: middle;"><input type="submit" id="subBt" value="确认无误，支付"></label></span>
+				<a class="ml20 ffsf" href="${basePath}admin/drama/agent/showOrder.xhtml?orderId=$order.id&topos=payMoney&dateTimes=$!DateUtil.timeMillis()">返回重新选择优惠方式&gt;&gt;</a>
+			</dd>
+		</dl>
+	</div>
+</div>
+<script type="text/javascript">
+var needChoose = false;
+function setChoosePay(vchoose){
+	needChoose = vchoose;
+}
+</script>
+#if($order.due gt 0)
+<!-- 加入 弹出框 dlgpaypwd.vm -->
+#parse('include/pay/dlgpaypwd.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	var hasBanlance = false;
+	#if($account)
+		#if(!$account.isIncomplete() && !$account.isNopassword())
+			#if($account.banlance gt 0)
+				hasBanlance = true;
+			#end
+		#end
+	#end
+	$$('.payway label').addEvents({
+		'mouseenter':function(){if(this.getElement('input'))this.addClass('select')},
+		'mouseleave':function(){$$('.payway label').each(function(item){
+				if(item.getElement('input') && !item.getElement('input').checked)item.removeClass('select');
+			});
+		}
+	});
+	$('menu_ck').getElements('a').each(function(item,i){
+		item.addEvent('click',function(){
+			if (item.get("lang") == "gewaPay" && hasBanlance == false){
+				$("submitSpan").hide();
+				$("isConfirmDiv").hide();
+			}else{
+				$("submitSpan").show();
+				$("isConfirmDiv").show();
+			}
+			
+			$('menu_ck').getElements('a').removeClass('select');
+			document.getElements('*[tab=true]').hide();
+			if(!this.hasClass('select')){
+				this.addClass('select');
+				if(this.getElements('input')){
+					this.getElement('input').checked = 'checked';
+				}
+				setChoosePay(this.get('lang') == 'umPay'?true:false);
+				$(this.get('lang')).show();
+			}
+			if($('umPayFeeInfo')&&!$('umPayFeeInfo').hasClass('none')){
+				$('umPayFeeInfo').addClass('none');
+			}
+			if($('telecomPayFeeInfo')&&!$('telecomPayFeeInfo').hasClass('none')){
+				$('telecomPayFeeInfo').addClass('none');
+			}
+		});
+	});
+	#if($valHelp.supportPaymethod('memberCardPay') && $VmUtils.eq($paymethod, 'memberCardPay'))
+		GewaraUtil.refreshCaptcha('captcha');
+	#end
+});
+function replaceStr(el){
+	$(el).value = $(el).value.replace(/[^\d]/g,'');
+}
+function relaceOther(el){
+	$(el).value = $(el).value.replace(/[\W]/g,'');
+}
+function chechF(){
+	return $('menu_ck').getElements('input').every(function(item){
+		if(item.checked && item.value == 'ipsPay'){
+			var i=0;
+			while(i<inputs.length){
+				if(!$chk(inputs[i].value)){
+					gewaUtil.alert(inputs[i].getNext('.thisMe').get('text'));
+					return false;
+				}
+				i++;
+			}
+			return true;
+		}else{
+			return true;
+		}
+	});
+}
+var curCard = #if($paymethod eq 'yagaoPay')'yagaoPay' #else 'onetownPay'#end;
+function setOtherPay(){
+	$(curCard).checked=true;
+}
+function choiceUmPay(e){
+	needChoose = false;
+	if($('umPayFeeInfo')){
+		$('umPayFeeInfo').removeClass('none');
+	}
+}
+function choiceTelecomPay(e){
+	needChoose = false;
+	if($('telecomPayFeeInfo')){
+		$('telecomPayFeeInfo').removeClass('none');
+	}
+}
+</script>
+#end

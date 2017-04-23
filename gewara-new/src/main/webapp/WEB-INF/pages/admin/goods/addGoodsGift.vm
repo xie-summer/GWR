@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>赠品项目管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		label {display:inline-block; width:70px;text-align:right;padding:1px 0 1px 0; }
+		.input_time{width:200px;}
+		a{text-decoration: none; white-space: nowrap;}
+	</style>
+</head>
+<body style="width:850px; margin:auto" class="yui-skin-sam">
+<div id="goodsDialog" class="yui-panel" style="width:550px; position: absolute;z-index: 200; left:0px; top:0px;margin-left: 200px">
+	<div class="hd" id="title">编辑物品数据</div>
+	<div class="bd">
+	<form name="goodsForm" id="goodsForm" #if($goods.tag eq 'bmh') action="javascript:save()" #elseif($goods.tag eq 'bmh_sport') action="javascript:savesport()" #elseif($goods.tag eq 'bmh_theatre')action="javascript:savetheatre()"#end>
+		<input type="hidden" name="goodsid" id="goodsid" value="$!goods.id"/>
+		<div>
+			<label>关联物品：</label>&nbsp;${goods.goodsname}
+		</div>
+		#if($goods.tag eq 'bmh')
+		<div>
+			<label>关联影院：</label>&nbsp;${cinema.name}
+		</div>
+		<input type="hidden" name="cinemaid" id="cinemaid" value="$!goods.relatedid"/>
+		<div>
+			<label for="movieid">影片ID：</label>
+			<input name="movieid" type="text" id="movieid"  value="$!gift.movieid"/>
+		</div>
+		<div>
+			<label for="mpidlist">场次ID：</label>
+			<input name="mpidlist" type="text" id="mpidlist"  value="$!gift.mpidlist"/>
+		</div>
+		#elseif($goods.tag eq 'bmh_sport')
+			<div>
+				<label>关联场馆：</label>&nbsp;${sport.name}
+			</div>
+			<div>
+				<label for="itemid">项目ID：</label>
+				<input name="itemid" type="text" id="itemid"  value=""/>
+			</div>
+			<input name="sportid" type="hidden" id="sportid"  value="$!goods.relatedid"/>
+			
+			#if($hourlist)
+				<div style="position:relative;">
+				<label for="mpidlist" style="top:0;position:absolute;">时间段：</label>
+				<span style="width:82%;display:inline-block;margin-left:70px;">
+					#foreach($hour in $hourlist)
+						<input type="checkbox" name="hourdate"  class="middleAlign mr5" value="$hour:00"/>$hour:00
+					#end
+				</span>
+				<input type="hidden" name="hours" id="hours"/>
+				</div>
+			#end
+		#elseif($goods.tag eq 'bmh_theatre')
+		<div>
+			<label>关联剧院：</label>&nbsp;$!theatre.name
+		</div>
+		<input type="hidden" name="theatreid" id="theatreid" value="$!goods.relatedid"/>
+		<div>
+			<label for="dramaid">影片ID：</label>
+			<input name="dramaid" type="text" id="dramaid"  value="$!gift.dramaid"/>
+		</div>
+		<div>
+			<label for="dpidlist">场次ID：</label>
+			<input name="dpidlist" type="text" id="dpidlist"  value="$!gift.dpidlist"/>
+		</div>
+		#end
+		
+		<div>
+			<label for="week">可用星期：</label>
+			<input name="week" id="week" value="$!gift.week" type="text"/>&nbsp;1234567
+		</div>
+		<div>
+			<label for="week">每天限量：</label>
+			<input name="everydayLimit" id="everydayLimit" value="$!gift.everydayLimit" type="text"/>&nbsp;每天无限制不填写或是填写为0
+		</div>
+		<div>
+			<label for="week">下单时段：</label>
+			<input name="startTime" onclick="WdatePicker({dateFmt:'HHmm'})" value="$!gift.startTime" readonly="readonly" id="startTime" type="text"/>~
+			<input name="endTime" readonly="readonly" id="endTime" onclick="WdatePicker({dateFmt:'HHmm'})" value="$!gift.endTime" type="text"/>
+		</div>
+		<div>
+			<label for="rateinfo">比率：</label>
+			1:<input type="text" name="rate1" id="rate1" value="$!gift.getRatenum(1)" maxlength="1" style="width: 20px"/>&nbsp;&nbsp;
+			2:<input type="text" name="rate2" id="rate2" value="$!gift.getRatenum(2)" maxlength="1" style="width: 20px"/>&nbsp;&nbsp;
+			3:<input type="text" name="rate3" id="rate3" value="$!gift.getRatenum(3)" maxlength="1" style="width: 20px"/>&nbsp;&nbsp;
+			4:<input type="text" name="rate4" id="rate4" value="$!gift.getRatenum(4)" maxlength="1" style="width: 20px"/>&nbsp;&nbsp;
+			5:<input type="text" name="rate5" id="rate5" value="$!gift.getRatenum(5)" maxlength="1" style="width: 20px"/>
+		</div>
+		&nbsp;&nbsp;比率目前最大支持数字为5，如出现超出的情况请清楚具体需求。
+		#if($gift)
+		#set($gg=$gift)
+		#else
+		#set($gg=$goods)
+		#end
+		<div>
+			<label for="fromtime">开始时间：</label>
+			<input name="fromtime" class="Wdate input_time" type="text" id="fromtime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!gg.fromtime"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="totime">结束时间：</label>
+			<input name="totime" class="Wdate input_time" type="text" id="totime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!gg.totime"/>
+			<span class="req">*</span>
+		</div>
+		
+		<div>
+			<label>&nbsp;</label>
+			<input type="submit" class="button" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	function save(){
+		if($('cinemaid').value=="") {
+			alert('该物品没有关联影院');
+			return;
+		}
+		if($('rate1').value=="" || $('rate2').value=="" || $('rate3').value=="" || $('rate4').value=="" || $('rate5').value=="") {
+			alert('兑换比率必须填写！');return;
+		}
+		if($('fromtime').value=='' || $('totime').value=='') {alert('请输入开始时间和结束时间');return;}
+		GewaraUtil.mask();
+		var url = '${basePath}admin/goods/ajax/saveGoodsGift.xhtml';
+		var values = GewaraUtil.getValues($("goodsForm"));
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert("保存成功！");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function savesport(){
+		if($('sportid').value=="") {
+			alert('该物品没有关联场馆');
+			return;
+		}
+		if($('rate1').value=="" || $('rate2').value=="" || $('rate3').value=="" || $('rate4').value=="" || $('rate5').value=="") {
+			alert('兑换比率必须填写！');return;
+		}
+		if($('fromtime').value=='' || $('totime').value=='') {alert('请输入开始时间和结束时间');return;}
+		var times = $$('.middleAlign');
+		if(times.length==0){
+		}else{
+			var hours=new Array();
+			times.each(function(item){
+				if(item.checked) hours.push(item.value+"");
+			});
+			$('hours').value=hours.toString();
+		}
+		GewaraUtil.mask();
+		var url = '${basePath}admin/goods/ajax/saveGoodsSportGift.xhtml';
+		var values = GewaraUtil.getValues($("goodsForm"));
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert("保存成功！");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function savetheatre(){
+		if($('theatreid').value=="") {
+			alert('该物品没有关联影院');
+			return;
+		}
+		if($('rate1').value=="" || $('rate2').value=="" || $('rate3').value=="" || $('rate4').value=="" || $('rate5').value=="") {
+			alert('兑换比率必须填写！');return;
+		}
+		if($('fromtime').value=='' || $('totime').value=='') {alert('请输入开始时间和结束时间');return;}
+		GewaraUtil.mask();
+		var url = '${basePath}admin/goods/ajax/saveGoodsTheatreGift.xhtml';
+		var values = GewaraUtil.getValues($("goodsForm"));
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert("保存成功！");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

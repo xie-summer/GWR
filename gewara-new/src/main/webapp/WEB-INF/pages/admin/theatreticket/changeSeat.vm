@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>更换座位</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.none{display:none;}
+	</style>
+</head>
+<body>
+	<div style="margin-top: 20px;margin-left: 50px;">
+	<form action="${basePath}admin/dramaTicket/toChangeSeat.xhtml">
+		订&nbsp;单&nbsp;号：<input type="text" name="tradeNo" value="$!{params.tradeNo}" />&nbsp;&nbsp;<input type="submit" value="提交查询"/>
+	</form>
+	
+	#if($order)
+	<form id="changeForm" name="changeForm">
+		<input type="hidden" name="orderid" value="$!{order.id}" />
+		<table class="roomManageTable" cellpadding="0">
+			<tr>
+				<td>订单状态</td><td>${order.statusText}</td>
+			</tr>
+			<tr>
+				<td>手机号</td><td>$order.mobile</td>
+			</tr>
+			<tr>
+				<td>下单时间</td><td>$DateUtil.formatTimestamp($order.addtime)</td>
+			</tr>
+			<tr>
+				<td>付款时间</td><td>$!DateUtil.formatTimestamp($order.paidtime)</td>
+			</tr>
+			<tr>
+				<td>用户ID</td><td>$order.memberid</td>
+			</tr>
+			<tr>
+				<td>用户昵称</td><td>$order.membername</td>
+			</tr>
+			<tr>
+				<td>订单总额</td><td>$order.totalAmount</td>
+			</tr>
+			<tr>
+				<td>折扣总额</td><td>$order.discount</td>
+			</tr>
+			<tr>
+				<td>应付款</td><td>$order.due</td>
+			</tr>
+			<tr>
+				<td>支付方式</td><td>$!order.paymethodText</td>
+			</tr>
+			#set($descMap=$VmUtils.readJsonToMap($order.description2))
+			#foreach($m in $descMap.keySet())
+			<tr>
+				<td>$m</td><td>$!descMap.get($m)</td>
+			</tr>
+			#end
+		</table>
+		新座位号：<input type="text" name="newseat" id="newseat" value="$!{params.newseat}" style="width: 250px;"/><br />
+		<input type="button" onclick="submitForm()" value="提交换座"/>
+	</form>
+	#end
+	</div>
+	<script type="text/javascript">
+		function submitForm(){
+			if(confirm("确认换座？")){
+				var sv = $('newseat').value;
+				if(sv=='') {
+					alert('请输入座位');
+					return;
+				}
+				var valus = {"orderid":"$order.id", "newseat":sv}
+				GewaraUtil.sendRequest("${basePath}admin/dramaTicket/changeSeat.xhtml",GewaraUtil.getValues("changeForm"), function(result){
+					if(result.success) alert("成功处理！");
+					else alert("处理失败：" + result.msg);
+				});
+			}
+		}
+	</script>
+</body>
+</html>

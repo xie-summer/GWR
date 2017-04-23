@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>开放场次列表管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/admin.css?v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body>
+#set($$isCard=true)
+#parse('admin/sport/open/new_menu.vm')
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div><a href="javascript:synchMemberCard()">同步会员卡</a></div>
+	<div class="contentInfoList">
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>类型</th>
+					<th>面值</th>
+					<th>使用项目</th>
+					<th>网站已售</th>
+					<th>存量</th>
+					<th>支付选项</th>
+					<th>
+						<input type="text" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" value="" style="width: 140px;" id="alltime" />
+						<br/><input type="button" value="统一时间" onclick="openAll()"/>
+					</th>
+					<th>优惠券
+						<input type="text" value="" id="allElecard" style="width: 40px;"/>
+						<br/><input type="button" value="统一优惠券" onclick="setAllElecard()"/>
+					</th>
+					<th>状态</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+				#foreach($mct in $mctList)
+				#set($fitItem=$fitItemMap.get($mct.id))
+				<tr class="grayBg">
+					<td>$!mct.cardtypeText</td>
+					<td>$!mct.money</td>
+					<td>$!fitItem</td>
+					<td>$!mct.sales<br/><a href="${basePath}admin/sport/open/memberCard/orderList.xhtml?mctid=$mct.id">查看订单</a></td>
+					<td>$!mct.overNum/$!mct.reserve</td>
+					<td><a href="${basePath}admin/sport/open/memberCard/getMct.xhtml?id=$mct.id" target="_blank">修改</a></td>
+					<td>
+						<label>开放：<input type="text" style="width:140px;" class="optime" id="$mct.id" onchange="setOpentime($mct.id,this)" value="$!DateUtil.format($mct.opentime,'yyyy-MM-dd HH:mm:ss')" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" /></label>
+						<label>关闭：<input type="text" style="width:140px;" onchange="setClosetime($mct.id,this)" value="$!DateUtil.format($mct.closetime,'yyyy-MM-dd HH:mm:ss')" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" /></label>
+					</td>
+					<td><input type="text" value="$!mct.elecard" style="width: 40px;" onchange="setElecard($mct.id, this)"/></td>
+					<td>#if($mct.hasBooking())Y#{else}N#end</td>
+					<td>
+						<select id="book$mct.id" onchange="setStatus($mct.id,this)">
+							<option value="Y" #if($VmUtils.eq($mct.status,'Y'))selected#end>接受预定</option>
+							<option value="N" #if($VmUtils.eq($mct.status,'N'))selected#end>不接受预定</option>
+						</select>
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+	<script type="text/javascript">
+	function setStatus(id, el){
+		el.style.backgroundColor = 'red';
+		var values = {"id":id,"status":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/memberCard/setMctStatus.xhtml', values, function(result){
+			if(result.success){
+				if(el.value=='R'){
+					refreshPage();
+				}else {
+					el.style.backgroundColor = '#fff';
+				}
+			}else alert(result.msg);
+		});
+	}
+	function setOpentime(id, el){
+		el.setStyle("background","red");
+		var values = {"id":id,"opentime":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/memberCard/setMctOpentime.xhtml', values, function(result){
+			if(result.success) el.setStyle("background","");
+			else alert(result.msg);
+		});
+	}
+	function setClosetime(id, el){
+		el.setStyle("background","red");
+		var values = {"id":id,"closetime":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/memberCard/setMctCloseime.xhtml', values, function(result){
+			if(result.success) el.setStyle("background","");
+			else alert(result.msg);
+		});
+	}
+	function setElecard(id, el){
+		el.setStyle("background","red");
+		var values = {"id":id,"elecard":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/memberCard/setMctElecard.xhtml', values, function(result){
+			if(result.success) el.setStyle("background","");
+			else alert(result.msg);
+		});
+	}
+	function openAll(){
+		var time = $("alltime").value;
+		if(time=='') {
+			alert("先设置时间！");
+			return;
+		}
+		$$(".grayBg .optime").each(function(item){
+			if(item.value!=time){
+				item.value=time;
+				setOpentime(item.id, item);
+			}
+		});
+		
+	}
+	function setAllElecard(){
+		var ids = "";
+		$$(".grayBg .optime").each(function(item){
+			ids = ids + item.id+",";
+		});
+		var values = {"ids":ids,"elecard":$('allElecard').value}
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/memberCard/setAllMctElecard.xhtml', values, function(result){
+			if(result.success){
+				alert("设置成功！");
+				refreshPage();
+			}else alert(result.msg);
+		});
+	}
+	function synchMemberCard(){
+		var values = {"sportid":$!params.sportid}
+		GewaraUtil.sendRequest('${basePath}admin/sport/open/memberCard/synchMemberCardTypeList.xhtml', values, function(result){
+			if(result.success){
+				alert("设置成功:" + result.retval);
+				refreshPage();
+			}else alert(result.msg);
+		});
+	}
+</script>
+</body>
+</html>

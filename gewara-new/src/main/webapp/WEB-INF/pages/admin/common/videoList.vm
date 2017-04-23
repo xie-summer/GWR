@@ -1,0 +1,325 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>视频列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline}
+	</style>
+</head>
+<body style="width:90%;margin:auto" class="yui-skin-sam">
+<div>
+	#if($relate)
+	<span>${relate.name}的视频</span>
+	<input type="button" class="button" style="width:50px; margin-left:20px;" value="增加" onclick="addVideo($params.relatedid, '$relate.name');"/>
+	#else
+	<a href="${basePath}admin/common/videoListByHotvalue.xhtml?tag=movie&hotvalue=1000">已推荐</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="${basePath}admin/common/videoListByHotvalue.xhtml?tag=movie&hotvalue=0">未推荐</a>
+	#end
+	
+	#if($params.tag eq 'movie' || $params.tag eq 'gymcoach')
+	<a href="${basePath}admin/movie/searchKu6AV.xhtml?tag=$!params.tag&relatedid=$!params.relatedid" target="_blank" style="margin-left: 45px;">查看酷6视频</a>
+	#end
+	#if($params.tag eq 'movie')
+	<a href="${basePath}admin/movie/searchAQIYIAV.xhtml?tag=$!params.tag&relatedid=$!params.relatedid&categoryIds=10" target="_blank" style="margin-left: 45px;">查看爱奇艺视频</a>
+	#end
+</div>	
+<table width="100%" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th>ID</th>
+		#if($VmUtils.eq($params.tag, 'movie') || $VmUtils.eq($params.tag, 'gymcoach') || $VmUtils.eq($params.tag, 'gym'))
+		<th>场所</th>
+		#end
+		<th>视频网址</th>
+		<th>标题</th>
+		<th>增加时间</th>
+		<th>排序</th>
+		<th>推荐</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="videoTable">
+	#foreach($video in $videoList)
+		<tr id="video_${video.id}">
+			<td>${video.id}</td>
+			#if($VmUtils.eq($params.tag, 'movie') || $VmUtils.eq($params.tag, 'gymcoach') || $VmUtils.eq($params.tag, 'gym'))
+			<td id="cs_$video.id" width="15%">#if($VmUtils.eq($params.tag, 'gym')) $!gym.name #else $!{videoMap.get($video).moviename} #end</td>
+			#end
+			<td id="url_${video.id}" width="35%">${video.url}</td>
+			<td id="videotitle_${video.id}" width="15%">$!{video.videotitle}</td>
+			<td id="time_${video.id}" width="10%">$!{video.addtime}</td>
+			<td id="tj_$video.id" width="5%">
+				<select id="v$video.id" onchange="changeHotvalue($video.id)">
+					<option value="0" #if($video.hotvalue eq '0') selected="selected" #end>否</option>
+					<option value="1000" #if($video.hotvalue eq '1000') selected="selected" #end>是</option>
+				</select>
+			</td>
+			<td>
+				<input type="text" name="orderIndex" value="$!{video.orderNum}" style="width:30px" onblur="changeOrderIndex('$video.id',this)"/>
+			</td>
+			<td width="20%">
+				<input type="button" class="button" style="width:50px" value="修改" onclick="modifyVideo(${video.id});"/>
+				<input type="button" class="button" style="width:50px" value="删除" onclick="deleteVideo(${video.id});"/>
+				#if(!$relate)
+				#if($VmUtils.eq($params.tag, 'movie')|| $VmUtiils.eq($params.tag,'gymcoach') || $VmUtils.eq($params.tag, 'gym'))
+				<input type="button" class="button" style="width:50px" value="增加" onclick="addVideo($video.relatedid, '$videoMap.get($video).moviename');"/>
+				#else
+				<input type="button" class="button" style="width:50px" value="增加" onclick="addVideo($video.relatedid, '$videoMap.get($video).name');"/>
+				#end
+				#end
+			</td>
+		</tr>
+	#end
+	</tbody>
+</table>
+#parse('include/pageUtil.vm')
+<div id="videoDialog" class="yui-panel" style="width:550px; visibility:hidden;">
+	<div class="hd" id="title">编辑视频数据</div>
+	<div class="bd">
+	<form name="videoForm" id="videoForm">
+		<input type="hidden" name="id" id="id"/>
+		<input type='hidden' name='tag' id="tag" value="$!{params.tag}"/>
+		<input type='hidden' name='relatedid' id="relatedid" value="$!{params.relatedid}"/>
+		<div>
+			<label for="url">视频网址：</label>
+			<input name="url" type="text" id="url"/>
+			<span class="req">*</span>
+		</div>
+		<div>
+			<label for="videotitle">视频标题：</label>
+			<input name="videotitle" type="text" id="videotitle"/>
+		</div>
+		<div>
+			<label for="hotvalue">是否推荐：</label>
+			<select name="hotvalue" id="hotvalue">
+				<option value="0" selected>否</option>
+				<option value="1000">是</option>
+			</select>
+		</div>
+		<div>
+			<label for="content">视频说明：</label>
+			<textarea name="content" id="content" rows="5"></textarea>
+		</div><div id="uploadDiv">
+			<label>封面：</label>
+			<input type="text" name="logo" id="logo" />
+			<img style="height:60px;" id='logoimg' src="${staticPath}css/images/blank.gif"/>
+		</div><div>
+			<label>上传：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame" style="margin-left:75px"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/video&callback=updateLogo"></iframe>
+		</div><div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="save();" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+<div id="youkuVideoDialog" class="yui-panel" style="width:550px; height:550px; visibility:hidden;">
+	<div class="hd" id="title">编辑视频数据</div>
+	<div class="bd">
+	<form name="youkuVideoForm" id="youkuVideoForm">
+		<input type="hidden" name="id" id="id"/>
+		<input type='hidden' name='tag' id="tag" value="$!{params.tag}"/>
+		<input type='hidden' name='relatedid' id="relatedid" value="$!{params.relatedid}"/>
+		<input type='hidden' name='categoryIds' id="categoryIds" value="10"/>
+		<div>
+			<label for="keyword">查找视频：</label>
+			<input name="keyword" type="text" id="keyword" value="$!relate.name" style="width: 300px;"/>
+			<input type="button" onclick="youkuVideos()" style="width:70px" class="button" value="查找"/>
+			<input type="button" onclick="cancleYouku();" style="width:70px" class="button" value="取消"/>
+		</div>
+		<div id="youkuVideos"></div>
+	</form>
+	</div>
+</div>
+<div id="youkuAndKu6" class="yui-panel" style="width:550px; visibility:hidden;">
+	<div class="hd" id="title">编辑视频数据</div>
+	<div class="bd">
+	<form name="videoForm" id="videoForm">
+		<div>
+			<label style="float: none; width:100px">选择添加方式：</label><br/>
+			<input style="float: none; width: 0px;" id="radio1" type="radio" name="two" checked="checked"/><label for="radio1" style="float: none; width: 25px;">优酷</label><br/>
+			<input style="float: none; width: 0px;" id="radio2" type="radio" name="two"/><label for="radio2" style="float: none; width: 25px;">酷6</label><br/>
+			<input style="float: none; width: 0px;" id="radio3" type="radio" name="two"/><label for="radio3" style="float: none; width: 25px;">爱奇艺</label>
+		</div>
+		<div>
+			<input type="button" onclick="showVideoDialog();" style="width:100px" class="button" value="确定"/>
+			<input type="button" onclick="cancleTwo();" style="width:100px" class="button" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg').src='${basePath}' + picpath;
+	}
+	function save(){
+		var values = GewaraUtil.getValues($("videoForm"));
+		if (values.url == "") {
+			alert("请输入视频网址！");
+			return;
+		}
+		var url = "${basePath}admin/common/ajax/saveOrUpdateVideo.xhtml";
+		GewaraUtil.sendRequest(url, values, saveCallBack)
+	}
+	function cancle(){
+		GewaraUtil.hideDialog("videoDialog");
+	}
+	function cancleTwo(){
+		GewaraUtil.hideDialog("youkuAndKu6");
+	}
+	function cancleYouku(){
+		GewaraUtil.hideDialog("youkuVideoDialog");
+	}
+	function showVideoDialog(){
+		if($('radio1').checked==true ||　$('radio3').checked==true){
+			GewaraUtil.hideDialog("youkuAndKu6");
+			GewaraUtil.showDialog("youkuVideoDialog");
+		}else{
+			GewaraUtil.hideDialog("youkuAndKu6");
+			GewaraUtil.showDialog("videoDialog");
+		}
+	}
+	var isModify = false;
+	var curName = "";
+	function addVideo(relatedid, name){
+		$("id").value="";
+		isModify = false;
+		curName = name;
+		$("relatedid").value=relatedid;
+		GewaraUtil.showDialog("youkuAndKu6");
+	}
+	function youkuVideos(){
+		var url = "${basePath}admin/common/ajax/youkuVideoByKeyword.xhtml";
+		if($('radio3').checked==true){
+			url =  "${basePath}admin/common/ajax/iqiyiVideoByKeyword.xhtml";
+		}
+		var values = GewaraUtil.getValues($("youkuVideoForm"));
+		#*GewaraUtil.sendLoad('youkuVideos', url, values);*#
+		gewaUtil.loadData('youkuVideos', url, values, function(result){
+			if(result.success){
+				$('youkuVideos').set('html', result.html);
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+	function saveCallBack(result){
+		if(result.success){
+			cancle();
+			alert("保存成功");
+			var video = result; 
+			if(isModify){
+				$("url_" + video.id).innerHTML = video.url;
+				$("videotitle_" + video.id).innerHTML = video.videotitle;
+				$("time_" + video.id).innerHTML = video.addtime;
+				$("v" + video.id).value = video.hotvalue;
+			} else addRow(video);
+		}else{
+			alert(result.msg);	
+		}
+	}
+	function modifyVideo(videoId){
+		var url = "${basePath}admin/common/ajax/getVideoById.xhtml";
+		GewaraUtil.sendRequest(url, {'videoId':videoId},function(video){
+			GewaraUtil.setValues(video);
+			isModify = true;
+			$('logoimg').src='${basePath}' + video.logo;
+			$("videoDialog").setStyle("display","");
+			GewaraUtil.showDialog("videoDialog");
+		});
+	}
+	var options = new Object();
+	options.escapeHtml = false;
+	options.rowCreator = function(opt){
+		var rowData = opt.rowData;
+		var tmpRow = document.createElement("tr");
+		tmpRow.id="video_" + rowData.id;
+		return tmpRow;
+	}
+	
+	var cellFunc = [
+		function(video){
+			return curName;
+		},
+		function(video){
+			return video.url;
+		},
+		function(video){
+			return video.videotitle;
+		},
+		function(video){
+			return video.addtime;
+		},
+		function(video){
+			var tmp = '<select id="v' + video.id +'" onchange="changeHotvalue(' + video.id + ')">';
+			if(video.hotvalue=='0'){
+				tmp +='<option value="0" selected>否</option>';
+				tmp +='<option value="1000">是</option>';
+			}else if(video.hotvalue=='1000'){
+				tmp +='<option value="0" >否</option>';
+				tmp +='<option value="1000" selected>是</option>';
+			}
+			tmp +='</select>';
+			return tmp;
+		},
+		function(video){
+			return '<input type="text" name="orderIndex" value="" style="width:30px" onblur="changeOrderIndex(\'' + video.id + '\',this)"/>';
+		},
+		function(video){
+			var tmpLink = '<input type="button" class="button" style="width:70px" value="修改" onclick="modifyVideo(' + video.id+');"/>';
+			tmpLink +='<input type="button" class="button" style="width:70px" value="删除" onclick="deleteVideo(' + video.id + ');"/>';
+				tmpLink +='<input type="button" class="button" style="width:70px" value="增加" onclick="addVideo(' + video.id + "','" + curName + ');"/>';
+			return tmpLink;
+		}
+	]
+	function changeOrderIndex(vid,el){
+		var url = "${basePath}admin/common/ajax/updateVideoOrderIndex.xhtml";
+		GewaraUtil.sendRequest(url, {'id':vid, "value":el.value},function(result){
+			if(!result.success) {
+				alert('设置失败！');
+			}
+		});
+	}
+	function changeHotvalue(vid){
+		v=$('v'+vid).value;
+		var url = "${basePath}admin/common/ajax/updateVideoHotValue.xhtml";
+		GewaraUtil.sendRequest(url, {'id':vid, "value":v},function(result){
+			if(result.success) alert('成功设置！');
+			else alert('设置失败！');
+		});
+	}
+	function addRow(video){
+		var videoList=[video];
+		GewaraUtil.addRows("videoTable", videoList, cellFunc, options);
+		var cells = $("video_" + video.id).cells;
+		cells[0].id="url_"+video.id;
+		cells[1].id="videotitle_"+video.id;
+		cells[2].id="time_"+video.id;
+		cells[3].id="tj_"+video.id;
+	}
+	function deleteVideo(videoid){
+		var url = "${basePath}admin/common/ajax/removeVideoById.xhtml";
+		GewaraUtil.sendRequest(url, {'videoId':videoid},function(result){
+			if(result.success){
+				$("video_"+videoid).dispose();
+				alert("删除成功！");
+			}else alert("删除失败！");
+		});
+	}
+	function ajaxPage(pageNo, params, url){
+		gewaUtil.loadData('youkuVideos', url, {});
+	}
+</script>
+</body>
+</html>

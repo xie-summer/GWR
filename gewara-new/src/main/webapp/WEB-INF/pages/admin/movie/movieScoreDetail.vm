@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影评分明细</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width:750px; margin:auto" class="yui-skin-sam">
+<div style="width:740px;">
+<a href="${basePath}admin/movie/cinemaScoreDetail.xhtml?tag=$!tag&movieId=$!movieId&flag=Y" >购票用户</a>
+<a href="${basePath}admin/movie/cinemaScoreDetail.xhtml?tag=$!tag&movieId=$!movieId&flag=N" >非购票用户</a>
+<table class="table">
+	<thead>
+	<tr>
+		<th>购票用户ID</th>
+		<th>昵称</th>
+		<th>分值</th>
+		<th>日期</th>
+	</tr>
+	</thead>
+	<!-- object[0]:movie id,object[1]:moviename -->
+	<tbody id="movieTable">
+	#set($sumScore=0)
+	#foreach($memberMark in $list)
+	#set($sumScore = $sumScore + $!memberMark.markvalue)
+	<tr>
+		<td>$!memberMark.memberid</td>
+		<td>$!memberMark.nickname</td>
+		<td>$!memberMark.markvalue</td>
+		<td>$!memberMark.addtime</td>
+		</tr>
+	#end
+	#set($avgScore = $math.div($!sumScore,$!sumNum))
+	共 $!sumNum 位购票用户评分&nbsp;平均分为：$avgScore
+	</tbody>
+</table>
+</div>
+</body>
+</html>

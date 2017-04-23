@@ -1,0 +1,216 @@
+<div class="ntab clear mt5" style="width:100%">
+	<ul class="tab_title mt10" style="width:100%">
+		<li><a #if($VmUtils.eq($tmp,'Commu')) class="active"#end href="${basePath}admin/audit/nightCommuList.xhtml">夜间圈子</a></li>
+		<li><a #if($VmUtils.eq($tmp,'ADdiary')) class="active"#end href="${basePath}admin/audit/nightdiaryList.xhtml">夜间帖子</a></li>
+		<li><a #if($VmUtils.eq($tmp,'diary')) class="active"#end href="${basePath}admin/audit/diaryList.xhtml">帖子</a></li>
+		<li><a #if($VmUtils.eq($tmp,'diarycomment')) class="active"#end href="${basePath}admin/audit/diaryCommentList.xhtml">帖子回复</a></li>
+		<li><a #if($VmUtils.eq($tmp,'activity')) class="active"#end href="${basePath}admin/audit/activityList.xhtml">活动</a></li>
+		<li><a #if($VmUtils.eq($tmp,'activitycomment')) class="active"#end href="${basePath}admin/audit/activityCommentList.xhtml">活动回复</a></li>
+		<li><a #if($VmUtils.eq($tmp,'comment')) class="active"#end href="${basePath}admin/audit/commentList.xhtml">相关点评</a></li>
+		<li><a #if($VmUtils.eq($tmp,'microcomment')) class="active"#end href="${basePath}admin/audit/microcommentList.xhtml">哇啦</a></li>
+		<li><a #if($VmUtils.eq($tmp,'microrecomment')) class="active"#end href="${basePath}admin/audit/microrecommentList.xhtml">哇啦回复</a></li>
+		<li><a #if($VmUtils.eq($tmp,'nightquestion')) class="active"#end href="${basePath}admin/audit/nightqaList.xhtml">夜间知道</a></li>
+		<li><a #if($VmUtils.eq($tmp,'gewaquestion')) class="active"#end href="${basePath}admin/audit/qaList.xhtml">知道</a></li>
+		<li><a #if($VmUtils.eq($tmp,'gewaanswer')) class="active"#end href="${basePath}admin/audit/answerList.xhtml">知道回答</a></li>
+		<li><a #if($VmUtils.eq($tmp,'mobileMsg')) class="active"#end href="${basePath}admin/audit/mobileMsgList.xhtml">手机短信</a></li>
+		<li><a #if($VmUtils.eq($tmp,'addFilter')) class="active"#end href="${basePath}admin/audit/addFilter.xhtml?keytype=manualKeywords">关键字</a></li>
+		<li><a #if($VmUtils.eq($tmp,'accusation')) class="active"#end href="${basePath}admin/audit/accusationList.xhtml">举报数据</a></li>
+	</ul>
+</div>
+<div id="deleteReason" style="display: none;border:2px solid gray;widht:500px;height:30px;padding-top:10px;background:#ffffff;z-index: 10">
+	<input type="hidden"  id="editid"/><input type="hidden"  id="editstatus"/>
+	<input type="hidden"  id="isDelMulti" />
+	请选择删除原因：<select name="reason" id="reason">
+					<option value="1">广告信息</option>
+					<option value="2">政治敏感话题</option>
+					<option value="3">情、色、暴力等不健康信息</option>
+					<option value="4">非法买卖等违法信息</option>
+					<option value="5">手动输入原因</option>
+				</select> <input name="handReason" type="text" id="handReason" onclick="this.focus();"/>
+				<input type="button" id="reason_ok" value="确定" onclick="deleteInfo()"/>
+				<input type="button" id="reason_cancel" value="取消" onclick="hiddenDiv()"/>
+</div>
+<script type="text/javascript">
+function get$(id){
+	return document.getElementById(id);
+}
+</script>
+<script type="text/javascript">
+function audit(id,status){
+	if(status!='N_DELETE' && status!='D'){
+		isRunDeleteAndShow(id,status);
+	}else{
+		$('editid').value=id;
+		$('editstatus').value=status;
+		var widthvalue=document.body.clientWidth;
+		var heightvalue=document.body.clientHeight;
+		$('deleteReason').set('styles',{'display':'block',
+										'position':'absolute',
+										'left':(widthvalue-500)/2,
+										'top':(heightvalue-30)/2,
+										'opacity':1});
+		
+		var divbig=new Element('div',{"id":"divbig",
+								"styles":{
+									"position": "absolute",
+									"left": "0px",
+									"top": "0px",
+									"background-color":"#000"}});
+		divbig.setStyles({
+			"width": widthvalue+"px",
+			"height": heightvalue+"px",
+			"visibility":"visible",
+			"z-index": 8
+		});
+		divbig.setOpacity(0.5);
+		gewara.util.toCenter($('deleteReason'));
+		document.body.appendChild(divbig);
+		return;
+	}
+}	
+
+function hiddenDiv(){
+	$('handReason').value='';
+	$('deleteReason').set('styles',{'display':'none'});
+	$('divbig').dispose();
+}
+
+function deleteInfo(){
+	get$('reason_ok').disabled = true;
+	get$('reason_cancel').disabled = true;
+	
+	var isDelMulti = $('isDelMulti').value;
+	if(isDelMulti == 'true'){
+		delMulti_process();
+	}else{
+		deleteInfoSingle();
+	}
+}
+
+function deleteInfoSingle(){
+	var rea=$('reason').value;
+	var handReason=$('handReason').value;
+	if(rea==5&&handReason.length==0){
+		alert("请输入删除此贴的原因");
+		return false;
+	}
+	var id=$('editid').value;
+	var status=$('editstatus').value
+	isRunDeleteAndShow(id,status,rea,handReason);
+}
+
+function isRunDeleteAndShow(id,status,rea,handReason){
+	if(status=='N_DELETE' || status=='D'){
+		var url = "${basePath}admin/common/ajax/modBBSStatus.xhtml";
+		var values = {'tag':'$tmp', "id":id, "status":status, "reason":rea, "reasonDetail":handReason};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) {
+				hiddenDiv();
+				refreshPage();
+			}else{
+				alert('审核失败!');
+				hiddenDiv();
+			}
+		});
+	}else{
+		if(window.confirm("确定此操作？")){
+			var url = "${basePath}admin/common/ajax/modBBSStatus.xhtml";
+			var values = {'tag':'$tmp', "id":id, "status":status, "reason":"", "reasonDetail":""};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result) {
+					alert('审核成功');
+					refreshPage();
+				}else{
+					alert('审核失败!');
+				}
+			});
+		}
+	}
+}
+
+</script>
+	<script type="text/javascript">
+	function get$(id){
+		return document.getElementById(id);
+	}
+	// 全选
+	function selAll(obj){
+		var cbs = document.getElementsByName('cbox');
+		$each(cbs, function(i, n){
+			i.checked=obj.checked;
+		})
+	}
+	// 检查选中的
+	function checkedArrs(cbs){
+		var checkedArr = "";
+		var a = 0;
+		$each(cbs, function(i, n){
+			if(i.checked){
+				checkedArr = checkedArr + "," + i.value;
+				a++;
+			}
+		});
+		if(checkedArr=="") return "";
+		return checkedArr.substring(1);
+	}
+	function checkedLangArrs(cbs){
+		var checkedArr = "";
+		var a = 0;
+		$each(cbs, function(i, n){
+			if(i.checked){
+				checkedArr = checkedArr + "," + i.lang;
+				a++;
+			}
+		});
+		if(checkedArr=="") return "";
+		return checkedArr.substring(1);
+	}
+	// 批量删除
+	function delMulti(){
+		var cbs = document.getElementsByName('cbox');
+		var checkedArr = checkedArrs(cbs);
+		if(checkedArr.length == 0){
+			alert("请至少选择一个!");
+			return false;
+		}
+		$('isDelMulti').value = 'true';
+		audit(checkedArr, 'N_DELETE');
+	}
+	function delMulti_process(){
+		var cbs = document.getElementsByName('cbox');
+		var checkedArr = checkedArrs(cbs);
+
+		var rea=$('reason').value;
+		var handReason=$('handReason').value;
+		if(rea==5&&handReason.length==0){
+			alert("请输入删除此贴的原因");
+			return false;
+		}
+		var url = "${basePath}admin/common/ajax/batchModBBSStatus.xhtml";
+		var values = {"tag":"$!tmp", "ids":checkedArr, "status":"N_DELETE", "reason":rea, "reasonDetail":handReason};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				var memberids = checkedLangArrs(cbs);
+				addBlackList(memberids);
+			}else alert('删除失败！');
+			get$('reason_ok').disabled = false;
+			get$('reason_cancel').disabled = false;
+			hiddenDiv();
+		});
+	}
+	function addBlackList(memberids){
+		if($('addblack') && $('addblack').checked && memberids != ""){
+			var url="${basePath}admin/blog/addBlackMemberByIds.xhtml";
+			var values = {'memberIds':memberids};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					refreshPage();
+				}else{
+					alert(result.msg);
+				}
+			});
+		}else{
+			refreshPage();
+		}
+	}
+</script>

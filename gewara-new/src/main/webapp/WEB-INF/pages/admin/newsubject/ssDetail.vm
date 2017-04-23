@@ -1,0 +1,59 @@
+<style>
+	#gcForm ul li{padding: 3px;}
+	.disabled{background-color: #D4D0C8; color: #808080;}
+	.cke_skin_chris{width:700px !important;}
+</style>
+<div class="table" style="width:750px;height:auto;position:relative;top:30px;left:-10px; padding: 3px;">
+<div id="gcForm">
+	<ul>
+	<li>
+		<input type="hidden" name="type" id="type" value="$!type"/>
+		<input type="hidden" name="id" id="id" value="$!data.get('id')"/>
+	</li>
+	#if($!params.foreignid)<li>#if($VmUtils.eq($type,'cinema'))影院#elseif($VmUtils.eq($type,'pubsale'))竞拍#elseif($VmUtils.eq($type,'doubleFestival'))套餐#else奖品#{end}ID：&nbsp;<input type="text" name="foreignid" id="foreignid" value="$!data.singles_foreignid" style="width: 300px;"/></li>#end
+	#if($!params.cinemaurl)<li>链接：&nbsp;<input type="text" name="cinemaurl" id="cinemaurl" value="$!data.singles_cinemaurl" style="width: 300px;"/></li>#end
+	#if($!params.tag)<li>标签：&nbsp;<input type="text" name="tag" id="tag" value="$!data.tag" style="width: 300px;"/></li>#end
+	#if($VmUtils.eq($type,'doubleFestival'))
+		<li>套餐名称：<input type="text" name="goodsname" id="goodsname" value="$!data.goodsname" style="width:300px;"/></li>
+		<li>套餐内容：<textarea name="goodscontent" id="goodscontent" cols="30" rows="6">$!data.goodscontent</textarea></li>
+		<li>原价：<input type="text" name="oldprice" id="oldprice" value="$!data.oldprice" style="width:300px;"/></li>
+		<li>格瓦拉价格：<input type="text" name="gewaprice" id="gewaprice" value="$!data.gewaprice" style="width:300px;"/></li>
+	#end
+	#if($VmUtils.eq($type,'session_cinema'))
+		<li>
+			<input type="hidden" name="foreignid" id="foreignid" value="$!parentid"/>
+			图片链接：<input type="text" name="newslogo" id="newslogo" value="$!data.newslogo" style="width: 350px;"/>
+			<iframe class="center" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame" 
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updateSmallLogo"></iframe>
+			<img style="height:100px; margin-left:80px;" id='logoimg2' src='${picPath}$data.newssmalllogo' onerror="this.src='${basePath}img/default_head.png'"/>
+		</li>
+		<li>链接：<input type="text" name="cinemaurl" id="cinemaurl" value="$!data.singles_cinemaurl" style="width: 300px;"/></li>
+		<li>套餐内容：<textarea name="goodscontent" id="goodscontent" cols="30" rows="6">$!data.goodscontent</textarea></li>
+		<li>格瓦拉价格：<input type="text" name="gewaprice" id="gewaprice" value="$!data.gewaprice" style="width:300px;"/></li>
+		<li>购买人数：<input type="text" name="count" id="count" value="$!data.count" style="width:300px;"/></li>
+	#end
+	<li>&nbsp;&nbsp;<input type="button" onclick="save()" value="保存" style="width: 50px;"/>
+	<input type="button" onclick="javascript:GewaraUtil.hideDialog('pointText');" value="取消" style="width: 50px;"/></li>
+	</ul>
+</div>
+
+</div>
+<script>
+save  = function(){
+	var url = "${basePath}admin/newsubject/add_singles.xhtml";
+	var values = GewaraUtil.getValues("gcForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("信息添加成功！");
+			refreshPage();
+		}else {
+			alert(result.msg);
+		}
+	});
+}
+updateSmallLogo = function(params){
+	var picpath2 = params['picpath'];
+	$('newslogo').value = picpath2;
+	$('logoimg2').src='${picPath}' + picpath2;
+}
+</script>

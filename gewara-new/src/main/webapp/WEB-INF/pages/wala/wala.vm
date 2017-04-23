@@ -1,0 +1,163 @@
+<div class="ui_wala #if($VmUtils.eq($command.isRight,'true')) ui_wala_isRightWala #end">
+	#if($VmUtils.eq($command.pageNumber,0) && $VmUtils.eq($command.issue,'true'))
+	<dl class="ui_wala_listing clear">
+		#if(!$VmUtils.eq($command.isRight,'true'))
+		<dt class="ui_wala_aside" #if($VmUtils.eq($command.hasMarks,'true'))style="top:35px;"#end>
+			<a #if($logonMember)href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$logonMember.id" #else href="javascript:void(0);" #end class="pubpic" id="logonMember"><img src="$VmUtils.randomPic('cw50h50',$!cacheMemberMap.get($logonMember.id).headpicUrl)" id="logonMemberPic" width="50" height="50"/></a>
+		</dt>
+		#end
+		<dd class="ui_wala_wrap">
+			<form id="bodyForm">
+			<div class="page_wala" id="isModify">
+				<i class="l" #if($VmUtils.eq($command.hasMarks,'true'))style="top:45px;"#end>◆<i>◆</i></i>
+				#if($VmUtils.eq($command.hasMarks,'true'))
+				<div class="modify_alt">
+					<b class="left mt5">我要评分：</b>
+					<ul id="walageneralmark" class="ui_big_ratings">
+						#foreach($x in [1..10])
+						<li id="$x" lang="$markHelper.markByIndex('$!tag',$x)" #if($foreach.index %2 ne 0)class="no"#end></li>
+						#end
+					</ul>
+					<sub id="walageneralmarkPoint" class="ml10 mr10 left"></sub>
+					<span class="brown left" id="walageneralmarkDesc"></span>
+				</div>
+				#end
+				<div class="ui_wala_textArea">
+					<textarea name="replycontent" id="replycontent" lang="default"></textarea>
+				</div>
+				
+				<div class="page_modify_dialog #if(!$ui_wala_mini) page_modify_dialog_mini #end">
+					#if($VmUtils.eq($command.isRight,'true'))
+						<span class="iserm" id="faceTags" title="表情" lang="default"></span>
+						#if($VmUtils.eq($command.isPic,'true'))<span class="ispic" lang="default" title="图片" onclick="gewa.util.dialogSingleUpdate(this,'','replycontent')"></span>#end
+						#if($VmUtils.eq($command.isVideo,'true'))<span class="isvideo" lang="default" title="视频" onclick="gewa.util.getVideo(this);"></span>#end
+						<label class="wb" lang="default" for="Wb">
+						<em><input id="Wb" type="checkbox" title="新浪微博" lang="${basePath}home/bind/sina/userApp.xhtml?source=close"/></em>
+						<span title="同步到新浪微博"></span>
+					</label>
+					#else
+					<span class="iserm" id="faceTags" lang="default">表情<em class="dmore"></em></span>
+					#if($VmUtils.eq($command.isPic,'true'))<span class="ispic" lang="default" onclick="gewa.util.dialogSingleUpdate(this,'','replycontent')">图片</span>#end
+					#if($VmUtils.eq($command.isVideo,'true'))<span class="isvideo" lang="default" onclick="gewa.util.getVideo(this);">视频</span>#end
+					<label class="wb" lang="default" for="Wb">
+						<em>同步到：<input id="Wb" type="checkbox" title="新浪微博" lang="${basePath}home/bind/sina/userApp.xhtml?source=close"/></em>
+						<span>新浪微博</span>
+					</label>
+					#end
+					<em class="right">
+						<a href="javascript:gewaUtil.submitMicro();" class="ibutton w90_button right">发&nbsp;&nbsp;布</a>
+						#if(!$VmUtils.eq($command.isLongWala,'true'))
+						<b class="isfont" id="isFont">140</b>
+						#end
+					</em>
+				</div>
+			</div>
+			</form>
+		</dd>
+	</dl>
+	#end
+<div class="ui_wala_comment">
+#foreach($comment in $commentList)
+#if($VmUtils.eq($command.isFloor,'true'))
+	#set($floornum=$commentCount+((($command.pageNumber*$command.maxCount)+$foreach.index)*(-1)))
+#end
+<dl class="ui_wala_original comment$comment.id">
+	<dt class="uipic">
+		#if($VmUtils.eq($command.isRight,'true'))
+			<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank" title="$!comment.nickname" class="picmin"><img src="$VmUtils.randomPic('cw30h30', $!cacheMemberMap.get($comment.memberid).headpicUrl)" width="30" height="30"/></a>
+		#else
+			<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank" title="$!comment.nickname" class="pubpic"><img src="$VmUtils.randomPic('cw50h50', $!cacheMemberMap.get($comment.memberid).headpicUrl)" width="50" height="50"/></a>
+		#end
+		#if($VmUtils.contains($comment.flag,'ticket'))<span class="ico_g ico_buyTicket" title="购票用户"></span>#end
+	</dt>
+	<dd class="ui_view_solide">
+		<div class="page_wala">
+			<i class="l">◆<i>◆</i></i>
+			<div class="page_wala_talk clear">
+				<p #if($VmUtils.eq($command.isFloor,'true')) style="position:relative; padding-right:50px;" #end>
+					<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$comment.memberid" target="_blank">$!comment.nickname</a>：
+					#if($comment.generalmark)(<span title="$!comment.generalmark.0分" class="ui_grades ui_grade$!comment.generalmark">$!comment.generalmark.0</span>)#end 
+					#if(!$VmUtils.isNull($command.title)) $!VmUtils.perlString($!comment.body, $basePath, $picPath) #else $!VmUtils.perlString($!VmUtils.subLastText("#",$!comment.body),$basePath, $picPath) #end
+					#if($VmUtils.eq($command.isFloor,'true'))<span class="walaFloor">$!floornum楼</span>#end
+				</p>		
+				#if($VmUtils.eq($command.isPic,'true') && !$VmUtils.isNull($comment.picturename))
+				<p class="mt5 ui_wala_Photos"><img src="$VmUtils.randomPic('cw96h128',$comment.picturename)"/></p>
+				#end
+				#if(!$VmUtils.isNull($comment.transferid))
+					#if($tranferCommentMap.get($comment.transferid))
+					#set($tranfer = $tranferCommentMap.get($comment.transferid))
+					#if(!$VmUtils.eq($tranfer.status,'N_DELETE'))
+					<div class="page_wala_talkreplay">	
+						<i class="t">◆<i>◆</i></i>
+						<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$tranfer.memberid" target="_blank">$!tranfer.nickname</a>：
+						#if(!$VmUtils.isNull($command.title)) $!VmUtils.perlString($!tranfer.body, $basePath, $picPath) #else $!VmUtils.perlString($!VmUtils.subLastText("#",$!tranfer.body), $basePath, $picPath) #end </p>
+						#if($VmUtils.eq($command.isPic,'true') && !$VmUtils.isNull($tranfer.picturename))
+							<p class="mt5 ui_wala_Photos"><img src="$VmUtils.randomPic('cw96h128',$tranfer.picturename)"/></p>
+						#end
+						<div class="page_replay clear">
+							<span class="left">$DateUtil.getTimeDesc($tranfer.addtime) 来自$!tranfer.fromFlag</span>
+							<div class="page_replay_opt clear">
+								<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$tranfer.memberid" target="_blank" class="ml10" title="转发">转发 #if($tranfer.transfercount gt 0) $tranfer.transfercount #else 0 #end</a>
+								<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$tranfer.memberid" target="_blank" class="ml10" title="搭话">搭话 #if($tranfer.replycount gt 0)$tranfer.replycount #else 0 #end</a>
+							</div>
+						</div>
+					</div>
+					#else
+					<div class="page_wala_talkreplay">	
+						<i class="t">◆<i>◆</i></i>
+						<p>该哇啦已删除</p>
+					</div>
+					#end
+					#else
+					<div class="page_wala_talkreplay">	
+						<i class="t">◆<i>◆</i></i>
+						<p>该哇啦已删除</p>
+					</div>
+					#end
+				#end
+			</div>
+			<div class="page_replay page_replay_my clear">
+				<span class="left">$DateUtil.getTimeDesc($!comment.addtime) 来自$!comment.fromFlag</span>
+				<div class="page_replay_opt clear" #if($VmUtils.eq($comment.memberid,$logonMember.id)) style="width:140px;" #end>
+					#*<a href="javascript:void(0)" class="page_ico editor" title="编辑">编辑</a>*#
+					#if($VmUtils.eq($comment.memberid,$logonMember.id))<a href="javascript:void(0)" onclick="gewaUtil.deleteComment($comment.id);" class="page_ico delete" title="删除">删除</a>#end
+					<a id="$comment.id" href="javascript:void(0)" class="page_ico forwards" title="转发" lang="f">$!comment.transfercount</a>
+					<a id="$comment.id" href="javascript:void(0)" class="page_ico comment" title="搭话" lang="r">$!comment.replycount</a>
+				</div>
+				</div>
+			<div class="replayNode clear none" root="replay"></div>
+		</div>
+	</dd>
+</dl>
+#end
+#if($pageUtil && $pageUtil.pageCount gt 1)
+<div class="ui_wala_page" id="page">
+	#if($pageUtil.isPrePage())
+	<a href="javascript:void(0);" lang="$math.sub($!pageUtil.currentPage,1)"><span>上一页</span></a>
+	#end
+	#if($pageUtil.isFirstPage())
+	<a href="javascript:void(0);" lang="0"><span>1</span></a>
+	<strong>...</strong>
+	#end
+	#foreach($pageInfo in $pageUtil.pageInfoList)
+	<a href="javascript:void(0);" lang="$pageInfo.realPageNo" #if($pageInfo.currentPage)class='match on'#end ><span>${pageInfo.pageNo}</span></a>
+	#end
+	#if($pageUtil.isLastPage())
+	<strong>...</strong>
+	<a href="javascript:void(0);" lang="$math.sub(${pageUtil.pageCount},1)"><span>${pageUtil.pageCount}</span></a>
+	#end
+	#if($pageUtil.isNextPage())
+	<a href="javascript:void(0);" lang="$math.add($!pageUtil.currentPage,1)"><span>下一页</span></a>
+	#end
+</div>
+#end
+</div>
+</div>
+<script type="text/javascript">
+#if($command.hasCount() && $commentCount)
+	gewa.util.walaCount = $!{commentCount};
+#end
+moderatorTitle = function(title){
+	GewaraUtil.openwin(GewaraUtil.basePath+"home/sns/moderatorDetail.xhtml?title="+encodeURIComponent(title), "_blank");
+}
+</script>

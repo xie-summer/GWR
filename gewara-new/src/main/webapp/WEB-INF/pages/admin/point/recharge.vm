@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		.dTab {overflow:hidden; height:30px; line-height:28px;width:100%;background-color:#ffc}
+		.dTab a {float:left; padding:0 10px;padding-bottom:2px;display:block;}
+		.dTab a.select{border-bottom:2px solid red;padding-bottom:0}
+		.datePick {overflow:hidden;background-color:#bcee55;padding:10px;}
+		.datePick p.s1 {overflow:hidden;margin-top:10px;}
+		.datePick p.s1 em {width:80px;text-align:right;display:inline-block;font-style: normal;}
+	</style>
+</head>
+<body style="width: 80%; margin:auto;">
+<div style=" width:450px; margin:0 auto; margin-top: 8px;">
+	<div style="padding:10px 0;text-align:center;">
+		<h2>瓦币充值送积分设置</h2>
+	</div>
+	<div class="datePick">
+		<form id="rechargeForm">
+			<p><input type="checkbox" name="isSend" id="isSend" #if($!map.get('isSend') eq 'Y')checked="checked" #end/> 是否送积分</p>
+			<p class="s1"><em>开始时间：</em><input type="text" value="$!map.get('starttime')" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" style="width: 150px;"  name="starttime" id="startDate"/></p>
+			<p class="s1"><em>结束时间：</em><input type="text" value="$!map.get('endtime')" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" style="width: 150px;"  name="endtime" id="endDate"/></p>
+			<p class="s1"><em>倍数：</em><input type="text" value="$!map.get('multiple')" onchange="validateMulti(this)" name="multiple" id="multiple"/></p>
+			<p class="s1"><em>支付方式：</em><input type="text" value="$!map.get('rechargeType')" name="rechargeType" id="rechargeType"/></p>
+			<p class="s1"><em>说明：</em><input type="text" value="$!map.get('content')" style="width: 300px;" name="content" id="content"/></p>
+			<p class="s1" style="text-align:center;"><input type="button" onclick="saveRecharge()" value="保存"/></p>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+	function saveRecharge(){
+		if($('isSend').checked){
+			$('isSend').value='Y';
+		}else{
+			$('isSend').value='N';
+		}
+		if($('startDate').value ==''){
+			alert('开始时间不能为空');
+			return;
+		}
+		if($('endDate').value == ''){
+			alert('结束时间不能为空');
+			return;
+		}
+		var multiple=$('multiple').value.replace(/[ ]/g,"");
+		if(multiple == ''){
+			alert('倍数不能为空');
+			return;
+		}
+		if($('multiple').value > 12){
+			alert('倍数不能大于12');
+			return;
+		}
+		if(!(/^\d+(\.\d{1})?$/.test($('multiple').value))){
+			alert('倍数格式错误！');
+			return;
+		}
+		var values = GewaraUtil.getValues('rechargeForm');
+		values.isSend = $('isSend').value;
+		GewaraUtil.sendRequest('${basePath}admin/point/saveRecharge.xhtml', values, function(result){
+			if(result.success){
+				alert('保存成功');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function validateMulti(el){
+		var reg = /^\d+(\.\d{1})?$/;
+		if(!(reg.test(el.value))){
+			alert('倍数格式错误！');
+		}
+	}
+</script>
+</body>
+</html>

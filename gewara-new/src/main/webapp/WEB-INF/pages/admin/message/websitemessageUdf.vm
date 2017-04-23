@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>站内信-自定义发送</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		.inputradio{vertical-align: middle;}
+		.OkMsg {
+			background: url(${staticPath}styles/images/standard_msg_ok.gif) #e6ffe6 no-repeat 5px 0px; color: #000;
+			border: #00be00 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.WarningMsg {
+			background: url(${staticPath}styles/images/standard_msg_warning.gif) #e2f5ff no-repeat 5px 0px; color: #000;
+			border: #00a8ff 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.ErrorMsg {
+			background: url(${staticPath}styles/images/standard_msg_error.gif) #fff2e9 no-repeat 5px 0px; color: #000;
+				border: #f60 1px solid; padding: 1px 25px;line-height: 20px;
+		}
+		.modifyModel{width:800px;margin:20px auto;}
+		.modifyModel dl{margin-top:20px;}
+		.modifyModel dt{width:80px;float:left;}
+		.modifyModel dd{float:left;width:720px;}
+	</style>
+</head>
+<body>
+#set($cururl='udf')
+<div class="logoPanel"></div>
+<div class="menu">
+	<div class="menuInner">
+		#parse("admin/message/websitemessageMenu.vm")
+	</div>
+</div>
+<form method="post" id="wsForm" name="wsForm">
+<div class="modifyModel">
+	<dl>
+		<dt>短信模板：</dt>
+		<dd><textarea style="width:720px;height:120px;" name="basecontent" id="basecontent" mustTxt="短信模板不能为空!"></textarea>
+		<p><span style="color: red;">模板格式: 例: 格瓦拉通知您密码<b>@v1@</b>, 格瓦拉系统通知您中奖了。。)<br/></span></p>
+		</dd>
+	</dl>
+	<div class="height0"></div>
+	<dl>
+		<dt>发送到：</dt>
+		<dd>
+			<textarea name="content" style="width:720px;height:520px;" id="content" mustTxt="内容不能为空!"></textarea>
+			<p><span style="color: red;">内容格式: 用户ID @v1@。(例: 13578371 123456789)最多可添加1000条<br/></span></p>
+		</dd>
+	</dl>
+	<div class="height0"></div>
+	<dl>
+		<dt>&nbsp;</dt>
+		<dd><input type="button" id="btnSendMsg" value="提&nbsp;&nbsp;交" onclick="saveMsg(this)"/></dd>
+	</dl>
+	<div class="height0"></div>
+</div>
+</form>
+<script type="text/javascript">
+	var ckeditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("basecontent");
+	});
+	
+	function saveMsg(obj){
+		$('basecontent').value = ckeditor.getData();
+		if(!GewaraUtil.baseValidForm('wsForm')) return false;
+		var url = '${basePath}admin/message/savewebsiteMessageUDF.xhtml';
+		var values = GewaraUtil.getValues('wsForm');
+		GewaraUtil.mask();
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert("发送成功! 【成功数量: " + result.retval + " 】");
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+</script>
+</body>
+</html>

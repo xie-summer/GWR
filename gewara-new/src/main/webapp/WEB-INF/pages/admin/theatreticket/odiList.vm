@@ -1,0 +1,678 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次排片管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.none{display:none;}
+		.clear{clear: both;}
+		.ck2{height:auto;padding:10px 0;border-top:2px solid #F99251;position:relative;}
+		.ck2 ul li{margin-bottom:3px;}
+		span.rightf{position:absolute;bottom:0;display:block;width:auto;right:0;}
+	</style>
+</head>
+<body>#set($isDpi=true)
+#set($targetUrl=$VmUtils.escapeHtml("admin/dramaTicket/odiList.xhtml?tid="))
+#parse('admin/theatreticket/menu.vm')
+<div style="color:red" id="notifyWin"></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+		<div class="checkMenu ck2 clear">
+			<ul>#foreach($dateMap in $dateMapList)
+				#set($cdate=$dateMap.playdate + '-01')
+				<li #if($cdate eq $!params.date)class="chooseItem"#end>
+					<div><a href="${basePath}admin/dramaTicket/odiList.xhtml?tid=$!theatre.id&date=${dateMap.playdate}-01">$dateMap.playdate</a>
+					<h2>${dateMap.count}场</h2>
+				</li>
+				#end
+				<form action="${basePath}admin/dramaTicket/odiList.xhtml">
+				<span class="rightf">
+				<input name="tid" type="hidden" value="$!theatre.id"/>
+				<input name="date" type="hidden" value="$!params.date"/>
+				未开放场次数量：<input type="text" name="maxnum" value="$!maxnum" style="width: 40px;"/>
+				<input type="submit" value="显示"/>
+				</span>
+				</form>
+			</ul>
+		</div>
+		<table class="roomManageTable" id="odiTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>剧院</th>
+					<th>话剧</th>
+					<th>场地</th>
+					<th>时间</th>
+					<th>剧院价</th>
+					<th>前台</th>
+					<th>开放</th>
+					<!-- <th><input type="button" onclick="showBatchDialog()" value="批量开放"><input type="checkbox" id="selectAll" onclick="selectAll(this,'opCheckbox')" title="全选"></th> -->
+				</tr>
+			</thead>
+			<tbody class="tbody" id="openbody">
+				#foreach($item in $itemList)
+				#set($tspHelper=$tspHelperMap.get($item.id))
+				#set($field=$fieldMap.get($item.id))
+				<tr class="grayBg disp c$odi.dramaid">
+					<td>$item.relate1.name</td>
+					<td><a href="$!{absPath}${basePath}drama/$item.dramaid" target="_blank">$item.relate2.name</a></td>
+					<td>$field.name [$field.fieldnum]</td>
+					<td>$DateUtil.format($item.playtime,'yyyy-MM-dd HH:mm')</td>
+					<td>#foreach($price in $tspHelper.getPriceList('theatre'))$price&nbsp;$#end <br />
+						<a href="${basePath}admin/dramaTicket/areaprice.xhtml?itemid=$!item.id" target="_blank">价格</a>
+					</td>
+					<td><a href="$!{absPath}${basePath}drama/$item.dramaid" target="_blank">前台</a></td>
+					<td>
+						<input type="button"  value="开放" onclick="saveOpen($item.id)"/>
+						#if($!partnerTextMap.get($item.seller)) [$!partnerTextMap.get($item.seller)]#end[$item.opentype]
+					</td>
+					<!-- <td><input type="checkbox" id="$!item.id" name="opCheckbox"/></td> -->
+				</tr>
+				#set($tspHelper='')
+				#end
+			</tbody>
+		</table>
+		
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>开设类型</th>
+					<th>话剧</th>
+					<th>放映厅</th>
+					<th>演出时间</th>
+					<th>修改</th>
+					<th width="150px;">卖价/成本价/场馆价</th>
+					<th>价格</th>
+					<th>场次</th>
+					<th>优惠券<br />
+						<input type="text" style="width:40px;"  onchange="allElecard(this)" value=""/>
+					</th>
+					<th title="批量设置快递">
+						<input type="checkbox" onclick="batchExpressCheckbox(this)"/>
+						<input id="expressid" type="text" style="margin-top: 10px;width: 30px;" /><br />
+						<input type="button" value="设置快递" onclick="batchExpress('expressid')"/>
+					</th>
+					<th title="批量设置票面">
+						<input type="checkbox" onclick="batchTicketFaceCheckbox(this)"/>
+						<input id="ticketfaceid" type="text" style="margin-top: 10px;width: 30px;" /><br />
+						<input type="button" value="设置票面" onclick="batchTicketFace('ticketfaceid')"/>
+					</th>
+					<th>排序<br />
+						<input type="text" style="width:40px;" onchange="batchSortnum(this,this.value)" />
+					</th>
+					<th title="提起几小时关闭预订">时间设置</th>
+					<th>前台</th>
+					<th>
+						<input type="button" value="全部接受" onclick="enableAll('Y')"/><br />
+						<input type="button" value="全部不接受" onclick="enableAll('N')"/><br />
+					</th>
+					<th>其它操作</th>
+				</tr>
+			</thead>
+			<tbody class="tbody">
+				#foreach($odi in $odiList)
+				#set($otherinfoMap=$VmUtils.readJsonToMap($odi.otherinfo))
+				#set($section=$sectionMap.get($odi.id))
+				#set($areaList = $areaMap.get($odi.dpid))
+				<tr class="grayBg disp c$odi.movieid">
+					<td><span class="yellow">#if($odi.isOpenseat())按座位#elseif($odi.isOpenprice())#if($odi.hasPeriod('N'))通票#{else}按价格#{end}#elseif($odi.isOpenArea())按区域#{end}<br />#if($!partnerTextMap.get($odi.seller)) [$!partnerTextMap.get($odi.seller)]#end</span></td>
+					<td>
+						<a href="$!{absPath}${basePath}drama/$odi.dramaid" target="_blank">$odi.dramaname</a><br/>
+						<a href="javascript:void(0)" onclick="refreshDrama($odi.dramaid)">刷新优惠状态</a>
+						<a href="$!{absPath}${basePath}ajax/drama/getDramaPlayItemList.xhtml?dramaid=$!odi.dramaid&CLEARPAGE=TRUE" target="_blank">刷新项目缓存</a>
+					</td>
+					<td>$odi.roomname <br /> [$odi.roomid]</td>
+					<td>$DateUtil.format($odi.playtime,'MM-dd HH:mm')</td>
+					<td>
+						<a href="${basePath}admin/dramaTicket/odiDetail.xhtml?itemid=$odi.dpid" target="_blank">修改</a><br/>
+						<a href="${basePath}admin/dramaTicket/odiForm.xhtml?itemid=$odi.dpid" target="_blank">其他</a>
+					</td>
+					<td width="90" style="text-align: left;">
+						#foreach($area in $areaMap.get($odi.dpid))
+						$area.areaname:<br/>
+						#set($priceList=$priceMap.get($area.id))
+						#foreach($price in $priceList)
+						[$!{price.price}/$!{price.costprice}/$!{price.theatreprice}]
+						#end<br/>
+						#end
+					</td>
+					<td>
+						#foreach($area in $areaMap.get($odi.dpid))
+						<a href="${basePath}admin/dramaTicket/seatprice.xhtml?itemid=$odi.dpid&areaid=$area.id" target="_blank">$area.areaname</a><br/>
+						#end
+					</td>
+					<td>
+						#foreach($area in $areaMap.get($odi.dpid))
+						<a href="${basePath}admin/dramaTicket/booking.xhtml?itemid=$odi.dpid&areaid=$area.id" target="_blank">$area.areaname</a><br/>
+						#end
+					</td>
+					<td><input type="text" class="elecard pubinput" style="width:40px;" name="${odi.dpid}" onchange="updateElecard(this,this.value)" value="$!odi.elecard"/></td>
+					<td>
+						<input type="checkbox" class="expressid"/>
+						<input type="text" class="pubinput" style="width:30px;" name="${odi.dpid}" value="$!odi.expressid" onchange="updateExpress(this,this.value)"/>
+					</td>
+					<td>
+						<input type="checkbox" class="ticketfaceid"/>
+						<input type="text" class="pubinput" style="width:30px;" name="${odi.dpid}" value="$!odi.ticketfaceid" onchange="updateTicketFace(this,this.value)"/>
+					</td>
+					<td><input type="text" class="sortnum" style="width:40px;" name="${odi.dpid}" value="$!odi.sortnum" onchange="updateSortnum(this,this.value)"/></td>
+					<td>
+						<label>开放：<input type="text" #if($odi.expired)disabled="disabled"#else class="optime" #end style="width:140px;" value="$!DateUtil.format($odi.opentime,'yyyy-MM-dd HH:mm:ss')" onchange="setOpenTime(this,$odi.dpid)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" /></label>
+						<label>关闭：<input type="text" #if($odi.expired)disabled="disabled"#end style="width:140px;" value="$!DateUtil.format($odi.closetime,'yyyy-MM-dd HH:mm:ss')" onchange="setCloseTime(this, $odi.dpid)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly"/></label>
+					</td>
+					<td>
+						#if($odi.isOpenseat())
+						#foreach($area in $areaList)
+						<a href="$!{absPath}${basePath}drama/order/step1.xhtml?itemid=$odi.dpid&areaid=$area.id" target="_blank">$area.areaname</a><br/>
+						#end
+						#elseif($odi.isOpenprice())
+						#foreach($area in $areaList)
+						<a href="$!{absPath}${basePath}drama/$odi.dramaid" target="_blank">$area.areaname</a><br/>
+						#end
+						#end
+						<font id="ft$odi.dpid" color="red">#if($odi.isBooking())已开放#end</font>
+					</td>
+					<td class="clearB" #if($odi.closed)title="超时"#end>
+						<select id="$odi.dpid" onchange="setStatus(this, $odi.dpid)" #if($odi.expired || $odi.closed)disabled="disabled"#else class="opselect" #end>
+							<option value="N" #if($odi.status eq 'N')selected="selected"#end>不接受预订</option>
+							<option value="Y" #if($odi.status eq 'Y')selected="selected"#end>接受预订</option>
+							<option value="D" #if($odi.status eq 'D')selected="selected"#end>废弃场次</option>
+						</select><br/>
+						<span>(<b style="color: red;">对格瓦拉</b>) 
+							开放：<input type="checkbox" #if(!$odi.hasUnOpenToGewa())checked="checked" #end onclick="unGewa($odi.dpid,'open',this)"/>
+							显示：<input type="checkbox" #if(!$odi.hasOnlyUnShowToGewa())checked="checked" #end onclick="unGewa($odi.dpid,'show',this)"/>
+						</span><br />
+						<input type="button" onclick="delOdi($odi.dpid)" value="删除" />
+						<select id="p$odi.dpid" onchange="setPartner(this, '$odi.dpid')" #if($odi.expired || $odi.closed)disabled="disabled"#else class="optselect" #end>
+							<option value="N" #if($odi.partner eq 'N')selected="selected"#end>不对外</option>
+							<option value="Y" #if($odi.partner eq 'Y')selected="selected"#end>对外</option>
+						</select><br/>
+					</td>
+					<td>
+						<a href="${basePath}admin/dramaTicket/refreshAreaHotzone.xhtml?itemid=$odi.dpid" target="_blank" >刷新坐标</a><br />
+						<a href="javascript:void(0)" onclick="refreshSeat($odi.dpid)">刷新座位</a>
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<div id="openBatchDialog" style="width:420px; visibility:hidden; z-index:20;background: #000">
+	<div style="width:400px;margin:10px;background:#FFF;">
+		<div style="text-align:center;height:50px;line-height: 20px;">
+			<strong>批量修改价格数据</strong><br/>
+			<font color="red">友情提示：批量未开放成功的场次，请查看排片中是否未添加剧院价格</font>
+		</div>
+		
+		<div class="bd ml20" style="text-align:left;">
+			<form name="openBatchForm" id="openBatchForm">
+				<input type="hidden" name="dpids" id="dpids" />
+				<label class="left"><input type="radio" name="openBatchtype" value="price" id="opentyBatchpeprice" onclick="javascript:closeBatchTsp()"/>按价格</label>
+				<label   class="left"><input type="radio" name="openBatchtype" value="seat" id="opentyBatchpeseat" onclick="javascript:showBatchTsp()"/>按座位</label>
+				<label   class="left"><input type="radio" name="openBatchtype" value="area" id="opentyBatchpearea" onclick="javascript:showBatchTsp()"/>按区域</label>
+				<div id="tspSeatOrArea" class="none clear" style="width: 100%;">
+					卖&nbsp;&nbsp;价：<input type="text" name="gewaPriceBatch" id="gewaPriceBatch" style="width: 80px;" /><br/><br/>
+					成本价：<input type="text" name="costPriceBatch" id="costPriceBatch" style="width: 80px;" /><br/><br/>
+					剧院价：<input type="text" name="theatrePriceBatch" id="theatrePriceBatch" style="width:80px;"/><br/><br/>
+					<div id="tspBatch" class="none clear" style="width: 100%;">
+						状&nbsp;&nbsp;态：<input type="text" name="statusBatch" id="statusBatch" style="width:60px;"/><font color="red">Y代表可预定，N代表不可预定</font></L><br/><br/>
+						支持券：<input type="text" name="upcardBatch" id="upcardBatch" style="width:60px;"/><font color="red">Y代表支持，N代表不支持</font></L><br/><br/>
+						票&nbsp;&nbsp;数：<input type="text" name="salesBatch" id="salesBatch" style="width:60px;"/><br/><br/>
+						描&nbsp;&nbsp;述：<textarea id="remarkBatch" name="remarkBatch" rows="10" cols="30" style="margin-top: 2px; margin-bottom: 2px; height: 150px; margin-left: 2px; margin-right: 2px; width: 311px; "></textarea>
+					</div>
+				</div>
+				<div class="clear">
+					<label>&nbsp;</label>
+					<input type="button" class="cbt1"  value="保存" onclick="saveBatchOpen()"/>
+					<input type="button" class="cbt1" onclick="hiBatchDialog();" value="取消"/>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div id="openBatchOdiDialog" style="width:370px; visibility:hidden; z-index:20;background: #000">
+	<div style="width:350px;margin:10px;background:#FFF;">
+		<div style="text-align:center;height:20px;line-height: 20px;">
+			<strong>批量修改</strong><br/>
+		</div>
+		<div class="bd ml20" style="text-align:left;">
+			<form name="openBatchDramaForm" id="openBatchDramaForm">
+				<input type="hidden" name="opOids" id="opOids" />
+				<div id="tsp" class="clear" style="width: 100%;">
+					<select id="openDramaSelect" name="openDramaSelect">
+						<option value="N" >不接受预订</option>
+						<option value="Y" >接受预订</option>
+						<option value="Y_P" >不对格瓦拉开放</option>
+						<option value="D" >废弃场次</option>
+					</select>
+				</div>
+				<div class="clear">
+					<label>&nbsp;</label>
+					<input type="button" class="cbt1"  value="保存" onclick="updateBatchOpenDrama()"/>
+					<input type="button" class="cbt1" onclick="hiBatchOpenDramaDialog();" value="取消"/>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+	<script type="text/javascript">
+	window.addEvent("domready", function(){
+		$$(".tbody tr").addEvents({
+			'mouseenter':function(){
+				this.addClass("mouseBg");
+			},
+			'mouseleave':function(){
+				this.removeClass("mouseBg");
+			}
+		});
+	});
+	function allElecard(el){
+		el.setStyle("background","red");
+		$$(".elecard").each(function(item){
+			updateElecard(item,el.value);
+		});
+		el.setStyle("background","");
+	}
+	function refreshSeat(itemid){
+		var url ="${basePath}admin/dramaTicket/refreshAreaSeat.xhtml";
+		var values = {'itemid':itemid};
+		GewaraUtil.mask('刷新座位....')
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert('刷新座位成功！')
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function updateElecard(el, value){
+		el.setStyle("background","red");
+		var values = {"itemid":el.name,"elecard":value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/updateElecard.xhtml', values, function(result){
+			if(result.success){
+				el.value = value;
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+
+	function updateCostprice(el, itemid){
+		el.setStyle("background","red");
+		var values = {"itemid":itemid,"price":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/updateCostprice.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function updateGewaprice(el, itemid){
+		el.setStyle("background","red");
+		var values = {"itemid":itemid,"price":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/updateGewaprice.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function setStatus(el, itemid){
+		el.setStyle("background","red");
+		var values = {"itemid":itemid,"status":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/setStatus.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+				if(result.retval=="isBook"){
+					$("ft"+itemid).set("html","已开放");
+				}else{
+					$("ft"+itemid).set("html","");
+				}
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function setBatchStatus(el, itemid){
+		el.setStyle("background","red");
+		var values = {"itemid":itemid,"status":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/setStatus.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function setPartner(el, itemid){
+		el.setStyle("background","red");
+		var values = {"itemid":itemid,"status":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/setPartner.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function setOpenTime(el, itemid){
+		el.setStyle("background","red");
+		var values = {"itemid":itemid,"opentime":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/setOpenTime.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function setCloseTime(el, itemid){
+		el.setStyle("background","red");
+		var values = {"itemid":itemid,"closetime":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/setCloseTime.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function hiDialog(){
+		GewaraUtil.hideDialog("openDialog");
+	}
+	function closeTsp(){
+		$('tsp').addClass('none');
+	}
+	
+	function closeBatchTsp(){
+		$('tspSeatOrArea').removeClass('none');
+		$('tspBatch').removeClass('none');
+	}
+	function showBatchTsp(){
+		$('tspBatch').addClass('none');
+		$('tspSeatOrArea').removeClass('none');
+	}
+	function showTsp(){
+		$('tsp').removeClass('none');
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/firstTsp.xhtml', {'itemid':$('dpid').value}, function(result){
+			if(result.success){
+				$('tspid').value = result.id;
+				$('gewaPrice').value = result.price;
+				$('costPrice').value = result.costprice;
+				$('seatType').innerHTML = result.seattype;
+				$('theatrePrice').innerHTML = result.theatreprice;
+			}else{
+				alert(result.msg);
+			}
+		});	
+	}
+	function showDialog(dpid){
+		$('dpid').value=dpid;
+		GewaraUtil.showDialog('openDialog');
+	}
+	
+	function openGptbs(dpid){
+		
+	}
+	
+	function showBatchDialog(){
+		var objs = document.getElementsByName('opCheckbox');
+		var ids = "";
+		if(objs.length>0){
+			for(var i=0;i<objs.length;i++){
+				var obj = objs[i];
+				if(obj.checked){
+					ids+=obj.id+",";
+				}
+			}
+			if(ids==""){
+				alert("您未选取任何记录！");
+				return;
+			}
+		}
+		$('dpids').value=ids;
+		GewaraUtil.showDialog("openBatchDialog");
+		
+	}
+	function showBatchOdiDialog(){
+		var objs = document.getElementsByName('checkboxOpDrama');
+		var ids = "";
+		if(objs.length>0){
+			for(var i=0;i<objs.length;i++){
+				var obj = objs[i];
+				if(obj.checked){
+					ids+=obj.id+",";
+				}
+			}
+			if(ids==""){
+				alert("您未选取任何记录！");
+				return;
+			}
+		}
+		$('opOids').value=ids;
+		GewaraUtil.showDialog("openBatchOdiDialog");
+		
+	}
+	function hiBatchDialog(){
+		GewaraUtil.hideDialog("openBatchDialog");
+	}
+	function hiBatchOpenDramaDialog(){
+		GewaraUtil.hideDialog("openBatchOdiDialog");
+	}
+	function saveOpen(dpid){
+		GewaraUtil.mask('openbody');
+		var mask = gewa.util.mask({'element': 'openbody','title':'正在提交，请稍等...'});
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/openDramPlayItem.xhtml', {'dpid':dpid}, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function saveBatchOpen(){
+		GewaraUtil.mask('odiTable');
+		var mask = gewa.util.mask({'element': 'odiTable','title':'正在提交，请稍等...'});
+		var values = GewaraUtil.getValues('openBatchForm');
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/saveBatchOdi.xhtml', values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function updateBatchOpenDrama(){
+		GewaraUtil.mask('odiTable');
+		var mask = gewa.util.mask({'element': 'odiTable','title':'正在提交，请稍等...'});
+		var values = GewaraUtil.getValues('openBatchDramaForm');
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/updateBatchOpDrarm.xhtml', values, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function delOdi(itemid){
+		if(confirm('确认要删除吗?')==false) return;
+		var values= {'itemid':itemid};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/delOdi.xhtml', values, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function checkedRadio(obj){
+		var radio = $(obj).getPrevious('input');
+		radio.checked = true;
+	}
+	//全选
+	function selectAll(obj,str){
+		var objs = document.getElementsByName(str);
+		if(obj.checked==true){
+			for(var i=0;i<objs.length;i++){
+				if(objs[i].disabled==false){
+					objs[i].checked=true;
+				}
+			}
+		}else{
+			for(var i=0;i<objs.length;i++){
+				objs[i].checked=false;
+			}
+		}
+	}
+	
+	function updateExpress(el, value){
+		el = $(el);
+		el.setStyle("background","red");
+		var values = {"itemid":el.name,"expressid":value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/updateExpress.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+				el.value = value;
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function updateTicketFace(el, value){
+		el = $(el);
+		el.setStyle("background","red");
+		var values = {"itemid":el.name,"ticketfaceid":value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/updateTicketFace.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+				el.value = value;
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function updateSortnum(el, value){
+		el = $(el);
+		el.setStyle("background","red");
+		var values = {"itemid":el.name,"sortnum":value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/updateSortnum.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+				el.value = value;
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function batchSortnum(el, value){
+		if(!confirm('确认批量设置序号？'))return;
+		if(value == null){
+			alert('序号不能为空！');
+			return;
+		}
+		el = $(el);
+		el.setStyle("background","red");
+		$$('.disp .sortnum').each(function(item){
+			updateSortnum(item, value);
+		});
+		el.setStyle("background","");
+	}
+	
+	function batchExpress(el){
+		el = $(el);
+		$$('.disp .expressid').each(function(item){
+			if(item.checked){
+				var input = item.getNext('input');
+				if(input){
+					updateExpress(input,el.value);
+				}
+			}
+		});
+	}
+	function batchTicketFace(el){
+		el = $(el);
+		$$('.disp .ticketfaceid').each(function(item){
+			if(item.checked){
+				var input = item.getNext('input');
+				if(input){
+					updateTicketFace(input,el.value);
+				}
+			}
+		});
+	}
+	function batchExpressCheckbox(el){
+		el = $(el);
+		$$('.disp .expressid').each(function(item){
+			item.checked = el.checked;
+		});
+	}
+	
+	function batchTicketFaceCheckbox(el){
+		el = $(el);
+		$$('.disp .ticketfaceid').each(function(item){
+			item.checked = el.checked;
+		});
+	}
+	
+	function enableAll(status){
+		$$(".disp .opselect").each(function(item){
+			if(status == 'N' && item.value=='Y'){
+				item.value="N";
+				setStatus(item,item.id);
+			}else if(status == 'R' && item.value=='R'){
+				item.value="Y";
+				setStatus(item,item.id);
+			}else if(status == 'Y' && item.value=="N"){
+				item.value="Y";
+				setStatus(item,item.id);
+			}
+		});
+	}
+	
+	function unGewa(itemid,type,el){
+		el = $(el);
+		var url = "${basePath}admin/dramaTicket/odiUnGewaOther.xhtml";
+		var values = {'itemid':itemid,'type':type,"ungewa":(el.checked==false)};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(!result.success){
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function refreshDrama(dramaid){
+		var url = "${basePath}admin/dramaTicket/dramaOtherinfo.xhtml";
+		var values = {"dramaid":dramaid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(!result.success){
+				alert(result.msg);
+			}else{
+				alert('刷新成功！');
+			}
+			
+		});
+	}
+</script>
+</body>
+</html>

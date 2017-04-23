@@ -1,0 +1,47 @@
+<div class="title mt20"><h2>$!right.title</h2><span class="linet"></span></div>
+#*
+#foreach($huodong in $RhuodongList)
+#set($activity=$huodong.get($huodong.boardrelatedid))
+<dl class="ui_abeam mt15 clear">
+	<dt class="uipic">
+		<a target="_blank" href="${basePath}activity/$!activity.id" title="$!activity.title">
+			<img width="150" height="200" src="$VmUtils.randomPic('cw150h200',$activity.limg)"/>
+		</a><br/>
+		<a class="button minBt redBt mt5"href="${basePath}activity/$!activity.id" target="_blank"><span>我要参加</span></a>
+	</dt>
+	<dd class="uiText">
+		<h2><a target="_blank" href="${basePath}activity/$!activity.id">$!VmUtils.escapeHtml($!activity.title)</a></h2>
+		<p><em>时间：</em>$!DateUtil.format($!activity.startdate, 'M月dd日')#if($activity.enddate)-- $!DateUtil.format($activity.enddate, 'M月dd日')#end</p>
+		#if($activity.address)<p><em>地点：</em>$!activity.address</p>#end
+		<p><em>关注人数：</em>$!{activity.clickedtimes}</p>
+		<p><em>参加人数：</em>$!{activity.membercount}</p>
+	</dd>*#
+	
+	#if(!$!VmUtils.isEmptyList($!RhuodongList))
+	<div class="slide3d">
+		<div class="slide_3d">
+		    <div class="slidePanel" id="role3d">
+				
+			</div>
+			<div class="slideText" id="roleText">
+				#foreach($!huodong in $!RhuodongList)
+				#set($activity=$huodong.get($huodong.boardrelatedid))
+				<div class="tcontent" data-role='3d' id="test">
+					<h2><a class="a_color" href="${basePath}activity/$!activity.id" data-role="lazz" lazeImg="$VmUtils.randomPic('cw150h200',$!activity.limg)" target="_blank">$!activity.title</a></h2>
+					<p>时间：$!DateUtil.format($!activity.startdate,'MM月dd日')#if($!activity.starttime)$activity.starttime#end</p>
+					#*<p>地点：$!activity.address</p>*#
+				  地点：<a href="${basePath}${activity.relate.url}">$!activity.relate.name</a> $!activity.address
+					<div class="tar"><span class="a_color">$!activity.clickedtimes</span>关注</div>
+					</div>
+					#end
+			</div>
+		</div>
+	</div>
+	#end		
+</dl>
+#if($VmUtils.isNotBlank($!right.newslink))
+<div class="tar"><a href="$!right.newslink" target="_blank">更多»</a></div>
+#end
+<script type="text/javascript">
+	new slide_3d('role3d','#roleText a[data-role=lazz]');
+</script>

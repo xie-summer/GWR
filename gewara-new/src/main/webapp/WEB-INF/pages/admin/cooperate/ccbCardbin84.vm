@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>建行卡bin</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#fff;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		td, th{
+			text-align: center;
+			height: 23px;
+		}
+	</style>
+</head>
+<body>
+<fieldset style="width: 480px;margin-top: 10px;margin-left: 20px;">
+	<legend class="yellow">建行卡bin</legend>
+	<div style="margin-top: 20px;margin-left: 10px;">
+	<div style="margin-bottom: 10px;font-size: 14px;">
+	<input type="button" onclick="showDialog()" value="上传卡前8后4卡bin文件" class="btn"/>
+	</div>
+	#set($keyList=["序号","卡前8位","卡后4位","操作"])
+	<table cellpadding="0" cellspacing="0" width="460" border="1" style="border-collapse: collapse">
+		<tr>
+			#foreach($key in $keyList)
+			<th>$key</th>
+			#end
+		</tr>
+		#foreach($cardMap in $qryMapList)
+		<tr>
+			<td>$foreach.count</td>
+			<td>$!cardMap.prefixbin</td>
+			<td>$!cardMap.suffixbin</td>
+			<td><a href='javascript:delateCardbind("$!{cardMap.prefixbin}$!{cardMap.suffixbin}")'>删除</a></td>
+		</tr>
+		#end
+	</table>
+	</div>
+	<div class="page">
+		#parse('include/pageUtil.vm')
+	</div>
+	<div id="openDialog" style="width:370px; visibility:hidden; z-index:20;background: #000">
+		<div style="width:350px;margin:10px;background:#FFF;">
+			<div style="text-align:center;height:40px;line-height: 20px;margin-bottom: 5px;">
+				<strong>卡前8位后4位(一行对应一组，8位4位空格分开<br/> 例如：12345678 4789)</strong>
+			</div>
+			<div class="bd ml20" style="text-align:left;">
+				<form name="openForm" id="openForm" method="post" action="$!{basePath}admin/common/upLoadCCBcardbinList.xhtml" enctype="multipart/form-data">
+					<div class="clear">
+						<input type="submit" class="cbt1"  value="保存"/>
+						<input type="button" class="cbt1" onclick="hiDialog();" value="取消"/>
+						<input type="file" name="ccbCardBinFile" id="ccbCardBinFile" />
+					</div>
+				</form>
+			</div><br/>
+		</div>
+	</div>
+</fieldset>
+<script type="text/javascript">
+	$$("tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+	function hiDialog(){
+		GewaraUtil.hideDialog("openDialog");
+	}
+	function showDialog(){
+		GewaraUtil.showDialog('openDialog');
+	}
+	function delateCardbind(id){
+		var url = "${basePath}admin/common/removeCCBCardBin84.xhtml";
+		GewaraUtil.sendRequest(url, {"id":id}, function(result){
+			if(result.success) {
+				refreshPage();
+			}else {
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

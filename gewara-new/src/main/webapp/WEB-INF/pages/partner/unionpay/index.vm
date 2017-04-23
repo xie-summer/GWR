@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>格瓦拉电影、电影列表-$partner.partnername</title>
+<meta name="keywords" content="电影排片表查询,电影放映时间查询" />
+<meta name="description" content="近期各大影院上映电影的排片表、放映时间查询。" />
+<link rel="stylesheet" type="text/css" href="${basePath}css/gewara.css?n=new_partner&v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${basePath}scripts/gewara.js?n=mootools,gewara-util,Autocompleter&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($page='unionpay/index')
+#parse('partner/unionpay/citiyLink.vm')
+<div class="ui_layout" #if($movieList.size() eq 0) style="height: 300px;"#end>
+	<dl class="movie_T">
+		<dd class="ui_area left"><span>$!cookieCityname</span><em id="areaTrigger">切换城市</em></dd>
+		<dd class="ui_seek right">
+		</dd>
+	</dl>
+	<div class="i_title"><h2>正在上映</h2><span>(共$pageUtil.rowsCount部)</span></div>
+	#if($movieList.size() eq 0)
+		<div class="noMovies" style="width:300px">温馨提示：非常抱歉，您搜索的影片不存在</div>
+	#else
+		#foreach($movie in $movieList)
+		#set($vgmark=$VmUtils.getSingleMarkStar($movie, "general"))
+		#set($gmark1=$vgmark/10) #set($gmark2=$vgmark % 10)
+		#if($foreach.index%2 eq 0)
+		<div class="clear">
+		#end
+		#set($movieDA = $!movie.director + "/" + $!movie.actors)
+			<div class="wtp5 movie_list">
+				<dl class="ui_abeam">
+					<dt class="uipic">
+						<a href="${basePath}partner/${partner.partnerpath}/movieDetail.xhtml?movieid=$movie.id&encQryStr=$!encQryStr" class="bp" title="$movie.name">
+							<img width="120" height="160" src="${basePath}css/images/blank.gif" style="background:url(${basePath}cw120h160/$movie.limg) center center no-repeat;" alt=""/>
+						</a>
+					</dt>
+					<dd class="uiText">
+						<div class="title">
+							<h2><a href="${basePath}partner/${partner.partnerpath}/movieDetail.xhtml?movieid=$movie.id&encQryStr=$!encQryStr" tilte="$movie.name" >$movie.name</a></h2>
+						</div>
+						<span class="ui_grades ui_grade$gmark1" style="margin:5px 0;" title="$gmark1.$gmark2分">$gmark1.$gmark2</span>
+						<p><em>上映日期：</em>$!DateUtil.format(${movie.releasedate},"yyyy年M月d日")</p>
+						<p><em>语言/片长：</em>$!{movie.language}#if($movie.videolen)/$!{movie.videolen}分钟#end</p>
+						<p><em>导演/主演：</em>$!VmUtils.htmlabbr($!{movieDA},24) ...</p>
+						<p><em>精彩看点：</em>$!VmUtils.htmlabbr($!movie.highlight,24)</p>
+						<a class="opiBt mt5" href="${basePath}partner/${partner.partnerpath}/movieDetail.xhtml?movieid=$movie.id&encQryStr=$!encQryStr">选座购票</a>
+					</dd>
+				</dl>
+			</div>
+		#if($foreach.count % 2 eq 0 || $movieList.size() eq $foreach.count)
+		</div>
+		#end
+		#end
+		<div class="page">
+			#parse('include/pageUtil.vm')
+		</div>
+	#end
+</div>
+<script src="${basePath}scripts/loaderProxy.js?v=$VmUtils.jsVersion" data-frameid="gewala_movie"  data-timer="600" data-proxy="${unionpayUrl}movie/page/movie/proxy.html"></script>
+<script type="text/javascript">
+var pageCode="movielist"
+</script>
+#parse('partner/googleGa.vm')
+</body>
+</html>

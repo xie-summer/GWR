@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>#set($titleMap={"cinema":"电影","movie":"电影","gym":"健身","gymcourse":"健身","sport":"运动","sportservice":"运动","drama":"话剧",'theatre':'话剧'})
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	#set($isbbs=true) #set($realtag=$VmUtils.getTag($params.tag))
+	<title>#if($relate)${relate.name}_#end#if($titleMap.get($tag))$!{titleMap.get($tag)}#end#if($VmUtils.eq($realtag, 'cinema'))社区论坛_格瓦拉生活网#else论坛_格瓦拉生活网#end</title>
+	<meta name="keywords" content="#if($VmUtils.eq($realtag, 'cinema')) 电影首映,电影观影,电影活动,免费电影论坛,在线电影论坛,电影论坛 #end" />
+	<meta name="description" content="#if($VmUtils.eq($realtag, 'cinema'))格瓦拉生活提供网友在线电影评论交流,免费电影活动,电影首映活动,电影评论等交流平台,提供在线订票线下活动一站式服务平台#end" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=bbs&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.blogtable th, .blogtable td{height:24px;}
+		.zd,.ptt{height:24px; line-height:24px; padding:0 0 0 24px; display:inline-block;}
+		.zd{background-position:3px -64px;}
+		.ptt{background-position:3px -182px;}
+		.blogtable th{color:#fff;}
+		.navtab{border-bottom:2px solid #F96400;}
+	</style>
+</head>
+<body>
+#set($istopic=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+#parse('include/constant/cityParam.vm')
+<div id="height0"></div>
+<div id="bbsMenu">
+	<div class="menuBox">
+		<ul id="menu">
+			<li class="menuPoint"><a href="${basePath}blog/">论坛导航</a></li>
+			<li#if($VmUtils.eq($realtag, 'cinema')) class="menuChoose"#end><a href="${basePath}blog/cinema">电影论坛</a></li>
+			#if($VmUtils.contains($cityItemModule,'drama'))
+			<li#if($VmUtils.eq($realtag, 'theatre')) class="menuChoose"#end><a href="${basePath}blog/theatre">演出论坛</a></li>
+			#end
+			#if($cookieCitycode eq '310000')
+			<li#if($VmUtils.eq($realtag, 'gym')) class="menuChoose"#end><a href="${basePath}blog/gym">健身论坛</a></li>
+			#end
+			#if($VmUtils.contains($cityItemModule,'sport'))
+			<li#if($VmUtils.eq($realtag, 'sport')) class="menuChoose"#end><a href="${basePath}blog/sport">运动论坛</a></li>			
+			#end
+		</ul>
+		<div class="box">
+			#parse('include/bbsSecondNavi.vm')
+		</div>
+	</div>
+</div>
+<div id="content">
+	<div class="bbsLeft">
+		<div class="bbsTop">
+			<div class="line">
+				<span class="pos">当前位置：</span><a href="${basePath}" class="mr5">首页</a>-<a href="${basePath}blog/" class="bold ml5">格瓦拉论坛</a>
+				#if($titleMap.get($tag))<span class="ml5">-</span><a class="bold ml5" href="${basePath}blog/$realtag">$titleMap.get($tag)论坛</a>
+					#if($type eq '6')<span class="ml5">-</span><a class="bold ml5" href="#">$titleMap.get($tag)投票</a> #end
+					#if($type eq '1')<span class="ml5">-</span><a class="bold ml5" href="#">#if(!$realtag || $VmUtils.eq($realtag, 'cinema')) $titleMap.get($tag)影评 #elseif(!$realtag || $VmUtils.eq($realtag, 'theatre')) $titleMap.get($tag)剧评 #elseif(!$realtag || $VmUtils.eq($realtag, 'gym')) $titleMap.get($tag)心得 #end</a> #end
+					#if($type eq 'a' || $type eq 'review')<span class="ml5">-</span><a class="bold ml5" href="#">$titleMap.get($tag)活动</a>#end
+				#end
+			</div>
+			<dl class="mt5" id="sform">
+				<dd class="left wd50">
+				<form action="${basePath}blog">
+					<input type="hidden" name="type" value="$!VmUtils.escapeHtml(${params.type})"/>
+					<input type="hidden" name="tag" value="$!VmUtils.escapeHtml($params.tag)"/>
+					<input type="hidden" name="relatedid" value="$!VmUtils.escapeHtml($params.relatedid)"/>
+					<input type="text" id="searchkey" style="padding:2px 0 3px 0;" name="searchkey" class="ipt left mr5" value="$!VmUtils.escapeHtml($params.searchkey)"/>
+					<label class="button whiteBt minBt left"><input type="submit"  value="搜 索"/></label>
+				</form>
+				</dd>
+				<dd class="left wd50" id="fabiao">
+					<label class="button whiteBt minBt right mr10"><input  style="width:50px;"value="发表投票"onclick="goTo('${basePath}blog/modifyVote.xhtml?tag=$!VmUtils.escapeHtml($params.tag)&relatedid=$!VmUtils.escapeHtml($params.relatedid)')" /></label>
+					<label class="button whiteBt minBt right mr10"><input  style="width:50px;"value="我要发帖"onclick="goTo('${basePath}blog/modifyTopic.xhtml?tag=$!VmUtils.escapeHtml($params.tag)&relatedid=$!VmUtils.escapeHtml($params.relatedid)')" /></label>
+				</dd>
+				<dd id="height0"></dd>
+			</dl>
+		</div>
+		<div id="bbsContent">
+			#set($tmpUrl='blog')
+			#if($tag)
+			#set($tmpUrl='blog/'+$!{tag})
+			#end
+			#if($relatedid)
+			#set($tmpUrl='blog/'+$!{tag}+'/'+$!{relatedid})
+			#end
+			<ul class="navtab" id="bbstab">
+				<li #if($type eq '0') class="selected" #end><a href="${basePath}$tmpUrl">全部</a></li>
+				<li #if($type eq '6') class="selected" #end><a href="${basePath}$tmpUrl?type=6">投票</a></li>
+				#if(!$realtag || $VmUtils.eq($realtag, 'cinema'))
+				#set($tempUrl='blog/movie')
+				#if($categoryid)
+				#set($tempUrl=	'blog/movie/' + ${categoryid})
+				#end
+				<li #if($type eq '1') class="selected" #end><a href="${basePath}$tempUrl?type=1">影评</a></li>
+				#elseif(!$realtag || $VmUtils.eq($realtag, 'theatre'))
+				#set($tempUrl='blog/theatre')
+				#if($categoryid)
+				#set($tempUrl=	'blog/theatre/' + ${categoryid})
+				#end
+				<li #if($type eq '1') class="selected" #end><a href="${basePath}$tempUrl?type=1">剧评</a></li>
+				#elseif(!$realtag || $VmUtils.eq($realtag, 'gym'))
+				#set($tempUrl='blog/gymcourse')
+				#if($categoryid)
+				#set($tempUrl=	'blog/gymcourse/' + ${categoryid})
+				#end
+				<li #if($type eq '1') class="selected" #end><a href="${basePath}$tempUrl?type=1">健身心得</a></li>
+				#end
+			</ul>
+			<div id="bwtable">
+			#parse('include/bbs/topic.vm')
+			</div>
+		</div>
+	</div>
+	<div class="bbsRight">
+		<div class="mt10"></div>
+		<em class="m1"></em><em class="m2"></em>
+		<div class="hostBox">
+			<div class="yline">
+				<strong class="yellow left">本版版主</strong>
+				#if($permission le 1)
+				<a href="javascript:applyBanzhu()" class="right">申请当版主»</a>
+				#end
+			</div>
+			<ul class="pubCircle">
+				#foreach($banzhu in $banzhuList)
+				<li style="height:120px;">
+					<a class="pubpic" title="$cacheMemberMap.get($!banzhu.memberid).nickname" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$banzhu.memberid"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($!banzhu.memberid).headpicUrl)) no-repeat center center"/></a>
+					<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$banzhu.memberid" target="_blank">$cacheMemberMap.get($!banzhu.memberid).nickname</a><br/>
+				</li>
+				#end
+			</ul>
+			<div id="height0"></div>
+		</div>
+		<em class="m2"></em><em class="m1"></em>
+		<div class="mt10"></div>
+		<em class="m1"></em><em class="m2"></em>
+		<div class="hostBox">
+			<div class="yline"><strong class="yellow">24小时人气热帖</strong></div>
+			<ul class="pub mt10 pb20">
+				#foreach($topic in $hotTopicList)
+				<li><a href="${basePath}blog/t$topic.id" target="_blank" title="$topic.subject">·$!VmUtils.escabbr($topic.subject,30)</a></li>
+				#end
+			</ul>
+		</div>
+		<em class="m2"></em><em class="m1"></em>
+		#parse('include/ad/ad_bbs.vm')
+		<div class="mt10"></div>
+		<em class="m1"></em><em class="m2"></em>
+		<div class="hostBox">
+			<div class="yline"><strong class="yellow">一周活跃用户</strong></div>
+			<ul class="pubCircle">
+				#foreach($member in $memberList)
+				<li>
+					<a class="pubpic" title="$member.nickname" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$member.id"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$member.headpicUrl)) no-repeat center center"/></a>
+					<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$member.id" target="_blank">$!VmUtils.escabbr($member.nickname,8)</a>
+				</li>
+				#end
+			</ul>
+			<div id="height0"></div>
+		</div>
+		<em class="m2"></em><em class="m1"></em>
+	</div>
+	<div id="height0"></div>
+</div>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+	var relatedid='$!relatedid';
+	var tag='$!tag';
+	var skey = $('searchkey').value;
+	function applyBanzhu(){
+		checkLogin(true, function(){
+			GewaraUtil.sendRequest("${basePath}ajax/common/applyBanzhu.xhtml",{"tag":tag,"relatedid":relatedid}, function(result){
+				if(result.success){
+						gewaUtil.alert("感谢您的申请，我们会尽快审核并给您回复的！");
+				} else {
+					gewaUtil.alert(result.msg);
+				}
+			});
+		});
+	}
+	window.addEvent('domready',function(){
+		new ClassGroup($('bbstab').getElements('li'), null, 'selected');
+	});
+	function goTo(href){
+		checkLogin(true,function(){
+			document.location = href;
+		});
+	}
+</script>
+</body>
+</html>

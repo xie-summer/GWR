@@ -1,0 +1,73 @@
+<div class="inner">
+	<img src="${picPath}css/home/interest-title.png" class="mt20"/>
+	<div class="interest partBg">
+	   <div class="fs14">热门标签：
+		   <a href="javascript:getRandomTags()"><img src="${picPath}css/home/shuaxinIco.png"/><b class="brown ml5" style="font-size:12px;">换一组</b></a>
+	   </div>
+      <p>
+	     	#foreach($tag in $!list)
+			<span onclick="remarkTag('$!tag.tag')">$!tag.tag</span>
+			#end
+      </p>
+	</div>
+	<div class="apendInterest clear" id="tagFrm" style="position:relative;z-index:0;">
+	   <input class="text left" type="text" id="favortag" mustTxt="爱好不能为空!"/>
+	   <label class="button whiteBt minBt left ml10"><input  id="disBtnFavor" type="button" value="添加标签" onclick="addFavor();"/></label>
+	</div>
+	<div class="apendInterest clear">
+		<div class="mt20 btLine2 fs14">我的兴趣爱好：</div>
+		#foreach($tag in $!myfavTags)
+		<span onclick="delthisTag('$VmUtils.escapeHtml($!tag)', this)" class="selections"><span>$VmUtils.escapeHtml($!tag)</span></span>
+		#end
+	</div>
+	<div class="gray mt30">
+		<b>关于标签：</b><br/>
+		•标签是自定义描述兴趣爱好的关键词；<br/>
+		•已经添加的标签将显示用户中心首页；<br/>
+		•通过标签可以更加方便的查找相同兴趣爱好的好友；<br/>
+		•每个用户最多只能添加10个兴趣爱好的标签，不同标签请单独添加。<br/>
+	</div>
+</div>
+	<script type="text/javascript">
+	addFavor = function(){
+		if(!GewaraUtil.baseValidForm('tagFrm')){
+			return false;
+		}
+		var favortag = $('favortag').value;
+		var url = '${basePath}home/acct/updateFavorInfo.xhtml';
+		var values = {'tag':favortag};
+		gewaUtil.loadData('ajaxMemberInfo', url, values, function(result){
+			if(!result.success){
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+	
+	getRandomTags = function(){
+		var url = '${basePath}home/acct/randomintrest.xhtml';
+		GewaraUtil.sendLoad('ajaxMemberInfo', url, {}, function(result){})
+	}
+	
+	delthisTag = function(val, obj){
+		var url = '${basePath}home/acct/delFavorInfo.xhtml?r=' + GewaraUtil.rtime();
+		var values = {'tag': val};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.dispose(obj);
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		}, 'get');
+	}
+	
+	remarkTag = function(val){
+		//var url = '${basePath}home/acct/remarkTag.xhtml';
+		var url = '${basePath}home/acct/updateFavorInfo.xhtml';
+		var values = {'tag': val};
+		GewaraUtil.sendLoad('ajaxMemberInfo', url, values, function(result){
+			if(!result.success){
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+</script>

@@ -1,0 +1,23 @@
+#set($sport=$sk.relatedObj)
+#set($vgmark=$VmUtils.getSingleMarkStar($sport, "general"))#set($gmark1=$vgmark/10) #set($gmark2=$vgmark % 10)
+<dl class="ui_abeam search_cinema">
+	<dt class="uipic">
+		<a target="_blank" href="${basePath}sport/$!sport.id" title="">
+			<img width="120" height="60" src="$VmUtils.randomPic('sw120h60',$sport.limg)">
+		</a>
+	</dt>
+	<dd class="uiText">
+		<h2><em class="ffst">[运动场馆]</em><a target="_blank" title="" href="${basePath}sport/$!sport.id">$!sport.name</a></h2>
+		<span class="mr10"><sub>$!gmark1.</sub><sup>$!gmark2</sup></span><span class="c666">($!sport.clickedtimes关注)</span><br/>
+		<span><em>联系电话：</em>$!{sport.contactphone}</span><br/>
+		<span><em>详细地址：</em> $!sport.address<a href="${basePath}common/baiduMap.xhtml?id=$sport.id&tag=sport" class="blue" target="_blank">[地图]</a></span><br/>
+		<span><em>经营项目：</em>
+		#foreach($item in $sport.itemList)
+				<a href="${basePath}sport/item/$item.id" class="mr10" target="_blank">$!item.itemname</a>
+		#end
+		</span><br/>
+		#if(($VmUtils.eq($sport.booking,'open') && $VmUtils.contains($sportIdList,$sport.id)))
+		<a class="button minBt redBt" target="_blank" href="${basePath}sport/$!sport.id"><span>在线预定</span></a>
+	    #end
+	</dd>
+</dl>

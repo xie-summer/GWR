@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>查询结果</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		.hiddenShow{
+			height: 100px; 
+		}
+	</style>
+</head>
+<body style="width:1050px;margin:auto" >
+	<div class="OkMsg clear">
+		#if($pageUtil.rowsCount gt 0)<a href="javascript:downloadxls();" title="导出" class="right">导出Excel</a>#end
+		<span>结果: $pageUtil.rowsCount</span>
+	</div>
+	<table class="table">
+		#foreach($row in $resultList)
+		<tr ondblclick="colspanAll('$row.get('_id')');">
+			<td>
+			<div class="WarningMsg hiddenShow" style="word-wrap: break-word; overflow: hidden; position:relative;">
+			#foreach($key in $row.keySet())
+				#set($val=$row.get($key))
+				<b>$key:</b> #if($val)$val#else null#end
+				<br />
+			#end
+			<a href="javascript:void(0);" id="$row.get('_id')" onclick="colspanAll(this)" style="position:absolute;top:5px;;right:10px;color: red;">查看全部</a>
+			</div>
+			</td>
+		</tr>
+		#end
+	</table>
+<div class="clear">#parse('include/pageUtil.vm')</div>
+<script>
+	function colspanAll(obj){
+		$(obj).getParent('div.WarningMsg').toggleClass('hiddenShow');
+	}
+	function downloadxls(){
+		if(document.forms[0]){
+			$("isXls").value="downloadxls";
+			document.forms[0].submit();
+			$("isXls").value="";
+		}else{
+			var a=document.location.href;
+			a=a+"&isXls=download";
+			document.location.href=a;
+		}
+	}
+</script>
+</body>
+</html>

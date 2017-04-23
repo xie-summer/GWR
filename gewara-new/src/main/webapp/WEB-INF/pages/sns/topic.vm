@@ -1,0 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>格瓦拉社区 - 话题详细页</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=default&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,noobSlide,Autocompleter&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	.redBt{background-position:0 -0px;}
+	.redBt span,.redBt input{background-position:right -23px;color:#fff;}
+	.body_left{margin-bottom:-30000px;padding-bottom:30000px;background:#FFF4DE;}
+	</style>
+</head>
+<body>
+<div id="snsHeader"></div>
+<div class="ui_layout wala_topic">
+	#set($topic = 'topic')
+	#set($menuTag = 'index')
+	<div class="body_right">
+		<div class="bodys" id="_bodys">
+			<div class="wala_topic_bodys">
+				<div class="wala_topic_main">
+					<h1 class="wala_topic_title"><b>#$!title#</b></h1>
+					<div class="tokll">
+						<form id="bodyForm" action="">
+							<textarea id="textBody" cols="" rows="">#$!title#</textarea>
+							<div class="ope">
+								<span class="buttons">
+									<span id="iserm" class="iserm">表情</span>
+									<span onclick="gewa.util.dialogSingleUpdate(this,'','textBody')" class="ispic">图片</span>
+									<span onclick="gewa.util.getVideo(this);" class="isvideo">视频</span>
+									<span onclick="moderate()" class="istokll">话题</span>
+									<label class="issys" lang="default" for="Wb">同步到：
+										<input id="Wb" type="checkbox" title="新浪微博" lang="${basePath}home/bind/sina/userApp.xhtml?source=close"/>
+									</label>
+								</span>
+								<span class="right">
+									<input type="button" class="issubmit" onclick="submitMicro()" value=""/>
+								</span>
+								<span id="isFont" class="isfont">140</span>
+							</div>
+						</form>
+					</div>
+				</div>
+				<div class="isWala_tabs clear">
+					<a href="javascript:;" class="current">全部<span>#if($VmUtils.isNull($!count))(0) #else ($!count) #end</span></a>
+					#*<a href="javascript:;">图片<span>(990)</span></a>
+					<a href="javascript:;">视频<span>(10)</span></a>*#
+				</div>
+				<div id="isWala"></div>
+				<script type="text/javascript">
+					var isScroll = true,marks = {};
+					window.addEvent('domready',function(){
+						Asset.javascript("${staticPath}scripts/gewara.js?n=snsUtil,snsPlugs&x=1&v=$VmUtils.jsVersion", {
+							id:'walaDynaScript',
+							charset:'utf-8',
+							'OID':'',//对象ID
+							'OTAG':'',//对象属性
+							'OMARKS':marks,
+							'OTITLE':#if($VmUtils.isNull($title))""#else"$title"#end,
+							'ORORY':false,
+							'USERLOGO':"$VmUtils.randomPic('cw30h30',$memberInfo.headpic)",
+							onLoad:function(){
+								Asset.css('${staticPath}css/readwala.css?v=$VmUtils.jsVersion',{'id':'walasCss'});
+								if($('textBody'))new modifyTextArea('textBody','isFont');
+								gewa.util.pageNumber = 0;
+								gewa.util.requestUrl = "home/sns/lazeDetail.xhtml";
+								gewa.util.values = {'pageNumber':gewa.util.pageNumber,'cid':'','title':getMyConfig("OTITLE"),'tag':getMyConfig("OTAG"),'RorY':getMyConfig("ORORY")};
+								window.addEvent('scroll',function(){
+					    			if(this.getScrollSize().y - this.getScroll().y - this.getSize().y <= 20 && isScroll){
+					    				isScroll = false;
+					    				gewa.util.loadwalas("isWala");
+					    			}
+					    		});
+						    	gewa.util.loadwalas("isWala");
+							}
+						});
+					})
+				</script>
+			</div>
+		</div>
+	</div>
+	#parse('sns/common/left.vm')
+</div>
+<div class="ui_view_menu"></div>
+<div class="footer_warp"><div class="isFooter"></div></div>
+<script type="text/javascript">
+window.addEvent("domready", function(){
+	var isIcon = new Icon('');
+	$('iserm').addEvent('click',function(){
+		isIcon.innerHTML(this,'textBody');
+	});
+})
+function delInterest(el){
+	gewaUtil.confirm('确认删除吗?', function(){
+		if(el == '')
+			el =$('treasureid').value;
+		var url = '${basePath}home/delInterestInfo.xhtml';
+		var values = {'interestid':el};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				if($('interest'+el)){
+					gewaUtil.dispose($('interest'+el));
+				}
+				hideTreasure();
+			}else {
+				gewaUtil.alert(result.msg);
+			}	
+		});
+	})
+}
+//话题
+function moderate(){
+	var con = '$title';
+	var contmp = "#"+con+"#";
+	var say_area = $('textBody').value; 
+	if(say_area.contains(contmp)){
+		$('textBody').value = say_area.replace(contmp, '');
+	}
+	$("textBody").value += "#"+con+"#";
+	var l = $("textBody").value.length;
+	if($("textBody").createTextRange){//IE浏览器
+			var range = $("textBody").createTextRange();
+			range.moveEnd("character",-l);
+			range.moveEnd("character",l-1);
+			range.moveStart("character", l-1-con.length);
+			range.select();
+	}else{
+			$("textBody").setSelectionRange(l-1-con.length,l-1);
+			$("textBody").focus();
+	}
+}
+
+function submitMicro(){
+	var txt = $('textBody'),say_area = txt.value;
+	if(!$chk(say_area)){
+		txt.highlight('#f66d6d', '#fff');
+		return false;
+	}
+	if(say_area.length>140){
+		gewaUtil.alert('哇啦内容长度不可以超过140个字');
+		return false;
+	}
+	var contmp = '#$title#';
+	if(!say_area.contains(contmp)){
+		//showError.show('textBody');
+		moderate();
+		return false;
+	}
+	if(say_area.trim() == contmp){
+		gewaUtil.alert('话题内容不能为空');
+		moderate();
+		return false;
+	}
+	submitMicroDny();
+}
+
+function submitMicroDny(){
+	var url = '${basePath}home/sns/addMicroBlogDny.xhtml';
+	var videovalue = '';
+	var bodypic = '';
+	if($('video')){
+		videovalue = $('video').value;
+	}
+	if(document.getElement('input[name=bodypic]')){
+		bodypic =document.getElement('input[name=bodypic]').value;
+	}
+	var microbody = $('textBody').value;
+	var values = {'micrbody':microbody,'video':videovalue,'bodypic':bodypic,'tag':'topic','relatedid':null};
+	var doms = new Element('div');
+	GewaraUtil.sendLoad(doms,url, values, function(result){
+		if(result.success){
+			gewaUtil.alert("发布成功",refreshPage);
+			#*walaManager.currentMessage(result.html);*#
+			$('textBody').value="";
+		}else{
+			gewaUtil.alert(result.json.msg);
+		}
+	});
+}
+
+function deleteReComment(id,recommentid){
+	gewaUtil.confirm("确认要删除吗?", function(){
+		var url = "${basePath}home/sns/deleteMicroReComment.xhtml";
+		var values = {'mid':recommentid};
+		GewaraUtil.sendRequest(url, values , function(result){
+			if(result.success){
+				document.getElement('div[id='+recommentid+']').set('dissolve', {duration: 'long',onComplete:function(){
+					this.dispose()
+				}.bind(document.getElement('div[id='+recommentid+']'))}).dissolve();
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	})
+}
+
+</script>
+</body>
+</html>

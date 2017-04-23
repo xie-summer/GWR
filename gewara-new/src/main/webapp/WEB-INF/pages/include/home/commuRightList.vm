@@ -1,0 +1,57 @@
+#set($commuLen=$VmUtils.size($commuMap))
+<div class="coumnu_border2 mt20">
+	<em class="m1"></em><em class="m2"></em>
+	<div class="m"><div class="commnu_pbox commnu_bg_02"></div>
+		<span class="fs14">最近加入的成员...</span>
+		<ul class="ul-33">
+			#foreach($commuMember in $commuMemberList)
+			<li>
+				<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$commuMember.memberid" class="pubpic" target="_blank"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($commuMember.memberid).headpicUrl)) no-repeat center center"/></a>
+				<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$commuMember.memberid" class="brown" target="_blank" title="$cacheMemberMap.get($commuMember.memberid).nickname">$!VmUtils.escabbr($cacheMemberMap.get($commuMember.memberid).nickname,6)</a>
+			</li>
+			#end
+		</ul>
+		<div class="height0"></div>
+		<div class="tar"><a href="${basePath}quan/getCommuMemberList.xhtml?commuid=$commu.id" class="brown">查看所有成员»</a></div>
+	</div>
+	<em class="m2"></em><em class="m1"></em>
+</div>
+<div class="coumnu_border2 mt20">
+	<em class="m1"></em><em class="m2"></em>
+	<div class="m"><div class="commnu_pbox commnu_bg_02"></div>
+		<span class="fs14">这圈子的成员也喜欢去</span>
+		#foreach($vcommu in $commuList)
+		#if($foreach.count%3 eq 1)
+		<ul class="ul-33">
+		#end
+		#if($vcommu.id)
+			<li>
+				<a href="${basePath}quan/$!vcommu.id" class="pubpic" target="_blank"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$!vcommu.headpicUrl)) no-repeat scroll center center"/></a>
+				<a href="${basePath}quan/$!vcommu.id" class="brown" target="_blank" title="$!vcommu.name">$!VmUtils.escabbr($!vcommu.name,12)</a>
+			</li>
+	    #end
+		#if($foreach.count%3 eq 0 || $foreach.count eq $commuLen)
+		</ul>
+		<div class="height0"></div>
+		#end
+		#end
+	</div>
+	<em class="m2"></em><em class="m1"></em>
+</div>
+<div class="coumnu_border2 mt20">
+	<em class="m1"></em><em class="m2"></em>
+	<div class="m"><div class="commnu_pbox commnu_bg_02"></div>
+		<span class="fs14">这圈子的成员关注的活动</span>
+		<ul class="ul-box">
+			#foreach($activityEntry in $activityMap.entrySet())
+			<li>
+				<div class="imgminbox"><a href="${basePath}activity/${activityEntry.value.id}" target="_blank"><img src="$VmUtils.randomPic('cw48h64',${activityEntry.value.limg})" class="img1" alt=""/></a></div>
+				<h2><a href="${basePath}activity/$activityEntry.value.id" class="brown" target="_blank" title="$activityEntry.value.title">$!VmUtils.escabbr($activityEntry.value.title,30)</a></h2>
+				<p>活动日期：$activityEntry.value.startdate</p>
+				<p>$activityEntry.value.clickedtimes关注<b class="yellow ml10">$activityEntry.value.membercount</b>参加<a href="${basePath}activity/${activityEntry.value.id}" class="blue ml10" target="_blank">详情</a></p>
+			</li>
+			#end
+		</ul>
+	</div>
+	<em class="m2"></em><em class="m1"></em>
+</div>

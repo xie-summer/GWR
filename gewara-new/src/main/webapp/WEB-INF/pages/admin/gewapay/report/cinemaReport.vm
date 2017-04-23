@@ -1,0 +1,118 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>报表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+<body style="width:85%; margin:auto">
+<div style="clear:both;"></div>
+<div>
+#parse('admin/gewapay/common.vm')
+</div>
+<form action="${basePath}admin/gewapay/reportCinema.xhtml">
+<table  border="1" style="width: 90%" cellspacing="0" class="table">
+	<tr>
+	<td height="30">
+		<select name="cinemaid" id="cinemaid">
+			<option value="">请选择影院</option>
+			#foreach($map in $cinemaList)
+			<option value="$map.get('cinemaid')" #if($map.get('cinemaid') eq $cinema.id) selected #end>$map.get('cinemaname')</option>
+			#end
+		</select>
+		开始日期:<input type="text" name="datefrom" id="datefrom" value="$!params.datefrom" style="width: 100px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>&nbsp;
+		结束日期:<input type="text" name="dateto" id="dateto" value="$!params.dateto" style="width: 100px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>&nbsp;
+		<input type="radio" name="opentype" value="" #if($VmUtils.isBlank($!params.opentype))checked#end/>全部
+		<input type="radio" name="opentype" value="GEWA" #if($VmUtils.eq($!params.opentype,'GEWA'))checked#end/>格瓦拉
+		<input type="radio" name="opentype" value="HFH" #if($VmUtils.eq($!params.opentype,'HFH'))checked#end/>火凤凰
+		<input type="submit" value="查询" />
+	</td>
+	</tr>
+</table>
+<br/>
+</form>
+#if($cinema && $params.datefrom && $params.dateto)
+<table width="100%" border="0"  cellspacing="0" class="table">
+	#set($col1=$VmUtils.size($costpriceList)*2 + 3)
+	#set($col2=$col1 - 1)
+	<tr>
+	<td colspan="$col1" align="center"><span>$cinema.name报表[$!{params.datefrom}--$!{params.dateto}]</span></td>
+	</tr>
+	<tr>
+	<td rowspan="3" align="center" class="wd120">电影名称</td>
+	<td colspan="$col2" align="center" class="l_td">按进价统计</td>
+	</tr>
+	<tr>
+	#foreach($costprice in $costpriceList)
+	<td colspan="2" align="center" class="wd80 l_td"><strong>$costprice</strong></td>
+	#end
+	<td colspan="2">小计</td>
+	</tr>
+	<tr>
+	#foreach($costprice in $costpriceList)
+	<td align="center" class="wd60 l_td"><strong>数量</strong></td>
+	<td align="center" class="wd60 l_td"><strong>金额</strong></td>    
+	#end
+	<td align="center" class="wd60 l_td"><strong>数量</strong></td>
+	<td align="center" class="wd60 l_td"><strong>金额</strong></td>    
+	</tr>
+	#set($M=0)
+	#foreach($movie in $movieList)
+	<tr>
+		<td align="center" class="wd60">$movie.name</td>
+		#set($moviequantity=0) #set($movieamount=0)
+		#foreach($costprice in $costpriceList)
+		#set($tmp=$movie.id+'_'+$costprice)
+		#if($quantityMap.get($tmp))
+			#set($quantity=$quantityMap.get($tmp))
+			#set($cj=$quantity*$costprice) #set($movieamount=$movieamount+$cj)
+			#set($moviequantity=$moviequantity + $quantity)
+		<td align="center" class="wd80 l_td">$!quantity</td>
+		<td align="center" class="wd80 l_td">$!cj&nbsp;</td>
+		#else
+		<td></td><td></td>
+		#end
+		#end
+		<td>$moviequantity</td>
+		<td>$movieamount</td>
+	</tr>
+	#set($M=$M+$movieamount)
+	#end
+	<tr>
+		<td>合计</td>
+		#set($totalcount=0) #set($totalAmount=0)
+		#foreach($costprice in $costpriceList)
+		#set($t=$priceCountMap.get($costprice)) #set($amount=$costprice * $t)
+		#set($totalcount=$totalcount+$t) #set($totalAmount=$totalAmount+$amount)
+		<td align="right">$t</td>
+		<td align="right">$amount</td>
+		#end
+		<td align="right">$totalcount</td>
+		<td align="right">$totalAmount</td>
+	</tr>
+</table>
+#end
+</body>
+</html>

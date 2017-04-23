@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>订单转成待处理</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=mootools&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.mouseBg{background: #bbb; color: #fff;}
+	</style>
+</head>
+<body style="width:850px; margin:auto">
+	<div>
+	#if($order)
+	#if($order.allPaid)
+	<div style="color:red">订单号$order.tradeNo已成功支付</div>
+	#else
+	<form action="${basePath}admin/account/orderToPay.xhtml" method="post">
+	<ul>
+		<li><label>$order.ordertitle：$order.description2</label></li>
+		<li><label>$order.membername</label></li>
+		<li><label>订单号：<input type="text" name="tradeNo" value="$order.tradeNo" /></label></li>
+		<li><label>支付金额：<input type="text" name="paidAmount" value="$order.due" /></label></li>
+		<li><label>支付序号：<input type="text" name="paySeq" /></label></li>
+		<li><label>支付方式：<input type="text" name="paymethod" value="$order.paymethod" /></label></li>
+		<li>$paytextMap</li>
+		<li><label><input type="submit" value="确认" /></label></li>
+	</ul>
+	</form>
+	#end
+	#else
+	<form action="${basePath}admin/account/orderToPay.xhtml" method="get">
+		<label>订单号：<input type="text" name="tradeNo" /></label>
+		<label><input type="submit" value="查询" /></label>
+	</form>
+	#end
+	</div>
+</body>
+</html>

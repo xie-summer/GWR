@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>商家订单通知</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body>
+
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li #if(!$params.status)class="currs"#end><a href="${basePath}admin/ticket/warnOrdersList.xhtml" class="admin"><span>失败通知</span></a></li>
+			<li #if($params.status eq 'Y')class="currs"#end><a href="${basePath}admin/ticket/warnOrdersList.xhtml?status=Y" class="admin"><span>已处理通知</span></a></li>
+		</ul>
+	</div>
+</div>
+
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<div class="aboutMovie">
+			<div>状态说明：<b>Y</b>：已处理，<b>N</b>：未处理</div>
+			<form action='${basePath}admin/ticket/warnOrdersList.xhtml' method="get">
+			<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th><span style="margin-right: 20px;">共有: 【$notifyCount】条</span>
+							订单:<input type="text" name="tradeNo" value="$!params.tradeNo"/>
+							<input type="submit" value="查询"/>
+						</th>
+					</tr>
+				</thead>
+			</table>
+			</form>
+			<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th>编号</th>
+						<th>订单号</th>
+						<th>商家名称</th>
+						<th>内容</th>
+						<th>发送时间</th>
+						<th>操作</th>
+					</tr>
+				</thead>
+				<tbody id="tbody">
+					#foreach($notify in $notifyList)
+					<tr class="grayBg">
+						<td>$foreach.count</td>
+						<td><a target="_blank" href="${basePath}admin/gewapay/orderDetail.xhtml?tradeNo=$notify.tradeNo">$notify.tradeNo</a></td>
+						<td>$notify.partnername</td>
+						<td style="text-align: left; width: 320px; white-space: normal;">$!notify.remark</td>
+						<td>$DateUtil.formatTimestamp($notify.addtime)</td>
+						#if($notify.status eq 'N')
+						<td><a href="javascript:void(0);" onclick="process(this, '$!notify.get('_id')')">设置为解决</td>
+						#else
+						<td><a href="javascript:void(0);" onclick="showprocess(this)" rel="解决人: $!notify.adminname">已解决</td>
+						#end
+					</tr>
+					#end
+				</tbody>
+			</table>
+		</div>
+		<b class="b2f"></b><b class="b1f"></b>
+	</div>
+</div>
+
+<script>
+	function process(obj, id){
+		if(!window.confirm('确认已解决该订单?')) return false;
+		var url = '${basePath}admin/ticket/processWarnOrder.xhtml';
+		var values = {'id': id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('设置成功!');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+	
+	function showprocess(obj){
+		var value = $(obj).get('rel');
+		gewa.util.tips(obj, value);
+	}
+</script>
+</body>
+</html>

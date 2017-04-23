@@ -1,0 +1,51 @@
+#set($cityMenuList=["ABCDEF", "GHIJ", "KLMN", "PQRSTV", "WXYZ"])
+<div class="inner" style="position:relative;">
+	<span class="ui_close" title="关闭"></span>
+	<div class="ui_city_cType clear">
+		<ul>
+			<li><a id="hotCitys" class="select" href="javascript:void(0);">热门</a></li>
+			#foreach($menu in $cityMenuList)
+			<li #if($foreach.count eq $VmUtils.size($cityMenuList)) class="last" #end><a id="cityT$foreach.count" href="javascript:void(0);">$menu</a></li>
+			#end
+		</ul>
+	</div>
+	<div class="ui_city_List clear" id="hotCitys_content">
+		<div class="inner clear">
+			<ul class="clear">
+				#foreach($city in $hotCityList)
+				<li><a #if($VmUtils.eq($citycode, $city.citycode)) class="select" #end href="#if($targetUrl)$!targetUrl?citycode=$city.citycode#else${basePath}$!city.pinyin#end">$!city.cityname</a></li>
+				#end
+			</ul>
+			<p class="tar"><a href="${basePath}cityList.xhtml">更多城市</a></p>
+		</div>
+	</div>
+	#foreach($menu in $cityMenuList)
+	#set($showStyle=true)
+	<div class="ui_city_List none clear" id="cityT${foreach.count}_content">
+		<div class="inner clear">
+			#foreach($treeMenu in $menu.toCharArray())
+			#set($temp=$treeMenu+"")
+			#set($cityList=$cityInitialsMap.get($VmUtils.lowerCase($temp)))
+			#if(!$VmUtils.isEmptyList($cityList))
+			<dl #if($showStyle)class="mt0"#end>
+				<dt><span>$treeMenu</span></dt>
+				<dd>
+					<ul>
+						#foreach($city in $cityList)
+						<li><a #if($VmUtils.eq($citycode, $city.citycode)) class="select" #end href="#if($targetUrl)$!targetUrl?citycode=$city.citycode#else${basePath}$!city.pinyin#end">$!city.cityname</a></li>
+						#end
+					</ul>
+				</dd>
+			</dl>
+			#set($showStyle=false)
+			#end
+			#end
+		</div>
+	</div>
+	#end
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	 new PanelGroup(['hotCitys','cityT1','cityT2','cityT3','cityT4','cityT5'], 'hotCitys', "select", "none", "click"); 
+})
+</script>

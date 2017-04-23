@@ -1,0 +1,383 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Sport关联运动项目</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css"
+	href="${staticPath}component/css/default.css" />
+<link rel="stylesheet" type="text/css"
+	href="${staticPath}component/css/container.css"></link>
+<link rel="stylesheet" type="text/css"
+	href="${staticPath}component/css/button.css"></link>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript"
+	src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+<style>
+label {
+	display: inline;
+	float: left;
+	width: 70px;
+	text-align: right;
+	padding: 1px 0 1px 0;
+	margin-top: 3px
+}
+
+input,textarea {
+	width: 450px;
+	display: inline
+}
+</style>
+</head>
+<body style="width: 850px; margin: auto" class="yui-skin-sam">
+	<div style="width: 740px;">
+		${sport.name}的服务信息 <input type="button" class="button"
+			style="width: 80px" value="增加" onclick="addSportItem();" />
+	</div>
+	<table style="width: 820px" class="table">
+		<thead>
+			<tr>
+				<th>项目名称</th>
+				<th>项目属性</th>
+				<th>是否显示</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody id="itemTable">
+			#foreach($item in $itemList)
+			#set($sportItemOtherInfoMap =$!VmUtils.readJsonToMap($!item.otherinfo))
+			<tr id="item_${item.id}">
+				<td width="100px" id="itemname_$!{item.id}">${item.itemname}</td>
+				<td width="450px" id="iteminfo_$!{item.id}">
+				<input type="hidden" id="opentype_$!{item.id}"  value="$!{item.openType}" />
+				#if($VmUtils.isNotEmpty($!sportItemOtherInfoMap.get('roomheight')))
+				场馆挑高：$!sportItemOtherInfoMap.get('roomheight')
+			     <input type="hidden" id="roomheight_$!{item.id}" value="$!sportItemOtherInfoMap.get('roomheight')" /> 
+				#end
+				#if($VmUtils.isNotEmpty($!sportItemOtherInfoMap.get('roommaterial')))
+				地板材料：$!sportItemOtherInfoMap.get('roommaterial')
+				 <input type="hidden" id="roommaterial_$!{item.id}" value="$!sportItemOtherInfoMap.get('roommaterial')" /> 
+				#end
+				#if($VmUtils.isNotEmpty($!sportItemOtherInfoMap.get('roomnumber')))
+				场地数量：$!sportItemOtherInfoMap.get('roomnumber')
+				<input type="hidden" id="roomnumber_$!{item.id}" value="$!sportItemOtherInfoMap.get('roomnumber')" /> 
+				#end
+				#if($VmUtils.isNotEmpty($!sportItemOtherInfoMap.get('roomaddress')))
+				场地位置：$!sportItemOtherInfoMap.get('roomaddress')
+				<input type="hidden" id="roomaddress_$!{item.id}" value="$!sportItemOtherInfoMap.get('roomaddress')" />
+				#end
+				#if($VmUtils.isNotEmpty($!sportItemOtherInfoMap.get('waterdepth')))
+				水深：$!sportItemOtherInfoMap.get('waterdepth')
+				<input type="hidden" id="waterdepth_$!{item.id}" value="$!sportItemOtherInfoMap.get('waterdepth')" />
+				#end
+				#if($VmUtils.isNotEmpty($!sportItemOtherInfoMap.get('watertemperature')))
+				水温：$!sportItemOtherInfoMap.get('watertemperature')
+				<input type="hidden" id="watertemperature_$!{item.id}" value="$!sportItemOtherInfoMap.get('watertemperature')" />
+				#end
+				#if($VmUtils.isNotEmpty($!sportItemOtherInfoMap.get('poolarea')))
+				泳池面积：$!sportItemOtherInfoMap.get('poolarea')
+				<input type="hidden" id="poolarea_$!{item.id}" value="$!sportItemOtherInfoMap.get('poolarea')" />
+				#end
+				#if($VmUtils.isNotEmpty($!sportItemOtherInfoMap.get('pooltype')))
+				泳池类别：$!sportItemOtherInfoMap.get('pooltype')
+				<input type="hidden" id="pooltype_$!{item.id}" value="$!sportItemOtherInfoMap.get('pooltype')" />
+				#end
+				#if($VmUtils.isNotEmpty($!sportItemOtherInfoMap.get('poolnumber')))
+				泳池数量：$!sportItemOtherInfoMap.get('poolnumber')
+				<input type="hidden" id="poolnumber_$!{item.id}" value="$!sportItemOtherInfoMap.get('poolnumber')" />
+				#end
+				#if($VmUtils.isNotEmpty($!sportItemOtherInfoMap.get('lanenumber')))
+				泳道数量：$!sportItemOtherInfoMap.get('lanenumber')
+				<input type="hidden" id="lanenumber_$!{item.id}" value="$!sportItemOtherInfoMap.get('lanenumber')" />
+				#end
+				</td>
+				<td><select name="booking" id="booking$!item.id" onchange="changeBooking($!item.id)">
+                       <option #if($VmUtils.eq($!item.booking,"open")) selected="selected"  #end value="open">是</option>
+                       <option #if(!$VmUtils.eq($!item.booking,"open")) selected="selected"  #end value="close">否</option>
+                    </select>
+               </td>
+				<td width="120px"><input type="button" class="button"
+					style="width: 50px" value="修改"
+					onclick="updateSportItem($!{item.id});" /> 
+					<!--  
+					<input type="button" class="button" style="width: 50px" value="删除"
+					onclick="deleteSportItem($!{item.id});" /></td>
+					-->
+			</tr>
+			#end
+		</tbody>
+	</table>
+	<div id="sportItemDialog" class="yui-panel"
+		style="width: 500px; visibility: hidden;">
+		<div class="hd" id="title">项目属性</div>
+		<div class="bd">
+			<!--  <form name="sportItemForm" id="sportItemForm">  -->
+				<div>
+					<label for="itemId">关联项目：</label> <select name="itemId"   id="itemId"
+						style="width: 150px" onchange="changeSportItem(this);">
+						#foreach($item in $topItemList)
+						<option value="${item.id}">${item.itemname}</option>
+						#foreach($subitem in $itemMap.get($item.id))
+						<option value="${subitem.id}">&nbsp;&nbsp;${subitem.itemname}</option>
+						#end #end
+					</select>
+				</div>
+
+				<!--  游泳项目的相关属性  begin  -->
+				 <form name="swimmingItemForm" id="swimmingItemForm">
+				<table id="swimmingItem" width="100" class="table">
+					<tr>
+						<td><label for="roomname">水深：</label> <input
+							name="waterdepth" type="text" id="depth" style="width: 150px;" />
+							<span class="req">*</span></td>
+						<td><label for="roomname">水温：</label> <input
+							name="watertemperature" type="text" id="temperature"
+							style="width: 150px;" /> <span class="req">*</span></td>
+					</tr>
+					<tr>
+						<td><label for="roomname">泳池面积：</label> <input
+							name="poolarea" type="text" id="area" style="width: 150px;" /> <span
+							class="req">*</span></td>
+						<td><label for="roomname">泳池类别：</label> <input
+							name="pooltype" type="text" id="type" style="width: 150px;" /> <span
+							class="req">*</span></td>
+					</tr>
+					<tr>
+						<td><label for="roomname">泳池数量：</label> <input
+							name="poolnumber" type="text" id="poolnumber1"
+							style="width: 150px;" /> <span class="req">*</span></td>
+						<td><label for="roomname">泳道数量：</label> <input
+							name="lanenumber" type="text" id="lanenumber1"
+							style="width: 150px;" /></td>
+					</tr>
+				</table>
+				 </form>
+				<!--  游泳项目的相关属性   end -->
+
+				<!--  羽毛球项目的相关属性  begin  -->
+				<form name="badmintonItemForm" id="badmintonItemForm">
+				<table id="badmintonItem" width="100" class="table">
+					<tr>
+						<td><label for="roomname">场馆挑高：</label> <input
+							name="roomheight" type="text" id="height" style="width: 150px;" />
+							<span class="req">*</span></td>
+						<td><label for="roomname">地板材料：</label> <input
+							name="roommaterial" type="text" id="material"
+							style="width: 150px;" /> <span class="req">*</span></td>
+					</tr>
+					<tr>
+						<td><label for="roomname">场地数量：</label> <input
+							name="roomnumber" type="text" id="roomnumber1"
+							style="width: 150px;" /> <span class="req">*</span></td>
+						<td><label for="roomname">场地位置：</label> <input
+							name="roomaddress" type="text" id="address" style="width: 150px;" />
+							<span class="req">*</span></td>
+					</tr>
+				</table>
+				 </form>
+				<!--   羽毛球项目的相关属性   end -->
+				<div>
+					<label>&nbsp;</label> <input type="button" class="button"
+						onclick="save();" style="width: 100px" value="保存" /> <input
+						type="button" class="button" onclick="cancle();"
+						style="width: 100px" value="取消" />
+				</div>
+		<!--  	</form>  -->
+		</div>
+	</div>
+	<script type="text/javascript">
+	var globalOpenType="";
+	var operate="";
+	function init(){
+		var selectObj=$("itemId");
+		changeSportItem(selectObj);
+	}
+	 init();
+	function saveCallBack(result){
+		if(result.success){
+			GewaraUtil.hideDialog("sportItemDialog");
+			alert("保存成功！");
+			window.opener = null; //禁止关闭窗口的提示
+            window.close(); //自动关闭本窗口
+           // refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	}
+	function save(){
+		var values=null;
+		if("period"==globalOpenType){  //游泳
+		if($("depth").value==""){
+			alert("请输入水深！");
+			return ;
+			}
+		else if($("temperature").value==""){
+			alert("请输入水温！");
+			return ;
+			}
+		else if($("area").value==""){
+			alert("请输入泳池面积！");
+			return ;
+			}
+		else if($("type").value==""){
+			alert("请输入泳池类别！");
+			return ;
+			}
+		else if($("poolnumber1").value==""){
+			alert("请输入泳池数量！");
+			return ;
+			}
+		values =GewaraUtil.getValues($("swimmingItemForm"));
+		}
+		else if("field"==globalOpenType) {//羽毛球
+			if($("height").value==""){
+				alert("请输入场馆挑高！");
+				return ;
+				}
+			else if($("material").value==""){
+				alert("请输入地板材料！");
+				return ;
+				}
+			else if($("roomnumber1").value==""){
+				alert("请输入场地数量！");
+				return ;
+				}
+			else if($("address").value==""){
+				alert("请输入场地位置！");
+				return ;
+				}
+			values =GewaraUtil.getValues($("badmintonItemForm"));
+		}
+		var url = "${basePath}admin/sport/ajax/saveOrUpdateRelateSportItem.xhtml?sportId=${sport.id}&itemId="+$("itemId").value+"&method="+operate;
+		GewaraUtil.sendRequest(url, values , saveCallBack);
+	}
+	function cancle(){
+		GewaraUtil.hideDialog("sportItemDialog");
+	}
+	function addSportItem(){
+		operate="add";
+		GewaraUtil.showDialog("sportItemDialog");
+		$("depth").value="";
+		$("temperature").value="";
+		$("area").value="";
+		$("type").value="";
+		$("poolnumber1").value="";
+		$("lanenumber1").value="";
+		$("height").value="";
+		$("material").value="";
+		$("roomnumber1").value="";
+		$("address").value="";
+		$("itemId").set("disabled","");
+		
+	}
+	
+	var options = new Object();
+	options.escapeHtml = false;
+	options.rowCreator = function(opt){
+		var rowData = opt.rowData;
+		var tmpRow = document.createElement("tr");
+		tmpRow.id="item_" + rowData.id;
+		return tmpRow;
+	}
+	
+	var cellFunc = [
+		function(item){
+			return item.itemname;
+		},function(item){
+			var tmpLink ='<input type="button" class="button" style="width:60px" value="删除" onclick="deleteSportItem(' + item.id + ');"/>';
+			return tmpLink;
+		}
+	]
+	
+	function addRow(item){
+		var itemList=[item];
+		GewaraUtil.addRows("itemTable", itemList, cellFunc, options);
+		var cells = $("item_" + item.id).cells;
+		cells[0].id="itemname_" + item.id;
+	}
+	function deleteSportItem(itemId){
+		var values = {'sportId':${sport.id},'itemId':itemId};
+		var url = "${basePath}admin/sport/ajax/removeRelateSportItemById.xhtml";
+		if(confirm("服务项目请不要轻易删除，请确认是否需要？")){
+			GewaraUtil.sendRequest(url, values ,function(result){
+				if(result.success){
+					$("item_"+itemId).dispose();
+					alert("删除成功！");
+				}else alert(result.msg);
+			});
+		}
+		
+	}
+	//项目的修改
+	function updateSportItem(itemId){
+		  operate="update";
+		  $("height").value=($('roomheight_'+itemId)==null)?"":$('roomheight_'+itemId).value;
+		  $("material").value=($('roommaterial_'+itemId)==null)?"":$('roommaterial_'+itemId).value;
+		  $("roomnumber1").value=($('roomnumber_'+itemId)==null)?"":$('roomnumber_'+itemId).value;
+		  $("address").value=($('roomaddress_'+itemId)==null)?"":$('roomaddress_'+itemId).value;
+		  $("depth").value=($('waterdepth_'+itemId)==null)?"":$('waterdepth_'+itemId).value;
+		  $("temperature").value=($('watertemperature_'+itemId)==null)?"":$('watertemperature_'+itemId).value;
+		  $("area").value=($('poolarea_'+itemId)==null)?"":$('poolarea_'+itemId).value;
+		  $("type").value=($('pooltype_'+itemId)==null)?"":$('pooltype_'+itemId).value;
+		  $("poolnumber1").value=($('poolnumber_'+itemId)==null)?"":$('poolnumber_'+itemId).value;
+		  $("lanenumber1").value=($('lanenumber_'+itemId)==null)?"":$('lanenumber_'+itemId).value;  
+		  var objSelect=document.getElementById("itemId") ;
+			for(var i=0;i<objSelect.options.length;i++) {
+		         if(objSelect.options[i].value == itemId) {
+		        	 objSelect.options[i].selected=true;
+		         }
+		     }      
+			if($("opentype_"+itemId)!=null){
+			globalOpenType=$("opentype_"+itemId).value;
+			ShowOrHideItem($("opentype_"+itemId).value);
+			}
+			 $("itemId").set("disabled","disabled");
+			GewaraUtil.showDialog("sportItemDialog");
+	}
+    
+	
+	//场馆项目的切换
+	function changeSportItem(selectObj){  
+		 var index = selectObj.options.selectedIndex;   
+		 var text = selectObj[index].text;   
+		 var val=selectObj[index].value;   
+	     var values = {'itemId':val};
+		var url = "${basePath}admin/sport/ajax/getSportItemById.xhtml";
+		GewaraUtil.sendRequest(url, values ,function(result){
+			if(result.success){
+				globalOpenType=result.openType
+				ShowOrHideItem(result.openType);
+			}else alert(result.msg);
+		});
+	}
+	
+	function changeBooking(itemId){
+		GewaraUtil.sendRequest("${basePath}admin/sport/ajax/updateSport2ItemBooking.xhtml",  {'itemId':itemId,'sportId':${sport.id},'booking':$('booking'+itemId).value} ,function(result){
+			if(result.success){
+				alert("修改成功！");
+			}else alert(result.msg);
+		});
+	}
+
+	 //项目的隐藏与显示
+	 function ShowOrHideItem(openType){
+		 if(openType=="period"){  //游泳
+			 $("badmintonItem").hide();
+			 $("swimmingItem").show();
+		 }
+		 else if(openType=="field"){   //羽毛球
+			 $("badmintonItem").show();
+			 $("swimmingItem").hide();
+		 }
+		 else {
+			 $("swimmingItem").hide();
+			 $("badmintonItem").hide();
+		}
+	 }
+	 
+	 
+	 
+</script>
+</body>
+</html>

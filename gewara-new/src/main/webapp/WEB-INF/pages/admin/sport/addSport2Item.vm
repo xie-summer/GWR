@@ -1,0 +1,39 @@
+<div class="hd">添加项目</div>
+<div class="bd">
+	<input type="hidden" name="sport2ItemId" id="sport2ItemId" value="$!sport2Item.id"/>
+	<div class="mt10">
+		<label>项目：</label>
+		<select id="itemid" disabled="disabled">
+			#foreach($item in $topItemList)
+			<option value="${item.id}" #if($VmUtils.eq($itemId, $item.id)) selected="selected" #end>${item.itemname}</option>
+			#end
+		</select>
+	</div>
+	<div class="mt10">
+		<label>室内室外：</label>
+		<select id="sporttype">
+			<option value="indoor" #if($VmUtils.eq($sport2Item.sporttype, 'indoor')) selected="selected" #end>室内</option>
+			<option value="outdoor" #if($VmUtils.eq($sport2Item.sporttype, 'outdoor')) selected="selected" #end>室外</option>
+			<option value="both" #if($VmUtils.eq($sport2Item.sporttype, 'both')) selected="selected" #end>室内和室外</option>
+		</select>
+	</div>
+	<div class="mt10">
+		#set($otherinfoMap=$VmUtils.readJsonToMap($sport2Item.description))
+		<label>场地属性：</label>
+		<input type="text" id="infoName" style="width:110px;float:left;"/>
+		<label style="width:50px">规格：</label>
+		<input type="text" id="infoValue" style="width:110px;float:left;"/>
+		#if($VmUtils.size($otherinfoMap) le 7)<input type="button" value="添加" onclick="addInfo()" style="width:50px; float:left; margin-left:22px;"/>#end
+		<label style="width:50px">最多8项</label><br />
+		<ul id="infos" style="clear:both;padding-left:70px;" class="mt10">
+		#foreach($info in $otherinfoMap.keySet())
+			<li><span style="width:300px;display:inline-block;">"$!{info}":"$!{otherinfoMap.get($!info)}"</span><input type="button" value="删除" onclick="delInfo(this)" style="width:50px;"/></li>
+		#end
+		</ul>
+	</div>
+	<div class="mt10">
+		<label>&nbsp;</label>
+		<input type="button" name="save" class="button" value="保存" style="width:60px" onclick="saveSport2Item()"/>
+		<input type="button" name="cancle" class="button" value="取消" style="width:60px" onclick="hideSport2Item()"/>
+	</div>
+</div>

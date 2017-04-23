@@ -1,0 +1,133 @@
+<!Doctype html>
+<html>
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>格瓦拉演出订单验证查询平台 - 格瓦拉生活网</title>
+	<meta name="keywords" content="银联活动后台 - 格瓦拉生活网"/>
+	<meta name="description" content="银联活动后台 - 格瓦拉生活网"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_movie&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${basePath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	.ui_plugs_body h1{ display:inline-block; border-left:1px solid #ffffff; font-family:"微软雅黑"; font-size:28px; font-weight:300; color:#fff;position:absolute; left:125px; top:8px; height:32px; line-height:32px; padding-left:20px;}
+	#cBody{background:#ffffff; margin:0 auto; padding:20px; width:920px;}
+	.d_body{background:#f7f7f7; height:auto; padding:20px;}
+	.i_search{padding-bottom:30px; width:900px;}
+	.i_count{border-top:1px solid #e2e2e2; padding-top:30px;}
+	.search_mod{margin-left:20px;}
+	.i_search span{display:inline-block;}
+	.i_count h2{font-family:"微软雅黑";}
+	.i_num span{margin-left:20px;}
+	.text{font-size:16px;}
+	.wait{color:#ff0400;}
+	.over{color:#9ec35a;}
+	.i_count_list{margin-top:20px; width:100%}
+	.i_count_list th ,.i_count_list td{text-align:center; border:1px solid #eeeeee; background:#ffffff; color:#777777;padding:5px 5px;}
+	.i_count_list th{background:#f8f8f8; color:#686868;}
+	.i_count_list .xz{color:#0097fe;}
+	.even td{background:#ffffff;}
+	.odd td{background:#fafafa;}
+	/*1200px宽屏专用*/
+	.body_1200{width:1160px!important;}
+	ul{
+		margin-top: 8px;
+	}
+	</style>
+</head>
+<body>
+<div id="cBody">
+	<div class="d_body">
+		<a href="javascript:getUser('')">添加用户</a>
+		<div class="i_body">
+			<div class="i_count">
+				<table class="i_count_list">
+					<thead>
+						<tr>
+							<th>序号</th>
+							<th>真实姓名</th>
+							<th>登录名</th>
+							<th>手机号</th>
+							<th>状态</th>
+							<th>修改</th>
+						</tr>
+					</thead>
+					<tbody>
+					#foreach($user in $userList)
+					#if($foreach.index%2 eq 0)#set($class='even')#else#set($class='odd')#end
+						<tr class="$class">
+							<td class="id">$foreach.count</td>
+							<td class="nub">$!user.realName</td>
+							<td>$user.loginname</td>
+							<td>$!user.mobile</td>
+							<td>$!user.status</td>
+							<td><a href="javascript:getUser($user.id)">修改</a></td>
+						</tr>
+						#end
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="qpticket">
+
+</div>
+<script type="text/javascript">
+window.addEvent('domready', function(){
+	if(GewaraUtil.isWarp){
+		$("cBody").addClass('body_1200');
+	}
+	selectBar();
+	var simulateSelect = $$('.simulate_select');
+	simulateSelect.each(function(item){
+		var e = item.getNext().getElement('a[data-value=$!{params.order}]')
+		item.getElement('.select_value').set('html',e.get('html'));
+		item.getElement('.simulate_value').set('value',e.get('data-value'));
+	});
+});
+function selectBar(){
+	var simulateSelect = $$('.simulate_select');
+	simulateSelect.each(function(item){
+		item.addEvent('click',function(){
+			item.getNext().toggle();
+		})
+		item.getParent().addEvent('mouseleave',function () {
+			item.getNext().hide();
+		})
+		item.getNext().getElements('a').addEvent('click',function (e){
+			e.preventDefault();
+			if(item.getElement('.simulate_value').get('value') != this.get('data-value')) {
+				sorder(this.get('data-value') ? this.get('data-value') : "");
+			}
+		});
+	});
+}
+
+function getUser(id){
+	var url = '${basePath}admin/dramaTicket/getLocUser.xhtml';
+	var values={'id':id};
+	GewaraUtil.sendLoad('qpticket', url, values, function(result){
+		if(!result.success){
+			var msg = result.json.msg;
+			gewa.util.maskContent("qpticket", '<span style="cursor:pointer">'+msg+'</span>');
+		}else{
+			gewa.util.maskContent("","qpticket","编辑用户信息:" ,550,"macDetail");
+		}
+	});
+}
+function saveUser(){
+	var url = '${basePath}admin/dramaTicket/addLocTicketUser.xhtml';
+	var values = GewaraUtil.getValues($("qpModify"));
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('保存成功！');
+			refreshPage();
+		}else{
+			alert(result.msg)
+		}
+	});
+}
+</script>
+</body>
+</html>

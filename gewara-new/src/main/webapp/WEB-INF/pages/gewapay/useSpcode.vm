@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>使用特价优惠码</title>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,play&v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+<style type="text/css">
+	.bxjg_layout{width:960px;margin:0 auto;background:#fff;}
+	.bxjg_ccbButt a{width:106px;height:26px;display:inline-block;background:url(${staticPath}styles/images/bxjg_ccbButt.png) no-repeat;margin-left:547px;margin-top:75px;}
+	.bxjg_ccb_videoBox{width:462px;margin:auto;padding:20px 0;}
+	.bxjg_ccb_video{width:452px;height:373px;display:block;margin:auto;}
+	.w121{width:121px;float:left;}
+	.l_hr{border-top:1px solid #e8e7e7;margin:10px 0;}
+	.buttbox2{padding:30px 15px 20px;}
+	.pb20{padding-bottom:20px;}
+	#errShow{position: absolute;padding:10px;width:270px;height:22px;border:1px solid #ccc;background:#fff;color:red;display: none;}
+	#errShow img{position: absolute;top:-8px;left:20px;}
+</style>
+</head>
+<body>
+#set($ismovie=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="bxjg_layout pb20">
+	<div class="pay_info_box">
+		<div class="title yellow"><h2>验证电子码信息</h2></div>
+		<div class="timeNotice">
+			<p> 你选中的座位已经成功锁定，<b class="yellow">请在15分钟内完成支付</b>，否则系统将释放已选座位。</p>
+			<p class="mt10 center">剩余支付时间：<span style="font-size:2em;color:#C03B0C"><b id="CountMsg"><b id="RemainM">15</b><b>分</b><b id="RemainS">00</b><b>秒</b></b></span></p>
+		</div>
+		<div class="clear" id="cardForm">
+			<div class="mt20">
+				<div class="mt5 ml15">请输入电子码</div>
+				<div class="mt5">
+					<input type="text" name="spcodePass" id="spcodePass" value="" maxlength="15" class="text ml15" style="width:200px;font-size:18px;font-weight:bold;color:#333"/>
+				</div>
+			</div>
+		</div>
+		<div class="buttbox2">
+			<label for="subBt" class="bigBt button "><input type="button" id="subBt" onclick="useSpcode($('spcodePass').value)" value="确认无误，使用"/></label>
+			<a style="margin-left:20px;font-size:12px;font-size:14px;text-decoration:underline;" class="brown" href="${basePath}gewapay/order.xhtml?orderId=$orderId">返回上一步，重新选择</a>
+		</div>
+		#if($spcodeList.size() gt 0)
+		<div class="buttbox2">
+			<div class="mt5 ml15">使用说明：$!spdiscount.description</div>
+			<div class="mt5 ml15">有效时间：$!{DateUtil.format($spdiscount.timefrom, "yyyy.MM.dd HH:mm")} -- $!{DateUtil.format($spdiscount.timeto, "yyyy.MM.dd  HH:mm")}</div>
+			<div class="mt5 ml15">
+			#foreach($spCode in $spcodeList)
+			#if($spCode.usedcount eq 0)
+				<input type="button" value="使用$spCode.gainTemppass()" onclick="useSpcode('$!spCode.gainTemppass()')"/>
+			#end
+			#end
+		</div>
+		</div>
+		#end
+	</div>
+</div>
+<script type="text/javascript">
+function useSpcode(cardPass){
+	GewaraUtil.sendRequest("${basePath}gewapay/addDiscountBySpcode.xhtml",{"orderId":$orderId, "spcodePass":cardPass}, function(result){
+		if(result.success){
+			document.location = "${basePath}gewapay/confirmOrder.xhtml?orderId=$orderId";
+			return;
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+window.addEvent('domready', function(){
+	data();
+});
+function getRTime(){
+	var nM = Math.floor(remain/(1000*60)) % 60;
+	var nS = Math.floor(remain/1000) % 60;
+	$("RemainM").innerHTML = (nM < 10 ? "0" : "") + nM;
+	$("RemainS").innerHTML = (nS < 10 ? "0" : "") + nS;
+	remain -= 1000;
+	if(((remain/1000).toInt()*1000)%60000==0){
+		$clear(pfun);
+		data();
+	}
+	if(remain<=0){
+		if(pfun) $clear(pfun);
+		data();
+		return;
+	}
+};
+function data(){
+	var random = GewaraUtil.rtime();
+	new Request({
+		url: '${basePath}cinema/order/time.xhtml?tid=$orderId&v='+random,
+		method:'get',
+		onSuccess: function(responseText) {
+			remain = responseText * 1;
+			if(remain <= 0){
+				$("CountMsg").empty();
+				$("CountMsg").innerHTML = "订单已超时";
+			}else{
+				pfun = getRTime.periodical(1000);
+			}
+		}
+	}).send();
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

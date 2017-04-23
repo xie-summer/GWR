@@ -1,0 +1,61 @@
+<div id="deleteReason" style="display: none;border:2px solid gray;width:500px;height:80px;padding-top:10px;background:#ffffff;z-index: 10">
+	<input type="hidden" id="frompage">
+	<input type="hidden"  id="editid" />
+	<input type="hidden"  id="editstatus" />
+	<input type="hidden" id="prestatus">
+	原因：<textarea name="handReason" id="handReason" rows="2" cols="40"  onclick="this.focus();"></textarea>
+				<input type="button" id="reason_ok" value="确定" onclick="deleteInfo()" />
+				<input type="button" id="reason_cancel" value="取消" onclick="hiddenDiv()" />
+</div>
+	<script>
+	function hiddenDiv(){
+		$('handReason').value='';
+		$('deleteReason').set('styles',{'display':'none'});
+		$('divbig').dispose();
+		$('reason_ok').disabled = false;
+		$('reason_cancel').disabled = false;
+		newajaxLoadcontent($('prestatus').value);
+	}
+	
+	function deleteInfo(){
+		$('reason_ok').disabled = true;
+		$('reason_cancel').disabled = true;
+		
+		var handReason=$('handReason').value;
+		if(handReason.length==0){
+			alert("请输入原因");
+			$('reason_ok').disabled = false;
+			$('reason_cancel').disabled = false;
+			return false;
+		}
+		var frompage = $('frompage').value;
+		if(GewaraUtil.isNotNull(frompage)){
+			ajaxChangeActivity(handReason);
+		}else{
+			ajaxChangeCommu(handReason);
+		}
+	}
+	
+	function ajaxChangeCommu(handReason){
+		var url = '${basePath}admin/audit/commu/changeApplyStatus.xhtml';
+		var values = {'applyid':$('editid').value, 'status':$('editstatus').value, 'reason':handReason};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				hiddenDiv();
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+	function ajaxChangeActivity(handReason){
+		var url = '${basePath}admin/common/changeApplyActivityStatus.xhtml';
+		var values = {'goodsid':$('editid').value, 'status':$('editstatus').value, 'reason':handReason};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				hiddenDiv();
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+</script>

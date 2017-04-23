@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>格瓦拉生活网——积分帮助中心——积分兑换产品</title>
+	<meta name="keywords" content="电影,KTV,酒吧,健身,运动,话剧,电影购票,电影票,电影排片,热门电影,最新电影,电影资讯,在线选座,在线购票,预订电影票"/>
+	<meta name="description" content="格瓦拉生活网提供查询电影资讯，在线购买电影票，查询电影排片，酒吧资讯，KTV唱歌价格查询，健身课程表，健体运动场馆及资讯查询等方面的休闲生活信息，格瓦拉生活是国内首家支持在线选座购买电影票的网站。"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,goods&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>  
+	<style type="text/css">
+	html{background:#fff;}
+	.topBox .ul-60 li{margin:3px 0;}
+	</style>
+</head>
+<body>
+#set($isToday=true)#set($isSubject=true)#set($exchange=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+#parse('include/home/pointHeader.vm')
+<div class="widCen" style="margin:15px auto 20px auto;">
+	<div class="p-left left">
+		<div class="topBox">
+			<h1 class="topTit02"> </h1>
+					<form id="buyform">
+					<dl class="productBox ui_abeam" style="margin:0px;" >
+					<dt class="uipic" style="width:200px; height:300px; overflow:hidden;" title="$!goods.goodsname"><img src="${staticPath}css/images/blank.gif" width="200" height="300" alt="$!goods.goodsname" style="background:url($VmUtils.randomPic('sw200h300',$!goods.limg)) center top no-repeat; width:200px; height:300px; border:0; padding:0;"/></dt>
+					<dd class="uiText" style="line-height:22px; width:400px; overflow:hidden;">
+						<input type="hidden" name="gid" id="gid" value="$goods.id" />
+					<h2 class="fs14"><b>$!goods.goodsname</b></h2>
+					<ul class="ul-60 left" style="clear: none">
+						#if($goods.hasBooking())
+							<li>
+								<div class="ul-60Inner">所需积分：</div>
+								<span class="yellow bold" style="font-size:20px;">$!goods.realpoint</span>&nbsp;分
+							</li>
+							<li>
+								<div class="ul-60Inner">兑换数量：</div>
+								<input type="text" name="quantity" id="quantity" value="1" maxlength="2" class="text" style="width:90px;"/><span class="yellow">*</span>
+							</li>
+							<li>
+								<div class="ul-60Inner">手&nbsp;&nbsp;机&nbsp;&nbsp;号：</div>
+								<input type="text" name="mobile" id="mobile" value="$!logonMember.mobile" mustTxt="请输入手机号！" class="text" style="width:90px;"/><span class="yellow">*</span>
+							</li>
+							#if($goods.isNeedDeliver())
+							<li>
+								<div class="ul-60Inner">收&nbsp;&nbsp;件&nbsp;&nbsp;人：</div>
+								<input type="text" name="address" id="contactor" maxlength="10" mustTxt="收货人不能为空！" class="text" style="width:90px;"/><span class="yellow">*</span>
+							</li>
+							<li>
+								<div class="ul-60Inner">邮政编码：</div>
+								<input type="text" name="address" id="postcode" maxlength="6" mustTxt="邮政编码不正确！" class="text" style="width:90px;"/><span class="yellow">*</span>
+							</li>
+							<li>
+								<div class="ul-60Inner">详细地址：</div>
+								<input type="text" name="address" id="address" class="text" mustTxt="详细地址不能为空！" style="width:260px;"/><span class="yellow">*</span>
+							</li>
+							#end
+							<li>
+								<div class="ul-60Inner">验&nbsp;&nbsp;证&nbsp;&nbsp;码：</div>
+								<input type="hidden" name="captchaId" id="captcha"/>
+								<input type="text" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" mustTxt="请输入验证码！" size="18" style="width:80px;" onfocus="GewaraUtil.refreshCaptcha('captcha');"/><span class="yellow">*</span><br/>
+								<img id="captchaImg" src="${staticPath}css/images/blank.gif" style="cursor: pointer; margin-top:5px;" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清楚，请点击换一张图片"/>
+							</li>
+							<li class="mt10">
+								<label class="button bigBt redBt"><input type="button" onclick="submitOrder(this);" class="subBt" value="立即兑换"/></label>
+							</li>
+						#else
+							<li>
+								<div align="left">
+								<p>&nbsp;</p>
+								#if($goods.start)
+								<h2 class="fs14">商品兑换尚未开始，敬请期待！</h2>
+								#elseif($goods.end)
+								<h2 class="fs14">该商品已过期，不能兑换</h2>
+								#end
+								</div>
+							</li>
+						#end
+					</ul>
+					</dd>
+				</dl>
+				</form>
+				<div class="height0"></div>
+		</div>
+		<div class="horn mt20">
+		<em class="m1"></em><em class="m2"></em>
+		<div class="m" style="width:660px;">
+			$!goods.description
+		</div>
+		<em class="m2"></em><em class="m1"></em>
+	</div>
+	</div>
+	<div class="p-right right">
+		#parse('include/home/point.vm')     
+	</div>
+	<div class="height0"></div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+	function submitOrder(obj){
+		checkLogin(true, function(){
+			if(!/^1[3,5,8]\d{9}$/.test($('mobile').value)){
+				gewaUtil.alert("手机号码格式不正确！");return;
+			}
+			if(!/^[1-9]\d*$/.test($('quantity').value)){
+				gewaUtil.alert("购买数字不正确！");return;
+			}
+			if(!GewaraUtil.baseValidForm('buyform')) return;
+			var url = '${basePath}gewapay/addGoodsOrder.xhtml';
+			var values = GewaraUtil.getValues('buyform',',');
+			GewaraUtil.mask(obj);
+			GewaraUtil.sendRequest(url, values, function(result){
+				GewaraUtil.unmask();
+				if(result.success){
+					document.location.href="${basePath}gewapay/order.xhtml?orderId=" + result.retval;
+				}else{
+					gewaUtil.alert(result.msg);
+					GewaraUtil.refreshCaptcha('captcha');
+				}
+			});
+			
+		});
+	}
+	window.addEvent('domready',function(){
+		gewa.util.textOver('.text');
+		$$('label.button,span.button').addEvents({
+			'mouseenter':function(){if(this.hasClass('bigBt')){this.addClass('bg_hover')}else{this.addClass('hover')}},
+			'mouseleave':function(){if(this.hasClass('bigBt')){this.removeClass('bg_hover');}else{this.removeClass('hover');}}
+		});
+	});
+</script>
+</body>
+</html>

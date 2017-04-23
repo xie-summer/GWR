@@ -1,0 +1,69 @@
+#if(!$isCityParam)
+#parse('include/constant/city.vm')
+#set($cookieCitycode=$cookieTool.citycode.value)
+#set($cityPinyin=$pinyinMap.get($cookieCitycode))
+#if($VmUtils.isBlank($cookieCitycode))#set($cookieCitycode='310000')#end
+#if($VmUtils.isBlank($cityPinyin))#set($cityPinyin='sh')#end
+#set($cookieCityname=$!CITY_MAP.get($cookieCitycode))
+#end
+#if(!$isCityParam)
+#parse('include/constant/cityPoint.vm')
+#parse('include/navigationParams.vm')
+#set($cityPinyin=$pinyinMap.get($cookieCitycode))
+#set($cookieCityname=$!CITY_MAP.get($cookieCitycode))
+#set($cityItemModule=$globalItemModuleMap.get($cookieCitycode))
+#set($cityActivityRelate=$globalActivityRelateMap.get($cookieCitycode))
+#set($cityOtherRelate=$globalOtherRelateMap.get($cookieCitycode))
+#set($globalCurPoint=$globalCityPoint.get($cookieCitycode))
+#end
+<div class="ui_top ui_index_shadow" lang="bgcolor">
+	<div class="ui_plugs_body" id="cityChoose">
+		#if(!$!isShow_Index)
+		<div class="ui_top_nav ui_icon_tag" lang="ishover">
+			#if($VmUtils.contains($cityItemModule,'index'))<a href="${basePath}" class="isDisabled"><span>首页</span></a>#end
+			<a href="${basePath}movie/" key="movie" #if($!ismovie)class="isDisabled ischoise"#end><span>电影#if($!ismovie)<i></i>#end</span></a>
+			#if($VmUtils.contains($cityItemModule,'drama'))<a href="${basePath}drama/" key="drama" #if($relatedtag eq 'drama' || $!isdrama)class="isDisabled ischoise"#end><span>演出#if($relatedtag eq 'drama' || $!isdrama)<i></i>#end</span></a>#end
+			#if($VmUtils.contains($cityItemModule,'sport'))<a href="${basePath}sport/" key="sport" #if($!issite || $!issport || $!isgym)class="isDisabled ischoise"#end><span>运动#if($!issite || $!issport || $!isgym)<i></i>#end</span></a>#end
+			#*
+			#if($VmUtils.contains($cityItemModule,'gym'))<a href="${basePath}gym/" key="gym" #if($!isgym)class="isDisabled ischoise"#end><span>健身#if($!isgym)<i></i>#end</span></a>#end
+			*#
+			#if($VmUtils.contains($cityItemModule,'activity'))<a href="${basePath}activity/" key="activity" #if($!isActivity)class="isDisabled ischoise"#end><span>活动#if($!isActivity)<i></i>#end</span></a>#end
+			<a href="${basePath}home/sns/personIndex.xhtml" key="home" #if($!istopic || $isqa || $communityIndex)class="isDisabled ischoise"#end><span>社区#if($!istopic || $isqa || $communityIndex)<i></i>#end</span></a>
+		</div>
+		#end
+		<div class="ui_logins" id="global_check_login"></div>
+	</div>
+</div>
+<div class="mobile_navBox">
+	<div class="mobile_nav">
+		<a href="${basePath}" class="link_logo"></a>
+		<div class="ui_nav_right">
+			<span class="ui_nav_pl"></span><span class="ui_nav_pr"></span>
+			<div class="ui_nav_inner">
+				<a href="${basePath}mobile/index.xhtml" #if($isMobile)class="select" #end>首页</a>
+				<a href="${basePath}mobile/mobileMovie.xhtml" #if($isMobileMovie)class="select" #end>格瓦拉@电影</a>
+				#*
+				<a href="${basePath}mobile/mobileMovie16th.xhtml" #if($isMobileMovie16th)class="select" #end>上海电影节</a>
+				*#
+				<a href="${basePath}mobile/mobileSport.xhtml" #if($isMobileSport)class="select" #end>格瓦拉@运动</a>
+				<a href="${basePath}mobile/mobileDrama.xhtml" #if($isMobileDrama)class="select" #end>格瓦拉@演出</a>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="ui_city_plugs none clear" id="ui_city_plugs"></div>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=scrollerbar,navigation&v=$VmUtils.jsVersion" cityMap='$proMap' cookieCityname='$cookieCityname' cookieCitycode='$cookieCitycode' head='header' id='navigation'></script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	nav.init();
+	new PanelGroup(['hotCitys', 'allCitys'], 'hotCitys', "select", "none", "click");
+	loadHeadCityList();
+})
+function loadHeadCityList(){
+	GewaraUtil.sendLoad("ui_city_plugs", "${basePath}ajax/common/loadHeadCity.xhtml",{}, function(result){
+	});
+}
+window.addEvent('domready', function(){
+	nav.init();
+});
+</script>

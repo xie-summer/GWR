@@ -1,0 +1,74 @@
+#set($opiOtherInfoMap=$VmUtils.readJsonToMap($opi.otherinfo))
+#if($VmUtils.eq($opi.goodstype,'activity'))
+<table>
+   	<tbody>
+   		<tr class="trbg">
+    		<td rowspan="3" class="desc">订单号<br />信息</td>
+		    <td>商品名称：</td>
+		    <td>$!opi.name</td>
+		    <td>活动[ID]：</td>
+		    <td><a style="color:blue;" href="${basePath}activity/$!opi.relatedid" target="_blank">$!opi.relatedid</a></td>
+		    <td>业务模式：</td>
+		    <td>$!feetypeMap.get($opi.feetype)</td>
+		    <td>真实姓名：</td>
+		    <td>$!otherInfoMap.get('realname')</td>
+		 </tr>
+   		<tr class="trbg">
+    		<td>原价：</td>
+		    <td>$!opi.oriprice</td>
+    		<td>格瓦拉价：</td>
+		    <td>$!opi.unitprice</td>
+		    <td>结算价：</td>
+		    <td>$!opi.costprice</td>
+    		<td>数量：</td>
+		    <td>$!order.quantity</td>
+		</tr>
+   		<tr class="trbg">
+    		<td>GWL取票密码：</td>
+		    <td>$!order.checkpass</td>
+		    <td>第三方取票密码：</td>
+		    <td>$!order.hfhpass</td>
+   			<td>取票机：</td>
+   			<td>$!takemethodMap.get($profile.takemetod)</td>
+   			<td>场次是否支持退款：</td>
+   			<td>#if($VmUtils.eq($opiOtherInfoMap.get('isRefund'),'N'))否#else是#end</td>
+   		</tr>
+   	</tbody>
+</table>
+#else
+<table>
+   	<tbody>
+   		<tr class="trbg">
+    		<td rowspan="3" class="desc">订单号<br />信息</td>
+		    <td>场馆：</td>
+		    <td>#if($orderMap.place)<a style="color:blue;" href="${basePath}$!opi.tag/$!order.placeid" target="_blank">$!orderMap.place.realBriefname</a>#end</td>
+		    <td>卖品[ID]：</td>
+		    <td><a style="color:blue;" href="${basePath}goods/buyGoods.xhtml?gid=$!order.goodsid" target="_blank">$!order.goodsid</a></td>
+		    <td>卖品名称：</td>
+		    <td>$!opi.name</td>
+		    <td>卖品过期时间：</td>
+		    <td>$!DateUtil.format($!opi,'M月d日')</td>
+		 </tr>
+   		<tr class="trbg">
+    		<td>业务模式：</td>
+		    <td>$!feetypeMap.get($opi.feetype)</td>
+    		<td>票纸内容：</td>
+		    <td>$!opi.printcontent</td>
+    		<td>数量：</td>
+		    <td>$!order.quantity</td>
+		    <td>单价：</td>
+		    <td>$!order.unitprice</td>
+		</tr>
+   		<tr class="trbg">
+    		<td>GWL取票密码：</td>
+		    <td>$!order.checkpass</td>
+		    <td>第三方取票密码：</td>
+		    <td>$!order.hfhpass</td>
+   			<td>取票机：</td>
+   			<td>$!takemethodMap.get($profile.takemetod)</td>
+   			<td>场次是否支持退款：</td>
+   			<td>#if($VmUtils.eq($opiOtherInfoMap.get('isRefund'),'N'))否#else是#end</td>
+   		</tr>
+   	</tbody>
+</table>
+#end

@@ -1,0 +1,368 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>优惠广告活动列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;maradn-top:3px}
+		input,textarea { width:450px; display:inline}
+		a{text-decoration: none;}
+		.ua{text-decoration: none;color: red }
+		.bk{background:rgb(255, 246, 200)}
+	</style>
+</head>
+<body style="width:100%; maradn:auto" class="yui-skin-sam">
+<div>
+<input type="button" class="button" style="width:110px" value="增加优惠广告活动" onclick="addAdPosition('add')"/>
+</div>
+<table width="100%" class="table">
+	<thead>
+	<tr>
+		<th>id</th>
+		<th>logo图片</th>
+		<th>标题</th>
+		<th>活动类型</th>
+		<th>应用类型</th>
+		<th>系统类型</th>
+		<th>开始时间</th>
+		<th>结束时间</th>
+		<th>状态</th>
+		<th>排序</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="gymTable">
+	#foreach($activity in $phoneActivityList)
+	<tr>
+		<td>$!{activity.id}</td>
+		<td><img src="$VmUtils.randomPic('cw96h128',$activity.logo)"/></td>
+		<td>$!{activity.title}</td>
+		<td>$!{activity.type} </td>
+		<td>
+			#if($activity.apptype eq 'cinema')
+				影院
+			#end
+			#if($activity.apptype eq 'sport')
+				运动
+			#end
+			#if($activity.apptype eq 'bar')
+				酒吧
+			#end
+			#if($activity.apptype eq 'cinema_cmcc')
+				移动android客户端
+			#end
+			#if($activity.apptype eq 'weixin')
+				微信营销
+			#end
+		</td>
+		<td>$!activity.ostype</td>
+		<td>$!DateUtil.format($!activity.starttime,'yyyy-MM-dd HH:mm:ss')</td>
+		<td>$!DateUtil.format($!activity.endtime,'yyyy-MM-dd HH:mm:ss')</td>
+		<td>
+		#if($activity.status eq 'N')
+			显示
+		#elseif($activity.status eq 'H')
+			隐藏
+		#end
+		</td>
+		<td>$!activity.rank</td>
+		<td align="center">
+		<input type="button" value="修改" onclick="modAdPosition('$!{activity.id}')" style="width: 80px"/>
+		 <input type="button" value="删除" onclick="removeAdPosition('$!{activity.id}')" style="width: 80px"/>
+	</tr>
+	#end
+	</tbody>
+</table>
+<div id="adDialog" class="yui-panel" style="width:690px; visibility:hidden; z-index:20;">
+
+	<div class="hd">
+		<span>编辑优惠广告活动数据</span>
+	</div>
+	<div class="bd">
+	<form name="adForm" id="adForm">
+	<input type="hidden" name="pid" id="pid"/>
+		<div>
+			<label for="position">标题：</label>
+			<input  name="title" id="title" type="text"/>
+			<span class="req">&nbsp;</span>
+		</div>
+		<div>
+			<label for="position">活动类型：</label>
+			<input  name="type" id="type" type="text"/>
+			<span class="req">&nbsp;</span>
+		</div>
+		<div>
+			<label for="position">活动地点：</label>
+			<input  name="address" id="address" type="text"/>
+			<span class="req">&nbsp;</span>
+		</div>
+		<div>
+			<label for="position">场次id：</label>
+			<input  name="opiinfo" id="opiinfo" type="text"/><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<font color='gray'>多个用,进行分隔</font>
+			<span class="req">&nbsp;</span>
+		</div>
+		<div>
+			<label>开始时间：</label>
+			<input name="starttime" type="text" id="starttime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!goods.fromtime"/>
+		</div>
+		<div>
+			<label >结束时间：</label>
+			<input name="endtime" id="endtime" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!goods.fromtime"/>
+		</div>
+		<div>
+			<label for="description">应用类型：</label>
+			<select name="apptype" id="apptype">
+				<option value="cinema">影院</option>
+				<option value="bar">酒吧</option>
+				<option value="sport">运动</option>
+				<option value="cinema_cmcc">移动android客户端</option>
+				<option value="weixin">微信营销</option>
+			</select>
+			<span class="req">&nbsp;</span>
+		</div>
+		<div>
+			<label for="description">系统类型：</label>
+			<select name="ostype" id="ostype">
+				<option value="ANDROID">ANDROID</option>
+				<option value="IPHONE">IPHONE</option>
+				<option value="ALL">所有</option>
+			</select>
+			<span class="req">&nbsp;</span>
+		</div>
+		<div>
+			<label for="description">活动内容：</label>
+			<textarea id="content" name="content"></textarea>
+			<span class="req">&nbsp;</span>
+		</div>
+		#parse("admin/common/adminInnerCityList.vm")
+		<div style="clear:both"></div>
+		<div>
+			<label for="status">是否显示：</label>
+			<select name="status" id="status">
+				<option value="N">是</option>
+				<option value="H">否</option>
+			</select>
+			<span class="req">&nbsp;</span>
+		</div>
+		
+		<div>
+			<label for="rank">排序：</label>
+			<input  name="rank" id="rank" type="text" style="width:35px;"/>
+			<span class="req">数字越小越靠前</span>
+		</div>
+		
+		<div>
+			<label for="pid">详情图片：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+					src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/adv&callback=updateContentLogo&notLimit=true">
+			</iframe><br/>
+			图片地址：<input type="text" name="contentLogo" id="contentLogo" value=""/>
+			<div><img style="height:80px; margin-left:70px;" id='contentLogoImg' src="${staticPath}css/images/blank.gif"/></div>
+		</div>
+		<div>
+			<label for="pid">列表logo图片：</label>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+					src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/adv&callback=updateLogo&notLimit=true">
+			</iframe><br/>
+			图片地址：<input type="text" name="logo" id="logo" value="$!advlink"/>
+			<div><img style="height:80px; margin-left:70px;" id='logoimg1' src="${staticPath}css/images/blank.gif"/></div>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="save();" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("content", {customConfig : '/ckeditor/gewaConfig.js',width:590});
+		ckeditor.on('paste',function(e){
+			if($chk(e.data.html)){
+				var data = this.getData();
+				var htm = e.data.html;
+				if(e.data.html.indexOf('data:image/') > 0){
+					gewa.util.alert('图片不能直接粘贴，请点击图像上传！',function(){
+						this.setData(data);
+					}.bind(this));
+				}else if((htm.indexOf('&lt;script&gt;') > 0 || htm.indexOf('<script>') > 0 )
+				 && (htm.indexOf('&lt;style&gt;') > 0 || htm.indexOf('<style>') > 0)){
+					gewa.util.alert('粘贴非法数据，请在文本中过滤后再进行粘贴！',function(){
+						this.setData(data);
+					}.bind(this));
+				}
+			}
+		})
+		});
+	function save(){
+		var stime=$('starttime').value;
+		var etime=$('endtime').value;
+		var opiinfo=$('opiinfo').value;
+		var rank=$('rank').value;
+		if(opiinfo==''){
+			alert('场次ID不能为空');
+			return false;
+		}
+		if(stime==''){
+			alert('开始时间不能为空');
+			return false;
+		}
+		if(etime==''){
+			alert('结束时间不能为空');
+			return false;
+		}
+		if(stime>etime){
+			alert('开始时间不能大于结束时间');
+			return false;
+		}
+		if(isNaN(rank)){
+			alert('排序必须是数字');
+			return false;
+		}
+		var values='';
+		var names = document.getElementsByName('selectcitycode');
+		for(i=0;i<names.length;i++){
+			if(names[i].checked){
+				var vm = names[i].value;
+				if(values==''){
+					values=vm;
+				}else{
+					values=values+','+vm;
+				}
+			}
+		}
+		$('citycode').value=values;
+		if(values==''){
+			alert('城市不能为空');
+			return false;
+		}
+		$('content').value = ckeditor.getData();
+		var values = GewaraUtil.getValues($("adForm"));
+		var url = "${basePath}admin/mobile/saveOrUpdateActivity.xhtml";
+		GewaraUtil.sendRequest(url, values, saveCallBack);
+	}
+	function modAdPosition(id){
+		var url = "${basePath}admin/mobile/phoneActivity.xhtml";
+		GewaraUtil.sendRequest(url, {"id":id},modCallBack);
+	}
+	function addAdPosition(type){
+		if(type=='add'){
+			$('title').value='';
+			$('logo').value='';
+			$('contentLogo').value='';
+			$('starttime').value='';
+			$('endtime').value='';
+			$('opiinfo').value='';
+			$('address').value='';
+			$('type').value='';
+			ckeditor.setData("");
+			var codes = document.getElementById('selectcitycodes');
+			codes.checked=false;
+			var names = document.getElementsByName('selectcitycode');
+			for(i=0;i<names.length;i++){
+				if(names[i].checked){
+					names[i].checked=false;
+				}
+			}
+		}
+		GewaraUtil.showDialog("adDialog");
+	}
+	function removeAdPosition(id){
+		if(confirm("确认要删除吗?")==false) return;
+		var url = "${basePath}admin/mobile/deletePhoneActivity.xhtml";
+		GewaraUtil.sendRequest(url, {"id":id},removeCallBack);
+	}
+	function saveCallBack(result){
+		if(result.success){
+			alert("保存成功");
+			cancle();
+			refreshPage();
+		}else alert("保存失败");
+	}
+	function modCallBack(ad){
+		GewaraUtil.setValues(ad);
+		$('pid').value=ad.id;
+		ckeditor.setData($('content').value);
+		addAdPosition();
+		var names = document.getElementsByName('selectcitycode');
+		var values = $('citycode').value;
+		for(i=0;i<names.length;i++){
+			var vm = names[i].value;
+			if(values.contains(vm)){
+				names[i].checked=true;
+			}
+		}
+	}
+	function removeCallBack(result){
+		if(result){
+			alert("成功删除")
+			refreshPage();
+		}else alert("删除失败");
+	}
+	function cancle(){
+		$('pid').value= '';
+		GewaraUtil.hideDialog('adDialog');
+	}
+	
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg1').src='${basePath}' + picpath;
+	}
+	
+	function updateContentLogo(params){
+		var picpath = params['picpath'];
+		$('contentLogo').value = picpath;
+		$('contentLogoImg').src='${basePath}' + picpath;	
+	}
+	function checkSelSingle(){
+		var values='';
+		var names = document.getElementsByName('selectcitycode');
+		for(i=0;i<names.length;i++){
+			if(names[i].checked){
+				var vm = names[i].value;
+				if(values==''){
+					values=vm;
+				}else{
+					values=values+','+vm;
+				}
+			}
+		}
+		$('citycode').value=values;
+	}
+	
+	function allchecked(th){
+		var names = document.getElementsByName('selectcitycode');
+		if(th.checked){
+			for(i=0;i<names.length;i++){
+			if(!names[i].checked){
+				names[i].checked=true;
+			   }
+			}	
+		}else{
+			for(i=0;i<names.length;i++){
+			if(names[i].checked){
+				names[i].checked=false;
+			   }
+			}
+		}
+	}
+	
+	function quxiao(th){
+		if(th.checked==false){
+			document.getElementById('selectcitycodes').checked=false;
+		}
+	}
+</script>
+</body>
+</html>

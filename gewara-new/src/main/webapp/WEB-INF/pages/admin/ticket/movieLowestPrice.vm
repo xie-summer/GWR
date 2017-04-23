@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电影最低价格设置</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+	</style>
+</head>
+<body style="text-align: center;width: 80%; margin:auto;">
+<form action="${basePath}admin/ticket/movieLowestPrice.xhtml">
+	<div>
+		电影ID:<input type="text" name="movieid" id="movieid" value="$!params.movieid"/>
+		<input type="submit" value="查询"/>
+	</div>
+</form>
+<table class="roomManageTable" id="all_content" cellpadding="0" cellspacing="0" border="0" style="margin:auto;">
+	<thead><tr>#set($ck=$cookieTool.admin_citycode.value)
+		<th style="width:20px;">&nbsp;</th>
+		<th style="width:40px;">首字母</th>
+		<th style="width:250px;">电影名称</th>
+		<th style="width:80px;">$cityMap.get($ck)</th>
+		<th style="width:250px;">时间</th>
+		<th style="width:80px;">$cityMap.get($ck)</th>
+	</tr></thead>
+	<tbody class="tbody" id="tbody">
+		#foreach($movie in $movieList)
+		<tr class="grayBg h" id="row${order.id}">
+			<td>$foreach.count</td>
+			<td>$VmUtils.getFirstSpell($movie.realBriefname)</td>
+			<td><a href="${basePath}movie/$movie.id">$movie.realBriefname</a>
+			#set($key=$movie.id+$ck)
+			<td>&nbsp;&nbsp;2D：<input type="text" value="$!mpMap.get($key).price" style="width: 28px" maxlength="3" onchange="setLowestPrice($movie.id, $ck, this, '')"/><br/>
+			&nbsp;&nbsp;3D：<input type="text" value="$!mpMap.get($key).edition3D" style="width: 28px" maxlength="3" onchange="setLowestPrice($movie.id, $ck, this, 'edition')"/><br/>
+			巨幕：<input type="text" value="$!mpMap.get($key).editionJumu" style="width: 28px" maxlength="3" onchange="setLowestPrice($movie.id, $ck, this, 'editionJumu')"/><br/>
+			IMAX：<input type="text" value="$!mpMap.get($key).editionIMAX" style="width: 28px" maxlength="3" onchange="setLowestPrice($movie.id, $ck, this, 'editionIMAX')"/>
+			</td>
+			<td>
+				开始：$!DateUtil.formatTimestamp($mpMap.get($key).startTime)<br/>
+				结束：$!DateUtil.formatTimestamp($mpMap.get($key).endTime)
+			</td>
+			<td>
+				&nbsp;&nbsp;2D：<input type="text" value="$!mpMap.get($key).rangePrice" style="width: 28px" maxlength="3" onchange="setLowestPrice($movie.id, $ck, this, 'rangePrice')"/><br/>
+				&nbsp;&nbsp;3D：<input type="text" value="$!mpMap.get($key).rangeEdition3D" style="width: 28px" maxlength="3" onchange="setLowestPrice($movie.id, $ck, this, 'rangeEdition3D')"/><br/>
+				巨幕：<input type="text" value="$!mpMap.get($key).rangeEditionJumu" style="width: 28px" maxlength="3" onchange="setLowestPrice($movie.id, $ck, this, 'rangeEditionJumu')"/><br/>
+				IMAX：<input type="text" value="$!mpMap.get($key).rangeEditionIMAX" style="width: 28px" maxlength="3" onchange="setLowestPrice($movie.id, $ck, this, 'rangeEditionIMAX')"/>
+			</td>
+		</tr>
+		#end
+	</tbody>
+</table>
+<script type="text/javascript">
+window.addEvent("domready", function(){
+	$$(".tbody tr").addEvents({
+		'mouseenter':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseleave':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+});
+function setLowestPrice(movieid, citycode, el, type){
+	el.setStyle("background","red");
+	var url = "${basePath}admin/ticket/mpi/setMovieLowestPrice.xhtml";
+	var values;
+	if(type == '') values= {'movieid':movieid, 'citycode':citycode, 'price':el.value};
+	else {
+		values = {'movieid':movieid, 'citycode':citycode};
+		values[type] = el.value;
+	}
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			el.setStyle("background","");
+		}else{
+			alert(result.msg);
+			el.value = '';
+		} 
+	});
+}
+</script>
+</body>
+</html>

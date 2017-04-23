@@ -1,0 +1,111 @@
+<div class="template">
+	<div id="movieInfo" style="display:none" class="movieInfox">
+		<form id="mform" name="mform" method="post" action="javascript:saveTemplate();">
+			<ul class="bangMt15">
+				<li>
+					<div>提交你选择的影院、影片和购票日期，开放购票后格瓦拉将第一时间短信通知你！</div>
+					<input type="hidden" name="mptag" id="mptag" value="cinema"/>
+					<input type="hidden" name="mpcategoryid" id="mpcategoryid" value="$!movie.id"/>
+				</li>
+				<li class="ui_media">
+					<div class="ui_pic">影片名称：</div>
+					<b class="fs14 ui_text" style="color:#C03B0C;">$!{movie.name}</b>
+				</li>
+				<li class="ui_media">
+					<div class="ui_pic">购票影院：</div>
+					<div class="ui_text">
+						<select name="countycode" id="countycode" class="mr10" style="width:120px;" mustTxt="请选择区域！" onchange="getCinemaByCounty(this)">
+							<option value="">选择区域</option>
+							#foreach($county in $countyList)
+								<option value="$!county.countycode">$!county.countyname</option>
+							#end
+						</select>
+						<select name="mprelatedid" id="mprelatedid" style="width:150px;" mustTxt="请选择影院！" onchange="getDateByCinema(this)">
+							<option value="">购票影院</option>
+						</select>
+					</div>
+				</li>
+				<li class="ui_media">
+					<div class="ui_pic">购票日期：</div>
+					<div class="ui_text">
+						<select name="playdate" id="playdate" style="width:120px;" mustTxt="请选择购票日期！">
+							<option value="">购票日期</option>
+						</select>
+					</div>
+				</li>
+				<li class="ui_media">
+					<div class="ui_pic">手机号码 ：</div>
+					<div class="ui_text">
+						<input type="text" class="text" name="mobile" id="mobile" value="$!logonMember.mobile" mustTxt="请填写短信通知的手机号码！"/>
+					</div>
+				</li>
+				<li class="ui_media">
+					<div class="ui_pic">验证码 ：</div>
+					<div class="ui_text">
+						<input type="hidden" name="captcha1Id" id="captcha1" />
+						<input type="text" class="text left captcha" name="captcha1" alt="点击获取" autocomplete="off"  id="captcha1Input" size="18" style="width:60px" mustTxt="请输入验证码!" onfocus="GewaraUtil.refreshCaptcha('captcha1');"/>
+						<img id="captcha1Img" src="${staticPath}css/images/blank.gif" class="ml10" style="cursor: pointer;vertical-align: middle;float:left;height:36px;" onclick="GewaraUtil.refreshCaptcha('captcha1')" title="看不清楚，请点击换一张图片"/>
+					</div>
+				</li>
+			</ul>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+saveTemplate = function(){
+	if(!GewaraUtil.baseValidForm('mform')) return ;
+	var url = "${basePath}ajax/movie/savePlayItemMessage.xhtml";
+	var values = GewaraUtil.getValues('mform');
+	values.captchaId=$('captcha1').value;
+	values.captcha=$('captcha1Input').value;
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewaUtil.alert('添加成功！');
+			gewa.util.container['movieInfo'].dispose('movieInfo');
+		}else{
+			GewaraUtil.refreshCaptcha('captcha1');
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+
+getCinemaByCounty = function(obj){
+	$('mprelatedid').empty();
+	new Element('option',{'value':'','text':'请选择影院'}).inject('mprelatedid');
+	$('playdate').empty();
+	new Element('option',{'value':'','text':'请选择日期'}).inject('playdate');
+	if(GewaraUtil.isNotNull($(obj).get('value'))){
+		var url ="${basePath}movie/getCinemaByCounty.xhtml";
+		var values ={'movieid':$('mpcategoryid').get('value'), 'countycode':$(obj).get('value')};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				var cinemaMap = result.cinemaMap;
+				$each(cinemaMap, function(item){
+					new Element('option',{'value':item.id,'text':item.realBriefname}).inject('mprelatedid');
+				});
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		}, 'get');
+	}
+}
+
+getDateByCinema = function(obj){
+	$('playdate').empty();
+	new Element('option',{'value':'','text':'请选择日期'}).inject('playdate');
+	if(GewaraUtil.isNotNull($(obj).get('value'))){
+		var url = "${basePath}movie/getDateByCinema.xhtml";
+		var values = {'movieid':$('mpcategoryid').get('value'), 'cinemaid':$(obj).get('value')};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				var dateMap = result.dateMap;
+				$each(dateMap, function(item, index){
+					new Element('option',{'value':item.playtime,'text':item.playdate}).inject('playdate');
+				});
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		}, 'get');
+	}
+}
+</script>

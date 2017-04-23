@@ -1,0 +1,55 @@
+<data>
+	<dramaPlayItem>
+		$!VmUtils.xmlOutput('', $resMap, $hasField, $fieldList)
+		<theatreSeatAreaList>
+			#foreach($area in $seatAreaList)
+	    	<theatreSeatArea>
+				<areaid>$!area.id</areaid>
+				<dpid>$area.dpid</dpid>
+	    		<areaname><![CDATA[$!area.areaname]]></areaname>
+	    		<status><![CDATA[$!area.status]]></status>
+	    		<roomnum>$area.roomnum</roomnum>
+	    		<theatreSeatPriceList>
+	    			#set($tspList=$seatPriceMap.get($area.id))
+	    			#foreach($tsp in $tspList)
+	    			<theatreSeatPrice>
+	    				<priceid>$tsp.id</priceid>
+	    				<dpid>$area.dpid</dpid>
+	    				<areaid>$!area.id</areaid>
+	    				<areaname><![CDATA[$!area.areaname]]></areaname>
+	    				<price>$tsp.price</price>
+	    				<theatreprice>$tsp.theatreprice</theatreprice>
+	    				<status>$tsp.status</status>
+	    				<quantity>$!tsp.quantity</quantity>
+	    				<sales>$!tsp.sales</sales>
+	    				#set($rem=$tsp.quantity - $tsp.sales)
+	    				#if($rem lt 0)#set($rem=0)#end
+	    				#if($rem lt $tsp.maxbuy)
+	    				<maxbuy>$!rem</maxbuy>
+	    				#else
+	    				<maxbuy>$!tsp.maxbuy</maxbuy>
+	    				#end
+	    				#if($tsp.hasAllowBooking())
+	    				<booking>1</booking>
+	    				#else
+	    				<booking>0</booking>
+	    				#end
+    					<dispriceList>
+    					#foreach($dis in $tspHelper.getDiscountList($tsp))
+    					<disprice>
+    						<disid>$dis.id</disid>
+    						<price>$dis.price</price>
+    						<quantity>$dis.quantity</quantity>
+    						<allownum>$!dis.allownum</allownum>
+    						<maxbuy>$!dis.maxbuy</maxbuy>
+    					</disprice>
+    					#end
+    					</dispriceList>
+	    			</theatreSeatPrice>
+	    			#end
+	    		</theatreSeatPriceList>
+	    	</theatreSeatArea>
+	    	#end
+		</theatreSeatAreaList>
+	</dramaPlayItem>
+</data>

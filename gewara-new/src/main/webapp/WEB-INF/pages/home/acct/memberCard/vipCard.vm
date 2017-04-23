@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>会员卡_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page,tips&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ui_right .inner .ul-150 .list_h{padding-left:80px;}
+		.ui_right .inner .ul-150 .list_h .left_150{width:80px; margin-left:-80px;}
+		td{text-align:center;}
+		.colseMark {position:absolute; top:7px; right:15px; cursor:pointer; display:block; height:18px; width:34px; background:url(/css/home/exit.png) no-repeat 0px 7px; z-index:2;}
+		.colseMark:hover {background-position:0 bottom;}
+	</style>
+</head>
+<body>
+#set($vipCard=true)#set($myAccount = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/myAccount.vm')
+			<div class="mt20">
+				<div class="title">
+					<span class="fs14 bold">绑定会员卡</span>
+				</div>
+			</div>
+			<ul class="ul-150 mt10 borderLine" style="padding-bottom:25px;">
+				<li class="list_h">
+					<span class="left_150">类型：</span>
+					<select name="invoicetype" class="mt5">
+						<option value="sport">运动</option>
+					</select>
+				</li>
+				<li class="list_h">
+					<span class="left_150">手机：</span>
+					<input id="mobile" type="text" class="text left" name="mobile" />
+					<a class="button whiteBt minBt left ml10 mt5" href="javascript:getMobilePass()">
+						<span>发送验证码</span>
+					</a>
+				</li>
+				<li style="padding:0 0 0 80px;"><p style="display:block;">请输入与您的会员卡绑定的手机号</p></li>
+				<li class="list_h">
+					<span class="left_150">验证码：</span>
+					<input type="text" name="checkpass" id="checkpass" class="text captcha" style="width:90px"/>
+					<a class="button whiteBt minBt ml10 mt10" style="position:absolute;" href="javascript:getUnbindCardList()">
+						<span>验证</span>
+					</a>
+				</li>
+			</ul>
+			<div class="mt30">
+				<table cellpadding="0" class="table" cellspacing="0" border="0">
+					<thead>
+						<tr>
+							<th>类别</th>
+							<th>卡类型</th>
+							<th>场馆</th>
+							<th>卡号</th>
+							<th>余额</th>
+							<th>电话</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody class="clsTmp" id="cardList">
+						#foreach($mci in $mciList)
+						#set($mct=$mctMap.get($mci.id))
+						#set($sportList=$sportsMap.get($mci.id))
+						<tr>
+							<td>运动</td>
+							<td>$!mct.cardtypeText</td>
+							<td>#foreach($sport in $sportList)
+									#if($foreach.count eq 1)
+										${sport.name}
+									#end
+								#end
+								#if($VmUtils.size($sportList) gt 1)等<span style="color:#1885AE;" id="look_$mci.id"><b> $VmUtils.size($sportList) </b></span>家
+								<span id="show_$mci.id" class="none">
+								#foreach($sport in $sportList)
+									${sport.name}<br/>
+								#end
+								</span>
+								#end
+							</td>
+							<td>$!mci.memberCardCode</td>
+							<td>$!mci.overMoney#if($mct.cardType eq '1')次#elseif($mct.cardType eq '2')元#end</td>
+							<td>$mci.mobile</td>
+							<td><a href="javascript:unbindMemberCard($mci.id)" style="color:#1885AE;">解绑</a></td>
+						</tr>
+						#end
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+<div id="qryUnBind">
+
+</div>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	#foreach($mci in $mciList)
+		#set($sportList=$sportsMap.get($mci.id))
+		#if($VmUtils.size($sportList) gt 1)
+			new amTips($('look_${mci.id}'),{position:'bottom',content:function(){return $('show_${mci.id}').innerHTML},width:160});
+		#end
+	#end
+});
+function getMobilePass(){
+	var url="${basePath}home/ajax/memberCard/sendMobilePass.xhtml";
+	GewaraUtil.mask('disBtn');
+	var values = {'mobile':$('mobile').value, 'type':'mcard'};
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			gewaUtil.alert('发送成功，请注意查收！');
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+function getUnbindCardList(){
+	var url="${basePath}home/ajax/memberCard/bindRemoteCard.xhtml";
+	GewaraUtil.mask('disBtn');
+	var values = {'mobile':$('mobile').value, 'checkpass':$('checkpass').value};
+	GewaraUtil.sendLoad('qryUnBind', url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+		}else{
+			gewaUtil.alert(result.json.msg);
+		}
+	});
+}
+function unbindMemberCard(cardid){
+	if(confirm('确认要解绑吗?')==false){
+		return;
+	}
+	var url="${basePath}home/ajax/memberCard/unbindMemberCard.xhtml";
+	GewaraUtil.mask('cardList');
+	var values = {'cardid':cardid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			gewaUtil.alert('解绑成功！', function(){
+				refreshPage();
+			});
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

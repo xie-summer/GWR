@@ -1,0 +1,52 @@
+#*<table cellpadding="0" class="titleTable tab025" cellspacing="0" width="100%" style="margin-top:0px;">
+	<thead><tr><th colspan="3" style="text-align: right;" valign="middle"><a href="javascript:getPmList($sale.id)"><img src="${picPath}css/home/shuaxinIco.png" class="mr10" align="middle"/></a>30分钟内竞拍人数：<b>$!count</b> 人</th></tr></thead>
+	<tbody id="allPub_content">
+		#foreach($pm in $pmList)
+		#set($member=$memberMap.get($pm.memberid))
+		<tr #if($foreach.index%2 eq 1) class="even" #end>
+			<td>$DateUtil.format($pm.addtime,'HH:mm:ss.S')</td>
+			<td>$member.nickname</td>
+			<td><b class="brown">$!pm.rprice</b>元</td>
+		</tr>
+		#end
+	</tbody>
+	<tbody id="myPub_content" class="none">
+		#foreach($pm in $mypmList)
+		#set($member=$memberMap.get($pm.memberid))
+		<tr #if($foreach.index%2 eq 1) class="even" #end>
+			<td>$DateUtil.format($pm.addtime,'HH:mm:ss')</td>
+			<td>$member.nickname</td>
+			<td><b class="brown">$!pm.rprice</b>元</td>
+		</tr>
+		#end
+	</tbody>
+</table>*#
+<p class="clear auctionCount"><a href="javascript:getPmList($sale.id)"><img src="${picPath}css/home/shuaxinIco.png" class="mr10" align="middle"/></a>30分钟内竞拍人数：<b class="cF60">$!count</b> 人次</p>
+<div id="userAuction_content">
+	<ul class="list">
+		#foreach($pm in $pmList)
+		#set($member=$memberMap.get($pm.memberid))
+		<li #if($foreach.count%2 eq 1)class="even"#end>
+			<em>$DateUtil.format($pm.addtime,'HH:mm:ss.S')</em>
+			<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$member.id" target="_blank">$member.nickname</a>
+		</li>
+		#end
+	</ul>
+</div>
+<div id="myAuction_content" class="none">
+	<ul class="list">
+		#foreach($pm in $mypmList)
+		#set($member=$memberMap.get($pm.memberid))
+		<li #if($foreach.count%2 eq 1)class="even"#end>
+			<em>$DateUtil.format($pm.addtime,'HH:mm:ss')</em>
+			<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$member.id" target="_blank">$member.nickname</a>
+		</li>
+		#end
+	</ul>
+</div>
+<script>
+window.addEvent('domready', function(){
+	if($('myAuction'))new PanelGroup(['userAuction','myAuction'],'userAuction','select','none','mouseover');
+	#if($('finalTime'))$('finalTime').innerHTML=$DateUtil.format($pmList.get(0).addtime,'HH:mm:ss.S')+"胜出"#end
+});
+</script>

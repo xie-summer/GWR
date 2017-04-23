@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>数据统计</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#fff;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		td, th{
+			text-align: center;
+			height: 23px;
+		}
+	</style>
+</head>
+<body>
+#set($isOperCount=true)
+#parse('admin/datacount/menuWap.vm')
+<div style="margin-left: 140px;width: auto;background-color: #fff;height: 550px;">
+		<form action="${basePath}admin/mobile/operationCount.xhtml" id="form">
+		<div style="margin-left: 15px;margin-bottom: 5px;">
+			开始时间：<input name="starttime" id="starttime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!params.starttime" type="text" style="width: 160px"/>
+				结束时间：<input name="endtime" id="endtime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!params.endtime" type="text" style="width: 160px"/><br />
+			<input type="radio" name="status" value="" #if($!VmUtils.isBlank($!params.status)) checked#end/>注册来源(如：wap)
+			<input type="radio" name="status" value="paymethod" #if($!VmUtils.isNotBlank($!params.status))checked#end/>支付通道
+			<input type="submit" value="查询" />
+		</div>
+		</form>
+		#set($keyMap={'50000010':'wap','50000020':'android','50000025':'symbian','50000070':'iphone'})
+		#set($keyList=["注册来源","订单数量","有效订单数量","订单有效率","销售额","下单转化率"])
+		#set($keyPayList=["支付通道","订单数量","有效订单数量","订单有效率","销售额","下单转化率"])
+		<div style="background-color: #ffffff;">
+			<table cellpadding="0" cellspacing="0" width="400" border="1" style="border-collapse: collapse">
+				<tr>
+				#if($VmUtils.isNotBlank($!params.status))
+					#foreach($key in $keyPayList)
+					<th>$key</th>
+					#end
+				#else
+					#foreach($key in $keyList)
+					<th>$key</th>
+					#end
+				#end
+				</tr>
+				#foreach($qryMap in $qryMapList)
+				<tr>
+					<td>#if($VmUtils.isNotBlank($!params.status))$!payUtil.getPaymethodText($qryMap.paymethod)#else$!keyMap.get("$!qryMap.payfrom")#end</td>
+					<td>$!qryMap.sumCount</td>
+					<td>$!qryMap.orderCount</td>
+					<td>$!VmUtils.getPercent($!qryMap.orderCount, $!qryMap.sumCount)</td>
+					<td>$!qryMap.sumMount</td>
+					<td>$!VmUtils.getPercent($!math.sub($!qryMap.sumCount,$!qryMap.orderCount),$!qryMap.sumCount)</td>
+				</tr>
+				#end
+				<tr>
+					<th >合计</th>
+					<th>$VmUtils.getTotal($qryMapList, 'sumCount')</th>
+					<th>$VmUtils.getTotal($qryMapList, 'orderCount')</th>
+					<th></th>
+					<th>$VmUtils.getTotal($qryMapList, 'sumMount')</th>
+					<th></th>
+				</tr>
+			</table>
+		</div>
+</div>
+	<script type="text/javascript">
+	$$("tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>设置圈内名片_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($community = true)
+#set($tag="home")#set($isMessageLog=true)#set($isShow=false)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('home/community/manage/commuM.vm')
+			<div class="ui_rightInner_left">
+				<div class="inner">
+					<div class="mt20 title"><h2>设置你在<span class="brown">“$!commu.name”</span>的圈内名片</h2></div>
+					<form name="commucardForm" id="commucardForm">
+						<input type="hidden" value="$!commu.id" name="commuid" />
+						<ul class="ul-60 mt10">
+							<li class="mt10">
+								<div class="ul-60Inner">圈内名片：</div>
+								<input type="text" class="text" name="realname" id="realname" value="$!commuCard.realname"/>(此名片仅圈子成员可见)
+							</li>
+							<li class="mt10">
+								<div class="ul-60Inner">所在公司：</div>
+								<input type="text" class="text" name="company" id="company" value="$!commuCard.company"/>
+							</li>
+							<li class="mt10">
+								<div class="ul-60Inner">当前职务：</div>
+								<input type="text" class="text" name="position2"  value="$!commuCard.position"/>
+							</li>
+							<li class="mt10">
+								<div class="ul-60Inner">所属行业：</div>
+								#set($industryList=['保险业','采矿','能源','餐饮','电讯业','房地产','服务行业','服装业','公益组织','广告业','航空航天','化学','化工','健康','保健','建筑业','教育','培训','计算机','金属冶炼','会计'])
+								<select name="industry" id="industry">
+								#foreach($industry in $industryList)
+									<option #if($!commuCard.industry eq $industry) selected="selected" #end value="$industry">$industry</option>
+								#end
+								</select>
+							</li>
+							<li class="mt10">
+								<div class="ul-60Inner">联系电话：</div>
+								<input type="text" class="text" name="phone" id="phone" value="$!commuCard.phone"/>
+							</li>
+							<li class="mt10">
+								<div class="ul-60Inner">添加备注：</div>
+								<textarea name="remark" id="remark" class="text" style="height:76px;width:320px;">$!VmUtils.htmlabbr($!commuCard.remark,60)</textarea>
+							</li>
+							<li class="mt10">
+								<div class="ul-60Inner">圈内邮件：</div>
+								<label for=""><input #if($!commuCard.emailset eq 'Y')checked="checked"#elseif(!$!commuCard.emailset) checked="checked"#end type="radio" value="Y" name="emailset"/>接受圈内邮件</label>
+								<label for="" class="ml10"><input #if($!commuCard.emailset eq 'N')checked="checked"#end type="radio" value="N" name="emailset"/>拒绝圈内邮件</label>
+							</li>
+							<li class="mt10">
+								<div class="ul-60Inner">圈内短信：</div>
+								<label for=""><input #if($!commuCard.messageset eq 'Y')checked="checked"#elseif(!$!commuCard.messageset) checked = "checked" #end type="radio" value="Y" name="messageset"/>接受圈内短信</label>
+								<label for="" class="ml10"><input #if($!commuCard.messageset eq 'N')checked="checked"#end type="radio" value="N" name="messageset"/>拒绝圈内短信</label>
+							</li>
+							<li class="mt10">
+								<label class="minBt button redBt ml5"><input type="button" onclick="addCommuCard()" value="保存设置"/></label>
+							</li>
+							<li class="clear"></li>
+						</ul>
+					</form>
+				</div>
+			</div>
+			#parse('home/community/manage/commuManageRight.vm')
+		</div>
+	</div>
+	<div class="height0"></div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+	function addCommuCard(){
+		var url = "${basePath}home/commu/addmessagelog.xhtml";
+		var formdata = GewaraUtil.getValues('commucardForm');
+		formdata['position']=formdata.position2;	//TODO:	ie兼容
+		delete formdata['position2'];
+		var values = formdata;
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert('保存成功!');
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

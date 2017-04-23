@@ -1,0 +1,49 @@
+<fieldset>
+	<legend class="yellow">支付方式</legend>
+	<div>
+		<label>支付选择：</label>
+		<input type="radio" name="payoption" value="del" #if($VmUtils.isBlank($payoption))checked#end style="width:20px;"/>不设置
+		<input type="radio" name="payoption" value="canuse" #if($VmUtils.eq($payoption, 'canuse'))checked#end style="width:20px;"/>可用
+		<input type="radio" name="payoption" value="notuse" #if($VmUtils.eq($payoption, 'notuse'))checked#end style="width:20px;"/>不可用
+	</div>
+	<div>
+		<label>支付方式：</label>
+		<input type="checkbox" onclick="selectAll(this)" style="width:30px;margin-left: -2px;" />全选
+		<div id="temp">
+		#foreach($paymethod in $payTextMap.keySet())
+		#set($paytext=$payTextMap.get($paymethod))
+		#if($foreach.count % 3 eq 1)<div style="margin-left: 105px;">#end
+			<input type="checkbox" name="paymethodlist" value="$paymethod" #if($paymethodlist.contains($paymethod))checked#end style="width:20px;"/>$payTextMap.get($paymethod)
+		#if($foreach.count % 3 eq 0)</div>#end
+		#end
+		</div>
+		#if($paymethodLen % 3 ne 0)</div>#end
+		<select name="paymethodlist" style="margin-left: 105px;">
+			<option value="">----请选择网银---</option>
+			<option value="pnrPay" #if($paymethodlist.contains('pnrPay') || $paymethodlist.contains('directPay') || $paymethodlist.contains('cmPay'))selected#end>网上银行支付(全部)</option>
+			#foreach($bank in $bankPayList)
+			#set($pair=$VmUtils.split($bank, ","))
+			#set($pairv=$pair[2])
+			<option value="$pairv" #if($paymethodlist.contains($pairv))selected#end>&nbsp;&nbsp;|-$!pair[0]</option>
+			#end
+		</select>
+		<select name="paymethodlist" style="margin-left: 35px;">
+			<option value="">----请选择银联---</option>
+			<option value="china2Pay" #if($paymethodlist.contains('china2Pay'))selected#end>银联在线(全部)</option>
+			#foreach($yinlian in $yinlianMap.keySet())
+			#set($yinlianv="china2Pay:$yinlian")
+			<option value="$yinlianv" #if($paymethodlist.contains($yinlianv))selected#end>&nbsp;&nbsp;|-$yinlianMap.get($yinlian)</option>
+			#end
+		</select>
+	</div>
+	<div>
+		<label>默认支付方式：</label>
+		<select name="defaultpaymethod">
+		<option value="">请选择</option>
+		#foreach($paymethod in $payTextMap.keySet())
+		<option value="$paymethod" #if($defaultpaymethod eq $paymethod)selected#end>$payTextMap.get($paymethod)</option>
+		#end
+		</select>
+	</div>
+	<div></div>
+</fieldset>

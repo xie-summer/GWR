@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>招聘详细</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline}
+		a{text-decoration: none;}
+		.ua{text-decoration: none;color: red }
+		.bk{background:rgb(255, 246, 200)}
+	</style>
+</head>
+<body style="width:65%; margin:auto" >
+<br/>
+<div class="table">
+<form id="gcForm" action="javascript:saveJob()" method="post">
+	<input type="hidden" name="id" id="id" value="$!params.id"/>
+	<label>招聘标题：</label><input type="text" name="title" id="title" value="$!title" style="width: 200px;"/><br/>
+	<textarea name="description" id="description">$!description</textarea>
+	<label for="description">招聘内容：</label><span class="req">*</span>
+	<label>&nbsp;&nbsp;</label><input type="submit" id="btn" value="保存" style="width: 50px;"/><br/>
+	<div id="msg" style="color:red;margin-left: 4px;"></div>
+	<div style="color:blue;margin-left: 4px;">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+</form>
+</div>
+	<script type="text/javascript">
+	var ckeditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("description");
+	});
+	function saveJob(){
+		if(!GewaraUtil.baseValidForm('gcForm')){
+			return ;
+		}
+		if($('title').value=="") {
+			alert('招聘标题不能为空！');
+			return;
+		}
+		var url = '${basePath}admin/site/saveJob.xhtml';
+		$("description").value=ckeditor.getData();
+		var values = GewaraUtil.getValues("gcForm");
+		gewa.util.mask({'element': "btn",'title':'正在提交，请稍等...'});
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功!');
+				$("msg").set("html", '');
+			}else{
+				alert('保存失败!');
+				$("msg").set("html", result.msg);
+			}
+			gewa.util.clearMask();
+		})
+	}
+</script>
+</body>
+</html>

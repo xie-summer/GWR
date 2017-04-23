@@ -1,0 +1,35 @@
+#if(!$VmUtils.isEmptyList($commentList))
+<div class="mod_kong">
+	<div class="mod_hd">
+		<h2>瓦友最新评论</h2>
+	</div>
+	<div class="mod_bd">
+		<ul>
+			#foreach($comment in $commentList)
+			<li #if($foreach.count gt 1)class="mt30"#end>
+				<dl class="ui_media">
+					<dt class="ui_pic buyTick">
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" title="" target="_blank">
+							<img src="$VmUtils.randomPic('cw50h50', $!cacheMemberMap.get($comment.memberid).headpicUrl)" alt="" width="50" height="50"/>
+						</a>
+						#if($VmUtils.contains($comment.flag,'ticket'))
+						<span class="ico_buyTicket"></span>
+						#end
+					</dt>
+					<dd class="ui_text">
+						<p class="c9">
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!comment.memberid" target="_blank" >$!cacheMemberMap.get($comment.memberid).nickname</a>：
+							#set($content = $comment.body)
+							#set($lastIndex = $content.lastIndexOf('#')+1)
+							<a href="$!{basePath}cinema/$!comment.relatedid/commentlist" target="_blank">$!content.substring(0,$lastIndex)</a>
+							$!VmUtils.getWebBody($!content.substring($lastIndex),$picPath) 
+						</p>
+						<p class="mt10 cd">$DateUtil.getTimeDesc($!comment.addtime) 来自$!comment.fromFlag</p>
+					</dd>
+				</dl>
+			</li>
+			#end
+		</ul>
+	</div>
+</div>
+#end

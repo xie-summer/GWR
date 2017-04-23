@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>报表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+<body style="width:85%; margin:auto">
+<div style="clear:both;"></div>
+#set($byMovie=true)
+#parse('admin/gewapay/common.vm')
+<form action="${basePath}admin/gewapay/reportByMovie.xhtml">
+<table  border="1" style="width: 90%" cellspacing="0" class="table">
+	<tr>
+	<td height="30">
+		开始日期:<input type="text" name="datefrom" id="datefrom" value="$!params.datefrom" style="width: 100px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>&nbsp;
+		结束日期:<input type="text" name="dateto" id="dateto" value="$!params.dateto" style="width: 100px" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>&nbsp;
+		<input type="radio" name="opentype" value="" #if($VmUtils.isBlank($!params.opentype))checked#end/>全部
+		<input type="radio" name="opentype" value="GEWA" #if($VmUtils.eq($!params.opentype,'GEWA'))checked#end/>格瓦拉
+		<input type="radio" name="opentype" value="HFH" #if($VmUtils.eq($!params.opentype,'HFH'))checked#end/>火凤凰
+		<input type="submit" value="查询" />
+	</td>
+	</tr>
+</table>
+<br/>
+</form>
+#if($params.datefrom && $params.dateto)
+<table width="90%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+	<td colspan="7" align="center" class="td"><span>报表[$!{params.datefrom}--$!{params.dateto}]</span></td>
+	</tr>
+	<tr class="td">
+			<td align="center" class="wd60">ID</td>
+	<td align="center" class="wd120">电影名称</td>
+	<td align="center" align="center" class="wd60">数量</td>
+	</tr>
+	#set($Q=0)#set($quantity=0)
+	#foreach($map in $mountMap.entrySet())
+	#set($quantity=$!map.value)
+	#set($Q=$Q+$quantity)
+	<tr class="td itable">
+		<td align="center" class="wd60">$foreach.index</td>
+		<td align="center" class="wd200"><a href="${basePath}admin/gewapay/reportMovieDetail.xhtml?movieid=$!map.key.id&opentype=$opentype&datefrom=$!{params.datefrom}&dateto=$!{params.dateto}">$!map.key.moviename</a></td>
+		<td align="center" align="center" class="wd60">$!map.value</td>
+	</tr>
+	#set($quantity=0)#set($cp=0)
+	#end
+	<tr class="td">
+	<td colspan="7" align="right" class="td"><span>共计:票数:$Q(个)</span></td>
+	</tr>
+</table>
+#end
+</body>
+</html>

@@ -1,0 +1,86 @@
+<div id="stBgcolor_content" class="">
+	<div class="ml15 mt10 title">
+		#if($commubgpic)
+		<h2>圈子背景最多存放1张，如需更换请删除后重新上传。</h2>
+		#else
+		<h2>上传圈子背景</h2>
+		<input type="hidden" name="loid" id="loid" value=""/>
+		<input type="hidden" name="commubgi" id="commubgi" value=""/>
+		<input type="hidden" name="retuploadpicpath" id="retuploadpicpath"/>
+		<iframe name="uploadpicIframe" id="uploadpicIframe" style="display:none"></iframe>
+		<form name="fileUpload" method="post" style="margin: 0px;padding: 0px" action="${basePath}common/uploadPicture.xhtml?notLimit=true" enctype="multipart/form-data" onsubmit="return this.file.value.length > 0" id="uploadpicForm" target="uploadpicIframe">
+			<input type="hidden" name="callbackUrl" id="callbackUrl" value="${basePath}common/afterUploadPicture.xhtml?uploadtag=commubg&relatedid=$commu.id&callbackf=_afterupdatePic"/>
+			<div id="dispFileDiv" style="position: relative; height:30px;z-index: 0">
+				<label style="position:absolute;left:35%;z-index:1;top:0px;background-position:0 -307px" for="file"><span class="whiteBt minBt" style="cursor: pointer;"><span>从本地上传图片</span></span></label>
+				<input onchange="_execUpdatePic();" type="file" name="file" id="file" style="background: transparent;position: absolute;left:4%;top:0px;z-index: 99;opacity:0;filter:Alpha(opacity=0);cursor: pointer;"/>
+			</div>
+		</form>
+		<div class="clear"></div>
+		<div style="margin-left:100px;">（建议上传宽度为1280像素及以上的背景图片，支持jpg、jpeg、gif、png等格式）</div>
+		#end
+	</div>
+	<div class="clear"></div>
+	<div class="horn mt30"> 
+		<div class="titleB mt30"><h2>保存背景图片</h2></div>
+	</div>
+	<ul class="percent_25 mt10">
+		#if($commubgpic)
+		<li>
+			<a href="${picPath}$!commubgpic" rel="lightbox[galerie]" target="_blank"><img src="$VmUtils.randomPic('',$!commubgpic)" class="commuimg" style="border:2px solid #FBD007;"/></a>
+			<div class="mt10">
+				<span class="fc_b">正在使用</span>
+				<span class="ml20"></span>
+				<a href="javascript:void(0);" onclick="delPic('$commu.id')"><span class="fc_b">删除</span></a>
+			</div>
+		</li>
+		#end
+	</ul>
+</div>
+<script>
+function delPic(pid){
+	gewaUtil.confirm("确认删除这张背景图吗?", function(){
+		var url = '${basePath}home/commu/delPic.xhtml';
+		var values = {'commuid':$!commu.id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				manageLoding('bgpic');
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		})
+	})
+}
+function _execUpdatePic(){
+	$('uploadpicForm').submit();
+	$('dispFileDiv').set('html', "<img src='${picPath}css/images/loading2.gif'>");
+};
+function _afterupdatePic(paramsMap){
+	if(paramsMap == null){
+		gewaUtil.alert("上传文件出错! 请检查文件格式! ");
+		return false;
+	}
+	var imgpath = paramsMap["picpath"]; 
+	if(paramsMap["msg"] != 'ok'){
+		return false;
+	}
+	$('retuploadpicpath').value = imgpath;
+	var img = new Element("img");
+	img.src = '${picPath}' + imgpath;
+	$('dispFileDiv').empty();
+	var divel = new Element('div',{'styles':{'position':'relative','height':'auto','width':'50%','text-align':'left', 'margin':'auto'}}).inject($('dispFileDiv'));
+	var spanel = new Element('span').addClass('left').inject(divel);
+	new Element('img',{'src':img.src,'width':150,'height':150}).inject(spanel);
+	_afterdiycallback(imgpath);
+};
+function _afterdiycallback(imgpath){
+	var url = '${basePath}home/commu/updatecommubgpic.xhtml';
+	var values = {'commuid':$commu.id, 'picpath':imgpath};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			manageLoding('bgpic');
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	})
+};
+</script>

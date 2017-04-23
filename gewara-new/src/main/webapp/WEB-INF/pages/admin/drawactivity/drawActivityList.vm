@@ -1,0 +1,486 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>抽奖活动信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script> 
+	<style>
+			input{width:150px;}
+			.mb5{margin-bottom:5px;}
+			.bt{width:100px;}
+	</style>
+</head>
+<body style="margin:auto" class="yui-skin-sam">
+#set($showsiteMap = {'wap':'手机版','web':'网页版'})
+<div style="width:960px; height: 20px;">
+	<input type="button" style="width:150px;"  value="增加抽奖活动信息" onclick="showDrawMark('drawDialog')"/>
+	<input type="button" style="width:150px;"  value="上传拉霸图片" onclick="javascript:showAddFlash('flash1');"/>
+	<input type="button" style="width:150px;"  value="上传转盘图片" onclick="javascript:showAddFlash('flash2');"/>
+	<input type="button" style="width:150px;"  value="上传九宫格图片" onclick="javascript:showAddFlash('flash3');"/>
+	<select name="order" onchange="changeOrder(this)">
+		<option value="addtime" #if($VmUtils.eq($order, 'addtime')) selected #end>按添加时间排序</option>
+		<option value="starttime" #if($VmUtils.eq($order, 'starttime')) selected #end>按开始时间排序</option>
+		<option value="endtime" #if($VmUtils.eq($order, 'endtime')) selected #end>按结束时间排序</option>
+	</select>
+	<span style="width: 60px; margin-left:60px;"></span>
+	<span id="callbackMsg"></span>
+</div>
+<table width="960px" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th>ID</th>
+		<th>活动名称</th>
+		<th>标签</th>
+		<th>统计</th>
+		<th>显示</th>
+		<th>开始时间</th>
+		<th>结束时间</th>
+		<th>添加时间</th>
+		<th>对应Flash</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="roomTable">
+	#foreach($activity in $drawActivityList)
+		<tr id="activity_${activity.id}">
+			<td>$activity.id</td>
+			<td id="name_${activity.id}">
+				<a href="${basePath}admin/draw/prizeList.xhtml?did=$!{activity.id}" target="_blank">$!{activity.name}</a>
+			</td>
+			<td>$!activity.tag</td>
+			<td><a href="${basePath}admin/datacount/member/drawCount.xhtml?did=$activity.id" target="_blank">统计</a></td>
+			<td>$!showsiteMap.get($!activity.showsite)</td>
+			<td>$DateUtil.format($!activity.starttime,'yyyy-MM-dd HH:mm:dd')</td>
+			<td>$DateUtil.format($!activity.endtime,'yyyy-MM-dd HH:mm:dd')</td>
+			<td>$DateUtil.format($!activity.addtime,'yyyy-MM-dd HH:mm:dd')</td>
+			<td>#if($flashTagMap.get($activity.id) eq "laohuji")拉霸#elseif($flashTagMap.get($activity.id) eq "zhuanpan")转盘#elseif($flashTagMap.get($activity.id) eq "jiugong")九宫格#end</td>
+			<td>
+				<input type="button" class="bt" value="修 改" onclick="updateDrawMark('drawDialog',$!activity.id)"/>
+				<input type="button" class="bt" value="添加获取用户" onclick="location.href='${basePath}admin/draw/shamWinnerList.xhtml?activityid=$!activity.id'"/>
+				<input type="button" class="bt" value="选择flash" onclick="choiceFlashType('$activity.tag','$activity.id')" />
+				&nbsp;&nbsp;<a href="${basePath}admin/draw/appsourceList.xhtml?activityid=$!activity.id" class="button">渠道选择</a>
+			</td>
+		</tr>
+	#end
+	</tbody>
+</table>
+#parse('include/pageUtil.vm')
+
+<div id="drawDialog" class="yui-panel" style="width:300px;visibility: hidden;">
+	<div class="hd"><span id="drawtype">添加</span>抽奖活动信息&nbsp;&nbsp;[<a href="${basePath}admin/common/mappoint.xhtml?id=$cinema.id&tag=cinema" target="_blank">地图标注</a>]</div>
+	<div class="bd" style="padding: 10px 30px;">
+	<form name="drawForm" id="drawForm"  method="post">
+		<input type="hidden" name="drawid" id="drawid"/>
+		<div style="padding-left: 23px;margin-bottom:5px;">
+				名称：<input type="text" name="name" id="name"/>
+			</div>
+			<div style="padding-left: 22px;margin-bottom: 5px;">
+				标签：<input type="text" name="tag" id="tag" />
+			</div>
+			<div style="padding-left: 22px;margin-bottom: 5px;">
+				显示：<select name="showsite" id="showsite">
+							<option value="all">全部</option>
+							<option value="web" selected="selected">网站</option>
+							<option value="wap">手机</option>
+						</select>
+			</div>
+			<div class="mb5">
+				开始时间：<input type="text" name="startTime" value="$!mrParams.startTime"  id="startTime" onfocus="new WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'2006-01-01 00:00:00',maxDate:'2100-03-10 00:00:00'})" />
+			</div>
+			<div class="mb5">
+				结束时间：<input name="endTime" value="$!mrParams.endTime" id="endTime" type="text" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',minDate:'2006-01-01 00:00:00',maxDate:'2100-03-10 00:00:00'})"  />
+			</div>
+			<div class="mb5">
+				<input type="checkbox" name="mobie" id="mobie" style="width:5px;"/>绑定手机用户  
+				<input type="checkbox" name="email" id="email"  style="width:5px;"/>邮箱验证 
+			</div>
+			<div class="mb5">
+			</div>
+			<div class="mb5">
+				<input type="checkbox" name="ticket" id="ticket" style="width:5px;" onchange="changeSelected('movie',this);"/>完成购票<span id="movie" class="ml10" style="display:none;"> 电影ID：<input name="movieid" id="movieid" style="width:100px;"/></span>
+			</div>
+			<div class="mb5">
+				<input type="checkbox" name="moredraw" id="moredraw"  style="width:5px;" onchange="changeSelected('draw',this);"/>多次抽奖 	 <input type="text" name="daycount" id="daycount" style="width:30px;"/>每日免费次数 	 
+			</div>
+			<div id="draw" class="mb5" style="display:none;"> 时间间隔(小时)：<input name="hour" id="hour" style="width:30px;"/><span class="ml10">邀请好友数:<input name="friend" id="friend" style="width:30px;"/></span></div>
+			<div class="mb5">
+				<input type="checkbox" name="point" id="point"  style="width:5px;" onchange="changeSelected('po',this);"/>消耗积分<span id="po" class="ml10"  style="display:none;"> 积分数：<input name="pointvalue" id="pointvalue" style="width:80px;"/> </span> 
+			</div>
+			<div class="mb5">
+				<input type="checkbox" name="weibo" id="weibo" style="width:5px;"/>绑定微博
+			</div>
+			<div class="mb5">
+				<input type="checkbox" name="onlyone" id="onlyone" style="width:5px;"/>一个ID仅一次抽奖机会
+			</div>
+			<div class="mb5">
+				<input type="checkbox" name="onlymobile" id="onlymobile" style="width:5px;"/>一个手机仅一次抽奖机会
+			</div>
+			<input type="button" id="drawbt" value="保存" onclick="saveDrawForm()" class="bt"/> <input type="button" value="取消" class="bt" onclick="cancelMark('drawDialog')"/>
+	</form>
+	</div><!-- end of bd -->
+</div>
+
+<div id="flash1" class="yui-panel" style="width:600px;visibility: hidden;">
+	<div class="hd"></div>
+	<div class="bd" style="padding: 10px 30px;">
+		<div id="uploadt1">
+			<label>t1：</label>
+			<input type="text" id="lt1" name="t1" style="width:245px"/>
+				<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetl1&notLimit=true"></iframe>
+		</div>
+		<div id="uploadt2">
+			<label>t2：</label>
+			<input type="text" id="lt2" name="t2" style="width:245px"/>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetl2&notLimit=true"></iframe>
+		</div>
+		<div id="uploadt3">
+			<label>t3：</label>
+			<input type="text" id="lt3" name="t3" style="width:245px"/>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetl3&notLimit=true"></iframe>
+		</div>
+		<label style="color:red">图片1，图片2，图片3分别对应abc，六种组合分别为aaa，bbb，ccc，abb，abc，acc，对应奖品为：t1，t2，t3，t4，t5，t6</label><br />
+		<input type="hidden" name="type" id="type" value="laohuji"/>
+		<input type="button" value="导入" name="upload" onclick="savePic('flash1')"/>
+		<input type="button" value="取消" onclick="cancelMark('flash1')"/>
+	</div>
+</div>
+<div id="flash2" class="yui-panel" style="width:600px;visibility: hidden;">
+	<div class="hd"></div>
+	<div class="bd" style="padding: 10px 30px;">
+		<div id="uploadt1">
+			<label>t1：</label>
+			<input type="text" id="zt1" name="t1" style="width:245px"/><span>对应奖品级别t1</span>
+				<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetz1&notLimit=true"></iframe>
+		</div>
+		<div id="uploadt2">
+			<label>t2：</label>
+			<input type="text" id="zt2" name="t2" style="width:245px"/><span>对应奖品级别t2</span>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetz2&notLimit=true"></iframe>
+		</div>
+		<div id="uploadt3">
+			<label>t3：</label>
+			<input type="text" id="zt3" name="t3" style="width:245px"/><span>对应奖品级别t3</span>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetz3&notLimit=true"></iframe>
+		</div>
+		<div id="uploadt4">
+			<label>t4：</label>
+			<input type="text" id="zt4" name="t4" style="width:245px"/><span>对应奖品级别t4</span>
+				<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetz4&notLimit=true"></iframe>
+		</div>
+		<div id="uploadt5">
+			<label>t5：</label>
+			<input type="text" id="zt5" name="t5" style="width:245px"/><span>对应奖品级别t5</span>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetz5&notLimit=true"></iframe>
+		</div>
+		<div id="uploadt6">
+			<label>t6：</label>
+			<input type="text" id="zt6" name="t6" style="width:245px"/><span>对应奖品级别t6</span>
+			<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+				src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetz6&notLimit=true"></iframe>
+		</div>
+		<input type="hidden" name="type" id="type" value="zhuanpan"/>
+		<input type="button" value="导入" name="upload" onclick="savePic('flash2')"/>
+		<input type="button" value="取消" onclick="cancelMark('flash2')"/>
+	</div>
+</div>
+<div id="flash3" class="yui-panel" style="width:600px;visibility: hidden;">
+	<div class="hd"></div>
+	<div class="bd" style="padding: 10px 30px;">
+		<div id="uploadt1">
+				<label>t1：</label>
+				<input type="text" id="jt1" name="t1" style="width:245px"/><span>对应奖品级别t1</span>
+					<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+					src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetj1&notLimit=true"></iframe>
+			</div>
+			<div id="uploadt2">
+				<label>t2：</label>
+				<input type="text" id="jt2" name="t2" style="width:245px"/><span>对应奖品级别t2</span>
+				<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+					src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetj2&notLimit=true"></iframe>
+			</div>
+			<div id="uploadt3">
+				<label>t3：</label>
+				<input type="text" id="jt3" name="t3" style="width:245px"/><span>对应奖品级别t3</span>
+				<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+					src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetj3&notLimit=true"></iframe>
+			</div>
+			<div id="uploadt4">
+				<label>t4：</label>
+				<input type="text" id="jt4" name="t4" style="width:245px"/><span>对应奖品级别t4</span>
+					<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+					src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetj4&notLimit=true"></iframe>
+			</div>
+			<div id="uploadt5">
+				<label>t5：</label>
+				<input type="text" id="jt5" name="t5" style="width:245px"/><span>对应奖品级别t5</span>
+				<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+					src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetj5&notLimit=true"></iframe>
+			</div>
+			<div id="uploadt6">
+				<label>t6：</label>
+				<input type="text" id="jt6" name="t6" style="width:245px"/><span>对应奖品级别t6</span>
+				<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+					src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetj6&notLimit=true"></iframe>
+			</div>
+			<div id="uploadt7">
+				<label>t7：</label>
+				<input type="text" id="jt7" name="t7" style="width:245px"/><span>对应奖品级别t7</span>
+					<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+					src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetj7&notLimit=true"></iframe>
+			</div>
+			<div id="uploadt8">
+				<label>t8：</label>
+				<input type="text" id="jt8" name="t8" style="width:245px"/><span>对应奖品级别t8</span>
+				<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+					src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetj8&notLimit=true"></iframe>
+			</div>
+			<div id="uploadt9">
+				<label>t9：</label>
+				<input type="text" id="jt9" name="t9" style="width:245px"/><span>对应奖品级别t9</span>
+				<iframe height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame"
+					src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updatetj9&notLimit=true"></iframe>
+			</div>
+			<input type="hidden" name="type" id="type" value="jiugong"/>
+			<input type="button" value="导入" name="upload" onclick="savePic('flash3')"/>
+			<input type="button" value="取消" onclick="cancelMark('flash3')"/>
+	</div>
+</div>
+<div id="flash" class="yui-panel" style="width:600px;visibility: hidden;">
+	<div class="hd"></div>
+	<div class="bd" style="padding: 10px 30px;">
+	<form>
+		<input type="hidden" name="flashtag" id="flashtag" value=""/>
+		<input type="hidden" name="daid" id="daid" value=""/>
+		<input type="button" name="laba" id="laba" value="拉霸" onclick="sendFlashTag('laohuji')"/>
+		<input type="button" name="zhuanpan" id="zhuanpan" value="转盘" onclick="sendFlashTag('zhuanpan')"/>
+		<input type="button" name="jiugong" id="jiugong" value="九宫格" onclick="sendFlashTag('jiugong')"/>
+		<input type="button" value="取消" onclick="cancelMark('flash')"/>
+	</form>
+	</div>
+</div>
+
+	<script type="text/javascript">
+	function showDrawMark(el){
+		$('drawid').value = '';
+		$('name').value = '';
+		$('startTime').value = '';
+		$('endTime').value = '';
+		$('tag').value = '';
+		$('drawtype').set('text','添加');
+		GewaraUtil.showDialog(el);
+	}
+	function cancelMark(el){
+		GewaraUtil.hideDialog(el)
+	}
+	function saveDrawForm(){
+		var name = $('name').value;
+		if(!$chk(name)){
+			alert('活动名称不能为空！');
+			return;
+		}
+		var values = {'did':$('drawid').value,'name':name,'tag':$('tag').value,'startTime':$('startTime').value,'endTime':$('endTime').value,'showsite':$('showsite').value};
+		if($('mobie').checked) values.moblie='Y';
+		if($('email').checked) values.email='Y';
+		if($('ticket').checked) values.ticket='Y';
+		if($('movieid').value != "") values.movieid=$('movieid').value;
+		if($('moredraw').checked) values.moredraw='Y';
+		if($('hour').value != "") values.hour=$('hour').value;
+		if($('friend').value != "") values.friend=$('friend').value;
+		if($('point').checked) values.point='Y';
+		if($('pointvalue').value != "") values.pointvalue=$('pointvalue').value;
+		if($('weibo').checked) values.weibo='Y';
+		if($('onlyone').checked) values.onlyone='Y';
+		if($('onlymobile').checked) values.onlymobile='Y';
+		if($('daycount').value !="") values.daycount=$('daycount').value;
+		GewaraUtil.sendRequest("${basePath}admin/draw/addDrawActivityInfo.xhtml",values,function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function updateDrawMark(el,did){
+		GewaraUtil.sendRequest("${basePath}admin/draw/updateDrawActivityInfo.xhtml",{'did':did},function(result){
+			if(result.success){
+				var map = result.map;
+				$('name').value = result.name;
+				$('startTime').value = result.starttime;
+				$('endTime').value = result.endtime;
+				$('tag').value = result.tag;
+				$('drawid').value = result.id;
+				$('showsite').value= result.showsite;
+				if(map.moblie != null) $('mobie').checked=true;
+				if(map.email != null) $('email').checked=true;
+				if(map.ticket != null){
+					$('ticket').checked=true;
+					$('movie').setStyle('display','inline-block');
+					if(map.movieid != null)$('movieid').value=map.movieid;
+				}
+				if(map.moredraw != null){
+					$('moredraw').checked=true;
+					$('draw').setStyle('display','inline-block');
+					if(map.hour != null)$('hour').value=map.hour;
+					if(map.friend != null)$('friend').value=map.friend;
+				}
+				if(map.point != null){
+					$('point').checked=true;
+					$('po').setStyle('display','inline-block');
+					if(map.pointvalue != null)$('pointvalue').value=map.pointvalue;
+				}
+				if(map.daycount != null)$('daycount').value=map.daycount;
+				if(map.weibo != null) $('weibo').checked=true;
+				if(map.onlyone != null) $('onlyone').checked=true;
+				if(map.onlymobile != null) $('onlymobile').checked=true;
+				$('drawtype').set('text','修改');
+				$(el).setStyle('display','block');
+				GewaraUtil.showDialog(el);
+			}else{
+				alert("你要修改的活动信息不存在！");
+			}
+		}, 'get');
+	}
+	
+	function changeSelected(el,obj){
+		if($(obj).checked){
+			$(el).setStyle('display','inline-block');
+		}else{
+			$(el).setStyle('display','none');
+		}
+	}
+	function showAddFlash(el){
+		GewaraUtil.showDialog(el);
+	}
+	
+	function choiceFlashType(tag, daid){
+		$('flashtag').value=tag;
+		$('daid').value=daid;
+		GewaraUtil.showDialog('flash');
+	}
+	
+	function sendFlashTag(type){
+		var values={'type':type, 'tag':$('flashtag').value, 'daid':$('daid').value};
+		GewaraUtil.sendRequest("${basePath}ajax/subject/uploadFlashTag.xhtml",values,function(result){
+			if(result.success){
+				alert("添加成功！");
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function updatetl1(params){
+		var picpath1 = params['picpath'];
+		$('lt1').value = picpath1;
+	}
+	function updatetl2(params){
+		var picpath1 = params['picpath'];
+		$('lt2').value = picpath1;
+	}
+	function updatetl3(params){
+		var picpath1 = params['picpath'];
+		$('lt3').value = picpath1;
+	}
+	function updatetz1(params){
+		var picpath1 = params['picpath'];
+		$('zt1').value = picpath1;
+	}
+	function updatetz2(params){
+		var picpath1 = params['picpath'];
+		$('zt2').value = picpath1;
+	}
+	function updatetz3(params){
+		var picpath1 = params['picpath'];
+		$('zt3').value = picpath1;
+	}
+	function updatetz4(params){
+		var picpath1 = params['picpath'];
+		$('zt4').value = picpath1;
+	}
+	function updatetz5(params){
+		var picpath1 = params['picpath'];
+		$('zt5').value = picpath1;
+	}
+	function updatetz6(params){
+		var picpath1 = params['picpath'];
+		$('zt6').value = picpath1;
+	}
+	function updatetj1(params){
+		var picpath1 = params['picpath'];
+		$('jt1').value = picpath1;
+	}
+	function updatetj2(params){
+		var picpath1 = params['picpath'];
+		$('jt2').value = picpath1;
+	}
+	function updatetj3(params){
+		var picpath1 = params['picpath'];
+		$('jt3').value = picpath1;
+	}
+	function updatetj4(params){
+		var picpath1 = params['picpath'];
+		$('jt4').value = picpath1;
+	}
+	function updatetj5(params){
+		var picpath1 = params['picpath'];
+		$('jt5').value = picpath1;
+	}
+	function updatetj6(params){
+		var picpath1 = params['picpath'];
+		$('jt6').value = picpath1;
+	}
+	function updatetj7(params){
+		var picpath1 = params['picpath'];
+		$('jt7').value = picpath1;
+	}
+	function updatetj8(params){
+		var picpath1 = params['picpath'];
+		$('jt8').value = picpath1;
+	}
+	function updatetj9(params){
+		var picpath1 = params['picpath'];
+		$('jt9').value = picpath1;
+	}
+	
+	function savePic(frm){
+		var values=GewaraUtil.getValues(frm);
+		var url="${basePath}ajax/subject/uploadFlashPictrue.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("添加成功！");
+				location.href="${basePath}admin/draw/drawactivityList.xhtml";
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function changeOrder(el){
+		document.location.href="${basePath}admin/draw/drawactivityList.xhtml?order=" + el.value;
+	}
+	
+	window.addEvent('domready', function(){
+		 var hash=location.hash;
+		 if(hash){
+		 	var actid=hash.substring(1,hash.length);
+		 	updateDrawMark('drawDialog',actid);
+		 }
+	});
+</script>
+</body>
+</html>

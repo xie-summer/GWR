@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body>
+<div id="warn">
+	<form action="${basePath}admin/balance/warn/reapeatPayList.xhtml">
+		按日期：<input type="text" name="adddate" value="$!params.adddate" style="width: 100px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>
+		状态：<select name="status">
+			<option value="" #if($VmUtils.isBlank($!params.status))selected#end>请选择</option>
+			<option value="N" #if($params.status eq 'N')selected#end>未处理</option>
+			<option value="Y" #if($params.status eq 'Y')selected#end>已处理</option>
+		</select>
+		<input type="submit" value="提交"/>
+		<span class="right"><a href="javascript:showDialog()">导入数据</a></span>
+	</form>
+	<table class="table">
+	<tr>
+		<td width="30">序号</td>
+		<td>流水号</td>
+		<td>订单号</td>
+		<td>成功支付的支付方式</td>
+		<td>重复成功支付的支付方式</td>
+		<td>操作</td>
+		<td>下单时间</td>
+	</tr>
+	#foreach($order in $orders)
+	<tr id="order$order.id" style="background-color: #eee;">
+		<td>${foreach.count}</td>
+		<td>${order.payseqNo}</td>
+		<td>${order.tradeNo}</td>
+		<td>${order.successPayMethod}<b>[$!paytextMap.get($!order.successPayMethod)]</b></td>
+		<td>${order.payMethod}<b>[$!paytextMap.get($!order.payMethod)]</b></td>
+		<td>
+			#if($order.status ne 'Y')
+			<a href="javascript:accept('$order.recordId')">接受</a>&nbsp;&nbsp;
+			#else
+			已接受
+			#end
+		</td>
+		<td>$order.notifyTime</td>
+	</tr>
+	#end
+	</table>
+</div>
+
+<div id="openDialog" style="width:570px; visibility:hidden; z-index:20;background: #000">
+	<div style="width:550px;margin:10px;background:#FFF;">
+		<div style="text-align:center;height:20px;line-height: 20px;margin-bottom: 5px;">
+			<strong>导入数据</strong>
+		</div>
+		<div class="bd ml20" style="text-align:left;">
+			<form name="openForm" id="openForm">
+				<div class="clear">
+					<input type="button" class="cbt1"  value="保存" onclick="saveUser()"/>
+					<input type="button" class="cbt1" onclick="hiDialog();" value="取消"/>
+					<textarea rows="30" cols="50" name="warns"></textarea>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<script>
+function accept(id){
+	var url = "${basePath}admin/balance/warn/acceptOrderWarn.xhtml";
+	GewaraUtil.sendRequest(url, {"id":id},function(result){
+		$('order'+id).dispose();
+	});
+}
+function updateWarn(id){
+	var url = "${basePath}admin/gewapay/warn/updateOrderWarn.xhtml";
+	GewaraUtil.sendRequest(url, {"id":id},function(result){
+		$('order'+id).dispose();
+	});
+}
+
+function hiDialog(){
+	GewaraUtil.hideDialog("openDialog");
+}
+function showDialog(){
+	GewaraUtil.showDialog('openDialog');
+}
+function saveUser(){
+	GewaraUtil.mask('openDialog');
+	var mask = gewa.util.mask({'element': 'openDialog','title':'正在提交，请稍等...'});
+	var values = GewaraUtil.getValues('openForm');
+	var url = "${basePath}admin/gewapay/warn/importPayWarn.xhtml";
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success) {
+			alert(result.retval);
+		}else {
+			alert(result.msg);
+		}
+		GewaraUtil.unmask();
+		hiDialog();
+	});
+}
+
+</script>
+</body>
+</html>

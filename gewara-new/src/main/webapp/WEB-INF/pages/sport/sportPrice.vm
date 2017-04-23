@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	#parse('include/constant/cityParam.vm')
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>#if($VmUtils.isBlank($sport.seotitle))${sport.name}价格#else${sport.seotitle}#{end} - 格瓦拉生活网</title>
+	<meta name="keywords" content="${sport.name}场馆查询,${sport.name}资讯,${sport.name}公告,${sport.name}价格"/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,base_home&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	.title h2{font-weight:bold;}
+	
+	</style>
+</head>
+<body>
+#set($tag="sport") #set($issport=true) #set($isSportDetail=true)
+#set($issite = true)
+#set($isPrice=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout detail_body">
+	<div class="inner">
+		<div class="ui_panel">
+			#parse('sport/module/detailHead.vm')
+			<div class="detail_body_left">
+				#if(!$VmUtils.isEmptyList($itemList))
+				<div class="bm_imenu" style="padding:0;" id="items">
+					#foreach($item in $itemList)
+					<p #if($VmUtils.eq($item.id, $itemId) || (!$itemId) && $VmUtils.eq($foreach.count, 1))class="in_on"#else class="in_off" #end id="item$item.id">
+						<a href="javascript:void(0);" onclick="getOttList($!item.id)">$!item.name</a>
+					</p>
+					#end
+					#if($hasSportGoods)
+					<a class="right cSport" href="${basePath}sport/$sport.id/trainlist" target="_blank">预订畅打培训</a>
+					#end
+				</div>
+				<div id="ottDiv">
+				</div>
+				#else
+				很抱歉，暂无场次信息
+				#end
+				#if(!$VmUtils.isEmptyList($payMemberList))
+				<div class="clear mt20">
+					<div class="title"><h2>最近购票瓦友</h2></div>
+					<ul class="payUser acolor">
+						#foreach($payMember in $payMemberList)
+						<li>
+							<a target="_blank" class="pubpic" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!memberMap.get($payMember.tradeNo).id"><img width="50" height="50" alt="" src="$VmUtils.randomPic('cw50h50',$memberMap.get($payMember.tradeNo).headpicUrl)"/></a><br />
+							<a target="_blank" title="$!memberMap.get($payMember.tradeNo).nickname" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!memberMap.get($payMember.tradeNo).id">$!VmUtils.escabbr($memberMap.get($payMember.tradeNo).nickname ,8)</a><br /><span class="c6">$DateUtil.getDateDesc($payMember.paidtime)</span>
+						</li>
+						#end
+					</ul>
+				</div>
+				#end
+			</div>
+			<div class="detail_body_right">
+				#parse('include/global/map.vm')
+				<div class="mt20">
+				#parse('sport/module/right_rimVenue.vm')
+				#parse('sport/module/right_rimEntertainment.vm')
+				</div>
+			</div>
+			<div class="cls"></div>
+		</div>
+	</div>
+</div>
+#parse('include/treasure.vm')
+#parse('include/newMarkDialog.vm')
+#parse('include/global/new_scorelevel.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	myTreasure('sport',$sport.id,'logonMember');
+	#if(!$VmUtils.isNull($itemId))
+	getOttList($itemId);
+	#elseif(!$VmUtils.isEmptyList($itemList))
+	getOttList($itemList.get(0).id);
+	#end
+});
+function getOttList(itemid){
+	var values={'sportId':$sport.id,'itemId':itemid};
+	GewaraUtil.sendLoad('ottDiv','${basePath}sport/ajax/getSportOtt.xhtml', values, function(result){
+		if(result.success){
+			$('items').getElements('p').each(function(el){
+				if(el.hasClass('in_on')){
+					el.removeClass('in_on');
+					el.addClass('in_off');
+				}
+			});
+			if($('item'+itemid)){
+				$('item'+itemid).removeClass('in_off');
+				$('item'+itemid).addClass('in_on');
+			}
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>
+#parse('include/bottom.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

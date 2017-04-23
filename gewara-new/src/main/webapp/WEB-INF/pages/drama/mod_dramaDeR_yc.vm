@@ -1,0 +1,91 @@
+#if(!$VmUtils.isNull($curTheatre))
+<div class="mod_kong Ryc">
+	<div class="mod_hd">
+		<h2>在这里演出哦</h2>
+	</div>
+	<div class="mod_bd">
+		<div class="Ryc_con">
+			<a href="${basePath}theatre/$!curTheatre.id" target="_blank" title="$!curTheatre.name" class="dramaPic"><img src="$VmUtils.randomPic('cw250h200',$curTheatre.firstpic)" width="280" height="210" alt="$!curTheatre.name" /></a>
+			<p class="mt15 fs14 c80"><b>$!curTheatre.name</b></p>
+			<p class="mt10">地址：<a href="${basePath}theatre/theatreList.xhtml?countycode=$curTheatre.countycode" target="_blank">$!curTheatre.countyname</a>$!curTheatre.address</p>
+			#if(!$VmUtils.isNull($curTheatre.contactphone))<p class="mt5">电话：$!curTheatre.contactphone</p>#end
+			<p class="c80 mt5">共$!{curTheatrePlayCount}部正在上演</p>
+		</div>
+		<div class="trac">
+			<div class="trac_title"><span id="v_toggle">交通路线查询</span></div>
+			<div class="trac_content"  id="vertical_slide" style="display:none;">
+				<div class="trac_c">
+					<div id="pattern" class="search_icon_tab map_ico clear">
+						<a #if($VmUtils.isNull($title))class="select"#end #if($VmUtils.eq($title,'驾车'))class="select"#end href="javascript:void(0);" title="驾车"><img class="car" src="$VmUtils.randomPic('','css/images/blank.gif')"></a>
+						<a #if($VmUtils.eq($title,'公共交通'))class="select"#end href="javascript:void(0);" title="公共交通"><img class="bus" src="$VmUtils.randomPic('','css/images/blank.gif')"></a>
+						<a #if($VmUtils.eq($title,'步行'))class="select"#end href="javascript:void(0);" title="步行" ><img class="men" src="$VmUtils.randomPic('','css/images/blank.gif')"></a>
+					</div>
+					<div class="search_form">
+						<ul>
+							<li>
+								<span class="map_ico_a a" title="起点"></span>
+								<input id="fromAddress" class="text" type="text" alt="请输入起点">
+							<li>
+								<span class="map_ico_b a" title="终点"></span>
+								<input id="endAddress" class="text" type="text" value="$!curTheatre.name">
+							</li>
+						</ul>
+						<p class="mt10 drBt"><a class="button bigBt redBt" href="javascript:void(0);" onclick="mDriving()"><span>查询路线</span></a></p>
+					</div>
+				</div>
+				<div class="traInfo">
+				#if($VmUtils.isNotBlank($curTheatre.transport))
+					<dl class="clear">
+						<dt>公交：</dt>
+						<dd>$!curTheatre.transport</dd>
+					</dl>
+				#end
+				#if($VmUtils.isNotBlank($curTheatre.stationname))
+					<dl class="clear">
+						<dt>地铁：</dt>
+						<dd>$!curTheatre.getLineName($subwaylineMap)&nbsp;$!{curTheatre.stationname}站&nbsp;$!{curTheatre.exitnumber}</dd>
+					</dl>
+				#end
+				#set($parkOtherInfoMap=$VmUtils.readJsonToMap($curTheatre.otherinfo))
+				#set($park = $parkOtherInfoMap.get('park'))
+				#if($park)
+					<dl class="clear">
+						<dt>停车：</dt>
+						<dd>$!park</dd>
+					</dl>
+				#end
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	var myVerticalSlide = $('vertical_slide');
+	$('v_toggle').addEvent('click', function(event){
+	    event.stop();
+	    if(!this.className){
+	    	this.className="up";
+	    }else{
+	    	this.className="";
+	    }
+	    myVerticalSlide.toggle();
+	  });
+	gewaUtil.textOver('.text');
+	tarc();
+});
+function tarc(){
+	if(!$('pattern')) return ;
+	else{
+		var oList = $('pattern').getElements('a');
+		oList.each(function(el){
+			el.addEvent('click',function(){
+				oList.removeClass("select");
+				this.addClass("select");
+				return ;
+			});
+		});
+	};
+};
+</script>
+#end

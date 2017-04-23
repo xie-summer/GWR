@@ -1,0 +1,116 @@
+<div id="adoptAlbum"  style="display:none">
+	<form action="javascript:createAlbum()" name="albumForm" id="albumForm">
+		#if($commu)<input type="hidden" class="text" name="commuid" value="$commu.id"/>#end
+		<ul class="ul-80">
+			<li>
+				<input type="hidden" name="albumid" id="albumid"/>
+				<div class="ul-80Inner">相册标题：</div>
+				<input type="text" mustTxt="相册标题不能为空!" class="text" name="subject" id="subject"/>
+				<div class="height0"></div>
+			</li>
+			<li>
+				<div class="ul-80Inner">相册描述：</div>
+				<textarea class="text" mustTxt="相册描述不能为空!" name="description" id="description" style="width:270px;height:80px;"></textarea>
+			</li>
+			#if(!$commu)
+			<li>
+				<div class="ul-80Inner">权限设置：</div>
+				<select name="rights" id="rights">
+					<option value="public">公开</option>
+					<option value="friend">朋友可见</option>
+					<option value="private">私人</option>
+				</select>
+			</li>
+			#end
+			<li>
+				<em class="left">验证码：</em>
+				<input type="hidden" name="captchaId" id="captcha" />
+				<label class="left" style="width:80px">
+				<input type="text" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" size="18" style="width:80px" mustTxt="请输入验证码!" onfocus="GewaraUtil.refreshCaptcha('captcha');"/></label>
+				<img id="captchaImg" src="${staticPath}css/images/blank.gif" class="ml20" style="cursor: pointer;vertical-align: middle;float:left;height:30px; width:80px;" onclick="GewaraUtil.refreshCaptcha('captcha')" title="看不清楚，请点击换一张图片"/>
+			</li>
+		</ul>
+	</form>
+</div>
+	<script type="text/javascript">
+	function showCreateAlbum(el){
+		showMark(el);
+	}
+	
+	function showMark(el){
+		gewa.util.issure('','adoptAlbum','创建相册',460,'adoptAlbum',function(calls,id){
+			$('albumForm').submit();
+		})
+	}
+	function createAlbum(){
+		if(!GewaraUtil.baseValidForm('albumForm'))return ;
+		checkLogin(true, function(){
+			var url = '${basePath}home/album/createAlbum.xhtml';
+			var values = GewaraUtil.getValues("albumForm");
+			GewaraUtil.mask('albumForm');
+			GewaraUtil.sendRequest(url, values, function(result){
+				GewaraUtil.unmask();
+				if(result.success){
+					#if($isUpdateImage)
+						gewa.util.container['adoptAlbum'].dispose('adoptAlbum');
+						$$('.optionsid').each(function(item){
+							item.options.add(new Option(result.album.subject,result.album.id));
+							item.value=result.album.id;
+						})
+					#else
+						#if($manageCommu)
+							document.location='${basePath}home/commu/photoManage.xhtml?commuid=$!commu.id';
+						#elseif($!commu.id)
+							document.location='${basePath}quan/commu/albumImageList.xhtml?albumid='+result.album.id+'&commuid='+$!commu.id;
+						#else
+							document.location='${basePath}home/new/album/albumImageList.xhtml?albumid='+result.album.id;
+						#end
+					#end
+				}else{
+					gewa.util.container['adoptAlbum'].dispose('adoptAlbum');
+					gewaUtil.alert(result.msg);
+					GewaraUtil.refreshCaptcha('captcha');
+				}
+			})
+		});
+	}
+	function delAlbum(aid){
+		gewaUtil.confirm('确认要删除吗?删除相册同时会删除相册内所有图片！', function(){
+			checkLogin(true, function(){
+			var url = '${basePath}home/album/delAlbum.xhtml';
+			var values = {#if($commu)'commuid':$!commu.id,#end'albumid':aid};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewaUtil.alert('删除成功！');
+					#if($commu)
+						document.location = "${basePath}quan/albumList.xhtml?commuid=$!commu.id";
+					#else
+						document.location = "${basePath}home/new/album/albumList.xhtml?memberid=$!mymember.id&r="+Math.random();
+					#end
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			})
+		});	
+		});
+	}
+	function getAlbum(aid){
+		checkLogin(true, function(){
+			var url = '${basePath}home/album/modAlbum.xhtml';
+			var values = {'albumid':aid#if($commu), 'commuid':$!commu.id#end};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					GewaraUtil.setValues(result);
+					document.albumForm.description.value = result.description;
+					if(result.albumupdate){
+						if($('albumtype'))$('albumtype').set('text','修改');
+						if($('caldisBtn'))$('caldisBtn').value='修改';
+					}
+					showMark('adoptAlbum');
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			})
+		});
+	}
+</script>

@@ -1,0 +1,37 @@
+<data>
+	#if($xmlError)
+	<error>$errmsg</error>
+	#else
+	<nowtime>$!DateUtil.format($!nowtime,'yyyy-MM-dd HH:mm:ss')</nowtime>
+	#foreach($order in $orderList)
+	#set($opi=$opiMap.get($order.mpid))
+	#set($check=$!checkMap.get($order.checkpass))
+	<order>
+	<tradeno>$!order.tradeNo</tradeno>
+	<showid>$!order.mpid</showid>
+	<orderkey>$!check</orderkey>
+	<moviename>$!opi.moviename</moviename>
+	<cinemaname>$!cinema.realBriefname</cinemaname>
+	<cinemaid>$!order.cinemaid</cinemaid>
+	<playtime>$!DateUtil.format($!opi.playtime,'yyyy-MM-dd HH:mm:ss')</playtime>
+	<roomname>$!opi.roomname</roomname>
+	<ticketnum>$!order.quantity</ticketnum>
+	<seatprice>$!GewaOrderHelper.getOrderSeatTextWithService($order, $seatMap.get($order.id))</seatprice>
+	<nickname>$!order.membername</nickname>
+	<mobile>$!mobileMap.get($!order.tradeNo)</mobile>
+	<shortmobile>$!mobileMap.get($!order.tradeNo)</shortmobile>
+	<ordertime>$!DateUtil.format($!order.paidtime,'yyyy-MM-dd HH:mm:ss')</ordertime>
+	#if($VmUtils.isNotEmpObj($orderMap))
+	<synchtype>#if($orderMap.get($!order.tradeNo) eq 'U')1#elseif($orderMap.get($!order.tradeNo) eq 'D')2#{else}0#{end}</synchtype>
+	#end
+	<ordertype>ticket</ordertype>
+	<status>$!status</status>
+	#if($order.partnerid eq '50000010' || $order.partnerid eq '50000020' || $order.partnerid eq '50000070')
+	<orderfrom>手机票</orderfrom>
+	#else
+	<orderfrom>网络票</orderfrom>
+	#end
+	</order>
+	#end
+	#end
+</data>

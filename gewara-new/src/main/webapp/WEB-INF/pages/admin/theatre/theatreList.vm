@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>话剧院列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+</head>
+<body style="margin:auto">
+<div style="padding:1px;">
+	<form action="${basePath}admin/theatre/theatreList.xhtml" style="margin:3px;float: left;">
+		搜索(名称+拼音+区县+地址)：<input name="name" type="text" style="width:80px" value="$!params.key"/>
+		<input type="hidden" name="city" id="city" value="$!params.city"/>
+		<input type="submit" class="button" value="查询"/>
+	</form>
+</div>
+<div class="height0"></div>
+<div style="float:left"> 
+	<a href="${basePath}admin/theatre/modifyTheatreDetail.xhtml" target="_blank">增加话剧院</a>
+	<a  href="${basePath}admin/common/newsList.xhtml?tag=theatre&newstype=2" target="_blank">新闻</a>
+	<span style="position: absolute;right: 0px;">
+	<a href="javascript:void();" style="text-align: right;margin-right: 10px;" onclick="refreshPageTheatre()">刷新</a>
+	</span>
+</div>
+<table class="table clear">
+	<thead>
+	<tr>
+		<th>话剧院名称</th>
+		<th>修改</th>
+		<th>编辑排片</th>
+		<th>公告</th>
+		<th>放映厅</th>
+		<th>图片</th>
+		<th>地图</th>
+		<th>百度地图</th>
+		<th>页面</th>
+		<th>热门</th>
+		<th>历史记录</th>
+	</tr>
+	</thead>
+	<tbody id="theatreTable">
+	#foreach($theatre in $theatreList)
+	<tr>
+		<td>$!{theatre.name}</td>
+		<td><a href="${basePath}admin/theatre/modifyTheatreDetail.xhtml?theatreId=$!{theatre.id}" target="_blank">编辑</a></td>
+		<td><a href="${basePath}admin/drama/dramaPlayItem/itemList.xhtml?theatreid=$!{theatre.id}" target="_blank">编辑排片</a></td>
+		<td><a href="${basePath}admin/common/bulletinList.xhtml?tag=theatre&relatedid=$!{theatre.id}" target="_blank">公告</a></td>
+		<td><a href="${basePath}admin/theatre/roomList.xhtml?theatreid=$!{theatre.id}" target="_blank">放映厅</a></td>
+		<td><a href="${basePath}admin/common/pictureList.xhtml?tag=theatre&relatedid=$!{theatre.id}&uploadPath=images/theatre" target="_blank">上传组图</a></td>
+		<td><a href="${basePath}admin/common/mappoint.xhtml?id=$!theatre.id&tag=theatre" target="_blank">地图</a></td>
+		<td><a href="${basePath}admin/common/mapbpoint.xhtml?id=$!theatre.id&tag=theatre" target="_blank">百度地图</a></td>
+		<td><a href="$!{absPath}${basePath}theatre/$!theatre.id" target="_blank">前台</a></td>
+		<td nowrap="nowrap" id="b$!theatre.id">
+			<select name='hotvalue' id='$!theatre.id' onchange='setHotValue("$!theatre.id")'>
+				<option value="70000" #if($!theatre.hotvalue eq 70000) selected="selected" #end>搜索推荐</option>
+				<option value="50000" #if($!theatre.hotvalue eq 50000) selected="selected" #end>推荐</option>
+				<option value="30000" #if($!theatre.hotvalue eq 30000) selected="selected" #end>热门</option>
+				<option value="0" #if($!theatre.hotvalue eq 0) selected="selected" #end>一般</option>
+				<option value="-30000" #if($!theatre.hotvalue eq -30000) selected="selected" #end>冷门</option>
+				<option value="-50000" #if($!theatre.hotvalue eq -50000) selected="selected" #end>非常冷门</option>
+			</select>
+		</td>
+		<td>
+			<a href="${basePath}admin/common/getChangeHis.xhtml?tag=Theatre&relatedid=$!theatre.id" target="_blank">历史</a>
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+	<script type="text/javascript">
+	function setHotValue(vid){
+		var url = "${basePath}admin/theatre/ajax/setTheatreHotValue.xhtml";
+		var values = {'theatreId':vid, "value":$(vid).value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) alert('成功设置！');
+		});
+	}
+	function refreshPageTheatre(){
+		refreshPage();
+	}
+</script>
+</body>
+</html>

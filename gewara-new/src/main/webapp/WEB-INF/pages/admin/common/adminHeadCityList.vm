@@ -1,0 +1,66 @@
+#if(!$pageUrl)#set($pageUrl="${basePath}admin/changeCity.xhtml")#end
+<div class="ui_city_hotList" id="ui_city_hotList">
+		<div class="ui_city_search">
+			<select onchange="changeProvince(this)" style="position:relative;top:-10px;">
+			#foreach($province in $province2CityList)
+				<option value="province$foreach.count" >$VmUtils.replace($province.provincename, "省", "")</option>
+			#end
+			</select>
+			<form action="${basePath}newSearchKey.xhtml" id="cityForm" style="display:inline-block;">
+				<span class="mr10">搜索</span>
+				<input type="hidden" id="searchid" value="">
+				<input type="text" autocomplete="off" x-webkit-speech="" accesskey="s" name="cityKey" id="cityKey" alt="可直接输入城市全拼/简拼" onkeyup="searchCity(this);" class="search_text" value="" >
+			</form>
+			<br/>
+			<ul class="autocompleter-choices" id="autoCity" style="left:65px;top:44px;width:200px; display:none;">
+			</ul>
+		</div>
+		<div class="inner clear">
+			#foreach($province in $province2CityList)
+			<div id="province$foreach.count" class="inner none clear">
+				<ul>
+				#foreach($gewaCity in $province.gewaCityList)
+					<li><a href="$pageUrl?citycode=$gewaCity.citycode#if($targetUrl)&path=$!targetUrl#end">$!gewaCity.cityname</a></li>
+				#end
+				</ul>
+			</div>
+			#end
+		</div>
+</div>
+<div class="inner">
+	<div class="ui_city_cType clear">
+		<a id="hotCitys" class="select" href="javascript:void(0);">热门城市</a>
+	</div>
+	<div class="ui_city_hotList clear" id="hotCitys_content">
+		<div class="inner clear">
+			<ul>
+				#foreach($city in $hotCityList)
+				<li><a #if($VmUtils.eq($citycode, $city.citycode)) class="select" #end href="$pageUrl?citycode=$city.citycode#if($targetUrl)&path=$!targetUrl#end">$!city.cityname</a></li>
+				#end
+			</ul>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	 new PanelGroup(['hotCitys'], 'hotCitys', "select", "none", "mouseover",function(){
+		var mc = $(this.id+'_content'),pm = $('ui_city_plugs');
+	});
+	 $('province1').removeClass("none");
+})
+
+
+searchCity=function(el){
+	el = $(el);
+	GewaraUtil.sendLoad("autoCity", "${basePath}admin/ajax/common/searchCity.xhtml",{"cityKey":el.value, "targetUrl":"$!targetUrl"}, function(result){
+		if($('autoCity'))$('autoCity').setStyle('display','block');
+	});
+}
+changeProvince = function(el) {
+	el = $(el);
+	var divId = el.value;
+	$(divId).getSiblings().addClass("none");
+	$(divId).removeClass("none");
+	cityBox.toPos('cityChoose','bottomLeft',0,0);
+}
+</script>

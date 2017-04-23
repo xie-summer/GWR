@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>充值管理_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.topup_search_box{border-bottom:1px solid #c0c0c0;border-top:1px solid #c0c0c0;background:#f9f9f9;line-height:28px;height:28px;padding:5px 0;}
+		.table_bline th{border-bottom:1px #d2d2d2 solid;line-height:26px;background:#f5f5f5;text-align:left;padding-left:10px;}
+		.table_bline td{border-bottom:1px #d2d2d2 solid;line-height:30px;padding:0 5px;}
+	</style>
+</head>
+<body>
+#set($ishome=true)#set($myAccount = true)#set($orderManage = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/myAccount.vm')
+			<div class="title mt20">
+				充值账户：#if($VmUtils.isNotBlank($member.email))$member.email#{else}$VmUtils.getSmobile($member.mobile)#end
+				<span class="more" style="right:268px;">
+				#if($member.mobile)
+				<span class="left">绑定手机：$VmUtils.getSmobile($!member.mobile)</span>
+				<a href="${basePath}home/acct/changeBindMobile.xhtml?authType=oldmobile&tagNo=$VmUtils.getRandom()" class="ml5"><span>修改</span></a>
+				#else
+				为了你的账户安全，请<a href="${basePath}home/acct/memberinfo.xhtml?tag=cellphone">绑定手机</a>
+				#end
+				</span>
+			</div>
+			<div class="outside-box auto-outside-box">
+				<div class="inside-box auto-inside-box acolor" style="padding:5px 10px; height:30px; line-height:30px;">
+				<span class="gewaRemain">账户金额：<b>$!{account.bankcharge}</b>元</span>
+				<span class="gewaWabi ml30">瓦币：<b>$account.othercharge</b>个<em>(<em class="">1瓦币</em>=<em>1元</em>)</em></span>
+					<a href="${basePath}home/charge.xhtml?tagNo=$VmUtils.getRandom()" class="ml30">立即充值</a>
+				</div>
+			</div>
+			<div id="ajaxLoadOrderManageDV"></div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody").getElements("tr").each(function(item){
+		item.addEvents({'mouseenter':function(){this.addClass("tdHover");},'mouseleave':function(){this.removeClass("tdHover");}});
+	});
+	
+	var url = '${basePath}home/myAccountTable.xhtml?tagNo=$VmUtils.getRandom()';
+	gewaUtil.loadData('ajaxLoadOrderManageDV', url, {});
+});
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

@@ -1,0 +1,30 @@
+<data>
+<playItemList>
+	#foreach($pItem in $curMpiList)
+	#set($opi=$opiMap.get($pItem.id))
+	#set($reason=$reasonMap.get($pItem.id))
+	#set($movie=$movieMap.get($pItem.movieid))
+	#set($cinema=$cinemaMap.get($pItem.cinemaid))
+	#set($guest=$guestMap.get($pItem.id))
+	<playItem>
+		<id>$pItem.id</id>
+		<playtime>$!{pItem.playtime}</playtime>
+		<language>$!pItem.language</language>
+		<edittion>$!pItem.edition</edittion>
+		<playroom>$!{pItem.playroom}</playroom>
+		<playdate>$!DateUtil.format($!{pItem.playdate},'yyyy-MM-dd')</playdate>
+		<playweek>$!DateUtil.getCnWeek($!{pItem.playdate})</playweek>
+		<moviename><![CDATA[$!{movie.name}]]></moviename>
+		<cinemaname><![CDATA[$!{cinema.name}]]></cinemaname>
+		<price>$!{pItem.price}</price>
+		<gewaprice>$!{pItem.gewaprice}</gewaprice>
+		<remark><![CDATA[$!{$opi.remark}]]></remark>
+		<seatStatus>#if($opi && $opi.isOrder())1#{else}0#end</seatStatus>
+		<ticketstatus>$!opi.getSeatStatus()</ticketstatus>
+		<unbookingReason>$!reason</unbookingReason>
+		<guest><![CDATA[$!guest]]></guest>
+	</playItem>
+	#set($opi = '')
+	#end
+</playItemList>
+</data>

@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>推荐</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+#if($params.tag eq 'gwadvert')
+	#set($param = '&title=true&logo=true&link=true');
+#elseif($params.tag eq 'opentableinfo')
+ 	#set($param = '&title=true&link=true')
+#elseif($params.tag eq 'other')
+	#set($param = '&title=true') 	
+#else
+	#set($param = '&relatedid=true')
+#end
+<body style="width:95%; margin:auto">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">#set($tagMap={'news':'新闻','diary':'影评','bar':'酒吧版块','news_zt':'专题','news_zf':'专访','sport':'运动版块','gym':'健身版块','other':'其他',
+	'movie':'电影','activity':'活动','gewaquestion':'知道','moderator':'哇啦话题','diary_vote':'专题模板调查','diary_vote_tmp':'专题模板调查(临时)','video':'预告片(临时)',
+	'examlib':'专题模板问答','gwadvert':'电影节广告(临时)','news_picture':'图组（临时）','news_schedule':'日程（临时）','cinema':'影院','movie_today':'今日影片推荐',
+	'opentableinfo':'电影节头部信息','mpi':'电影节排片'})
+	<td colspan="2" align="left" class="td">当前位置>>专题的 $tagMap.get($params.tag) 推荐</td>
+		<td align="right" class="td">
+			<a class="aEvent" href="${basePath}noLink.xhtml?signname=$!signname&tag=$!params.tag$!param">增加</a>|
+				<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td">
+			<td align="left" class="wd200"><b>标题</b></td>
+		<td align="left" class="wd60"><b>排序</b></td>
+		<td align="left" class="wd120"><b>操作</b></td>
+	</tr>
+	#foreach($gc in $gcList)
+	#set($relate=$relatedHelper.getR1("gcList",$gc.id))
+	<tr class="td">
+		<td align="left" class="wd200">
+			#if($VmUtils.startsWith($gc.tag,"news"))$!relate.title
+			#elseif($VmUtils.startsWith($gc.tag, "diary"))$!relate.subject
+			#elseif($VmUtils.startsWith($gc.tag,"movie")) $!relate.name
+			#elseif($gc.tag eq 'activity'||$gc.tag eq 'gewaquestion'||$gc.tag eq 'moderator') $!relate.title
+			#elseif($gc.tag eq 'examlib') $!relate.libname
+			#elseif($gc.tag eq 'cinema') $!relate.name
+			#elseif($gc.tag eq 'video') $!relate.videotitle
+			#else
+				#if($!gc.title)$!gc.title#else$!gc.relatedid#end 
+			#end
+		</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$gc.ordernum" id="gc$gc.id" style="width: 50px" onchange="orderNum($gc.id, this.value)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="aEvent" href="${basePath}noLink.xhtml?id=$gc.id&signname=$!signname&tag=$!params.tag$param">[修改]</a>&nbsp;&nbsp;
+			<a href="javascript:void(0)" onclick="javascript:del($gc.id)">[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+#parse('include/pageUtil.vm')
+#parse('admin/recommend/commonjs.vm')
+</body>
+</html>

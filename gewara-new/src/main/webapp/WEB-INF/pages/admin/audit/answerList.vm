@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>帖子审核</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,remote-util"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body>   
+#set($tmp='gewaanswer')
+
+<div id="content">
+<div class="bc1"></div>
+<div id="content_left" style="width:98%;margin:auto;">
+	<div class="panelTop"><em></em></div>
+	<div class="panelMid">
+	#parse('admin/audit/common.vm')
+	<div>
+		<form action="${basePath}admin/audit/answerList.xhtml">
+			<label>知道ID：</label><input type="text" value="$!params.qid" name="qid" id="qid" size="20"/>
+			<label>用户ID：</label><input type="text" value="$!params.memberid" name="memberid" id="memberid" size="20"/>
+			<label>搜索时间：</label>
+			<input id="starttime" type="text" style="width: 150px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" name="starttime" value="$!params.starttime"/>
+			至<input id="endtime" type="text" style="width: 150px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" name="endtime" value="$!params.endtime"/>
+			<br/>
+			<label>请输入关键词：</label><input type="text" value="$!params.keyname" name="keyname" size="40"/>
+			<input type="radio" name="status" value="" #if(!$!params.status||$VmUtils.isBlank($!params.status))checked #end/>默认
+			<input type="radio" name="status" value="N_FILTER" #if($VmUtils.eq($!params.status,'N_FILTER'))checked #end/>被过滤
+			<input type="radio" name="status" value="N_ACCUSE" #if($VmUtils.eq($!params.status,'N_ACCUSE'))checked #end/>举报属实
+			<input type="radio" name="status" value="N_DELETE" #if($VmUtils.eq($!params.status,'N_DELETE'))checked #end/>被删除
+			<input type="submit" value="确定" />
+		</form>
+	</div>
+	#parse('include/pageUtil.vm')
+	<table id="checktable" style="width:100%;" class="blogtable">
+		<thead><tr><th>&nbsp;</th><th>内容</th><th>问题</th><th>时间</th><th>审核</th><th>历史记录</th></tr></thead>
+			#foreach($answer in $answerList)
+			#set($relate=$relatedHelper.getR1("questionIdList",$answer.questionid))
+			<tr>
+				<td>${foreach.count}&nbsp;#if(!$VmUtils.eq($!params.status,'N_DELETE'))<input type="checkbox" name="cbox" id="cb$answer.id" value="$answer.id" lang="$answer.memberid"/>#end</td>
+				<td title="$VmUtils.getText($!answer.content)">$!VmUtils.htmlabbr($!answer.content,80)</td>
+				<td><a href="$!{absPath}${basePath}qa/q$answer.questionid" target="_blank" title="$!relate.title">$!VmUtils.escabbr($!relate.title,20)</td>
+				<td>$!DateUtil.formatTimestamp($!answer.addtime)</td>
+				<td>
+					#if($answer.status.indexOf('Y') ge 0)
+					<input type="button" value="删除" onclick="audit($answer.id,'N_DELETE')"/>
+					#elseif($VmUtils.eq($answer.status,'N_FILTER') || $VmUtils.eq($answer.status,'N_ACCUSE'))
+					<input type="button" value="显示" onclick="audit($answer.id,'Y_NEW')"/>
+					<input type="button" value="删除" onclick="audit($answer.id,'N_DELETE')"/>
+					#elseif($VmUtils.eq($!answer.status,'N_DELETE'))
+					<input type="button" value="恢复" onclick="audit($!answer.id,'Y_NEW')"/>
+					#end
+				</td>
+				<td>
+					<a target="_blank" href="{basePath}admin/common/getChangeHis.xhtml?tag=GewaAnswer&relatedid$!answer.id">历史</a>
+				</td>
+			</tr>	
+			#end
+	</table>
+	<div id="height0"></div>
+	<div style="height: 30px;">
+	#if(!$VmUtils.eq($!params.status,'N_DELETE'))
+	<input type="checkbox" id="addblack"/>加入黑名单
+	<input type="checkbox" id="cbAll" onclick="selAll(this)"/>
+	<input type="button" id="delAll" value="批量删除" onclick="delMulti()"/>
+	#end
+	</div>
+	#parse('include/pageUtil.vm')
+	</div><!-- end panelMid-->
+	<div class="panelBot"><em></em></div>
+</div><!-- end content_left -->
+<div id="height0"></div>
+</div><!--end content-->
+<div id="panel_bottom"></div>
+<script type="text/javascript">
+function checkedArrs(cbs){
+	var checkedArr = "";
+	var a = 0;
+	$each(cbs, function(i, n){
+		if(i.checked){
+			checkedArr = checkedArr + "," + i.value;
+			a++;
+		}
+	});
+	if(checkedArr=="") return "";
+	return checkedArr.substring(1);
+}
+// 全选
+function selAll(obj){
+	var cbs = document.getElementsByName('cbox');
+	$each(cbs, function(i, n){
+		i.checked=obj.checked;
+	})
+}
+// 批量删除
+function delMulti(){
+	var cbs = document.getElementsByName('cbox');
+	var checkedArr = checkedArrs(cbs);
+	if(checkedArr.length == 0){
+		alert("请至少选择一个!");
+		return false;
+	}
+	$('isDelMulti').value = 'true';
+	audit(checkedArr, 'N_DELETE');
+}
+
+function delMulti_process(){
+	var cbs = document.getElementsByName('cbox');
+	var checkedArr = checkedArrs(cbs);
+
+	var rea=$('reason').value;
+	var handReason=$('handReason').value;
+	if(rea==5&&handReason.length==0){
+		alert("请输入删除此贴的原因");
+		return false;
+	}
+	
+	var status=$('editstatus').value;
+	if(status=='N_DELETE' || status=='D'){
+		var url = "${basePath}admin/common/ajax/batchModBBSStatus.xhtml";
+		var values = {"tag":"$!tmp", "ids":checkedArr, "status":status, "reason":rea, "reasonDetail":handReason};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) {
+				alert('删除成功');
+				get$('reason_ok').disabled = false;
+				get$('reason_cancel').disabled = false;
+				hiddenDiv();
+				refreshPage();
+			}else{
+				alert('删除失败!');
+				hiddenDiv();
+			}
+		});
+	}
+}
+</script>
+<div id="height0"></div>
+</body>
+</html>

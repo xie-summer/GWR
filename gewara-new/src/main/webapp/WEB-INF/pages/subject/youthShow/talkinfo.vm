@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>杭州亚洲青年影展2012_青年影展观影日程 – 格瓦拉生活网</title>
+<meta name="keywords" content="杭州亚洲青年影展2012 - 格瓦拉生活网"/>
+<meta name="description" content="杭州亚洲青年影展2012."/>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout&v=$VmUtils.jsVersion"/>
+<link rel="stylesheet" type="text/css" href="${staticPath}styles/slider.css"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,slimbox,swfobject,noobSlide&v=$VmUtils.jsVersion"></script>
+#parse('subject/youthShow/style.vm')
+<style type="text/css">
+	.opilist_main{border:1px solid #ccc;clear:both;overflow:hidden;width:938px;border-radius:5px 5px 5px 5px;}
+	.opilist_main .inner{padding:15px 5px 10px 15px;}
+	.notice_title h2{color:#0068a9; font-size:18px; line-height:24px; font-family: "微软雅黑","黑体",Arial;}
+	.notice_title p{line-height:18px; margin-top:10px;}
+	.notice_title p b{font-size:16px; color:#c30;}
+	.notice_title p a{color:#0068a9;}
+	.t_container{margin:0 1px; width:936px;}
+	.t_red{color:#c30;}
+	.datetime{float:left;}
+	.datetime .no_line{border-right:none;}
+	.date_header{background:#1d0908; height:28px; line-height:28px; text-align:center; border-right:1px solid #fff; width:103px; color:#fff;}
+	.none_detail{width:103px; height:120px; border-right:1px solid #ded9d9; border-bottom:1px solid #f0eded; font-size:48px; text-align:center; line-height:115px; color:#dedede; background:#fafafa; position:relative;}
+	.film_detail{width:87px; height:210px; overflow:hidden; border-right:1px solid #ded9d9; border-bottom:1px solid #f0eded; text-align:center; padding:15px 8px;}
+	.film_detail a.s1{width:72px; height:96px; overflow:hidden; display:block; margin:0 auto;}
+	.iphone{background-position:left -303px; color:#666; cursor:pointer}
+	.addDateList{background:url(${staticPath}styles/filmfest/datelist.gif) no-repeat 0 0; position:absolute; top:80px; left:28px; display:block; width:45px; height:17px;}
+	.tar{text-align:left;font-size:14px;}
+	.inner{margin-bottom:10px;}
+	/*提示*/
+	.ui_warning{text-align:center;}
+	/*num*/
+	.yinp {font-size:12px;line-height:20px; padding:10px; display:block; text-align:left;}
+	.yinp a {color:#0068A9;display:block;width:100%;height:20px; line-height:20px;overflow:hidden;}
+	.nr,.yinp .nr{font-size:12px;color:#000;}
+	.num{}
+</style>
+</head>
+<body>
+#set($hasLogo = false)
+#set($tag = 'infoselect')
+#set($isSubject=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+#parse('subject/youthShow/header.vm')
+#set($moderate='杭州亚洲青年影展2012')
+<div id="ui_layout" class="ui_layout"> 
+	<div style="width:940px;padding:0 10px 90px 10px;background:#fff;overflow:hidden;">
+		
+		<div class="opilist_main mt30">
+			<div class="inner">
+				<div class="notice_title">
+					<h2>我的观影日程</h2>
+					#if($logonMember)
+					<p class="tar">你共安排了<b>$!VmUtils.size($!orderIdList)</b>个场次
+					#end
+				<!--  
+				，计划购买<b>$!ticketNum</b>张，预计消费<b>$!priceNum</b>元，为节省购票时间建议你使用余额支付 <a href="${basePath}home/charge.xhtml" target="_blank" class="ffst">立即充值&gt;&gt;</a>
+				-->	
+					</p>
+				</div>
+			</div>
+			<div class="clear t_container">
+				#foreach($x in [12..20])
+				#set($showDate = '2012-10-'+$x)
+				#if(!$logonMember || $VmUtils.isEmptyList($!orderIdList))
+				<ul class="datetime clear">
+					<li class="date_header">$x日/$DateUtil.getCnWeek($DateUtil.parseDate($showDate))</li>
+					<li class="none_detail #if($foreach.count eq 9)no_line#end">
+					  <span class="num">$x</span>
+					</li>
+				</ul>
+				#else
+				<ul class="datetime clear">
+					<li class="date_header">$x日/$DateUtil.getCnWeek($DateUtil.parseDate($showDate))</li>
+					#set($orderList = $orderMap.get("10月$x日"))
+					#set($rest = $length + $!VmUtils.size($!orderList)*(-1))
+					#foreach($order in $orderList)
+					#set($deMap=$VmUtils.readJsonToMap($order.description2))
+					<li class="none_detail #if($foreach.count eq 9)no_line#end">
+					  #*<span class="nr">$!deMap.get("影片")$!deMap.get("场次").split(' ')[1]($!deMap.get("影厅"))</span>*#
+					  <div class="yinp">
+					  	<a href="${basePath}movie/$!order.movieid">$!deMap.get("影片")</a>
+					  	<span class="nr">$!deMap.get("场次").split(' ')[1]($!deMap.get("影厅"))</span>
+					  </div>
+					</li>
+					#end
+					#if($rest gt 0)
+					#foreach($y in [1..$rest])
+					<li class="none_detail #if($foreach.count eq 9)no_line#end">
+						<span class="num">$x</span>
+					</li>
+					#end
+					#end
+				</ul>
+				#end
+			#end
+			</div>
+			
+		</div>
+	</div>
+</div>
+#parse('include/bottom.vm')
+
+</body>
+</html>

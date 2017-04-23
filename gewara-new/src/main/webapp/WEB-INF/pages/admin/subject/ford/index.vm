@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>福特嘉年华试驾查询</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin,bbs&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body>
+	<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+	<div class="menu">
+		<div class="menuInner">
+			<ul>
+				<li class="selectMore">专题数据</li>
+				<li class="currs"><a><span>福特嘉年华试驾</span></a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<form action="${basePath}admin/subject/ford/queryTestDrive.xhtml" method="post">
+			专题类型：<select name="source">
+					<option value="FordTestDrive" #if($!VmUtils.equals($!requestParam.source,'FordTestDrive')) selected="selected" #end>福特嘉年华试驾</option>
+				</select>
+			姓名：<input name="driveName" id="driveName" type="text" value="$!{fordTestDrive.driveName}"/>
+			手机：<input name="mobileNo" id="mobileNo" type="text" value="$!{fordTestDrive.mobileNo}"/>
+			城市：<input name="cityname" id="cityname" type="text" value="$!{fordTestDrive.cityname}"/>
+			<input type="submit" value="查询"/>
+		</form>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>真实姓名</th>
+					<th>手机号码</th>
+					<th>所在城市</th>
+					<th>邮编地址</th>
+					<th>报名时间</th>
+				</tr>
+			</thead>
+			<tbody id="tbody">
+			#if(!$VmUtils.isEmptyList($fordTestDriveList))
+				#foreach($fordTestDrive in $fordTestDriveList)
+				<tr>
+					<td>$!{fordTestDrive.driveName}</td>
+					<td>$!{fordTestDrive.mobileNo}</td>
+					<td>$!{fordTestDrive.cityname}</td>
+					<td>$!{fordTestDrive.zipAddress}</td>
+					<td>$!DateUtil.formatTimestamp($!{fordTestDrive.addTime})</td>
+				</tr>
+				#end
+			#end
+			</tbody>
+		</table>
+	</div>
+	#parse('include/pageUtil.vm')
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+</body>
+</html>

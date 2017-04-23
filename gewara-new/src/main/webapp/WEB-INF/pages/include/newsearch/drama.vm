@@ -1,0 +1,46 @@
+#set($drama=$sk.relatedObj)
+#set($vgmark=$VmUtils.getSingleMarkStar($drama, "general"))#set($gmark1=$vgmark/10) #set($gmark2=$vgmark % 10)
+<dl class="ui_abeam search_channel">
+			<dt class="uipic">
+			#if($fyrqnum)#set($curfyrqdate=$DateUtil.formatDate($fyrqnum))#end
+				<a target="_blank" href="${basePath}drama/$drama.id">
+					<img width="96" height="128" src="$VmUtils.randomPic('cw96h128',$!drama.limg)">
+				</a>
+			</dt>
+			<dd class="uiText">
+				<h2><em class="ffst">[演出]</em><a target="_blank"  href="${basePath}drama/$drama.id">$!drama.name</a></h2>
+				<span class="mr10"><sub>$!gmark1.</sub><sup>$!gmark2</sup></span><span class="c666">($!drama.clickedtimes关注)</span><br/>
+				<span><em>演出类型：</em>$!{drama.type}</span><br/>
+				<span><em>首映日期：</em>$!DateUtil.format(${drama.releasedate},"yyyy年M月d日")</span><br/>
+				<span><em>导演/主演：</em>
+				#if($VmUtils.size($dramaDirectorListMap.get($drama.id)) gt 0 || $VmUtils.isNotBlank($drama.directortext))
+					#foreach($dramaDirector in $dramaDirectorListMap.get($drama.id))
+						#if($VmUtils.isNotBlank($dramaDirector.logo) && $VmUtils.isNotBlank($dramaDirector.content))
+							<a href="${basePath}drama/star/$dramaDirector.id" target="_blank" class="gold">$!dramaDirector.name</a>
+						#else
+							$!dramaDirector.name
+						#end
+					#end
+				#end
+				#if($VmUtils.isNotBlank($drama.directortext))
+					$!VmUtils.replaceSeparator($!drama.directortext,',',' ')
+				#end 
+				#if(!$VmUtils.isEmptyList($dramaStarListMap.get($drama.id)) || $VmUtils.isNotBlank($drama.actorstext)) / #end
+				#if(!$VmUtils.isEmptyList($dramaStarListMap.get($drama.id)))
+					#foreach($dramaStar in $dramaStarListMap.get($drama.id))
+						#if($VmUtils.isNotBlank($dramaStar.logo) && $VmUtils.isNotBlank($dramaStar.content))
+							<a href="${basePath}drama/star/$dramaStar.id" target="_blank" class="gold">$!dramaStar.name</a>
+						#else
+							$!dramaStar.name
+						#end
+					#end 
+				#end
+				#if($VmUtils.isNotBlank($drama.actorstext))
+					$!VmUtils.replaceSeparator($!drama.actorstext,',',' ')
+				#end 
+				</span><br/>
+				#if($bookingMapDrama.get($!drama.id))
+				<a class="button minBt redBt" href="${basePath}drama/$drama.id" target="_blank"><span>在线购票</span></a>
+				#end
+			</dd>
+</dl>

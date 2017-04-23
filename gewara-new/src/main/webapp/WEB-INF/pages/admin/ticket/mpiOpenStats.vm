@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次排片管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.none{display:none;}
+	</style>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div style="color:red" id="notifyWin"></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList">
+		<div class="selectMovie">
+			<span class="i">切换省份：</span>
+			<span class="r">
+				<a href="${basePath}admin/ticket/mpiOpenStats.xhtml"#if($curCitycode eq '000000') class="match"#end>所有省份</a>&nbsp;&nbsp;&nbsp;
+				#foreach($pro in $proMap.keySet())<a href="${basePath}admin/ticket/mpiOpenStats.xhtml?provincecode=$pro.provincecode"#if($pro.provincecode eq $curCitycode)class="match"#end>$pro.provincename</a>&nbsp;&nbsp;&nbsp;#end</span>
+		</div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>日期/城市</th>
+					<th>未设置数量</th>
+					<th>未开放数量</th>
+					<th>待恢复数量</th>
+					<th>关闭数量</th>
+					<th>可设置数量</th>
+					<th>开放数量</th>
+				</tr>
+			</thead>
+			<tbody class="tbody" id="mpiListBody">
+				#foreach($key in $dateStatsMap.keySet())
+				<tr class="grayBg">
+					<td>#if($VmUtils.getByteLength($key) gt 10) $key.substring(6) $!cityMap.get($key.substring(0,6)).provincename #else $key #end</td>
+					<td>$!dateStatsMap.get($key).get("init")</td>
+					<td>$!dateStatsMap.get($key).get("N")</td>
+					<td>$!dateStatsMap.get($key).get("R")</td>
+					<td>$!dateStatsMap.get($key).get("D")</td>
+					#set($setCount = $!dateStatsMap.get($key).get("open") + $!dateStatsMap.get($key).get("close"))
+					<td>$!setCount</td>
+					<td>$!dateStatsMap.get($key).get("Y")</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<caption style="font-weight: bold;">$statsTime之后开放场次延迟</caption>
+			<thead>
+				<tr>
+					<th>用户ID</th>
+					<th>开放数量</th>
+					<th>平均延迟（分）</th>
+					<th>最大延迟</th>
+					<th>最小延迟</th>
+				</tr>
+			</thead>
+			<tbody class="tbody" id="mpiListBody">
+				#foreach($row in $userStatsList)
+				<tr class="grayBg">
+					<td>${usernameMap.get($row.userid)}[$row.userid]</td>
+					<td>$row.total</td>
+					<td>$math.round($row.avgdelay)</td>
+					<td>$row.maxdelay</td>
+					<td>$row.mindelay</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+<script type="text/javascript">
+	window.addEvent("domready", function(){
+		$$(".tbody tr").addEvents({
+			'mouseenter':function(){
+				this.addClass("mouseBg");
+			},
+			'mouseleave':function(){
+				this.removeClass("mouseBg");
+			}
+		});
+	});
+</script>	
+</body>
+</html>

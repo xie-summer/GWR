@@ -1,0 +1,58 @@
+<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+	<thead><tr>
+		<th>圈子名称</th>
+		<th style="width:50px;">查看</th>
+		<th style="width:100px;">申请人</th>
+		<th style="width:60px;">性别</th>
+		<th style="width:120px;">联系电话</th>
+		<th style="width:90px;">QQ</th>
+		<th style="width:90px;">MSN</th>
+		<th style="width:120px;">申请时间</th>
+		<th style="width:150px;">状态</th>
+	</tr></thead>
+	<tbody id="tbody">
+		#set($sexMap={1:'先生', 0:'女士'})
+		#foreach($apply in $applylist)
+		<tr class="grayBg h">
+			<td><a href="javascript:void(0);" onclick="showMoreinfo($apply.id);" title="$apply.communame">$!VmUtils.escabbr($apply.communame, 22)</a></td>
+			<td><a href="${absPath}${basePath}quan/$apply.commuid" target="_blank">查看</a></td>
+			<td>$apply.realname</td>
+			<td>$!sexMap.get($apply.sex)</td>
+			<td onclick="showMobile($apply.id,'$!apply.contactphone')"><span name="demobile" id="order$apply.id" title="$apply.enmobile">${apply.enmobile}</span></td>
+			<td>$!apply.qq</td>
+			<td><span title="$!apply.msn">$!VmUtils.escabbr($!apply.msn, 13)</span></td>
+			<td>$!DateUtil.formatDate($apply.addtime)</td>
+			<td id="operateStatus">
+				#if($VmUtils.eq($apply.checkstatus, 'W'))
+				<input type="radio" id="st_y" name="changestatus" value="Y" class="inputradio" onclick="change2checkST('$apply.id', 'Y', 'W')"/><label >通过</label>
+				<span class="ml5">&nbsp;</span>
+				<input type="radio" id="st_n" name="changestatus" value="N" class="inputradio" onclick="change2checkST('$apply.id', 'N', 'W')"/><label >未通过</label>
+				#elseif($VmUtils.eq($apply.checkstatus, 'Y'))
+				<span class="ml5">已通过</span>
+				<span class="ml5">&nbsp;</span>
+				<input type="radio" id="st_n" name="changestatus" value="N" class="inputradio" onclick="change2checkST('$apply.id', 'N', 'Y')"/><label >未通过</label>
+				#elseif($VmUtils.eq($apply.checkstatus, 'N'))
+				<span class="ml5">未通过</span>
+				<span class="ml5">&nbsp;</span>
+				<input type="radio" id="st_y" name="changestatus" value="Y" class="inputradio" onclick="change2checkST('$apply.id', 'Y', 'N')"/><label >通过</label>
+				#end
+			</td>
+		</tr>
+		<tr class="" style="display: none;" id="line$apply.id">
+			<td colspan="8" style="text-align: left;"><span class="ml10 blue">申请留言：</span>$!apply.remark</td>
+		</tr>
+		#end
+	</tbody>
+</table>
+	<script>
+window.addEvent('domready',function(){
+	$$("tbody tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+});
+</script>

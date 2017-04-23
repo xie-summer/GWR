@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>缓存Page URL列表</title>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=mootools,gewara-util&v=$VmUtils.jsVersion"></script>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+</head>
+<body style="width:750px; margin:auto;">
+	<table class="table mt20">
+		<thead>
+		<tr>
+			<th width="50%">Page URL</th>
+			<th width="30%">缓存时间(秒)</th>
+			<th>更新缓存时间</th>
+		</tr>		
+		</thead>
+		<tbody>
+			#foreach($key in $cahceMinMap.keySet())
+			<tr>#set($minuteCache=$cahceMinMap.get($key))
+				<td>$key</td>
+				<td>$minuteCache</td>
+				<td><input type="text" value="$!minuteCache" onchange="updateCacheMin('$!key',this)"/></td>
+			</tr>
+			#end
+		</tbody>
+	</table>
+<script type="text/javascript">
+	updateCacheMin = function(pageUrl, el){
+		var url = '${basePath}reviewCache.xhtml';
+		var values = {'path':'sysmgr/refreashCacheMin.xhtml?pageUrl='+pageUrl+'&minute='+$(el).get('value')};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert(result.retval);
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

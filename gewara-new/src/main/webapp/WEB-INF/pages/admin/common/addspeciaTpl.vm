@@ -1,0 +1,542 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>添加专题模板</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline;float:left;width:80px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:400px; display:inline}
+		.norBtn{
+			width: 60px;
+		}
+	</style>
+</head>
+<body style="width:750px;margin:auto" class="yui-skin-sam">
+#set($defaultPic="${basePath}img/default_head.png")
+<div id="activityDialog" class="yui-panel" style="width:750px;">
+	<div class="hd" id="title">编辑数据</div>
+	<div class="bd">
+		<form name="activityBaseForm" id="activityBaseForm">
+		<input type="hidden" name="id" id="id" value="$!specialActivity.id"/>
+		<fieldset>
+		<legend>基本模块</legend>
+		<div>
+			<label for="activityname">专题名称：</label>
+			<input name="activityname" id="activityname" type="text" value="$!specialActivity.activityname"/><span class="req">*</span>
+		</div>
+		<div>
+			<label for="tag">标签：</label>
+			<input name="tag" id="tag" type="text" value="$!specialActivity.tag"/><span class="req">*</span>
+		</div>
+		<div>
+			<label for="seokeywords">关键字(SEO)：</label>
+			<input name="seokeywords" id="seokeywords" type="text" value="$!specialActivity.seokeywords"/><span class="req">*</span>以半角","区别
+		</div>
+		<div>
+			<label for="seokeywords">开始时间：</label>
+			<input name="startdate" id="startdate" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" value="$!DateUtil.format($!specialActivity.startdate,'yyyy-MM-dd')"/>
+		</div>
+		<div>
+			<label for="seokeywords">结束时间：</label>
+			<input name="enddate" id="enddate" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" value="$!DateUtil.format($!specialActivity.enddate,'yyyy-MM-dd')"/>
+		</div>
+		<div>
+			<label for="seodescription">描述(SEO)：</label>
+			<textarea name="seodescription" id="seodescription" rows="2" >$!specialActivity.seodescription</textarea><span class="req">*</span>
+		</div>
+		<div>
+			<label for="movies">参加影片：</label>
+			<input name="movies" id="movies" type="text" value="$!specialActivity.movies"/>
+		</div>
+		<div>
+			<label for="movies">真实URL：</label>
+			<input name="website" id="website" type="text" value="$!specialActivity.website"/>
+		</div>
+		<div>
+			<label>关联ID：</label>
+			<select name="flag" id="flag" onchange="changeRelatedid()">
+				<option value="">请选择</option>
+				<option value="all" #if($specialActivity.flag eq 'all') selected="selected" #end>所有类型</option>
+				<option value="movie" #if($specialActivity.flag eq 'movie') selected="selected" #end>电影影片</option>
+				<option value="cinema" #if($specialActivity.flag eq 'cinema') selected="selected" #end>电影影院</option>
+				<option value="drama" #if($specialActivity.flag eq 'drama') selected="selected" #end>演出/展会/赛事</option>
+				<option value="theatre" #if($specialActivity.flag eq 'theatre') selected="selected" #end>演出场馆</option>
+				<option value="dramastar" #if($specialActivity.flag eq 'dramastar') selected="selected" #end>演出人物</option>
+				<option value="sportservice" #if($specialActivity.flag eq 'sportservice') selected="selected" #end>运动项目</option>
+				<option value="sport" #if($specialActivity.flag eq 'sport') selected="selected" #end>运动场馆</option>
+				<option value="ktv" #if($specialActivity.flag eq 'ktv') selected="selected" #end>ktv场馆</option>
+				<option value="bar" #if($specialActivity.flag eq 'bar') selected="selected" #end>酒吧</option>
+				<option value="barsinger" #if($specialActivity.flag eq 'barsinger') selected="selected" #end>酒吧歌手</option>
+				<option value="gym" #if($specialActivity.flag eq 'gym') selected="selected" #end>健身</option>
+				<option value="gymcoach" #if($specialActivity.flag eq 'gymcoach') selected="selected" #end>健身教练</option>
+				<option value="gymcourse" #if($specialActivity.flag eq 'gymcourse') selected="selected" #end>健身项目</option>
+			</select>
+			<input type="text" name="relatedid" id="relatedid" value="$!specialActivity.relatedid" style="width:315px"/>以半角","区别
+		</div>
+		<span style="color: red;">以上信息填写完成后请保存.</span>
+		<input type="button" class="button norBtn" value="保&nbsp;存" id="dissaveBase" onclick="saveBase('dissaveBase');"/>
+		<span id="msgSpan" ></span>
+		</fieldset>
+		</form>
+		<br />
+		#if(!$VmUtils.isNull($!specialActivity.id))
+		<div id="nextPage" >  
+		<!--  封面logo -->
+		<fieldset>
+		<legend>封面logo(280 * 190)</legend>
+		<div>
+			<table>
+			<tr>
+					<td>
+					<fieldset>
+				<input type="hidden" name="loid" id="loid" value="$!gewaCommend_logo.id"/>
+					<label for="headpic">封面：</label>
+				<input type="hidden" name="logo" id="logo" value="$!gewaCommend_logo.logo"/>
+				<iframe class="left" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame" src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/news/&callback=updateLoLogo"></iframe>
+					<br />
+					<label for="logonote"></label>
+					<input type="button" class="button norBtn" value="保&nbsp;存" id="dissaveLogo" onclick="saveLogo('dissaveLogo');"/>
+					<span id="logoSpan" ></span>
+					</fieldset>
+					</td>
+					<td>
+						<img id="logoLogo" src="$VmUtils.randomPic('',$!gewaCommend_logo.logo)" onerror="this.src='$defaultPic'" width="100" height="65"/>
+					</td>
+				</tr>
+				</table>
+		</div>
+		</fieldset>
+		<br />
+		
+		
+		<fieldset>
+		<legend>头图模块(960 x 200专题头图)</legend>
+		<div>
+			<table>
+			<tr>
+					<td>
+					<fieldset>
+				<input type="hidden" name="cid" id="cid" value="$!gewaCommend_head.id"/>
+					<label for="headpic">头图：</label>
+				<input type="hidden" name="headpic" id="headpic" value="$!gewaCommend_head.logo"/>
+				<iframe class="left" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame" src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/news/&callback=updateLogo&notLimit=true"></iframe>
+					<br />
+					<label for="headpiclink">头图链接：</label>
+					<input name="headpiclink" id="headpiclink" type="text" value="$!gewaCommend_head.link"/>
+					<br />
+					<label for="headpicnote">头图说明：</label>
+					<input name="headpicnote" id="headpicnote" type="text" value="$!gewaCommend_head.title"/>
+					<br />
+					<label for="headpicnote"></label>
+					<input type="button" class="button norBtn" value="保&nbsp;存" id="dissaveHeadPic" onclick="saveHeadPic('dissaveHeadPic');"/>
+					<span id="headSpan" ></span>
+					</fieldset>
+					</td>
+					<td>
+						<img id="headpicLogo" src="$VmUtils.randomPic('',$!gewaCommend_head.logo)" onerror="this.src='$defaultPic'" width="100" height="65"/>
+					</td>
+				</tr>
+				</table>
+		</div>
+		</fieldset>
+		<br />
+		
+		<fieldset>
+		<legend>新闻模块</legend>
+		<div>
+			<label>新闻：</label>
+			<a href="${basePath}admin/recommend/spRecommend.xhtml?tag=news&signname=sp$!specialActivity.id" target="_blank" id="setnews">设置关联(头5条请设置为有图, 6-N条请设置为无图)</a>
+			<br />
+		</div>
+		</fieldset>
+		<br />
+		
+		<fieldset>
+		<legend>哇啦模块</legend>
+		<div>
+			<label for="walatitle">哇啦标题：</label>
+			<input type="text" name="walatitle" id="walatitle" value="$!specialActivity.walatitle"/>
+			<a target="_blank" href="${basePath}admin/recommend/spRecommend.xhtml?tag=moderator&signname=sp$!specialActivity.id">关联哇啦</a>
+		</div>
+		</fieldset>
+		<br />
+		
+		<fieldset>
+		<legend>活动模块(不填将不会显示在页面上)</legend>
+		<div>
+			<label for="acttitle">活动标题：</label>
+			<input type="text" name="acttitle" id="acttitle" value="$!specialActivity.acttitle"/>
+			<a target="_blank" href="${basePath}admin/recommend/spRecommend.xhtml?tag=activity&&signname=sp$!specialActivity.id">关联活动</a>
+		</div>
+		</fieldset>
+		<br />
+		
+		<fieldset>
+		<legend>调查模块(不填将不会显示在页面上)</legend>
+		<div>
+			<label for="surveytitle">调查标题：</label>
+			<input type="text" name="surveytitle" id="surveytitle" value="$!specialActivity.surveytitle"/>
+			<a target="_blank" href="${basePath}admin/recommend/spRecommend.xhtml?tag=diary_vote&&signname=sp$!specialActivity.id">关联调查</a>
+		</div>
+		</fieldset>
+		<br />
+		
+		<fieldset>
+		<legend>调查模块(不填将不会显示在页面上, 临时增加, 为配合页面高度)</legend>
+		<div>
+			<label for="answertitle">调查标题：</label>
+			<input type="text" name="answertitle" id="answertitle" value="$!specialActivity.answertitle"/>
+			<a target="_blank" href="${basePath}admin/recommend/spRecommend.xhtml?tag=diary_vote_tmp&&signname=sp$!specialActivity.id">关联调查</a>
+		</div>
+		</fieldset>
+		<br />
+		
+		
+		<fieldset>
+		<legend>论坛模块(不填将不会显示在页面上)</legend>
+		<div>
+			<label for="blogtitle">标题：</label>
+			<input type="text" name="blogtitle" id="blogtitle" value="$!specialActivity.blogtitle"/>
+			<table>
+				<tr>
+					<td>
+						<fieldset>
+						<input type="hidden" name="blid" id="blid" value="$!gewaCommend_blog.id"/>
+						<label for="blogpic">图片：</label>
+						<input type="hidden" name="blogpic" id="blogpic" value="$!gewaCommend_blog.logo"/>
+					<iframe class="left" height="25px" width="450px" frameborder="0" scrolling="no" 
+				id="uploadIFrame2" src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/news/&callback=updateLogoBlog"></iframe>
+						<br />
+						<label for="blogpiclink">链接地址：</label>
+						<input name="blogpiclink" id="blogpiclink" type="text" value="$!gewaCommend_blog.link"/>
+						<br />
+						<label for="blogpicnote">图片说明：</label>
+						<input name="blogpicnote" id="blogpicnote" type="text" value="$!gewaCommend_blog.title"/>
+						<br />
+						<label for="blogpiclink"></label>
+						<input type="button" class="button norBtn" value="保&nbsp;存" id="dissaveBlogPic" onclick="saveBlogPic('blogSpan', 'dissaveBlogPic');"/>
+					<span id="blogSpan" ></span>
+						</fieldset>
+					</td>
+					<td>
+						<img id="blogpicLogo" src="$VmUtils.randomPic('',$!gewaCommend_blog.logo)" onerror="this.src='$defaultPic'" width="100" height="65"/>
+					</td>
+				</tr>
+			</table>
+			<label for="headpiclink"></label>
+			<a target="_blank" href="${basePath}admin/recommend/spRecommend.xhtml?tag=diary&signname=sp$!specialActivity.id">关联帖子</a><span style="margin-left:60px;"></span>
+			<a target="_blank" href="${basePath}admin/recommend/spRecommend.xhtml?tag=gewaquestion&&signname=sp$!specialActivity.id">关联知道</a>
+		</div>
+		</fieldset>
+		<br />
+		
+		<fieldset>
+		<legend>组图模块(不填将不会显示在页面上)</legend>
+		<div>
+			<label for="teampictitle">标题：</label>
+			<input type="text" name="teampictitle" id="teampictitle" value="$!specialActivity.teampictitle"/>
+			<table id="insertDom">
+				#foreach($teampic in $teampicList)
+				<tr id="teampicTR$foreach.count">
+					<td>$!teampic.id
+						<fieldset>
+						<input type="hidden" name="cid" id="cid" value="$!teampic.id" />
+						<input type="hidden" name="flag" value="teampic" />
+						<input type="hidden" name="bid" value="$!specialActivity.id" />
+						<label >图片$foreach.count：</label>
+						<input type="hidden" name="picpath" id="teampic$foreach.count"  value="$!teampic.logo" />
+					<iframe class="left" height="25px" width="450px" frameborder="0" scrolling="no" 
+				src="${basePath}common/uploadSinglePicture.xhtml?tag=${foreach.count}&uploadPath=images/news/&callback=updateLogoTeampic"></iframe>
+						<br />
+						<label >链接地址$foreach.count：</label>
+						<input name="link" id="teampiclink$foreach.count" type="text"  value="$!teampic.link" />
+						<br />
+						<label >图片说明$foreach.count：</label>
+						<input name="note" id="teampicnote$foreach.count" type="text"  value="$!teampic.title" />
+						<br />
+						<label for="">排序：</label>
+						<input name="ordernum" id="teampicordernum$foreach.count" type="text"  value="$!teampic.ordernum" />
+						<br />
+						<input type="button" class="button norBtn" value="保&nbsp;存" onclick="saveTeamPic(this, 'teampicTR$foreach.count');"/>
+						<span id="teamSpan$foreach.count"></span>
+						<input type="button" value="删&nbsp;除" style="margin-left: 20px" class="button norBtn" onclick="delthisCommend('$!teampic.id', this)" />
+						</fieldset>
+					</td>
+					<td>
+						<img id="teampicLogo$foreach.count" src="$VmUtils.randomPic('',$!teampic.logo)"  onerror="this.src='$defaultPic'" width="100" height="65"/>
+					</td>
+				</tr>
+				#end
+			</table>
+			<span>
+			<input type="button" value="添加新记录" style="margin-left: 20px" class="button norBtn" onclick="creatStep('$defaultPic')"/> 
+			</span>
+			<br />
+			
+		</div>
+		</fieldset>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" style="width:100px" value="保&nbsp;存" id="disSaveMore" onclick="saveMore('disSaveMore');"/>
+				<span id="saveMoreSpan" ></span>
+		</div>
+		</div>
+		#end
+	</div>
+</div>
+
+	<script type="text/javascript">
+	function get$(id){
+		return document.getElementById(id);
+	}
+	function set$(a, b){
+		var t = get$(a);
+		if(!t)return;
+		if(t.getAttribute('type')){
+			t.value = b;
+		}else{
+			t.innerHTML = b;
+		}
+	}
+</script>
+	<script type="text/javascript">
+function saveBase(el){
+	initMsgSpan('msgSpan');
+	gewa.util.mask({'element':el,'title':'正在提交，请稍等...'});
+	var url = '${basePath}admin/common/saveSpeciaTemplate.xhtml';
+	var values = GewaraUtil.getValues($("activityBaseForm"));
+	GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+	if(result.success){
+		set$('id', result.id);
+		completeSpan('msgSpan');
+		
+		// 保存完成之后刷新当前页面
+		var reloadurl = '${basePath}admin/common/loadSpecialTpl.xhtml?tid=' + result.id;
+			document.location.href = reloadurl;
+		}
+		else alert(result.msg);
+	});
+}
+function saveMore(el){
+		initMsgSpan('saveMoreSpan');
+	gewa.util.mask({'element':el,'title':'正在提交，请稍等...'});
+	
+	var bid = get$('id').value;
+	var walatitle = get$('walatitle').value;
+	var acttitle = get$('acttitle').value;
+	var surveytitle = get$('surveytitle').value;
+	var answertitle = get$('answertitle').value;
+	var blogtitle = get$('blogtitle').value;
+	var teampictitle = get$('teampictitle').value;
+	
+	var url = '${basePath}admin/common/saveMore.xhtml';
+	var values = {'bid':bid, 'walatitle':walatitle, 'acttitle':acttitle, 'surveytitle':surveytitle, 'answertitle':answertitle, 'blogtitle':blogtitle, 'teampictitle':teampictitle};
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			completeSpan('saveMoreSpan');
+		}else{
+			alert(result.msg);
+		}
+	})
+}
+function initMsgSpan(spanid){
+	get$(spanid).className = '';
+	set$(spanid, '');
+}
+function completeSpan(spanid){
+	get$(spanid).className = 'OkMsg';
+	set$(spanid, '保存成功!');
+}
+
+// 封面
+function updateLoLogo(params){
+	var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoLogo').src='${basePath}' + picpath;
+}
+// 头图
+function updateLogo(params){
+	var picpath = params['picpath'];
+	$('headpic').value = picpath;
+	$('headpicLogo').src='${basePath}' + picpath;
+}
+// 论坛图片
+function updateLogoBlog(params){
+	var picpath = params['picpath'];
+	$('blogpic').value = picpath;
+	$('blogpicLogo').src='${basePath}' + picpath;
+}
+// 组图
+function updateLogoTeampic(params){
+		var picpath = params['picpath'];
+		var vcount = params['tag'];
+	$('teampic'+vcount).value = picpath;
+	$('teampicLogo'+vcount).src='${basePath}' + picpath;
+}
+
+function saveLogo(el){
+	initMsgSpan('logoSpan');
+	gewa.util.mask({'element':el,'title':'正在提交，请稍等...'});
+	var cid = get$('loid').value;
+	var bid = get$('id').value;
+	var picpath = get$('logo').value;
+	var flag = "logo";
+	
+	var url = '${basePath}admin/common/savePic.xhtml';
+	var values = {'cid':cid, 'bid':bid, 'link':null, 'note':null, 'picpath':picpath, 'flag':flag};
+	
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			set$('loid', result.retval);
+			completeSpan('logoSpan');
+		}else{
+			alert(result.msg);
+		}
+	})
+}
+function saveHeadPic(el){
+	initMsgSpan('headSpan');
+	gewa.util.mask({'element':el,'title':'正在提交，请稍等...'});
+	var cid = get$('cid').value;
+	var bid = get$('id').value;
+	var headpiclink = get$('headpiclink').value;
+	var headpicnote = get$('headpicnote').value;
+	var picpath = get$('headpic').value;
+	var flag = "headpic";
+	
+	var url = '${basePath}admin/common/savePic.xhtml';
+	var values = {'cid':cid, 'bid':bid, 'link':headpiclink, 'note':headpicnote, 'picpath':picpath, 'flag':flag};
+	
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			set$('cid', result.retval);
+			completeSpan('headSpan');
+		}else{
+			alert(result.msg);
+		}
+	})
+}
+function saveBlogPic(spanid, el){
+	initMsgSpan(spanid);
+	gewa.util.mask({'element':el,'title':'正在提交，请稍等...'});
+	var cid = get$('blid').value;
+	var bid = get$('id').value;
+	var headpiclink = get$('blogpiclink').value;
+	var headpicnote = get$('blogpicnote').value;
+	var picpath = get$('blogpic').value;
+	var flag = "blogpic";
+	
+	var url = '${basePath}admin/common/savePic.xhtml';
+	var values = {'cid':cid, 'bid':bid, 'link':headpiclink, 'note':headpicnote, 'picpath':picpath, 'flag':flag};
+	
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			set$('blid', result.retval);
+			completeSpan(spanid);
+		}else{
+			alert(result.msg);
+		}
+	})
+	}
+
+// 保存已解决, 图片上传后显示完成
+function saveTeamPic(thiso, thistrid){
+	var spid = $(thiso).getNext().get('id');
+	initMsgSpan(spid);
+	gewa.util.mask({'element':$(thiso).get('id'),'title':'正在提交，请稍等...'});
+	var url = '${basePath}admin/common/savePic.xhtml';
+	var values = GewaraUtil.getValues(thistrid);
+	var tid = values.bid;
+	
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewa.util.clearMask();
+		if(result.success){
+			set$(tid, result.retval);
+			completeSpan(spid);
+		}else{
+			alert(result.msg);
+		}
+	})
+}
+
+function creatStep(src){
+	var sum = $('insertDom').getElements('tr').length+1,
+		text1 = '图片'+sum+':',
+		text2 = '链接地址'+sum+':',
+		text3 = '图片说明'+sum+':';
+	var trr = new Element('tr', {'id':'teampicTR'+sum}).inject('insertDom');
+	var el = new Element('fieldset').inject(new Element('td').inject(trr));
+	createInput('hidden', 'cid', 'cid', '', el);
+	createInput('hidden', 'flag', '', 'teampic', el);
+	createInput('hidden', 'bid', '', '$!specialActivity.id', el);
+	createInput('hidden', 'picpath', 'teampic'+sum, '', el);
+	createLabel(text1,el);
+	new Element('iframe',{'src':'${basePath}common/uploadSinglePicture.xhtml?tag='+sum+'&uploadPath=images/news/&callback=updateLogoTeampic','frameborder':'0','scrolling':'no','styles':{'height':'25px','width':'450px'}}).inject(el);
+	new Element('br').inject(el);
+	createLabel(text2,el);
+	createInput('text', 'link', 'teampiclink'+sum, '', el);
+	new Element('br').inject(el);
+	createLabel(text3,el);
+	createInput('text', 'note', 'teampicnote'+sum, '', el);
+	new Element('br').inject(el);
+	createLabel('',el);
+	new Element('input',{'type':'button','value':'保 存'}).addClass('button norBtn').addEvent('click',function(){
+		saveTeamPic(this, 'teampicTR'+sum);
+	}).inject(el);
+	new Element('span', {'id':'teamSpan'+sum}).inject(el);
+	
+	new Element('input',{'type':'button','value':'删 除','styles':{'margin-left':'20px'}}).addClass('button norBtn').addEvent('click',function(){
+		delthisCommend('$!teampic.id', this);
+	}).inject(el);
+	
+	new Element('img',{'id':'teampicLogo'+sum, 'src':'', 'width':'100','height':'65'}).inject(new Element('td').inject(trr));
+}
+function createInput(type, sname, sid, sval, el){
+	new Element('input',{'type':type,'name':sname, 'id':sid, 'value':sval}).inject(el);
+}
+function createLabel(text,el){
+	new Element('label',{'text':text}).inject(el);
+}
+	
+// 删除
+function delthisCommend(cid, obj){
+	var f = window.confirm("将删除该条记录,包括上传的图片, 继续?");
+	if(!f) return false;
+	if(cid == ''){
+		obj.getParent('tr').dispose();
+		return false;
+	}
+	var url = '${basePath}admin/common/delTeampicSingle.xhtml';
+	var values = {'cid': cid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			obj.getParent('tr').dispose();
+		}else{
+			alert(result.msg);
+		}
+	})
+}
+function changeRelatedid(){
+	var el = $('relatedid')
+	if($('flag').value == 'all'){
+		el.value='';
+		el.readOnly=true;
+	}else{
+		el.readOnly=false;
+	}
+}
+</script>
+</body>
+</html>

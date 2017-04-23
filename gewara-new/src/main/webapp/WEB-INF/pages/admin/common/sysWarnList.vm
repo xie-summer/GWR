@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body>
+<div id="warn">
+	<form action="${basePath}admin/common/warnList.xhtml">
+		<input type="hidden" name="role" value="$!params.role"/>
+			按日期：<input type="text" name="adddate" value="$!adddate" style="width: 100px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})"/>
+			状态：<select name="status">
+				<option value="" #if($VmUtils.isBlank($!params.status))selected#end>请选择</option>
+				<option value="N" #if($params.status eq 'N')selected#end>未处理</option>
+				<option value="Y" #if($params.status eq 'Y')selected#end>已处理</option>
+			</select>
+			关键字：<input type="text" name="searchkey" value="$!params.searchkey" style="width: 200px;" />
+			<select name="searchField">
+				<option value="content">按内容</option>
+				<option value="title" #if($params.searchField eq 'title')selected#end>按标题</option>
+			</select><br />
+			高级条件：<input type="text" name="jsonParams" style="width:600px;" value='$!{params.jsonParams}' />
+			<input type="submit" value="提交"/>
+			#if($params.role eq 'dingpiao')<a href="${basePath}admin/common/warnList.xhtml?role=kefu&status=N" target="_blank">客服组</a>#end
+	</form>
+	
+	<form action="${basePath}admin/common/multiupdateSysWarn.xhtml" method="post" style="margin:3px" id="delForm">
+	<input type="hidden" name="role" value="$!params.role"/>
+	<input type="hidden" name="status" value="$!params.status"/>
+	<input type="hidden" name="searchkey" value="$!params.searchkey"/>
+	<div><input id="smbtn" type="button" value="删除选中的记录" onclick="delRecords();"/></div>
+	<table class="table">
+	<tr>
+		<td width="30">序号</td>
+		<td width="10">选择</td>
+		<td width="150">操作人/系统</td>
+		<td width="150">加入时间</td>
+		<td>标题</td>
+		<td>操作</td>
+	</tr>
+	#set($selectCount=0)
+	#foreach($warn in $warnList)
+	<tr id="order$warn.rowid" #if($foreach.index % 2==0)style="background-color: #aaa;"#end >
+		<td rowspan="2">${foreach.count}</td>
+		<td rowspan="2"><input type="checkbox" value="$warn.rowid" name="eid" #if($VmUtils.contains($warn.title, $searchkey) || $VmUtils.contains($warn.content, $searchkey))checked="checked"#set($selectCount=$selectCount + 1)#end /></td>
+		<td>$!{warn.auser}/$warn.systemid</td>
+		<td>$warn.addtime</td>
+		<td #if($warn.level eq 'critical')style="color:red; font-weight: bolder;"#end>$VmUtils.escapeHtml($warn.title)</td>
+		<td rowspan="2">
+			<a href="javascript:accept('$warn.rowid')">接受</a>&nbsp;&nbsp;
+			#if($warn.status ne 'Y')<a href="javascript:updateWarn('$warn.rowid')">完成</a>&nbsp;&nbsp;#else 已完成 #end
+			$!warn.otherinfo
+		</td>
+	</tr>
+	<tr #if($foreach.index % 2==0)style="background-color: #aaa;"#end>
+		<td colspan="3" style="color:blue;">$VmUtils.replace($warn.content,'script','div')</td>
+	</tr>
+	#end
+	</table>
+	#parse('include/pageUtil.vm')
+	</form>
+</div>
+<script>
+window.addEvent('domready', function(){
+	$('smbtn').set('value', $('smbtn').value+'($selectCount)');
+});
+
+function delWarn(id,el){
+	var url = "${basePath}admin/common/delSysWarn.xhtml";
+	GewaraUtil.sendRequest(url, {"id":id},function(result){
+	});
+	$('order'+id).dispose()
+}
+function accept(id){
+	var url = "${basePath}admin/common/acceptSysWarn.xhtml";
+	GewaraUtil.sendRequest(url, {"id":id},function(result){
+		$('order'+id).dispose();
+	});
+}
+function updateWarn(id){
+	var url = "${basePath}admin/common/updateSysWarn.xhtml";
+	GewaraUtil.sendRequest(url, {"id":id},function(result){
+		$('order'+id).dispose();
+	});
+}
+function delRecords(){
+	$('delForm').submit();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>分享列表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.mt5{margin-top:5px;}
+		.ml15{margin-left: 15px;}
+		.mb5{margin-bottom: 5px;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">#set($mtMap={'weibo':'微博','wxscenetimeline':'微信朋友圈','wxscenesession':'微信回话','message':'短信'})
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td colspan="4" align="left" class="td">当前位置>>分享列表</td>
+		<td align="right" class="td">
+			<a href="javascript:void(0);" onclick="showImageLoad('')" >增加</a>|
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td">
+		<td align="left" class="wd200"><b>logo</b></td>
+		<td align="left" class="wd60"><b>类型</b></td>
+		<td align="left" class="wd200"><b>内容</b></td>
+		<td align="left" class="wd60"><b>时间</b></td>
+		<td align="left" class="wd60"><b>操作</b></td>
+	</tr>
+	#foreach($sp in $spList)
+	<tr class="td">
+		<td align="center">
+			<img src="${picPath}$!sp.logo" onerror="this.src='${basePath}img/default_head.png'"  width="100" height="100" />
+		</td>
+		<td>$!mtMap.get($sp.msgtype)</td>
+		<td>$sp.content</td>
+		<td>${sp.starttime}<br/>${sp.endtime}</td>
+		<td align="left">
+			<a href="javascript:void(0);" onclick='showImageLoad("$!sp.id")' >[修改]</a>
+			<a href="javascript:void(0);" onclick='delSp("$!sp.id")' >[删除]</a>
+		</td>
+	</tr>
+	#end
+</table>
+<div id="ImageLoadDiv" style="visibility: hidden;z-index: 100;width: 600px;height: auto;background: #ffffff;border: 1px solid black;">
+<div class="ml15 mt5">
+<div style="text-align: center;"><span id="addtype">保存</span>分享信息</div>
+<hr/>
+<input type="hidden" name="id" id="id"/>
+	<div class="mt5">
+	特价活动id：<input name="spid" type="text" id="spid" value=""/>
+	</div>
+	<div class="mt5">
+		<label>开始时间：&nbsp;</label>
+		<input name="starttime" type="text" id="starttime" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value=""/>
+		<label >结束时间：</label>
+		<input name="endtime" id="endtime" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value=""/>
+	</div>
+	<div class="mt5">
+	链接地址：&nbsp;<input name="link" type="text" id="link" value="" style="width: 80%"/>
+	</div>
+	<div class="mt5">
+	短链接地址：&nbsp;<input name="shortlink" type="text" id="shortlink" value="" style="width: 80%"/>
+	</div>
+<div>
+	消息类型：<select name="msgtype" id="msgtype">
+			<option value="">请选择消息类型</option>
+			<option value="weibo">微博</option>
+			<option value="wxscenetimeline">微信朋友圈</option>
+			<option value="wxscenesession">微信回话</option>
+			<option value="message">短信</option>
+	</select>
+</div>
+<div class="mt5">
+标&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;题：&nbsp;<input name="title" type="text" id="title" value="" style="width: 80%"/>
+</div>
+<div class="mt5">
+内&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;容：&nbsp;<input name="content" type="text" id="content" value="" style="width: 80%"/>
+</div>
+<div class="mt5">
+	LOGO：
+	<iframe class="center" height="25px" width="500px" frameborder="0" scrolling="no" style="vertical-align: middle" id="uploadIFrame" 
+	src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updateLogo"></iframe>
+	<div style="margin-left: 40px;"><input type="text" name="logo" id="logo" style="width: 300px;"/></div>
+	<img style="height:100px; margin-left:80px;" id='srclogo' />
+</div>
+<div class="mt5 ml30">
+<input type="button" onclick="addImageLoad()" value="保存"/> 
+<input type="button" value="取消" onclick="hideImageLoad()"/>
+</div>
+</div>		
+</div>
+<script type="text/javascript">
+	updateLogo = function(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logo').src='${picPath}' + picpath;
+	}
+
+	function showImageLoad(id){
+		initValues();
+		if(!id){
+			GewaraUtil.showDialog('ImageLoadDiv');
+			return;
+		}
+		var url = "${basePath}admin/mobile/getSpShare.xhtml";
+		var values = {'id':id};
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){
+				GewaraUtil.setValues(result);
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+		GewaraUtil.showDialog('ImageLoadDiv');
+	}
+	function initValues(){
+		$('logo').value='';
+		$('id').value='';
+		$('spid').value='';
+		$('starttime').value='';
+		$('endtime').value='';
+		$('title').value='';
+		$('content').value='';
+		$('link').value='';
+		$('shortlink').value='';
+		$('msgtype').value='';
+	}
+	function hideImageLoad(){
+		$('id').value = '';
+		$('logo').value = '';
+		GewaraUtil.hideDialog('ImageLoadDiv');
+	}
+	
+	function addImageLoad(){
+		if(!$chk(logo)){
+			gewaUtil.alert('请上传loading图！');
+			return;
+		}
+		var url = "${basePath}admin/mobile/saveSpShare.xhtml";
+		var values = GewaraUtil.getValues('ImageLoadDiv');
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){
+				gewaUtil.alert('保存成功！');
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	
+	function delSp(id){
+		if(confirm('确认要删除吗?')==false){
+			return;
+		}
+		var url = "${basePath}admin/mobile/delSpShare.xhtml";
+		var values = {'id':id};
+		GewaraUtil.sendRequest(url,values,function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

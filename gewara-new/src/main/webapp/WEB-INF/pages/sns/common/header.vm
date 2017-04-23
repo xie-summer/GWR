@@ -1,0 +1,119 @@
+<div class="ui_body_header">
+	<div class="headShadow"></div>
+	<div class="ui_body_header_inside">
+		<a href="${basePath}" class="logo" type="hover" rel="mainLink">
+			<img src="${staticPath}css/images/blank.gif"/>
+			<span class="pinterBox"><span></span></span>
+		</a>
+		<div class="header_nav">
+			<a href="$!{basePath}home/sns/personIndex.xhtml?tagNo=$VmUtils.getRandom()" class="select">我的首页</a>
+			<a type="hover" rel="activityLink" href="$!{basePath}activity" target="_blank"><em>活动</em><span class="pinterBox"><span></span></span></a>
+			#if(!$showSearch)
+			<form action="${basePath}newSearchKey.xhtml" onsubmit="return nav.vdata();" id="gForm">
+				<span class="header_nav_search">
+					<label for="skey">
+						<input type="text" class="text" id="skey" name="skey" autocomplete="off" alt="电影、演出、场馆..."/>
+					</label>
+					<img onclick="clearInit()" src="${staticPath}css/images/blank.gif"/>
+				</span>
+			</form>
+			#end
+			<span class="header_nav_userInfo">
+				<a href="${basePath}home/message/wala/atme.xhtml?tagNo=$VmUtils.getRandom()" type="hover" rel="messageLink"><em>消息</em>
+				#if($VmUtils.gt($!tipcounts, 0))<span class="sicon mt10 ml5"><em>$!tipcounts</em></span>#end
+				<span class="pinterBox"><span></span></span></a>
+				<a href="$!{basePath}home/myOrderManage.xhtml?tagNo=$VmUtils.getRandom()"><b>我的订单</b></a>
+				<a href="${basePath}home/charge.xhtml?tagNo=$VmUtils.getRandom()" type="hover" rel="accountLink"><em>账户管理</em><span class="pinterBox"><span></span></span></a>
+			</span>
+		</div>
+	</div>
+</div>
+<div id="mainLink" class="ui_plugs_pointer">
+	<div class="pointerInside">
+		<a href="$!{basePath}" target="_blank">格瓦拉首页</a>
+		<a href="$!{basePath}movie" target="_blank">@电影</a>
+		<a href="$!{basePath}drama" target="_blank">@演出</a>
+		<a href="$!{basePath}sport" target="_blank">@运动</a>
+		<a href="$!{basePath}gym" target="_blank">@健身</a>
+	</div>
+</div>
+
+<div id="messageLink" class="ui_plugs_pointer">
+	<div class="pointerInside">
+		#*<a href="" target="_blank">@我 #if(!$!VmUtils.isNull($!otherinfoMap.get('me')) && $!otherinfoMap.get('me') ne 0) ($!otherinfoMap.get('me')) #end</a>
+		<a href="" target="_blank">搭话#if(!$!VmUtils.isNull($!otherinfoMap.get('speak')) && $!otherinfoMap.get('speak') ne 0) ($!otherinfoMap.get('speak')) #end</a>
+		*#
+		<a href="$!{basePath}home/wala/fans.xhtml?tagNo=$VmUtils.getRandom()" target="_blank"><span class="left">瓦丝</span>#if($VmUtils.gt($!fanscount, 0)) <span class="sicon ml5" style="margin-top:7px;"><em>$!fanscount</em></span> #end</a>
+		<a href="$!{basePath}home/sns/message/receUserMsgList.xhtml?tagNo=$VmUtils.getRandom()" target="_blank"><span class="left">私信</span>#if($VmUtils.gt($!lettercount, 0)) <span class="sicon ml5" style="margin-top:7px;"><em>$!lettercount</em></span> #end</a>
+		<a href="$!{basePath}home/message/new/sysMsgList.xhtml?tagNo=$VmUtils.getRandom()" target="_blank"><span class="left">通知</span>#if($VmUtils.gt($!syscount, 0)) <span class="sicon ml5" style="margin-top:7px;"><em>$!syscount</em></span> #end</a>
+	</div>
+</div>
+<div id="accountLink" class="ui_plugs_pointer">
+	<div class="pointerInside">
+		<a href="$!{basePath}home/acct/memberinfo.xhtml?tagNo=$VmUtils.getRandom()" target="_blank">个人资料</a>
+		<a href="$!{basePath}home/charge.xhtml?tagNo=$VmUtils.getRandom()" target="_blank">我的账户</a>
+		<a href="javascript:logout();">退出</a>
+	</div>
+</div>
+<div id="activityLink" class="ui_plugs_pointer">
+	<div class="pointerInside">
+		<a href="$!{basePath}quan" target="_blank">圈子</a>
+		<a href="$!{basePath}blog" target="_blank">论坛</a>
+		<a href="$!{basePath}qa" target="_blank">知道</a>
+	</div>
+</div>
+<script type="text/javascript">
+#if($logonMember)
+	gewara.util.member.login = true;
+	gewara.util.member.memberid=$logonMember.id;
+	gewara.util.member.nickname='$logonMember.nickname';
+	gewara.util.member.notReadCount='$!notReadCount';
+	gewara.util.member.headUrl='$!cacheMemberMap.get($logonMember.id).headpicUrl';
+	#if($VmUtils.isNotBlank($logonMember.mobile))
+	gewara.util.member.isMobile = true;
+	#end
+#end
+window.addEvent('domready',function(){
+	$$('label.button,span.button,label.ui_btn,span.ui_btn').addEvents({
+		'mouseenter':function(){if(this.hasClass('bigBt')){this.addClass('bg_hover');}else{this.addClass('hover');}},
+		'mouseleave':function(){if(this.hasClass('bigBt')){this.removeClass('bg_hover');}else{this.removeClass('hover');}}
+	});
+	gewa.util.textOver('.text');
+	document.getElements('a[type=hover]').each(function(a){
+		var target = $(a.get('rel'));
+		var size = a.getDimensions().x;
+		target.setStyle('width',size>150?116:size);
+		var left = -(size>150?116:size);
+		target.toPos(a,'bottomRight',left,0);
+		a.hover(target,null,function(){
+			a.addClass('pinterHover');
+			target.toPos(a,'bottomRight',left,0);
+		},function(){
+			a.removeClass('pinterHover');
+		},0);
+	});
+	new Autocompleter.Request.JSON("skey",'${basePath}newSearchKeyNum.xhtml', {
+		'delay': 100,
+		'maxChoices': 10,
+		'minLength':2,
+		'unselect':'',
+		'select':'',
+		'postVar':'skey',
+		'form':$("gForm")
+	});
+	clearInit = function(){
+		if($('skey').value.indexOf('输入') >= 0){
+			$('skey').value='';
+			return false;
+		}else if($('skey').value === ''){
+			return false;
+		}else{
+			$('gForm').submit();
+			$('skey').value='';
+		}
+	}
+});
+//window.addEvent("load", function(){
+//	nav.init();
+//});
+</script>

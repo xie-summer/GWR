@@ -1,0 +1,257 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>通知  格瓦拉社区</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/default.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,Autocompleter,page,noobSlide&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div id="snsHeader"></div>
+<div class="ui_layout">
+	#parse('sns/common/left.vm')
+	<div class="body_right">
+	#set($sysMessages=true)
+	#parse("sns/message/menu.vm")
+	<div class="bodys" id="_body">
+	
+	<form action="" name="stForm" id="stForm">
+	<input type="hidden" name="sid" id="sid"/>
+	<input type="hidden" name="st" id="st"/>
+	</form>
+	#if(!$VmUtils.isEmptyList($wsjlist))
+	<!--群发系统消息-->
+	<ul class="mymessage">
+		#foreach($wsj in $wsjlist)
+		<li class="ui_abeam clear" >
+			<div class="uipic">
+				<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=1" target="_blank" title="Gewara管理员"><img src="$VmUtils.randomPic('cw50h50','images/201203/headpic/s_308449b4_13628dcb515__7e17.jpg')" width="50" height="50" /></a>
+			</div>
+			<div class="uiText">
+				<p>$dataMap.get($wsj.dkey).get('content')</p>
+				<div class="title c999">
+					$!dataMap.get($wsj.dkey).get('addtime')
+				</div>
+			</div>
+		</li>
+		#end
+	</ul>
+	<!--/群发系统消息-->
+	#end
+	
+	#if(!$VmUtils.isEmptyList($multyMsgs))
+	<!--1vN系统消息-->
+	<ul class="mymessage">
+	#foreach($mmsg in $multyMsgs)
+		<li class="ui_abeam clear">
+				<div class="uipic">
+					<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=1" target="_blank" title="Gewara管理员"><img src="$VmUtils.randomPic('cw50h50','images/201203/headpic/s_308449b4_13628dcb515__7e17.jpg')" width="50" height="50" /></a>
+				</div>
+				<div class="uiText">
+					<p>$mmsg.body</p>
+					<div class="title c999">
+						#if($mmsg.isread eq '0')
+							<img src="${staticPath}css/images/msgnotread.gif" align="top"/>
+						#end
+						$!DateUtil.format($!mmsg.addtime, 'yyyy-MM-dd HH:mm')
+						<div class="more">
+							<a href="javascript:void(0)" onclick="javascript:delMultySysMsg('$mmsg.id', this)">删除</a>
+						</div>
+					</div>
+				</div>
+		</li>
+	#end
+	</ul>
+	<!--/1vN系统消息-->
+	#end
+	
+	#if(!$VmUtils.isEmptyList($sysMsgList))
+	<!--系统消息-->
+	<ul class="mymessage">
+		#foreach($sysMsg in $sysMsgList)
+		#set($relate=$relatedHelper.getR1("sysMsgList",$sysMsg.id))
+		<li class="ui_abeam clear">
+				<div class="uipic">
+					<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!sysMsg.frommemberid" target="_blank" title="$cacheMemberMap.get($sysMsg.frommemberid).nickname"><img src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($sysMsg.frommemberid).headpicUrl)" width="50" height="50" /></a>
+				</div>
+				<div class="uiText">
+					#if($VmUtils.eq($sysMsg.action, 'apply_commu_invite'))
+						<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!sysMsg.frommemberid">$cacheMemberMap.get($sysMsg.frommemberid).nickname</a>&nbsp;邀请你加入圈子 <a href="${basePath}quan/$sysMsg.actionid" style="color:gray">$!relate.name</a>
+						去看看&nbsp;${absPath}${basePath}quan/$!sysMsg.actionid 
+						</p>
+						<div class="tar mt10">
+							#if($VmUtils.eq($sysMsg.status,'apply'))
+							<a href="javascript:st($sysMsg.id,'a','a$sysMsg.id')" id="a$sysMsg.id" style="padding-left:15px;background:url(${staticPath}css/home/rsv.png) 0 center no-repeat;">同意</a>
+							<a href="javascript:st($sysMsg.id,'r','r$sysMsg.id')" id="r$sysMsg.id" class="ml10" style="padding-left:13px;background:url(${staticPath}css/home/stop.png) 0 center no-repeat;">拒绝</a>
+							#elseif($VmUtils.eq($sysMsg.status,'agree'))<span style="padding-left:15px;background:url(${staticPath}css/home/rsv.png) 0 center no-repeat;">已同意</span>
+							#elseif($VmUtils.eq($sysMsg.status,'refuse'))<span style="padding-left:13px;background:url(${staticPath}css/home/stop.png) 0 center no-repeat;">已拒绝</span>
+							#end
+						</div>
+					#elseif($VmUtils.eq($sysMsg.action, 'apply_commu_join'))
+						<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!sysMsg.frommemberid">$cacheMemberMap.get($sysMsg.frommemberid).nickname</a>&nbsp;申请加入圈子&nbsp;&nbsp;<a href="${basePath}quan/$sysMsg.actionid">$!relate.name</a>#if($sysMsg.body)<br/>请求消息：$sysMsg.body#end</p>
+						<div class="tar mt10">
+							#if($VmUtils.eq($sysMsg.status,'apply'))
+							<a href="javascript:st($sysMsg.id,'a','a$sysMsg.id')" id="a$sysMsg.id" style="padding-left:15px;background:url(${staticPath}css/home/rsv.png) 0 center no-repeat;">同意</a>
+							<a href="javascript:st($sysMsg.id,'r','r$sysMsg.id')" id="r$sysMsg.id" class="ml10" style="padding-left:13px;background:url(${staticPath}css/home/stop.png) 0 center no-repeat;">拒绝</a>
+							#elseif($VmUtils.eq($sysMsg.status,'agree'))<span style="padding-left:15px;background:url(${staticPath}css/home/rsv.png) 0 center no-repeat;">已同意</span>
+							#elseif($VmUtils.eq($sysMsg.status,'refuse'))<span style="padding-left:13px;background:url(${staticPath}css/home/stop.png) 0 center no-repeat;">已拒绝</span>
+							#end
+						</div>
+					#elseif($VmUtils.eq($sysMsg.action, 'apply_friend_add'))
+						<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!sysMsg.frommemberid">$cacheMemberMap.get($sysMsg.frommemberid).nickname</a>&nbsp;申请添加你为站内好友 #if($sysMsg.body)<br/>请求消息：$sysMsg.body#end</p>
+						<div class="tar mt10">
+							#if($VmUtils.eq($sysMsg.status,'apply'))
+							<a href="javascript:st($sysMsg.id,'a','a$sysMsg.id')" id="a$sysMsg.id" style="padding-left:15px;background:url(${staticPath}css/home/rsv.png) 0 center no-repeat;">同意</a>
+							<a href="javascript:st($sysMsg.id,'r','r$sysMsg.id')" id="r$sysMsg.id" class="ml10" style="padding-left:13px;background:url(${staticPath}css/home/stop.png) 0 center no-repeat;">拒绝</a>
+							#elseif($VmUtils.eq($sysMsg.status,'agree'))<span style="padding-left:15px;background:url(${staticPath}css/home/rsv.png) 0 center no-repeat;">已同意</span>
+							#elseif($VmUtils.eq($sysMsg.status,'refuse'))<span style="padding-left:13px;background:url(${staticPath}css/home/stop.png) 0 center no-repeat;">已拒绝</span>
+							#end
+						</div>
+					#elseif($VmUtils.eq($sysMsg.action, 'apply_c_admin'))
+						<p>把圈子&nbsp;&nbsp;<a href="${basePath}quan/$sysMsg.actionid">$!relate.name</a>&nbsp;&nbsp;管理员移交给你</p>								
+						<div class="tar mt10">
+							#if($VmUtils.eq($sysMsg.status,'apply'))
+							<a href="javascript:st($sysMsg.id,'a','a$sysMsg.id')" id="a$sysMsg.id" style="padding-left:15px;background:url(${staticPath}css/home/rsv.png) 0 center no-repeat;">同意</a>
+							<a href="javascript:st($sysMsg.id,'r','r$sysMsg.id')" id="r$sysMsg.id" class="ml10" style="padding-left:13px;background:url(${staticPath}css/home/stop.png) 0 center no-repeat;">拒绝</a>
+							#elseif($VmUtils.eq($sysMsg.status,'agree'))<span style="padding-left:15px;background:url(${staticPath}css/home/rsv.png) 0 center no-repeat;">已同意</span>
+							#elseif($VmUtils.eq($sysMsg.status,'refuse'))<span style="padding-left:13px;background:url(${staticPath}css/home/stop.png) 0 center no-repeat;">已拒绝</span>
+							#end
+						</div>
+					#elseif($VmUtils.eq($sysMsg.action, 'ticket_sucess'))
+						<p>
+							<span id="S$sysMsg.id">$!sysMsg.body</span> 
+						</p>							
+					#elseif($VmUtils.eq($sysMsg.action, 'result') || $VmUtils.eq($sysMsg.action, 'getpoint') || $VmUtils.eq($sysMsg.action, 'commu_apply') || $VmUtils.eq($sysMsg.action, 'activity_join'))
+						<p>
+							<span id="S$sysMsg.id">$!sysMsg.body</span>
+						</p>
+					#elseif($VmUtils.eq($sysMsg.action, 'movie_ghg'))
+						<p>
+							<span id="S$sysMsg.id">$!sysMsg.body</span> 
+						</p>								
+					#elseif($VmUtils.eq($sysMsg.action, 'friend_birthday'))
+						<p>您有好友即将过生日啦!</p>								
+					#elseif($VmUtils.eq($sysMsg.action, 'commu_applycertification'))
+						<p>
+							<span id="S$sysMsg.id">$!sysMsg.body</span> 
+						</p>								
+					#elseif($VmUtils.eq($sysMsg.action, 'question_new_answer'))
+						<p>
+							<span id="S$sysMsg.id">$!sysMsg.body</span> 
+						</p>								
+					#elseif($VmUtils.eq($sysMsg.action, 'answer_is_best'))
+						<p>
+							<span id="S$sysMsg.id">$!sysMsg.body</span> 
+						</p>								
+					#end
+					
+					<div class="title c999">
+						#if(!$VmUtils.eq($sysMsg.isread, '1'))
+							<img src="${staticPath}css/images/msgnotread.gif" align="top"/>
+						#end
+						$!DateUtil.format($!sysMsg.addtime,'yyyy-MM-dd HH:mm')
+						<div class="more">
+							<a href="javascript:void(0)" onclick="javascript:delSysMsg($sysMsg.id,this)">删除</a>
+						</div>
+					</div>
+					
+				</div>
+		</li>
+	#end
+	</ul>
+	<!--/系统消息-->
+	#end
+	
+	#if($VmUtils.isEmptyList($wsjlist) && $VmUtils.isEmptyList($sysMsgList))
+	<div class="mt20 clew">暂无消息！</div>
+	#end
+	#parse('include/pageUtil.vm')
+	
+<script type="text/javascript">
+function st(sid, st, obj){
+	$('sid').value=sid;
+	$('st').value=st;
+	checkst(obj);
+}
+function checkst(obj){
+	checkLogin(true, function(){
+		var url = '${basePath}home/message/checkst.xhtml';
+		GewaraUtil.mask(obj);
+		var values = GewaraUtil.getValues("stForm");
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert('操作成功！');
+				refreshPage();
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	});
+}
+function delSysMsg(sid,o){
+	gewaUtil.confirm("确认要删除吗?", function(){
+		checkLogin(true, function(){
+			var url = '${basePath}home/message/delSysMsg.xhtml';
+			var values = {'sid':sid};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewaUtil.dispose($(o).getParent('li'));
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		});
+	})
+}
+
+function delMultySysMsg(id, obj){
+	gewaUtil.confirm("确认要删除吗?", function(){
+		checkLogin(true, function(){
+			var url = '${basePath}home/message/delMultySysMsg.xhtml';
+			var values = {'id':id};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewaUtil.dispose($(obj).getParent('li'));
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		});
+	})
+}
+
+function get$(id){return document.getElementById(id)}
+window.addEvent('domready', function(){
+	var url = '${basePath}home/message/sysMsgAllRead.xhtml';
+	GewaraUtil.sendRequest(url, {});
+})
+</script>
+	
+</div>
+</div>
+</div>
+<div class="ui_view_menu"></div>
+<div class="footer_warp">
+	<div class="isFooter"></div>
+</div>
+#parse('include/innerLogin.vm')
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=snsUtil,index_even&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	if($('publicize'))new adSoild('publicize','navControl',{'position':{'x':#if($!params.memberid)280#{else}180#end,'y':#if($!params.memberid)80#{else}70#end},'width':14});
+	if($('slidePanel'))new noobSlide({
+		box: $('slidePanel'),
+		size:180,
+		items: $$('#slidePanel li'),
+		handle_event:'click',
+		addButtons: {
+			previous:$('eventL'),
+			next:$('eventR')
+		}
+	});
+});
+</script>
+#parse('sns/common/ga.vm')
+</body>
+</html>

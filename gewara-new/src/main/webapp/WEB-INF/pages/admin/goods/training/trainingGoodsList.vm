@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>课程电商管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+		.none{display:none;}
+		.clear{clear: both;}
+		.checkMenu .selected {font-size:16px; font-weight:bold; color:red;}
+	</style>
+</head>
+<body>
+<div class="logoPanel"><a href="${basePath}">Gewara</a></div>
+<div class="menu">
+	<div class="menuInner">
+		<ul>
+			<li>$!agency.name</li>
+			<li class="currs"><a><span>课程管理 </span></a></li>
+			<li><a href="${basePath}admin/training/goodsOrderList.xhtml?placeid=$!agency.id"><span>订单管理</span></a></li>
+			<li><a href="${basePath}admin/agency/baseData.xhtml?agencyId= $!agency.id"><span>基础数据</span></a></li>
+		</ul>
+	</div>
+</div>
+<div style="color:red" id="notifyWin"></div>
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div class="contentInfoList"> 
+		<div class="checkMenu">
+			#foreach($ag in $agencyList)
+			<a href="${basePath}admin/training/trainingGoodsList.xhtml?agencyId=$ag.id" #if($VmUtils.eq($ag.id,$agency.id)) class="selected" #end>$ag.name</a>
+			#end
+			<ul>
+				<span class="right">
+					<a href="${basePath}admin/training/getTrainingGoods.xhtml?agencyId=$!agency.id" target="_blank">新增培训课程</a>
+				</span>
+			</ul>
+		</div>
+		<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+			<thead>
+				<tr>
+					<th>课程ID</th>
+					<th>课程名称</th>
+					<th>订单</th>
+					<th>数量</th>
+					<th>卖出</th>
+					<th>修改</th>
+					<th>机构价格</th>
+					<th>成本价</th>
+					<th>卖价</th>
+					<th>价格</th>
+					<th>订单管理</th>
+					<th>优惠劵</th>
+					<th>排序</th>
+					<th title="提起几小时关闭预订">时间设置
+					<th >操作</th>
+				</tr>
+			</thead>
+			<tbody class="tbody">
+				#foreach($trainingGoods in $trainingGoodsList)
+				<tr class="grayBg disp c$odi.movieid">
+					<td>$!trainingGoods.id</td>
+					<td>$!trainingGoods.goodsname</td>
+					<td><a href="${basePath}admin/training/goodsOrderList.xhtml?gid=$!trainingGoods.id" target="_blank">查看</a></td>
+					<td>$!trainingGoods.quantity</td>
+					<td>$!trainingGoods.sales</td>
+					<td><a href="${basePath}admin/training/getTrainingGoods.xhtml?id=$!trainingGoods.id&agencyId=$!agency.id" target="_blank">修改</a>
+						<a href="${basePath}admin/goods/goodsOther.xhtml?goodsid=$!trainingGoods.id" target="_blank">其他</a>
+						<a href="${basePath}admin/training/getCurriculumCalendar.xhtml?tid=$!trainingGoods.id" target="_blank">课程表</a>
+					</td>
+					<td>
+						#foreach($tsp in $goodsPriceMap.get($trainingGoods.id))
+						[$tsp.pricelevel]$!tsp.oriprice<br/>
+						#end
+					</td>
+					<td>
+						#foreach($tsp in $goodsPriceMap.get($trainingGoods.id))
+						$!tsp.costprice<br/>
+						#end
+					</td>
+					<td>
+						#foreach($tsp in $goodsPriceMap.get($trainingGoods.id))
+						$!tsp.price<br/>
+						#end
+					</td>
+					<td><a href="${basePath}admin/goods/goodsprice.xhtml?gid=$!trainingGoods.id" target="_blank">设置</a></td>
+					<td></td>
+					<td><input type="text" class="elecard pubinput" style="width:40px;" name="${trainingGoods.id}" value="$!trainingGoods.elecard"/></td>
+					<td><input type="text" class="pubinput" style="width:40px;" onchange="changeGoodsSort('$!trainingGoods.id',this.value)" value="$!trainingGoods.goodssort"/></td>
+					<td>
+						<label>开放：<input type="text" class="optime" style="width:140px;" #if($$trainingGoods.hasStatus('D'))disabled="disabled" #end value="$!DateUtil.format($trainingGoods.fromtime,'yyyy-MM-dd HH:mm:ss')" onchange="setOpenTime(this,$trainingGoods.id)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly" /></label>
+						<label>关闭：<input type="text" style="width:140px;" #if($trainingGoods.hasStatus('D'))disabled="disabled" #end value="$!DateUtil.format($trainingGoods.totime,'yyyy-MM-dd HH:mm:ss')" onchange="setCloseTime(this, $trainingGoods.id)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" readonly="readonly"/></label>
+					</td>
+					<td class="clearB" #if($odi.closed)title="超时"#end>
+						<select id="$trainingGoods.id" onchange="setStatus(this, $trainingGoods.id)" #if($trainingGoods.hasStatus('D'))disabled="disabled"#else class="opselect" #end>
+							<option value="N" #if($trainingGoods.status eq 'N')selected="selected"#end>不展示</option>
+							<option value="Y" #if($trainingGoods.status eq 'Y')selected="selected"#end>展示</option>
+							<option value="D" #if($trainingGoods.status eq 'D')selected="selected"#end>废弃</option>
+						</select><br/>
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+	<b class="b2f"></b><b class="b1f"></b>
+</div>
+<div id="dialog" style="width:800px; visibility:hidden; z-index:1000;background: #000"></div>
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		updateElecard();
+	});
+	function changeGoodsSort(goodsid, value){
+		var url = '${basePath}admin/goods/ajax/changeGoodsSort.xhtml'
+		var values = {"goodsId":goodsid,"num":value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("操作成功！");
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}			
+		});
+	}
+	function updateElecard(){
+		if($$(".elecard")){
+			$$(".elecard").addEvent("change", function(){
+				this.setStyle("background","red");	var el=this;
+				var values = {"gid":el.name,"elecard":el.value};
+				GewaraUtil.sendRequest('${basePath}admin/goods/updateElecard.xhtml', values, function(result){
+					if(result.success){
+						el.setStyle("background","");
+					}else{
+						alert(result.msg);
+					}
+				});
+			});
+		}
+	}
+	function setOpenTime(el, itemid){
+		el.setStyle("background","red");
+		var values = {"gid":itemid,"fromtime":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/goods/updateFromtime.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function setCloseTime(el, itemid){
+		el.setStyle("background","red");
+		var values = {"gid":itemid,"totime":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/goods/updateTotime.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function setStatus(el, itemid){
+		el.setStyle("background","red");
+		var values = {"gid":itemid,"status":el.value};
+		GewaraUtil.sendRequest('${basePath}admin/goods/updateStatus.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

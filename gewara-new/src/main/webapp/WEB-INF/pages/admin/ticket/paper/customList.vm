@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>自定义票纸</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script> 
+	<style>
+			input{width:150px;}
+			.mb5{margin-bottom:5px;}
+			.bt{width:100px;}
+	</style>
+</head>
+<body style="margin:auto" class="yui-skin-sam">
+<div>
+		<input type="text" value="$!gewaConfig.content" name="content" id="content"/>
+		<input type="button" onclick="saveConfig();" value="保存" />
+</div>
+<div style="width:960px; height: 20px;">
+	<form action="${basePath}admin/custom/getPaperList.xhtml">
+		<input id="startdate" type="text" style="width: 150px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" readonly="readonly" name="startdate" value="$!params.startdate"/>
+		至<input id="enddate" type="text" style="width: 150px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" readonly="readonly" name="enddate" value="$!params.enddate"/>
+		<span style="width: 60px; margin-left:60px;"></span>
+		<span id="callbackMsg"></span>
+		<input type="submit" value="查询" />
+	</form>
+</div>
+<table width="960px" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th>序号</th>
+		<th>用户ID</th>
+		<th>订单号</th>
+		<th>自定义内容</th>
+		<th>添加时间</th>
+	</tr>
+	</thead>
+	<tbody id="roomTable">
+	#foreach($custom in $customPaperList)
+		<tr>
+			<td>$foreach.count</td>
+			<td>$custom.memberid</td>
+			<td>
+				$custom.tradeno
+			</td>
+			<td>$custom.selfdomcontent</td>
+			<td>$DateUtil.format($custom.addtime, 'yyyy-MM-dd HH:mm:ss')</td>
+		</tr>
+	#end
+	</tbody>
+</table>
+#parse('include/pageUtil.vm')
+<script>
+function saveConfig(){
+	var url = '${basePath}admin/custom/saveConfig.xhtml';
+	GewaraUtil.sendRequest(url, {'content':$('content').value}, function(result){
+		if(result.success){
+			alert("保存成功！");	
+		}else{
+			alert(result.msg);	
+		}
+	});
+}
+</script>
+</body>
+</html>

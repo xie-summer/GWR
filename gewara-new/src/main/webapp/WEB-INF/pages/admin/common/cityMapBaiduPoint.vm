@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>地图标注</title>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.2&services=true"></script>
+	<script type="text/javascript">
+	var polyline;
+	var maps = new Hash();
+	function initMap() {
+		//在ID为"Gmap"的层内显示地图，设置加载搜索框
+		var map=new BMap.Map("Bmap");
+		maps.set(1,map);
+		#if($object.bpointx)
+			var point=new BMap.Point($object.bpointx, $object.bpointy);
+			//定义一个经纬度点
+			map.centerAndZoom(point,16);
+			//定义一个标注对象
+			var marker=new BMap.Marker(point);
+			map.addOverlay(marker);
+			//定义字符串
+			var info = "$object.cityname";
+			initHi();
+			//设置点击出现冒泡
+			var infoWindow=new BMap.InfoWindow(info)
+			marker.openInfoWindow(infoWindow);
+			marker.addEventListener("click",function(){
+				this.openInfoWindow(infoWindow);
+			});
+		#else
+			/* map.centerAndZoom(new BMap.Point($cityData.getCenter($citycode).get(1), $cityData.getCenter($citycode).get(0)),16); */
+		#end
+		//增加标注
+		map.addControl(new BMap.NavigationControl());		//平移缩放控件
+		map.addControl(new BMap.OverviewMapControl());		//缩略地图控件
+		var opts={offset:new BMap.Size(150,5)}
+		map.addControl(new BMap.ScaleControl(opts));		//比例尺控件
+		map.addControl(new BMap.CopyrightControl());		//版权控件
+		map.enableScrollWheelZoom();  				//开启鼠标滚轮缩放
+		
+		map.addEventListener("click", function(e){
+			$("bpointx").value=e.point.lng;
+			$("bpointy").value=e.point.lat;
+			var xx = document.getElementById("bpointx").value;
+			var yy = document.getElementById("bpointy").value;
+			var info = "$object.cityname";
+			//清除地图上的覆盖物
+			map.clearOverlays();
+			//添加一个标点
+			var marker=new BMap.Marker(e.point);
+			map.setCenter(e.point);
+			map.addOverlay(marker);
+			//设置点击出现冒泡
+			var infoWindow=new BMap.InfoWindow(info)
+			marker.openInfoWindow(infoWindow);
+			marker.addEventListener("click",function(){
+				this.openInfoWindow(infoWindow);
+			});
+			var mappath="http://api.map.baidu.com/api?v=1.2&center="+xx+","+yy+"&markers="+xx+","+yy+",red&zoom=12&size=250x190&maptype=roadmap&hl=zh-CN";
+			$('mapname').value=mappath;
+		});
+	}
+	
+	function initHi(){
+		var xx = $("bpointx").value;
+		var yy = $("bpointy").value;
+		var mappath="http://api.map.baidu.com/api?v=1.2&center="+xx+","+yy+"&markers="+xx+","+yy+",red&zoom=12&size=250x190&maptype=roadmap&hl=zh-CN";
+		$('mapname').value=mappath;
+	}
+	
+	function validate(){
+		if($('bpointx').value=="" || $('bpointy').value==""){
+			alert("请在地图上标注");
+			return false;
+		}
+		return true;
+	}
+	//自动生成
+	// 创建地理编码服务实例  
+	var myGeo = new BMap.Geocoder();
+	function query(){		
+		var map=maps.get(1);
+		var address=$("name").value;
+		var local = new BMap.LocalSearch(map, {
+		  	renderOptions:{map: map}
+		});
+		local.search(address);
+	}
+</script>
+</head>
+<body onload="initMap()">
+	<div style="width:800px;margin:0 auto; text-align:left;">
+		<form action="javascript:javascript:saveMap()" id="mapForm">
+			<input type="hidden" name="mapname" id="mapname"/>
+			<input type="hidden" name="tag" id="tag" value="$!params.tag"/>
+			<input type="hidden" name="citycode" id="citycode" value="$!params.citycode"/>
+			坐标&nbsp;&nbsp;
+			#if($object.bpointx) 
+			X：<input type="text" name="bpointx" id="bpointx" value="$object.bpointx"/>&nbsp;&nbsp;
+			Y：<input type="text" name="bpointy" id="bpointy" value="$object.bpointy"/>&nbsp;&nbsp;
+			#else
+			X：<input onblur="initHi()" type="text" name="bpointx" id="bpointx"/>&nbsp;&nbsp;
+			Y：<input onblur="initHi()" type="text" name="bpointy" id="bpointy"/>&nbsp;&nbsp;
+			#end
+			<input type="submit" value="确认标注"/>&nbsp;&nbsp;
+			<input type="text" id="name" value="$object.cityname"/>&nbsp;&nbsp;
+			<input type="button" value="搜索" onclick="query()"/>
+		</form>
+	</div>
+<!--定义显示地图的层-->
+<div id="Bmap" style="width: 800px; height: 500px; margin:0 auto" align="center">
+</div>
+	<script type="text/javascript">
+function saveMap(){
+	if(validate()){
+		gewa.util.mask({'title':"正在保存数据..."});
+		var values = GewaraUtil.getValues("mapForm");
+		var url = "${basePath}admin/city/saveBMap.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('成功保存！');
+				refreshPage();
+			}else{
+				alert(result.msg);
+				gewa.util.clearMask();
+			}
+		});
+	}
+}
+</script>
+</body>
+</html>

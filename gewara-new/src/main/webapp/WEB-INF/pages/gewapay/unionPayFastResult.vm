@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>银联支付首页 - 格瓦拉生活网</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_movie,new_play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,tips&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		html{background:#fff;}
+		a{color:#237fae}
+		.cYellow{color:#e66218;}
+		.pay_header{height:80px; position:relative;width:960px;margin:0 auto;}
+		.pay_header h1.logo{display:block; float:left; width:230px; height:60px; margin:10px 0; text-indent:-9999px; overflow:hidden; background:url(${staticPath}css/home/pay_logo.jpg) -7px 0 no-repeat;}
+		.pay_header .userTag{position:absolute; right:0; top:10px;}
+		.pay_tollbar{width:952px;border:4px solid #a1bee0;margin:10px auto;background:#ffffcd;}
+		.pay_tollbar li{height:28px;line-height:28px;border-bottom:1px dashed #d0d4d7; text-indent:1em;font-size:14px;color:#666;}
+		.pay_tollbar li span{display:inline-block;float:left;overflow:hidden;}
+		.pay_tollbar li span b{font-size:24px;color:#ff6600;vertical-align: -3px;}
+		.pay_body{width:840px;border:1px solid #93b4d7;background:#e9f4f6;padding:20px 59px;overflow:hidden;margin:0 auto;}
+		.pay_body .plogo,.checkBt,.formSureBt,.fromlink,.passBackList li{background:url(${staticPath}css/buss/chinaIndexPay.jpg) no-repeat;}
+		
+		.formT{height:32px;width:100%;overflow:hidden;line-height:32px;font-size: 14px;font-weight: bold;text-indent: 46px;background:#e2edef;margin-top:15px;}
+		.formT span{display:inline-block;width:50%;float:left;overflow:hidden;}
+		.formBody{width:100%;background:#f7fbfc;overflow:hidden;}
+		.formBody_bson{width:420px;float:left;overflow:hidden;padding:10px 0;}
+		.formBody_son,.formBody_son ul{overflow:hidden;float:left;padding:10px 48px;width:324px;}
+		.formBody_son p{width:250px;padding:30px 0;line-height: 20px;}
+		.formBody_bson ul{border-right:1px dashed #cbd7e3;padding:0px 48px 0px 47px;}
+		.formBody_bson ul li{height:36px;line-height:36px;width:100%;overflow:hidden;padding:5px 0;}
+		.formBody_bson a{color:#237fae;text-decoration: underline;margin-left:10px;}
+		.finput{width:180px;padding:4px;font-size:14px;border:1px solid #bbc3ce;background:#fff;outline: none;border-radius:3px;height:19px;}
+		.checkBt{height:29px;width:112px;background-position:0 -80px;border:0px;margin-left:10px;cursor: pointer;color:#237fae;}
+		.checkDisabled{background:#eee;color:#666;cursor: default;}
+		.formSureBt{width:108px;height:35px;border:0px;background-position:0 -46px;cursor: pointer;}
+		.fromlink{width:138px;height:34px;display:block;background-position:0 -109px;text-decoration: none !important;overflow:hidden;text-indent: -999px;}
+		.passLogo{height:190px;width:100%;text-indent: 10px;line-height:40px;padding-left:80px;font-size:18px;color:#000}
+		.passBackList{width:100%;height:100%;overflow:hidden;}
+		.passBackList li{width:210px;height:42px;overflow:hidden;float:left;margin-bottom:20px;}
+		.limitPay{border-top:1px dashed #cccccc;height:120px;border-bottom:1px dashed #cccccc;font-size:16px;padding-left:50px;padding-top:20px;background: none repeat scroll 0 0 #F7F7F7;}
+	</style>
+</head>
+<body>
+<div class="pay_header">
+	<h1 class="logo">格瓦拉收银台</h1>
+	<span class="userTag"><b>$!member.nickname</b>你好，欢迎来到格瓦拉生活网！</span>
+</div>
+<ul class="pay_tollbar">
+	<li>
+		<span style="width:482px;">商户名称：上海格瓦商务信息咨询有限公司（格瓦拉生活网）</span>
+		<span style="width:270px;">订单编号：$!order.tradeNo</span>
+		<span>应付金额：<b>$!{order.due}.00</b>元</span>
+	</li>
+	<li>订单创建时间：$!{DateUtil.format($order.addtime,'yyyy-MM-dd HH:mm:ss')}</li>
+</ul>
+<div class="pay_body">
+	<img src="${staticPath}css/images/blank.gif" width="126" height="32" class="plogo" style="display: block;"/>
+	<div style="height:350px">
+		<div class="passLogo">
+			<br /><br /><br />
+			<span id="message"><img src="${basePath}img/pay/forwardLoad.gif" />订单支付提交已完成，正在进行商家页面跳转，请耐心等待...</span>
+		</div>
+		#if($cupReserved)
+		<div class="limitPay">
+			<span>
+				由于您的银行卡尚未通过发卡银行的手机号验证，仅能使用临时支付功能，您可以在<font color="#237FAE">$!{DateUtil.format($DateUtil.parseDate($cupReserved.get('expiry'),'yyyyMMdd'),"yyyy年M月d日")}前</font>进行单笔
+			<br/><font color="#237FAE">不超过$!transLimit元</font>，总额<font color="#237FAE">不超过$!sumLimit元</font>的交易，逾期自动终止。
+			<br/><br/>如需解除上述限制，您可以通过发卡银行柜台、自动柜员机或网上银行留存手机号并办理银联在线支付业务。<br/>若您已完成上述步骤，请
+			<a target="_blank" href="${basePath}gewapay/toBindUnionpayFastCard.xhtml?paymethod=$!{order.paymethod}&cardNumber=$!cardNum">点此正式开通</a>
+			</span>
+		</div>
+		#end
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	setTimeout("locationPayResult()",10000);
+})
+function locationPayResult(){
+	GewaraUtil.sendRequest("${basePath}ajax/cooperate/queryOrderResult.xhtml",{"tradeNo":"$!{order.tradeNo}","paymethod":"unionPayFast"}, function(result){
+		if(result.success){
+			if(result.retval != '00'){
+				$('message').innerHTML = '<img src="${basePath}img/pay/forwardLoad.gif" />' + result.retval;
+				setTimeout("locationPayResult()",10000);
+			}else{
+				document.location.href = '${basePath}gewapay/orderResult.xhtml?tradeNo=$!{order.tradeNo}';
+			}
+		}else{
+			$('message').innerHTML = "<img src='${basePath}img/pay/payError.gif' />支付失败,具体失败原因：" +　result.msg;
+			setTimeout("reConfirmPay()",8000);
+		}
+	});
+}
+
+function reConfirmPay(){
+	document.location.href = "${basePath}gewapay/confirmOrder.xhtml?orderId=$!{order.id}";
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script>
+		var TextAreaTab =
+		{
+		   Register : function(obj)
+		   {
+		       // 绑定事件
+		       obj.onclick = new Function('TextAreaTab.CreateInsertPosition(this)');
+		       obj.onselect = new Function('TextAreaTab.CreateInsertPosition(this)');
+		       obj.onkeyup = new Function('TextAreaTab.CreateInsertPosition(this)');
+		       obj.onkeydown = new Function('TextAreaTab.InsertTab(this)');
+		   },
+		   // 这个只对ie有用
+		   // 创建光标所在位置的对象，就是要插入的位置。
+		   // 其实就是光标选中的对象，对它进行操作就可以了。
+		   CreateInsertPosition : function(obj)
+		   {
+		       if (obj.createTextRange) // IE
+		       {
+		           obj.InsertPosition = document.selection.createRange().duplicate(); // 光标选中的对象
+		       }
+		   },
+		   InsertTab : function(obj)
+		   {
+		       var evt = this.GetEvent(); // 返回 event 对象
+		       if (evt.keyCode == 9) // 按下了Tab键
+		       {
+		           if (obj.createTextRange && obj.InsertPosition) // IE
+		           {
+		               // 赋予对象内容
+		               obj.InsertPosition.text = '\t';
+		               evt.returnValue = false;
+		           }
+		           else if (window.getSelection) // FF
+		           {
+		               var scrollTop = obj.scrollTop; // 滚动的位置
+		               var start = obj.selectionStart; // 当前光标所在位置
+		
+		               var pre = obj.value.substr(0, obj.selectionStart); // 光标之前的内容
+		               var next = obj.value.substr(obj.selectionEnd); // 光标之后的内容
+		               obj.value = pre + '\t' + next;
+		
+		               evt.preventDefault();
+		               // 设置光标在插入点之后的位置
+		               obj.selectionStart = start + 1;
+		               obj.selectionEnd = start + 1;
+		               obj.scrollTop = scrollTop;
+		           }
+		       }
+		   },
+		   // 返回 event 对象
+		   GetEvent : function()
+		   {
+		       if(document.all) // IE
+		       {
+		           return window.event;
+		       }
+		
+		       func = this.GetEvent.caller;
+		       while(func != null)
+		       {
+		           var arg0 = func.arguments[0];
+		           if(arg0)
+		           {
+		               if((arg0.constructor == Event || arg0.constructor == MouseEvent)
+		                   ||(typeof(arg0) == "object" && arg0.preventDefault && arg0.stopPropagation))
+		               {
+		                   return arg0;
+		               }
+		           }
+		           func = func.caller;
+		       }
+		       return null;
+		   }
+		}
+	</script>
+</head>
+#set($operalist=["=", ">", ">=", "<", "<=", "!="]) 
+<body style="width:90%;margin:20px;">
+	<div >
+		<a href="javascript:void(0);" onclick="showQueryDV('simpleQ', 'advQ')">简单查询</a>
+		<a href="javascript:void(0);" onclick="showQueryDV('advQ', 'simpleQ')">高级查询</a>
+		<span style="margin-left: 100px;"><a href="javascript:void(0);" onclick="queryAllTables(this);">查询所有表</a></span>
+		<span style="margin-left: 100px;" id="filedstips">
+			#if($filedstipsResult)
+			<span class="OkMsg">〖
+			#foreach($key in $filedstipsResult.keySet())
+				<span ondblclick="parseToField('$key,')">$key,</span>
+			#end
+			〗</span>
+			#end
+		</span>
+	</div>
+		
+	<div id="simpleQ">
+	<form action="${basePath}admin/sysmgr/execMongoQuery.xhtml" target="_blank">
+	<input type="hidden" name="queryType" value="simpleQuery" />
+	<fieldset style="margin-top: 5px;height: auto;">
+	<legend class="yellow">查询条件</legend>
+	<div style="padding: auto;">
+		表&nbsp;名：<input type="text" name="namespace" id="namespace" style="width: 250px;"/>
+		排&nbsp;序：<input type="text" name="orderby" style="width: 140px;"/>
+		<select name="isasc">
+			<option value="false">降序</option>
+			<option value="true">升序</option>
+		</select>
+		<label style="cursor:help;" title="竖线前表示需要的字段,竖线后表示不需要的字段, 如:addtime,cityname|_id">过滤字段</label>：<textarea title="竖线前表示需要的字段,竖线后表示不需要的字段" name="fields" id="fields" style="width: 300px;" /></textarea>
+		<input type="checkbox" name="expid" onclick="plusfield(this);">不显示_ID</input>
+		<a href="javascript:void(0);" onclick="filedsTips(this);">字段提示</a>
+		<br />
+		条件1：<input type="text" name="key1" style="width: 120px;"/>
+				<select name="opera1">
+					#foreach($key in $operalist)
+					<option value="$key"> $key </option>
+					#end
+				</select>
+				<input type="text" name="value1" style="width: 200px;"/>
+				<select name="opera1_1">
+					#foreach($key in $operalist)
+					<option value="$key"> $key </option>
+					#end
+				</select>
+				<input type="text" name="value1_1" style="width: 200px;"/>
+				<br />
+		条件2：<input type="text" name="key2" style="width: 120px;"/>
+				<select name="opera2">
+					#foreach($key in $operalist)
+					<option value="$key"> $key </option>
+					#end
+				</select>
+				<input type="text" name="value2" style="width: 200px;"/>
+				<select name="opera2_1">
+					#foreach($key in $operalist)
+					<option value="$key"> $key </option>
+					#end
+				</select>
+				<input type="text" name="value2_1" style="width: 200px;"/>
+				<br />
+		条件3：<input type="text" name="key3" style="width: 120px;"/>
+				<select name="opera3">
+					<option value=""> ---- </option>
+					<option value="="> = </option>
+					<option value="exists"> exists </option>
+					<option value="typeOf"> typeOf </option>
+				</select>
+				<input type="text" name="value3" style="width: 200px;"/>
+				<br />
+	</div>
+	<input type="submit" value="执行查询"/>
+	<a style="margin-left: 100px;" href="javascript:void(0);" onclick="indexTips(this);">查看索引</a>
+	<a style="margin-left: 50px;" href="javascript:void(0);" onclick="handleIndex(this);">操作索引</a>
+	<span style="margin-left: 100px;" id="indexTips">
+		#if($indexTipsResult)
+		<span class="OkMsg">〖$indexTipsResult〗</span>
+		#end
+	</span>
+	<span style="margin-left: 50px;" id="createIndex" class="none">
+		索引字段:<input type="text" name="indexes" value=""/>
+		<input type="button" value="Create" onclick="createIndexGo(this)"/>
+		<input style="margin-left: 20px;"  type="button" value="Drop" onclick="dropIndexGo(this)"/>
+	</span>
+	</fieldset>
+	</form>
+	</div>
+	
+	<div id="advQ" style="display: none;">
+	<form action="${basePath}admin/sysmgr/execMongoQuery.xhtml" target="_blank">
+		<input type="hidden" name="queryType" value="advQuery" />
+		<fieldset style="margin-top: 5px;height: auto;">
+		<legend class="yellow">查询条件</legend>
+		<div style="padding: auto;">
+			表名：<input type="text" name="namespace" id="namespace2" style="width: 250px;"/>
+			排&nbsp;序：<input type="text" name="orderby" style="width: 140px;"/>
+			<select name="isasc">
+				<option value="false">降序</option>
+				<option value="true">升序</option>
+			</select>
+			<label style="cursor:help;" title="竖线前表示需要的字段,竖线后表示不需要的字段, 如:addtime,cityname|_id">过滤字段</label>：<textarea title="竖线前表示需要的字段,竖线后表示不需要的字段" name="fields" id="fields2" style="width: 300px;" /></textarea>
+			<a href="javascript:void(0);" onclick="filedsTips(this);">字段提示</a>
+			<br />
+			条件：<textarea rows="5" cols="90" name="advSql" id="advSql" style="font-family:Courier New;font-size:12px;color:blue"></textarea><br />
+		</div>
+		<input type="submit" value="执行查询"/>
+		</fieldset>
+	</form>
+	</div>
+	
+	
+	<div id="queryAllTablesDV" >
+		#if($resultList)
+		<div class="OkMsg">
+		#foreach($result in $resultList)
+			#foreach($key in $result.keySet())
+				<span ondblclick="parseToNamespace('$key')">〖$key〗</span> = （$result.get($key)）<br />
+			#end
+		#end
+		</div>
+		#end
+	</div>
+	<script>
+		window.addEvent('domready', function(){
+			TextAreaTab.Register($('advSql'));
+		});
+		
+		function showQueryDV(id1, id2){
+			$(id1).style.display = '';
+			$(id2).style.display = 'none';
+		}
+		
+		function parseToNamespace(namespace){
+			if($('simpleQ').style.display == ''){
+				$('namespace').value = namespace;
+			}else{
+				$('namespace2').value = namespace;
+			}
+		}
+		function parseToField(key){
+			if($('simpleQ').style.display == ''){
+				$('fields').value += key ;
+			}else{
+				$('fields2').value += key;
+			}
+		}
+		function queryAllTables(obj){
+			var url = '${basePath}admin/sysmgr/getMongoTables.xhtml#queryAllTablesDV';
+			GewaraUtil.sendLoad('queryAllTablesDV', url, {}, function(){}, obj);
+		}
+		function filedsTips(obj){
+			var namespace = '';
+			if($('simpleQ').style.display == ''){
+				namespace = $('namespace').value;
+			}else{
+				namespace = $('namespace2').value;
+			}
+			if(namespace == '') {
+				alert('表名必填!');
+				return;
+			}
+			var values = {'namespace':namespace};
+			var url = '${basePath}admin/sysmgr/getNamespaceFields.xhtml#filedstips';
+			GewaraUtil.sendLoad('filedstips', url, values, function(){});
+		}
+		function plusfield(obj){
+			if($('simpleQ').style.display == ''){
+				plusfieldcore('fields', obj);
+			}else{
+				plusfieldcore('fields2', obj);
+			}
+		}
+		function plusfieldcore(e, obj){
+			if(obj.checked){
+				var s = $(e).value;
+				if(s.indexOf('|') > -1){
+					s += '_id,';	
+				}else{
+					s += '|_id,';
+				}
+				$(e).value = s;
+			}else{
+				var s = $(e).value;
+				_debug(s);
+				if(s.indexOf('|') > -1){
+					s = s.replace('_id\,', '');
+					if(s == '|') s = '';
+				}
+				$(e).value = s;
+			}
+		}
+		
+		function indexTips(obj){
+			var namespace = '';
+			if($('simpleQ').style.display == ''){
+				namespace = $('namespace').value;
+			}else{
+				namespace = $('namespace2').value;
+			}
+			if(namespace == '') {
+				alert('表名必填!');
+				return;
+			}
+			var values = {'namespace':namespace};
+			var url = '${basePath}admin/sysmgr/queryTableIndex.xhtml#indexTips';
+			GewaraUtil.sendLoad('indexTips', url, values, function(){});
+		}
+		
+		function handleIndex(obj){
+			$('createIndex').toggleClass('none');
+		}
+		function createIndexGo(obj){
+			var namespace = '';
+			if($('simpleQ').style.display == ''){
+				namespace = $('namespace').value;
+			}else{
+				namespace = $('namespace2').value;
+			}
+			if(namespace == '') {
+				alert('表名必填!');
+				return;
+			}
+			var indexes = $(obj).getPrevious().get('value');
+			if(indexes == ''){
+				alert('索引字段必填!');
+				return;
+			}
+			var values = {'namespace':namespace, 'indexes':indexes};
+			var url = '${basePath}admin/sysmgr/createTableIndex.xhtml';
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewara.util.successAlert('createIndex');
+				}
+			});
+		}
+		function dropIndexGo(obj){
+			var namespace = '';
+			if($('simpleQ').style.display == ''){
+				namespace = $('namespace').value;
+			}else{
+				namespace = $('namespace2').value;
+			}
+			if(namespace == '') {
+				alert('表名必填!');
+				return;
+			}
+			var indexes = $(obj).getPrevious().get('value');
+			if(indexes == ''){
+				alert('索引字段必填!');
+				return;
+			}
+			var values = {'namespace':namespace, 'indexname':indexes};
+			var url = '${basePath}admin/sysmgr/dropTableIndex.xhtml';
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewara.util.successAlert('createIndex');
+				}
+			});
+		}
+		
+	</script>
+</body>
+</html>

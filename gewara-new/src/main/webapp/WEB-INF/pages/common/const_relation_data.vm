@@ -1,0 +1,303 @@
+##此代码被lifeng整理
+#if($tag eq 'cinema')
+	#if($!isnewmode)
+	<div class="myTagOptions">
+		<input type="text" name="cinema" value="" class="isnewinput" mytag="movie" autocomplete="off" alt="搜索影片" lang="categoryid"/>
+		<ul id="_cinemacategoryid">
+			#set($count=$movieMap.size())
+			#foreach($movie in $movieMap)
+			<li id="$movie.id" rel="categoryid" name="movie">$movie.moviename</li>
+			#end
+			#foreach($hotmovie in $hotmovieMap)
+			#set($count=$count+1)
+			#if($count lt 7)
+			<li id="$hotmovie.id" rel="categoryid" name="movie">$hotmovie.moviename</li>
+			#end
+			#end
+		</ul>
+	</div>
+	<div class="myTagOptions #if($movieMap.size() gt 0)myTagPlugs#end">
+		<input type="text" name="cinema" value="" class="isnewinput" autocomplete="off" alt="搜索影院" lang="relatedid"/>
+		<ul id="_cinemarelatedid">
+			#set($count=$cinemaMap.size())
+			#foreach($cinema in $cinemaMap)
+			<li id="$cinema.id" rel="relatedid" config="$!cinema.address">$cinema.name</li>
+			#end
+			#foreach($hotcinema in $hotcinemaMap)
+			#set($count=$count+1)
+			#if($count lt 7)
+			<li id="$hotcinema.id" rel="relatedid" config="$hotcinema.address">$hotcinema.name</li>
+			#end
+			#end
+		</ul>
+	</div>
+	#else
+	<dl class="ui_80 clear mt10">
+		<dt><b>选择影片</b></dt>
+		<dd><input type="text" name="movie" value="" class="text left" autocomplete="off" style="padding-top:5px;*padding-top:4px;" title="电影名/别名/演员名..." lang="categoryid"/></dd>
+	</dl>
+	#if(!$VmUtils.isEmptyList($movieMap))
+	<dl class="ui_80 clear mt10">
+		<dt>我的影片：</dt>
+		<dd>
+			#foreach($movie in $movieMap)
+				<a href="${basePath}movie/$movie.id" id="$movie.id" rel="categoryid" name="movie">$movie.moviename</a>
+			#end
+		</dd>
+	</dl>
+	#end
+	<dl class="ui_80 clear">
+		<dt>热门影片：</dt>
+		<dd>
+			#foreach($hotmovie in $hotmovieMap)
+				<a href="${basePath}movie/$hotmovie.id" id="$hotmovie.id" rel="categoryid" name="movie">$hotmovie.moviename</a>
+			#end
+		</dd>
+	</dl>
+	<div class="line mt10"><span class="gr-l"></span><span class="gr-r"></span></div>
+	<dl class="ui_80 clear mt20">
+		<dt><b>选择影院</b></dt>
+		<dd><input type="text" name="cinema" value="" class="text left" style="padding-top:5px;*padding-top:4px;" title="影院名/区域/地址..." lang="relatedid"/></dd>
+	</dl>
+	#if(!$VmUtils.isEmptyList($cinemaMap))
+	<dl class="ui_80 clear mt10">
+		<dt>我的影院：</dt>
+		<dd>
+			#foreach($cinema in $cinemaMap)
+				<a href="${basePath}cinema/$cinema.id" id="$cinema.id" rel="relatedid" config="$!cinema.address">$cinema.name</a>
+			#end
+		</dd>
+	</dl>
+	#end
+	<dl class="ui_80 clear">
+		<dt>热门影院：</dt>
+		<dd>
+			#foreach($hotcinema in $hotcinemaMap)
+				<a href="${basePath}cinema/$cinema.id" id="$hotcinema.id" rel="relatedid" config="$!hotcinema.address">$hotcinema.name</a>
+			#end
+		</dd>
+	</dl>
+	#end
+#elseif($tag eq 'ktv')
+	#if($!isnewmode)
+	<div class="myTagOptions">
+		<input type="text" name="ktv" value="" class="isnewinput" autocomplete="off" alt="搜索场馆名" lang="relatedid"/>
+		<ul id="_ktvrelatedid">
+			#foreach($hotktv in $hotktvMap)
+			#if($foreach.index lt 6)
+			<li id="$hotktv.id" rel="relatedid" config="$!hotktv.address">$!hotktv.name</li>
+			#end
+			#end
+		</ul>
+	</div>
+	#else
+	<dl class="ui_80 clear mt10">
+		<dt><b>选择场馆</b></dt>
+		<dd><input type="text" name="ktv" value="" class="text left" autocomplete="off" style="padding-top:5px;*padding-top:4px;" title="场馆名/区域/地址..." lang="relatedid"/></dd>
+	</dl>
+	<dl class="ui_80 clear mt10">
+		<dt>热门场馆：</dt>
+		<dd>
+			#foreach($hotktv in $hotktvMap)
+				<a href="" id="$hotktv.id" rel="relatedid" config="$!hotktv.address">$hotktv.name</a>
+			#end
+		</dd>
+	</dl>
+	#end
+#elseif($tag eq 'bar')
+	#if($!isnewmode)
+	<div class="myTagOptions">
+		<input type="text" name="bar" value="" class="isnewinput" autocomplete="off" alt="搜索场馆名" lang="relatedid"/>
+		<ul id="_barrelatedid">
+			#foreach($hotbar in $hotbarMap)
+			#if($foreach.index lt 6)
+			<li id="$hotbar.id" rel="relatedid" config="$!hotbar.address">$!hotbar.name</li>
+			#end
+			#end
+		</ul>
+	</div>
+	#else
+	<dl class="ui_80 clear mt10">
+		<dt><b>选择酒吧</b></dt>
+		<dd><input type="text" name="bar" value="" class="text left" autocomplete="off" style="padding-top:5px;*padding-top:4px;" title="酒吧名/区域/地址..." lang="relatedid"/></dd>
+	</dl>
+	<dl class="ui_80 clear mt10">
+		<dt>热门酒吧：</dt>
+		<dd>
+			#foreach($hotbar in $hotbarMap)
+				<a href="" id="$hotbar.id" rel="relatedid" config="$!hotbar.address">$hotbar.name</a>
+			#end
+		</dd>
+	</dl>
+	#end
+#elseif($tag eq 'sport')
+	#if($!isnewmode)
+	#if($hotsportItemMap.size() gt 0)
+	<div class="myTagOptions">
+		<div style="height:32px;color:#999;height:23px;border-bottom:1px solid #ccc;margin-left:2px;width:98%;">选择运动项目</div>
+		<ul>
+			#foreach($sportitem in $hotsportItemMap)
+			#if($foreach.index lt 12)
+			<li id="$sportitem.id" rel="categoryid" name="sportservice" style="width:50%;float:left;">$sportitem.itemname</li>
+			#end
+			#end
+		</ul>
+	</div>
+	#end
+	<div class="myTagOptions #if($hotsportItemMap.size() gt 0)myTagPlugs#end">
+		<input type="text" name="sport" value="" class="isnewinput" autocomplete="off" alt="搜索场馆名" lang="relatedid"/>
+		<ul id="_sportrelatedid">
+			#foreach($hotsport in $hotsportMap)
+			#if($foreach.index lt 6)
+			<li id="$hotsport.id" rel="relatedid" config="$!hotsport.address">$!hotsport.name</li>
+			#end
+			#end
+		</ul>
+	</div>
+	#else
+	<dl class="ui_80 clear mt10">
+		<dt>运动项目：</dt>
+		<dd>
+			#foreach($sportitem in $hotsportItemMap)
+				<a href="" id="$sportitem.id" rel="categoryid" name="sportservice">$sportitem.itemname</a>
+			#end
+		</dd>
+	</dl>
+	<div class="line mt10"><span class="gr-l"></span><span class="gr-r"></span></div>
+	<dl class="ui_80 clear mt10">
+		<dt><b>选择场馆</b></dt>
+		<dd><input type="text" name="sport" value="" class="text left" autocomplete="off" style="padding-top:5px;*padding-top:4px;" title="场馆名/区域/地址..." lang="relatedid"/></dd>
+	</dl>
+	<dl class="ui_80 clear mt10">
+		<dt>热门场馆：</dt>
+		<dd>
+			#foreach($hotsport in $hotsportMap)
+				<a href="" id="$hotsport.id" rel="relatedid" config="$!hotsport.address">$hotsport.name</a>
+			#end
+		</dd>
+	</dl>
+	#end
+#elseif($tag eq 'gym')
+	#if($!isnewmode)
+	#if($hotcourseMap.size() gt 0)
+	<div class="myTagOptions">
+		<input type="text" name="gym" value="" mytag="gymcourse" class="isnewinput" autocomplete="off" alt="搜索健身项目" lang="categoryid"/>
+		<ul id="_gymcategoryid">
+			#foreach($hotcourse in $hotcourseMap)
+			#if($foreach.index lt 6)
+			<li id="$hotcourse.id" rel="categoryid" name="gymcourse">$hotcourse.coursename</li>
+			#end
+			#end
+		</ul>
+	</div>
+	#end
+	<div class="myTagOptions #if($hotcourseMap.size() gt 0)myTagPlugs#end">
+		<input type="text" name="gym" value="" class="isnewinput" autocomplete="off" alt="搜索场馆名" lang="relatedid"/>
+		<ul id="_gymrelatedid">
+			#foreach($hotgym in $hotgymMap)
+			#if($foreach.index lt 6)
+			<li id="$hotgym.id" rel="relatedid" config="$!hotgym.address">$!hotgym.name</li>
+			#end
+			#end
+		</ul>
+	</div>
+	#else
+	<dl class="ui_80 clear mt10">
+		<dt><b>选择项目</b></dt>
+		<dd><input type="text" name="gymcourse" value="" class="text left" autocomplete="off" style="padding-top:5px;*padding-top:4px;" title="健身项目..." lang="categoryid"/></dd>
+	</dl>
+	<dl class="ui_80 clear mt10">
+		<dt>热门项目：</dt>
+		<dd>
+			#foreach($hotcourse in $hotcourseMap)
+				<a href="" id="$hotcourse.id" rel="categoryid" name="gymcourse">$hotcourse.coursename</a>
+			#end
+		</dd>
+	</dl>
+	<div class="line mt10"><span class="gr-l"></span><span class="gr-r"></span></div>
+	<dl class="ui_80 clear mt10">
+		<dt><b>选择场馆</b></dt>
+		<dd><input type="text" name="gym" value="" class="text left" autocomplete="off" style="padding-top:5px;*padding-top:4px;" title="场馆名/区域/地址..." lang="relatedid"/></dd>
+	</dl>
+	<dl class="ui_80 clear mt10">
+		<dt>热门场馆：</dt>
+		<dd>
+			#foreach($hotgym in $hotgymMap)
+				<a href="" id="$hotgym.id" rel="relatedid"  config="$!hotgym.address">$hotgym.name</a>
+			#end
+		</dd>
+	</dl>
+	#end
+#elseif($tag eq 'theatre')
+	#if($!isnewmode)
+	<div class="myTagOptions">
+		<input type="text" name="theatre" value="" mytag="drama" class="isnewinput" autocomplete="off" alt="搜索演出" lang="categoryid"/>
+		<ul id="_dramacategoryid">
+			#foreach($hotdrama in $hotdramaMap)
+			#if($foreach.index lt 6)
+			<li id="$hotdrama.id" rel="categoryid" name="drama">$hotdrama.dramaname</li>
+			#end
+			#end
+		</ul>
+	</div>
+	<div class="myTagOptions #if($hotdramaMap.size() gt 0)myTagPlugs#end">
+		<input type="text" name="theatre" value="" class="isnewinput" autocomplete="off" alt="搜索场馆" lang="relatedid"/>
+		<ul id="_theatrerelatedid">
+			#foreach($hottheatre in $hottheatreMap)
+			#if($foreach.index lt 6)
+			<li id="$hottheatre.id" rel="relatedid" name="theatre" config="$!hottheatre.address">$!hottheatre.name</li>
+			#end
+			#end
+		</ul>
+	</div>
+	#else
+	<dl class="ui_80 clear mt10">
+		<dt><b>选择演出</b></dt>
+		<dd><input type="text" name="drama" value="" class="text left" autocomplete="off" style="padding-top:5px;*padding-top:4px;" title="演出名/别名/演员名..." lang="categoryid"/></dd>
+	</dl>
+	<dl class="ui_80 clear mt10">
+		<dt>热门演出：</dt>
+		<dd>
+			#foreach($hotdrama in $hotdramaMap)
+			<a href="" id="$hotdrama.id" rel="categoryid" name="drama">$hotdrama.dramaname</a>
+			#end
+		</dd>
+	</dl>
+	<div class="line mt10"><span class="gr-l"></span><span class="gr-r"></span></div>
+	<dl class="ui_80 clear mt10">
+		<dt><b>选择场馆</b></dt>
+		<dd><input type="text" name="theatre" value="" class="text left" autocomplete="off" style="padding-top:5px;*padding-top:4px;" title="剧院名/区域/地址..." lang="relatedid"/></dd>
+	</dl>
+	<dl class="ui_80 clear mt10">
+		<dt>热门场馆：</dt>
+		<dd>
+			#foreach($hottheatre in $hottheatreMap)
+				<a href="" id="$hottheatre.id" rel="relatedid" config="$!hottheatre.address">$hottheatre.name</a>
+			#end
+		</dd>
+	</dl>
+	#end
+#elseif($tag eq 'activity')
+	#if($!isnewmode)
+	
+	#else
+	#if(!$VmUtils.isEmptyList($activityMap))
+	<dl class="ui_80 clear mt10">
+		<dt>我的活动：</dt>
+		<dd>
+			#foreach($activity in $activityMap)
+				<a href="" id="$activity.id" rel="categoryid" name="activity">$VmUtils.escabbr($activity.title, 38)</a>
+			#end
+		</dd>
+	</dl>
+	#end
+	<dl class="ui_80 clear mt10">
+		<dt>热门活动：</dt>
+		<dd>
+			#foreach($hotactivity in $hotactivityMap)
+				<a href="" id="$hotactivity.id" rel="categoryid" name="activity">$VmUtils.escabbr($hotactivity.title, 38)</a>
+			#end
+		</dd>
+	</dl>
+	#end
+#end

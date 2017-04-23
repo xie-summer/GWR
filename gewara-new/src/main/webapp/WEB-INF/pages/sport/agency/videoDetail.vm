@@ -1,0 +1,293 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	#parse('include/constant/cityParam.vm')
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>$!agency.seotitle</title>
+	<meta name="keywords" content="$!agency.seotitle"/>
+	<meta name="description" content="$!agency.seodescription"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_sport&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,scrollerbar,swfobject&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.detail_body .detail_body_left {padding:25px 10px 15px;width:660px;overflow:hidden;}
+		.detail_body .detail_body_right {padding:25px 10px 15px;}
+		.right_Trainlist li{background:none;border-top:1px dashed #ccc;margin-top:0;}
+		/*video*/
+		.video{position:relative;display:inline-block;overflow:hidden;width:96px;height:72px;text-decoration:none !important}
+		.video span{display:inline-block;width:60px;height:16px;background:url(${staticPath}css/home/play.png) no-repeat;_background-image:none;_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/css/home/play.png',sizingMethod = 'crop');
+			padding-left:16px;line-height:16px;left:2px;bottom:1px;z-index:200;color:#fff;position:absolute;text-align:left;cursor:pointer;}
+		.video em{display:inline-block;width:99%;height:16px;position:absolute;bottom:0px;left:0px;background:#000;opacity:0.4;filter:alpha(opacity = 40);}
+		.videoList{width:630px;overflow:hidden;position: relative;z-index: 0;height:140px;margin-top:10px;
+			background-image:-moz-linear-gradient(center top,#eee,#FFF);
+			background-image:-webkit-gradient(linear,left bottom,right top,color-stop(0,#eeeeee),color-stop(1,#FFF));
+			filter:progid:DXImageTransform.Microsoft.gradient(startColorStr = '#eeeeee',EndColorStr = '#FFFFFF');
+			-ms-filter:"progid:DXImageTransform.Microsoft.gradient(startColorStr='#eeeeee',EndColorStr='#FFFFFF')";
+		}
+		.siginVideo{width:100%;height:24px;line-height:24px;text-indent:20px;color:#C03B0C}
+		.siginVideo span{width:16px;height:16px;bottom:3px;}
+		.videoList .plugVideo{width:590px;overflow:hidden;height:140px;margin:0 20px;position: relative;}
+		.videoList li{width:138px;height:140px;overflow:hidden;padding:0 6px;float:left;}
+		.videoList li .videoDef{border:1px solid #ccc;background:#eee;display:block;padding:4px;cursor: pointer;}
+		.videoDef .brown{display:block;width:100%;height:20px;overflow:hidden;}
+		.videoList .video{width:128px;}
+		.videoList li .select{background:#FA8631;border-color:#FA8631}
+		.videoList li .select .brown{color:#fff;}
+	</style>
+</head>
+<body>
+#set($issport=true)
+#set($isagency=true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout detail_body">
+	<div class="detail_body_left">
+		<div class="ui_panel">
+			<div class="inner">
+				<div class="title">
+					<h2>培训视频</h2>
+				</div>
+				<div id="video">
+				#if(!$VmUtils.isEmptyList($videoList))
+					$videoList.get(0).getVideoHtml(630, 472)
+				#end
+				</div>
+				#if(!$VmUtils.isEmptyList($videoList))
+				<div id="outsideVideo" class="videoList" style="overflow: hidden;">
+					#set($width=$VmUtils.size($videoList)*150)
+					<ul id="insideVideo" style="width:${width}px;">
+						#foreach($video in $videoList)
+						<li>
+							<span class="videoDef #if($foreach.count eq 1)select #end" lang="$video.url" id="$video.id" date="上传日期$DateUtil.format($!video.addtime, 'yyyy-MM-dd')" title="$!video.videotitle">
+								<span class="video">
+									<img width="128" height="72" style="background:url($VmUtils.randomPic('cw128h96',$!video.limg)) center center no-repeat;" src="${staticPath}css/images/blank.gif" alt="$!video.videotitle" />
+									<span>PLAY</span>
+									<em></em>
+								</span>
+								<span class="brown">$!video.videotitle</span>
+								<span class="gray">上传日期$DateUtil.format($!video.addtime, 'yyyy-MM-dd')</span>
+							</span>
+						</li>
+						#end
+					</ul>
+				</div>
+				#end
+				<div class="mt20"><h3 class="fs14 bold">分享你的视频评论...</h3></div>
+				<div class="send_wala ui_abeam mt10" id="walaDialog">
+					<div class="uipic mt5">
+						<a target="_blank" title="$loginMember" class="pubpic" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!loginMember.id" id="logonMember"><img id="logonMemberPic" src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('sw50h50', $cacheMemberMap.get($!loginMember.id).headpicUrl)) center center no-repeat;"/></a>
+					</div>
+					<div class="uiText">
+						<div class="wala_text">
+							<span class="pl"></span>
+							<label for="say_area" id="wala_defV" class="wala_defV">分享你的视频评论，内容越多越精彩…</label>
+							#if(!$VmUtils.isEmptyList($videoList))<input type="hidden" id="videoid" name="videoid" value="$videoList.get(0).id"/>#else
+							<input type="hidden" id="videoid" name="videoid" value=""/>
+							#end
+							<div class="wala_text_inner">
+								<textarea title="哇啦输入框" onkeyup="microChange(this)" name="body" id="walaL_say_area" class="walaL_say_area"></textarea>
+							</div>
+						</div>
+						<div class="linkd">
+							<div class="left mt5">
+								<div class="dialogs" id="dialogs" style="float: left;">
+								<a class="face">表情<span class="dmore"></span></a>
+								#parse('wala/uidialog.vm')
+							</div>
+							<dl class="moved">
+								<dt>同步到：</dt><dd class="tSina"><input class="left" id="Wb" type="checkbox" title="新浪微博" lang="${basePath}home/bind/sina/userApp.xhtml?source=close" style="margin-top:2px;*margin:-2px;"/><label for="Wb">新浪微博</label></dd>
+							</dl>
+							</div>
+							<div class="right">
+								<span class="num mr10 left" id="font"></span>
+								<a onclick="submitMicro();return false;" class="ibutton w90_button right" href="#">发&nbsp;&nbsp;布</a>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- star -->
+				<div id="showComment"></div>
+				<!-- end -->
+			</div>
+		</div>
+	</div>
+	<div class="detail_body_right">
+		<div class="ui_panel">
+			<div class="inner">
+				#parse('sport/agency/hotAgencyList.vm')	#*热门培训机构*#
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	var videoid=$('videoid').value;
+	commentList(videoid)
+	#if($VmUtils.size($videoList) gt 4)
+	new ScrollerBar('outsideVideo',{mode:'horizontal',wrapped:'insideVideo'});
+	#end
+	setVideos();
+	new issue('walaL_say_area',{'font':'font','tips':'wala_defV'});
+	showError = new ShowErrorTextArea();
+	selector = new selectpic('walaL_say_area','uidialog');
+	new dialogs('dialogs',{'width':'360px','flag':true});
+	gewara.util.sendRequest('${basePath}ajax/member/synchroizaInfo.xhtml',{'rights':'moviecomment'},function(result){
+		if(result.success){
+			if(result.appList){
+				if(result.appList.contains('sina')){$('Wb').checked=true;isWbOpen = false;}
+			}
+		}
+	});
+	$('Wb').addEvent('click',function(){
+		if(isWbOpen){
+			this.checked = '';
+			checkLogin(true, function(){
+				syscData(this.get('lang'),this.get('title'),'sina',this);
+			}.bind(this));
+		}
+	});
+	gewa.util.pagePos();
+});
+var flag = true;
+function setVideos(){
+	$('insideVideo').getElements('.videoDef').addEvent('click',function(){
+		if(!this.hasClass('select') && flag){
+			flag = false;
+			gewa.util.mask({'element':'video','title':'正在获取视频信息...'});
+			$('videoid').value=this.get('id');
+			GewaraUtil.sendLoad('showComment','${basePath}ajax/comment/commentList.xhtml',{'relatedid':this.get('id'),'tag':'video'},function(result){
+				gewa.util.clearMask();
+				(function(){flag = true;}).delay(1000);
+				$("video").empty();
+				var f = new SWFObject(this.get('lang'),'video'+GewaraUtil.rtime(), 630, 472, "10", "#fff",true);
+				f.addParam('wmode','transparent');
+				f.addParam('allowscriptaccess','always');
+				f.write("video");
+				//$('videoTitle').innerHTML = this.get('title');
+				$('videoid').value = this.get('id');
+				$('insideVideo').getElements('.videoDef').removeClass('select');
+				this.addClass('select');
+			}.bind(this));
+		}
+	});
+}
+function commentList(videoid){
+	var values={'relatedid':videoid, 'tag':'video'}
+	var url="${basePath}ajax/comment/commentList.xhtml"
+	GewaraUtil.sendLoad('showComment', url, values, function(result){
+		if(!result.success){
+			gewaUtil.alert(result.json.msg);
+		}
+	})
+}
+function deleteComment(commentid){
+	var url = '${basePath}ajax/comment/deleteComment.xhtml';
+	var values = {'commentid':commentid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		gewaUtil.dispose($('comment'+commentid));
+	})
+}
+function addMovieVideo(){
+	checkLogin(true,function(){
+		location.href = "${basePath}movie/attachVedio.xhtml?mid=$movie.id";
+	});
+}
+var isQbOpen = true,isWbOpen=true;
+function microChange(obj){
+	var num=140;
+	if($chk($(obj).value)){
+		var num = 140-$(obj).value.length;
+	}
+	if(num<0){ 
+		var value = Math.abs(num);
+		$('font').set('text','已超出'+value+"个字");
+		$('font').set('styles',{'color':'red'});
+	}else{
+		$('font').set('text','你还可以输入'+num+'个字');
+		$('font').set('styles',{'color':'black'});
+	}
+}
+function doSubmitMicro(){
+	if($('walaL_say_area').value != ''){
+		if($('walaL_say_area').value.trim().length >140){
+			gewaUtil.alert('最多输入140字符!');
+			return false;
+		}
+	}
+	var url="${basePath}ajax/comment/savePictureMicroBlog.xhtml";
+	var values={'body':$('walaL_say_area').value, 'relatedid':$('videoid').value, 'tag':"video",'type':'avideo','ttag':'agency'};
+	$('walaL_say_area').value = '';
+	gewaUtil.loadData('showComment', url, values, function(result){
+		if(result.success){
+			
+		}else{
+			if(result.json.msg == 'success') {
+				gewaUtil.alert('发表成功！');
+				$('wala_defV').show();
+				$('font').innerHTML = '你还可以输入<b>140</b>字';
+			}else{
+				gewaUtil.alert(result.json.msg);
+				$('walaL_say_area').value = values.body;
+			}
+		} 
+	});
+}
+//发表哇啦
+function submitMicro(){
+	var say_area = $('walaL_say_area').value;
+	if(!$chk(say_area)){
+		showError.show('walaL_say_area');
+		return false;
+	}
+	if(say_area.length>140){
+		showError.show('walaL_say_area');
+		return false;
+	}
+	checkLogin(true,function(){
+		doSubmitMicro();
+	}); 
+}
+function syscData(url,title,tag,el){
+	var html = "",width=600;
+	if(tag == 'sina'){
+		html = new Element('iframe',{
+			'frameborder':0,
+			'scrolling':'no',
+			'height':'368',
+			'width':'600',
+			'src':url
+		});
+	}else{
+		html = new Element('div',{
+			'styles':{
+				'width':'620px',
+				'height':window.ActiveXObject?'380px':'330px',
+				'overflow':'hidden'
+			}
+		});
+		new Element('iframe',{
+			'frameborder':0,
+			'scrolling':'no',
+			'height':'850',
+			'width':'810',
+			'src':url,
+			'styles':{
+				'margin-top':'-280px',
+				'margin-left':'-160px'
+			}
+		}).inject(html);
+		width = 650;
+	}
+	gewa.util.maskContent('',html,'正在设置'+title+'的同步',width,'syscing');
+}
+var isBind = function(el){
+	if($(el)){
+		$(el).checked = true;
+		isWbOpen = false;
+	}
+	if(gewa.util.container['syscing'])gewa.util.container['syscing'].dispose('syscing');
+}
+</script>
+#parse('include/bottom.vm')
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

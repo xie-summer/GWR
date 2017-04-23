@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>电子票列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.D{background-color: red; color: white;}
+		ul li{width:350px; float: left;}
+	</style>
+</head>
+<body style="width: 850px; margin:auto">
+<div style="margin-top:20px;" id="operation">
+	<div>
+		<span>总数：$!batchExtra.cardcount</span>
+		<span class="ml20">废弃数：$!batchExtra.delcount</span>
+		<span class="ml20">待售：$!batchExtra.newcount</span>
+		<span class="ml20">已使用：$!batchExtra.usedcount</span>
+	</div>
+	<div>
+		<span>销售渠道:$!batchExtra.channel</span>
+		<span>申请部门:$!deptMap.get($batchExtra.applydept)</span>
+		<span>申请类型:$!applyMap.get($batchExtra.applytype)</span>
+		<span class="ml20">有效时间:$!{DateUtil.format($batch.timefrom,'yyyy-MM-dd')}~$!{DateUtil.format($batch.timeto,'yyyy-MM-dd')}</span>
+	</div>
+	<div>输入卡号范围($!{parentExtra.mincardno}-$!parentExtra.maxcardno)：
+		<input type="text" id="cardFrom" style="width:150px;" />~<input type="text" id="cardTo" style="width:150px;" />
+		<input type="button" value="加入" onclick="addElecCard();"/>
+		<input type="button" value="退还" onclick="returnBatchCard();"/>
+		<input type="button" value="取消卖出" onclick="unsellCard();"/>
+		<input type="button" value="冻结" onclick="batchLockCard();"/>
+		<input type="button" value="解冻" onclick="batchUnLockCard();"/>
+	</div>
+	<div class="mt10">
+		<input type="button" value="隐藏售出" onclick="hideCard('Y')" />
+		<input type="button" value="隐藏废弃" onclick="hideCard('D')" />
+		<input type="button" value="卖出全部" onclick="soldBatch()" />
+		<a href="${basePath}admin/eticket/exportBatch.xhtml?bid=$params.bid" target="_blank" >导出密码</a>
+		<a href="${basePath}admin/eticket/assignMobile.xhtml?bid=$params.bid" target="_blank" >分配卡号</a>
+		<a href="${basePath}admin/eticket/bind2Member.xhtml?bid=$params.bid" target="_blank" >绑定卡号到用户</a><br />
+		【$!{batch.pkid}】(发给商家，通过它可以查询卡的使用情况)<a href="${basePath}admin/eticket/batchBalance.xhtml?bid=$params.bid" target="_blank">结算</a>
+	</div>
+</div>
+<table class="table">
+	<thead><tr style="height: 30px">
+		<th>&nbsp;</th>
+		<th>卡号</th>
+		<th>状态</th>
+		<th>废弃人</th>
+		<th>废弃时间</th>
+		<th>拥有者</th>
+		<th>领用者</th>
+		<th>手机</th>
+		<th style="width: 120px;">操作</th>
+	</tr></thead>
+	<tbody id="cardList">
+	#set($cn=1)
+	#foreach($card in $cardList)
+		<tr class="$card.status" id="r$card.id">
+			<td>$cn</td>#set($cn=$cn+1)
+			<td>$card.cardno</td>
+			<td>$card.gainStatusText()</td>
+			<td>$!card.deluserid</td>
+			<td>$!card.deltime</td>
+			<td>$!possessorMap.get($card.possessor).nickname</td>
+			<td>$!{card.gainer}</td>
+			<td>$!card.mobile</td>
+			<td>
+				#if($card.status eq 'N')
+				<input type="button" value="退还" onclick="returnCard($card.id);"/>
+				#elseif($card.status eq 'Y')
+				<input type="button" value="废弃" onclick="discardCard($card.id);"/>
+				<input type="button" value="冻结" onclick="lockCard($card.id);"/>
+				#elseif($card.status eq 'L')
+				<input type="button" value="解冻" onclick="unlockCard($card.id);"/>
+				#end
+			</td>
+		</tr>
+	#end
+		<tr><td colspan="9"><div class="page">#parse('include/pageUtil.vm')</div></tr>
+	</tbody>
+</table>
+	<script type="text/javascript">
+	function hideCard(ctype){
+		$$("#cardList ." + ctype).dispose();
+	}
+	function discardCard(cid){
+		var url = "${basePath}admin/eticket/manu/discardElecCard.xhtml";
+		GewaraUtil.sendRequest(url, {"cardId":cid}, function(result){
+			if(result.success) $("r"+cid).dispose();
+			else alert(result.msg);
+		});
+	}
+	function lockCard(cid){
+		var url = '${basePath}admin/eticket/manu/lockElecCard.xhtml';
+		GewaraUtil.sendRequest(url, {'cardId':cid}, function(result){
+			if(result.success)$("r"+cid).dispose();				
+			else alert(result.msg);
+		});
+	}
+	function unlockCard(cid){
+		var url = '${basePath}admin/eticket/manu/unlockcardElecCard.xhtml';
+		GewaraUtil.sendRequest(url, {'cardId':cid}, function(result){
+			if(result.success)$("r"+cid).dispose();				
+			else alert(result.msg);
+		});
+	}
+	function returnCard(cid){
+		var url = "${basePath}admin/eticket/manu/returnElecCard.xhtml";
+		GewaraUtil.sendRequest(url, {"cardId":cid}, function(result){
+			if(result.success) $("r"+cid).dispose();
+			else alert(result.msg);
+		});
+	}
+	function returnBatchCard(){
+		if($('cardFrom').value=='' || $('cardTo').value==''){
+			alert("卡号范围不正确！");
+		}
+		GewaraUtil.mask();
+		var url = "${basePath}admin/eticket/manu/returnBatchCard.xhtml";
+		GewaraUtil.sendRequest(url, {"batchId":"$batch.id", "cardFrom":$('cardFrom').value, "cardTo":$('cardTo').value}, function(result){
+			if(result.success){
+				refreshPage();
+				alert(result.retval);
+			}else{
+				GewaraUtil.unmask();
+				alert(result.msg);
+			}
+		});
+	}
+	function soldBatch(){
+		var certain = window.confirm("卖出后无法更改有效时间、卡类型、金额等，请确认！");
+		if(!certain) return;
+		GewaraUtil.mask();
+		var url = "${basePath}admin/eticket/manu/soldElecBatch.xhtml";
+		GewaraUtil.sendRequest(url, {"batchId":"$batch.id"}, function(result){
+			if(result.success){
+				refreshPage();
+				alert(result.retval);
+			}else{
+				GewaraUtil.unmask();
+				alert(result.msg);
+			}
+		});
+	}
+	function addElecCard(){
+		if($('cardFrom').value=='' || $('cardTo').value==''){
+			alert("卡号范围不正确！");
+		}
+		GewaraUtil.mask();
+		var url = "${basePath}admin/eticket/manu/addElecCardFromParent.xhtml";
+		GewaraUtil.sendRequest(url, {"batchId":"$batch.id", "cardFrom":$('cardFrom').value, "cardTo":$('cardTo').value}, function(result){
+			if(result.success){
+				refreshPage();
+				alert(result.retval);
+			}else{
+				GewaraUtil.unmask();
+				alert(result.msg);
+			}
+		});
+	}
+	function unsellCard(){
+		if($('cardFrom').value=='' || $('cardTo').value==''){
+			alert("卡号范围不正确！");
+		}
+		GewaraUtil.mask();
+		var url = "${basePath}admin/eticket/manu/batchUnsellCard.xhtml";
+		GewaraUtil.sendRequest(url, {"batchId":"$batch.id", "cardFrom":$('cardFrom').value, "cardTo":$('cardTo').value}, function(result){
+			if(result.success){
+				alert(result.retval);
+				refreshPage();
+			}else{
+				GewaraUtil.unmask();
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function batchLockCard(){
+		if($('cardFrom').value=='' || $('cardTo').value==''){
+			alert("卡号范围不正确！");
+		}
+		GewaraUtil.mask();
+		var url = "${basePath}admin/eticket/manu/batchLockElecCard.xhtml";
+		GewaraUtil.sendRequest(url, {"batchId":"$batch.id", "cardFrom":$('cardFrom').value, "cardTo":$('cardTo').value}, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert(result.retval);
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+	function batchUnLockCard(){
+		if($('cardFrom').value=='' || $('cardTo').value==''){
+			alert("卡号范围不正确！");
+		}
+		GewaraUtil.mask();
+		var url = "${basePath}admin/eticket/manu/batchUnLockElecCard.xhtml";
+		GewaraUtil.sendRequest(url, {"batchId":"$batch.id", "cardFrom":$('cardFrom').value, "cardTo":$('cardTo').value}, function(result){
+			GewaraUtil.unmask();
+			if(result.success){
+				alert(result.retval);
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

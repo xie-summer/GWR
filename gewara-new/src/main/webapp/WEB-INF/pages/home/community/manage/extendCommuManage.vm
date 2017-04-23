@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>圈子转让_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,user,commnu&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($tag="home")#set($isExtendCommuManage=true)#set($isShow=false)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui-layout">
+	#parse('include/home/userMenu.vm')
+	<div class="ui-right">
+		#parse('home/community/manage/commuM.vm')
+		<div class="ui_rightInner_left">
+			<div class="mt30 black fs14"><strong>转让圈子</strong></div>
+			<div class="showList" style="background:#fff5e5;text-indent:10px;margin-top:5px;"><b>需要您花费5000积分</b></div>
+			<ul class="ul-120 mt20 ml20">
+				<li>
+					<div class="ul-120Inner">接受转让的用户ＩＤ：</div>
+					<input type="text" name="assignid" id="assignid" class="text"/>
+				</li>
+				<li class="mt10">
+					<input type="button" class="fdBt" onclick="assignCommu($!commu.id)" value="确定转让" />
+				</li>
+			</ul>
+		</div>	
+		#parse('home/community/manage/commuManageRight.vm')
+	</div>
+	<div class="height0"></div>
+</div>
+	<script type="text/javascript">
+	function assignCommu(commuid){
+		if(!$chk($('assignid').value)){
+			gewaUtil.alert('转让用户ID不能为空！');
+			$('assignid').focus();
+			return;
+		}
+		if(isNaN($('assignid').value)){
+			gewaUtil.alert('转让用户ID只能是数字！');
+			$('assignid').select();
+			return;
+		}
+		var url = "${basePath}home/commu/assignCommu.xhtml";
+		var values = {'commuid':commuid,'assignid':$('assignid').value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert("转让成功！");
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>输入你建设银行信用卡卡号</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.bxjg_layout{width:960px;margin:0 auto;background:#fff;}
+		.bxjg_ccbButt a{width:106px;height:26px;display:inline-block;background:url(${staticPath}styles/images/bxjg_ccbButt.png) no-repeat;margin-left:547px;margin-top:75px;}
+		.bxjg_ccb_videoBox{width:462px;margin:auto;padding:20px 0;}
+		.bxjg_ccb_video{width:452px;height:373px;display:block;margin:auto;}
+		.w121{width:100%;float:left;margin:30px 0;}
+		.l_hr{border-top:1px solid #e8e7e7;margin:10px 0;}
+		.buttbox2{padding:30px 15px 20px;}
+		.pb20{padding-bottom:20px;}
+		#errShow{position: absolute;padding:10px;width:288px;height:22px;border:1px solid #ccc;background:#fff;color:red;display: none;}
+		#errShow img{position: absolute;top:-8px;left:20px;}
+	</style>
+</head>
+<body>
+#set($issport=true) 
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="bxjg_layout pb20">
+	<div class="pay_info_box">
+		<div class="title yellow"><h2>输入你建设银行信用卡卡号</h2></div>
+		<div class="timeNotice">
+			<p> 你选中的座位已经成功锁定，<b class="yellow">请在15分钟内完成支付</b>，否则系统将释放已选座位。</p>
+			<p class="mt10 center">剩余支付时间：<span style="font-size:2em;color:#C03B0C"><b id="CountMsg"><b id="RemainM">15</b><b>分</b><b id="RemainS">00</b><b>秒</b></b></span></p>
+		</div>
+		<div class="clear" id="cardForm">
+			<div class="w121">
+				<div class="mt5 ml15">输入信用卡号</div>
+				<input type="hidden" name="orderId" value="$!order.id"/>
+				<input type="hidden" name="spid" value="$!VmUtils.escapeHtml($params.spid)"/>
+				<input type="text" name="creditCard" id="creditCard" value="" onkeyup="replaceStr(this)" maxlength="16" class="text ml15" style="width:300px;font-size:18px;font-weight:bold;color:#333" />
+			</div>
+		</div>
+		<p id="errShow">卡号只能为数字,请输入正确的卡号<img src="${picPath}css/home/pt_f.png"/></p>
+		<div class="buttbox2">
+			<label for="subBt" class="bigBt button "><input type="button" onclick="validateCard(this)" id="subBt" value="确认无误，去支付"/></label>
+			<a style="margin-left:20px;font-size:12px;font-size:14px;text-decoration:underline;" class="brown" href="${basePath}gewapay/order.xhtml?orderId=$order.id">返回上一步，重新选择</a>
+		</div>	
+	</div>
+</div>
+<script type="text/javascript">
+	window.addEvent('domready', function(){
+		data();
+	});
+	function validateCard(el){
+		if($('creditCard').value == ''){gewaUtil.alert('卡号不能为空，请输入卡号！');return ;}
+		if($('creditCard').value.length != 16){gewaUtil.alert('卡号错误，请输入正确的卡号！');return ;}
+		gewa.util.mask({'element': "subBt",'title':'正在验证卡号...'});
+		GewaraUtil.sendRequest("${basePath}ajax/trade/ccbDiscount.xhtml", GewaraUtil.getValues("cardForm"), function(result){
+			if(result.success){
+				document.location.href="${basePath}gewapay/confirmOrder.xhtml?orderId=$order.id";
+			}else{
+				gewaUtil.alert(result.msg);
+				gewa.util.clearMask();
+			}
+		});
+	}
+	function getRTime(){
+		var nM = Math.floor(remain/(1000*60)) % 60;
+		var nS = Math.floor(remain/1000) % 60;
+		$("RemainM").innerHTML = (nM < 10 ? "0" : "") + nM;
+		$("RemainS").innerHTML = (nS < 10 ? "0" : "") + nS;
+		remain -= 1000;
+		if(((remain/1000).toInt()*1000)%60000==0){
+			$clear(pfun);
+			data();
+		}
+		if(remain<=0){
+			if(pfun) $clear(pfun);
+			data();
+			return;
+		}
+	};
+	function data(){
+		var random = GewaraUtil.rtime();
+		new Request({
+			url: '${basePath}cinema/order/time.xhtml?tid=$order.id&v='+random,
+			method:'get',
+			onSuccess: function(responseText) {
+				remain = responseText * 1;
+				if(remain <= 0){
+					$("CountMsg").empty();
+					$("CountMsg").innerHTML = "订单已超时";
+				}else{
+					pfun = getRTime.periodical(1000);
+				}
+			}
+		}).send();
+	}
+	function replaceStr(el){
+		if($(el).value.test(/[^\d]/)){
+			$('errShow').show();
+			$('errShow').position({
+				relativeTo:el,
+				position:"leftBottom",
+				offset:{x:0,y:5}
+			});
+			(function(){$('errShow').hide();}).delay(1000);
+			$(el).value = $(el).value.replace(/[^\d]/g,'');
+		}
+	}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

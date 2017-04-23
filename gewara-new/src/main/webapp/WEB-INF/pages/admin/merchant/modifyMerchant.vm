@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>修改商户基本信息</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,selectbox"></script>
+	<style>
+		label {display:inline-block;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		.mouseBg{background-color: #FBE7DB;}
+	</style>
+</head>
+<body style="width:750px; margin:auto" class="yui-skin-sam">
+<div id="merchantDialog" class="yui-panel" style="width:600px; margin:5px auto">
+	<div class="hd">#if($merchant.mername)用户基本信息#else增加商户#end</div>
+	<div class="bd"><!-- body1 -->
+		<input type="hidden" name="mid" id="mid" value="$!{merchant.id}"/>
+		<div>
+			<label for="loginname">登录账号：</label>
+			#if($merchant.id)
+			$merchant.loginname
+			#else
+			<input type="text" name="loginname" id="loginname" style="width:120px"/>
+			#end
+			<label for="mername">商户名称：</label>
+			<input type="text" name="mername" style="width:120px" value="$!merchant.mername" id="nickname"/>
+			<label>帐号设置：</label>
+			<select name="status">
+				<option value="Y" #if($merchant.enabled)selected="selected"#end>启用</option>
+				<option value="N" #if(!$merchant.enabled)selected="selected"#end>禁用</option>
+			</select>
+		</div><div>
+			<label for="contact">联系方式：</label>
+			<input type="text" name="contact" value="$!merchant.contact"/>
+		</div><div>
+			<label>账号密码：</label>
+			<input type="password" style="width:120px" name="newPassword"/>
+			<label>公司名称：</label>
+			<input type="text" name="company" id="company" value="$!{merchant.company}" style="width:120px"/>
+			<label>类&nbsp;&nbsp;&nbsp;&nbsp;型：</label>
+			<select name="opentype">
+				<option value="HFH">火凤凰</option>
+				<option value="MTX">满天星</option>
+			</select>
+			<label for="relatelist">管理场馆：</label>
+			<input type="text" name="relatelist" value="$!{merchant.relatelist}" id="relatelist" style="width:460px"/>
+		</div><div>
+			<label>权&nbsp;&nbsp;&nbsp;&nbsp;限：</label>
+			<table class="table" style="width:260px;display:inline-block;">
+			#foreach($role in $roleList)
+			<tr><td>${role.name}[$role.description]</td><td><input type="checkbox" value="$role.id" name="roles"#if($merRoles.contains($role.name)) checked="checked"#end /></td></tr>
+			#end
+			</table>
+		</div><div>
+			<input type="button" onclick="saveMerchant()" value="保存" class="button" style="width:80px"/>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	function saveMerchant(){
+		var values = GewaraUtil.getValues("merchantDialog", ","); 
+		var url = "${basePath}admin/merchant/saveMerchant.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				$("mid").value=result.retval;
+				alert("保存成功！")
+			}else{
+				alert(result.msg);
+			}
+		});
+		
+	}
+</script>
+</body>
+</html>

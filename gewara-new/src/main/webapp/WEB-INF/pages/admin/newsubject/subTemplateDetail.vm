@@ -1,0 +1,129 @@
+<style>
+	#gcForm ul li{padding: 3px;}
+	.disabled{background-color: #D4D0C8; color: #808080;}
+	.w260{width: 260px;}
+</style>
+<div class="table" style="width:500px;height:auto;position:relative;top:30px;left:-10px; padding: 3px;">
+<div id="gcForm">
+	<input type="hidden" name="board" value="$!flag">
+	<input type="hidden" name="parentid" value="$!parentid">
+	<input type="hidden" name="id" value="$!id">
+	<ul>
+	<li>
+		选择版块：
+		#if($flag eq 'L')
+		<select name="subjecttype" onchange="changePic(this);" #if($!data.id)disabled#end mustTxt="左版块必须选择一个">
+			<option value="">--请选择--</option>
+			<option value="L_xinwen_01" #if($!data.subjecttype eq 'L_xinwen_01')selected #end>新闻模块1</option>
+			#*<option value="L_xinwen_02" #if($!data.subjecttype eq 'L_xinwen_02')selected #end>新闻模块2</option>*#
+			<option value="L_xinwen_03" #if($!data.subjecttype eq 'L_xinwen_03')selected #end>新闻模块3</option>
+			<option value="L_shipin" #if($!data.subjecttype eq 'L_shipin')selected #end>视频模块1</option>
+			#*<option value="L_shipin_02" #if($!data.subjecttype eq 'L_shipin_02')selected #end>视频模块2</option>*#
+			<option value="L_juzhao" #if($!data.subjecttype eq 'L_juzhao')selected #end>剧照模块</option>
+			<option value="L_juzhao_02" #if($!data.subjecttype eq 'L_juzhao_02')selected #end>剧照模块2</option>
+			<option value="L_huodong" #if($!data.subjecttype eq 'L_huodong')selected #end>活动模块</option>
+			<option value="L_wala" #if($!data.subjecttype eq 'L_wala')selected #end>哇啦模块</option>
+			<option value="L_bianji" #if($!data.subjecttype eq 'L_bianji')selected #end>编辑框：</option>
+			<option value="L_daohang" #if($!data.subjecttype eq 'L_daohang')selected #end>导航栏</option>
+			<option value="L_choujiang" #if($!data.subjecttype eq 'L_choujiang')selected #end>抽奖模块</option>
+			<option value="L_mingxinpian" #if($!data.subjecttype eq 'L_mingxinpian')selected #end>明信片模块</option>
+			<option value="L_toupiao" #if($!data.subjecttype eq 'L_toupiao')selected #end>投票模块</option>
+		</select>
+		#elseif($flag eq 'R')
+		<select name="subjecttype" onchange="changePic(this);" #if($!data.id)disabled#end mustTxt="右版块必须选择一个">
+			<option value="">--请选择--</option>
+			<option value="R_xinwen_04" #if($!data.subjecttype eq 'R_xinwen_04')selected #end>新闻模块4</option>
+			<option value="R_yingpian" #if($!data.subjecttype eq 'R_yingpian')selected #end>影片模块</option>
+			<option value="R_huaju" #if($!data.subjecttype eq 'R_huaju')selected #end>话剧模块</option>
+			<option value="R_shipin" #if($!data.subjecttype eq 'R_shipin')selected #end>视频模块</option>
+			<option value="R_juzhao_02" #if($!data.subjecttype eq 'R_juzhao_02')selected #end>剧照模块2</option>
+			<option value="R_huodong" #if($!data.subjecttype eq 'R_huodong')selected #end>活动模块</option>
+			<option value="R_zhidao" #if($!data.subjecttype eq 'R_zhidao')selected #end>知道模块</option>
+			<option value="R_luntan" #if($!data.subjecttype eq 'R_luntan')selected #end>论坛模块</option>
+			<option value="R_wala" #if($!data.subjecttype eq 'R_wala')selected #end>哇啦模块</option>
+			<option value="R_bianji" #if($!data.subjecttype eq 'R_bianji')selected #end>编辑框</option>
+		</select>
+		#elseif($flag eq 'T')
+		<select name="subjecttype" onchange="changePic(this);" #if($!data.id)disabled#end >
+			<option value="">--请选择--</option>
+			<option value="T_juzhao" #if($!data.subjecttype eq 'T_juzhao')selected #end>剧照模块(W160H120)</option>
+			<option value="T_juzhao2" #if($!data.subjecttype eq 'T_juzhao2')selected #end>剧照模块(W120H160)</option>
+			<option value="T_bianji" #if($!data.subjecttype eq 'T_bianji')selected #end>编辑框</option>
+		</select>
+		#elseif($flag eq 'B')
+		<select name="subjecttype" onchange="changePic(this);" #if($!data.id)disabled#end >
+			<option value="">--请选择--</option>
+			<option value="B_juzhao" #if($!data.subjecttype eq 'B_juzhao')selected #end>剧照模块(W160H120)</option>
+			<option value="B_juzhao2" #if($!data.subjecttype eq 'B_juzhao2')selected #end>剧照模块(W120H160)</option>
+			<option value="B_bianji" #if($!data.subjecttype eq 'B_bianji')selected #end>编辑框</option>
+		</select>
+		#end
+	</li>
+	<li>
+		标&nbsp;&nbsp;&nbsp;&nbsp;题：
+		<input type="text" id="title" name="title" class="w260" value="$!data.title" mustTxt="小版块标题必填"/>
+	</li>
+	<li id="changePicDV">
+		
+	</li>
+	<li>&nbsp;&nbsp;<input type="button" id="save" onclick="save()" value="保存" style="width: 50px;"/>
+	<input type="button" onclick="javascript:hideD();" value="取消" style="width: 50px;"/></li>
+	</ul>
+</div>
+
+</div>
+<script>
+save = function(){
+	if(!GewaraUtil.baseValidForm('gcForm', 'admin')) return false;
+	var url = '${basePath}admin/newsubject/saveSubTemplate.xhtml';
+	var values = GewaraUtil.getValues('gcForm');
+	#if($!data.id)
+	values['subjecttype'] = '$!data.subjecttype';
+	#end
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	})
+}
+
+changePic = function(obj){
+	var v = $(obj).value;
+	if(v == 'L_xinwen_01'){
+		$('changePicDV').set('html', '<img src="'+gewara.util.imgPath+'styles/images/xinwen_01.jpg" width="440px" height="280px"/>');
+	}else if(v == 'L_xinwen_02'){
+		$('changePicDV').set('html', '<img src="'+gewara.util.imgPath+'styles/images/xinwen_02.jpg" width="440px" height="280px"/>');
+	}else if(v == 'L_xinwen_03'){
+		$('changePicDV').set('html', '<img src="'+gewara.util.imgPath+'styles/images/xinwen_03.jpg" width="440px" height="280px"/>');
+	}else if(v == 'R_xinwen_04'){
+		$('changePicDV').set('html', '<img src="'+gewara.util.imgPath+'styles/images/xinwen_04.png" width="440px" height="280px"/>');
+	}else if(v == 'L_shipin'){
+		$('changePicDV').set('html', '<img src="'+gewara.util.imgPath+'styles/images/shipin_01.jpg" width="440px" height="280px"/>');
+	}else if(v == 'L_shipin_02'){
+		$('changePicDV').set('html', '<img src="'+gewara.util.imgPath+'styles/images/shipin_02.jpg" width="440px" height="280px"/>');
+	}else if(v == 'L_juzhao'){
+		$('changePicDV').set('html', '<img src="'+gewara.util.imgPath+'styles/images/juzhao_01.jpg" width="440px" height="280px"/>');
+	}else if(v == 'L_juzhao_02' || v == 'L_bianji'){
+		$('changePicDV').set('html', '<img src="'+gewara.util.imgPath+'styles/images/juzhao_02.jpg" width="440px" height="280px"/>');
+	}else if(v == 'L_wala'){
+		$('changePicDV').set('html', '<img src="'+gewara.util.imgPath+'styles/images/wala_01.jpg" width="440px" height="280px"/>');
+	}else if(v == 'R_wala'){
+		$('changePicDV').set('html', '<img src="'+gewara.util.imgPath+'styles/images/wala_02.jpg" width="295px" height="280px"/>');
+	}else{
+		$('changePicDV').set('html', '');
+	}
+	if(v == 'R_shipin'){
+		$('title').set('disabled','disabled');
+		$('save').set('disabled','disabled');
+	}else{
+		$('title').erase('disabled');
+		$('save').erase('disabled');
+	}
+}
+
+hideD = function(){
+	GewaraUtil.hideDialog('subTemplate');
+}
+</script>

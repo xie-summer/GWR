@@ -1,0 +1,51 @@
+#if(!$VmUtils.isEmptyList($moreLikeMovieList))
+<div class="mod_kong">
+	<div class="mod_hd">
+		<h2>最受关注的影片</h2>
+		<a href="${basePath}movie/futureMovie.xhtml" class="more" target="_blank">更多&gt;&gt;</a>
+	</div>
+	<div class="mod_bd">
+		<ul>
+			#foreach($movie in $moreLikeMovieList)
+					#set($key1=$!movie.id+""+$!cookieCitycode+""+$!fyrq)
+			<li #if($foreach.count gt 1)class="mt30"#end>
+				<dl class="ui_media movieListBox_gz">
+					<dt class="ui_pic">
+						<a href="${basePath}movie/$movie.id" title="$!movie.name" target="_blank">
+							<img src="$VmUtils.randomPic('cw96h128',${movie.limg})" 
+							alt="$!movie.name" width="96" height="128"/>
+						</a>
+					</dt>
+					<dd class="ui_text">
+						<p>
+							<a href="${basePath}movie/$movie.id" title="$!movie.name" target="_blank" class="fs14">$!movie.name</a>
+							#if($opiMovieList.contains($movie.id))
+							<span class="ui_reSale"></span>
+							#end
+							<em class="right c999">$!movie.xiangqu人想看</em>
+						</p>
+						<p class="mt5 c9">
+							上映日期：$!movie.playdate<br/>
+							导演：$!VmUtils.escabbr($!movie.director, 20)<br/>
+							主演：$!VmUtils.escabbr($!movie.actors, 20)
+						</p>
+						<p>
+							#if($videoCountMap.get($movie.id) && $videoCountMap.get($movie.id) gt 0)
+								<a href="$!{basePath}movie/$!movie.id?videoList=true" target="_blank" class="prevue">预告片($videoCountMap.get($movie.id))</a>
+							#end
+							#set($key1 = $!movie.id + "movie")
+							#if($commentCountMap.get($key1) && $commentCountMap.get($key1) gt 0)
+								<a href="$!{basePath}movie/$!movie.id?comment=true" target="_blank" class="review">哇啦($commentCountMap.get($key1))</a>
+							#end
+						</p>
+						#if($opiMovieList.contains($movie.id))
+						<p class="mt10"><a href="$!{basePath}movie/$movie.id" target="_blank" class="button minBt redBt"><span>选座购票</span></a></p>
+						#end
+					</dd>
+				</dl>
+			</li>
+			#end
+		</ul>
+	</div>
+</div>
+#end

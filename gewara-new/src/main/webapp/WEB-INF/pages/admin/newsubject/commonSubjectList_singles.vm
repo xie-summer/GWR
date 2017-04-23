@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>推荐列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+	</style>
+</head>
+#parse('include/constant/city.vm')
+<body style="width:95%; margin:auto" class="yui-skin-sam">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td colspan="4"><span id="_resultSpan" class="ml20">#if($!VmUtils.eq($type,'cinema'))抢票影院#elseif($!VmUtils.eq($type,'pubsale'))一元竞拍#elseif($!VmUtils.eq($type,'doubleFestival'))视听双响炮#elseif($!VmUtils.eq($type,'session_cinema'))活动套餐#else奖品兑换#end</span></td>
+		<td align="right" class="td">
+			<a class="ssEvent" href="${basePath}noSubjectLink.xhtml?parentid=$!parentid&type=$!type#if($!VmUtils.eq($type,'cinema')||$!VmUtils.eq($type,'doubleFestival'))&cinemaurl=true#end#if($!VmUtils.eq($type,'goods'))&tag=true#end">增加 </a>|			
+			<a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;
+		</td>
+	</tr>
+	<tr class="td">
+		<td align="left" class="wd200"><b>标题</b></td>
+		#if($!VmUtils.eq($type,'doubleFestival'))<td align="left" class="wd100"><b>电影名称</b></td><td align="left" class="wd100"><b>套餐名称</b></td>#end
+		#if($!VmUtils.eq($type,'session_cinema'))<td align="left" class="wd100"><b>内容</b></td>#end
+		#if($!VmUtils.eq($type,'session_cinema'))<td align="left" class="wd100"><b>链接</b></td>#end
+		<td align="left" class="wd200"><b>#if($!VmUtils.eq($type,'session_cinema'))购买人数#else排序#end</b></td>
+		<td align="left" class="wd120"><b>操作</b></td>
+	</tr>
+	#foreach($data in $dataMap)
+	#set($id = $data.get('id'))
+	#if($!VmUtils.eq($type,'cinema'))
+	<tr class="td">
+		<td align="left" class="wd200">
+		<span style="color: red;">$data.object.name</span>
+		</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$!data.ordernum" name="ordernum" style="width: 50px" onchange="changeOrdernumSS('$id', this)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="ssEvent" href="${basePath}noSubjectLink.xhtml?foreignid=true&id=$id&cinemaurl=true&type=$!type">[修改]</a>|
+		#if($!VmUtils.eq($data.status,'Y'))
+			<a href="javascript:void(0)" onclick="javascript:opeDeleteSS('$id', this, '$!data.status')">[删除]</a>
+		#else 
+			<a href="javascript:void(0)" onclick="javascript:opeDeleteSS('$id', this, '$!data.status')">[恢复]</a>
+		#end
+		</td>
+	</tr>
+	#elseif($!VmUtils.eq($type,'pubsale'))
+	<tr class="td">
+		<td align="left" class="wd200">
+		<span style="color: red;">$!data.object.name</span>
+		</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$!data.ordernum" name="ordernum" style="width: 50px" onchange="changeOrdernumSS('$id', this)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="ssEvent" href="${basePath}noSubjectLink.xhtml?foreignid=true&id=$id&type=$!type">[修改]</a>|
+			#if($!VmUtils.eq($data.status,'Y'))
+			<a href="javascript:void(0)" onclick="javascript:opeDeleteSS('$id', this, '$!data.status')">[删除]</a>
+			#else 
+			<a href="javascript:void(0)" onclick="javascript:opeDeleteSS('$id', this, '$!data.status')">[恢复]</a>
+			#end
+		</td>
+	</tr>
+	#elseif($!VmUtils.eq($type,'doubleFestival'))
+	<tr class="td">
+		<td align="left" class="wd200">
+		<span style="color: red;">$!data.cinema.name</span>
+		</td>
+		<td align="left" class="wd200">
+		<span style="color: red;">$!data.movie.moviename</span>
+		</td>
+		<td align="left" class="wd200">
+		<span style="color: red;">$!data.goods.goodsname</span>
+		</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$!data.ordernum" name="ordernum" style="width: 50px" onchange="changeOrdernumSS('$id', this)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="ssEvent" href="${basePath}noSubjectLink.xhtml?foreignid=true&id=$id&cinemaurl=true&type=$!type">[修改]</a>
+		</td>
+	</tr>
+	#elseif($!VmUtils.eq($type,'session_cinema'))
+	<tr class="td">
+		<td>
+			<img style="height:100px; margin-left:80px;" src='${picPath}$data.newslogo'/>
+		</td>
+		<td>
+			格瓦拉价格：$!data.gewaprice
+		</td>
+		<td>
+			$!data.singles_cinemaurl
+		</td>
+		<td>
+			<input type="text" name="count" id="count" value="$!data.count" style="width:40px;" />
+		</td>
+		<td align="left" class="wd120">
+			<a class="ssEvent" href="${basePath}noSubjectLink.xhtml?id=$!id&parentid=$!data.singles_foreignid&type=$!type">[修改]</a>|
+			<a href="javascript:void(0)" onclick="javascript:opeDeleteSS('$id', this, 'Y','session_cinema')">[删除]</a>
+		</td>
+	</tr>
+	#else
+	<tr class="td">
+		<td align="left" class="wd200">
+		<span style="color: red;">$!data.object.goodsname</span>
+		</td>
+		<td align="left" class="wd60">
+			<input type="text" value="$!data.ordernum" name="ordernum" style="width: 50px" onchange="changeOrdernumSS('$id', this)"/>
+		</td>
+		<td align="left" class="wd120">
+			<a class="ssEvent" href="${basePath}noSubjectLink.xhtml?foreignid=true&id=$id&tag=true&type=$!type">[修改]</a>|
+			#if($!VmUtils.eq($data.status,'Y'))
+			<a href="javascript:void(0)" onclick="javascript:opeDeleteSS('$id', this, '$!data.status')">[删除]</a>
+			#else 
+			<a href="javascript:void(0)" onclick="javascript:opeDeleteSS('$id', this, '$!data.status')">[恢复]</a>
+			#end
+		</td>
+	</tr>
+	#end
+	#end
+</table>
+#parse('admin/newsubject/commonjs.vm')
+</body>
+</html>

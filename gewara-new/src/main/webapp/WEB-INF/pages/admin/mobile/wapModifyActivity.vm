@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>手机活动推荐列表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;border-collapse: collapse;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.mb5{margin-bottom: 5px;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+<div style="margin-left:250px;padding-left:5px;border: 2px solid #cccccc;width: 680px;">
+<h1 style="color: black;margin-left:250px;"><b>手机活动#if(!$!gc)添加#else修改#end</b></h1><hr/>
+<input type="hidden" name="gid" id="gid" value="$!gc.id"/>
+<div class="mb5">活动主题：<input type="text" name="title" id="title" value="$!gc.title" style="width: 250px;"/></div>
+<div class="mb5">开始时间：<input type="text" name="starttime" value="$!DateUtil.format($!gc.starttime,'yyyy-MM-dd HH:mm:ss')" onclick="new WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" id="starttime"/>  
+						结束时间：<input value="$!DateUtil.format($!gc.endtime,'yyyy-MM-dd HH:mm:ss')" onclick="new WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" type="text" name="endtime" id="endtime"/></div>
+<div class="mb5">截止时间：<input type="text" value="$!DateUtil.format($!gc.stoptime,'yyyy-MM-dd HH:mm:ss')" name="stoptime" onclick="new WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" id="stoptime"/></div>
+<div class="mb5">显示地址：<select name="tag" id="tag" style="width:155px;">
+									<option #if($!gc.tag eq 'wap') selected="selected" #end value="wap">wap版</option>
+									<option #if($!gc.tag eq 'mobile') selected="selected" #end value="mobile">手机客户端</option>
+									<option #if($!gc.tag eq 'all') selected="selected" #end value="all">都显示</option></select></div>
+<div class="mb5">链接地址：<input type="text" style="width: 350px;" name="link" id="link" value="$!gc.link"/></div>
+<div class="mb5">封面图片：<iframe style="vertical-align: middle;" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame" 
+			src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updateLogo"></iframe><b>90*128</b>
+			</div>
+<div class="mb5" style="padding-left: 40px;"><img style="height:100px;" id='logoimg1' src="${picPath}$!gc.logo"/><br/><input #if($VmUtils.isNotBlank($gc.logo))type="text" #else type="hidden"#end style="width:350px;" name="logo" id="logo" value="$!gc.logo"/></div>
+#parse("admin/common/adminInnerCityList.vm")
+<div class="mb5">
+内容：<textarea id="contentdetail" name="contentdetail">$!gc.summary</textarea>
+<span style="color: red;">当添加复制带格式的内容时，请点击<img style="vertical-align: middle;" src="${picPath}css/admin/clickCMWord.png"/>这里，把你复制的内容放进去，然后确定添加。（这样避免你添加的带格式的内容影响活动添加失败.）</span>
+<div style="margin-top: 10px;"><input type="button" onclick="addWapActivity()" id="disBtn"  value="#if($!gc)修改#else添加#end"/></div>
+<div id="msg" style="color:red;margin-left: 4px;"></div>
+<div style="color:blue;margin-left: 4px;">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+</div>
+	<script type="text/javascript">
+	var ckeditor;
+window.addEvent('domready',function(){
+	ckeditor = CKEDITOR.replace("contentdetail");
+});
+	// 全选
+	checkSelAll = function(obj){
+		$each($('subCitys').getElements('input'), function(n, i){
+			n.checked = obj.checked;
+		})
+	}
+	// 单选
+	checkSelSingle = function(obj){
+		if(!obj.checked){
+			$('relatecityAll').checked = false;
+		}else{
+			if($('subCitys').getElements('input').length == $('subCitys').getElements('input[checked]').length){
+				$('relatecityAll').checked = true;
+			}
+		}
+	}
+	function updateLogo(params){
+		var picpath = params['picpath'];
+		$('logo').value = picpath;
+		$('logoimg1').src='${basePath}' + picpath;
+	}
+	
+	function addWapActivity(){
+		var title = $('title').value;
+		if(title == ''){
+			alert("活动主题不能为空！");
+			return;
+		}
+		$('contentdetail').value = ckeditor.getData();
+		if($('contentdetail').value==""){
+			alert('活动内容不能为空!');
+			return;
+		}
+		var cityArray = new Array();
+		var allCitys = $$("input[name=selectcitycodes]");
+		var citys = $$("input[name=selectcitycode]");
+		if (allCitys[0].checked) {
+			cityArray.push('000000');
+		} else {
+			for(var i = 0;i<citys.length;i++){
+				if(citys[i].checked){
+					cityArray.push(citys[i].value);
+				}
+			}
+		}
+		if(cityArray.length == 0){
+			gewaUtil.alert('请选择开放城市！');
+			return;
+		}
+		var citycode = cityArray.toString();
+		var values = {'gid':$('gid').value,'link':$('link').value,'logo':$('logo').value,'title':title,'content':$('contentdetail').value,
+		'startTime':$('starttime').value,'endTime':$('endtime').value,'stopTime':$('stoptime').value,'tag':$('tag').value,'citycode':citycode};
+		gewa.util.mask({'element': "disBtn",'title':'正在提交，请稍等...'});
+		GewaraUtil.sendRequest('${basePath}admin/mobile/saveWapActivity.xhtml',values,function(result){
+			if(result.success){
+				gewa.util.clearMask();
+				$("msg").set("html", '');
+				location.href="${basePath}admin/mobile/wapActivityList.xhtml"
+			}else{
+				alert('保存失败!');
+				$("msg").set("html", result.msg);
+				gewa.util.clearMask();
+			}
+			
+		});
+		
+	}
+	
+	function allchecked(th){
+		var names = document.getElementsByName('selectcitycode');
+		if(th.checked){
+			for(i=0;i<names.length;i++){
+			if(!names[i].checked){
+				names[i].checked=true;
+			   }
+			}	
+		}else{
+			for(i=0;i<names.length;i++){
+			if(names[i].checked){
+				names[i].checked=false;
+			   }
+			}
+		}
+	}
+</script>
+</body>
+</html>

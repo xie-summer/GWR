@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>恢复帖子管理</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body>
+#set($isResumeDiary=true) 
+<div id="content">
+<div class="bc1"></div>
+<div id="content_left" style="width:98%;margin:auto;">
+	<div class="panelTop"><em></em></div>
+	<div class="panelMid">
+	#parse('admin/blog/diaryMenu.vm')
+	<div>
+		<form action="${basePath}admin/blog/diaryListStatus.xhtml">
+			<label>请输入搜索：</label><input name="fromDate" readonly="readonly" onclick="WdatePicker()" type="text" style="width:80px" value="$!params.fromDate" class="Wdate"/>至
+			<input name="endDate" readonly="readonly" onclick="WdatePicker()" type="text"  style="width:80px" value="$!params.endDate" class="Wdate"/>
+			<input type="text" value="$!params.keyname" name="keyname" size="40"/>
+			<input type="submit" value="确定" />
+		</form>
+	</div>
+	#parse('include/pageUtil.vm')
+	<table id="blogtable" style="width:100%;" class="blogtable">
+		<thead>
+			<tr>
+				<th>主题</th>
+				<th>作者</th>
+				<th>点击</th>
+				<th>最后回复</th>
+				<th>恢复</th>
+			</tr>
+		</thead>
+		<tfoot>
+			#foreach($diary in $diaryList)
+			<tr id="row$diary.id">
+				<td title="${diary.subject}">$!VmUtils.escabbr($!diary.subject,40)</td>
+				<td>
+					<div><a href="$!{absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.memberid" target="_blank">$!VmUtils.escabbr($!diary.membername,10)</a></div>
+					<div style="font-size: 9px;">$DateUtil.format($!diary.addtime,'MM-dd HH:mm')</div>
+				</td>
+				<td style="text-align: center">${diary.clickedtimes}/${diary.replycount}</td>
+				<td style="text-align: center">
+					#if($diary.replytime)
+					<div><a href="$!{absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.replyid" target="_blank">$!VmUtils.escabbr($!diary.replyname,10)</a></div>
+					<div style="font-size: 9px;">$DateUtil.format($!diary.replytime,'MM-dd HH:mm')</div>#end
+				</td>
+				<td><input type="button" onclick="resumeDiary($diary.id)" value="恢复帖子"/></td>
+			</tr>
+			#end
+		</tfoot>
+	</table>
+	#parse('include/pageUtil.vm')
+	</div><!-- end panelMid-->
+	<div class="panelBot"><em></em></div>
+</div><!-- end content_left -->
+<div id="height0"></div>
+</div><!--end content-->
+<div id="panel_bottom"></div>
+#parse("admin/blog/reason.vm")
+	<script type="text/javascript">
+function resumeDiary(id){
+	var url = '${basePath}admin/blog/resumeDiary.xhtml';
+	var values = {'diaryid':id};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("操作成功！");
+			refreshPage();
+		}else{
+			alert("操作失败！");
+		}
+	});
+}
+</script>
+</body>
+</html>

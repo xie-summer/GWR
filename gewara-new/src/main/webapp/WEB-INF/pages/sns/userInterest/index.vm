@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>格瓦拉社区</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/default.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,Autocompleter,page,noobSlide&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+<div id="snsHeader"></div>
+<div class="ui_layout">
+	#set($menuTag = 'like')
+	#parse('sns/common/left.vm')
+	<div class="body_right">
+		<div class="body_nav_tags">
+			<div class="navs" id="isInterest">
+				<a href="javascript:void(0)" rel="all" class="select">全部</a>
+				<a href="javascript:void(0)" rel="hd">活动</a>
+				<a href="javascript:void(0)" rel="dy">电影</a>
+				<a href="javascript:void(0)" rel="hj">演出</a>
+				<a href="javascript:void(0)" rel="cg">场馆</a>
+				<a href="javascript:void(0)" rel="xm">项目</a>
+			</div>
+			<div class="modules"></div>
+		</div>
+		<div class="bodys">
+			<div class="userInterest" id="userInterest">
+				#parse('sns/userInterest/interest.vm')
+			</div>
+		</div>
+	</div>
+</div>
+<div class="ui_view_menu"></div>
+<div class="footer_warp">
+	<div class="isFooter"></div>
+</div>
+#parse('include/innerLogin.vm')
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=snsUtil,index_even&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	if($('publicize'))new adSoild('publicize','navControl',{'position':{'x':#if($!params.memberid)280#{else}180#end,'y':#if($!params.memberid)80#{else}70#end},'width':14});
+	if($('slidePanel'))new noobSlide({
+		box: $('slidePanel'),
+		size:180,
+		items: $$('#slidePanel li'),
+		handle_event:'click',
+		addButtons: {
+			previous:$('eventL'),
+			next:$('eventR')
+		}
+	});
+});
+
+window.addEvent('domready', function(){
+	var interests = $('isInterest').getElements('a');
+	interests.addEvent('click',function(){
+		var url = '${basePath}home/newInterestInfo.xhtml';
+		var values = {'action':(this.get('rel') == 'all')?this.get('rel'):'', 'type':this.get('rel'), 'memberid':'$!member.id'};
+		gewaUtil.loadData('userInterest', url, values, function(result){
+			interests.removeClass('select');
+			this.addClass("select");
+		}.bind(this),this);
+	})
+	interests[0].fireEvent('click');
+})
+
+function ajaxPage(pageNo, params, url){
+	gewaUtil.loadData('userInterest', url, {});
+}
+
+function delInterest(el){
+	gewaUtil.confirm('确认删除吗?', function(){
+		if(el == '')
+			el =$('treasureid').value;
+		var url = '${basePath}home/delInterestInfo.xhtml';
+		var values = {'interestid':el};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				if($('interest'+el)){
+					gewaUtil.dispose($('interest'+el));
+				}
+				hideTreasure(el);
+			}else {
+				gewaUtil.alert(result.msg);
+			}	
+		});
+	})
+}
+
+function hideTreasure(el){
+	if(gewa.util.container['interest'+el]){
+		gewa.util.container['interest'+el].hide('interest'+el);
+	}
+}
+</script>
+#parse('sns/common/ga.vm')
+</body>
+</html>

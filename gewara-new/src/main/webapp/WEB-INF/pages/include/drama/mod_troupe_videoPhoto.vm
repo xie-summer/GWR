@@ -1,0 +1,66 @@
+<!-- SUCCESS_HEAD -->
+#if(!$VmUtils.isEmptyList($pictureList))
+<div class="mod_kong theatreMien mt30">
+	<div class="mod_hd">
+		<h2>剧照</h2><span>($VmUtils.size($pictureList))</span>
+	</div>
+	<div class="mod_bd">
+		<ul class="clear" id="aPictureList">
+			#foreach($picture in $pictureList)
+			<li #if($foreach.count % 6==0) style="margin-right:0;"#end>
+				<a href="javascript:void(0)" title="" pictureId="$picture.id">
+					<img src="$VmUtils.randomPic('cw128h96',$picture.limg)" alt="$!VmUtils.escapeHtml($!picture.name)" width="130" height="96"/>
+				</a>
+			</li>
+			#end
+		</ul>
+	</div>
+</div>
+#end
+
+#if(!$VmUtils.isEmptyList($videoList))
+<div class="mod_kong theatreMien">
+	<div class="mod_hd">
+		<h2>视频</h2><span>($VmUtils.size($videoList))</span>
+	</div>
+	<div class="mod_bd">
+		<ul class="clear">
+			#foreach($video in $videoList)
+			<li #if($foreach.count % 6==0) style="margin-right:0;"#end>
+				<a title="$video.cname" href="${basePath}" target="_blank">
+					<img src="$VmUtils.randomPic('cw120h96',$video.limg)" alt="$video.cname" width="130" height="96"/>
+				</a>
+			</li>
+			#end
+		</ul>
+	</div>
+</div>
+#end
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$('#aPictureList a').each(function(item){
+		item.addEvent('click',function(e){
+			e.preventDefault();
+			var options = {
+				type:"apic",
+				pictureType:"apic",
+				videoType:"avideo",
+				tag:"dramastar",
+				isAjax:true,
+				isPicture:'picture',
+				esc:true,
+				menu:{
+					pictureurl:'${basePath}picture/ajax/pictureDetail.xhtml',
+					videourl:'${basePath}video/ajax/videoList.xhtml',
+					picturevalues:{'tag':'dramastar','relatedid':'$dramaStar.id','pvtype':'apic','pid':this.get('pictureId')},
+					videovalues:{"tag":"dramastar",'relatedid':'$dramaStar.id'},
+					picturecount:"$VmUtils.size($pictureList)",
+					videocount:'$VmUtils.size($videoList)'
+				}
+			};
+			screenPicture.createPanel(options);
+		});
+	});
+});
+</script>
+<!-- SUCCESS_BOTTOM -->

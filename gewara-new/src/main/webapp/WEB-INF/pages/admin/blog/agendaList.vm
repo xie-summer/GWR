@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>生活管理</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+</head>
+<body class="yui-skin-sam">
+#set($isAgenda=true)
+<div id="content">
+<div class="bc1"></div>
+<div id="content_left" style="width:98%;margin:auto;">
+	<div class="panelTop"><em></em></div>
+	<div class="panelMid">
+	#parse('admin/blog/diaryMenu.vm')
+		<form action="${basePath}admin/blog/agendaList.xhtml">
+			<label>请输入搜索：</label>
+			<select name="status">
+				<option value=""> </option>
+				<option value="Y" #if($!params.status eq "Y") selected #end>已发送</option>
+				<option value="N" #if($!params.status eq "N") selected #end>未发送</option>
+				<option value="Y_TRANS" #if($!params.status eq "Y_TRANS") selected #end>已传递给发送方</option>
+				<option value="Y_IGNORE" #if($!params.status eq "Y_IGNORE") selected #end>合作方要求不发送</option>
+				<option value="FILTER" #if($!params.status eq "FILTER") selected #end>审核状态</option>
+				<option value="D" #if($!params.status eq "D") selected #end>废弃</option>
+				<option value="P" #if($!params.status eq "P") selected #end>已处理</option>
+			</select>
+			<input name="fromDate" readonly="readonly" onclick="WdatePicker()" type="text" style="width:90px" value="$!params.fromDate" class="Wdate"/>至
+			<input name="toDate" readonly="readonly" onclick="WdatePicker()" type="text"  style="width:90px" value="$!params.toDate" class="Wdate"/>
+			<input name="keyName" type="text" size="40" value="$!params.keyName" />
+			<input type="submit" value="确定" />
+		</form>
+	#parse('include/pageUtil.vm')
+	<table id="blogtable" style="width:100%;" class="blogtable">
+		<thead><tr><th>全选</th><th>主题</th><th width="70px">作者</th><th>地址</th><th width="60px">时间</th><th>备注</th><th>手机号码</th><th>状态</th><th>相关信息</th></tr></thead>
+		<tbody class="top">
+			#foreach($agenda in $agendaList)
+				<tr class="top" id="row$agenda.id">
+					<td valign="middle">
+						<div><input type="checkbox" name="cbox" id="cb$agenda.id" value="$agenda.id"/></div>
+						<input type="hidden" name="" id="" value=""/>
+					</td>
+					<td>
+						<div title="$!agenda.title">$VmUtils.escabbr($!agenda.title,30)</div>
+					</td>
+					<td>
+						<div title="$!agenda.membername">$VmUtils.escabbr($!agenda.membername,10)</div>
+					</td>
+					<td>
+						<div title="$!agenda.address">$VmUtils.escabbr($!agenda.address,30)</div>
+					</td>
+					<td>
+						<div style="font-size: 9px;">
+							$!DateUtil.format($!agenda.startdate,'MM-dd')&nbsp;$!agenda.starttime<br/>
+							$!DateUtil.format($!agenda.enddate,'MM-dd')&nbsp;$!agenda.endtime
+						</div>
+					</td>
+					<td>
+						<div title="$!agenda.content">$VmUtils.htmlabbr($!agenda.content,30)</div>
+					</td>
+					<td>
+						$!agenda.mobile
+					</td>
+					<td>
+						#if($!agenda.status eq "Y")已发送
+						#elseif($!agenda.status eq "N")未发送
+						#elseif($!agenda.status eq "Y_TRANS")已传递给发送方
+						#elseif($!agenda.status eq "Y_IGNORE")合作方要求不发送
+						#elseif($!agenda.status eq "FILTER")审核状态
+						#elseif($!agenda.status eq "D")废弃
+						#elseif($!agenda.status eq "P")已处理
+						#else查无短信
+						#end
+					</td>
+					<td>
+						<input type="button" value="查看邀请人" onclick="window.open('${basePath}admin/blog/agendaJoin.xhtml?recordid=$!agenda.id')"/>
+					</td>
+				</tr>
+			#end
+		</tbody>
+	</table>
+	<div style="height: 30px;">
+		<input id="cbAll" type="checkbox" onclick="selAll(this)" />
+		<input id="delAll" type="button" onclick="delMulti()" value="批量删除" />
+		<select id="updateStatus">
+				<option value=""> </option>
+				<option value="Y">已发送</option>
+				<option value="N">未发送</option>
+				<option value="Y_TRANS">已传递给发送方</option>
+				<option value="Y_IGNORE">合作方要求不发送</option>
+				<option value="FILTER">审核状态</option>
+				<option value="D">废弃</option>
+				<option value="P">已处理</option>
+		</select>
+		<input id="updateAll" type="button" onclick="updateMulti()" value="批量修改" />
+	</div>
+	#parse('include/pageUtil.vm')
+	</div><!-- end panelMid-->
+	<div class="panelBot"><em></em></div>
+</div>
+<div id="height0"></div>
+</div><!--end content-->
+<div id="panel_bottom"></div>
+<script>
+	//全选
+	function selAll(obj){
+		var cbs = document.getElementsByName('cbox');
+		$each(cbs, function(i, n){
+			i.checked=obj.checked;
+		})
+	}
+	//检查选中的
+	function checkedArrs(cbs){
+		var checkedArr = new Array();
+		var a = 0;
+		$each(cbs, function(i, n){
+			if(i.checked){
+				checkedArr[a] = i.value;
+				a++;
+			}
+		})
+		return checkedArr;
+	}
+	//批量删除
+	function delMulti(){
+		var cbs = document.getElementsByName('cbox');
+		var checkedArr = checkedArrs(cbs);
+		if(checkedArr.length == 0){
+			alert("请至少选择一个!");
+			return false;
+		}
+		var idList = checkedArr.join(',');
+		var url = '${basePath}admin/blog/deleteAgendaList.xhtml';
+		var values = {'idListString':idList};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('删除成功！'); 
+				if(cbs.length > checkedArr.length){
+					$each(checkedArr, function(i, n){
+						$('row'+i).dispose();	
+					})
+				}else{
+					refreshPage();
+				}
+			}else alert(result.msg);
+		});
+	}
+	//批量修改
+	function updateMulti(){
+		var cbs = document.getElementsByName('cbox');
+		var status = document.getElementById('updateStatus').value;
+		var checkedArr = checkedArrs(cbs);
+		if(checkedArr.length == 0){
+			alert("请至少选择一个!");
+			return false;
+		}
+		var idList = checkedArr.join(',');
+		var url = '${basePath}admin/blog/updateAgendaList.xhtml';
+		var values = {'idListString':idList, 'status':status};
+		GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+				alert('修改成功！'); 
+				if(cbs.length > checkedArr.length){
+					$each(checkedArr, function(i, n){
+						$('row'+i).dispose();	
+					})
+				}else{
+					refreshPage();
+				}
+			}else alert(result.msg);
+		});
+	}
+</script>
+</body>
+</html>

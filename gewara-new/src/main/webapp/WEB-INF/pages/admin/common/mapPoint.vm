@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+<title>地图标注</title>
+#set($mapKey="AIzaSyBj2lXEGiSj52peg0W6t5vcIrXsmhBuQV4")
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=$mapKey&sensor=false"></script>
+	<script type="text/javascript">
+	var polyline;
+	var key="$mapKey";
+	var zoom = 15;
+	var mapLatLng;
+	var marker;
+	function initMap() {
+		#if($object.pointx)
+			mapLatLng = new google.maps.LatLng($object.pointy, $object.pointx);
+			
+		#else
+			mapLatLng = new google.maps.LatLng($cityData.getCenter($citycode).get(1), $cityData.getCenter($citycode).get(0));
+		#end
+		var mapOptions = {
+		        zoom: zoom,
+		        center: mapLatLng,
+		        mapTypeControl: true,
+		        scaleControl: true,
+		        overviewMapControl: true,
+		        overviewMapControlOptions: {opened:true},
+		        mapTypeId: google.maps.MapTypeId.ROADMAP
+		};
+		var info = "<img src='${picPath}sw120h60/${object.logo}'/><br/>$object.name";
+		var infowindow = new google.maps.InfoWindow({
+			  content: info
+		});
+		map = new google.maps.Map(document.getElementById("Gmap"), mapOptions);
+		marker = new google.maps.Marker({
+		   position: mapLatLng,
+		   map: map
+	    });
+	    initHi();
+		
+		google.maps.event.addListener(marker, 'click', function(event) {
+			zoom = map.getZoom();
+			infowindow.open(map, marker);
+			initFormValues(event);
+		});
+
+		google.maps.event.addListener(map, 'zoom_changed', function() {  
+			zoom = map.getZoom();
+		});
+
+		google.maps.event.addListener(map, 'click', function(event) {
+			zoom = map.getZoom();
+			if (marker) {marker.setMap(null)};
+			marker = new google.maps.Marker({
+			   position: event.latLng,
+			   map: map
+			}); 
+			infowindow.open(map, marker);
+			initFormValues(event);
+		});
+
+		function initFormValues(event) {
+			if (event.latLng) {
+				var x = event.latLng.lng();
+				var y = event.latLng.lat();
+				document.getElementById("pointx").value=x;
+				document.getElementById("pointy").value=y;
+				var xx = document.getElementById("pointx").value;
+				var yy = document.getElementById("pointy").value;
+				var mappath="http://maps.googleapis.com/maps/api/staticmap?center="+yy+","+xx+"&markers="+yy+","+xx+"|color:red&zoom="+zoom+"&size=300x240&maptype=roadmap&language=zh-CN&key="+key+"&sensor=false";
+				$('mapname').value=mappath;
+			}else{
+				var xx = document.getElementById("pointx").value;
+				var yy = document.getElementById("pointy").value;
+				var mappath="http://maps.googleapis.com/maps/api/staticmap?center="+yy+","+xx+"&markers="+yy+","+xx+"|color:red&zoom="+zoom+"&size=300x240&maptype=roadmap&language=zh-CN&key="+key+"&sensor=false";
+				$('mapname').value=mappath;
+			}
+		}
+	
+		function initHi(){
+			var xx = document.getElementById("pointx").value;
+			var yy = document.getElementById("pointy").value;
+			var mappath="http://maps.googleapis.com/maps/api/staticmap?center="+yy+","+xx+"&markers="+yy+","+xx+"|color:red&zoom="+zoom+"&size=300x240&maptype=roadmap&language=zh-CN&key="+key+"&sensor=false";
+			$('mapname').value=mappath;
+		}
+	}
+	
+	function validate(){
+		if($('pointx').value=="" || $('pointy').value==""){
+			alert("请在地图上标注");
+			return false;
+		}
+		return true;
+	}
+
+	google.maps.event.addDomListener(window, 'load', initMap);
+	
+</script>
+</head>
+#if($params.tag eq 'cinema')
+#set($status='cinemaMap')
+#set($cinemaId=$params.id)
+#parse('admin/cinema/cinemaFormHead.vm')
+#end
+<body style="width:750px;margin:auto">
+<div style="width:800px;margin:0 auto; text-align:left;">
+	<form id="mapForm">
+		<input type="hidden" name="mapname" id="mapname"/>
+		<input type="hidden" name="tag" id="tag" value="$!params.tag"/>
+		<input type="hidden" name="relatedid" id="relatedid" value="$!params.id"/>
+		坐标&nbsp;&nbsp;
+		#if($object.pointx) 
+		X：<input type="text" name="pointx" id="pointx" value="$object.pointx"/>&nbsp;&nbsp;
+		Y：<input type="text" name="pointy" id="pointy" value="$object.pointy"/>&nbsp;&nbsp;
+		#else
+		X：<input type="text" name="pointx" id="pointx"/>&nbsp;&nbsp;
+		Y：<input type="text" name="pointy" id="pointy"/>&nbsp;&nbsp;
+		#end
+		<input type="button" value="确认标注" onclick="saveMap()"/>&nbsp;&nbsp;
+		<input type="button" value="生成图片" onclick="saveMapPicture()"/>&nbsp;&nbsp;
+	</form>
+</div>
+
+<!--定义显示地图的层-->
+<div id="Gmap" style="width: 800px; height: 500px; margin:0 auto" align="center"></div>
+
+<script type="text/javascript">
+function saveMap(){
+	if(validate()){
+		gewa.util.mask({'title':"正在保存数据..."});
+		var values = GewaraUtil.getValues("mapForm");
+		var url = "${basePath}admin/common/ajax/saveMap.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('成功保存！');
+				refreshPage();
+			}else{
+				alert(result.msg);
+				gewa.util.clearMask();
+			}
+		});
+	}
+}
+function saveMapPicture(){
+	if(validate()){
+		gewa.util.mask({'title':"正在保存数据..."});
+		var values = GewaraUtil.getValues("mapForm");
+		var url = "${basePath}admin/common/ajax/saveMapPicture.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('成功保存！');
+				refreshPage();
+			}else{
+				alert(result.msg);
+				gewa.util.clearMask();
+			}
+		});
+	}
+}
+</script>
+</body>
+</html>

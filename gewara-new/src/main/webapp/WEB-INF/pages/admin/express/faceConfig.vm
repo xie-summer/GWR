@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>编辑票面模板数据</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style>
+		label{display:inline-block;width:80px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:550px; display:inline}
+	</style>
+</head>
+<body class="yui-skin-sam" style="width:720px;margin:auto">
+<div style="color: red;margin-top: 20px">$!errorMsgs</div>
+<div id="expressDialog" class="yui-panel" style="width:710px;margin:auto">
+	<div class="hd"><a href="${basePath}admin/express/faceConfigList.xhtml" style="margin-right: 20px;">票面模板</a>&gt;&gt;#if($faceConfig)编辑#{else}新增#{end}配送方式数据</div>
+	<div class="bd">
+	<form name="faceForm" id="faceForm" method="post">
+		<input type="hidden" name="update" value="#if($faceConfig)true#end" />
+		<div>
+			<label for="id">编号：</label>
+			<input name="id" id="id"  type="text" value="$!{faceConfig.id}" #if($faceConfig) readonly="readonly" #end mustTxt="编号不能为空！" style="width:80px;"/><span class="req">*</span>
+		</div>
+		<div>
+			<label for="remark">票面模板描述：</label>
+			<input name="remark" value="$!{faceConfig.remark}" />
+		</div>
+		<div>
+			<label for="facecontent">票面模板内容</label>
+			<textarea id="facecontent" name="facecontent" cols="10" rows="10">$!{faceConfig.facecontent}</textarea>
+		</div>
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="saveFace()"  style="width:100px" value="保存"/>
+		</div>
+		</form>
+	</div><!-- end of bd -->
+</div>
+<script type="text/javascript">
+	function saveFace(){
+		var url = "${basePath}admin/express/saveTicketFaceConfig.xhtml";
+		var values = GewaraUtil.getValues('faceForm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

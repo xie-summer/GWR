@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>禁用的账户</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		html,body{background: none;}
+		form label{display:inline-block;width:90px;text-align:right;}
+		form div{margin-top:5px;}
+		.add,.add_order{background: red; color: white;}
+	</style>
+</head>
+<body style="width:900px; margin:auto" class="yui-skin-sam">
+	<br/>
+		memberids：<input type="text" name="memberids" id="memberids" />
+		<input type="submit" value="禁止该用户使用瓦币支付" onclick="operForbid($('memberids').value, 'Y')"/><br/>
+<table width="850px" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th>&nbsp;</th>
+		<th>memberid</th>
+		<th>真实姓名</th>
+		<th>电话</th>
+		<th>账户金额</th>
+		<th>瓦币</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="sportTable">
+	#foreach($account in $accountList)
+	<tr title="$order.description2">
+		<td>$foreach.count</td>
+		<td><a href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$account.memberid" target="_blank">${account.memberid}</a></td>
+		<td>${account.realname}</td>
+		<td>$!{account.phone}</td>
+		<td>$!account.bankcharge</td>
+		<td>$!account.othercharge</td>
+		<td><a href="javascript:operForbid($account.memberid, 'N')">恢复</a></td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<script type="text/javascript">	
+	function operForbid(memberids, status){
+		var url = "${basePath}admin/account/ajax/operForbidAccount.xhtml";
+		GewaraUtil.sendRequest(url, {'memberids':memberids,'status':status}, function(result){
+			if(result.success){
+				alert('保存成功');
+				refreshPage();
+			}else {
+				var msg = result.msg;
+				alert(msg);			
+			}
+		});
+	}
+	
+	
+</script>
+</body>
+</html>

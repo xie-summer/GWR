@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<title>格瓦拉生活网</title>
+<script type="text/javascript" src="${staticPath}scripts/key.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/bestv.js"></script>
+#parse('partner/bestv/style.vm')
+</head>
+
+<body>
+#parse('partner/bestv/header.vm')
+<div class="mainContent">
+	<aside>
+		<ul id='left_list'>
+			<li><a href="${basePath}partner/bestv/index.xhtml">退　　出</a></li>
+			<li><a href="${basePath}partner/bestv/movieDetail.xhtml?movieid=3773663">进入电影</a></li>
+		</ul>
+	</aside>
+	<div class="content">
+		<div class="inner" id="panel">
+			<div id="container">
+			    <a href="${basePath}partner/bestv/movieDetail.xhtml?movieid=3773663" style="margin-left:5px;">
+			      <img src="http://img5.gewara.cn/sw300h460/images/movie/201203/s_600322d8_13628dcb898__7d49.jpg" width="290" height="390">
+			      <span>
+			      	<b>春娇与志明</b> <sub>9</sub><sup>.5</sup>
+			      	<em>Love in the Buff</em>
+			      </span>
+			    </a>
+			    <a href="${basePath}partner/bestv/movieDetail.xhtml?movieid=3773663">
+			      <img src="http://img5.gewara.cn/sw300h460/images/movie/201203/s4654f81_1365f945e92__7f6b.jpg" width="290" height="390">
+			      <span>
+			      	<b>诸神之怒</b> <sub>7</sub><sup>.2</sup>
+			      	<em>Wrath of the Titans</em>
+			      </span>
+			    </a>
+			    <a href="${basePath}partner/bestv/movieDetail.xhtml?movieid=3773663">
+			      <img src="http://img5.gewara.cn/sw300h460/images/movie/201203/s5a6d660d_1363f6d2a93__7a40.jpg" width="290" height="390">
+			      <span>
+			      	<b>绣花鞋</b> <sub>8</sub><sup>.7</sup>
+			      	<em>Blood Stained Shoes</em>
+			      </span>
+			    </a>
+			    <a href="${basePath}partner/bestv/movieDetail.xhtml?movieid=3773663">
+			      <img src="http://img5.gewara.cn/sw300h460/images/movie/201203/s14002d9a_1363f6f64f1__7fba.jpg" width="290" height="390">
+			      <span></span>
+			      <span>
+			      	<b>晚秋</b> <sub>7</sub><sup>.8</sup>
+			      	<em>Late Autumn</em>
+			      </span>
+			    </a>
+			    <a href="${basePath}partner/bestv/movieDetail.xhtml?movieid=3773663">
+			      <img src="http://img5.gewara.cn/sw300h460/images/movie/201204/s_658a2efe_13682466414__7b7b.jpg" width="290" height="390">
+			      <span>
+			      	<b>泰坦尼克号</b> <sub>9</sub><sup>.8</sup>
+			      	<em>Titanic 3D</em>
+			      </span>
+			    </a>
+			    <a href="${basePath}partner/bestv/movieDetail.xhtml?movieid=3773663">
+			      <img src="http://img5.gewara.cn/sw300h460/images/movie/201203/s7f899a05_13628dedf05__7c39.jpg" width="290" height="390">
+			      <span>
+			      	<b>万阿密行动</b> <sub>6</sub><sup>.5</sup>
+			      	<em>Love in the Buff</em>
+			      </span>
+			    </a>
+		  	</div>
+		</div>
+		<article class="movieTips">
+			“为寻找失踪的祖父踏上冒险岛，3D技术再现奇幻场景！”
+		</article>
+	</div>
+</div>
+<script type="text/javascript">
+//BaseComponent 继承  Component
+//PageSelect  继承 BaseComponent
+var PageSelect =Class.create(BaseComponent,{
+		objname:'PageSelect',
+		porxyStyle:function(fun){// 重写页面 style 代理方法
+				var li = this.list[this.cur_index];
+				elementsRemoveClass(document.links);
+				if(fun){
+					fun.call(this);
+				}
+				this.cur_index = ( this.cur_index +this.count) % this.count;
+				 li = this.list[this.cur_index];
+				addClass(li,'select' );
+		}
+});
+//Left_List  继承 PageSelect
+var Left_List =Class.create(PageSelect,{
+		objname:'Left_List',
+		init:function(){
+			this.list=$t("a",$('left_list')); //Left_List元素 所有 a
+		},
+		right:function(){
+			this.lost("Panel");
+		}
+});
+
+//Panel  继承 PageSelect
+var Panel  =Class.create(PageSelect,{
+	objname:'Panel',
+	init:function(){
+		this.list=$t("a",$("panel")); //panel元素  所有 a
+	},
+	left:function(){
+		if(this.cur_index == 0 ){//如果为0 就到 Left_List  Component
+			this.lost("Left_List" );
+		}else{  //调用 父类 向左
+			this.pcall("left");
+		}
+	}
+});
+
+function elementsRemoveClass(elements){
+	for(var i=elements.length-1;i>=0;i--){
+		removeClass(elements[i],'select' );
+	}
+}
+
+window.onload = function(){
+	turnToComponent('Left_List');
+}
+</script>
+</body>
+</html>

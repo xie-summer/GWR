@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>白色情人节专题</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		#table thead th{
+			border: 1px solid #fff;
+			text-align: left;
+				font-size: 1em;
+			background: #e8e8cf;
+		}
+		.wd200{width:200px;}
+		.wd120{width:120px;}
+		.wd60{width:60px;}
+		.wd40{width:40px;}
+		.wd80{width:80px;}
+		td{padding:0px;}
+		.itable{border:2px solid #74B3DC;}
+		.itable td{height:26px;vertical-align: middle;}
+		.itable strong{color:red}
+		.itable span{color:#ff6200;font-size:14px;font-weight:bold}
+		.td td{border-bottom:1px solid #74B3DC;}
+		.l_td{border-left:1px solid #74B3DC;}
+		.r_td{border-right:1px solid #74B3DC;}
+		.tales60{overflow:hidden;width:100%;padding-left:60px;}
+		.tales60 dt{margin-left:-60px;_margin-left:-30px;width:60px;text-align:right;float:left;}
+		.tales60 dd{margin:0;}
+	</style>
+</head>
+<body style="width:95%; margin:auto">
+<div style="clear:both;"></div>
+<table width="95%" border="0"  cellspacing="0" class="itable">
+	<tr class="td">
+		<td colspan="7" align="left" class="td"><span>专题数据(白色情人节专题)</span></td>
+		<td align="right" class="td"><a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+	</tr>
+	#if($temp eq 'y')
+	<tr>
+	<td align="left" class="wd200">用户ID</td>
+	<td align="left" class="wd200">用户名</td>
+	<td align="left" class="wd200">参加时间</td>
+	</tr>
+	#foreach($member in $memberList)
+	<tr>
+	<td>$member.memberid</td>
+	<td>$member.membername</td>
+	<td>$DateUtil.format($member.addtime,'yyyy-MM-dd HH:mm:ss')</td>
+	</tr>
+	#end
+	#parse('include/pageUtil.vm')
+	#else
+	<tr class="td">
+	    <td align="left" class="wd200"><a href="javascript:void(0)" onclick="showTime()" >活动设置</a></td>
+		<td align="left" class="wd200"><a href="${basePath}admin/newsubject/checkPictureWhiteDay.xhtml" target="_blank">图片审核(亲吻照)</a></td>
+		<td align="left" class="wd200"><a href="${basePath}admin/newsubject/memberJoinInfo.xhtml" target="_blank">活动详情</a></td>
+		<td align="left" class="wd200"><a href="${basePath}admin/newsubject/commonPictrue.xhtml?type=whiteday&tag=ad">广告位</a></td>
+		<td align="left" class="wd200"><a href="javascript:void(0)" onclick="showJoin()">参与人数设置</a></td>
+	</tr>
+	#end
+</table>
+<div id="infos" style="display:none">
+        <input type="hidden" id="tag" name="tag" value="whiteday" />
+        <dl class="tales60">
+			<dt>开始时间:</dt>
+			<dd><label for="i_2"><input type="text" class="text" name="starttime" id="starttime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:00:00'})" value="$!whiteActivity.get('starttime')" /></label></dd>
+		</dl>
+		<dl class="tales60">
+			<dt>结束时间:</dt>
+			<dd><label for="i_2"><input type="text" class="text" name="endtime" id="endtime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:00:00'})" value="$!whiteActivity.get('endtime')"/></label></dd>
+		</dl>
+</div>
+<div id="rowNum" style="display:none">
+	<dl class="tales60">
+		<dt>参与人数:</dt>
+		<dd>
+			<label for="i_2">
+				<input type="text" class="text" name="joinNum" id="joinNum"  value="" />
+			</label>
+		</dd>
+	</dl>
+</div>
+<script>
+function showTime(){
+	gewa.util.issure('','infos','活动设置：',420,'keys',function(){
+		addTime();
+	});
+}
+	
+function addTime(){
+	var url = '${basePath}admin/newsubject/whitetime.xhtml';
+	var values = GewaraUtil.getValues("infos");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('保存成功！');
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function showJoin(){
+	var url = "${basePath}admin/newsubject/whiteJoinNum.xhtml";
+	GewaraUtil.sendRequest(url, {}, function(result){
+		if(result.success){
+			GewaraUtil.setValues(result);
+		}
+		gewa.util.issure('','rowNum','参与人数：',420,'rowNum',function(){
+			saveJoinNum();
+		});
+	});
+}
+
+function saveJoinNum(){
+	var url = '${basePath}admin/newsubject/saveWhiteJoinNum.xhtml';
+	var values = GewaraUtil.getValues("rowNum");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('保存成功！');
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+</script>

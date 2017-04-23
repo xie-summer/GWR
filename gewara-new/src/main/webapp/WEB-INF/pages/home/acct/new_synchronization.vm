@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>动态同步绑定_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.hidevis{
+			display:none;
+		}
+	</style>
+</head>
+<body>
+#set($tag="home")#set($mySyn = true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			<div class="horn">
+				<div class="titleB tongbuH2"><h2>动态同步</h2></div>
+			</div>
+		</div>
+		<div class="ui_center">
+			#if($VmUtils.isNotBlank($!params.msg))<div class="ml5">温馨提示：$!params.msg</div>#end
+			<!-- sina start -->
+			#if($!accessRights eq 1)
+			<div class="mt10 ml10 tongbuW505">
+				<div class="tongbu-box1"style="margin-left:78px;_margin-left:38px;">
+					<img src="$VmUtils.randomPic('','img/share/sina.png')"  alt="已同步到新浪微博" border="0" height="18" width="20" />
+					<span class="ml5 fs14" style="vertical-align: middle;">已同步到新浪微博</span>
+				</div>
+				<span>$!openMemberName</span>
+				<span class="acolor">
+					<!--<a class="mr20" href="javascript:showSetSyn('sinaSynInfo');">同步设置</a> -->
+					<a class="ml10" href="javascript:removeMemberSyn('$!openMember.id');">解除同步»</a>
+				</span>
+			</div>
+			<div class="mt10 set_tb"><a class="ml10" href="javascript:showSetSyn('sinaSynInfo');">设置同步的动态信息»</a>
+				<div class="bg-tongbu1"  id="sinaSynInfo">
+					<div class="mt10 pl15 gray">设置同步的动态信息: </div>
+					<div class="mt10 pl15">
+						<p>
+							<label class="lab"><input type="checkbox" name="rights$!openMember.id" #if($rightsList.contains('ticketorder'))checked="checked"#end value="ticketorder" /><span class="ml5">购票</span></label>
+							<label class="lab"><input type="checkbox" name="rights$!openMember.id" #if($rightsList.contains('moviecomment'))checked="checked"#end value="moviecomment" /><span class="ml5">电影影评</span></label>
+							<label class="lab"><input type="checkbox" name="rights$!openMember.id" #if($rightsList.contains('dramacomment'))checked="checked"#end value="dramacomment" /><span class="ml5">演出剧评</span></label>
+							<label class="lab"><input type="checkbox" name="rights$!openMember.id" #if($rightsList.contains('topic'))checked="checked"#end value="topic" /><span class="ml5">帖子</span></label>
+						</p>
+						<p class="mt10">
+							<label class="lab"><input type="checkbox" name="rights$!openMember.id" #if($rightsList.contains('agenda'))checked="checked"#end value="agenda" /><span class="ml5">生活安排</span></label>
+							<label class="lab"><input type="checkbox" name="rights$!openMember.id" #if($rightsList.contains('activity'))checked="checked"#end value="activity" /><span class="ml5">活动</span></label>
+							<label class="lab"><input type="checkbox" name="rights$!openMember.id" #if($rightsList.contains('wala'))checked="checked"#end value="wala" /><span class="ml5">哇啦</span></label>
+							#*<label><input type="checkbox" name="rights$!openMember.id" #if($rightsList.contains('reply'))checked="checked"#end value="reply" /><span class="ml5">搭话</span></label>*#
+							<label class="lab"><input type="checkbox" name="rights$!openMember.id" #if($rightsList.contains('point'))checked="checked"#end value="point" /><span class="ml5">每日红包</span></label>	
+						</p>				
+						<label class="button whiteBt minBt mt20"><input type="button" value="保存设置" onclick="saveRights('sinaSynInfo','sina',this);" style="padding:0 15px 0 0;"/></label>
+					</div>
+				</div>
+			</div>
+			#end
+			#if($!accessRights ne 1)
+			<div class="mt10 ml10 clear" style="margin:72px 0 0 88px;">
+				<div class="tongbu-box1">
+					<img src="$VmUtils.randomPic('','img/share/sina.png')"  alt="分享到新浪微博" border="0" height="18" width="20" />
+					<span class="ml10 fs14" style="vertical-align: middle;">同步到新浪微博</span>
+				</div>
+				#if($!accessRights eq 1)<span class="ml20 gray">【已同步】</span> #else<a class="button redBt minBt ml20" href="${basePath}home/bind/sina/userApp.xhtml"><span>同步</span></a>#end
+			</div>
+			#end
+			<!-- sina end -->
+			<!-- tencent start-->
+			#if($!qqAccessRights eq 1)
+			<div class="horn2">
+				<div class="titleB tongbuH2"></div>
+			</div>
+			<div class="mt10 tongbuW5505">
+				<div class="tongbu-box1"  style="margin-left:88px;_margin-left:44px;">
+					<img src="$VmUtils.randomPic('','img/share/qqweiboicon.png')"  alt="已同步到腾讯微博" border="0" height="18" width="20" />
+					<span class="ml5 fs14" style="vertical-align: middle;">已同步到腾讯微博：</span>
+				</div>
+				<span>$!qqOpenMemberName</span>
+				<span class="acolor">
+					<!--  <a class="mr20" href="javascript:showSetSyn('tencentSynInfo');">同步设置</a> -->
+					<a class="ml10" href="javascript:removeMemberSyn('$qqOpenMember.id');">解除同步»</a>
+				</span>
+			</div>
+			<div class="mt10 set_tb"><a class="ml10" href="javascript:showSetSyn('tencentSynInfo');">设置同步的动态信息»</a>
+				<div class="bg-tongbu1"  id="tencentSynInfo">
+					<div class="mt10 pl15 gray">设置同步的动态信息: </div>
+					<div class="mt10 pl15">
+						<p>
+							<label class="lab"><input type="checkbox" name="rights$qqOpenMember.id" #if($qqRightsList.contains('ticketorder'))checked="checked"#end value="ticketorder" /><span class="ml5">购票</span></label>
+							<label class="lab"><input type="checkbox" name="rights$qqOpenMember.id" #if($qqRightsList.contains('moviecomment'))checked="checked"#end value="moviecomment" /><span class="ml5">电影影评</span></label>
+							<label class="lab"><input type="checkbox" name="rights$qqOpenMember.id" #if($qqRightsList.contains('dramacomment'))checked="checked"#end value="dramacomment" /><span class="ml5">演出剧评</span></label>
+							<label class="lab"><input type="checkbox" name="rights$qqOpenMember.id" #if($qqRightsList.contains('topic'))checked="checked"#end value="topic" /><span class="ml5 mr5">帖子</span></label>
+						</p>
+						<p class="mt10">	
+							<label class="lab"><input type="checkbox" name="rights$qqOpenMember.id" #if($qqRightsList.contains('agenda'))checked="checked"#end value="agenda" /><span class="ml5">生活安排</span></label>
+							<label class="lab"><input type="checkbox" name="rights$qqOpenMember.id" #if($qqRightsList.contains('activity'))checked="checked"#end value="activity" /><span class="ml5">活动</span></label>
+							<label class="lab"><input type="checkbox" name="rights$qqOpenMember.id" #if($qqRightsList.contains('wala'))checked="checked"#end value="wala" /><span class="ml5">哇啦</span></label>
+							#*<label><input type="checkbox" name="rights$qqOpenMember.id" #if($rightsList.contains('reply'))checked="checked"#end value="reply" /><span class="ml5">搭话</span></label>*#
+							<label class="lab"><input type="checkbox" name="rights$qqOpenMember.id" #if($qqRightsList.contains('point'))checked="checked"#end value="point" /><span class="ml5">每日红包</span></label>
+						</p>
+						<label class="button whiteBt minBt mt20"><input type="button" value="保存设置" onclick="saveRights('tencentSynInfo', 'qq',this);"/></label>
+					</div>
+				</div>
+			</div>
+			#end
+			#if($!qqAccessRights ne 1)
+			<div class="ml10" style="margin:20px 0 0 88px;">
+				<div class="tongbu-box1">
+					<img src="$VmUtils.randomPic('','img/share/qqweiboicon.png')"  alt="分享到腾讯微博" border="0" height="18" width="20" />
+					<span class="ml10 fs14" style="vertical-align: middle;">同步到腾讯微博</span>
+				</div>
+				#if($!qqAccessRights eq 1)<span class="ml20 gray">【已同步】</span> #else<a class="button redBt minBt ml20" href="${basePath}home/bind/qq/userApp.xhtml"><span>同步</span></a>#end
+			</div>
+			#end
+			<!-- tencent end-->
+		</div>
+		<div class="ui_full_right">
+			<div class="switch_ui_inside">
+				<div class="switch_uis_t"><div class="switch_uis_t"></div></div>
+				<div class="switch_uis_c">
+					<div class="switch_uis_c">
+						<div class="switch_uis_c">
+							<div class="inner">
+								<img src="${picPath}css/home/sina_tongbu.jpg" width="236" height="122"/>
+								<div class="mt5"><iframe width="260" height="64" frameborder="0" allowtransparency="true" marginwidth="0" marginheight="0" scrolling="no" frameborder="No" border="0" src="http://widget.weibo.com/relationship/followbutton.php?language=zh_cn&width=260&height=64&uid=1644150884&style=4&btn=red&dpc=1"></iframe></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="switch_uis_b"><div class="switch_uis_b"></div></div>
+			</div>
+		</div>
+	</div>
+</div>
+	<script type="text/javascript">
+	function saveRights(el, source,self){
+		var elements = GewaraUtil.getValues(el);
+		var rights = '';
+		$(el).getElements('input').each(function(item,i){
+			if(item.checked){
+				rights +=item.value+",";
+			}
+		});
+		if(!$chk(rights)){
+			gewaUtil.alert("请选需要同步的动态内容！");
+			return;
+		}
+		var url = "${basePath}home/saveSynchroizaInfo.xhtml";
+		var values={'rights':rights,'source':source};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert("保存成功！",function(){
+					if($(this))$(this).getParent('.bg-tongbu1').addClass('hidevis');
+				}.bind(self));
+			}else{
+				gewaUtil.alert(result.msg);
+			}
+		});
+	}
+	function removeMemberSyn(omid){
+		gewaUtil.confirm('确认解除同步吗？', function(){
+			var url = "${basePath}home/removeMemberSynchroizeInfo.xhtml";
+			GewaraUtil.sendRequest(url,{'omid':omid},function(result){
+				if(result.success){
+					gewaUtil.alert("解除同步成功！",	refreshPage);
+				}
+			});
+		});
+	}
+	function showSetSyn(el){
+		$(el).toggleClass('hidevis');
+	}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

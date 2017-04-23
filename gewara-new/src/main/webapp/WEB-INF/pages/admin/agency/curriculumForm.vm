@@ -1,0 +1,55 @@
+<div id="curriculumDialog" class="table" style="width:600px;margin:auto; padding:20px; background:#fff;">
+	<div class="hd">[添加课程表]</div>
+	<div class="bd" id="curriculumForm">
+	<form name="curriculumForm" action="javascript:saveCurriculum();">
+		<input type="hidden" name="id" id="id" value="$!curriculum.id"/>
+		<input type="hidden" name="tid" id="tid" value="$trainingGoods.id"/>
+		<div>
+			<label>选择日期：</label>
+			<input type="text" name="fromdate" style="width:100px;" value="$!DateUtil.format($curriculum.fromdate,'yyyy-MM-dd')" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" readonly="readonly" />
+			<label>选择时间：</label>
+			<input type="text" name="classtime" style="width:100px;" value="$!curriculum.classtime" onclick="WdatePicker({dateFmt:'HH:mm'})" readonly="readonly" />
+		</div>
+		<div>
+			<input type="radio" name="cycletype" #if($VmUtils.eq($!curriculum.cycletype,'month'))checked='checked'#end value="month"/>每月
+			<input type="radio" name="cycletype" #if($VmUtils.eq($!curriculum.cycletype,'week'))checked='checked'#end value="week"/>每周
+			<input type="radio" name="cycletype" #if($VmUtils.eq($!curriculum.cycletype,'day'))checked='checked'#end value="day"/>每日 
+		</div>
+		<div>
+			<label for="type">循环截至：</label>
+			<input type="text" name="todate" style="width:100px;" value="$!DateUtil.format($curriculum.todate,'yyyy-MM-dd')" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" readonly="readonly" />
+		</div>
+		<div>
+			<label for="categoryids">教练：</label>
+			<input name="categoryids" style='width:300px; ' type="text" value="$!{curriculum.categoryids}" />
+		</div>
+		<div>
+			<label for="venueId">科目名称：</label>
+			<input name="title" style='width:300px; ' type="text" value="$!{curriculum.title}" />
+		</div>
+		<div>
+			<label for="venueId">说明：</label>
+			<textarea name="remark" rows="4" cols="50">$!{curriculum.remark}</textarea>
+		</div>
+		<div>
+			<label>&nbsp;</label><input type="submit" id="btnA" class="button" style="width:100px" value="保存数据"/>
+			<input type="button" onclick="javascript:GewaraUtil.hideDialog('pointText');" value="取消" style="width: 50px;"/>
+		</div>
+		</form>
+		<div id="msg" style="color:red;"></div>
+	</div>
+</div>
+<script>
+saveCurriculum = function(){
+	var url="${basePath}admin/training/saveCurriculum.xhtml";
+	var values = GewaraUtil.getValues("curriculumForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('保存成功！');
+			document.location.href="${basePath}admin/training/getCurriculumCalendar.xhtml?tid=$!trainingGoods.id&playDate=$!playDate";
+		}else{
+			alert(result.msg);
+		}
+	})
+}
+</script>

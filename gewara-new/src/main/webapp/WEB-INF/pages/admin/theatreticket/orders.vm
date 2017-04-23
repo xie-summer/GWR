@@ -1,0 +1,166 @@
+<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+	<thead>
+		<tr>
+			<th>订单编号</th>
+			<th>订单号</th>
+			<th width="3%">下单时间</th>
+			<th>用户</th>
+			<th>手机号</th>
+			<th>数量</th>
+			<th>优惠</th>
+			<th>总价</th>
+			<th width="40%">
+				<table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0;" class="aa">
+					<tr>
+						<th width="13%">物品描述</th>
+						<th width="10%">场馆</th>
+						<th width="10%">项目</th>
+						<th width="10%">单价</th>
+						<th width="10%">数量</th>
+						<th width="13%">套票优惠</th>
+						<th width="10%">总价</th>
+						<th width="13%">取票密码</th>
+						<th width="10%" class="bb">操作</th>
+					</tr>
+				</table>
+			</th>
+			<th>收件人</th>
+			<th>联系电话</th>
+			<th width="5%">地址</th>
+			<th>快递方式</th>
+			<th>快递单号</th>
+			<th>状态</th>
+		</tr>
+	</thead>
+	<tbody id="tbody">
+		#foreach($order in $orderList)
+		#set($descMap=$VmUtils.readJsonToMap($order.description2))
+		#set($orderAddress=$addressMap.get($order.tradeNo))
+		#set($tmpNoteMap=$noteMap.get($order.id))
+		#set($playText=$descMap.get('时间'))
+		#set($seatText=$descMap.get('座位'))
+		#set($itemList=$itemMap.get($!order.id))
+		<tr class="grayBg h" id="row${order.id}">
+			<td style="vnd.ms-excel.numberformat:@">$!order.id</td>
+			<td style="vnd.ms-excel.numberformat:@">#if($VmUtils.isBlank($xls))<a href="${basePath}admin/order/getOrderInfo.xhtml?orderId=$!order.id" target="_blank" title="$!order.description2">#{end}$!{order.tradeNo}#if($VmUtils.isBlank($xls))</a>#end</td>
+			<td>$DateUtil.format(${order.addtime},'MM-dd HH:mm:ss')</td>
+			<td title="$!order.membername">#if($VmUtils.isBlank($xls))$!VmUtils.escabbr($order.membername,8)#{else}$order.membername#end</td>
+			<td #if($VmUtils.isNotBlank($order.remark))title="$order.remark" style="color:red"#end onclick="showMobile($order.id,$order.mobile)"><span name="demobile" id="order$order.id" title="$order.mobile">#if($VmUtils.isBlank($xls))$VmUtils.getSmobile($order.mobile) #else ${order.mobile}#end</span></td>
+			<td>$order.quantity</td>
+			<td>$!order.discount</td>
+			<td>#if($order.discount gt 0)<span style="color:red;font-weight: bold;" title="$order.disreason">${order.totalAmount}</span>#else${order.totalAmount}#end</td>
+			<td width="400">
+				#if(!$seatText && !$VmUtils.isEmptyList($itemList))
+				<table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0;" class="aa">
+					#foreach($item in $itemList)
+					#set($theatre=$orderTheatreMap.get($item.placeid))
+					#set($drama=$orderDramaMap.get($item.itemid))
+					#set($note=$tmpNoteMap.get($item.relatedid))
+					#set($goods=$goodsMap.get($item.relatedid))
+					<tr class="grayBg h abcd">
+						<td width="13%">$!{item.summary}</td>
+						<td width="10%">$!{theatre.realBriefname}</td>
+						<td width="10%">$!{drama.realBriefname}</td>
+						<td width="10%">$!{item.unitprice}</td>
+						<td width="10%">$!{item.quantity}</td>
+						<td width="13%">$!item.disfee</td>
+						<td width="10%">$!item.totalfee</td>
+						<td style="vnd.ms-excel.numberformat:@" width="13%">$!note.checkpass</td>
+						<td width="10%" class="bb">#if(!$VmUtils.isBlank($!note.message) && $VmUtils.eq($order.status,'paid_success'))[<span style="color: red;">已发</span>]#{end}#if($VmUtils.eq($order.status,'paid_success'))<a href="javascript:void(0)" onclick="sendMessage('$!note.id')" title="#if(!$VmUtils.isBlank($!note.message))短信已加入#end">重发短信</a>#end</td>
+					</tr>
+					#end
+				</table>
+				#else
+				<table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0;" class="aa">
+					#foreach($note in $tmpNoteMap.values())
+					<tr class="grayBg h abcd">
+						<td width="13%">$!{playText} , $!{seatText}$!{order.remark}</td>
+						<td width="10%">$!{note.placename}</td>
+						<td width="10%">$!{note.itemname}</td>
+						<td width="10%">$!{order.unitprice}</td>
+						<td width="10%">$!{order.quantity}</td>
+						<td width="13%">0</td>
+						<td width="10%">$!order.totalfee</td>
+						<td style="vnd.ms-excel.numberformat:@" width="13%">$!note.checkpass</td>
+						<td width="10%" class="bb">#if(!$VmUtils.isBlank($!note.message))[<span style="color: red;">已发</span>]#{end}#if($VmUtils.eq($order.status,'paid_success'))<a href="javascript:void(0)" onclick="sendMessage('$!note.id', $!VmUtils.isNotBlank($!note.message))" title="#if(!$VmUtils.isBlank($!note.message))短信已加入#end">重发短信</a>#end</td>
+					</tr>
+					#end
+				</table>
+				#end
+			</td>
+			#if($orderAddress)
+			#set($orderMap = $VmUtils.readJsonToMap($!order.otherinfo))
+			<td>$!{orderAddress.realname}</td>
+			<td onclick="showMobile($!orderAddress.tradeno,$orderAddress.mobile)"><span name="demobile" id="order$!orderAddress.tradeno" title="$!orderAddress.mobile">#if($VmUtils.isBlank($xls))$!VmUtils.getSmobile($!{orderAddress.mobile})#{else} $!{orderAddress.mobile} #end</span></td>
+			<td>$!{orderAddress.provincename}&nbsp;&nbsp;$!{orderAddress.cityname}&nbsp;&nbsp;$!{orderAddress.countyname}$!{orderAddress.address}</td>
+			<td>
+				#if($!xls)
+					$!orderMap.get('expressMode')
+				#else
+					<input type="text" id="expressMode$!order.id" name="expressMode" onchange="setExpressNo($!order.id)" style="width: 75px;" value="$!orderMap.get('expressMode')" />
+				#end	
+			</td>
+			<td>
+				#if($!xls)
+					$!orderMap.get('expressNo')
+				#else
+					<input type="text" id="expressNo$!order.id" name="expressNo" style="width: 75px;" onchange="setExpressNo($!order.id)" value="$!orderMap.get('expressNo')" />
+				#end
+			</td>
+			#else
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			#end
+			<td>
+				$!{order.statusText}
+				#if($VmUtils.contains($order.status,'paid_failure'))<input type="button" class="cbt2" value="确认成功" onclick="confirmOrder($order.tradeNo, this)" />#end
+				#if($VmUtils.isBlank($xls))<a href="${basePath}admin/dramaTicket/printDramaOrder.xhtml?orderid=$!order.id&xls=pdf">导出pdf</a>#end
+			</td>
+		</tr>
+		#end
+	</tbody>
+</table>
+<script type="text/javascript">
+var item = "";
+function showMobile(orderid, mobile){
+	if($(item)) {
+		$(item).set('html', $(item).title);
+		$(item).removeClass('yellow');
+	}
+	$('order' + orderid).set('html', mobile);
+	$('order' + orderid).addClass('yellow');
+	item = 'order' + orderid;
+}
+function confirmOrder(tradeNo, el){
+	el.dispose();
+	var url = "${basePath}admin/dramaTicket/failConfirm.xhtml";
+	GewaraUtil.sendRequest(url, {"tradeNo":tradeNo}, function(result){
+		if(result.success){
+			refreshPage();
+		}else alert(result.msg);
+	})
+}
+
+function setExpressNo(orderid){
+	var url = '${basePath}admin/dramaTicket/setExpressNo.xhtml';
+	var expressMode = $('expressMode'+orderid).value;
+	var expressNo = $('expressNo'+orderid).value;
+	if(expressMode==""&&expressNo!=""){
+		alert("快递方式与快递单号需同时存在！");
+		return;
+	}
+	if(expressMode!=""&&expressNo!=""){
+		var values = {'orderId':orderid,'expressNo':expressNo,'expressMode':expressMode};
+		GewaraUtil.mask(obj);
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(!result.success){
+				alert(result.msg);	
+			}
+		});
+	}
+}
+</script>

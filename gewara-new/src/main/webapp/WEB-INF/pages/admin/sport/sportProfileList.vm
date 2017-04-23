@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>运动场所列表</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style>
+	a{text-decoration:underline;}
+	th,td{text-align:center !important;height:30px;line-height:30px;}
+	</style>
+</head>
+<body style="width:100%; margin:auto">
+<div style="padding:1px">
+	<form action="${basePath}admin/sport/sportProfileList.xhtml" style="width:840px;margin:3px" name="sportForm" id="sportForm">
+		搜索(名称+ID+区县+地址)：<input name="key" type="text" style="width:80px" value="$!params.key"/>
+		备注：<input type="text" name="company" value="$!params.company"/> <input type="submit" class="button" value="查询"/>
+	</form>
+	开设项目
+	<select onchange="getSportItem()" name="siId" id="siId">
+		<option value="">全部</option>
+		#foreach($sportItem in $sportItemList)
+		<option value="$sportItem.id" #if($params.siId eq $sportItem.id) selected='selected' #end>$sportItem.itemname</option>
+		#end
+	</select>
+	添加场馆:ID:<input type="text" name="sid" id="sid"></input><input type="button" value="添加" onclick="addSportProfile();"/>
+	场馆预订状态
+	<select onchange="changeBooking();" name="booking" id="booking">
+		<option value="open">开放</option>
+		<option value="close" #if($VmUtils.eq($params.isBooking, 'close'))selected='selected'#end>关闭</option>
+	</select>
+</div>
+<table width="100%" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th>场管名称</th>
+		<th>开放场次</th>
+		<th>开设项目</th>
+		<th>是否代售</th>
+		<th>操作</th>
+		<th>前台页面</th>
+		<th>备注</th>
+	</tr>
+	</thead>
+	<tbody id="sportTable">
+	#foreach($sportProfile in $sportProfileList)
+	<tr>
+		<td>$!sportMap.get($sportProfile.id).name</td>
+		<td>$sportOpenTimeTableCountMap.get($sportProfile.id)</td>
+		<td>
+			#foreach($item in $itemMap.get($sportProfile.id))$!item.itemname #end
+		</td>
+		<td><input type="checkbox" value="$!sportProfile.id" #if($sportProfile.hasPretype('E')) checked="checked" disabled="disabled" #else onclick="updateSp('$!sportProfile.id', this)" #end/></td>
+		<td nowrap="nowrap" id="b$sport.id">
+		<a href="${basePath}admin/sport/open/newOttList.xhtml?sportid=${sportProfile.id}" target="_blank">管理</a>
+		<a href="${basePath}admin/goods/goodsListToSport.xhtml?sid=${sportProfile.id}" target="_blank">畅玩</a>
+		#if($VmUtils.eq($sportProfile.booking, 'open'))
+		<a href="javascript:myconfirm($sportProfile.id, 'close')">关闭预定</a>
+		#else
+		<a href="javascript:myconfirm($sportProfile.id, 'open')">开放预定</a>
+		#end
+		</td>
+		<td>
+			<a target="_blank" href="$!{absPath}${basePath}sport/$!sportProfile.id">查看</a>
+		</td>
+			<td>
+			<input type="text" value="$!sportProfile.company" id="si${$sportProfile.id}" onchange="updateCompany($sportProfile.id,this.value)"  />
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<div id="page">
+	#parse('include/pageUtil.vm')
+</div>
+<script type="text/javascript">
+function addSportProfile(){
+	var url = "${basePath}admin/sport/open/saveNewBaseData.xhtml";
+	var sid=$('sid').value;
+     if(sid==""){
+   	  gewaUtil.alert('场馆ID不能为空!');
+   	  return;
+     }
+	var values = {'id':sid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success) alert('成功设置！');
+	   else alert(result.msg);
+		refreshPage();
+	});
+}
+function getSportItem(){
+	var sid=$('siId').value;
+	location.href="${basePath}admin/sport/sportProfileList.xhtml?siId="+sid;
+}
+function changeBooking(){
+	location.href="${basePath}admin/sport/sportProfileList.xhtml?isBooking="+$('booking').value;
+}
+function updateCompany(vid,val){
+	var values = {'sportId':vid,'value2':val};
+	var url = "${basePath}admin/sport/ajax/setCompany.xhtml";
+	GewaraUtil.sendRequest(url, values , function(result){
+		if(result.success){
+			alert('成功设置！');
+		}else{
+			alert('设置失败');
+		}
+	});
+}
+function myconfirm(sid,isOpen){
+	gewa.util.confirm('确定要修改场馆预订状态？',function(){	
+		var url = "${basePath}admin/sport/ajax/setBooking.xhtml";
+		var values = {'sid':sid,'isOpen':isOpen};
+		GewaraUtil.sendRequest(url, values , function(result){
+			if(result.success){
+				alert('成功设置！');
+			}else{
+				alert('设置失败');
+			}
+			refreshPage();
+		});
+	})	
+}
+function updateSp(sportid, el){
+	if(!window.confirm("确认修改场馆为代售?")){
+		el.checked=false;
+		return;
+	}
+	var url = '${basePath}admin/sport/ajax/updateSpPretype.xhtml';
+	var values = {"sportid":sportid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("保存成功！");
+			el.checked=true;
+			el.disabled=true;
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

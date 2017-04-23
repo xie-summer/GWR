@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>圈子成员_格瓦拉生活网</title>
+	<meta name="keywords" content=""/>
+	<meta name="description" content=""/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=global,sns,commnu&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+	#parse('home/community/commnu_style.vm')
+</head>
+<body>
+#set($communityMenber=true)#set($isFlase=true)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+#parse('include/home/communityHeadMenu.vm')
+<h1>圈子成员</h1>
+<div class="commnu_layout">
+	<div class="commnu_left">
+		<div class="showList" style="margin-top:0px;">
+			#if($purview eq 'public')
+			<div class="gui-title">
+				<h2>圈内成员</h2>
+				<div class="gui-more">
+					#if($member.id eq $commu.adminid||$member.id eq $commu.subadminid) <a href="${basePath}home/commu/commuMessage.xhtml?commuid=$!commu.id" class="bt mr20" target="_blank"><span>发送圈内通知</span></a>#end
+					<a href="${basePath}home/commu/inviteAddCommu.xhtml?commuid=$!commu.id" class="button whiteBt minBt" target="_blank" style="vertical-align:middle;" ><span>+邀请好友加入</span></a>
+				</div>
+			</div>
+			<ul class="ul-33">
+				#foreach($commuMember in $listCommuMember)
+				<li>
+					<div class="hdBox">
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$commuMember.memberid" class="pubpic" target="_blank"><img src="${staticPath}css/images/blank.gif" style="background:url($VmUtils.randomPic('cw50h50',$!{cacheMemberMap.get($commuMember.memberid).headpicUrl}))  no-repeat center center; "/></a>
+						<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$commuMember.memberid" class="brown" target="_blank">$cacheMemberMap.get($commuMember.memberid).nickname#if($commuMember.memberid eq $adminMember.id)(管理员)#end</a>
+						<div>
+							#if($member.id ne $commuMember.memberid)
+							<a href="${basePath}home/message/sendMessage.xhtml?memberid=$commuMember.memberid" target="_blank"><img src="${staticPath}css/home/message.gif"/>发信息</a>
+							#end
+							<a href="${basePath}home/friend/addFriend.xhtml?memberid=$commuMember.memberid" class="ml5" target="_blank"><img src="${staticPath}css/home/adFriend1.gif"/>好友</a>
+							#if($member.id eq $adminMember.id && $commuMember.memberid ne $adminMember.id)
+							<a href="javascript:deleteMember($!commuMember.memberid)" class="ml5"><img src="${staticPath}css/home/del.gif"/>踢出</a>
+							#end
+						</div>
+					</div>
+				</li>
+				#end
+			</ul>
+			<div class="height0"></div>
+			#parse('include/pageUtil.vm')
+			<div class="height0"></div>
+			#elseif($purview eq 'member')
+			圈子成员才能访问，你还没有加入这个圈子!
+			#elseif($purview eq 'admin')
+			圈子管理员才能访问!
+			#end
+		</div>
+	</div>
+	<div class="commnu_right">
+		#parse('include/home/commuRightMenu.vm')
+		#parse('include/home/commuRightList.vm')
+	</div>
+	<div class="height0"></div>
+</div>
+#parse('include/bottom.vm')
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody").getElements("tr").each(function(item){
+		item.addEvents({'mouseenter':function(){this.addClass("tdHover");},'mouseleave':function(){this.removeClass("tdHover");}});
+	});
+});
+function deleteMember(data){
+	gewaUtil.confirm("确定踢出此成员吗？", function(){
+		location.href="${basePath}home/commu/deleteCommuMember.xhtml?commuid=${commu.id}&memberid="+data;		
+	});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>城市电影最低价格类别设置</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#F47C30;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+	</style>
+</head>
+<body style="text-align: center;width: 80%; margin:auto;">
+	<div>
+		<input type="button" value="添加城市类别" onclick="showCityTier()"/>
+	</div>
+	<div id="cityTier" style="display: none;">
+		<span style="display: block;">
+			城市:<select name="id" mustTxt="请选择城市" >
+					<option value="">请选择城市...</option>
+					#foreach($city in $cityList)
+						#if(!($tierCityList && $tierCityList.contains($city.citycode)))
+						<option value="$city.citycode">$city.cityname</option>
+						#end
+					#end
+				</select>
+		</span>
+		<span style="display: block;">
+			类别：<select name="tag" mustTxt="请选择类别" >
+				<option value="">请选择类别...</option>
+				#foreach($tierMap in $priceTierMapList)
+				<option value="$tierMap.id">$tierMap.id</option>
+				#end
+			</select>
+		</span>
+		<span style="display: block;margin-top: 5px;text-align: right;"><input type="button" value="确定" onclick="saveCityTier(this)" style="margin-right: 10px;"/><input type="button" value="取消"></input></span>
+	</div>
+	<table class="roomManageTable" id="all_content" cellpadding="0" cellspacing="0" border="0" style="margin:auto;">
+		<thead><tr>#set($ck=$cookieTool.admin_citycode.value)
+			<th style="width:20px;">&nbsp;</th>
+			<th style="width:40px;">城市</th>
+			<th style="width:250px;">类别</th>
+			<th style="width:40px">操作</th>
+		</tr></thead>
+		<tbody id="tbody">
+			#foreach($cityTier in $cityTierMapList)
+			<tr class="grayBg h">
+				<td>$foreach.count</td>
+				<td>$!cityMap.get($cityTier.id).cityname</td>
+				<td>$!cityTier.get('tag')</td>
+				<td><input type="button" value="删除" onclick="deleteCityTier(this,'$cityTier.get('id')','$!cityTier.get('tag')')"/></td>
+			</tr>
+			#end
+		</tbody>
+	</table>
+<script type="text/javascript">
+function showCityTier(){
+	gewa.util.maskContent('','cityTier','添加城市类别',400,'cityTier');
+}
+function deleteCityTier(obj,id,tag){
+	var url = "${basePath}admin/ticket/saveCityTier.xhtml";
+	var values = {"tierId":id,"id":id,"tag":tag};
+	GewaraUtil.mask(obj);
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			alert("删除成功！");
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function saveCityTier(obj){
+	var url = "${basePath}admin/ticket/saveCityTier.xhtml";
+	var values = GewaraUtil.getValues('cityTier');
+	GewaraUtil.mask(obj);
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			alert("保存成功！");
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>哇啦列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.w50{
+			width:70px;
+		}
+	</style>
+</head>
+<body style="margin:auto" class="yui-skin-sam">
+<form action="${basePath}admin/blog/microcommentList.xhtml" method="post" name="microcommentListForm" id="microcommentListForm">
+<input type="hidden" name="isexport" id="isexport"/>
+<div>#set($tagmap = {'':'请选择类型...','movie':'电影','cinema':'电影','ktv':'KTV','bar':'酒吧','sport':'运动','gym':'健身','gymcoach':'健身教练','topic':'用户哇啦'})
+	<div style="margin-bottom: 20px;">
+		用户ID:<input value="$!params.memberid" type="text" name="memberid" id="memberid" class="w50"/>
+		类型:<select name="tag" >
+		#foreach($tagkey in $tagmap.keySet())
+		<option #if($!params.tag eq $tagkey) selected="selected"#end value="$!tagkey">$!tagmap.get($tagkey)</option>
+		#end
+		</select>
+		类型关联(项目，场馆)ID:<input type="text" value="$!params.relatedid" name="relatedid" id="relatedid" class="w50"/>
+		发表日期<input type="text" value="$!params.beginDate" name="beginDate" style="width:77px;" onfocus="new WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>~
+		<input type="text" value="$!params.endDate" name="endDate" style="width:77px;" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>
+	</div><div >
+		哇啦状态：<select name="status">
+		<option value="">请选择状态...</option>
+			<option #if($!params.status eq 'N_FILTER')selected="selected"#end value="N_FILTER">待审核</option>
+			<option #if($!params.status eq 'Y_NEW')selected="selected"#end value="Y_NEW">已审核</option>
+			<option #if($!params.status eq 'N_DELETE')selected="selected"#end value="N_DELETE">已删除</option>
+		</select>
+		哇啦内容：<input type="text" style="width: 150px;" value="$!params.body" name="body" id="body"/>
+		<input type="button" value="搜 索" class="bt" onclick="exportcomment('')"/>
+		<input type="button" value="导出Excel" class="bt" id="exportcommentBtn" style="margin-left: 50px;" onclick="exportcomment('true')"/>
+		<span class="yellow">(注意: 导出Excel将会导出搜索到的全部记录!)</span>
+	</div>
+</div>
+</form>
+<div id="page" style="margin-top: 10px;">
+	#parse('include/pageUtil.vm')
+</div>
+<table class="table" width="100%" style="text-align: center;">
+	<thead  style="text-align: center;">
+	<tr>
+		<th width="7%"><input type="checkbox" onclick="selAll(this)" id="all"/>全选</th>
+		<th >编号</th>
+		<th >内容</th>
+		<th >发表时间</th>
+		<th width="8%">发表人</th>
+		<th width="8%">发表人ID</th>
+		<th >操作</th>
+	</tr>
+	</thead>
+	<tbody id="gymTable"  style="text-align: center;">
+			#foreach($comment in $commentList)
+				<tr>
+					<td><input type="checkbox" name="cbox" value="$comment.id"></td>
+					<td>$!comment.id</td>
+					<td>$!VmUtils.getWebBody($!comment.body,$picPath)</td>
+					<td>$DateUtil.format($comment.addtime, 'yyyy-MM-dd HH:mm:ss') </td>
+					<td>$!comment.nickname</td>
+					<td>$!comment.memberid</td>
+					<td>
+					#if($comment.status.indexOf('Y') ge 0)
+					<input type="button" value="删除" onclick="audit($comment.id,'N_DELETE')"/>
+					#elseif($VmUtils.eq($comment.status,'N_FILTER') || $VmUtils.eq($comment.status,'N_ACCUSE'))
+					<input type="button" value="显示" onclick="auditShow($comment.id,'Y_NEW')"/>
+					<input type="button" value="删除" onclick="audit($comment.id,'N_DELETE')"/>
+					#elseif($VmUtils.eq($comment.status,'N_DELETE'))
+					<input type="button" value="显示" onclick="auditShow($comment.id,'Y_NEW')"/>
+					#end
+					<input type="button" value="热门上升" title="推荐到热门哇啦列表排序靠前" onclick="recommendComment('500','$comment.id')"/>
+					<input type="button" value="热门下降" title="推荐到热门哇啦列表排序下降" onclick="recommendComment('0','$comment.id')"/>
+				</td>
+				</tr>
+			#end
+	</tbody>
+	<tfoot>
+		<tr >
+			<td style="background-color: #ffffff;text-align: center;" colspan="5"><input type="button" onclick="delMulti()" value="批量删除" /></td>
+		</tr>
+	</tfoot>
+</table>
+<div id="page">
+	#parse('include/pageUtil.vm')
+</div>
+<div id="deleteReason" style="display: none;border:2px solid gray;widht:500px;height:30px;padding-top:10px;background:#ffffff;z-index: 10">
+	<input type="hidden"  id="editid"/><input type="hidden"  id="editstatus"/>
+	<input type="hidden"  id="isDelMulti" />
+	请选择删除原因：<select name="reason" id="reason">
+					<option value="1">广告信息</option>
+					<option value="2">政治敏感话题</option>
+					<option value="3">情、色、暴力等不健康信息</option>
+					<option value="4">非法买卖等违法信息</option>
+					<option value="5">手动输入原因</option>
+				</select> <input name="handReason" type="text" id="handReason" onclick="this.focus();"/>
+				<input type="button" id="reason_ok" value="确定" onclick="deleteInfo()"/>
+				<input type="button" id="reason_cancel" value="取消" onclick="hiddenDiv()"/>
+</div>
+	<script type="text/javascript">
+	window.addEvent('domready',function(){
+			var myDrag = new Drag.Move('deleteReason', {
+				container:$('content'),
+				onDrop: function(element, droppable){
+						myDrag.detach();
+				}});
+		$('deleteReason').addEvent('click', function(){
+			myDrag.attach();//元素将重新获得拖动功能
+		});
+	});
+	// 全选
+	function selAll(obj){
+		var cbs = document.getElementsByName('cbox');
+		$each(cbs, function(i, n){
+			i.checked=obj.checked;
+		})
+	}
+	// 检查选中的
+	function checkedArrs(cbs){
+		var checkedArr = new Array();
+		var a = 0;
+		$each(cbs, function(i, n){
+			if(i.checked){
+				checkedArr[a] = i.value;
+				a++;
+			}
+		})
+		return checkedArr;
+	}
+	function audit(id,status){
+		$('editid').value=id;
+		$('editstatus').value=status;
+		$('deleteReason').setStyle("display","block");
+		GewaraUtil.showDialog('deleteReason',-1,true);
+		return;
+	}	
+	
+	function auditShow(id,status){
+		if(confirm('确认显示此条哇啦吗？')){
+			var values = {'ids':id+",",'status':status};
+			updateStatus(values,'');
+		}
+	}
+	
+	
+	function hiddenDiv(){
+		$('handReason').value='';
+		GewaraUtil.hideDialog('deleteReason');
+	}
+
+	function deleteInfo(){
+		get$('reason_ok').disabled = true;
+		get$('reason_cancel').disabled = true;
+		var isDelMulti = $('isDelMulti').value;
+		if(isDelMulti == 'true'){
+			delMulti_process();
+		}else{
+			deleteInfoSingle();
+		}
+	}
+	
+	function deleteInfoSingle(){
+		var rea=$('reason').value;
+		var handReason=$('handReason').value;
+		if(rea==5&&handReason.length==0){
+			alert("请输入删除此贴的原因");
+			return false;
+		}
+		var ids=$('editid').value+",";
+		var status=$('editstatus').value
+		var values = {'ids':ids,'status':status,'reason':rea,'reasonDetail':handReason};
+		updateStatus(values,'del');
+	}
+	
+	function updateStatus(values,type){
+		GewaraUtil.sendRequest('${basePath}admin/blog/deleteMultiComment.xhtml',values,function(result){
+			if(result.success){
+				alert('操作成功！'); 
+				refreshPage();
+			}else alert('删除失败！');
+			hiddenDiv();
+		});
+	}
+	
+	function recommendComment(hotValue,id){
+		var values= {"id":id,"hotValue":hotValue};
+		GewaraUtil.sendRequest('${basePath}admin/blog/hotRecommendComment.xhtml',values,function(result){
+			if(result.success){
+				alert('操作成功！'); 
+			}else {
+				alert('推荐失败！');
+			}
+		});
+	}
+
+	// 批量删除
+	function delMulti(){
+		var cbs = document.getElementsByName('cbox');
+		var checkedArr = checkedArrs(cbs);
+		if(checkedArr.length == 0){
+			alert("请至少选择一个!");
+			return false;
+		}
+		$('isDelMulti').value = 'true';
+		audit(checkedArr, 'N_DELETE');
+	}
+	function delMulti_process(){
+		var cbs = document.getElementsByName('cbox');
+		var checkedArr = checkedArrs(cbs);
+		var rea=$('reason').value;
+		var handReason=$('handReason').value;
+		if(rea==5&&handReason.length==0){
+			alert("请输入删除此贴的原因");
+			return false;
+		}
+		var ids = "";
+		for(var i = 0;i<checkedArr.length;i++){
+			ids +=checkedArr[i]+",";
+		}
+		var values = {'ids':ids,'status':'N_DELETE','reason':rea,'reasonDetail':handReason};
+		updateStatus(values,'del');
+	}
+	function get$(id){
+		return document.getElementById(id);
+	}
+	
+	// 表单搜索 / 导出Excel
+	function exportcomment(flag){
+		$('isexport').set('value', flag);
+		if(GewaraUtil.isNotNull(flag))$('exportcommentBtn').disabled = true;
+		$('microcommentListForm').submit();
+	}
+</script>
+</body>
+</html>

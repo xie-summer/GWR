@@ -1,0 +1,57 @@
+ <div id="vipCardDetail" class="detail_vipBuy">
+	<a href="javascript:hideCard();" class="colseMark"></a>
+	<table style="width: 464px;margin: 12px;">
+		#if($VmUtils.size($cardList) gt 0)
+			<tr>
+				<td colspan="3" style="text-align: left;color:#009900;">找到下列与此手机绑定的会员卡</td>
+			</tr>
+			<tr>
+				<td style="color:#000000;">场馆</td><td style="color:#000000;">卡号</td><td style="color:#000000;">操作</td>
+			</tr>
+			#foreach($card in $cardList)
+			#set($sportList=$sportsMap.get($card.id))
+			<tr>
+				<td>
+				#foreach($sport in $sportList)
+				#if($foreach.count eq 1)
+				$sport.name
+				#end
+				#end
+				</td>
+				<td>$card.memberCardCode</td>
+				<td id="td$card.id"><a href="javascript:bindMemberCard($card.id)" style="color:#1885AE;">绑定</a></td>
+			</tr>
+			#end
+		#else
+			<tr>
+				<td colspan="3" style="border:none">
+					<div class="ui_error"><b class="ico_g"></b>未找到与此手机绑定的会员卡</div>
+				</td>
+			</tr>
+		#end
+	</table>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	gewa.util.maskContent('','vipCardDetail','',520,'vipCardDetail');
+});
+bindMemberCard=function(cardid){
+	var url="${basePath}home/ajax/memberCard/bindMemberCard.xhtml";
+	GewaraUtil.mask('vipCardDetail');
+	var values = {'cardid':cardid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			gewaUtil.alert('绑定成功！', function(){
+				$('td'+cardid).innerHTML='';	
+			});
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+hideCard = function(){
+	gewa.util.container['vipCardDetail'].dispose('vipCardDetail');
+	refreshPage();
+}
+</script>

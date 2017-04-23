@@ -1,0 +1,111 @@
+<style>
+	#gcForm ul li{padding: 3px;}
+	.disabled{background-color: #D4D0C8; color: #808080;}
+	.cke_skin_chris{width:700px !important;}
+</style>
+<div class="table" style="width:750px;height:auto;position:relative;top:30px;left:-10px; padding: 3px;">
+<div id="gcForm">
+	<ul>
+	<li>
+		<input type="hidden" name="id" id="id" value="$!data.id"/>
+		<input type="hidden" name="relatedid" id="relatedid" value="$!params.relatedid"/>
+		<input type="hidden" name="parentid" id="parentid" value="$!params.parentid"/>
+		<input type="hidden" name="tag" id="tag" value="$!params.tag">
+		<input type="hidden" name="signname" id="signname" value="$!params.signname">
+	</li>
+	#if($!params.newsboard)<li>版块：
+	<select name="newsboard" style="width: 100px;">
+		<option value="movie" #if($!data.newsboard eq 'movie' || $!params.page eq 'movie')selected#end>电影</option>
+		<option value="activity" #if($!data.newsboard eq 'activity' || $!params.page eq 'activity')selected#end>活动</option>
+		<option value="drama" #if($!data.newsboard eq 'drama' || $!params.page eq 'drama')selected#end>话剧</option>
+		<option value="sport" #if($!data.newsboard eq 'sport' || $!params.page eq 'sport')selected#end>运动场馆</option>
+		<option value="ktv" #if($!data.newsboard eq 'ktv' || $!params.page eq 'ktv')selected#end>KTV场馆</option>
+		<option value="gym" #if($!data.newsboard eq 'gym' || $!params.page eq 'gym')selected#end>健身场馆</option>
+		<option value="bar" #if($!data.newsboard eq 'bar' || $!params.page eq 'bar')selected#end>酒吧场馆</option>
+		<option value="diary" #if($!data.newsboard eq 'diary' || $!params.page eq 'diary')selected#end>投票</option>
+	</select>
+	ID：<input type="text" name="boardrelatedid" value="$!data.boardrelatedid">
+	</li>
+	#end
+	#if($!params.newstitle)<li>#if($params.signname eq 'L_choujiang')标签#else标题#end：&nbsp;<input type="text" name="newstitle" id="newstitle" value="$!data.newstitle" style="width: 300px;"/></li>#end
+	#if($!params.newslink)<li>链接：&nbsp;<input type="text" name="newslink" id="newslink" value="$!data.newslink" style="width: 300px;"/></li>#end
+	#if($!params.newssubject)<li>简介：&nbsp;<textarea name="newssubject" id="newssubject" cols="40" rows="3">$!data.newssubject</textarea></li>#end
+	#if($!params.newslogo)<li>Logo：
+	<input type="text" name="newslogo" id="newslogo" readonly="readonly" class="disabled" value="$!data.newslogo" style="width: 350px;"/>
+	<iframe class="center" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame" 
+			src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updateLogo"></iframe>
+			<img style="height:100px; margin-left:80px;" id='logoimg1' src='${picPath}$data.newslogo' onerror="this.src='${basePath}img/default_head.png'"/></li>#end
+	#if($!params.newssmalllogo)<li>SmallLogo：
+	<input type="text" name="newssmalllogo" id="newssmalllogo" readonly="readonly" class="disabled" value="$!data.newssmalllogo" style="width: 350px;"/>
+	<iframe class="center" height="25px" width="450px" frameborder="0" scrolling="no" id="uploadIFrame" 
+		src="${basePath}common/uploadSinglePicture.xhtml?uploadPath=images/common/&callback=updateSmallLogo"></iframe>
+		<img style="height:100px; margin-left:80px;" id='logoimg2' src='${picPath}$data.newssmalllogo' onerror="this.src='${basePath}img/default_head.png'"/></li>#end
+	<li>&nbsp;&nbsp;<input type="button" onclick="save()" value="保存" style="width: 50px;"/>
+	<input type="button" onclick="javascript:GewaraUtil.hideDialog('pointText');" value="取消" style="width: 50px;"/></li>
+	</ul>
+</div>
+
+</div>
+<script>
+
+var ckeditor;
+window.addEvent('domready', function(){
+	#if($!params.newssubject)
+	if(!CKEDITOR.instances.newssubject){
+		ckeditor = CKEDITOR.replace("newssubject");
+	}else{
+		CKEDITOR.remove(CKEDITOR.instances.newssubject);
+		ckeditor = CKEDITOR.replace("newssubject");
+	}
+	#end
+});
+
+save = function(){
+	#if($!params.newssubject)
+	$('newssubject').value = ckeditor.getData();
+	#end
+	var values = GewaraUtil.getValues("gcForm");
+	#if($!params.newsboard)
+		var url = '${basePath}admin/newsubject/checkBoardData.xhtml';
+		var newvalues = {'board': values['newsboard'], 'relatedid':values['boardrelatedid']};
+		GewaraUtil.sendRequest(url, newvalues, function(result){
+			if(result.success){
+				if(!window.confirm('请确认：<' + result.retval + '>')) return false;
+				saveFrm();
+			}else{
+				alert('版块ID输入有误, 请重新输入！');
+				return false;
+			}
+		});
+	#else
+		saveFrm();
+	#end
+}
+
+saveFrm = function(){
+	#if($!params.newssubject)
+	$('newssubject').value = ckeditor.getData();
+	#end
+	var url = "${basePath}admin/newsubject/savegcDetail.xhtml";
+	var values = GewaraUtil.getValues("gcForm");
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("信息添加成功！");
+			refreshPage();
+		}else {
+			alert(result.msg);
+		}
+	});
+}
+
+updateLogo = function(params){
+	var picpath1 = params['picpath'];
+	$('newslogo').value = picpath1;
+	$('logoimg1').src='${picPath}' + picpath1;
+}
+updateSmallLogo = function(params){
+	var picpath2 = params['picpath'];
+	$('newssmalllogo').value = picpath2;
+	$('logoimg2').src='${picPath}' + picpath2;
+}
+</script>

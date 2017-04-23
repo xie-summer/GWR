@@ -1,0 +1,81 @@
+<div class="title"><h2>$!left.title</h2><span class="linet"></span></div>
+#foreach($toupiao in $toupiaoList)
+<p class="mt10">
+#if($VmUtils.isNotBlank($toupiao.newslink))
+<a href="$!toupiao.newslink" target="_blank"><img src="$VmUtils.randomPic('',$!toupiao.newslogo)"/></a>
+#else
+<img src="$VmUtils.randomPic('',$!toupiao.newslogo)"/>
+#end
+</p>
+#set($topic=$toupiao.get($toupiao.boardrelatedid))
+<p class="center mt20 voteTitle"><b class="fs14">$!topic.subject</b></p>
+
+
+<form action="javascript:saveVoteChoose()" name="vcForm" id="vcForm">
+<input type="hidden" name="did" id="did" value="$!topic.id"/>
+<table width="100%" cellspacing="0" cellpadding="0" border="0" class="mt5 c666 voteTable" id="voteList">
+	#if($VmUtils.eq($!topic.type,'topic_vote_radio'))
+	#set($dx=true)
+	#else
+	#set($dx=false)
+	#end
+	#foreach($vo in $voList)
+	<tr>
+		<td width="35%" align="right">$vo.option：</td>
+		<td width="25%">
+			<div class="voteBox voteBox$foreach.count"><span style="width:$perMap.get($vo.id)%;"></span></div>
+		</td>
+		<td width="15%">$vo.selectednum ($perMap.get($vo.id)%)</td>
+		<td width="10%">
+			#if($dx)
+			<input type="radio" name="optionid" id="ai$vo.id" value="$vo.id"/>
+			#else
+			<input type="checkbox" name="optionid" id="ai$vo.id" value="$vo.id" />
+			#end
+		</td>
+	</tr>
+	#end
+	<tfoot>
+		<tr>
+			<td></td>
+			<td id="jsq" colspan="3">
+				#if($DateUtil.isAfter($!topic.overdate))
+				<label class="button bigBt redBt"><input type="submit" value="投票"/></label>
+				#else
+				<label class="button minBt whiteBt"><input type="button" value="投票已结束"/></label>
+				#end
+				<span class="ml20">(#if($dx)单选，#else多选 ，#end截止日期：$DateUtil.format($!topic.overdate,'yyyy-MM-dd'))</span>
+			</td>
+		</tr>
+	</tfoot>
+</table>
+</form>
+#end
+<script type="text/javascript">
+function saveVoteChoose(){
+	var optionList = $('vcForm').getElements('input[name=optionid]');
+	var count = 0;
+		optionList.each(function(item){
+			if(item.checked) count ++;
+		});
+		if(count==0){
+			gewaUtil.alert("请选择你要投票的选项！");
+			return;
+		}
+	el = $('jsq').getElement('input');
+	checkLogin(true,function(){
+		GewaraUtil.mask(el);
+		var values = GewaraUtil.getValues("vcForm",",");
+		var url = '${basePath}blog/saveVoteChoose.xhtml';
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				gewaUtil.alert("投票成功", refreshPage);
+			}else{
+				if(result.msg) gewaUtil.alert(result.msg);
+				else gewaUtil.alert("投票失败！");
+				GewaraUtil.unmask();
+			}
+		});
+	});
+}	
+</script>

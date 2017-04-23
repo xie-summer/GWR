@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>数据统计</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#fff;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		td, th{
+			text-align: center;
+			height: 23px;
+		}
+	</style>
+</head>
+<body>
+#set($isPayCount=true)
+#parse('admin/datacount/menuWap.vm')
+<div style="margin-left: 140px;width: auto;background-color: #fff;height: 550px;">
+		<form action="${basePath}admin/mobile/payCount.xhtml" id="form">
+		<div style="margin-left: 15px;margin-bottom: 5px;">
+			开始时间：<input name="starttime1" id="starttime1" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!params.starttime1" type="text" style="width: 160px"/>
+				至：<input name="endtime1" id="endtime1" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!params.endtime1" type="text" style="width: 160px"/><br />
+			结束时间：<input name="starttime2" id="starttime2" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!params.starttime2" type="text" style="width: 160px"/>
+				至：<input name="endtime2" id="endtime2" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!params.endtime2" type="text" style="width: 160px"/><br />	
+			<input type="radio" name="tag" value="" #if($!VmUtils.isBlank($!params.tag)) checked#end/>用户数量
+			<input type="radio" name="tag" value="pay" #if($!VmUtils.isNotBlank($!params.tag))checked#end/>用户增幅
+			<input type="submit" value="查询" />
+			#if($msg)<span style="color:red">$msg</span>#end
+		</div>
+		</form>
+		#set($keyList=["序号","注册来源","前周期数量","后周期数量","新增付费用户数量"])
+		#set($keyTagList=["序号","注册来源","日期","前周期数量","后周期数量","新增付费用户数量"])
+		#set($keyMap={'50000010':'wap','50000020':'android','50000025':'symbian','50000070':'iphone'})
+		<div style="background-color: #ffffff;">
+			<table cellpadding="0" cellspacing="0" width="400" border="1" style="border-collapse: collapse">
+				<tr>
+					#if($!VmUtils.isNotBlank($!params.tag))
+						#foreach($key in $keyTagList)
+						<th>$key</th>
+						#end
+					#else
+						#foreach($key in $keyList)
+						<th>$key</th>
+						#end
+					#end
+				</tr>
+				#foreach($qryMap in $qryMapList)
+				<tr>
+					<td>$foreach.count</td>
+					<td>$!keyMap.get($!qryMap.payfrom)</td>
+					#if($!VmUtils.isNotBlank($!params.tag))<td>$!qryMap.day</td>#end
+					<td>$!qryMap.startCount</td>
+					<td>$!qryMap.endCount</td>
+					<td>$math.sub($!qryMap.endCount,$!qryMap.startCount)</td>
+				</tr>
+				#end
+				<tr>
+					<th >合计</th>
+					<th></th>
+					#if($!VmUtils.isNotBlank($!params.tag))<th></th>#end
+					<th>$!VmUtils.getTotal($qryMapList, 'startCount')</th>
+					<th>$!VmUtils.getTotal($qryMapList, 'endCount')</th>
+					<th>$!math.sub($VmUtils.getTotal($qryMapList, 'endCount'),$VmUtils.getTotal($qryMapList, 'startCount'))</th>
+				</tr>
+			</table>
+		</div>
+</div>
+	<script type="text/javascript">
+	$$("tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+</script>
+</body>
+</html>

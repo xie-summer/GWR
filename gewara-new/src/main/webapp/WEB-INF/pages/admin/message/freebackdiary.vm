@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>#if($params.tag eq 'movie')影评#elseif($params.tag eq 'drama')剧评#end列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	
+</head>
+<body style="width:75%;margin:auto" class="yui-skin-sam">
+#parse('include/pageUtil.vm')
+<div class="mt10">
+<div style="position:relative;">
+	<span style="text-align:left;">
+		<input type="text" id="pageNo" name="pageNo" style="margin-left20px;width: 60px;" /><input type="button" value="跳转" onclick="goPageNo()" />
+	</span>
+	<span style="position:absolute;right:0;"><input name="sendPointValue" id="sendPointValue" value="0" style="margin-left20px;width: 60px;border: 1px solid red;" maxlength="5"/>
+			<input type="button" value="设置初始积分" onclick="withPoint()"/>
+			<a href="${basePath}admin/point/historyFreebackDiary.xhtml?tag=movie" target="_blank">影评历史操作列表</a>
+			<a href="${basePath}admin/point/historyFreebackDiary.xhtml?tag=drama" target="_blank">剧评历史操作列表</a>
+	</span>
+</div>
+<div>	
+<form name="myform" id="myform">
+<input type="hidden" name="pointtype" value="$params.tag" />
+<table width="75%" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th style="width: 40%">标题</th>
+		<th>用户ID</th>
+		<th>关联对象</th>
+		<th>发布日期</th>
+		<th>赠送积分</th>
+		<th>赠送说明</th>
+		<th>前台</th>
+	</tr>
+	</thead>
+	<tbody id="newsTable">
+	#if($VmUtils.size($diaryList) gt 0)
+	#foreach($diary in $diaryList)
+	#set($mpi=$mpiMap.get($diary.id))
+		<tr>
+			<td>${diary.subject}</td>
+			<td>$diary.memberid</td>
+			<td>$!movieMap.get($diary.categoryid).name</td>
+			<td>$DateUtil.format($!{diary.addtime},'yyyy-MM-dd')</td>
+			<td><input type="text" name="$diary.id"  id="$diary.id" maxlength="5" value = "0" style="width: 60px;"/></td>
+			<td><input type="text" name="$diary.id" value=""/></td>
+			<td><a href="$!{absPath}${basePath}blog/t${diary.id}" target="_blank">前台页面</a></td>
+		</tr>
+	#end
+	<tr>
+		<td colspan="5" style="text-align: center">
+			<input value="保存" type="button" onclick="pass()"/>
+		</td>
+	</tr>
+	#else
+	<tr>
+			<td colspan="5" style="text-align: center">暂无未处理的#if($params.tag eq 'movie')影评#elseif($params.tag eq 'drama')剧评#end！</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+<form>
+#parse('include/pageUtil.vm')
+	<script type="text/javascript">
+	function withPoint(){
+		var sendValue = $('sendPointValue');
+		var value = sendValue.value;
+		if(isNaN(value)){
+			alert("请输入数字！");
+			sendValue.value = '';
+			sendValue.focus();
+			return;
+		}
+		var ss = $('newsTable').getElements('input[id]');
+		$each(ss, function(i, n){
+			$(i).set('value', value);
+		})		
+
+	}
+	function pass(){
+		if(confirm("确定保存吗？")){
+			var values=GewaraUtil.getValues("myform",",");
+			var url = "${basePath}admin/common/ajax/addExPointByDiary.xhtml";
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert('成功');
+					refreshPage();
+				}else{
+					alert(result.msg);
+				}
+			});
+		}
+	}
+	function goPageNo(){
+		var pageNo = $('pageNo').value;
+		if(pageNo == "")return alert("请输入页数！");
+		document.location.href = "${basePath}admin/point/freebackdiary.xhtml?pageNo=" + (pageNo - 1) + "&tag=$params.tag";
+	}
+</script>
+</body>
+</html>

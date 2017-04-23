@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次价格设定</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		#set($maxwidth=33+30*$room.ranknum)
+		#content{ width: ${maxwidth}px; background:#fff;}
+		.stype dd, .stype dt{float: left; width: 90px; height: 30px; line-height: 30px; vertical-align: middle;}
+		.stype input, .stype span{float:left; line-height: normal; margin-top: 10px;}
+		.stype div{float:left;}
+		.stype input{width:50px;}
+		.seatpic dt, .head dt{width:30px;}
+		.match{background:#ff9200;border:0px;padding-bottom:8px}
+		.roomManageTable{margin:0 0 20px 0;}
+		.linshi{font-size:12px;font-weight:bold;height:30px;line-height:30px;padding:3px 10px;background:#fbe7db;}
+		a.xx{background:#2d2d2d;border-radius:3px;padding:0 5px;height:28px;line-height:28px;float:left;margin:0 10px 0 0;color:#fff;cursor:pointer;padding:0 10px;}
+		.mb20{margin:10px 0;}
+	</style>
+</head>
+<body>#set($isItem=true)
+#set($targetUrl=$VmUtils.escapeHtml("admin/drama/dramaPlayItem/itemList.xhtml?theatreid="))
+#parse('admin/theatre/menu.vm')
+<div class="manageItemList">
+	<b class="b1f"></b><b class="b2f"></b>
+	<div id="height0"></div>
+	<div class="contentInfoList">
+		<b class="m2"></b>
+		<div class="m">
+			$!{theatre.name}>>$!{field.name}&nbsp >> #if($VmUtils.isNotBlank($!item.name))[<b style="color:red;">$!item.name</b>]#end $!DateUtil.formatTimestamp($item.playtime)
+		</div>
+		<b class="m2"></b>
+		<div class="mt5"></div>
+		<div style="width:100%;height:100%;overflow-y:hidden;overflow-x:auto;">
+			<div class="linshi">
+				<a href="javascript:void(0)" onclick="refreshDramaprice($!item.dramaid)" class="ml20 right">更新项目价格</a>
+				<a href="javascript:void(0)" onclick="getSettle('')" style="color:red;float:right;">添加结算比率</a>
+				结算比率
+			</div>
+			<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0">
+				<thead>
+					<tr>
+						<th>编号</th>
+						<th>比率</th>
+						<th>添加时间</th>
+					</tr>
+				</thead>
+				<tbody>
+					#foreach($settle in $settleMap.values())
+					<tr class="grayBg">
+						<td>$!settle.id</td>
+						<td>$!settle.gainSettleRemark()</td>
+						<td>$!DateUtil.formatTimestamp($settle.addtime)</td>
+					</tr>
+					#end
+				</tbody>
+			</table>
+		</div>
+		<div id="content" style="width:100%;height:100%;overflow-y:hidden;overflow-x:auto;">
+			<div class="mb20">
+				#foreach($room in $roomList)
+					<a href="#" onclick="copyArea($!item.id,$!room.id)" class="xx">$room.roomname</a>
+				#end
+				<div style="clear:both"></div>
+			</div>
+			<div>
+				#foreach($area in $areaList)
+				<div class="linshi">
+					<a href="javascript:void(0)" style="float:right;margin-left: 20px;" onclick="copySeatArea('$!area.id')">更新区域坐标</a>
+					<a href="${basePath}admin/dramaTicket/updateTheatreSeatAreaMapStr.xhtml?areaid=$!area.id" target="_blank" style="float:right;margin-left: 20px;">更新座位图</a>
+					<a href="javascript:void(0)" onclick="getPrice($!area.id)" style="color:red;float:right;">添加价格</a>
+					区域名称:$area.areaname &nbsp;
+					<select name="areax" onchange="setAreaStatus($area.id, this.value)">
+						<option value="Y" #if($area.status eq 'Y')selected#end>可用</option>
+						<option value="N" #if($area.status eq 'N')selected#end>不可用</option>
+					</select>
+				</div>
+				<table class="roomManageTable" cellpadding="0" width="100%" cellspacing="0" border="0" id="body">
+					<thead>
+						<tr>
+							<th>价格id</th>
+							<th>类型</th>
+							<th>市场价</th>
+							<th>销售价</th>
+							<th>结算基价</th>
+							<th>结算折扣</th>
+							<th>
+								<select id="stu$!area.id">
+									<option value="Y">Y</option>
+									<option value="N">N</option>
+								</select>
+								<input type="button" value="确定" onclick="setAll($!area.id, 'stu$!area.id')"/><br />
+								状态
+							</th>
+							<th>票数</th>
+							<th>单次购票数</th>
+							<th>可售数量</th>
+							<th>已售数量</th>
+							<th>已售订单数量</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody id="tbody">
+						#foreach($price in $seatpriceMap.get($area.id))
+						#set($disCount=$disCountMap.get($price.id))
+						<tr class="grayBg" id="r$section.id">
+							<td>$!price.id</td>
+							<td>$!price.seattype</td>
+							<td>$!price.theatreprice</td>
+							<td>$!price.price</td>
+							<td>$!price.costprice</td>
+							<td>$!VmUtils.formatPercent($settleMap.get($!price.settleid).settle.discount,100.0)</td>
+							<td>$!price.status</td>
+							<td>$!price.quantity</td>
+							<td>$!price.maxbuy</td>
+							<td>$!price.allowaddnum</td>
+							<td>$!price.sales</td>
+							<td>$!price.sellordernum</td>
+							<td>
+								<select onchange="setShowPrice('$!price.id',this.value)">
+									<option value="Y" #if($VmUtils.eq($price.showprice,'Y'))selected="selected" #end>显示</option>
+									<option value="N" #if($VmUtils.eq($price.showprice,'N'))selected="selected" #end>不显示</option>
+								</select>
+								|<select onchange="setPriceStatus('$!price.id',this.value)">
+									<option value="Y" #if($VmUtils.eq($price.status,'Y'))selected="selected" #end>可预订</option>
+									<option value="N" #if($VmUtils.eq($price.status,'N'))selected="selected" #end>不可预订</option>
+									<option value="D" #if($VmUtils.eq($price.status,'D'))selected="selected" #end>已删除</option>
+								</select>
+								|<a href="javascript:getPrice('',$price.id)">修改</a>
+								|<a href="javascript:getDiscount($price.id)">优惠($disCount)</a>
+							</td>
+						</tr>
+						#end
+					</tbody>
+				</table>
+				#end
+			</div>
+		</div>
+	</div>
+	<b class="b2f"></b> <b class="b1f"></b>
+</div>
+<div id="settleDialog" style="width:370px; visibility:hidden; z-index:20;background: #000"></div>
+<div id="priceDialog" style="width:370px; visibility:hidden; z-index:20;background: #000"></div>
+<div id="disDialog" style="width:850px; visibility:hidden; z-index:5;border: 1px solid #cdf;background-color: #cdf"></div>
+<script type="text/javascript">
+function copyArea(itemid,areaid){
+	var url = "${basePath}admin/dramaTicket/copySeatArea.xhtml";
+	var values = {'itemid':itemid,'areaid':areaid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('复制成功');
+		}else{
+			alert(result.msg);
+		}
+	});
+	
+	
+}
+
+getSettle = function(id){
+	var url = '${basePath}admin/dramaTicket/getDramaSettle.xhtml';
+	var values= {'dramaid':$!item.dramaid};
+	if(id){
+		values.id = id;
+	}
+	GewaraUtil.sendLoad("settleDialog", url, values, function(result){
+		if(result.success){
+			GewaraUtil.showDialog('settleDialog');
+		}else{
+			alert(result.json.msg);
+		}
+	});
+}
+getPrice = function(areaid,id){
+	var url = '${basePath}admin/dramaTicket/getOdiPrice.xhtml';
+	var values= {'areaid':areaid};
+	if(id){
+		values.id = id;
+	}
+	GewaraUtil.sendLoad("priceDialog", url, values, function(result){
+		if(result.success){
+			GewaraUtil.showDialog('priceDialog');
+		}else{
+			alert(result.json.msg);
+		}
+	});
+}
+
+function copySeatArea(areaid){
+	var url = "${basePath}admin/dramaTicket/copyAreaHotzone.xhtml";
+	var values = {'areaid':areaid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('操作成功！');
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function hiDialog(){
+	GewaraUtil.hideDialog("priceDialog");
+}
+function showDialog(){
+	GewaraUtil.showDialog('priceDialog');
+}
+
+function setPriceStatus(id,status){
+	if(status == 'D' && !window.confirm('确认要删除吗?')) return;
+	var values= {'id':id, 'status':status};
+	GewaraUtil.sendRequest('${basePath}admin/dramaTicket/setOdiPriceStatus.xhtml', values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function setShowPrice(id, showprice){
+	var values = {'id':id, 'showprice': showprice};
+	GewaraUtil.sendRequest('${basePath}admin/dramaTicket/setShowPrice.xhtml', values, function(result){
+		if(result.success){
+			alert('修改成功！')
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function setAreaStatus(id,status){
+	var values= {'id':id, 'status':status};
+	GewaraUtil.sendRequest('${basePath}admin/dramaTicket/setAreaStatus.xhtml', values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function refreshDramaprice(dramaid){
+	var url = "${basePath}admin/dramaTicket/refreshDramaPrice.xhtml";
+	var values = {'dramaid':dramaid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('更新成功！');
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function getDiscount(tspid){
+	var el = $('disDialog');
+	el.set('html',"");
+	el.set('load', {evalScripts: true});
+	el.load('${basePath}admin/dramaTicket/getDiscount.xhtml?tspid='+tspid);
+	GewaraUtil.showDialog('disDialog');
+}
+function setAll(areaid,el){
+	var url = '${basePath}admin/ticket/setAllStatus.xhtml';
+	var values= {'status':$(el).value,'areaid':areaid};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("设置成功");
+			refreshPage();
+		}
+	});
+}
+</script>
+</body>
+</html>

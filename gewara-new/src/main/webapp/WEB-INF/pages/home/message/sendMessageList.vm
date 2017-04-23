@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>我发送的站内消息</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,users&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,base_home&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($sendMessageList=true)#set($dialogMessage=true)#set($isCloseAll=false)
+#set($cfgHeader='newUserHeader')#parse('include/home/newUserHeader.vm')
+<div class="ui_layout">
+	#parse('home/acct/home_menu_left.vm')
+	<div class="ui_right">
+		<div class="inner">
+			#parse('include/home/messageMenu.vm')
+			<div class="inner">
+				#if(!$VmUtils.isEmptyList($umaList))
+				<ul class="ui_abeam btLine">
+					#foreach($uma in $umaList)
+					#set($userMessage=$userMessageMap.get($uma.id))
+					<li class="abeam">
+						<div class="uipic">
+							<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$uma.frommemberid" class="pubpic" target="_blank" title="$cacheMemberMap.get($uma.frommemberid).nickname"><img src="${staticPath}css/images/blank.gif" style="background: #fff url($VmUtils.randomPic('cw50h50',$cacheMemberMap.get($uma.frommemberid).headpicUrl)) no-repeat center center"/></a>
+						</div>
+						<div class="uiText max_outer_text">
+							<span class="gray">$!DateUtil.format($!uma.addtime,'yyyy-MM-dd HH:mm')</span>
+							<p><b class="brown">$!userMessage.subject</b></p>
+							<p>$!userMessage.getRcontent($basePath)</p>
+							<div class="title">
+								发送到：<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$uma.tomemberid" style="color:gray" target="_blank">$cacheMemberMap.get($uma.tomemberid).nickname</a>
+								<span class="more">
+									<a href="${basePath}home/message/sendMessage.xhtml?messageid=$userMessage.id" class="ml10 mr10" style="color:gray"><img src="${staticPath}css/home/sendMessage.gif" class="mr5"/>转发</a>
+									<a href="javascript:void(0)" onclick="javascript:delUserMsg($uma.id)" class="ml10" style="color:gray"><img src="${staticPath}css/home/del.gif"/>删除</a>						
+								</span>
+							</div>
+						</div>
+					</li>
+					#end
+				</ul>
+				#else
+				<div class="mt20 clew">暂无消息！</div>
+				#end
+				#parse('include/pageUtil.vm')
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/home/friend.vm')
+#parse('include/home/messageBox.vm')
+<script type="text/javascript">
+function delUserMsg(sid){
+	gewaUtil.confirm("确认要删除吗?", function(){
+		checkLogin(true, function(){
+			var url = '${basePath}home/message/delUserMsg.xhtml';
+			var values = {'sid':sid};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					refreshPage();
+				}else{
+					gewaUtil.alert(result.msg);
+				}
+			});
+		});
+	})
+}
+</script>
+#parse('include/bottom.vm')
+</body>
+</html>

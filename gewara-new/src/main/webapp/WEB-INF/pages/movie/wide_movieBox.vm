@@ -1,0 +1,324 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>影院热映电影_经典电影大全_老电影回顾 - 格瓦拉生活网</title>
+	<meta name="keywords" content="最新电影,热映电影,经典电影,喜剧电影,动作电影,韩国电影,日本电影,电影排行榜,恐怖电影,惊悚电影,科幻电影,冒险电影,电影折扣,电影优惠,电影券," />
+	<meta name="description" content="影院目前热映电影,格瓦拉生活网提供经典电影大全,热门老电影回顾,经典动作片,喜剧片,恐怖片,爱情片大全."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_movie&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ui_layout{width:1200px;}
+	</style>
+	#parse('movie/style.vm')
+</head>
+<body>
+#set($ismovie=true)
+#parse('include/wide_header.vm')
+<div class="ui_layout bgtrans">
+<form id="searchForm" action="${basePath}movie/searchMovieStore.xhtml">
+	<input type="hidden" name="movietype" id="movietype" value="$!params.movietype"/>
+	<input type="hidden" name="order" id="order" value="$!params.order"/>
+	<input type="hidden" name="moviestate" id="moviestate" value="$!params.moviestate"/>
+	<input type="hidden" name="movietime" id="movietime" value="#if($params.movietime)$!params.movietime#else$!movietime#end"/>
+	<input type="hidden" name="playtype" id="playtype" value="#if($params.playtype)$!params.playtype#else$!playtype#end"/>
+	<input type="hidden" name="searchkey" id="searchkey" value="$!params.searchkey"/>
+</form>
+	<div class="index_wrap clear">
+		#parse('include/movie/wide_menu_left.vm')
+		<div class="index_right">
+			<div class="mt10">
+				<div class="ui_left">
+						<div class="mod_kong" style="margin-bottom:0px">
+							<div class="mod_hd addT">
+								<h2>电影库</h2>
+								<a href="$!{basePath}movie/userAddMovie.xhtml" class="more" target="_blank"><b class="jia">+</b>添加电影</a>
+							</div>
+							<div class="mod_bd">
+								<ul class="ulist">
+									<li>
+										<div class="condition">
+											<dl class="clear dlTy">
+												<dt>
+													<span class="typeTitle mr10">选择地区 </span>
+												</dt>
+												<dd>
+												#set($stateList = ['中国','美国','日本','英国','法国','香港','台湾','印度','意大利','德国','韩国','西班牙','俄罗斯'])
+												#foreach($state in $stateList)
+													<a #if($VmUtils.eq($!state,$!params.moviestate)) class="selected" #set($searchTJ2=$!{state}) #end href="javascript:search('moviestate','$!state')">$!state</a>
+												#end
+												</dd>
+											</dl>
+										</div>
+									</li>
+									<li>
+										<div class="condition">
+											<dl class="clear dlTy">
+												<dt>
+													<span class="typeTitle mr10">影片类型</span>
+												</dt>
+												<dd>
+													#set($typeList=['动作','喜剧','爱情','科幻','奇幻','灾难','恐怖','纪录','犯罪','战争','冒险','动画','剧情','其他'])
+													#foreach($tp in $typeList)
+													<a #if($VmUtils.eq($tp,$!params.movietype)) class="selected" #set($searchTJ1=${tp}) #end href="javascript:search('movietype', '$tp')">${tp}</a>
+													#end
+												</dd>
+											</dl>
+										</div>
+									</li>
+									<li>
+										<div class="condition">
+											<dl class="clear dlTy">
+												<dt>
+													<span class="typeTitle mr10">选择时间</span>
+												</dt>
+												<dd>
+												#set($timeMap = {$futureDate:$futureDateValue,$currentDate:$!currentDateValue,"2012":"2012-01-01,2012-12-31","2011":"2011-01-01,2011-12-31","2010":"2010-01-01,2010-12-31","2009":"2009-01-01,2009-12-31","2008":"2008-01-01,2008-12-31","2007":"2007-01-01,2007-12-31","2006":"2006-01-01,2006-12-31","2005~2000":"2000-01-01,2005-12-31","90年代":"1990-01-01,2000-01-01","80年代":"1980-01-01,1900-01-01","更早":"1950-01-01,1980-01-01","全部":"all"})
+												#foreach($time in $timeMap.keySet())
+												<a #if($VmUtils.eq($!timeMap.get($time),$!movietime)) #set($searchTJ3=$time) class="selected" #end  href="javascript:search('movietime','$timeMap.get($time)')">$time</a>
+												#end	
+												</dd>
+											</dl>
+										</div>
+									</li>
+									#if($!movietime eq $!currentDateValue)
+									<li>
+										<div class="condition">
+											<dl class="clear dlTy">
+												<dt>
+													<span class="typeTitle mr10"></span>
+												</dt>
+												<dd>
+													<a #if($VmUtils.eq('future',$!playtype)) #set($searchTJ4='即将上映') class="selected" #end href="javascript:search('playtype','future')">即将上映</a>
+													<a #if($VmUtils.eq('hot',$!playtype)) class="selected" #set($searchTJ4='正在热映') #end href="javascript:search('playtype','hot')">正在热映</a>
+													<a #if($VmUtils.eq('classic',$!playtype)) class="selected" #set($searchTJ4='最新下线') #end href="javascript:search('playtype','classic')">最新下线</a>
+												</dd>
+											</dl>
+										</div>
+									</li>
+									#end
+									<li>
+										<div class="condition mt10">
+											<dl class="clear dlTy">
+												<dt>
+													<span class="typeTitle left">影片查询</span>
+												</dt>
+												<dd>
+													<div class="search_kuang left">
+														<form action="javascript:searchname('searchkey')">
+															<input id="filmName" class="search_text searchText noradius" type="text"  alt="请输入搜索关键词"  name="filmName">
+															<label class="search_button noradius">
+																<input type="button" value="" onclick="javascript:searchname('searchkey')"/>
+															</label>
+														</form>
+													</div>						
+												</dd>
+											</dl>
+										</div>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="selectedMenus clear" style="margin-bottom:20px">
+							<div class="right">
+								<div class="ui_simulate">
+									<div class="simulate_select">
+										<div class="select_value">默认(按日期)</div>
+										<a class="select_arrow" href="javascript:void(0);"></a>
+										<input class="simulate_value" type="hidden" value="releasedate" name="order"/>
+									</div>
+									<ul class="simulate_options">
+									#if($!currentDate eq $!VmUtils.escabbr($!searchTJ3,4))
+										<li><a href="javascript:void(0);" data-value="releasedate">默认(按日期)</a></li>
+									#else
+										<li><a href="javascript:void(0);" data-value="releasedate">按日期(由近到远)</a></li>
+									#end
+										<li><a href="javascript:void(0);" data-value="clickedtimes">按关注(由高到低)</a></li>
+										<li><a href="javascript:void(0);" data-value="boughtcount">按购票(由高到低)</a></li>
+									</ul>
+								</div>
+							</div>
+							<div class="left tiaojian_p">
+								#if(${searchTJ1} || ${searchTJ2} || $VmUtils.isNotBlank($!params.searchkey) || ${searchTJ3} || ${searchTJ4})
+								<span class="fs14">已选条件：</span>
+								#if(${searchTJ1})
+									<span class="selections selections1"><span onclick="searchRemoveKey('movietype','$searchTJ1')" class="select" ><em>$!{searchTJ1}</em></span></span>
+								#end
+								#if(${searchTJ2})
+									<span class="selections selections1"><span onclick="searchRemoveKey('moviestate','$searchTJ2')" class="select" ><em>$!{searchTJ2}</em></span></span>
+								#end
+								#if(${searchTJ3})
+									<span class="selections selections1">$!{searchTJ3}</span>
+								#end
+								#if(${searchTJ4})
+									<span class="selections selections1">$!{searchTJ4}</span>
+								#end
+								#if($VmUtils.isNotBlank($!params.searchkey))
+									<span class="selections selections1"><span onclick="searchRemoveKey('searchkey','$params.searchkey')" class="select" ><em>$!params.searchkey</em></span></span>
+								#end
+								#end
+								<span>
+									共<b class="colorRed sNum">$!pageUtil.rowsCount</b>部影片
+								</span>
+							</div>
+						</div>
+						<div class="movieList">
+							<ul>
+							#foreach($movie in $searchMovieList)
+							#set($key3=$movie.id+"movie")
+							#set($vgmark=$VmUtils.getLastMarkStar($movie, "general",$curMarkCountMap.get($movie.id),$!markData))
+							#set($gmark1=$vgmark/10) 
+							#set($gmark2=$vgmark % 10)
+							#if(!$movieIdList.contains($movie.id))
+								#set($addMId = $movieIdList.add($movie.id))
+							#end
+								<li class="effectLi" style="display:block;">
+									<div class="ui_media">
+										<div class="ui_pic">
+											<a href="$!{basePath}movie/$!movie.id" target="_blank" title="$!movie.moviename">
+												<img src="$VmUtils.randomPic('cw120h160',$movie.limg)" alt="$!movie.moviename" height="160" width="120"/>
+											</a>
+											#if($opiMovieList && $opiMovieList.contains($movie.id))
+											<p class="mt10">
+												<a class="button redBt bigBt" href="${basePath}movie/opi.xhtml?mid=$!movie.id" target="_blank"><span>选座购票</span></a>
+											</p>
+											#end
+										</div>
+										<div class="ui_text">
+											<div class="title">
+												<h2>
+													<a href="$!{basePath}movie/$!movie.id" title="$!movie.moviename" target="_blank" class="color3">$!movie.moviename</a>
+												</h2>
+												<span class="ml5">(<span data-keynum="$!{movie.id}_clickedtimes">${movie.rclickedtimes}</span>人关注 #if(($hotPlayMovieIdList && $hotPlayMovieIdList.contains($movie.id)) || ($VmUtils.gt($DateUtil.format($DateUtil.currentTime(),"yyyy-MM-dd"),$!DateUtil.format(${movie.releasedate},"yyyy-MM-dd"))&& !$!playMovieIdList.contains($movie.id)))| <span data-keynum="$!{movie.id}_boughtcount">$!{movie.boughtcount}</span>人购票#end)</span>
+												<span class="grade">
+													<sub style="margin:0;" data-keynum="$!{movie.id}_mark1">$!gmark1</sub>
+													<sup data-keynum="$!{movie.id}_mark2">.$!gmark2</sup>
+												</span>
+											</div>
+											<p class="mt10">上映时间：#if($!movie.releasedate)$!DateUtil.format($movie.releasedate,'yyyy-MM-dd')#else未知#end</p>
+											<p>电影类型：$!{movie.type}</p>
+											<p>国家：$!movie.state</p>
+											<p>语言：$!{movie.language}</p>
+											<p>片长：
+											#if($movie.videolen)
+											#set($videoHour = $movie.videolen/60)
+											#set($videoM = $movie.videolen%60)
+											#if($videoHour gt 0)$!{videoHour}小时#end$!{videoM}分钟
+											#end
+											</p>
+											<p>导演：$!{movie.director}</p>
+											<p>主演：$!{movie.actors}</p>
+											#if($!movie.content)
+											<div class="favorable mt10">
+												<p class="c66">$!VmUtils.htmlabbr($!movie.content,190)...  <a class="ui_readMore" href="$!{basePath}movie/$!movie.id" target="_blank">详细</a></p>
+											</div>
+											#end
+										</div>
+									</div>
+								</li>
+								#end
+							</ul>
+							<div style="padding:0 15px;">#parse('include/pageUtil.vm')</div>
+						</div>
+					</div>
+					<div class="ui_right">
+						#parse('include/movie/mod_hotActivity.vm')
+						#parse('include/movie/mod_hotShowMovie.vm')
+					</div>
+				</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	var keys = "ticketMovieCount,futureMovieCount,ticketCinemaCount,movieActivityCount";
+	#if(!$VmUtils.isEmptyList($movieIdList))
+		keys += ",movieDetail_$!VmUtils.join($movieIdList, '@')";
+	#end
+	GewaraUtil.sendRequest('${basePath}ajax/loadIndexKeyNumber.xhtml', {"keys":keys}, function(result){
+		if(result.success) {
+			$("keyNum_cinemaCount").set("text",result.ticketCinemaCount + "家");
+			$("keyNum_fetureMovieCount").set("text",result.futureMovieCount + "部");
+			$("keyNum_curMovieListCount").set("text",result.ticketMovieCount + "部");
+			$("keyNum_activityCount").set("text",result.movieActivityCount + "个");
+			#if(!$VmUtils.isEmptyList($movieIdList))
+				#foreach($id in $movieIdList)
+					document.getElements('*[data-keynum=$!{id}_mark1]').set("text",(result.mark_$!{id}/10 + "").toInt());
+					document.getElements('*[data-keynum=$!{id}_mark2]').set("text","." + result.mark_$!{id}%10);
+					document.getElements('*[data-keynum=$!{id}_clickedtimes]').set("text",result.clickedtimes_$!{id});
+					document.getElements('*[data-keynum=$!{id}_boughtcount]').set("text",result.boughtcount_$!{id});
+				#end
+			#end
+		}
+	});
+	 $('filmName').addEvents({
+		 	'focus':function(){this.getParents('div[class*="search_kuang"]').addClass('search_kuangClicked');},
+		 	'blur':function(){this.getParents('div[class*="search_kuang"]').removeClass('search_kuangClicked');}
+		}); 
+	 selectBar();
+	 #if($params.order && !$VmUtils.isBlank($params.order))
+		var simulateSelect = $$('.simulate_select');
+		simulateSelect.each(function(item){
+			var e = item.getNext().getElement('a[data-value=$!{params.order}]')
+			item.getElement('.select_value').set('html',e.get('html'));
+			item.getElement('.simulate_value').set('value',e.get('data-value'));
+		});
+	#end
+});
+function selectBar(){
+	var simulateSelect = $$('.simulate_select');
+	simulateSelect.each(function(item){
+		item.addEvent('click',function(){
+			item.getNext().toggle();
+		})
+		item.getParent().addEvent('mouseleave',function () {
+			item.getNext().hide();
+		})
+		item.getNext().getElements('a').addEvent('click',function (e){
+			e.preventDefault();
+			if(item.getElement('.simulate_value').get('value') != this.get('data-value')) {
+				sorder(this.get('data-value') ? this.get('data-value') : "");
+			}
+		});
+	});
+}
+function searchname(searchkey){
+	if(($('filmName').value)=='' || ($('filmName').value)=='请输入搜索关键词'){
+		$(searchkey).value='';
+	}else{
+		$(searchkey).value=$('filmName').value;
+		$('searchForm').submit();
+	}
+}
+function searchRemoveKey(key, value){
+	if(value != '所有'){
+		$(key).value = '';
+	}else if(value != ''){
+		$(key).value = '';
+	}
+	$('searchForm').submit();
+};
+function search(field, value){
+	if(field == 'movietime') $('playtype').value = '';
+	if($!currentDate==value.substring(0,4)){
+	   $('playtype').value = 'classic';
+	   $('order').value='releasedate';
+	}
+	$(field).value = value;
+	$('searchForm').submit();
+}
+function sorder(order){
+	$('order').value=order;
+	$('searchForm').submit();
+}
+</script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	gewaUtil.affix($('ui_left'));
+});
+</script>
+</body>
+<!-- SUCCESS_BOTTOM -->
+</html>

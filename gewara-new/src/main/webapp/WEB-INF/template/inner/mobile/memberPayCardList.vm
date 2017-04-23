@@ -1,0 +1,35 @@
+<data>
+	<cardList>
+		#if($VmUtils.size($cardDiscountIdList) gt 0)
+		#foreach($discountid in $cardDiscountIdList)
+		#set($disCard = $cardMap.get($discountid))
+		#set($discountAmount=$discountAmountMap.get($discountid))
+		<card>
+			<cardno>$disCard.cardno</cardno>
+			<name>#if($disCard.ebatch.cardtype eq 'A')兑换券#else$disCard.ebatch.amount元抵值券#end</name>
+			<cardtype>$!disCard.ebatch.cardtype</cardtype>
+			<usage><![CDATA[$disCard.gainUsage()]]></usage>
+			<discountid>$discountid</discountid>
+			<edition>$disCard.ebatch.edition</edition>
+			<discountAmount>$discountAmount</discountAmount>
+			<amount>$disCard.ebatch.amount</amount>
+			<timefrom>$!DateUtil.format($!disCard.timefrom, 'yyyy-MM-dd HH:mm:ss')</timefrom>
+			<timeto>$!DateUtil.format($!disCard.timeto, 'yyyy-MM-dd HH:mm:ss')</timeto>
+		</card>
+		#end
+		#end
+		#foreach($card in $cardList)
+		<card>
+			<cardno>$!card.cardno</cardno>
+			<name>#if($card.ebatch.cardtype eq 'A')兑换券#else$card.ebatch.amount元抵值券#end</name>
+			<cardtype>$!card.ebatch.cardtype</cardtype>
+			<usage><![CDATA[$!card.gainUsage()]]></usage>
+			<discountid></discountid>
+			<edition>$!card.ebatch.edition</edition>
+			<amount>$!card.ebatch.amount</amount>
+			<timefrom>$!DateUtil.format($!card.timefrom, 'yyyy-MM-dd HH:mm:ss')</timefrom>
+			<timeto>$!DateUtil.format($!card.timeto, 'yyyy-MM-dd HH:mm:ss')</timeto>
+		</card>
+		#end
+	</cardList>
+</data>

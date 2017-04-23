@@ -1,0 +1,56 @@
+<div class="times_menu">
+	#set($frontMonth = $DateUtil.format($DateUtil.addDay($DateUtil.getMonthFirstDay($!playDate), -1), 'yyyy-MM-dd'))
+	<a href="javascript:goCurriculum('$!frontMonth');" class="lD" title="上一月"><em>上一月</em></a>
+	<p>$!DateUtil.format($!playDate, 'yyyy年MM月')</p>
+	#set($nextMonth = $DateUtil.format($DateUtil.getNextMonthFirstDay($!playDate), 'yyyy-MM-dd'))
+	<a href="javascript:goCurriculum('$!nextMonth');" class="rD" title="下一月"><em>下一月</em></a>
+</div>
+<ul class="times_head">
+	<li class="mo">日</li>
+	<li>一</li>
+	<li>二</li>
+	<li>三</li>
+	<li>四</li>
+	<li>五</li>
+	<li class="mo br0">六</li>
+</ul>
+#set($startCell=${calendarUtil.startCell})
+#set($endCell=${calendarUtil.endCell})
+<ul class="times_body" id="timesBody">
+	#foreach($x in [1..${calendarUtil.allCell}])
+	#set($day=$math.sub($x,$startCell))
+	#set($dateTime=$calendarUtil.getMonthDayDate($day))
+	#if($x gt $startCell && $x le $endCell)
+	<li #if($foreach.count % 7 eq 0) class="br0" #end>
+		<div class="none">
+			#foreach($curriculum in $curriculumList)
+			#if($VmUtils.eq($curriculum.cycletype, 'month'))
+			#if($day eq $DateUtil.getDay($curriculum.fromdate))
+			<b>$curriculum.title</b>
+			#if($!curriculum.categoryids)<p>教 练：$!curriculum.categoryids</p>#end
+			<p>$curriculum.remark</p>
+			#end
+			#elseif($VmUtils.eq($curriculum.cycletype, 'week'))
+			#if($DateUtil.getWeek($curriculum.fromdate) eq $DateUtil.getWeek($dateTime))
+			#if(($DateUtil.after($dateTime, $curriculum.fromdate) ge 0) && ($DateUtil.after($curriculum.todate, $dateTime) ge 0))
+			<b>$curriculum.title</b>
+			#if($!curriculum.categoryids)<p>教 练：$!curriculum.categoryids</p>#end
+			<p>$curriculum.remark</p>
+			#end
+			#end
+			#else
+			#if(($DateUtil.after($dateTime, $curriculum.fromdate) ge 0) && ($DateUtil.after($curriculum.todate, $dateTime) ge 0))
+			<b>$curriculum.title</b>
+			#if($!curriculum.categoryids)<p>教 练：$!curriculum.categoryids</p>#end
+			<p>$curriculum.remark</p>
+			#end
+			#end
+			#end
+		</div>
+		<em>$day</em>
+	</li>
+	#else
+	<li #if($foreach.count % 7 eq 0) class="br0" #end></li>
+	#end
+	#end
+</ul>

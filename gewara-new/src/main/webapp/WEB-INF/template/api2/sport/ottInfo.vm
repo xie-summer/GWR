@@ -1,0 +1,35 @@
+<data>
+	<ott>
+		<ottid>$ott.id</ottid>
+		<playdate>$DateUtil.format($ott.playdate,'yyyy-MM-dd')</playdate>
+		<cardtype>$!ott.elecard</cardtype>
+		<remark><![CDATA[$!ott.remark]]></remark>
+		<openType>$ott.openType</openType>
+		<hour>$!hourList</hour>
+		<fieldList>
+			#foreach($field in $fieldList)
+			<field>
+				<name>$field.name</name>
+				<otiList>
+					#set($otiList = $fieldOtiMap.get($field.id))
+					#foreach($oti in $otiList)
+					#set($times=$timesMap.get($oti.id))
+					#set($minlens=$minlenMap.get($oti.id))
+					<oti>
+						<otiid>$oti.id</otiid>
+						<hour>$oti.hour</hour>
+						<endhour>$oti.endhour</endhour>
+						<times>$!times</times>
+						<minlens>$!minlens</minlens>
+						<unitType>$oti.unitType</unitType>
+						<unitMinute>$oti.unitMinute</unitMinute>
+						<price>$!oti.price</price>
+						<status>#if($VmUtils.eq($oti.itemtype,'1') || $VmUtils.eq($oti.itemtype,'2'))lock#else$tih.getOpenStatus($oti,$ott.openType)#end</status>
+					</oti>
+					#end
+				</otiList>
+			</field>
+			#end
+		</fieldList>
+	</ott>
+</data>

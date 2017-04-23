@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>说明</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+	<style type="text/css">
+		label {float:left;width:80px;text-align:right;padding:1px 0 1px 0;margin-top:3px;}
+		input,textarea { width:450px; display:inline;}
+		.button{width:80px;}
+	</style>
+</head>
+<body style="width:750px; margin: auto;" class="yui-skin-sam">
+	<div>
+		<input type="button" class="button" onclick="addExplain(0)" value="增加说明"/>
+	</div>
+	<table class="table">
+		<thead valign="top"><tr>
+			<th width="30%">名称</th>
+			<th width="40%">说明</th>
+			<th width="30%">操作</th>
+		</tr></thead>
+		<tbody id="sportItemTable">
+		#foreach($explain in $explainList)
+		#set($id=$!explain.get('_id'))
+		#set($itemname=$!explain.get('itemname'))
+		#set($content=$!explain.get('content'))
+		<tr>
+		<td>$itemname</td>
+		<td>$content</td>
+		<td>
+		<input type="button" class="button" value="修改" onclick="location.href='${basePath}admin/explain/updateExplain.xhtml?id=$id'"/>
+		<input type="button" class="button" value="删除" onclick="deExplain('$id')"/></td>
+		</tr>
+		#end
+		</tbody>
+	</table>
+	<div id="sportItemDialog" class="yui-panel" style="width:900px;visibility:hidden">
+	<div class="hd">输入信息</div>
+	<div class="bd">
+		<form name="explainForm" id="explainForm" action="javascript:saveExplain()">
+			<input type="hidden" name="id" id="id"/>
+			<div>
+				<label for="itemname">名称：</label>
+				<input type="text" name="itemname" id="itemname"/>
+			</div>
+			<div>
+				<label for="content">内容：</label>
+				<textarea name="content" id="content"></textarea>
+			</div>
+			<div>
+				<label>&nbsp;</label>
+				<input type="submit" name="save" class="button" value="保存" style="width:60px"/>
+				<input type="button" name="cancle" class="button" value="取消" style="width:60px" onclick="hideDialog()"/>
+			</div>
+		</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	var ckeditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("content");
+	});
+	function hideDialog(){
+		GewaraUtil.hideDialog("sportItemDialog");
+	}
+	function addExplain(vparent,itemname,content){
+		isModify=false;
+		$("id").value = vparent;
+		GewaraUtil.showDialog("sportItemDialog");
+	}
+	function saveExplain(){
+		var itemname=$('itemname').value;
+		var content=ckeditor.getData();
+		if (itemname == "") {
+			alert("请输入名称！");
+			return;
+		}
+		if(content==""){
+			alert("请输入内容！");
+			return;
+		}
+		var url = "${basePath}admin/explain/ajax/saveOrUpdateExplain.xhtml";
+		GewaraUtil.sendRequest(url, {'id':$("id").value,'itemname':itemname, 'content':content} , saveCallBack);
+	}
+	function saveCallBack(result){
+		if(result.success){
+			alert('添加成功');
+			GewaraUtil.hideDialog("sportItemDialog");
+			refreshPage();
+		}
+	}
+	function deExplain(id){
+		var url = "${basePath}admin/explain/ajax/deleteExplain.xhtml";
+		GewaraUtil.sendRequest(url, {"id":id}, function(result){
+			if(result.success){
+				alert("删除成功");
+				refreshPage();
+			}else{
+				alert("删除失败");
+			}
+		});
+	}
+</script>
+</body>
+</html>

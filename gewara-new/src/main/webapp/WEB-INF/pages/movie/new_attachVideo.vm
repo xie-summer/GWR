@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title>#if($VmUtils.isBlank($movie.seotitle))$!{movie.name}_在线购买电影票_影评影讯_影院排片#else${movie.seotitle}#{end}_格瓦拉生活网</title>
+	<meta name="keywords" content="#if($VmUtils.isBlank($movie.seodescription))${movie.name},热映电影,电影院排片,电影排片,网上购买电影票,电影资讯,最新电影,电影剧情,电影预告片#else${movie.seodescription}#end" />
+	<meta name="description" content="#if($VmUtils.isBlank($cinema.seodescription))$!{cinema.name}$!VmUtils.htmlabbr($!movie.content, 200) #else${cinema.seodescription}#end"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_movie&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page,pagesNavigation,slimbox,base_home,scrollerbar&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		#if($headInfo)
+		html{background:$!headInfo.css url($VmUtils.randomPic('',$!headInfo.logosmall)) 0 78px repeat-x;}
+		body{background:transparent url($VmUtils.randomPic('',$!headInfo.logobig)) center 78px no-repeat;}
+		#end
+		.gewa_outer_text{width:550px;}
+		.switch_ui_inside{overflow:visible;}
+		.switch_plugs{padding-left:0;}
+		.switch_ui_inside .pl{left:-8px;}
+		.switch_uis_c .t{color:#999;}
+		.brown{color:#c03b0c!important;}
+		.mNotice{background-position: 0 -1211px; color:#C03B0C; cursor:pointer; font-size:12px; font-weight:normal; height:20px; line-height:20px; margin:0; padding-left:16px; position:absolute; right:0; top:3px; width:auto;}
+	</style>
+</head>
+<body>
+#set($googleSpeedPageTag='/movie/movieDetail.xhtml')
+#set($ismovie=true)#set($isVideo=true)
+#set($tag="movie") #set($relatedname=$movie.name) #set($relatedtag='movie')
+#set($relatedid=$movie.id)
+#set($obj=$movie)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout detail_body">
+	<div class="inner">
+		<div class="switch_ui_t"><div class="switch_ui_t"></div></div>
+		<div class="switch_ui_c">
+			<div class="switch_ui_c">
+				#parse('movie/newMovieHeader.vm')
+				<div class="detail_body_left">
+					<div class="inner">
+						<div class="fs14">添加视频…</div>
+						<div class="ml10 mt20">
+							<p class="gray">添加与电影相关的视频（如：电影预告片、相关视频或影片活动视频等）</p>
+							<p class="gray">通过管理员审核通过后，你将有机会获得一定积分奖励。<a class="ml10 brown" href="${basePath}helpCenter/index.dhtml?diaryId=3120809&dkey=helpcenter1308109899606">什么是积分？</a></p>
+							<div class="mt30">
+								<form name="myform" id="myform">
+									<div>输入视频链接地址</div>
+									<div class="gray">目前支持<span class="brown">新浪播客、优酷网、土豆网、酷6网、56网</span>等网站的swf格式视频</div>
+									<div class="title mt10"><span class="left">视频标题：</span><input class="text fs14 left"style="height:15px;width:350px" type="text" name="title" id="title"/>&nbsp;&nbsp;<span class="brown">*</span></div>
+									<div class="title mt10"><span class="left">视频地址：</span><input class="text fs14 left"style="height:15px;width:350px" type="text" name="videourl" id="videourl"/>&nbsp;&nbsp;<span class="brown">*</span>
+									<input type="hidden" name="relatedid" id="relatedid" value="$!movie.id"/>
+									<input type="hidden" name="tag" id="tag" value="movie"/></div>
+									<div class="clear"></div>
+									<div class="title mt10"><span class="left" style="padding-left:55px;">&nbsp;</span>
+										<label class="left">
+										<input type="hidden" name="captchaId" id="captcha"/>
+										<input type="text" class="text captcha" name="captcha" alt="点击获取" autocomplete="off"  id="captchaInput" size="18" style="width:120px" mustTxt="请输入验证码!" onfocus="GewaraUtil.refreshCaptcha('captcha');"/></label>
+										<img id="captchaImg" src="${staticPath}css/images/blank.gif" class="ml10" style="cursor: pointer;vertical-align: middle;float:left;height:36px;" onclick="GewaraUtil.refreshCaptcha('captcha');" title="看不清楚，请点击换一张图片"/>
+									</div>
+									<div class="clear"></div>
+									<div class="title mt20"><label class="button left minBt redBt" for="disBtn"><input type="button" id="disBtn" value="确认，上传" onclick="saveAttachVideo()"></input></label>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="detail_body_right">
+					<div class="inner">
+						<div class="fs14 gray">收录规范</div>
+						<ul class="mt10 gray">
+							<li>1. 原声碟封套、录像带封套、电影新闻图片、影人写真/生活照等图片暂时不在格瓦拉电影图片收录范畴。</li>
+							<li>2. 画面变形或不清晰、有转帖来源水印或Logo、被修改过的图片不在格瓦拉电影图片收录之列。</li>
+							<li>3. 与现有图片内容重复且尺寸较小、质地较差的图片将被删除或合并。</li>
+							<li>4. 灌水,与该电影毫无关系的内容。</li>
+							<li>5. 违反互联网电子公告服务管理规定的内容。</li>
+						</ul>
+					</div>
+				</div>
+			<div class="cls"></div>
+		</div>
+		</div>
+		<div class="switch_ui_b"><div class="switch_ui_b"></div></div>
+	</div>
+</div>
+#parse('include/treasure.vm')
+#parse('include/newMarkDialog.vm')
+#parse('include/bottom.vm')
+<script type="text/javascript" >
+	function saveAttachVideo(){
+		checkLogin(true,function(){
+			var title=$('title').value;
+			var videourl=$('videourl').value;
+			videourl=videourl.trim();
+			if(title.length == 0){
+				gewaUtil.alert('视频标题不能为空！');
+				return;
+			}
+			if(videourl.length == 0){
+				gewaUtil.alert('视频地址不能为空！');
+				return;
+			}
+			var localvalid = GewaraUtil.isVideoURL(videourl.trim());
+			if(!localvalid){
+				gewaUtil.alert('请正确填写视频地址！');
+				return;
+			}
+			var url="${basePath}ajax/common/saveAttachVideo.xhtml";
+			var values=GewaraUtil.getValues('myform');
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					gewaUtil.alert('上传成功，请等待管理员得审核！', function(){
+						document.location.href = '${basePath}movie/videoDetail.xhtml?mid='+$obj.id;
+					});
+				}else{
+					GewaraUtil.refreshCaptcha('captcha');
+					gewaUtil.alert(result.msg);
+				}
+			})
+		});
+	}
+</script>
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

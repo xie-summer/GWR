@@ -1,0 +1,654 @@
+<!Doctype html>
+<html xmlns:wb=“http://open.weibo.com/wb”>
+<head><!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	#set($isCityParam=true)
+	#parse('include/constant/cityParam.vm')
+	<title>$!{cookieCityname}电影票网上购买预订_$!{cookieCityname}电影院排片购票_最新上映电影票价_格瓦拉生活网</title>
+	<meta name="keywords" content="网上预订电影票,$!{cookieCityname}电影票优惠,$!{cookieCityname}打折电影票,购电影票,网上预定电影票,网上订票电影票,电影票订购,$!{cookieCityname}折扣电影票,$!{cookieCityname}电影影片,电影折扣,折扣电影,$!{cookieCityname}电影院最新上映电影,电影优惠,$!{cookieCityname}电影券"/>
+	<meta name="description" content="格瓦拉生活网提供$!{cookieCityname}电影票网上预订,$!{cookieCityname}电影院最新排片查询,最新热映电影在线购票,$!{cookieCityname}折扣电影票,$!{cookieCityname}最新上映电影票价查询购票。"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,index_w&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,noobSlide&v=$VmUtils.jsVersion"></script>
+	<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js" type="text/javascript" charset="utf-8"></script>
+	<style type="text/css">
+		.ui_layout{background:none;}
+		#if($headInfo)
+		html{background:$!headInfo.css url($VmUtils.randomPic('',$!headInfo.logosmall)) 0 50px repeat-x;}
+		body{background:transparent url($VmUtils.randomPic('',$!headInfo.logobig)) center 50px no-repeat;}
+		#elseif($headinfo_ad)
+		.ui_nav{margin-bottom:10px;}
+		.ui_indextad{background:url(${staticPath}$!headinfo_ad.ad) center top no-repeat;}
+		#end
+	</style>
+</head>
+<body>
+<div>
+#set($cfgHeader='header')#set($ismovie=true)
+#set($movieFlag="movieindex")
+#set($isIndexBigAd=true)
+#set($isIndexS=true)
+#parse('include/wide_header.vm')
+#if($headinfo_ad)
+<a class="ui_indextad" title="" href="$headinfo_ad.link" target="blank"></a>
+#end
+<div class="ui_layout">
+	<div class="index_wrap clear">
+		#parse('include/movie/wide_menu_left.vm')
+		<div class="index_right">
+			<div class="mt10 clear">
+				<div class="ui_left" style="overflow:hidden;">
+					<div class="mod_kong onShow clear">
+						<div class="mod_hd">
+							<h2>正在热映</h2><em class="c999 ml20">今天共有$!{ticketMovieCount}部影片，$!{ticketCinemaCount}家影院支持选座购票</em>
+						</div>
+						<div class="mod_bd clear">
+							<div class="topM clear">
+								<div class="ui_left">
+									<div class="ui_media">
+										<div class="ui_pic">
+											<div class="roomTypeBox" style="width:150px; height:200px; overflow:hidden; margin:0 auto;">
+												<a target="_blank" title="$!movie.moviename" href="$!{basePath}movie/$movie.id">
+													<img width="150" height="200" alt="$!movie.moviename" src="$VmUtils.randomPic('cw150h200',$movie.limg)"/>
+												</a>
+												#set($editionList = $VmUtils.split($movie.edition,','))
+												#set($mEdition = '')
+												#if($editionList.size() gt 0)
+													#set($mEdition = $editionList.get(0))
+												#end
+												#if($mEdition)
+													#if($VmUtils.contains($mEdition, '4D'))
+														<a class="ui_movieType_line" href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=4D" title="4D" target="_blank"> 
+															<span class="ui_type4d"></span>
+														</a>
+													#elseif($VmUtils.contains($mEdition, 'IMAX3D'))
+														<a class="ui_movieType_line" href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=IMAX" title="IMAX" target="_blank"> 
+															<span class="ui_typeImax3d"></span>
+														</a>
+													#elseif($VmUtils.contains($mEdition, 'IMAX2D'))
+														<a class="ui_movieType_line" href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=IMAX" title="IMAX" target="_blank"> 
+															<span class="ui_typeImax"></span>
+														</a>
+													#elseif($VmUtils.contains($mEdition, '双机3D'))
+														<a class="ui_movieType_line" href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=DOUBLE3D" title="DOUBLE3D" target="_blank"> 
+															<span class="ui_type3d2"></span>
+														</a>
+													#elseif($VmUtils.contains($mEdition, '3D'))
+														<a class="ui_movieType_line" href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{movie.id}&ctype=REALD" title="REALD" target="_blank"> 
+															<span class="ui_type3d"></span>
+														</a>
+													#end
+												#end
+											</div>
+										</div>
+										<div class="ui_text">
+											<h2 class="clear">
+												<a title="$!movie.moviename" class="c333" href="$!{basePath}movie/$movie.id" target="_blank" >$!movie.moviename</a>
+												#set($gmark=$VmUtils.getLastMarkStar($movie, "general",$markCountMap.get($movie.id),$!markData))
+												#set($gmark1=$gmark/10) #set($gmark2=$gmark % 10) 
+												#if(!$movieIdList.contains($movie.id))
+													#set($addMId = $movieIdList.add($movie.id))
+												#end 
+												<span><sub data-keynum="$!{movie.id}_mark1">$!gmark1</sub><sup data-keynum="$!{movie.id}_mark2">.$!gmark2</sup></span>
+												#if($movie.releasedate)
+													#if($DateUtil.after($DateUtil.currentTime(),$movie.releasedate) lt 0)
+													<span class="ui_reSale"></span>
+													#elseif($DateUtil.after($DateUtil.addDay($DateUtil.currentTime(), -3),$movie.releasedate) le 0)
+													<span class="ui_onShow"></span>
+													#end
+												#end
+											</h2>
+											#if($movie.highlight)
+											<div class="ui_summary"><span class="first"></span>$!movie.highlight<span></span></div>
+											#end
+											#if($movie.type)
+											<p class="mt5"><em>类型：</em>$!{movie.type}</p>
+											#end
+											#if($movie.director)
+											<p><em>导演：</em>$movie.director</p>
+											#end
+											#if($movie.actors)
+											<p><em>主演：</em>$movie.actors</p>
+											#end
+											#if($movie.boughtcount && $movie.boughtcount gt 0)
+											<p class="c999 mt5" data-keynum="$!{movie.id}_boughtcount">$movie.boughtcount 人购票</p>
+											#end
+											#if($opiMovieList.contains($movie.id))
+											<a target="_blank" href="$!{basePath}movie/$movie.id" class="button bigBt redBt none mt10"><span>选座购票</span></a>
+											#else
+											<a target="_blank" href="$!{basePath}movie/$movie.id" class="button bigBt bigWhiteBt none mt10"><span>查看排片</span></a>
+											#end
+										</div>
+									</div>
+								</div>
+								<div class="ui_right">
+									<div class="tags clear">
+										<ul>
+											#foreach($c in $mpiCinemaList)
+											<li>
+												<a title="$!c.name" id="tags$!{foreach.count}" #if($foreach.count eq 1)class="select"#end href="$!{basePath}cinema/$c.id" target="_blank">
+													$!VmUtils.escabbr($!c.name,14)
+												</a>
+											</li>
+											#end
+										</ul>
+										<a class="more c999" href="$!{basePath}movie/$movie.id" target="_blank">全部</a>
+									</div>
+									<div class="list mt10">
+									#foreach($c in $mpiCinemaList)
+									#set($isOpen = false)
+										<div #if($foreach.count gt 1) class='none' #end id="tags$!{foreach.count}_content">
+											<div class="listBox">
+												#foreach($mpi in $cMPIMap.get($c))
+												<a target="_blank" #if($openMpiList.contains($mpi.id)) #set($isOpen = true) href="${basePath}$!VmUtils.getStep1Url($mpi.id,'')" title="选座购票" #else class="disable" href="$!{basePath}movie/$movie.id" title="查看排片" #end>$mpi.playtime</a>
+												#end
+											</div>
+											#if($isOpen)
+											<p class="tar"><a target="_blank" href="$!{basePath}movie/$movie.id" class="button bigBt redBt"><span>选座购票</span></a></p>
+											#else
+											<p class="tar"><a target="_blank" href="$!{basePath}movie/$movie.id" class="button bigBt bigWhiteBt"><span>查看排片</span></a></p>
+											#end
+										</div>
+									#end
+									</div>
+								</div>
+							</div>
+							<div class="listM">
+								<div class="even_move" id="menu_box_movie">
+									<div class="even_left"><b class="orientation disable"></b></div>
+									<div class="even_right"><b class="orientation"></b></div>
+									<div class="even_center">
+										<ul id="menu_box_movie_inner">
+											#foreach($m in $movieList)
+											#set($gmark=$VmUtils.getLastMarkStar($m, "general",$markCountMap.get($m.id),$!markData))
+											#set($gmark1=$gmark/10) #set($gmark2=$gmark % 10)
+											#if(!$movieIdList.contains($m.id))
+												#set($addMId = $movieIdList.add($m.id))
+											#end 
+											<li>
+												<div class="roomTypeBox" style="width:120px; height:160px; overflow:hidden; margin:0 auto;">
+													<a target="_blank" title="$!m.moviename" href="$!{basePath}movie/$m.id">
+														<img width="120" height="160" alt="$!m.moviename" src="$VmUtils.randomPic('cw120h160',$m.limg)"/>
+													</a>
+													#set($editionList = $VmUtils.split($m.edition,','))
+													#set($mEdition = '')
+													#if($editionList.size() gt 0)
+														#set($mEdition = $editionList.get(0))
+													#end
+													#if($mEdition)
+														#if($VmUtils.contains($mEdition, '4D'))
+															<a class="ui_movieType_line" href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{m.id}&ctype=4D" title="4D" target="_blank"> 
+																<span class="ui_type4d"></span>
+															</a>
+														#elseif($VmUtils.contains($mEdition, 'IMAX3D'))
+															<a class="ui_movieType_line" href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{m.id}&ctype=IMAX" title="IMAX" target="_blank"> 
+																<span class="ui_typeImax3d"></span>
+															</a>
+														#elseif($VmUtils.contains($mEdition, 'IMAX2D'))
+															<a class="ui_movieType_line" href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{m.id}&ctype=IMAX" title="IMAX" target="_blank"> 
+																<span class="ui_typeImax"></span>
+															</a>
+														#elseif($VmUtils.contains($mEdition, '双机3D'))
+															<a class="ui_movieType_line" href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{m.id}&ctype=DOUBLE3D" title="DOUBLE3D" target="_blank"> 
+																<span class="ui_type3d2"></span>
+															</a>
+														#elseif($VmUtils.contains($mEdition, '3D'))
+															<a class="ui_movieType_line" href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?mId=$!{m.id}&ctype=REALD" title="REALD" target="_blank"> 
+																<span class="ui_type3d"></span>
+															</a>
+														#end
+													#end
+												</div>
+												<p class="clear mt10" >
+													<a title="$!m.moviename" class="c333 fs14" href="$!{basePath}movie/$m.id" style="height:30px; line-height:30px; display:inline-block;" target="_blank">$!VmUtils.escabbr($!m.moviename,12)</a>
+													<span><sub class="ml5" data-keynum="$!{m.id}_mark1">$!gmark1</sub><sup data-keynum="$!{m.id}_mark2">.$!gmark2</sup></span>
+												</p>
+												#if($m.boughtcount && $m.boughtcount gt 0)
+												<p class="c999" data-keynum="$!{m.id}_boughtcount">${m.boughtcount} 人购票</p>
+												#end
+												#if($opiMovieList.contains($m.id))
+													<p class="mt5"><a href="$!{basePath}movie/$m.id" class="button bigBt redBt" target="_blank"><span>选座购票</span></a></p>
+												#else
+													<p class="mt5"><a href="$!{basePath}movie/$m.id" class="button bigBt bigWhiteBt" target="_blank"><span>查看排片</span></a></p>
+												#end
+											</li>
+											#end
+										</ul>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="mod_kong hotAc clear">
+						<div class="mod_hd">
+							<h2>热门活动</h2>
+							<a href="$!{basePath}activity/activityList.xhtml" target="_blank" class="more">更多</a>
+						</div>
+						<div class="mod_bd">
+							<div class="ui_left">
+								<div class="even_box">
+									<div class="even_center">
+										<ul style="width:600px" id="slide_ac">
+											#foreach($activity in $playActivityList)
+											<li>
+												<a target="_blank" title="$!activity.title" href="${basePath}activity/$!activity.id">
+													<img width="150" height="200" src="$VmUtils.randomPic('cw150h200',$!activity.limg)" alt="$!activity.title">
+												</a>
+												<p class="mt10"><a class="fs14" target="_blank" title="$!activity.title" href="${basePath}activity/$!activity.id">$!VmUtils.escabbr($!activity.title,18)</a></p>
+												<p class="c999">$!activity.clickedtimes关注<span class="ml10">$!activity.membercount参加</span></p>
+											</li>
+											#end
+										</ul>
+									</div>
+									<div class="even_tips" id="even_tips">
+										#foreach($activity in $playActivityList)
+										<span></span>
+										#end
+									</div>
+								</div>
+							</div>
+							<div class="ui_right">
+								<ul>
+									#foreach($activity in $activityList)
+									<li>
+										<dl class="ui_media">
+											<dt class="ui_pic">
+												<a target="_blank" title="$!activity.title" href="${basePath}activity/$!activity.id">
+													<img width="96" height="128" src="$VmUtils.randomPic('cw96h128',$!activity.limg)" alt="$!activity.title">
+												</a>
+											</dt>
+											<dd class="ui_text">
+												<p><a target="_blank" title="$!activity.title" href="${basePath}activity/$!activity.id">$!VmUtils.escabbr($!activity.title,50)</a></p>
+												<p class="mt10 c999">$!DateUtil.format($!activity.startdate,'MM月d日')#if($!activity.enddate)--$DateUtil.format($!activity.enddate,'MM月d日')#end</p>
+												<p class="c999">$!activity.clickedtimes关注<span class="ml10">$!activity.membercount参加</span></p>
+											</dd>
+										</dl>
+									</li>
+									#end
+								</ul>
+							</div>
+						</div>
+					</div>
+					#if(!$roomCtypeList.isEmpty())
+					<div class="mod_kong indexSpeCinema evenBox">
+						<div class="mod_hd">
+							<h2>$!{cookieCityname}特效厅</h2>
+							<img src="/css/movie_wide/tese_head.gif" width="176" height="20" style="margin:-5px 0 0 15px;" />
+							<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml" class="more" target="_blank">更多</a>
+						</div>
+						<div class="even_move" id="cinemaList_box">
+							<div class="even_left"><b class="orientation disable"></b></div>
+							<div class="even_right"><b class="orientation"></b></div>
+							<div class="mod_bd even_center">
+								<ul class="ui_inline clear" id="cinemaList_box_inner">
+									#foreach($key in $roomFeatureCinemas.keySet())
+									#if($roomCtypeList.contains($key))
+										<li class="spe_$!key">
+											<a href="$!{basePath}$!{cityPinyin}/cinema/imax.xhtml?ctype=$!key" target="_blank"></a>
+											<p>#if($roomFeatureCinemas.get($key))$!{roomFeatureCinemas.get($key)}#else 0#end</p>
+										</li>
+									#end
+									#end
+								</ul>
+							</div>
+						</div>
+					</div>
+					#end
+					<div class="mod_kong indexNextPlay">
+						<div class="mod_hd">
+							<h2>新片预告</h2>
+							<a href="${basePath}movie/futureMovie.xhtml" class="more" target="_blank">更多</a>
+						</div>
+						<div class="mod_bd">
+							<ul class="ui_inline clear">
+								#foreach($video in $!videoList)
+								#set($relate=$relatedHelper.getR1("videoList",$video.id))
+								<li class="#if($foreach.count eq 4)isDis#end #if($foreach.count eq 1) first #end" >
+									<a href="${basePath}movie/$!relate.relatedid?videoList=true&vid=$!relate.id" class="img" target="_blank" title="$!relate.videotitle">
+										<img width="160" height="120" alt="$!relate.videotitle" src="$!VmUtils.randomPic('cw160h120',$relate.limg)">
+										<span class="mask"></span>
+										<span class="ico_play"></span>
+									</a>
+									<p class="mt5">
+										<a title="$!relate.videotitle" target="_blank" class="c333" href="${basePath}movie/video/$!relate.id">
+											$!VmUtils.escabbr($!relate.videotitle,24)
+										</a>
+									</p>
+								</li>
+								#end
+							</ul>
+						</div>
+					</div>
+					<div class="mod_tabs comWala clear">
+						<div class="mod_hd" style="position:relative;">
+							<ul class="nav_tabs">
+								<li class="select" id="tabComment">
+									<a href="javascript:void(0);">精彩影评</a>
+								</li>
+								<li style="position:relative;" id="tabWala" class="">
+									<a href="javascript:void(0);">热门哇啦</a>
+								</li>
+							</ul>
+							<a id="moreComment" href="$!{basePath}blog/movie?type=1" target="_blank" class="more" style="top:10px; right:10px;">更多</a>
+						</div>
+						<div class="mod_bd">
+							<div id="tabComment_content" class="index_hotTopic">
+								<ul>
+									#foreach($diary in $diaryList)
+									#set($relate=$relatedHelper.getR1("diaryList",$diary.id))
+									#set($diaryPointMap=$VmUtils.readJsonToMap($relate.otherinfo))
+									#set($relate2=$relatedHelper.getR1("categoryMap",$relate.categoryid))
+									<li #if($foreach.count gt 1)style="margin-top:50px;"#end>
+										<div class="ui_media">
+											<div class="ui_pic center">
+												<a style="width:50px; margin:0 auto; display:block;" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!relate.memberid" title="$!relate.membername" target="_blank">
+													<img src="$VmUtils.randomPic('cw50h50',$!cacheMemberMap.get($relate.memberid).headpicUrl)" width="50" height="50" alt="$!relate.membername"/>
+												</a>
+												<p class="mt5"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!relate.memberid" title="$!relate.membername" target="_blank">$!VmUtils.escabbr($!relate.membername,10)</a></p>
+											</div>
+											<div class="ui_text">
+												<div class="box_movieInfo">
+													<p><a href="${basePath}movie/$!relate.categoryid"  target="_blank" >$!VmUtils.escabbr($!relate2.name,20)</a></p>
+													<p>还有<a href="${basePath}movie/$!relate.categoryid?diaryList=true" class="ui_readMore c333" target="_blank">$!moiveDiaryCountMap.get($!relate.categoryid)篇影评</a></p>
+												</div>
+												<h3><a href="${basePath}blog/t${relate.id}" class="c333" target="_blank">$!VmUtils.escabbr($!relate.subject,44)</a></h3>
+												<p class="mt5">$!VmUtils.htmlabbr($!relate.summary,240)...<a class="ui_readMore c333" href="${basePath}blog/t${relate.id}" target="_blank">全文</a></p>
+											</div>
+										</div>
+									</li>
+									#end
+								</ul>
+							</div>
+							<div id="tabWala_content" class="none">
+								<div id="WalaDetail"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="ui_right" style="overflow:hidden;">
+					<div class="mod_kong stepsIntro">
+						<div class="mod_hd">
+							<h2>三步轻松选座购票</h2>
+						</div>
+						<div class="mod_bd">
+							<div class="steps">
+								<ul>
+									<li>
+										<em style="background-position:0 0;"></em>
+										<h3>影讯准确无误</h3>
+										<p>大片热片一网打尽，实时同步排片</p>
+									</li>
+									<li>
+										<em style="background-position:-49px 0;"></em>
+										<h3>三步选座购票</h3>
+										<p>无需排队，选座购票，终端自助取票</p>
+									</li>
+									<li>
+										<em style="background-position:-98px 0;"></em>
+										<h3>影院售价4折起</h3>
+										<p>影院售价4-6折，更有5元抢票，明星见面会等你参加</p>
+									</li>
+									<li style="border-bottom:none;">
+										<em style="background-position:-147px 0;"></em>
+										<h3>安全支付有保障</h3>
+										<p>支持支付宝、银联付款</p>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					#if($ad)
+					<div class="mod_kong">
+						<a href="$!{ad.link}" title="$!{ad.title}" target="_blank">
+							<img width="310" height="130" src="${staticPath}$!{ad.ad}" alt="$!{ad.description}" />
+						</a>
+					</div>
+					#end
+					<div class="mod_kong hotCinema">
+						<div class="mod_hd">
+							<h2>热门影院</h2>
+							<a href="$!{basePath}movie/searchCinema.xhtml" target="_blank" class="more">更多</a>
+						</div>
+						<div class="mod_bd">
+							<ul>
+								#foreach($cinema in $cinemaList)
+								#set($gmark=$VmUtils.getSingleMarkStar($!cinema, "general")) 
+								#set($gmark1=$gmark/10) #set($gmark2=$gmark%10) 
+								#if($gmark2 gt 0)#set($gmark3=$gmark1+1)#else#set($gmark3=$gmark1)#end
+								<li>
+									#if($opiCinemaList.contains($cinema.id))
+									<a class="button minBt redBt right" href="$!{basePath}cinema/$cinema.id" target="_blank" ><span>选座购票</span></a>
+									#else
+									<a class="button minBt whiteBt right" href="$!{basePath}cinema/$cinema.id" target="_blank" ><span>查看排片</span></a>
+									#end
+									<a href="$!{basePath}cinema/$cinema.id" target="_blank" class="name left">$!cinema.name</a>
+									<span class="left"><sub class="min">$!gmark1</sub><sup class="min">.$!gmark2</sup></span>
+								</li>
+								#end
+							</ul>
+						</div>
+					</div>
+					#parse('include/movie/mod_news.vm')
+					<div class="mod_kong weekList">
+						<div class="mod_hd">
+							<h2>一周排行</h2>
+							<ul class="nav_tabs">
+								<li>
+									<a id="hotShow" class="select" href="javascript:void(0);">热映</a>
+								</li>
+								<li>
+									<a id="newShow" href="javascript:void(0);">新片</a>
+								</li>
+							</ul>
+						</div>
+						<div class="mod_bd" id="weekListC">
+							<div id="hotShow_content">
+								<ul>
+									#foreach($m in $!saleMovieList)
+									#set($gmark=$VmUtils.getLastMarkStar($m, "general",$markCountMap.get($m.id),$!markData))
+									#set($gmark1=$gmark/10) #set($gmark2=$gmark % 10)
+									#if(!$movieIdList.contains($m.id))
+										#set($addMId = $movieIdList.add($m.id))
+									#end 
+									<li class="#if($foreach.count le 2)topTwo#end #if($foreach.count eq 1) select #end">
+										<span class="num">$foreach.count</span>
+										<span class="mPic">
+											<a target="_blank" title="$m.moviename" href="$!{basePath}movie/$m.id"><img width="72" height="96" src="$VmUtils.randomPic('cw72h96',$m.limg)" alt="$!m.moviename"></a>
+										</span>
+										<span class="mName"><a target="_blank" title="$!m.moviename" href="$!{basePath}movie/$m.id">$!m.moviename</a><span class="point"><sub class="min" data-keynum="$!{m.id}_mark1">$!gmark1</sub><sup class="min" data-keynum="$!{m.id}_mark2">.$!gmark2</sup></span></span>
+										#if($m.highlight)
+										<div class="ui_summary"><span class="first"></span>$m.highlight<span></span></div>
+										#end
+										<em title="#if($saleMovieMap.get($m.id).get('orderRelatively') eq 'drop')下降#elseif($saleMovieMap.get($m.id).get('orderRelatively') eq 'rise')上升#else保持#end" class="$!saleMovieMap.get($m.id).get('orderRelatively')"></em>
+									</li>
+									#end
+								</ul>
+							</div>
+							<div id="newShow_content" class="none">
+								<ul>
+									#foreach($m in $fetureMovieList)
+									#if(!$movieIdList.contains($m.id))
+										#set($addMId = $movieIdList.add($m.id))
+									#end
+									<li class="#if($foreach.count le 2)topTwo#end #if($foreach.count eq 1) select #end">
+										<span class="num">$foreach.count</span>
+										<span class="mPic">
+											<a target="_blank" title="$!m.moviename" href="$!{basePath}movie/$m.id"><img width="72" height="96" src="$VmUtils.randomPic('cw72h96',$m.limg)" alt="$!m.moviename"></a>
+										</span>
+										<span class="mName"><a target="_blank" title="$!m.moviename" href="$!{basePath}movie/$m.id">$!m.moviename</a>
+											<span class="point xk" data-keynum="$!{m.id}_xiangqu">$m.xiangqu人想看</span>
+										</span>
+										<span class="mCount mt5">
+											<span class="point xk none" data-keynum="$!{m.id}_xiangqu">$m.xiangqu人想看</span>
+											#if($movie.playdate)
+											#set($playdate = $DateUtil.parseDate($m.playdate,'yyyy-MM-dd'))
+											<p class="c999">$!DateUtil.format($playdate,'MM-dd')上映</p>
+											#end
+											#set($key1 = $!m.id + "movie")
+											#if($videoCountMap.get($key1) && $videoCountMap.get($key1) gt 0)
+											<a href="$!{basePath}movie/$!m.id?videoList=true" target="_blank" title="$videoCountMap.get($key1)个预告片">预告片</a>
+											#end
+											#*
+											#if($commentCountMap.get($key1) && $commentCountMap.get($key1) gt 0)
+											<a class="video" href="$!{basePath}movie/$!m.id?comment=true" target="_blank" title="$commentCountMap.get($key1)条哇啦">哇啦($commentCountMap.get($key1))</a>
+											#end
+											*#
+										</span>
+									</li>
+									#end
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="mod_kong">
+						<div class="mod_hd">
+							<h2>微信关注我们</h2>
+						</div>
+						<div class="mod_bd">
+							<dl class="ui_media">
+								<dt class="ui_pic">
+									<img src="${staticPath}css/movie_wide/pic_weichat.gif" width="104" height="104" alt="微信二维码"/>
+								</dt>
+								<dd class="ui_text" style="padding:20px 0 0 20px; font-size:14px;">
+									扫描二维码<br/>加我为微信好友吧！<br/>你，懂得~
+								</dd>
+							</dl>
+						</div>
+					</div>
+					<div class="mod_kong">
+						<div class="mod_hd">
+							<h2>微博关注我们</h2>
+						</div>
+						<div class="mod_bd">
+							<dl class="ui_media">
+								<dt class="ui_pic">
+									<img src="${staticPath}css/movie_wide/ico_wb.gif" width="104" height="104" alt="微信二维码"/>
+								</dt>
+								<dd class="ui_text" style="padding:20px 0 0 10px; font-size:15px; font-family:'微软雅黑','宋体';">
+									<p><a href="http://e.weibo.com/gewara2sh" target="_blank">格瓦拉生活网电影</a></p>
+									<p class="mt10"><wb:follow-button uid="1644150884" type="red_1" width="67" height="24" ></wb:follow-button></p>
+								</dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+</div>
+<script type="text/javascript">
+window.addEvents({
+	'domready':function(){
+		#if(!$roomCtypeList.isEmpty())
+		//切换
+		new sigleLeep('cinemaList_box','cinemaList_box_inner',{isNode:'li','disable':'disable','size':218,'length':3,'screen':218});
+		#end
+		var keys = "ticketMovieCount,futureMovieCount,ticketCinemaCount,movieActivityCount";
+		#if(!$VmUtils.isEmptyList($movieIdList))
+			keys += ",movieDetail_$!VmUtils.join($movieIdList, '@')";
+		#end
+		GewaraUtil.sendRequest('${basePath}ajax/loadIndexKeyNumber.xhtml', {"keys":keys}, function(result){
+			if(result.success) {
+				$("keyNum_cinemaCount").set("text",result.ticketCinemaCount + "家");
+				$("keyNum_fetureMovieCount").set("text",result.futureMovieCount + "部");
+				$("keyNum_curMovieListCount").set("text",result.ticketMovieCount + "部");
+				$("keyNum_activityCount").set("text",result.movieActivityCount + "个");
+				#if(!$VmUtils.isEmptyList($movieIdList))
+					#foreach($id in $movieIdList)
+						document.getElements('*[data-keynum=$!{id}_mark1]').set("text",(result.mark_$!{id}/10 + "").toInt());
+						document.getElements('*[data-keynum=$!{id}_mark2]').set("text","." + result.mark_$!{id}%10);
+						document.getElements('*[data-keynum=$!{id}_boughtcount]').set("text",result.boughtcount_$!{id} + "人购票");
+						document.getElements('*[data-keynum=$!{id}_xiangqu]').set("text",result.xiangqu_$!{id} + "人想看");
+					#end
+				#end
+			}
+		});
+		new sigleLeep('menu_box_movie','menu_box_movie_inner',{isNode:'li','disable':'disable','size':172,'length':4,'screen':172});
+		#if($mpiCinemaList && $mpiCinemaList.size() gt 1)
+		new PanelGroup(['tags1', 'tags2'], 'tags1', "select", "none", "mouseover");
+		#end
+		new PanelGroup(['hotShow', 'newShow'], 'hotShow', "select", "none", "mouseover");
+		new PanelGroup(['tabComment', 'tabWala'], 'tabComment', "select", "none", "click",function(){
+			if(this.get('id') == 'tabWala'){
+				if(this.retrieve('loadWala') == null){
+					loadWala();
+					this.store('loadWala',true);
+				}
+				$('moreComment').addClass('none');
+			}else{
+				$('moreComment').removeClass('none');
+			}
+		});
+		#if($playActivityList && $playActivityList.size() gt 1)
+		new noobSlide({
+			box: $('slide_ac'),
+			items:$$('#slide_ac li'),
+			size:150,
+			autoPlay:true,
+			handles:$$('#even_tips span'),
+			handle_event:'click',
+			onWalk: function(currentItem,currentHandle){
+				this.handles.removeClass('select');
+				currentHandle.addClass('select');
+			}
+		});
+		#end
+		selectLine('hotShow_content');
+		selectLine('newShow_content');
+		gewaUtil.fixIE();
+		(function(){
+			gewaUtil.affix($('ui_left'));
+		}).delay(500);
+	},
+	'resize':function(){
+		gewaUtil.fixIE();
+	}
+});
+
+function loadWala(){
+	$('WalaDetail').innerHTML = '';
+	Asset.javascript("${staticPath}scripts/gewara.js?n=wide_wala,slimbox&v=$!{VmUtils.jsVersion}", {
+		'id':'walaDynaScript',
+		'isScroll':false,//用于控制是否支持鼠标滚动事件
+		'isTicket':true,
+		'bindWala':'WalaDetail',//把加载的哇啦放在什么位置
+		onLoad:function(){
+			Asset.css('${staticPath}css/wide_wala.css?v=$VmUtils.jsVersion',{'id':'walasCss'});
+			gewa.util.pageNumber = 0;
+	    	var _body = $(document.body);
+	    	gewa.util.requestUrl = 'ajax/common/qryAutoIndexPageComment.xhtml';
+	    	gewa.util.values = {
+    			pageNumber:gewa.util.pageNumber,//自动加载时的分页数
+    			relatedid:'',//关联对象的ID
+    			title:'movie',//话题的标题
+    			issue:false,//是否有发表框
+    			tag:'movie',//关联那个板块的内容
+    			isPic:true,//是否支持传图片
+    			isVideo:false,//是否支持传视频
+    			order:"hot",
+	    		maxCount:20,//如果设置，即是单页显示N条
+				userLogo:gewara.util.member.headUrl//用户的头像
+	    	};
+	    	gewa.util.init();
+		}
+	});
+}
+
+function selectLine(el){
+	var el =$(el);
+	if(el){
+		var oLis = el.getElements('li');
+		oLis.addEvent('mouseover',function(){
+			oLis.each(function(item){
+				item.removeClass('select');
+			});
+			this.addClass('select');
+		});
+	}
+}
+
+</script>
+</body>
+</html>

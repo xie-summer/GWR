@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>WEB模块管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+</head>
+<body style="width:750px;margin:auto" class="yui-skin-sam">
+<div style="margin:5px; margin-left:0px">
+	<a title="增加模块" href="${basePath}admin/acl/modifyWebModule.xhtml?tag=$params.tag" target="_blank">增加模块</a>
+</div>
+<table class="table">
+	<thead>
+	<tr>
+		<th>匹配顺序</th>
+		<th>模块URL</th>
+		<th>功能描述</th>
+		<th>修改</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	#foreach($module in $moduleList)
+		<tr>
+			<td>$!{module.matchorder}</td>
+			<td>$!{module.moduleurl}</td>
+			<td>$!{module.menutitle}</td>
+			<td>
+				<a href="${basePath}admin/acl/modifyWebModule.xhtml?moduleId=${module.id}" target="_blank">修改模块</a>
+			</td>
+			<td><a title="删除模块" href="javascript:alert('现在不能删除模块“${module.id}”！')">删除模块</a></td>
+		</tr>
+	#end
+	#foreach($mainMenu in $mainMenuList)
+		<tr style="background-color: #dfd">
+			<td>$!{mainMenu.menucode}|$!{mainMenu.matchorder}</td>
+			<td>$!{mainMenu.moduleurl}</td>
+			<td>$!{mainMenu.menutitle}</td>
+			<td>
+				<a href="${basePath}admin/acl/modifyWebModule.xhtml?moduleId=${mainMenu.id}&tag=$!params.tag" target="_blank">修改模块</a>
+			</td>
+			<td><a title="删除模块" href="javascript:alert('现在不能删除模块“${mainMenu.id}”！')">删除模块</a></td>
+		</tr>
+		#if(!$VmUtils.isEmptyList($subMenuMap.get($mainMenu.menucode)))
+		#foreach($subMenu in $subMenuMap.get($mainMenu.menucode))
+		<tr#if($subMenu.display eq 'N') style="background:#ccc;"#end>
+			<td style="padding-left: 20px;">$!{subMenu.menucode}|$!{subMenu.matchorder}</td>
+			<td>$!{subMenu.moduleurl}</td>
+			<td>$!{subMenu.menutitle}</td>
+			<td>
+				<a href="${basePath}admin/acl/modifyWebModule.xhtml?moduleId=${subMenu.id}" target="_blank">修改模块</a>
+			</td>
+			<td><a title="删除模块" href="javascript:alert('现在不能删除模块“${subMenu.id}”！')">删除模块</a></td>
+		</tr>
+		#end
+		#end
+	#end
+</table>
+<div id="moduleDialog" class="yui-panel" style="width:250px; visibility:hidden">
+	<div class="hd">输入功能模块信息</div>
+	<div class="bd">
+		<form id="moduleForm">
+			<div>
+				<label for="moduleurl">模块URL：</label><input type="text" name="moduleurl" />
+			</div><div>
+				<label for="moduledescription">功能描述：</label><textarea name="moduledescription"></textarea>
+			</div><div>
+				<input type="button" style="width:60px" name="save" value="保存" onclick="saveModule()"/> 
+				<input type="button" style="width:60px" name="save" value="取消" onclick="cancle()"/> 
+			</div>
+		</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	function cancle(){
+		GewaraUtil.hideDialog('moduleDialog');
+	}
+	function showDialog(){
+		GewaraUtil.showDialog("moduleDialog");
+	}
+	function saveModule(){
+		var values = GewaraUtil.getValues($("moduleForm"));
+		if (values.moduleurl == "" || values.moduledescription == "") {
+			alert("请输入“模块URL”和“功能描述”！");
+			return;
+		}
+		var url = '${basePath}admin/acl/ajax/addRole.xhtml';
+		var values = {"rolename":values.rolename, "description":values.description};
+		GewaraUtil.sendRequest(url, values, function(result){
+							if(result.success) alert("保存模块成功");
+							else alert("保存模块失败");
+						});
+	}
+	function addModule(){
+		showDialog();
+	}
+</script>
+</body>
+</html>

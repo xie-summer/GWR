@@ -1,0 +1,48 @@
+#if($relate2)
+#if($VmUtils.eq($question.category, "movie") || $VmUtils.eq($question.category, "drama"))
+#if($VmUtils.eq($question.category, "movie"))
+#set($gmark=$VmUtils.getLastMarkStar($relate2, "general",${markCount},$!markData))
+#else
+#set($gmark=$VmUtils.getSingleMarkStar($relate2, "general"))
+#end
+<div class="qaForm">问题来源于《$!VmUtils.escabbr($!relate2.name, 16)》</div>
+<div class="qaCon">
+	<div class="ui_media">
+		<div class="ui_pic">
+			<a href="${basePath}" title="" target="_blank">
+				<img src="$VmUtils.randomPic('cw96h128',$!relate2.limg)" alt="" width="96" height="128"/>
+			</a>
+		</div>
+		<div class="ui_text">
+			<h2><a href="${basePath}$question.category/$!relate2.id" target="_blank" title="$!relate2.name">$!VmUtils.escabbr($!relate2.name, 16)</a></h2>
+			#set($gmark1=$gmark/10) #set($gmark2=$gmark % 10) 
+			<span class="grade">
+				<sub>$gmark1</sub><sup>.$gmark2</sup>
+			</span>
+			#if($VmUtils.isNotBlank($relate2.highlight))<p>$relate2.highlight<a href="${basePath}$question.category/$!relate2.id" target="_blank">详情&gt;&gt;</a></p>#end
+			#if($relate2.releasedate)<p>#if($VmUtils.eq($question.category, "movie"))上映日期#else演出时间#end：$!DateUtil.format($relate2.releasedate,"yyyy年M月d日")</p>#end
+		</div>
+	</div>
+</div>
+#elseif($VmUtils.eq($question.category, "sportservice") || $VmUtils.eq($question.category, "gymcourse"))
+#if($VmUtils.eq($question.category, "sportservice"))
+#set($relateUrl="sport/item")
+#else
+#set($relateUrl="gym/course")
+#end
+<div class="qaForm">问题来源于《$!VmUtils.escabbr($!relate2.name, 16)》</div>
+<div class="qaCon">
+	<div class="ui_media">
+		<div class="ui_pic">
+			<a href="${basePath}$relateUrl/$!relate2.id" title="$!relate2.name" target="_blank">
+				<img src="$VmUtils.randomPic('cw96h128',$!relate2.limg)" alt="" width="96" height="128"/>
+			</a>
+		</div>
+		<div class="ui_text">
+			<h2><a href="${basePath}$relateUrl/$!relate2.id" target="_blank" title="$!relate2.name">$!VmUtils.escabbr($!relate2.name, 16)</a></h2>
+			#if($VmUtils.isNotBlank($relate2.highlight))<p>$relate2.highlight<a href="${basePath}$relateUrl/$!relate2.id" target="_blank">详情&gt;&gt;</a></p>#end
+		</div>
+	</div>
+</div>
+#end
+#end

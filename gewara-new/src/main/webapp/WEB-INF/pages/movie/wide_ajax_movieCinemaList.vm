@@ -1,0 +1,71 @@
+<ul>
+#foreach($cinema in $!cinemaList)
+#set($gmark=$VmUtils.getSingleMarkStar($!cinema, "general")) #set($gmark1=$gmark/10) 
+#set($gmark2=$gmark%10) #if($gmark2 gt 0)#set($gmark3=$gmark1+1)#else#set($gmark3=$gmark1)#end
+	<li class="effectLi" style="width:100%">
+		<div class="ui_media">
+			<div class="ui_pic cinema">
+				<a href="${basePath}cinema/$cinema.id" target="_blank" title="$!cinema.name">
+					<img src="${staticPath}css/images/blank.gif" alt="$!cinema.name" height="92" width="122" style="border:1px solid #f4f4f4;background:url($VmUtils.randomPic('sw120h60',$!cinema.limg)) center center no-repeat #fff;vertical-align:middle;"/>
+				</a>
+				#if($opiCinemaList.contains($cinema.id))
+				<p class="mt10">
+					<a class="button redBt bigBt" href="$!{basePath}cinema/$!cinema.id" target="_blank"><span>选座购票</span></a>
+				</p>
+				#end
+			</div>
+			<div class="ui_text">
+				<div class="title">
+					<h2>
+						<a href="${basePath}cinema/$cinema.id" title="$!cinema.name" target="_blank" class="color3">$!cinema.name</a>
+					</h2>
+					<span class="ml5">($!cinema.clickedtimes关注)</span>
+					<span class="grade">
+						<sub style="margin:0;">$gmark1</sub>
+						<sup>.$gmark2</sup>
+					</span>
+				</div>
+				<p class="mt10">
+					详细地址：<a href="$!{basePath}movie/searchCinema.xhtml?countycode=$!cinema.countycode" target="_blank">$!cinema.countyname</a> $!cinema.address
+					<span class="ffst">[</span><a class="colorRed" target="_blank" href="${basePath}common/baiduMap.xhtml?id=$cinema.id&tag=cinema">地图</a><span class="ffst">]</span>
+					#if($popcornMap.get($cinema.id) && $popcornMap.get($cinema.id).topicid)
+					<span class="ffst">[</span><a class="colorRed" target="_blank" href="${basePath}blog/t$popcornMap.get($cinema.id).topicid">取票机位置</a><span class="ffst">]</span></p>
+					#end
+				#if($VmUtils.isNotBlank($cinema.getLineName($subwaylineMap)))
+				<p>地铁交通：地铁$!cinema.getLineName($!subwaylineMap)($!cinema.stationname&nbsp;$!cinema.exitnumber)</p>
+				#end
+				<div class="favorable mt10">
+					<p>$!playMovieCount.get($cinema.id)部影片上映$!playItemCount.get($cinema.id)场</p>
+					#if($spdiscountMap.get($!cinema.id))
+					<p>
+						<span class="cf60 mr10">
+						#set($spdiscount=$!spdiscountMap.get($cinema.id).get(0))	
+						$!spdiscount.getDiscountText("$!spdiscount.bankname","$!spdiscount.discount","$!spdiscount.rebates")
+						</span>
+						等$!{spdiscountMap.get($cinema.id).size()}个优惠正在进行中
+					</p>
+					#end
+				</div>
+				<div class="mt5 conditionIco">
+				#set($otherinfo = $VmUtils.readJsonToMap($!cinema.otherinfo))
+				#if($cinema.otherinfo.contains("imax"))
+					<span class="O1"><em class="S3 Imax"></em>IMAX厅</span>
+				#end
+				#if($cinema.otherinfo.contains("pairseat"))
+					<span class="O1"><em class="S3 Lovers"></em>情侣座</span>
+				#end
+				#if($VmUtils.eq($popcornMap.get($cinema.id).popcorn,'Y'))
+					<span class="O1"><em class="S3 Linecombo"></em>线上套餐</span>
+				#end
+				#if($cinema.otherinfo.contains("park") && $otherinfo.get('parkRecommend') && $otherinfo.get("parkRecommend").indexOf("free") != -1)
+					<span class="O1"><em class="S3 Freepark"></em>免费停车场</span>
+				#end
+				#if($cinema.otherinfo.contains("child"))
+					<span class="O1"><em class="S3 Child"></em>儿童票优惠</span>
+				#end
+				</div>
+			</div>
+		</div>
+	</li>
+	#end
+</ul>

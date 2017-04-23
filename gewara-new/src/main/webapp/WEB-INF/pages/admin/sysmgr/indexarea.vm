@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>商圈数据管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+</head>
+<body style="width:750px; margin:auto" class="yui-skin-sam">
+<div align="center">
+<div id="ajaxLoadAddress"></div>
+<div id="addIndexarea" class="yui-panel" style="width:300px; visibility:hidden; z-index:20;">
+	<div class="hd">输入商圈信息</div>
+	<div class="bd">
+		<form id="indexForm">
+			<div>
+				<input type="hidden" id="indexareacode" name="indexareacode"/>
+				<input type="hidden" id="countycode" name="countycode" mustTxt="请先择地区！"/>
+				<label for="indexareaname">商圈名称：</label><input type="text" id="indexareaname" name="indexareaname" mustTxt="商圈名称不能为空！"/>
+			</div>
+			<div>
+				<input type="button" value="保存" onclick="saveIndexarea();"/><input type="button" value="取消" onclick="GewaraUtil.hideDialog('addIndexarea')"/>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script type="text/javascript">
+	window.addEvent('domready', function(){
+		updateAddress();
+	})
+	
+	updateAddress = function(el){
+		var url = '${basePath}admin/common/ajaxLoadAddress.xhtml';
+		var values = {'agtag':'PCRI'};
+		GewaraUtil.sendLoad('ajaxLoadAddress', url, values, function(result){
+			if(!result.success)alert(result.msg);
+		});
+	}
+	
+	function showIndexarea(id){
+		if(!$chk($('countycode').value)){
+			alert('请先选地区!');
+			return false;
+		}
+		$('indexareacode').value='';
+		$('indexareaname').value='';
+		GewaraUtil.showDialog(id);
+	}
+	
+	function saveIndexarea(){
+		if(!GewaraUtil.baseValidForm('indexForm'))return false;
+		var url = "${basePath}admin/common/saveIndexarea.xhtml";
+		var values = GewaraUtil.getValues('indexForm');
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+				changeValue($('countycode'), 'county', 'indexareaHTML');
+				GewaraUtil.hideDialog('addIndexarea');
+			}else{
+				alert(result.msg);
+			}	
+		});
+	}
+</script>
+</body>
+</html>

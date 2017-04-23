@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>数据统计</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style type="text/css">
+		.match{color:#fff;font-weight: bolder;background:#fff;padding:3px;}
+		.shrink{height:22px;overflow:hidden;}
+		td, th{
+			text-align: center;
+			height: 23px;
+		}
+	</style>
+</head>
+<body>
+	<form action="${basePath}admin/datacount/common/orderQryResult.xhtml" method="get">
+	<div style="margin-left: 15px;margin-bottom: 5px;">
+		<fieldset>
+			<legend class="yellow">查询条件</legend>
+			<div style="margin-top: 5px;margin-left: 10px;">
+				下单时间：<input name="starttime" id="starttime" readonly="readonly"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:00'})" value="$!params.starttime" type="text" style="width: 150px"/><span class="yellow">*</span>
+				结束时间：<input name="endtime" id="endtime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!params.endtime" type="text" style="width: 150px"/>
+				订单状态：<select name="status">
+					<option value="paid_success" #if($params.status eq 'paid_success' || $VmUtils.isBlank($params.status))selected#end>交易成功</option>
+					<option value="paid" #if($params.status eq 'paid')selected#end>付款成功</option>
+					<option value="paid_failure" #if($params.status eq 'paid_failure')selected#end>订单待处理</option>
+					<option value="paid_failure_unfix" #if($params.status eq 'paid_failure_unfix')selected#end>座位待处理</option>
+					<option value="paid_return" #if($params.status eq 'paid_return')selected#end>退款取消</option>
+					</select>
+				格瓦订单：<input type="checkbox" name="gewa" value="1" #if($params.gewa eq 1)checked#end/>
+			</div>
+			<div style="margin-top: 5px;margin-left: 10px;">
+				影&nbsp;院&nbsp;ID：<input type="text" name="cinemaid" style="width: 70px" value="$!params.cinemaid" />
+				影片ID:<input type="text" name="movieid" style="width: 70px" value="$!params.movieid"/>
+				支付方式：<select name="paymethod">
+					<option value="" #if($VmUtils.isBlank($params.paymethod))selected#end>请选择</option>
+					#foreach($key in $payMap.keySet())
+					<option value="$key" #if($params.paymethod eq $key)selected#end>$payMap.get($key)</option>
+					#end
+				</select>
+				合作伙伴：<select name="partnerid">
+					<option value="" #if($VmUtils.isBlank($params.partnerid))selected#end>请选择</option>
+					#foreach($partner in $partnerList)
+					<option value="$partner.id" #if($params.partnerid eq $partner.id)selected#end>$!partner.partnername</option>
+					#end
+				</select>
+			</div>
+			<div style="margin-top: 5px;margin-left: 10px;margin-bottom: 5px;">
+				#set($fieldMap={'memberid':'用户ID', 'membername':'用户昵称', 'tradeNo':'订单号', 'mobile':'手机号', 'quantity':'票数', 'totalfee':'影票金额', 'itemfee':'附属金额', 'discount':'折扣金额', 
+				'status':'订单状态', 'movieid':'影片名称','cinemaid':'影院名称','paymethod':'支付方式', 'addtime':'下单时间' ,'paidtime':'支付时间', 'disreason':'优惠原因', 'description2':'订单描述'})
+				展示内容：
+				#foreach($key in $fieldMap.keySet())
+				<input type="checkbox" name="field" value="$key" #if($fieldList.contains($key))checked#end/>$fieldMap.get($key)
+				#end
+			</div>
+			<div style="margin-top: 5px;margin-left: 10px;margin-bottom: 5px;">
+				排&nbsp;&nbsp;&nbsp;&nbsp;序：<input type="radio" name="asc" value="1" #if($params.asc eq '1' || $VmUtils.isBlank($params.asc)) checked#end/>升序
+				<input type="radio" name="asc" value="2" #if($params.asc eq '2') checked#end/>降序
+				<input type="submit" value="查询" />(每次最多查询<span class="yellow">1000</span>条记录)
+			</div>
+		</fieldset>
+	</div>
+	</form>
+	<div style="background-color: #ffffff;">
+		<table cellpadding="0" cellspacing="0" width="100%" border="1" style="border-collapse: collapse">
+			<tr>
+				<th width="40px;">&nbsp;</th>
+				#foreach($field in $fieldList)
+				<th>$fieldMap.get($field)</th>
+				#end
+			</tr>
+			#foreach($order in $orderList)
+			#set($descMap=$VmUtils.readJsonToMap($order.description2))
+			<tr>
+				<td>$foreach.count</td>
+				#foreach($field in $fieldList)
+				#if($field eq 'paymethod')
+				#set($m=$VmUtils.getProperty($order, $field))
+				<td>$payMap.get($m)</td>
+				#elseif($field eq 'movieid')
+				<td>$descMap.get('影片')</td>
+				#elseif($field eq 'cinemaid')
+				<td>$order.ordertitle</td>
+				#elseif($field eq 'status')
+				<td>$statusMap.get($order.status)</td>
+				#elseif($field eq 'mobile')
+				<td onclick="showMobile('$order.id','$order.mobile')"><span id="order$order.id">#if($VmUtils.isBlank($params.allMobile))$VmUtils.getSmobile($order.mobile)#else$order.mobile#end</span>
+				#else
+				<td>$!VmUtils.getProperty($order, $field)</td>
+				#end
+				#end
+			#end
+		</table>
+	</div>
+<script type="text/javascript">
+	$$("tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+	var item = "";
+	function showMobile(orderid, mobile){
+		if($(item)) {
+			$(item).set('html', "*******"+mobile.substr(7,4));
+			$(item).removeClass('yellow');
+		}
+		$('order' + orderid).set('html', mobile);
+		$('order' + orderid).addClass('yellow');
+		item = 'order' + orderid;
+	}
+</script>
+</body>
+</html>

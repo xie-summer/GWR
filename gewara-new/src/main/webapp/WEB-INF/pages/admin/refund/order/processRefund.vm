@@ -1,0 +1,91 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>订单退款管理</title>
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		table{border-collapse: collapse;}
+		th, thread{cursor: pointer;}
+		td, th{
+			text-align: left;
+			height: 23px;
+		}
+		.maxwid, td{
+			width:210px !important;
+		}
+		.minwid, td{
+			width:100px !important;
+		}
+		label {display:inline-block; width:70px;text-align:right;padding:1px 0 1px 0; }
+		textarea {width:420px;}
+		
+		.showOrder{
+			border:1px solid #639BF9;padding:2px 4px;
+		}
+		.roomManageTable tbody td table{border:0px;border-bottom:1px solid #eee;}
+		.roomManageTable tbody td td{text-align: left;text-indent:10px;border-color:#eee;width:auto !important;}
+	</style>
+</head>
+<body style="width:800px; margin: auto;">
+#parse("admin/refund/order/refundInfo.vm")
+<div class="fs14 bold yellow" style="text-align: left;text-indent: 10px;">退款信息</div>
+<table cellpadding="0" cellspacing="0" width="100%" >
+	<tr>
+		<td>Gewa退款：<span class="yellow">$!refund.gewaRetAmount</span></td>
+		<td>商家退款：<span class="yellow">$!refund.merRetAmount</span></td>
+		<td colspan="2">添加时间：$DateUtil.format(${refund.addtime}, "yyyy-MM-dd HH:mm")</td>
+	</tr>
+	<tr>
+		<td colspan="4">
+			原因：$!refund.reason
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">申请人: $!refund.applyuser</td>
+		<td colspan="2">描述: $!refund.remark</td>
+	</tr>
+	<tr>
+		<td>处理描述: $!refund.dealinfo</td>
+		<td>账务退款: $retbackMap.get($refund.retback)</td>
+		<td>原结算金额: $!refund.oldSettle</td>
+		<td>新结算金额: $!refund.newSettle</td>
+	</tr>
+</table>
+<div style="margin-top: 20px;">
+#if($refund.status eq 'accept')
+#set($refundtypeMap={"full":"全额退款","part":"部分退款","supplement":"调价退款"})
+	#if($cancelTicket && !$expired)
+	#if(!$VmUtils.isNull($refund.tradeno))<a href="javascript:void(0)" onclick="backOrder('$!refund.tradeno');" style="font-size: 16px;color: orange;">影院退票</a>#end
+	<a href="${basePath}admin/refund/order/cancelTicket.xhtml?rid=$refund.id" style="font-size: 16px;color: blue;">火凤凰退票退款</a>&nbsp;&nbsp;&nbsp;&nbsp;
+	<a href="${basePath}admin/refund/order/forceCancelTicket.xhtml?rid=$refund.id" style="font-size: 16px;color: blue;">不退票退款</a>
+	#else
+	<a href="${basePath}admin/refund/order/confirmRefund.xhtml?rid=$refund.id" style="font-size: 16px;color: blue;">订单退款[$refundtypeMap.get($refund.refundtype)]#if($cancelTicket)[火过期]#elseif($expired)[过期]#end</a>
+	#end
+#elseif($refund.status eq 'success')
+	#if($VmUtils.contains($refund.opmark, 'compensate'))
+	<a href="${basePath}admin/refund/order/supplyEcard.xhtml?rid=$refund.id" style="font-size: 16px;color: blue;">补偿券[赞不支持]</a>&nbsp;&nbsp;
+	#end
+	<a href="${basePath}admin/refund/order/viewSettle.xhtml?rid=$refund.id" style="font-size: 16px;color: blue;">处理影院结算</a>
+#end
+</div>
+<script type="text/javascript">
+	function backOrder(tradeno){
+		if(!window.confirm("确认影院退票！")) return;
+		var url = '${basePath}admin/refund/backRemoteOrder.xhtml';
+		var values = {'tradeno':tradeno};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('退票成功！')
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<div id="micro"  style="display:none">
+	<div id="useMicroBlog">
+		
+	</div>
+	<form name="transferForm" id="transferForm">
+	<input type="hidden" name="transferid" id="transferid"/>
+	<textarea style="width:97%;height:90px" class="text" onkeyup="microChanges(this)" id="modifyMicro"></textarea>
+	</form>
+	<div class="title gray" style="height:26px;">
+		<span id="microsText">你还可以输入<b style="font-size:15px;">140</b>个字</span>
+		<span class="more" style="*top:3px; right:0;">
+			<label class="minBt redBt button"><input type="button" value="转载" onclick="addTransfer()"/></label>
+			<label class="minBt whiteBt button ml5"><input type="button" onclick="hideMicro('micro')" value="取消"/></label>
+		</span>
+	</div>
+</div>
+	<script type="text/javascript">
+function showMicro(el,transfer,body,transferid){
+	checkLogin(true, function(){
+		$('useMicroBlog').set('text',transfer);
+		$('modifyMicro').value = body;
+		$('transferid').value = transferid;
+		var num=140;
+		if($chk($('modifyMicro').value)){
+			var num = 140-$('modifyMicro').value.length;
+		}
+		if(num<0){ 
+			var value = Math.abs(num);
+			$('microsText').set('html','已超出<b>'+value+'</b>个字');
+			$('microsText').addClass('wlColor');
+		}else{
+			$('microsText').getElement('b').set('html',num);
+			$('microsText').removeClass('wlColor')
+		}
+		if($('modifyMicro').value.length==0){new DefaultValue("modifyMicro","顺便说点什么...");}
+		gewa.util.maskContent('','micro','转发到我的哇啦',420,'micro');
+	});
+}
+function hideMicro(el){
+	gewa.util.container['micro'].dispose('micro');
+}
+function microChanges(obj){
+	var num=140;
+	if($chk($(obj).value)){
+		var num = 140-$(obj).value.length;
+	}
+	if(num<0){ 
+		var value = Math.abs(num);
+		$('microsText').set('html','已超出<b>'+value+'</b>个字');
+		$('microsText').addClass('wlColor');
+	}else{
+		$('microsText').getElement('b').set('html',num);
+		$('microsText').removeClass('wlColor')
+	}
+}
+function addTransfer(){
+	if($('modifyMicro').value.length > 140)return;
+	var url="${basePath}home/sns/othersPersonIndex.xhtml?memberid=addTransferComment.xhtml";
+	var values = {'transferid':$('transferid').value,'body':$('modifyMicro').value};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			if($('allfriend'))hideMicro('micro');
+			if($('allfriend'))$('micro').addClass('nav');
+			if($('allfriend'))$('allfriend').removeClass('nav');
+			refreshPage();
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	})
+}
+</script>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://code.alibabatech.com/schema/dubbo
+	http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+<!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样 -->
+	<dubbo:application name="apiShanghai" />
+	<!-- 启动是检查服务是否可以，true检查，服务不可以阻止启动，false不检查，在循环依赖必须有一方先启动 -->
+	<dubbo:consumer check="false" />
+	<dubbo:registry protocol="zookeeper" address="${zookeeper.quorum}" />
+	
+	<!-- gpticket -->
+    <dubbo:reference id="gpticketApiService" interface="com.gewara.api.gpticket.service.GpticketApiService" filter="consumerInnerApiAuthFilter" version="2.0.0"/>
+    <dubbo:reference id="gpticketOrderApiService" interface="com.gewara.api.gpticket.service.GpticketOrderApiService" filter="consumerInnerApiAuthFilter" version="2.0.0"/>
+	<!-- gewamail -->
+    <dubbo:reference id="smsService" interface="com.gewara.api.sms.service.SmsService" />
+    <dubbo:reference id="mobileService" interface="com.gewara.api.mobile.service.MobileService" />
+    <dubbo:reference id="gmailService" interface="com.gewara.api.gmail.service.GmailService" />
+	<!-- pushcs -->
+    <dubbo:reference id="pushNotifyService" interface="com.gewara.api.pushnf.PushNotifyService" />
+    <dubbo:reference id="userDeviceService" interface="com.gewara.api.userdevice.UserDeviceService" />
+	<!-- pay -->
+    <dubbo:reference id="unionPayFastApiService" interface="com.gewara.api.pay.service.UnionPayFastApiService" />
+    <dubbo:reference id="gatewayApiService" interface="com.gewara.api.pay.service.GatewayApiService" />
+
+</beans>

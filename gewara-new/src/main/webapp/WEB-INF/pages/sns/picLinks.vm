@@ -1,0 +1,40 @@
+<dl class="ui_abeam">
+	<dt class="uipic"><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!memberInfo.id" class="pubpic" title="$!memberInfo.nickname" lang="$!memberInfo.id" target="_blank"><img src="$VmUtils.randomPic('cw50h50',$memberInfo.headpicUrl)" width="50" height="50"/></a></dt>
+	<dd class="uiText">
+		$!picture.name<br/>
+		<span class="gray">时间：$!DateUtil.format($!picture.posttime,'yyyy-MM-dd hh:mm:ss')</span><br/>
+		<span class="gray">浏览：$!picture.clickedtimes</span><br/>
+	</dd>
+</dl>
+#if(!$VmUtils.isEmptyList($!memberList))
+<div class="party">
+	#foreach($ap in $!memberList)
+	<a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!ap.id" title="$!ap.nickname" class="picmin" target="_blank"><img src="$VmUtils.randomPic('cw30h30',$ap.headpicUrl)" width="30" height="30"/></a>
+	#end
+</div>
+#end
+<input type="hidden" name="pictureDiv" id="pictureDiv"/>
+<input type="hidden" name="pictureId" id="pictureId" value="$!picture.id"/>
+<div class="replayNode" root="replay">
+	#foreach($imagecomment in $!imageCommentList)
+	<dl id="a$!imagecomment.id">
+		<dt><a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!imagecomment.memberid" title="$!cacheMemberMap.get($imagecomment.memberid).nickname" class="picmin" target="_blank"><img src="$VmUtils.randomPic('cw150h200',$cacheMemberMap.get($imagecomment.memberid).headpicUrl)"/></a></dt>
+		<dd>
+			<div class="relationBody">
+				<a href="$!{basePath}home/sns/othersPersonIndex.xhtml?memberid=$!imagecomment.memberid" target="_blank">$!cacheMemberMap.get($imagecomment.memberid).nickname</a>：  $!VmUtils.getWebBody($!imagecomment.body,$picPath) 
+			</div> 
+			<div class="loadup">
+			<span class="left">$DateUtil.getTimeDesc($!imagecomment.addtime) 
+			</span>
+			#if($VmUtils.eq($logonMember.id,$!imagecomment.memberid))
+			<span class="right"> 
+			<a href="javascript:void(0)" onclick="deleteAblmComment($!imagecomment.id)"><img class="gray right DEL ml20" src="/css/home/del.gif"></a>
+			</span>
+			#end
+			<span class="right"></span>
+			</div>
+		</dd>
+	</dl>
+	#end
+</div>
+

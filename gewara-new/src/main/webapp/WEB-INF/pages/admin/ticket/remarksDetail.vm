@@ -1,0 +1,60 @@
+<div class="table" style="width:500px;height:auto;position:relative;top:30px;left:-10px;">
+<ul>
+<form id="remarkForm">
+	<input type="hidden" name="id" id="id" value="$!remark.get_id()"/>
+	<li>电影id：&nbsp;<input name="movieId" id="movieId" value="$!remark.movieId"/></li>
+	<li>场次说明：&nbsp;<textarea name="remark" id="remark" style="width: 340px; height: 70px;">$!remark.remark</textarea>
+	</li>
+	<li>有效时间：&nbsp;<input name="validTime"  id="validTime" readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" type="text" value="$!remark.validTime"/></li>
+	#set($provincename='')
+	#foreach($proCityList in $AdminCityContant.proMap.entrySet())
+		#foreach($city in $proCityList.value)
+			#if($!VmUtils.eq($city.citycode,$remark.cityCode))
+				#set($provincename=$proCityList.key)
+				break;
+			#end
+		#end
+	#end
+	<li>选择城市：
+	<select name="province" id="province" onchange="provinceChange()">
+			<option value="">选择省份</option>
+			#foreach($province in $province2CityList)
+				<option value="$province.provincename" #if($!VmUtils.eq($provincename,$province.provincename)) selected="selected" #end>$province.provincename</option>
+			#end
+		</select>
+		<select name="citycode" id="citycode">
+			<option value="">选择城市</option>
+		</select>
+	</li>
+	<li>&nbsp;&nbsp;<input type="button" onclick="save()" value="保存" style="width: 50px;"/>
+	<input type="button" onclick="javascript:GewaraUtil.hideDialog('pointText');" value="取消" style="width: 50px;"/></li>
+</form>
+</ul>
+</div>
+<script>
+save = function(){
+	if($('movieId').value=='') {
+		alert('请填写电影id！');
+		return;
+	}
+	if($('remark').value=='') {
+		alert('请填写场次说明！');
+		return;
+	}
+	if($('validTime').value=='') {
+		alert('请填写有效时间！');
+		return;
+	}
+	var values = GewaraUtil.getValues("remarkForm");
+	var url = "${basePath}admin/ticket/ajax/saveMovieMpiRemark.xhtml";
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("信息添加成功！");
+			refreshPage();
+		}else {
+			alert(result.msg);
+		}
+	});
+}
+provinceChange(#if($remark)$remark.cityCode#end);
+</script>

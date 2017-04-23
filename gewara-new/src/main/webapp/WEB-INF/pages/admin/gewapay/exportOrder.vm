@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>订单列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+</head>
+<body style="width:850px; margin:auto">
+<div style="clear:both;"></div>
+<table width="850px" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th>序号</th>
+		<th>订单号</th>
+		<th>订单号末六位</th>
+		<th>手机号</th>
+		<th>用户名</th>
+		<th>密码</th>
+		<th>火凤凰密码</th>
+		<th>座位</th>
+		<th>付款时间</th>
+		<th width="10%">真实姓名</th>
+		<th width="10%">快递地址</th>
+		#if($fields) #foreach($field in $fields)
+		<th>$field</th>
+		#end #end
+	</tr>
+	</thead>
+	<tbody>
+	#foreach($order in $orderList)
+	#set($otherInfoMap=$VmUtils.readJsonToMap($order.otherinfo))
+	<tr title="$order.description2">
+		<td>$foreach.count</td>
+		<td>${order.tradeNo}</td>
+		<td>$!{VmUtils.right($order.tradeNo,6)}</td>
+		<td>${order.mobile}</td>
+		<td>${order.membername}</td>
+		<td>$order.checkpass</td>
+		<td>$!order.hfhpass</td>
+		<td>$VmUtils.readJsonToMap($order.description2).get('影票')</td>
+		<td>$DateUtil.format(${order.paidtime}, "yyyy-MM-dd HH:mm:ss")</td>
+		<td>$!otherInfoMap.get('receiver')</td>
+		<td>$!otherInfoMap.get('address')</td>
+		#if($fields) 
+			#foreach($field in $fields)
+		<td>$VmUtils.getProperty($order,$field)</td>
+			#end
+		#end
+	</tr>
+	#end
+	</tbody>
+	<thead>
+	<tr>
+		<th colspan="11">影院：$opi.cinemaname, 影片：$opi.moviename, 时间：$opi.playtime, 影厅：$opi.roomname, 总计：$orderList.size()个订单</th>
+		#if($fields)<th colspan="$fields.size()"></th>#end
+	</tr>
+	</thead>
+</table>
+#parse('include/pageUtil.vm')
+</body>
+</html>

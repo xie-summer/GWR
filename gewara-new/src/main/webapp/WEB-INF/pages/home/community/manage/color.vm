@@ -1,0 +1,90 @@
+<form id="colorForm">
+<div id="stColor_content">
+	<ul class="percent_25 clear">
+		<li class="mt20">
+			<div class="bg_colors">
+				<input type="hidden" name="mainChar" id="mainChar" value="$!colorMap.mainChar"/>
+				<div id="_mainChar" class="bg_colors_top color-field" style="background-color:#if($!colorMap.mainChar)$!colorMap.mainChar;#else #EEEEEE;#end"></div>
+				文字颜色
+			</div>
+		</li>
+		<li class="mt20">
+			<div class="bg_colors">
+				<input type="hidden" name="mainLink" id="mainLink" value="$!colorMap.mainLink"/>
+				<div id="_mainLink" class="bg_colors_top color-field" style="background-color:#if($!colorMap.mainLink)$!colorMap.mainLink;#else #EEEEEE;#end"></div>
+				链接颜色
+			</div>
+		</li>
+		<li class="mt20">
+			<div class="bg_colors">
+				<input type="hidden" name="title" id="title" value="$!colorMap.title"/>
+				<div id="_title" class="bg_colors_top color-field" style="background-color:#if($!colorMap.title)$!colorMap.title;#else #EEEEEE;#end"></div>
+				标题颜色
+			</div>
+		</li>
+		<li class="mt20">
+			<div class="bg_colors">
+				<input type="hidden" name="sqrbg" id="sqrbg" value="$!colorMap.sqrbg"/>
+				<div id="_sqrbg" class="bg_colors_top color-field" style="background-color:#if($!colorMap.sqrbg)$!colorMap.sqrbg;#else #EEEEEE;#end"></div>
+				右侧背景
+			</div>
+		</li>
+		<li class="mt20">
+			<div class="bg_colors">
+				<input type="hidden" name="headbg" id="headbg" value="$!colorMap.headbg"/>
+				<div id="_headbg" class="bg_colors_top color-field" style="background-color:#if($!colorMap.headbg)$!colorMap.headbg;#else #EEEEEE;#end"></div>
+				头部背景
+			</div>
+		</li>
+		<li class="mt20">
+			<div class="bg_colors">
+				<input type="hidden" name="navbg" id="navbg" value="$!colorMap.navbg"/>
+				<div id="_navbg" class="bg_colors_top color-field" style="background-color:#if($!colorMap.navbg)$!colorMap.navbg;#else #EEEEEE;#end"></div>
+				导航栏
+			</div>
+		</li>
+	</ul>
+	<div class="mt20">
+		<label class="minBt button redBt ml30"><input type="button" onclick="saveColor()" value="保存"/></label>
+		<!--  <input type="button" class="fdBt" value="预览"/> -->
+		<label class="minBt whiteBt button ml10"><input type="button" onclick="defaultColor()" value="恢复默认"/></label>
+	</div>
+</div>
+</form>
+	<script type="text/javascript">
+window.addEvent('domready',function(){
+	DynamicColorPicker.auto(".color-field");
+	$("_mainChar").retrieve('colorPicker').addEvent('change', function(col){var _ts = $('_mainChar');_ts.setStyle("background-color", col);_ts.getPrevious('input').value=col;});
+	$("_mainLink").retrieve('colorPicker').addEvent('change', function(col){var _ts = $('_mainLink');_ts.setStyle("background-color", col);_ts.getPrevious('input').value=col;});
+	$("_title").retrieve('colorPicker').addEvent('change', function(col){var _ts = $('_title');_ts.setStyle("background-color", col);_ts.getPrevious('input').value=col;});
+	$("_sqrbg").retrieve('colorPicker').addEvent('change', function(col){var _ts = $('_sqrbg');_ts.setStyle("background-color", col);_ts.getPrevious('input').value=col;});
+	$("_headbg").retrieve('colorPicker').addEvent('change', function(col){var _ts = $('_headbg');_ts.setStyle("background-color", col);_ts.getPrevious('input').value=col;});
+	$("_navbg").retrieve('colorPicker').addEvent('change', function(col){var _ts = $('_navbg');_ts.setStyle("background-color", col);_ts.getPrevious('input').value=col;});
+	Slimbox.scanPage();
+})
+function saveColor(){
+	var dataMap = GewaraUtil.getValues('colorForm');
+	var colors = Hash.toQueryString(dataMap);
+	var values = {"commuid":$!params.commuid,'colors':colors};
+	GewaraUtil.sendRequest('${basePath}home/commu/saveColor.xhtml', values, function(result){
+		if(result.success){
+			gewaUtil.alert('设置成功');
+		}else{
+			if(result.msg) gewaUtil.alert(result.msg);
+		}
+	});
+}
+function defaultColor(){
+	$$('.bg_colors').getElements('input').each(function(item){item.set('value','');});
+	$$('.bg_colors').getElements('div').each(function(item){item.setStyle('background-color','#EEE');});
+	var dataMap = GewaraUtil.getValues('colorForm');
+	var colors = Hash.toQueryString(dataMap);
+	var values = {"commuid":$!params.commuid,'colors':colors};
+	GewaraUtil.sendRequest('${basePath}home/commu/saveColor.xhtml', values, function(result){
+		if(result.success){
+		}else{
+			if(result.msg) gewaUtil.alert(result.msg);
+		}
+	});
+}
+</script>

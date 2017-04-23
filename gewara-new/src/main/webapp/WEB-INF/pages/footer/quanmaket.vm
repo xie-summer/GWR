@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>格瓦拉贵宾卡_格瓦拉生活网</title>
+<meta name="keywords" content="格瓦拉贵宾卡_格瓦拉生活网"/>
+<meta name="description" content="格瓦拉贵宾卡_格瓦拉生活网"/>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,new_movie&v=$VmUtils.jsVersion"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+<style type="text/css">
+	.vip_box {width:960px;margin:0 auto; background-repeat:no-repeat;border:none;}
+	.vip_card{width:146px;height:30px;display:inline-block; position:absolute; top:10px; left:8px;}
+	.search_btn{width:70px;height:25px;display:inline-block; position:absolute; bottom:27px; right:205px;}
+	.quan{width:143px;height:30px;display:inline-block; position:absolute; top:10px; left:154px;}
+	.city{position:absolute; top:12px;; left:245px; text-indent:20px;width:660px;}
+	.city li{float:left; font-size:14px; margin-right:12px; *margin-right:15px; line-height:24px;}
+	.city li a{color:#595757;}
+	.city li a:hover{color:#eb6120; text-decoration:underline;}
+	.city li .select{color:#eb6120; text-decoration:underline;}
+	.city_content{width:630px; height:270px; background-repeat:no-repeat; border-radius:5px; _overflow:auto; overflow-x:auto;  position:absolute; top:115px; right:70px;}
+	.city_content table{width:100%; text-align:left; overflow:hidden;}
+	.city_content .thead{height:40px; background:#fad465; color:#5c360f;}
+	.even{background:#fef9c1; color:#8b5610;  height:30px;}
+	.odd{background:#ddd !important; color:#575757 !important;}
+	.orange,.blue,.green,.darkblue{display:block; width:17px; height:17px; margin:0 auto;}
+	.orange{background:url(${staticPath}css/buss/exact_01.gif) center center no-repeat;}
+	.blue{background:url(${staticPath}css/buss/exact_02.gif) center center no-repeat;}
+	.green{background:url(${staticPath}css/buss/exact_03.gif) center center no-repeat;}
+	.darkblue{background:url(${staticPath}css/buss/exact_04.gif) center center no-repeat;}
+	.cinema_list a{color:#8b5610;}
+	.odd a{color:#575757;}
+	.table_header{background:#fad465; height:40px; line-height:40px; text-align:center; color:#5d360f;}
+	.table_header li,.city_list li{float:left;}
+	.table_con{background:#fef9c1; color:#8f5410; text-align:center; border-top:2px solid #fff;}
+	.cinema_list li{line-height:24px;}
+</style>
+</head>
+<body>
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout">
+	<div class="vip_box" style="background:url(${staticPath}css/buss/dhq_01_n.jpg) no-repeat; height:47px; position:relative;">
+		<a href="${basePath}subject/groupmaket.xhtml" class="vip_card"></a> 
+		<a href="${basePath}subject/advertIndex.xhtml" class="quan"></a>  
+	</div>
+	<div class="vip_box" style="background:url(${staticPath}css/buss/dhq_02_nn.jpg) no-repeat; height:402px;"></div>
+	<div class="vip_box" style="background:url(${staticPath}css/buss/dhq_03_nn.jpg) no-repeat; height:393px;"></div>
+	<div class="vip_box" style="background:url(${staticPath}css/buss/dhq_04_nn.jpg) no-repeat; height:451px; position:relative;">
+		<a href="javascript:void(0);" onclick="toCardList();" class="search_btn"></a>
+		<ul class="city">
+		   #foreach($province in $provinceList)
+			<li #if($foreach.count==1)style="margin-left:220px;_margin-left:110px;"#end><a href="javascript:void(0)" class="select_city #if($VmUtils.eq($curCity.province.provincecode, $province.provincecode)) select #end " id="$province.provincecode" >$province.provincename</a></li>
+			#end
+		</ul>
+		#foreach($province in $provinceList)
+		<div class="city_content #if(!$VmUtils.eq($curCity.province.provincecode, $province.provincecode)) none #end " id="tab_$province.provincecode">
+			<div class="table_header">
+				<ul>
+					<li style="width:52px;">城市 </li>
+					<li style="width:52px;">地区</li>
+					<li style="width:120px; text-align:left">影院名称</li>
+					<li style="width:210px; text-align:left">地址</li>
+					#foreach($card in $voucherCardList)
+					<li style="width:44px;">$card.name</li>
+					#end
+				</ul>
+			</div>
+			#foreach($city in $cityList)
+			#if($VmUtils.eq($city.province.provincecode, $province.provincecode))
+			#set($index =0)
+			#foreach($county in $countyList)
+			#if($VmUtils.eq($county.citycode, $city.citycode))
+			<div  #if(($index % 2) == 0) class="table_con" #else class="table_con odd" #end>
+				<ul class="city_list ui_abeam">
+					<li style="width:52px; line-height:25px;">$!city.cityname</li>
+					<li style="width:52px; line-height:25px;" title="$!county.countyname">$VmUtils.htmlabbr($!county.countyname, 6)</li>
+					<li>
+					#foreach($cinema in $cinemaList)
+					#if($VmUtils.eq($cinema.countycode, $county.countycode))
+						<ul class="ui_abeam cinema_list">
+							<li style="width:120px; text-align:left"><a target="_blank" href="${basePath}cinema/$cinema.relatedid"  title="$!cinema.title">$VmUtils.htmlabbr($cinema.title, 16)&nbsp;</a></li>
+							<li style="width:210px; text-align:left" title="$!cinema.address">$!VmUtils.htmlabbr($cinema.address,32)&nbsp;</li>
+							#foreach($card in $voucherCardList)
+									#set($ordernum = $card.ordernum + '')
+							<li #if($cinema.otherinfo) 
+									 #if($VmUtils.eq($card.ordernum, '1') && $cinema.otherinfo.contains($ordernum)) class="orange"#end 
+									 #if($VmUtils.eq($card.ordernum, '2') && $cinema.otherinfo.contains($ordernum)) class="blue"#end 
+									 #if($VmUtils.eq($card.ordernum, '3') && $cinema.otherinfo.contains($ordernum)) class="green"#end 
+									 #if($VmUtils.eq($card.ordernum, '4') && $cinema.otherinfo.contains($ordernum)) class="darkblue"#end 
+									#end style="width:44px;">&nbsp;</li>
+							#end
+						</ul>
+					#end
+					#end
+					</li>
+				</ul>
+			</div>
+			#set($index = $index + 1)
+			#end
+			#end
+			#end
+			#end
+		</div>
+		#end
+	</div>
+</div>
+#parse('include/bottom.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	var select=$$('.select_city');
+	select.addEvent('click',function(){
+		select.each(function(item){
+			item.removeClass('select');
+		 	$$('.city_content').addClass('none');
+		});
+		this.addClass('select');
+		$('tab_'+this.get('id')).removeClass('none');
+	});
+});
+function toCardList(){
+	checkLogin(true,function(){
+		location.href="${basePath}home/acct/cardList.xhtml"
+	});
+}
+</script>
+</body>
+</html>

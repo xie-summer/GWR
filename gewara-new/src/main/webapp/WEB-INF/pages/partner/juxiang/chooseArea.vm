@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>格瓦拉影院自助终端系统 - 格瓦拉生活网</title>
+<link rel="stylesheet" type="text/css" href="${staticPath}css/partner/juxiang/layout.css"/>
+<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/base.js"></script>
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+</head>
+
+<body>
+<div class="ui_layout">
+	<div class="ui_header"><h1>格瓦拉影院自助终端系统</h1></div>
+    <div class="ui_content">
+    	<div class="ui_step ui_step2"></div>   
+        <div class="mod_kong chooseList">
+        	<div class="mod_hd">
+            	<h2>选择区域</h2>
+                <p>已选条件：<span>$!{DateUtil.format($fyrq,'M月d日')}</span><span>$!{movie.name}</span></p>
+            </div>
+            <div class="mod_bd">
+            	<ul class="areaList event_tags clear">
+            		#foreach($county in $countyList)
+                	<li><a href="javascript:chooseArea('$!{county.countycode}');">$!{county.countyname}</a></li>
+                   #end
+                </ul>
+                <p class="center clear"><a class="bigBt chooseCinema" href="javascript:chooseCinema()">选择影院</a></p>
+            </div>
+        </div>            
+    </div>
+    <div class="ui_footer">    	
+        <a class="goBack" href="${basePath}partner/juxiang/opiList.xhtml?pageNo=0&width=$!{width}">&nbsp;</a>
+        <a class="logOut" href="javascript:window.external.FromExit()">&nbsp;</a>
+    </div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	selectTags();
+});
+var countCode = "";
+function chooseArea(countCodes){
+	countCode = countCodes;
+}
+function chooseCinema(){
+	if(countCode.trim() == ""){
+		alert("请选择影院!");
+	}else{
+		document.location.href = "${basePath}partner/juxiang/chooseCinema.xhtml?pageNo=0&movieid=$!{movie.id}&fyrq=$!{DateUtil.format($fyrq,'yyyy-MM-dd')}&width=$!{width}&countyCode=" + countCode;
+	}
+}
+
+</script>
+</body>
+</html>

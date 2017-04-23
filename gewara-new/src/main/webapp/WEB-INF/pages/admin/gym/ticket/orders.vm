@@ -1,0 +1,87 @@
+<table class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+	<thead><tr>
+		<th nowrap="nowrap">健身卡</th>
+		<th nowrap="nowrap">卡类型</th>
+		
+		<th style="width:100px;">订单号</th>
+		<th style="width:60px;">取票密码</th>
+		#if($VmUtils.isBlank($xls))<th style="width:90px;">下单时间</th>#end
+		<th>用户</th>
+		<th nowrap="nowrap">数量</th>
+		<th nowrap="nowrap">总价</th>
+		<th style="width:75px;">联系电话</th>
+		<th>选择课程</th>
+		<th nowrap="nowrap">有效天数</th>
+		<th style="width:80px;">状态</th>
+		<th nowrap="nowrap">同步订单</th>
+	</tr></thead>
+	<tbody id="tbody">
+		#foreach($order in $orderList)
+		#set($descMap=$VmUtils.readJsonToMap($order.description2))
+		<tr class="grayBg h" id="row${order.id}">
+			<td title="$!order.description2">$!descMap.get('详细')</td>
+			<td>$!descMap.get('卡类型')</td>
+			<td>#if($VmUtils.isBlank($xls))<a href="${basePath}admin/gewapay/orderDetail.xhtml?tradeNo=$order.tradeNo" target="_blank" title="$!order.description2">#end[$order.tradeNo]#if($VmUtils.isBlank($xls))</a>#end</td>
+			<td>$order.checkpass</td>
+			#if($VmUtils.isBlank($xls))<td>$DateUtil.format(${order.addtime},'MM-dd HH:mm:ss')</td>#end
+			<td><a href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$order.memberid" target="_blank">$order.membername</a></td>
+			<td>$order.quantity</td>
+			<td>#if($order.discount gt 0)<span style="color:red;font-weight: bold;" title="$order.disreason">${order.totalAmount}</span>#else${order.totalAmount}#end</td>
+			#*<td>#if($VmUtils.isNotBlank($descMap.get('收件人'))) $!descMap.get('收件人') #else $!descMap.get('真实姓名') #end</td>*#
+			<td #if($VmUtils.isNotBlank($order.remark))title="$order.remark" style="color:red"#end onclick="showMobile($order.id,$order.mobile)"><span name="demobile" id="order$order.id" title="$order.mobile">#if($VmUtils.isBlank($xls))$VmUtils.getSmobile($order.mobile) #else ${order.mobile}#end</span></td>
+			#*<td>#set($addressText=$descMap.get('详细地址'))#if($VmUtils.isNotBlank($addressText))$addressText#else$!descMap.get('联系地址')#end</td>*#
+			<td>$!descMap.get('关联课程')</td>
+			<td>$!descMap.get('有效期天数')</td>
+			<td>${order.statusText}
+				#if($order.paidFailure || $order.paidUnfix)
+				<input type="button" class="bt1" value="确认成功" onclick="confirmOrder($order.tradeNo, this)"/>
+				#end
+			</td>
+			<td>
+			#if($VmUtils.eq($order.status,'paid_success'))
+			#set($status=$synchStatusMap.get($order.id))
+				#if($VmUtils.eq($status,'Y'))
+				<span class="yellow">已同步</span>
+				#elseif($VmUtils.eq($status,'N'))
+				<input type="button" onclick="gymConfirm($order.id)" value="同步"/>
+				#else
+				--
+				#end
+			#else
+			--
+			#end
+			</td>
+			#set($seatText='')
+		</tr>
+		#end
+	</tbody>
+</table>
+<script type="text/javascript">
+var item = "";
+function showMobile(orderid, mobile){
+	if($(item)) {
+		$(item).set('html', $(item).title);
+		$(item).removeClass('yellow');
+	}
+	$('order' + orderid).set('html', mobile);
+	$('order' + orderid).addClass('yellow');
+	item = 'order' + orderid;
+}
+function confirmOrder(tradeNo, el){
+	el.dispose();
+	var url = "${basePath}admin/gymTicket/failConfirm.xhtml";
+	GewaraUtil.sendRequest(url, {"tradeNo":tradeNo}, function(result){
+		if(result.success){
+			refreshPage();
+		}else alert(result.msg);
+	})
+}
+function gymConfirm(orderid){
+	if(confirm('确实要同步吗')==false) return;
+	var url = "${basePath}admin/gymTicket/gymConfirm.xhtml";
+	GewaraUtil.sendRequest(url, {"orderid":orderid},function(result){
+		if(result.success) refreshPage();
+		else alert(result.msg);
+	});
+}
+</script>

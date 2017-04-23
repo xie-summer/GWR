@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>场次其他信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline-block;width:100px; text-align:right; padding:1px 0 1px 0; margin-top:3px;}
+		input,textarea { width:500px; display:inline-block;}
+	</style>
+</head>
+<body style="width:800px;margin:auto" class="yui-skin-sam">
+<div id="mpiDialog" class="yui-panel" style="width:720px; margin: auto;">
+	<div class="hd" id="title">编辑其他信息<span style="color:blue">火凤凰场次：$!opi.showSeqNo , $!opi.seqNo</span></div>
+	<div class="bd">
+	<form name="mpiDialog" action="javascript:saveOther()" method="post">
+		<input type="hidden" name="opid" value="${opi.id}"/>
+		#parse('include/pay/otherConfig.vm')
+		<fieldset>
+			<legend class="yellow">需要快递</legend>
+			<div>
+				<label>填写地址：</label>
+				<input type="radio" name="address" value="" #if('Y' ne $otherMap.get('address'))checked#end style="width:20px;"/>不设置
+				<input type="radio" name="address" value="Y" #if($VmUtils.eq($otherMap.get('address'), 'Y'))checked#end style="width:20px;"/>必须
+				<label>填写快递方式：</label><input type="text" class="pubinput" style="width:30px;" name="expressid" value="$!opi.expressid" />
+			</div>
+		</fieldset>
+		#parse('include/pay/otherPayConfig.vm')
+		<fieldset>
+			<legend class="yellow">券适用</legend>
+			<div>
+				<label>券选择：</label>
+				<input type="radio" name="cardoption" value="del" #if($VmUtils.isBlank($payoption))checked#end style="width:20px;"/>不设置
+				<input type="radio" name="cardoption" value="canuse" #if($VmUtils.eq($cardoption, 'canuse'))checked#end style="width:20px;"/>可用
+				<input type="radio" name="cardoption" value="notuse" #if($VmUtils.eq($cardoption, 'notuse'))checked#end style="width:20px;"/>不可用
+			</div>
+			<div>
+				<label>批次ID：</label>
+				<input type="text" name="batchidlist" value="$!batchidlist" style="width: 380px;"/>&nbsp;用英文","分开
+			</div>
+		</fieldset>
+		
+		<fieldset>
+			<legend class="yellow">套餐是否显示</legend>
+			<div>
+				<label>券选择：</label>
+				<input type="radio" name="mealoption" value="del" #if($VmUtils.isBlank($mealoption))checked#end style="width:20px;"/>不设置
+				<input type="radio" name="mealoption" value="canuse" #if($VmUtils.eq($mealoption, 'canuse'))checked#end style="width:20px;"/>显示
+				<input type="radio" name="mealoption" value="notuse" #if($VmUtils.eq($mealoption, 'notuse'))checked#end style="width:20px;"/>不显示
+			</div>
+		</fieldset>
+		
+		<fieldset>
+			<legend class="yellow">是否可以退票</legend>
+			<div>
+				<label>选择：</label>
+				<input type="radio" name="isRefund" value="Y" #if($otherMap.isRefund) #if($VmUtils.eq($otherMap.isRefund, 'Y'))checked #end #else #if($VmUtils.eq($isRefund, 'Y'))checked#end #end style="width:20px;"/>可以
+				<input type="radio" name="isRefund" value="N" #if($otherMap.isRefund) #if($VmUtils.eq($otherMap.isRefund, 'N'))checked #end #else #if($VmUtils.eq($isRefund, 'N'))checked#end #end style="width:20px;"/>不可以
+			</div>
+		</fieldset>
+		
+		#set($unopengewa=$otherMap.get('unopengewa'))
+		#set($unshowgewa=$otherMap.get('unshowgewa'))
+		<fieldset>
+			<legend class="yellow">开放类型</legend>
+			<div style="margin-left: 50px;">
+				<label>不对格瓦拉开放：</label>
+				<input type="checkbox" name="unopengewa" value="Y" style="width: 20px;" #if($VmUtils.isNotBlank($unopengewa))checked#end/>
+			</div>
+			
+			<div style="margin-left: 50px;">
+				<label>不对格瓦拉显示：</label>
+				<input type="checkbox" name="unshowgewa" value="Y" style="width: 20px;" #if($VmUtils.isNotBlank($unshowgewa))checked#end/>
+			</div>
+		</fieldset>
+		<div>
+			<label>&nbsp;</label>
+			<input type="submit" class="button" style="width:100px" value="确定"/>
+		</div>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+	function saveOther(){
+		var url = "${basePath}admin/ticket/saveOpiOther.xhtml";
+		var values = GewaraUtil.getValues("mpiDialog", ",");
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('保存成功！');
+				refreshPage();
+			}else{
+				alert('保存失败：' + result.msg);
+			}
+		});
+	}
+	function selectAll(e){
+		$('temp').getElements('input[type=checkbox]').each(function(item){
+			item.checked = e.checked;			
+		})
+	}
+	function updateExpress(el, value){
+		el = $(el);
+		el.setStyle("background","red");
+		var values = {"itemid":el.name,"expressid":value};
+		GewaraUtil.sendRequest('${basePath}admin/dramaTicket/updateExpress.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+				el.value = value;
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+</script>
+</body>
+</html>

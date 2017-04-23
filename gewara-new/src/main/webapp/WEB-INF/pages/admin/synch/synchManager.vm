@@ -1,0 +1,297 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>一体机同步管理</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width:1000px; margin:auto">
+<div>
+	<form action="${basePath}admin/synch/synchManager.xhtml" name="newsForm" id="newsForm">
+	<label for="releasetime">开始时间：</label>
+	<input name="starttime" id="releasetime" value="$!starttime" readonly="readonly" 
+	onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" type="text"/>
+	<label for="releasetime">结束时间：</label>
+	<input name="endtime" id="releasetime" value="$!endtime" readonly="readonly" 
+	onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" type="text"/>
+	<select name="tag">
+		<option value="cinema" #if($VmUtils.isBlank($params.tag) || $params.tag eq 'cinema')selected#end>影院</option>
+		<option value="theatre" #if($params.tag eq 'theatre')selected#end>演出场馆</option>
+	</select>
+	<select name="isSynch">
+		<option value="true">正常</option>
+		<option value="false" #if(!$isSynch)selected='selected' #end>未同步</option>
+	</select>
+	<input type="submit" class="fdBt" value="确定"/><br/>
+	请输入应出票数与时间出票对比的时间段
+	<input type="hidden" name="citycode" value="$!citycode" id="citycodeInput" />
+	</form>
+</div>
+#if($isSynch)
+<table width="950px" class="table">
+	<thead>
+	<tr>
+		<th colspan="24">
+				正常一体机信息 &nbsp;&nbsp;&nbsp;&nbsp;
+				管理城市:
+				#foreach($ck in $cityMap.keySet())
+					#if($user.citycode.contains($ck))
+					<input type="radio" value="$ck" name="citycode" #if($ck eq $citycode) checked="checked" #end onclick="changeCity(this)"/>$cityMap.get($ck)
+					#end
+				#end
+		</th>
+	</tr>
+	<tr>
+		<th>城市</th>
+		<th>场馆ID</th>
+		<th>场馆名称</th>
+		<th>设备类型</th>
+		<th>机器号</th>
+		<th>最新同步时间</th>
+		<th>最新请求时间</th>
+		<th>工作状态</th>
+		<th>剩余票纸数量</th>
+		<th>总票数<br/>（订单）</th>
+		<th>已出票数<br/>(订单)</th>
+		<th>剩余票数<br/>(订单)</th>
+		<th>应有订单</th>
+		<th>同步订单</th>
+		<th>未同步订单票数<br/>(订单)</th>
+		<th>未取票订单票数<br/>(订单)</th>
+		<th>关联一体机</th>
+		<th colspan = "3">高峰场次</th>
+		<th colspan = "3">高峰时段</th>
+		<th>同步IP</th>
+	</tr>
+	</thead>
+	<tbody id="sportTable">
+	#set($cur = $DateUtil.formatDate($DateUtil.currentTime()))
+	#set($tommorrow = $DateUtil.formatDate($DateUtil.addDay($DateUtil.currentTime(),1)))
+	#set($nextTommorrow = $DateUtil.formatDate($DateUtil.addDay($DateUtil.currentTime(),2)))
+	#foreach($synch in $synchList)
+	#set($synchs=$!synch.ticketnum.split(","))
+	#foreach($machine in $synchs)
+	#if($machine eq '0')
+	#else
+	<tr>
+		<td>$!nameList.get($!synch.cinemaid).citycode</td>
+		<td>$!synch.cinemaid</td>
+		<td>$!nameList.get($!synch.cinemaid).name</td>
+		<td>1.5电影</td>
+		<td>$!{foreach.count}号机</td>
+		<td #if($VmUtils.gt($DateUtil.getDiffMinu($DateUtil.getMillTimestamp(),$synch.successtime),10))style="color:red;"#elseif(!$VmUtils.gt($DateUtil.getDiffMinu($DateUtil.getMillTimestamp(),$synch.successtime),5))style="color:blue;"#end>$!DateUtil.formatTimestamp($!synch.successtime)</td>
+		<td #if($VmUtils.gt($DateUtil.getDiffMinu($DateUtil.getMillTimestamp(),$synch.synchtime),10))style="color:red;"#elseif(!$VmUtils.gt($DateUtil.getDiffMinu($DateUtil.getMillTimestamp(),$synch.synchtime),5))style="color:blue;"#end>$!DateUtil.formatTimestamp($!synch.synchtime)</td>
+		<td>#if($DateUtil.addDay($DateUtil.getMillTimestamp(), -2).after($synch.successtime))暂停#else #if($isSynch)正常#else 断网 #end#end</td>
+		<td #if($VmUtils.gt(300,$machine))style="color:red;"#elseif($VmUtils.gt(500,$machine))style="color:blue;"#end>$machine</td>
+		<td>$!ticketNumMap.get($!synch.cinemaid)($orderNumMap.get($!synch.cinemaid))</td>
+		<td>$!synchTicketNumMap.get($!synch.cinemaid)($synchOrderNumMap.get($!synch.cinemaid))</td>
+		<td>
+			#set($overT = $!ticketNumMap.get($!synch.cinemaid) - $!synchTicketNumMap.get($!synch.cinemaid))
+			#set($overO = $!orderNumMap.get($!synch.cinemaid) - $!synchOrderNumMap.get($!synch.cinemaid))
+			$!overT($!overO)
+		</td>
+		<td>$!totalOrderNumMap.get($!synch.cinemaid)</td>
+		<td>$!synchTotalOrderNumMap.get($!synch.cinemaid)</td>
+		<td>
+			#set($noSynchNum = $!totalOrderNumMap.get($!synch.cinemaid)-$!synchTotalOrderNumMap.get($!synch.cinemaid))
+			#set($noSynchTicketNum = $!totalTicketNumMap.get($!synch.cinemaid)-$!overTicketNumMap.get($!synch.cinemaid))
+			<a href="${basePath}admin/synch/getNoSynchOrder.xhtml?synchid=$!synch.cinemaid" target="_blank">$!noSynchTicketNum($noSynchNum)</a>
+		</td>
+		#*
+		<td><a href="${basePath}admin/synch/getOrderResult.xhtml?synchid=$!synch.cinemaid&starttime=$!starttime&endtime=$!endtime" target="_blank">未取票订单</a></td>
+		<td>$!totalOrderNumMap.get($!synch.cinemaid)</td>
+		<td>$!synchTotalOrderNumMap.get($!synch.cinemaid)</td>
+		#set($noSynchNum = $!totalOrderNumMap.get($!synch.cinemaid)-$!synchTotalOrderNumMap.get($!synch.cinemaid))
+		<td><a href="${basePath}admin/synch/getNoSynchOrder.xhtml?synchid=$!synch.cinemaid" target="_blank">未同步订单($noSynchNum)</a></td>
+		*#
+		<td>
+		#set($noChu = $!synchTotalOrderNumMap.get($!synch.cinemaid) - $synchOrderNumMap.get($!synch.cinemaid))
+		#set($noChuT = $!overTicketNumMap.get($!synch.cinemaid) - $synchTicketNumMap.get($!synch.cinemaid))
+			<a href="${basePath}admin/synch/getOrderResult.xhtml?synchid=$!synch.cinemaid&starttime=$!starttime&endtime=$!endtime" target="_blank">
+				$!noChuT($!noChu)
+			</a>
+		</td>
+		<td><a href="${basePath}admin/machine/gewaMachineList.xhtml?cinemaid=$!synch.cinemaid&machinename=integration" target="_blank">查看</a></td>
+	
+		<td>
+			#foreach($opi in $peakOpiMap.get($!synch.cinemaid)) 
+				#set($opiPlayTime = $DateUtil.formatDate($opi.playtime))
+				#if($opiPlayTime eq $cur) $DateUtil.format($opi.playtime,'d号mm:HH') #end
+			#end
+		</td>
+		<td>
+			#foreach($opi in $peakOpiMap.get($!synch.cinemaid)) 
+				#set($opiPlayTime = $DateUtil.formatDate($opi.playtime))
+				#if($opiPlayTime eq $tommorrow) $DateUtil.format($opi.playtime,'d号mm:HH') #end
+			#end
+		</td>
+		<td>
+			#foreach($opi in $peakOpiMap.get($!synch.cinemaid)) 
+				#set($opiPlayTime = $DateUtil.formatDate($opi.playtime))
+				#if($opiPlayTime eq $nextTommorrow) $DateUtil.format($opi.playtime,'d号mm:HH') #end
+			#end
+		</td>
+		<td>
+			#foreach($opi in $peakPeriodMap.get($!synch.cinemaid)) 
+				#if($opi.get('pTime').indexOf($cur) != -1)
+					#set($pt = $math.toInteger($VmUtils.split($opi.get('pTime'),' ').get(1)))
+					#set($ptEnd = $pt + 1)
+					$!{pt}--$!{ptEnd}点
+				#end
+			#end
+		</td>
+		<td>
+			#foreach($opi in $peakPeriodMap.get($!synch.cinemaid)) 
+				#if($opi.get('pTime').indexOf($tommorrow) != -1) 
+					#set($pt = $math.toInteger($VmUtils.split($opi.get('pTime'),' ').get(1)))
+					#set($ptEnd = $pt + 1)
+					$!{pt}--$!{ptEnd}点				
+				#end
+			#end
+		</td>
+		<td>
+			#foreach($opi in $peakPeriodMap.get($!synch.cinemaid)) 
+				#if($opi.get('pTime').indexOf($nextTommorrow) != -1)
+					#set($pt = $math.toInteger($VmUtils.split($opi.get('pTime'),' ').get(1)))
+					#set($ptEnd = $pt + 1)
+					$!{pt}--$!{ptEnd}点
+				#end
+			#end
+		</td>
+		<td>$!synch.ip</td>
+	</tr>
+	#end
+	#end
+	#end
+	</tbody>
+</table>
+#else
+<table width="950px" class="table">
+	<thead>
+	<tr>
+		<th colspan="20">
+				未同步一体机信息 &nbsp;&nbsp;&nbsp;&nbsp;
+				管理城市:
+				#foreach($ck in $cityMap.keySet())
+					#if($user.citycode.contains($ck))
+					<input type="radio" value="$ck" name="citycode" #if($ck eq $citycode) checked="checked" #end onclick="changeCity(this)"/>$cityMap.get($ck)
+					#end
+				#end
+		</th>
+	</tr>
+	<tr>
+		<th>城市</th>
+		<th>场馆ID</th>
+		<th>场馆名称</th>
+		<th>设备类型</th>
+		<th>机器号</th>
+		<th>最新同步时间</th>
+		<th>最新请求时间</th>
+		<th>工作状态</th>
+		<th>剩余票纸数量</th>
+		<th>总票数<br/>（订单）</th>
+		<th>剩余票数<br/>（订单）</th>
+		<th>未同步订单票数<br/>（订单）</th>
+		<th>关联一体机</th>
+		<th colspan = "3">高峰场次</th>
+		<th colspan = "3">高峰时段</th>
+		<th>同步IP</th>
+	</tr>
+	</thead>
+	<tbody id="sportTable">
+	#set($cur = $DateUtil.formatDate($DateUtil.currentTime()))
+	#set($tommorrow = $DateUtil.formatDate($DateUtil.addDay($DateUtil.currentTime(),1)))
+	#set($nextTommorrow = $DateUtil.formatDate($DateUtil.addDay($DateUtil.currentTime(),2)))
+	#foreach($synch in $synchList)
+	#set($synchs=$!synch.ticketnum.split(","))
+	#foreach($machine in $synchs)
+	#if($machine eq '0')
+	#else
+	<tr>
+		<td>$!nameList.get($!synch.cinemaid).citycode</td>
+		<td>$!synch.cinemaid</td>
+		<td>$!nameList.get($!synch.cinemaid).name</td>
+		<td>1.5电影</td>
+		<td>$!{foreach.count}号机</td>
+		<td #if($VmUtils.gt($DateUtil.getDiffMinu($DateUtil.getMillTimestamp(),$synch.successtime),10))style="color:red;"#elseif(!$VmUtils.gt($DateUtil.getDiffMinu($DateUtil.getMillTimestamp(),$synch.successtime),5))style="color:blue;"#end>$!DateUtil.formatTimestamp($!synch.successtime)</td>
+		<td #if($VmUtils.gt($DateUtil.getDiffMinu($DateUtil.getMillTimestamp(),$synch.synchtime),10))style="color:red;"#elseif(!$VmUtils.gt($DateUtil.getDiffMinu($DateUtil.getMillTimestamp(),$synch.synchtime),5))style="color:blue;"#end>$!DateUtil.formatTimestamp($!synch.synchtime)</td>
+		<td>#if($DateUtil.addDay($DateUtil.getMillTimestamp(), -2).after($synch.successtime))暂停#else #if($isSynch)正常#else 断网 #end#end</td>
+		<td #if($VmUtils.gt(300,$machine))style="color:red;"#elseif($VmUtils.gt(500,$machine))style="color:blue;"#end>$machine</td>
+		<td>$!ticketNumMap.get($!synch.cinemaid)($orderNumMap.get($!synch.cinemaid))</td>
+		<td>
+			#set($overT = $!ticketNumMap.get($!synch.cinemaid) - $!synchTicketNumMap.get($!synch.cinemaid))
+			#set($overO = $!orderNumMap.get($!synch.cinemaid) - $!synchOrderNumMap.get($!synch.cinemaid))
+			$!overT($!overO)
+		</td>
+		<td>
+			#set($noSynchNum = $!totalOrderNumMap.get($!synch.cinemaid)-$!synchTotalOrderNumMap.get($!synch.cinemaid))
+			#set($noSynchTicketNum = $!totalTicketNumMap.get($!synch.cinemaid)-$!overTicketNumMap.get($!synch.cinemaid))
+			<a href="${basePath}admin/synch/getNoSynchOrder.xhtml?synchid=$!synch.cinemaid" target="_blank">$!noSynchTicketNum($noSynchNum)</a>
+		</td>
+		<td><a href="${basePath}admin/machine/gewaMachineList.xhtml?cinemaid=$!synch.cinemaid&machinename=integration" target="_blank">查看</a></td>
+	
+		<td>
+			#foreach($opi in $peakOpiMap.get($!synch.cinemaid)) 
+				#set($opiPlayTime = $DateUtil.formatDate($opi.playtime))
+				#if($opiPlayTime eq $cur) $DateUtil.format($opi.playtime,'d号mm:HH') #end
+			#end
+		</td>
+		<td>
+			#foreach($opi in $peakOpiMap.get($!synch.cinemaid)) 
+				#set($opiPlayTime = $DateUtil.formatDate($opi.playtime))
+				#if($opiPlayTime eq $tommorrow) $DateUtil.format($opi.playtime,'d号mm:HH') #end
+			#end
+		</td>
+		<td>
+			#foreach($opi in $peakOpiMap.get($!synch.cinemaid)) 
+				#set($opiPlayTime = $DateUtil.formatDate($opi.playtime))
+				#if($opiPlayTime eq $nextTommorrow) $DateUtil.format($opi.playtime,'d号mm:HH') #end
+			#end
+		</td>
+		<td>
+			#foreach($opi in $peakPeriodMap.get($!synch.cinemaid)) 
+				#if($opi.get('pTime').indexOf($cur) != -1)
+					#set($pt = $math.toInteger($VmUtils.split($opi.get('pTime'),' ').get(1)))
+					#set($ptEnd = $pt + 1)
+					$!{pt}--$!{ptEnd}点
+				#end
+			#end
+		</td>
+		<td>
+			#foreach($opi in $peakPeriodMap.get($!synch.cinemaid)) 
+				#if($opi.get('pTime').indexOf($tommorrow) != -1) 
+					#set($pt = $math.toInteger($VmUtils.split($opi.get('pTime'),' ').get(1)))
+					#set($ptEnd = $pt + 1)
+					$!{pt}--$!{ptEnd}点				
+				#end
+			#end
+		</td>
+		<td>
+			#foreach($opi in $peakPeriodMap.get($!synch.cinemaid)) 
+				#if($opi.get('pTime').indexOf($nextTommorrow) != -1)
+					#set($pt = $math.toInteger($VmUtils.split($opi.get('pTime'),' ').get(1)))
+					#set($ptEnd = $pt + 1)
+					$!{pt}--$!{ptEnd}点
+				#end
+			#end
+		</td>
+		<td>$!synch.ip</td>
+	</tr>
+	#end
+	#end
+	#end
+	</tbody>
+</table>
+#end
+	<script type="text/javascript">
+	function changeCity(e){
+		$("citycodeInput").value = e.value;
+		$("newsForm").submit();
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>邀请好友购票成功</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="margin:auto;">
+<form id="extform" action="${basePath}admin/point/addPointToInvites.xhtml" method="post">
+<table class="table clear" id="extTable">
+	<thead>
+	<tr>
+		<th>用户昵称 [ID]</th>
+		<th>邀请人 [ID]</th>
+		<th>订单号</th>
+		<th>订单时间</th>
+		<th>积分</th>
+		<th><input type="checkbox" onchange="SelectAll(this)" />全选给邀请人积分</th>
+	</tr>
+	</thead>
+	<tbody id="pointTable">
+	#set($sumpoint=0)
+	#foreach($map in $memberMapList)
+	#set($member=$memberMap.get($map.mid))
+	#set($invitemember=$memberMap.get($map.inviteid))
+	#set($order=$ticketOrderMap.get($map.tid))
+	#set($sumpoint=$sumpoint+$order.totalAmount)
+	<tr id="tr$map.mid">
+		<td>$!member.nickname&nbsp;[$!member.id]</td>
+		<td>$!invitemember.nickname&nbsp;[$!invitemember.id]</td>
+		<td>$!order.tradeNo</td>
+		<td>$!DateUtil.formatTimestamp($order.addtime)</td>
+		<td>$!order.totalAmount</td>
+		<td><input type="checkbox" name="eids" value="$map.inviteid,$map.mid,$order.totalAmount"/><a href="javascript:void(0)" 
+			onclick="addPoint($map.inviteid, $map.mid, $order.totalAmount)">给分</a>
+		</td>
+	</tr>
+	#set($member='')#set($invitemember='')
+	#end
+	<tr>
+		<th colspan="6">共$VmUtils.size($memberMapList)个记录，共有积分:$sumpoint</th>
+	</tr>
+	<tr>
+			<td colspan="6">
+				<input type="submit" value="给积分"/>
+				<input type="button" value="已给过积分记录" onclick="goTo()"/>
+			</td>
+		</tr>
+	</tbody>
+</table>
+</form>
+	<script type="text/javascript">
+function goTo(){
+	location.href='${basePath}admin/point/goodsOrderToPointByInvite.xhtml';
+}
+function addPoint(inviteid, memberid, point){
+	var type="ticket";
+	var url="${basePath}admin/point/addPointToInvite.xhtml";
+	var values = {'inviteid':inviteid, 'memberid':memberid, 'point':point, 'type':type};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert("成功加积分!");
+			$('tr'+memberid).dispose();
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function SelectAll(e){
+	if(e.checked) {
+		$('extTable').getElements("input[type=checkbox]").each(function(el){
+			el.checked=true;
+		});
+	}else {
+		$('extTable').getElements("input[type=checkbox]").each(function(el){
+			el.checked=false;
+		});
+	}
+}
+
+</script>
+</body>
+</html>

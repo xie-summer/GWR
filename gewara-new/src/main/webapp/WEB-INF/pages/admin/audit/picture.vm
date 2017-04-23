@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>场馆图片查询列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+</head>
+<body style="margin:auto;">
+<div style="padding:1px;width: 850px">
+	<form action="${basePath}admin/audit/pictureList.xhtml" method="post" style="margin:3px; width:800px; float: left;">
+		搜索条件：
+		#set($tagMap = {'movie':'电影','cinema':'影院','ktv':'KTV','bar':'酒吧',
+							'gym':'健身馆','sport':'体育馆','news':'新闻','gymcourse':'健身项目',
+							'sportItem':'运动项目','gymroom':'健身馆分区',
+							'commu':'圈子','drama':'话剧','theatre':'剧院'})
+		图片类型：
+		<select name="tag" onchange="change(this)">
+			#foreach($tagkey in $tagMap.keySet())
+			<option #if($tagkey eq $!vtag) selected="selected" #end value="$!tagkey">$!tagMap.get($!tagkey)</option>
+			#end
+			<option #if(!$vtag) selected="selected" #end value="">全部</option>
+		</select>
+		关联ID：<input type="text" name="relatedid" id="id" value="$!params.relatedid" style="width:80px"/> 
+		<input type="submit" class="button" value="查询"/>
+	</form>
+	<div style="width: 800px;">
+		<div style="text-align:center;">
+			<h1>#if($check) 已审核 #else 未审核 #end</h1>#if($check)<div style="text-align:right;"><span>审核人：$userCheck.userName 审核时间：$DateUtil.format($userCheck.addtime,"yyyy-MM-dd HH:mm:ss")</span></div>#end
+		</div>
+		#foreach($pic in $pictureList)
+		<div style="width:130px;position: relative;float: left;padding:3px;margin:4px;margin-top:  20px;border: 2px solid gray; ">
+			属于：#if(($pic.tag eq 'cinema')||($pic.tag eq 'cinemaroom')||$pic.tag eq 'gym'||$pic.tag eq 'gymroom'||$pic.tag eq 'sport'||$pic.tag eq 'ktv'||$pic.tag eq 'commu' || $pic.tag eq 'theatre')
+					<a href="${basePath}$pic.tag/${mapPic.get($pic.id).id}/picturelist" target="_blank">$!VmUtils.escabbr($!mapPic.get($pic.id).name,12)</a> 
+				#elseif($pic.tag eq 'movie')
+					<a  href="${basePath}movie/$!{mapPic.get($pic.id).id}/piturelist" target="_blank">$!VmUtils.escabbr($!mapPic.get($pic.id).moviename,12)</a>
+				#elseif($pic.tag eq 'gymcourse')
+					$!mapPic.get($pic.id).coursename
+				#elseif($pic.tag eq 'sportItem')
+					$!mapPic.get($pic.id).itemname
+				#elseif($pic.tag eq 'drama')
+					<a href="${basePath}drama/$!mapPic.get($pic.id).id/picturelist">$!mapPic.get($pic.id).dramaname</a>
+				#elseif($pic.tag eq 'news')
+					[$!tagMap.get($pic.tag)]
+				#end<br/>
+			上传者：$cacheMemberMap.get($pic.memberid).nickname<br/>
+			上传时间：$DateUtil.format($!pic.posttime,'yyyy-MM-dd')
+			<img src="${picPath}$pic.picturename" width="120px" height="100px"/><br/>
+			<input type="button" class="button" value="删除" onclick="deletePicture($pic.id)"/>
+		</div>
+		#end
+	</div>
+</div>
+<div style="width: 800px;clear:both;margin-top:10px;padding-bottom:40px;">
+<div style="padding:1px;">
+		#if(!$check && $lg)
+		#if(!$VmUtils.isEmptyList($pictureList))
+			<input type="button" value="本页审核完成请点击" class="mr20 button" onclick="operatorTime('$!time')"/>
+		#end
+		#end
+		#if($checkPage && $uncheckPage)<span>已审核 $checkCount 个用户，共 $checkPage 页；</span><span>还有 $uncheckCount 个用户未审核，共 $uncheckPage 页。</span>#end
+		<span style="float:right;">#if($manageCheck)<a href="${basePath}admin/audit/pictureList.xhtml?check=true&tag=$!vtag">查看已审核用户</a>#end<a href="${basePath}admin/audit/pictureList.xhtml?tag=$!vtag">查看未审核用户</a></span>
+</div>
+<div>
+	#if($check)
+	#foreach($x in [1..$checkPage])
+	#set($y=$x+(-1))
+	<a #if($pageNo eq $y)style="color:red;"#end href="${basePath}admin/audit/pictureList.xhtml?check=true&pageNo=$y&tag=$!vtag">$x&nbsp;</a>	
+	#end
+	#end
+</div>
+#parse('include/pageUtil.vm')
+</div>
+<script type="text/javascript">
+	function deletePicture(id){
+		var url="${basePath}admin/audit/deletePicture.xhtml";
+		var values = {"id":id};
+		if(confirm("确定删除吗?")){
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					alert("删除成功！");
+					refreshPage();				
+				}else{
+					alert("操作失败！");
+				}
+			});
+		}
+	}
+	function operatorTime(timeStr){
+		if(!window.confirm('确定已操作完成？')) return false;
+		var url = "${basePath}admin/sns/operationUserHeadAndSign.xhtml";
+		var values = {"modifytime":timeStr,"tag":"$!tag"};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('操作成功！');
+				document.location.href='${basePath}admin/audit/pictureList.xhtml?tag=$!vtag';
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function change(el){
+		document.location.href='${basePath}admin/audit/pictureList.xhtml?tag='+$(el).value;
+	}
+</script>
+</body>
+</html>

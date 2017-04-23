@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>有冲突的订单</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width:750px; margin:auto">
+<form action="${basePath}admin/synch/tradeSearch.xhtml" style="width:740px;margin:3px">
+	订单号：<input name="tradeno" type="text" style="width:160px" value=""/>
+	<input type="submit" class="button" value="新增"/>
+</form>
+<table width="750px" class="table">
+	<thead>
+	<tr>
+		<th>订单号</th>
+		<th>取票时间</th>
+		<th>说明</th>
+		<th>订单类型</th>
+		<th>取票状态</th>
+		<th>是否冲突</th>
+		<th>手机号</th>
+		<th>重复短信</th>
+		<th>处理状态</th>
+	</tr>
+	</thead>
+	<tbody id="sportTable">
+	#foreach($orderResult in $orderResultList)
+	#set($gewaorder=$!gewaOrderMap.get($!orderResult.tradeno))
+	<tr>
+		<td>$!orderResult.tradeno</td>
+		<td>$!orderResult.taketime</td>
+		<td>$!orderResult.caption</td>
+		<td>#if($!orderResult.ordertype eq 'ticket' || $VmUtils.isBlank($!orderResult.ordertype)) 电影票 #elseif($orderResult.ordertype eq 'meal')套餐#end</td>
+		<td>$!orderResult.istake</td>
+		<td>$!orderResult.conflict</td>
+		<td><input type="text"  class="mobile" name="$!orderResult.tradeno" value="$!gewaorder.mobile" /></td>
+		<th><input type="button" value="重复短信" onclick="reSend($orderResult.tradeno)"/></th>
+		<td>
+			<select name="f$!orderResult.tradeno" id="s$!orderResult.tradeno" onchange="setResultValue('$!orderResult.tradeno')">
+				<option value="N" #if($!orderResult.result eq "N")selected="selected"#end>待处理</option>
+				<option value="O" #if($!orderResult.result eq "O")selected="selected"#end>已处理</option>
+				<option value="Y" #if($!orderResult.result eq "Y")selected="selected"#end>同步</option>
+				<option value="D" #if($!orderResult.result eq "D")selected="selected"#end>删除</option>
+				<option value="U" #if($!orderResult.result eq "U")selected="selected"#end>强制同步</option>
+			</select>
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+	<script type="text/javascript">
+	window.addEvent("domready", function(){
+		$$(".mobile").addEvent("change", function(){
+			this.setStyle("background","red");
+			var el=this;
+			var url = "${basePath}admin/synch/ajax/updateOrderMobile.xhtml";
+			var values = {'tradeno':this.name, "mobile":this.value};
+			GewaraUtil.sendRequest(url, values, function(result){
+				if(result.success){
+					el.setStyle("background","");
+				}else alert(result.msg);
+			});
+		});
+	});
+	function setResultValue(vid){
+		var url = "${basePath}admin/synch/ajax/updateOrderResultValue.xhtml";
+		var values = {'tradeno':vid, "value":$('s'+vid).value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) alert('成功设置！');
+			else alert(result.msg);
+		});
+	}
+	function reSend(tradeno){
+		var url = "${basePath}admin/synch/ajax/reSendSms.xhtml";
+		var values = {'tradeno':tradeno};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) alert('成功设置！');
+			else alert(result.msg);
+		});
+	}
+</script>
+</body>
+</html>

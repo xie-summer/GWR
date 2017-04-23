@@ -1,0 +1,413 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>订单查询</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/layout.css"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/bms.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js"></script>
+	<style type="text/css">
+		.tablist .trbg td{padding:0; height:40px; line-height:40px;}
+		#page,.rowCount{margin:5px 0;}
+		.useCao label{color:#555555;font-weight:bold;font-size:12px;}
+		.useCao .init-text{width:160px;padding:2px 1px;vertical-align:middle;border:1px solid #ccc;margin-right:40px;}
+		.useCao .fline{font-size:15px;margin:0 5px;}
+		.useCao .btn{padding:2px 8px;cursor:pointer;}
+		.useCao .t_ico{background:url(${staticPath}css/sport/cus_icon.png?v=4545) no-repeat right -159px;}
+		.tablist .trbg{background:#efefef;color:#555;}
+		.tablist .trbg:hover{background:#f1f5ff;}
+		.tablist .trbg td{height: 30px;line-height: 30px;padding: 0;}
+		.redBt input {width: 50px;}
+		.orderSet{height:26px;line-height: 26px;padding:0 10px;}
+		.orderSet li{float:left;text-align:center;cursor: pointer;padding:0 7px;}
+		.seeOrder{background:#bbb;font-weight:bold}
+		.opiList ul li{float:left;}
+	</style>
+</head>
+<body class="ui_orange">
+<div class="maintop">演出订单查询管理</div>
+<div class="main">
+	#if($VmUtils.isNotBlank($command.errorMsg))
+	<div class="useCao mt10">
+		<span style="color:red;font-size:24px;font-weight:bolder;">$command.errorMsg</span>
+	</div>
+	#end
+    <div class="useCao mt10">
+    	<div>
+    		<form id="orderOtherForm" action="${basePath}admin/order/dramaOrderList.xhtml">
+    			<input type="hidden" name="level" value="2"/>
+				<label>订单号：</label>
+				<input class="init-text" type="text" name="tradeno" id="tradeno" value="$!command.tradeno" size="18" />
+				<label class="ml10">手机号：</label>
+				<input class="init-text" type="text" name="mobile" id="mobile" value="$!{command.mobile}" size="18" style="height:20px;"/>
+				<span class="button minBt redBt"><input type="button" onclick="orderOtherSubmit()" value="查  询" /></span>
+			</form>
+    	</div>
+    	<form id="searchOrderForm"  action="${basePath}admin/order/dramaOrderList.xhtml" onsubmit="javascript:return checkdate();">
+    		<input type="hidden" name="level" id="level" value="1" />
+    		<input type="hidden" name="status" id="status" value="$!command.status" />
+    		<input type="hidden" name="express" id="express" value="$!command.express" />
+    		<input type="hidden" name="xls" id="xls" value="" />
+    		<input type="hidden" name="relatedid" id="relatedid" value="$!command.relatedid" />
+    		<input type="hidden" name="topos" id="topos" value="ordertopos" />
+    		<input type="hidden" name="expressstatus" id="expressstatus" value="$!command.expressstatus" />
+	    	<div class="mt15">
+		    	<label>演出场馆:</label>
+		    	<select name="placeid" id="placeid" style="width:200px;" onchange="searchDrama(this.value)" class="mr20">
+					<option value="">全部场馆</option>
+					#foreach($theatre in $theatreMap.values())
+					<option value="$!theatre.id" #if($VmUtils.eq($!theatre.id,$!command.placeid)) selected #end>$!theatre.realBriefname</option>
+					#end
+				</select>
+				<label>演出项目：</label>
+				<select id="itemid" name="itemid" class="mr20">
+					<option value="" #if($VmUtils.isNull($!command.itemid))selected#end>全部项目</option>
+					#foreach($drama in $dramaMap.values())
+					<option value="$!drama.id" #if($VmUtils.eq($!drama.id,$!command.itemid)) selected #end>$!drama.realBriefname</option>
+					#end
+				</select>
+				<span class="ml10"><a href="javascript:queryAllTheatre()"  class="blue">全部场馆项目</a></span>
+			</div>
+			#if(!$VmUtils.isEmptyList($opiList))
+			<div class="mt15 opiList clear">
+				<label class="left">场次：</label>
+				<ul>
+					#foreach($opi in $$opiList)
+					<li class="mr5"><a #if($VmUtils.eq($!command.relatedid,$opi.dpid))class="match" #else class="blue" #end href="javascript:queryOrderStatus('relatedid','$opi.dpid')" title="$!opi.dramaname">$!VmUtils.escabbr($!opi.dramaname,16) ${DateUtil.format($opi.playtime,'MM-dd ')}<span class="black bold">${DateUtil.format($opi.playtime,'HH:mm')}</span></a><a href='${basePath}admin/message/smsList.xhtml?relatedid=${opi.id}&smstype=now' class="ml10" target="_blank">[短信]</a></li>
+					#end
+				</ul>
+			</div>
+			#end
+			<div class="mt15">
+				<label>交易时段：</label>
+		    	<input class="init-text t_ico" type="text" name="starttime" id="starttime" style="margin-right:0;" value="$!DateUtil.formatTimestamp($!command.starttime)"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>
+		    	<span class="fline">-</span>
+		    	<input class="init-text t_ico" type="text" name="endtime" id="endtime" value="$!DateUtil.formatTimestamp($!command.endtime)" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/>
+	    		<span class="button minBt redBt"><input type="submit" value="查&nbsp;&nbsp;询" /></span>
+			</div>
+    	</form>
+    </div>
+    <div class="orderSet mt20 clear">
+	    <ul class="left" id="ordertopos">
+			<li id="all" #if($VmUtils.isBlank($command.status))class="seeOrder"#end><a href="javascript:queryOrderStatus('status','')" class="blue">全部</a></li>
+			<li id="new" #if($VmUtils.eq($command.status,'new'))class="seeOrder"#end><a href="javascript:queryOrderStatus('status','new')" class="blue">待付款</a></li>
+			<li id="paid" #if($VmUtils.eq($command.status,'paid'))class="seeOrder"#end><a href="javascript:queryOrderStatus('status','paid')" class="blue">已付款</a></li>
+			<li id="paid_success" #if($VmUtils.eq($command.status,'paid_success'))class="seeOrder"#end><a href="javascript:queryOrderStatus('status','paid_success')" class="blue">交易成功</a></li>
+			<li id="paid_unconfirm" #if($VmUtils.eq($command.status,'paid_unconfirm'))class="seeOrder"#end><a href="javascript:queryOrderStatus('status','paid_unconfirm')" class="blue">付款待确认</a></li>
+			<li id="paid_failure" #if($VmUtils.eq($command.status,'paid_failure'))class="seeOrder"#end><a href="javascript:queryOrderStatus('status','paid_failure')" class="blue">交易失败</a></li>
+			<li id="cancel" #if($VmUtils.eq($command.status,'cancel'))class="seeOrder"#end><a href="javascript:queryOrderStatus('status','cancel')" class="blue">已取消</a></li>
+			<li><a href="${basePath}admin/message/smsList.xhtml?status=failure" class="blue" target="_blank"><b>失败短信</b></a></li>
+			<li id="showExpress"><a href="javascript:gewaUtil.maskContent('','tcNumberLay','快递录入',810,'tcNumberLay');" style="font">快递录入</a></li>
+			<li><span class="button minBt redBt"><input type="button" value="刷新" onclick="refresh()"/></span></li>
+			<li>
+				取票方式:
+				<select onchange="queryOrderStatus('express',this.value)" class="display:inline-block;">
+					<option #if($VmUtils.isBlank($!command.express)) selected #end value="">全部</option>
+					<option #if($VmUtils.eq($command.express,'Y')) selected #end value="Y">快递</option>
+					<option #if($VmUtils.eq($command.express,'N')) selected #end value="N">电子票</option>
+				</select>
+			</li>
+			#if($VmUtils.eq($command.status, 'paid_success') || $VmUtils.eq($command.status, 'paid'))
+			<li><a href="javascript:getXls()">导出EXCEL</a></li>
+			<li><a href="javascript:getBatchPdf();">批量导出PDF</a></li>
+			#end
+		</ul>
+		<ul class="right">
+			<li><span>订单金额：$!tTotalAmount</span></li>
+			<li ><span>出票量：$!totalQuantity</span></li>
+			<li><span>订单数量：$!VmUtils.size($orderList)</span></li>
+		</ul>
+	</div>
+	<div class="orderSet" id="esdiv" #if(!$VmUtils.eq($command.status,'paid_success'))style="display:none;"#end>
+		<ul class="left">
+		<li id="" #if($VmUtils.eq($command.expressstatus,'new'))class="seeOrder"#end><a href="javascript:queryOrderStatus('expressstatus','new')" class="blue">待处理</a></li>
+		<li id="" #if($VmUtils.eq($command.expressstatus,'print'))class="seeOrder"#end><a href="javascript:queryOrderStatus('expressstatus','print')" class="blue">完成打印配货单</a></li>
+		<li id="" #if($VmUtils.eq($command.expressstatus,'allocation'))class="seeOrder"#end><a href="javascript:queryOrderStatus('expressstatus','allocation')" class="blue">完成配货</a></li>
+		<li id="" #if($VmUtils.eq($command.expressstatus,'transit'))class="seeOrder"#end><a href="javascript:queryOrderStatus('expressstatus','transit')" class="blue">运输中</a></li>
+		<li id="" #if($VmUtils.eq($command.expressstatus,'signfail'))class="seeOrder"#end><a href="javascript:queryOrderStatus('expressstatus','signfail')" class="blue">签收失败</a></li>
+		<li id="" #if($VmUtils.eq($command.expressstatus,'signed'))class="seeOrder"#end><a href="javascript:queryOrderStatus('expressstatus','signed')" class="blue">签收成功</a></li>
+		</ul>
+	</div>
+	#set($expressKeyMap={'Y':'快递','N':'电子票'})
+    <div class="info">
+      <table class="tablist mt10" id="all_content" width="100%">
+			<tbody id="tbody">
+				<tr class="trbg">
+					<td>序号</td>
+					<td>订单编号</td>
+					<td>订单号</td>
+					<td>下单时间</td>
+					<td>用户[ID]</td>
+					<td>手机号</td>
+					<td>数量</td>
+					<td>优惠</td>
+					<td>总价</td>
+					<td>支付方式</td>
+					<td>取票方式</td>
+					<td>状态</td>
+				</tr>
+				#foreach($order in $orderList)
+				<tr lang="order" id="$!{order.id}">
+					<td>$foreach.count</td>
+					<td style="vnd.ms-excel.numberformat:@">$!order.id</td>
+					<td style="vnd.ms-excel.numberformat:@">#if($VmUtils.isBlank($xls))<a href="${basePath}admin/order/orderDetail.xhtml?tradeNo=$order.tradeNo" target="_blank" title="$!order.description2">#{end}$!{order.tradeNo}#if($VmUtils.isBlank($xls))</a>#end</td>
+					<td>$DateUtil.format(${order.addtime},'MM-dd HH:mm:ss')</td>
+					<td title="$!order.membername">#if($VmUtils.isBlank($xls))$!{VmUtils.escabbr($order.membername,8)}[$order.memberid]#{else}$order.membername#end</td>
+					<td #if($VmUtils.isNotBlank($order.remark))title="$order.remark" style="color:red"#end onclick="showMobile($order.id,$order.mobile)"><span name="demobile" id="order$order.id" title="$order.mobile">#if($VmUtils.isBlank($xls))$VmUtils.getSmobile($order.mobile) #else ${order.mobile}#end</span></td>
+					<td>$order.quantity</td>
+					<td>$!order.discount</td>
+					<td>#if($order.discount gt 0)<span style="color:red;font-weight: bold;" title="$order.disreason">${order.totalAmount}</span>#else${order.totalAmount}#end</td>
+					<!-- <td>$!order.paymethod</td> -->
+					#if($order.paymethod eq 'partnerPay')
+						<td>$!order.paymethodText/$VmUtils.substringAfter(${order.membername},'@')</td>
+					#else
+						<td>$!order.paymethod</td>
+					#end
+					<td>$!expressKeyMap.get($order.express)</td>
+					<td>
+						$!{order.statusText}
+						#if($order.isNew() && $VmUtils.eq($order.partnerid,50000082))
+						<a href="${basePath}admin/drama/agent/confirmOrder.xhtml?orderId=$!order.id" target="_blank">电话确认</a>
+						#elseif($VmUtils.contains($order.status,'paid_failure'))<input type="button" class="cbt2" value="确认成功" onclick="confirmOrder($order.tradeNo, this)" />#end
+						#if($VmUtils.isBlank($xls))<a href="${basePath}admin/dramaTicket/printDramaOrder.xhtml?orderid=$!order.id&xls=pdf">导出pdf</a>#end
+					</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+    </div>
+    <form action="${basePath}admin/dramaTicket/printBatchDramaOrder.xhtml" id="batchPdfForm" method="post">
+    	<input type="hidden" name="orderids" value="$orderids" />
+    </form>
+    #parse('admin/order/tickNumber.vm')
+    <div class="clear">#parse('include/pageUtil.vm')</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready', function(){
+	loadOrderList();
+});
+
+function loadOrderList(){
+	var trElement = $('all_content').getElements('tr[lang=order]');
+	if(trElement &&　trElement.length>0){
+		trElement.addEvent('click', function(){
+			loadOrder(this, this.id)
+		});
+	}
+}
+
+function loadOrder(el, orderid){
+	if(el.retrieve(orderid) == null){
+		var url = "${basePath}admin/order/ajax/getBuyItemList.xhtml";
+		var values = {'orderid':orderid};
+		var element = new Element('tr').inject(el, 'after');
+		var tdElement = new Element('td').setProperty('colspan',12).setStyle('padding',5).inject(element);
+		GewaraUtil.sendLoad(tdElement, url, values, function(result){
+			if(result.success){
+				el.store(orderid, tdElement.get('html'));
+			}
+		});
+	}else{
+		el.getNext('tr').toggleClass('none');
+	}
+}
+
+function orderOtherSubmit(){
+	var values = GewaraUtil.getValues('orderOtherForm');
+	if(values.tradeno == "" && values.mobile == ""){
+		alert('订单号，手机号不能同时为空！');
+		return;
+	}
+	$('orderOtherForm').submit();
+}
+
+var item = "";
+function showMobile(orderid, mobile){
+	if($(item)) {
+		$(item).set('html', $(item).title);
+		$(item).removeClass('yellow');
+	}
+	$('order' + orderid).set('html', mobile);
+	$('order' + orderid).addClass('yellow');
+	item = 'order' + orderid;
+}
+function confirmOrder(tradeNo, el){
+	el.dispose();
+	var url = "${basePath}admin/dramaTicket/failConfirm.xhtml";
+	GewaraUtil.sendRequest(url, {"tradeNo":tradeNo}, function(result){
+		if(result.success){
+			refreshPage();
+		}else alert(result.msg);
+	})
+}
+
+function setExpressNo(orderid){
+	var url = '${basePath}admin/dramaTicket/setExpressNo.xhtml';
+	var expressMode = $('expressMode'+orderid).value;
+	var expressNo = $('expressNo'+orderid).value;
+	if(expressMode==""&&expressNo!=""){
+		alert("快递方式与快递单号需同时存在！");
+		return;
+	}
+	if(expressMode!=""&&expressNo!=""){
+		var values = {'orderId':orderid,'expressNo':expressNo,'expressMode':expressMode};
+		GewaraUtil.mask(obj);
+		GewaraUtil.sendRequest(url, values, function(result){
+			GewaraUtil.unmask();
+			if(!result.success){
+				alert(result.msg);	
+			}
+		});
+	}
+}
+</script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	$$("tbody tr").addEvents({
+		'mouseover':function(){
+			this.addClass("mouseBg");
+		},
+		'mouseout':function(){
+			this.removeClass("mouseBg");
+		}
+	});
+	gewaUtil.pagePos();
+});
+
+function queryAllTheatre(){
+	var tradeno = $('tradeno').value.trim();
+	var mobile = $('mobile').value.trim();
+	if (tradeno.length == 0 && mobile.length == 0) {
+		var start = $('starttime').value;
+		if (start == null || start == "") {
+			alert("开始日期不得为空!");
+			return;
+		}
+		var end = $('endtime').value;
+		if (end == null || end == "") {
+			alert("结束日期不得为空!");
+			return;
+		}
+		var startdate = Date.parse(start);
+		var enddate = Date.parse(end);
+		if (enddate.getTime() - startdate.getTime() > 1000*60*60*24*5) {
+			alert("时间间隔不得超过5天!");
+			return;
+		}
+	}
+	$('xls').value='';
+	$('placeid').value = '';
+	$('itemid').value = '';
+	$('relatedid').value = '';
+	$('topos').value = 'ordertopos';
+	$('searchOrderForm').submit();
+}
+
+function searchDrama(id){
+	var url = '${basePath}admin/ajax/dramaTicket/dramaList.xhtml';
+	var values = {'theatreid':id};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			if(result.retval){
+				var retvalList = JSON.decode(result.retval);
+				var el = $('itemid');
+				el.empty();
+				var option = new Element('option',{'value':'','html':'全部项目','selected':true}).inject(el), b;
+				retvalList.each(function(item){
+					b = option.clone();
+					b.value =item.id;
+					b.set('html',item.realBriefname);
+					b.inject(el);
+				});
+			}
+		}else{
+			
+		}
+	});
+}
+
+function queryOrderStatus(field, value){
+	$('xls').value='';
+	$(field).value=value;
+	if ($("status").value != "paid_success")
+		$('expressstatus').value = "";
+	var tradeno = $('tradeno').value.trim();
+	var mobile = $('mobile').value.trim();
+	if (tradeno.length == 0 && mobile.length == 0) {
+		var start = $('starttime').value;
+		if (start == null || start == "") {
+			alert("开始日期不得为空!");
+			return;
+		}
+		var end = $('endtime').value;
+		if (end == null || end == "") {
+			alert("结束日期不得为空!");
+			return;
+		}
+		var startdate = Date.parse(start);
+		var enddate = Date.parse(end);
+		if (enddate.getTime() - startdate.getTime() > 1000*60*60*24*5) {
+			alert("时间间隔不得超过5天!");
+			return;
+		}
+	}
+	$('topos').value = 'ordertopos';
+	$('searchOrderForm').submit();
+}
+
+function getXls(){
+	$('xls').value='true';
+	$('searchOrderForm').submit();
+}
+function refresh(){
+	refreshPage();
+}
+
+sendMessage = function(id, el){
+	if(el && el == true){
+		if(!window.confirm('短信已发送成功，确定重发?')) return;
+	}
+	var url = "${basePath}admin/order/sendOrderNoteSms.xhtml";
+	var values = {"id":id};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('发送成功');
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+
+function checkdate() {
+	var tradeno = $('tradeno').value.trim();
+	var mobile = $('mobile').value.trim();
+	if (tradeno.length == 0 && mobile.length == 0) {
+		var start = $('starttime').value;
+		if (start == null || start == "") {
+			alert("开始日期不得为空!");
+			return false;
+		}
+		var end = $('endtime').value;
+		if (end == null || end == "") {
+			alert("结束日期不得为空!");
+			return false;
+		}
+		var startdate = Date.parse(start);
+		var enddate = Date.parse(end);
+		if (enddate.getTime() - startdate.getTime() > 1000*60*60*24*5) {
+			alert("时间间隔不得超过5天!");
+			return false;
+		}
+	}
+}
+
+function getBatchPdf(orderids) {
+	$("batchPdfForm").submit();
+}
+</script>
+</body>
+</html>

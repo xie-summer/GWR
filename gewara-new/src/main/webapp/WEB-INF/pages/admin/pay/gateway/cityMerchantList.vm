@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>城市商户列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/layout.css"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/bms.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js"></script>
+</head>
+<body class="ui_orange">
+<div class="maintop">
+	$!{gateway.gatewayName}（$!{gateway.gatewayCode}）&nbsp;&nbsp;
+    [<a href="javascript:loadAddPage($!{gateway.id})">新增路由</a>]
+</div>
+<div class="main">
+    <div class="info">
+      <table class="tablist mt10 " id="myTable" width="100%">
+      	<tbody>
+      		<tr class="trbg">
+	  		     <td>省市名称</td>
+	  		     <td>区域类型</td>
+	  		     <td>商户号标识</td>
+	  		     <td>修改时间</td>
+	  		     <td>修改人</td>
+	  		     <td>操作</td>
+      		</tr>
+      		#foreach($cm in $cityMerchantList)
+      		<tr class="">
+      	       	<td style="text-align: left">
+      	       		#if($VmUtils.eq('P',$!{cm.areaType}))
+						$provinceNameMap.get($!{cm.areaCode})
+					#elseif($VmUtils.eq('C',$!{cm.areaType}))
+						$cityNameMap.get($!{cm.areaCode})
+					#end
+      	       	</td>
+      	       	<td style="text-align: left">
+      	       		#if($VmUtils.eq('P',$!{cm.areaType}))
+						省
+					#elseif($VmUtils.eq('C',$!{cm.areaType}))
+						市
+					#end
+      	       	</td>
+      	       	<td style="text-align: left">$!{cm.merchantCode}</td>
+      	       	<td style="text-align: left">$!DateUtil.format($!{cm.modifyTime},"yyyy-MM-dd HH:mm:ss")</td>
+      	       	<td style="text-align: left">$!{cm.modifyUser}</td>
+      	       	<td style="text-align: center;">
+      	       		<a href="javascript:getCitymer($!{cm.id})">修改</a>&nbsp;&nbsp;
+      	       		<a href="javascript:delCitymer($!{cm.id})">删除</a>
+      	       	</td>
+      		</tr>
+      		#end
+      	</tbody>
+      </table>
+    </div>
+</div>
+<div class="edit" id="routeDiv" style="display:none;">	
+	
+</div>
+<script type="text/javascript">
+	function loadAddPage(id){		
+		var values = {"gwid":id};
+		var url = '${basePath}admin/pay/gateway/route/city/addPage.xhtml';
+		gewaUtil.loadData('routeDiv', url, values, function(result){
+			if(result.success){
+				gewa.util.maskContent('','routeDiv','新增商户路由',500,'routeDiv');
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+	
+	function getCitymer(id){		
+		var values = {"id":id};
+		var url = '${basePath}admin/pay/gateway/route/city/get.xhtml';
+		gewaUtil.loadData('routeDiv', url, values, function(result){
+			if(result.success){
+				gewa.util.maskContent('','routeDiv','修改商户路由',500,'routeDiv');
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		});
+	}
+	
+	function closetc(){
+		var el = "routeDiv";
+		gewa.util.container[el].dispose(el);
+	}
+	
+	function saveCitymer(){
+		var values = GewaraUtil.getValues($("citymerForm"));
+		var url = "${basePath}admin/pay/gateway/route/city/save.xhtml";
+		gewa.util.mask({'element': "btns",'title':'正在保存...', "opacity":"0.4"});
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				refreshPage();
+			}else {
+				gewaUtil.alert(result.msg);			
+			}
+		});
+	}
+	
+	function delCitymer(id){
+		var values = {"id" : id};
+		var url = "${basePath}admin/pay/gateway/route/city/del.xhtml";
+		gewa.util.mask({'element': "btns",'title':'正在删除...', "opacity":"0.4"});
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				refreshPage();
+			}else {
+				gewaUtil.alert(result.msg);			
+			}
+		});
+	}
+	
+	function chaAreaType(value){
+		var provinceSelect = $('provinceCode');
+		var citySelect = $('cityCode');
+		if(value == "P"){
+			citySelect.disabled="disabled";
+			citySelect.options.length = 0;
+		}else{
+			citySelect.disabled="";
+			chaProvince(provinceSelect.value);
+		}
+	}
+	
+	function chaProvince(provinceCode){
+		var citySelect = $('cityCode');
+		citySelect.options.length = 0;
+		
+		if($('areaType').value == "P"){
+			return;
+		}
+		
+		var values = {"provinceCode" : provinceCode};
+		var url = "${basePath}admin/pay/gateway/city/list.xhtml";
+		gewa.util.mask({'element': "btns",'title':'正在加载...', "opacity":"0.4"});
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				var cityArr = eval(result.retval);
+				var len = cityArr.length;
+				
+				for (var i = 0; i < len; i++) {   
+					var varItem = new Option(cityArr[i].cityname, cityArr[i].citycode);   
+					//.selected=true;
+					citySelect.options.add(varItem);
+				}
+			}else {
+				gewaUtil.alert(result.msg);			
+			}
+		});
+	}
+	
+</script>
+</body>
+</html>

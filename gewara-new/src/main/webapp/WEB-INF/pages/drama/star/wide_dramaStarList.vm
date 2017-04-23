@@ -1,0 +1,187 @@
+<!Doctype html>
+<html>
+<head>
+	<!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>经典话剧_校园话剧_搞笑话剧_演出_音乐会 - 格瓦拉生活网</title>
+	<meta name="keywords" content="话剧,话剧查询,话剧演出,话剧购票,话剧院,话剧院查询,话剧院购票"/>
+	<meta name="description" content="格瓦拉生活网提供各类经典话剧,校园话剧,搞笑话剧及音乐会演出信息.话剧票提前预订,话剧优惠购票活动等."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_drama&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,noobSlide&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.ui_layout{background:none;}
+	</style>
+</head>
+<body>
+#set($relatedtag='drama')
+#set($dramaLeftTag = 'mx')
+#set($isIndexBigAd = true)
+#parse('include/wide_header.vm')
+<div class="ui_layout">
+	<div class="index_wrap clear">
+		#parse('include/drama/wide_drama_menu.vm')
+		<div class="index_right">
+			<div class="mt10">
+				<div class="ui_left">
+					<div class="mod_kong">
+						<div class="mod_hd">
+							<h2>明星</h2>
+						</div>
+						<div class="mod_bd">
+							#set($starMap={'star':'演员','director':'导演'})
+							<form action="${basePath}drama/star" id="searchFrom">
+							<input type="hidden" name="type" value="star">
+							<input type="hidden" name="startype" id="startype" value="$!VmUtils.escapeHtml($!params.startype)">
+							<ul class="ulist">
+								<li>
+									<div class="condition">
+										<dl class="clear dlTy">
+											<dt>
+												<span class="typeTitle mr10">选择类别</span>
+											</dt>
+											<dd>
+												<a href="javascript:search('startype','star')" #if($VmUtils.eq($!params.startype,'star')) class="selected" #end>演员</a>
+												<a href="javascript:search('startype','director')" #if($VmUtils.eq($!params.startype,'director')) class="selected" #end>导演</a>
+											</dd>
+										</dl>
+									</div>
+								</li>
+								<li>
+									<div class="condition mt10">
+										<dl class="clear dlTy">
+											<dt>
+												<span class="typeTitle left">剧院查询</span>
+											</dt>
+											<dd>
+												<div class="search_kuang">
+														<input id="searchkey" class="search_text searchText clubSerch" value="$!VmUtils.escapeHtml($!params.searchkey)" type="text"  alt="请输入搜索关键词"  name="searchkey">
+														<label class="searchButton">
+															<input type="button" value="" onclick="search('searchkey')"/>
+														</label>
+												</div>						
+											</dd>
+										</dl>
+									</div>
+								</li>
+							</ul>
+							<div class="selectedMenus clear mt30">
+								<div class="right">
+									<span>排序：</span>
+									<select name="order" onchange="search(this)">
+										<option value="clickedtimes" #if($VmUtils.isBlank($!params.order)||$VmUtils.eq($!params.order,'clickedtimes')) selected="selected" #end>按关注(由高到低)</option>
+										<option value="avggeneral" #if($VmUtils.eq($params.order,'avggeneral')) selected="selected" #end>按评分(由高到低)</option>
+									</select>
+								</div>
+								<div class="left">
+									#if($VmUtils.isNotBlank($params.startype) || $VmUtils.isNotBlank($params.searchkey))
+									<span class="">已选条件：</span>
+									#if($VmUtils.isNotBlank($params.startype))
+									<span class="selections">
+										<em>$!starMap.get($params.startype)</em>
+										<a class="ui_x bg6_hover" href="javascript:search('startype','')">×</a>
+									</span>
+									#end
+									#if($VmUtils.isNotBlank($params.searchkey))
+									<span class="selections">
+										<em>$!VmUtils.escapeHtml($params.searchkey)</em>
+										<a class="ui_x bg6_hover" href="javascript:search('searchkey','')">×</a>
+									</span>
+									#end
+									#end
+									<span class="mr10">
+										共<b class="c80 sNum">$!{starcount}</b>个明星
+									</span>
+								</div>
+							</div>
+							</form>
+						</div>
+					</div>
+					<div class="starList">
+						<ul>
+						#foreach($star in $starList)
+							<li class="effectLi">
+								<div class="ui_media">
+									<div class="ui_pic starName">
+										<a href="${basePath}drama/star/$!star.id" target="_blank" title="$!star.name">
+											<img src="$!VmUtils.randomPic('cw120h160',$star.limg)" alt="$!star.name" height="128" width="96" />
+										</a>
+									</div>
+									<div class="ui_text starCon">
+										<div class="title">
+											#set($gmark=$VmUtils.getSingleMarkStar($star,"general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+											<span class="grade gradej right">
+												<sub>$gmark1</sub>
+												<sup>.$gmark2</sup>
+											</span>
+											<h2>
+												<a href="${basePath}drama/star/$!star.id" target="_blank" title="$!star.name" class="c333">$!star.name</a>
+											</h2>
+											<span class="c999">(${star.clickedtimes}关注)</span>
+										</div>
+										#if(!$VmUtils.eq($type,'troupe'))
+											<p class="mt10">职业：#if($star.startype.contains('star'))演员#end#if($star.startype.contains('star') && $star.startype.contains('director'))/#end#if($star.startype.contains('director'))导演#end</p>
+										#end
+										<p class="mt10">$!VmUtils.htmlabbr($!star.content, 160)#if($star.content)...#end</p>
+										#if(!$VmUtils.isEmptyList($historyDramaListMap.get($star.id)))
+										<p class="mt10">
+											近期演出：
+											#foreach($drama in $historyDramaListMap.get($star.id))
+											<em class="mr5 c80"><a href="${basePath}drama/$!drama.id" target="_blank">《$drama.name》</a></em>
+											#end
+											共<span>$VmUtils.size($historyDramaListMap.get($star.id))</span>个剧目
+										</p>
+										#end
+									</div>
+								</div>
+							</li>
+							#end
+						</ul>
+						<div class="page">#parse('include/pageUtil.vm')</div>
+					</div>
+				</div>
+			</div>
+			<div class="ui_right">
+				#parse('include/drama/mod_ryjm.vm')
+				#parse('include/drama/mod_hotComment.vm')
+			</div>
+		</div>
+	</div>
+</div>
+
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	try{
+	$('submenu').addEvents({
+		'mouseover':function(){this.addClass('jm_hover')},
+		'mouseout':function(){this.removeClass('jm_hover')}
+	});
+	(function(){
+		gewaUtil.affix($('ui_left'));
+	}).delay(500);
+	secrchIn();
+	}catch(e){}
+});
+function secrchIn(){
+	$('searchkey').addEvents({
+	 	'focus':function(){this.getParents('div[class*="search_kuang"]').addClass('search_kuangClicked');},
+	 	'blur':function(){this.getParents('div[class*="search_kuang"]').removeClass('search_kuangClicked');}
+	}); 
+}
+function search(el, value){
+	el = $(el);
+	if(value || value == ""){
+		el.value = value;
+	}
+	if(el.get('id') == 'searchkey' && el.value != ""){
+		$('startype').value = "";
+	}else if(el.get('id') == 'startype' && el.value != ""){
+		$('searchkey').value = "";
+	}
+	$('searchFrom').submit();
+}
+</script>
+<!-- SUCCESS_BOTTOM -->
+</body>
+</html>

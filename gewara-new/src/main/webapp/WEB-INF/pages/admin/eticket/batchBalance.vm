@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>电影券查询-_格瓦拉生活网</title>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($usenum=0)
+#foreach($card in $cardList)
+#if($card.status eq 'U')#set($usenum=$usenum + 1)#end
+#end
+#set($sy=$usenum - $balance)
+<div><h2>卡批次查询</h2></div>
+<hr size="1" />
+<table cellspacing="1" cellpadding="1" border="0" style="border: 1px solid;width: 470px;margin-left: 33px;">
+<tr>
+	<td align="center">优惠券总量</td>
+	<td align="center">使用量</td>
+	<td align="center">已结算量</td>
+	<td align="center">未结算量</td>
+</tr>
+<tr>
+	<td align="center">$!cardList.size()</td>
+	<td align="center" id="usenum">$!usenum</td>
+	<td align="center"><input type="text" style="width: 60px;" value="$!balance" onchange="setBalance(this.value)"/></td>
+	<td align="center">$sy</td>
+</tr>
+</table>
+<script type="text/javascript">
+	function setBalance(balance){
+		var url = '${basePath}admin/eticket/ajax/setBalance.xhtml';
+		GewaraUtil.sendRequest(url, {"bid":"$params.bid", "balance":balance}, function(result){
+			if(result.success){
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+</script>
+</body>
+</html>

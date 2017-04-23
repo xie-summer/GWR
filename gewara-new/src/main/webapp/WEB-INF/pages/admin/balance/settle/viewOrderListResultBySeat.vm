@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+#if($VmUtils.isBlank($params.isXls))
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+</head>
+#end
+<body style="width:95%; margin:auto">
+<table class="table" border="1">
+	<thead>
+	<tr>
+		<th>&nbsp;</th>
+		<th>订单号</th>
+		<th>状态</th>
+		<th>类型</th>
+		<th>下单时间</th>
+		<th>放映时间</th>
+		<th>电影名称</th>
+		<th>影厅</th>
+		<th>影票</th>
+		<th>结算金额</th>
+	</tr>
+	</thead>
+	<tbody class="tbody">
+	#set($count=0)
+	#foreach($order in $orderList)
+		#set($descMap=$VmUtils.readJsonToMap($order.description2))
+		#set($seatText=$descMap.get("影票").replaceAll("\d+元", ""))
+		#foreach($seat in $seatText.split(","))#set($count=$count+1)
+	<tr>
+		<td>$count</td>
+		<td style="vnd.ms-excel.numberformat:@">$order.tradeNo</td>
+		<td>$order.status</td>
+		<td>$order.category</td>
+		<td style="vnd.ms-excel.numberformat:@">$DateUtil.formatTimestamp($order.addtime)</td>
+		<td style="vnd.ms-excel.numberformat:@">$DateUtil.formatTimestamp($order.playtime)</td>
+		<td>$descMap.get("影片")</td>
+		<td>$descMap.get("影厅")</td>
+		<td>$seat</td>
+		<td>$order.costprice</td>
+	</tr>
+		#end
+	#end
+	<tr>
+		<td colspan="8" align="center" class="td">合计($settle.timefrom~$settle.timeto)</td>
+		<td>$ReportUtil.getIntSum($orderList, "quantity", "0")</td>
+		<td>$ReportUtil.getIntSum($orderList, "totalcost", "0")</td>
+	</tr>
+	</tbody>
+</table>
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		$$(".tbody tr").addEvents({
+			'mouseenter':function(){
+				this.addClass("over");
+			},
+			'mouseleave':function(){
+				this.removeClass("over");
+			}
+		});
+	})
+</script>
+</body>
+</html>
+

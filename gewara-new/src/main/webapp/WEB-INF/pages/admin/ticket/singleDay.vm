@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>单身节场次</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.selectMovie .r .match{font-weight: bold; color: #ff6600; font-size: 14px;}
+		label{display: block;}
+	</style>
+</head>
+<body  style="width:800px;margin: auto;"><br/>
+	<table class="table">
+		<thead>
+			<tr><th>序号</th><th>男生场次id</th><th>女生场次id</th><th>操作</th></tr>
+		</thead>
+		<tbody>
+			#foreach($map in $qryMapList)
+			#set($manmpid=$map.get('manmpid'))
+			#set($womenmpid=$map.get('womenmpid'))
+			#set($manopi=$manOpiMap.get($manmpid))
+			#set($womenopi=$womenOpiMap.get($womenmpid))
+			<tr>
+				<td>$foreach.count</td>
+				<td>${map.manmpid} 【${manopi.cinemaname}, ${manopi.moviename}, $DateUtil.formatTimestamp($manopi.playtime)】</td>
+				<td>${map.womenmpid} 【${womenopi.cinemaname}, ${womenopi.moviename}, $DateUtil.formatTimestamp($womenopi.playtime)】</td>
+				<td><a href="javascript:delSingDay($map.manmpid)">删除</a></td>
+			</tr>
+			#end
+		</tbody>
+	</table>
+	<br/>
+	<form action="javascript:saveSingDay()">
+		单身节场次id集合：<b>多个场次以英文逗号分割<b><br/>
+		男生场次id：<input name="manmpid" id="manmpid"><br/>
+		女生场次id：<input name="womenmpid" id="womenmpid"><br/>
+		<input type="submit" value="保存"/>	
+	</form><br/>
+</body>
+<script>
+	function saveSingDay(){
+		var url = '${basePath}admin/ticket/addSingDayMpid.xhtml';
+		var values = {'manmpid':$('manmpid').value,'womenmpid':$('womenmpid').value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('设置成功!');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+	function delSingDay(manmpid){
+		var url = '${basePath}admin/ticket/delSingDayMpid.xhtml';
+		var values = {'manmpid':manmpid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('删除成功!');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		})
+	}
+</script>
+</html>

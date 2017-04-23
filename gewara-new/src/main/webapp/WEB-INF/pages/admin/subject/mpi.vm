@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>场次列表</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;maradn-top:3px}
+		input,textarea { width:450px; display:inline}
+		a{text-decoration: none;}
+		.ua{text-decoration: none;color: red }
+		.bk{background:rgb(255, 246, 200)}
+	</style>
+</head>
+<body style="width:100%; maradn:auto" class="yui-skin-sam">
+<div>
+<input type="button" value="增加" onclick="addMpi()" style="width:80px"/>
+</div>
+<table width="100%" class="table">
+	#foreach($movie in $movieList)
+	<thead>
+	<tr>
+		<th colspan="5">$movie.name</th>
+	</tr>
+	</thead>
+	#set($opiList=$!movieOpiMap.get($movie.id))
+	#foreach($opi in $opiList)
+	#set($cinema=$!cinemaMap.get($opi.cinemaid))
+	<tbody id="gymTable">
+	<tr>
+		<td>$opi.mpid</td>
+		<td>$cinema.name 放映时间：$DateUtil.format($opi.playtime,'M月d日 HH:mm')</td>
+		<td align="center">
+		<input type="button" value="修改" style="width: 80px" onclick="getGrabTicketMpi($opi.mpid)"/>
+		<input type="button" value="删除" style="width: 80px" onclick="remove($opi.mpid)"/>
+		#if($opi.closetime.before($nowtime))过期#end
+		</td>
+	</tr>
+	</tbody>
+	#set($cinema='')
+	#end
+	#set($opiList='')
+	#end
+</table>
+<div id="adDialog" class="yui-panel" style="width:600px; visibility:hidden; z-index:20;">
+	<div class="hd">
+		<span>编辑场次数据</span>
+	</div>
+	<div class="bd">
+	<form name="adForm" id="adForm">
+		<input type="hidden" name="id" id="id" />
+		<input type="hidden" name="sid" id="sid" value="$!params.sid"/>
+		<div>
+			<label for="mpid">场次id：</label>
+			<input  name="mpid" id="mpid" type="text" style="width: 100px"/>
+			<span class="req">*</span>
+		</div>
+		#if($VmUtils.eq($!subject.tag,'promotion'))
+		<div>
+			<label for="link">链接：</label>
+			<input  name="link" id="link" type="text" style="width: 350px"/>
+		</div>
+		#end
+		<!--  
+		<div>
+			<label for="description">描述：</label>
+			<textarea  name="description" id="description"></textarea>
+			<span class="req">&nbsp;</span>
+		</div>
+		-->
+		<div>
+			<label>&nbsp;</label>
+			<input type="button" class="button" onclick="save();" style="width:100px" value="保存"/>
+			<input type="button" class="button" onclick="cancle();" style="width:100px" value="取消"/>
+		</div>
+	</form>
+	</div>
+</div>
+	<script type="text/javascript">
+	function addMpi(){
+		$('id').value='';
+		$('mpid').value='';
+		#if($VmUtils.eq($!subject.tag,'promotion'))$('link').value='';#end
+		GewaraUtil.showDialog("adDialog");
+	}
+	function cancle(){
+		GewaraUtil.hideDialog('adDialog');
+	}
+	function save(id){
+		var values = GewaraUtil.getValues("adForm");
+		if(values.mpid=="") {
+			alert('场次不能为空');
+			return;
+		}
+		var url = "${basePath}admin/common/ajax/saveGrabTicketMpi.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) {
+				alert('添加成功');
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	function getGrabTicketMpi(id){
+		var url = "${basePath}admin/common/ajax/getGrabTicketMpi.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":id}, function(result){
+			if(result) {
+				addMpi();
+				GewaraUtil.setValues(result);
+			}else{
+				alert('没有找到');
+			}
+		});
+	}
+	function remove(id){
+		if(confirm("确认要删除吗?")==false) return;
+		var url = "${basePath}admin/common/ajax/removeGrabTicketMpi.xhtml";
+		GewaraUtil.sendRequest(url, {"mpid":id},  function(result){
+			if(result.success) {
+				alert('删除成功');
+				refreshPage();
+			}else{
+				alert('删除失败');
+			}
+		});
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<orders>
+	#set($proportion = 0.04)
+	#set($proportionPercentage = '4%')
+	#set($statusMap = {'new':'1',
+						'new_unlock':'1',
+						'new_confirm':'1',
+						'paid':'4',
+						'paid_failure':'4',
+						'paid_failure_unfix':'4',
+						'paid_success':'5',
+						'paid_return':'6',
+						'cancel':'6',
+						'cancel_sys':'6',
+						'cancel_repeat':'6',
+						'cancel_user':'6',
+						'cancel_timeout':'6'
+					})
+	#set($Integer=0)
+	#set($Double=0.00)
+	#foreach($order in $orderList)
+	<order>
+		#set($descMap = $VmUtils.readJsonToMap($order.getDescription2()))
+		#if($order.amount)
+			#set($total_comm_str = $!{order.amount}*$!{proportion})
+		#else
+			#set($total_comm_str = 0.00)
+		#end
+		#set($total_commDouble = $!VmUtils.formatPercent($!total_comm_str, 1.00, '#0.00'))
+		
+		#if($!order.coupon)
+			#set($coupon_int=$Integer.parseInt($!{order.coupon}))
+		#else
+			#set($coupon_int=0)
+		#end
+		
+		#set($coupon_str = $!{coupon_int}*$!{proportion})
+		#set($coupon = $!VmUtils.formatPercent($!coupon_str, 1.00, '#0.00'))
+		
+		#set($total_comm = $math.sub($!total_commDouble, $!coupon))
+		#set($total_comm_dou = $!VmUtils.formatPercent($!total_comm, 1.00, '#0.00'))
+		
+		#if($!order.server_price)
+			#set($server_price = $!VmUtils.formatPercent($!Integer.parseInt($!order.server_price), 1, '#0.00'))
+		#else
+			#set($server_price = '0.00')
+		#end
+		
+		#if($order.unitprice)
+			#set($unitprice = $!VmUtils.formatPercent($!Integer.parseInt($!order.unitprice), 1, '#0.00'))
+		#else
+			#set($unitprice = 0.00)
+		#end
+		
+		#if($order.quantity)
+			#set($quantity = $!Integer.parseInt($!order.quantity))
+		#else
+			#set($quantity = 1)
+		#end
+		
+		#set($stotal_price_str =$math.mul(${quantity},${unitprice}))
+		#set($total_price_all = $!VmUtils.formatPercent($stotal_price_str, 1, '#0.00'))
+		
+		#if(!$order.coupon)
+			#set($discount=0.00)
+		#else
+			#set($discount=$!{VmUtils.formatPercent($!Integer.parseInt($!order.coupon), 1, '#0.00')})
+		#end
+		#set($total_price = $math.sub($!total_price_all,$!discount))
+		#set($total_price_double =  $!VmUtils.formatPercent($total_price, 1, '#0.00'))
+		
+		<bid>$!order.bid</bid>
+		<qid>$!order.qid</qid>
+		<qihoo_id>$!order.qihoo_id</qihoo_id>
+		<ext>$!order.ext</ext>
+		<order_id>$!order.order_id</order_id>
+		<order_time>$!order.order_time</order_time>
+		<order_updtime>$!order.order_updtime</order_updtime>
+		<server_price>$!server_price</server_price>
+		<total_price>$!total_price_double</total_price>
+		<coupon>$!discount</coupon>
+		<status>#if($!statusMap.get($!order.status))$!statusMap.get($!order.status)#else 6 #end</status>
+		<total_comm>$!total_comm_dou</total_comm>
+		<commission>$!order.movieid,$!proportionPercentage,$!total_commDouble,$!unitprice,$!order.quantity|$!coupon</commission>
+		<p_info><![CDATA[$!order.movieid,$!descMap.get("影片"),$!order.movieid,$!unitprice,$!order.quantity,影片_$!descMap.get("影片"),http%3A%2F%2Fwww.gewara.com%2Fmovie%2F$!order.movieid]]></p_info>
+	</order>
+	#end
+</orders>

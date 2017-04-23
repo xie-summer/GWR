@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>订单退款管理</title>
+	<link type="text/css" rel="stylesheet" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}scripts/sortableTable.js?v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		table{border-collapse: collapse;}
+		th, thread{cursor: pointer;}
+		td, th{
+			text-align: left;
+			height: 23px;
+		}
+		label {display:inline-block; width:70px;text-align:right;padding:1px 0 1px 0; }
+		textarea {width:420px;}
+		
+		.showOrder{
+			border:1px solid #639BF9;padding:2px 4px;
+		}
+		.roomManageTable tbody td table{border:0px;border-bottom:1px solid #eee;}
+		.roomManageTable tbody td td{text-align: left;text-indent:10px;border-color:#eee;width:auto !important;}
+	</style>
+</head>
+<body style="width:85%; margin:auto;background-color: #fff">
+<div class="checkOrder"><h2>场次退款</h2></div>
+<table id="roomManageTable" class="roomManageTable" id="all_content" cellpadding="0" width="100%" cellspacing="0" border="0" style="margin:0">
+	<thead id="thead">
+		<tr>#set($expired=$opi.expired)
+			<th axis="number"><div class="thead asc_desc">&nbsp;</div></th>
+			<th axis="number"><div class="thead asc_desc">订单号</div></th>
+			<th axis="string"><div class="thead asc_desc">下单时间</div></th>
+			<th axis="number"><div class="thead asc_desc">用户ID</div></th>
+			<th axis="number"><div class="thead asc_desc">手机号</div></th>
+			<th axis="string"><div class="thead asc_desc">状态</div></th>
+			<th axis="number"><div class="thead asc_desc">订单金额</div></th>
+			<th axis="string"><div class="thead asc_desc">支付方式</div></th>
+			<th axis="string"><div class="thead asc_desc">描述</div></th>
+			<th><div class="thead asc_desc">操作#if($expired)[过期]#else[未过期]#end</div></th>
+		</tr>
+	</thead>
+	<tbody id="tbody">
+	#foreach($order in $orderList)
+	<tr id="tr$order.id">#set($dmap=$VmUtils.readJsonToMap($order.description2))
+		<td style="width: 25px;">$foreach.count</td>
+		<td class="minwid"><a href="${basePath}admin/refund/order/viewCurRefund.xhtml?tradeno=$order.tradeNo" target="_blank">$!{order.tradeNo}</a></td>
+		<td class="minwid"><a href="${basePath}admin/gewapay/queryMemberAccount.xhtml?mid=$order.memberid">$!order.membername</a></td>
+		<td class="minwid"><span id="order$order.id" onclick="showMobile($order.id, $order.mobile)" title="$!VmUtils.getSmobile($!order.mobile)">$!VmUtils.getSmobile($order.mobile)</span></td>
+		<td class="minwid"><b>$DateUtil.format($order.addtime, 'M月d日 HH:mm')</b></td>
+		<td class="minwid"><b>${order.statusText}</b></td>
+		<td class="minwid"><b>$!order.due</b></td>
+		<td class="minwid">$!order.paymethod</td>
+		<td class="maxwid">$dmap.get("影票")</td>
+		<td>#if($tradenoList.contains($order.tradeNo))已申请 #elseif($expired)
+			<input class="expire" value="$order.tradeNo" />
+			<a href="${basePath}admin/refund/order/addPartRefund.xhtml?tradeno=$order.tradeNo&status=apply" style="font-size: 16px;color: blue;">部分退款</a>&nbsp;&nbsp;&nbsp;&nbsp;
+			<a href="${basePath}admin/refund/order/addExpFullRefund.xhtml?tradeno=$order.tradeNo&status=apply" style="font-size: 16px;color: blue;">全额退款</a>&nbsp;&nbsp;&nbsp;&nbsp;
+			#else
+			<input class="cur" value="$order.tradeNo" />
+			<a href="${basePath}admin/refund/order/addCurFullRefund.xhtml?tradeno=$order.tradeNo&status=apply" style="font-size: 16px;color: blue;">全额退款</a>&nbsp;&nbsp;&nbsp;&nbsp;
+			#end
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+#parse('include/pageUtil.vm')
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		$('thead').addEvent('click',function(){
+			if($(document.body).retrieve('tr') != null){
+				$(document.body).retrieve('tr').node.setStyle('background-color',$(document.body).retrieve('tr').bgcolor);
+				$(document.body).retrieve('tr').tr.dispose();
+			}
+		})
+	})
+	var myTable = {};
+	window.addEvent('domready', function(){
+		myTable = new sortableTable('roomManageTable', {overCls: 'over'});
+	});
+	var el = "";
+
+	function changeStatus(id){
+		gewa.util.mask({'element': "sportTable",'title':'正在保存...', "opacity":"0.4"});
+		var values = GewaraUtil.getValues($("operForm"));
+		var url = "${basePath}admin/refund/changeTicketStatus.xhtml";
+		GewaraUtil.sendRequest(url, values, function(result){
+			gewa.util.clearMask();
+			if(result.success){
+				refreshPage();
+			}else {
+				var msg = result.msg;
+				alert(msg);			
+			}
+		});
+	}
+	function oper(id){
+		$('orderDetail').show().set('html','');
+		if($(el))$(el).removeClass('mouseBg');
+		el = 'tr'+id;
+		$(el).addClass('mouseBg');
+		gewa.util.mask({'element': "sportTable",'title':'正在查询数据...', "opacity":"0.4"});
+		var values = {'id':id};
+		var url = "${basePath}admin/refund/operDetail.xhtml";
+		GewaraUtil.sendLoad('orderDetail', url, values, function(result){
+			gewa.util.clearMask();
+			if(!result.success){
+				var msg = result.json.msg;
+				alert(msg);
+			}
+		});
+	}
+	function getOrder(tradeno,element){
+		//$('orderDetail').set('html','');
+		if($(document.body).retrieve('tr') != null){
+			$(document.body).retrieve('tr').node.setStyle('background-color',$(document.body).retrieve('tr').bgcolor);
+			$(document.body).retrieve('tr').tr.dispose();
+		}
+		if($(element)){
+			gewa.util.mask({'element': "btn",'title':'正在查询数据...', "opacity":"0.4"});
+			var values = {'tradeno':tradeno, 'tag':'query', 'type':'ticket'};
+			var url = "${basePath}admin/refund/qryOrder.xhtml";
+			var tr = new Element('tr').inject(element,'after');
+			var dommap = {};
+			dommap.tr = tr;
+			dommap.node = $(element);
+			dommap.bgcolor = dommap.node.getStyle('background-color');
+			$(document.body).store('tr',dommap);
+			dommap.node.setStyle('background-color','#E5E5E5');
+			var td = new Element('td',{'colspan':dommap.node.getElements('td').length,'styles':{'background':'#f9f9f9'}}).inject(tr);
+			GewaraUtil.sendLoad(td, url, values, function(result){
+				gewa.util.clearMask();
+				var width = 0;
+				dommap.node.getElements('td').each(function(item,index){
+					width = width + item.getDimensions().x;
+					if(dommap.node.getElements('td').length-1 === index)td.getElement('table').setStyle('width',width);
+				});
+				if(!result.success){
+					var msg = result.json.msg;
+					alert(msg);
+				}
+			});
+		}
+	}
+	function queryOrder(field, value){
+		$(field).value=value;
+		$('searchForm').submit();
+	}
+	var item = "";
+	function showMobile(orderid, mobile){
+		if($(item)) {
+			$(item).set('html', $(item).title);
+			$(item).removeClass('yellow');
+		}
+		$('order' + orderid).set('html', mobile);
+		$('order' + orderid).addClass('yellow');
+		item = 'order' + orderid;
+	}
+</script>
+</body>
+</html>

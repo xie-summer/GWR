@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>我的私信 格瓦拉社区</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/default.css?v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,Autocompleter,page,noobSlide&v=$VmUtils.jsVersion"></script>
+</head>
+<body>
+#set($messageDetail=true)
+#parse('sns/common/header.vm')
+<div class="ui_layout">
+	#parse('sns/common/left.vm')
+	<div class="body_right">
+		<!--start-->
+	#set($messages=true)
+	#parse("sns/message/menu.vm")
+<div class="bodys" id="_body">
+	<div class="body_nav_second">
+			<div class="navs">
+				<a href="${basePath}home/sns/message/receUserMsgList.xhtml" class="hover">收件箱</a>
+				<a href="${basePath}home/sns/message/sendUserMsgList.xhtml" >发件箱</a>
+			</div>
+	</div>
+	<div class="imessage">
+		#parse('include/home/messageBox.vm')
+		<!--
+		<dl class="ui_abeam iright imwirte">
+			<dt class="uipic">
+				<a target="_blank" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!memberInfo.id" class="pubpic"><img width="50" height="50" src="$VmUtils.randomPic('cw50h50',$!memberInfo.headpicUrl)"/></a>
+			</dt>
+			<dd class="uiText" id="messageContent">
+				<div class="ui_plugs_actions">
+					<div class="ui_plugs_outside">
+						<div class="ui_plugs_inside">
+							<span class="tagcol2"><span>◆</span><em>◆</em></span>
+							<div class="relationship_act">
+								<textarea id="subject"></textarea>
+								<div class="clear mt10">
+									<span class="left">
+										<a id="faceTags" class="iserm">表情<span class="dmore"></span></a>
+									</span>
+									
+									<span class="right">
+										<a href="#" class="right button minBt redBt" target="_blank"><span>发送</span></a>
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</dd>
+		</dl>
+		-->
+		#foreach($uma in $umaList)
+		#set($userMessage=$userMessageMap.get($uma.id))
+		<dl class="ui_abeam #if ($foreach.index % 2 ne 0) iright #end">
+			<dt class="uipic">
+				#if($VmUtils.eq($uma.frommemberid,'0'))
+					<span class="pubpic" title="系统管理员"><img src="${picPath}css/global/logo.png"/></span>
+				#else
+					<a target="_blank" href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!uma.frommemberid" class="pubpic" title="$cacheMemberMap.get($uma.frommemberid).nickname"><img width="50" height="50" src="$VmUtils.randomPic('cw50h50',$cacheMemberMap.get($uma.frommemberid).headpicUrl)"></a>
+				#end
+			</dt>
+			<dd class="uiText">
+				<div class="ui_plugs_actions">
+					<div class="ui_plugs_outside">
+						<div class="ui_plugs_inside">
+							<span class="tagcol2"><span>◆</span><em>◆</em></span>
+							<div class="relationship_act">
+								<p><a href="${basePath}home/sns/othersPersonIndex.xhtml?memberid=$!uma.frommemberid">$cacheMemberMap.get($uma.frommemberid).nickname</a>：$!userMessage.getRcontent($basePath)</p>
+								<div class="title c999">
+								$!DateUtil.format($uma.addtime,'yyyy-MM-dd HH:mm')<a class="more" href="javascript:reRlyContent('messageContent','回复:$!userMessage.getRcontent($basePath)')">回复</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</dd>
+		</dl>
+		#end
+		
+	</div>
+</div>
+<script type="text/javascript">
+function reRlyContent(elid,eContent){
+		if($(elid)) $(window).scrollTo(0,$(elid).getPosition().y);
+		$('content').value = eContent;
+}
+</script>
+<!--/end-->
+
+</div>
+</div>
+<div class="ui_view_menu"></div>
+<div class="footer_warp">
+	<div class="isFooter"></div>
+</div>
+#parse('include/innerLogin.vm')
+
+<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=snsUtil,index_even&v=$VmUtils.jsVersion"></script>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	if($('publicize'))new adSoild('publicize','navControl',{'position':{'x':#if($!params.memberid)280#{else}180#end,'y':#if($!params.memberid)80#{else}70#end},'width':14});
+	if($('slidePanel'))new noobSlide({
+		box: $('slidePanel'),
+		size:180,
+		items: $$('#slidePanel li'),
+		handle_event:'click',
+		addButtons: {
+			previous:$('eventL'),
+			next:$('eventR')
+		}
+	});
+});
+
+function delInterest(el){
+	gewaUtil.confirm('确认删除吗?', function(){
+		if(el == '')
+			el =$('treasureid').value;
+		var url = '${basePath}home/delInterestInfo.xhtml';
+		var values = {'interestid':el};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				if($('interest'+el)){
+					gewaUtil.dispose($('interest'+el));
+				}
+				hideTreasure();
+			}else {
+				gewaUtil.alert(result.msg);
+			}	
+		});
+	})
+}
+</script>
+#parse('sns/common/ga.vm')
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>排片短信列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,page&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="margin:auto;">
+<div style="padding-left:20px;">
+	<form action="${basePath}admin/message/getPlayItemMessage.xhtml" method="post" >
+		选择日期：<input name="startDate" id="startDate" type="text" style="width: 150px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" onfocus="WdatePicker({maxDate:'%y-%M-%d'})" value="$!params.startDate" readonly="readonly"/>
+				至<input name="endDate" id="endDate" type="text" style="width: 150px;" onclick="WdatePicker({dateFmt:'yyyy-MM-dd'})" onfocus="WdatePicker({maxDate:'%y-%M-%d'})" value="$!params.endDate" readonly="readonly"/>
+		发送状态：<select name="status">
+						<option value="Y" #if($VmUtils.eq($!params.status,'Y')) selected="selected" #end>已发送</option>
+						<option value="N" #if($VmUtils.eq($!params.status,'N')) selected="selected" #end>未发送</option>
+				  </select>
+		<input type="submit" class="button" value="查询"/>
+	</form>
+</div>
+<div>当前共有$!count排片短信</div>
+<table class="table clear">
+	<thead>
+	<tr>
+		<th>编号</th>
+		<th>用户ID</th>
+		<th>影院ID</th>
+		<th>电影ID</th>
+		<th>添加时间</th>
+		<th>排片日期</th>
+		<th>手机号</th>
+		<th>发送状态</th>
+		<th style="width:300px">信息内容</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="pointTable">
+	#foreach($playitem in $playitemMessageList)
+	<tr>
+		<td>$!playitem.id</td>
+		<td>$!playitem.memberid</td>
+		<td>$!playitem.relatedid</td>
+		<td>$!playitem.categoryid</td>
+		<td>$!playitem.adddate</td>
+		<td>$!DateUtil.format($playitem.playdate,'yyyy-MM-dd')</td>
+		<td>$!playitem.mobile</td>
+		<td>
+			#if($VmUtils.eq($playitem.status,'Y'))
+			已发送
+			#else
+			未发送
+			#end
+		</td>
+		<td>$!playitem.msg</td>
+		<td>
+		#*
+			#if($VmUtils.eq($playitem.flag,'Y')&& !$VmUtils.eq($playitem.status,'Y'))
+			<a href="javascript:void(0);" onclick="sendMessage(this,'$!playitem.id')">发送短信</a>
+			#end
+		*#
+		</td>
+	</tr>
+	#end
+	</tbody>
+</table>
+#parse('include/pageUtil.vm')
+</body>
+</html>

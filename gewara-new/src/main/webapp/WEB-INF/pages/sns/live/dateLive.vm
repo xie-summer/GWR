@@ -1,0 +1,107 @@
+<div class="body_nav_tags">
+	<div class="navs">
+		<a href="javascript:getLifeData();"><em style="background-position:0 -1419px;">列表显示</em></a>
+		<a href="javascript:void(0);" class="select"><em style="background-position:0 -1334px;">月历显示</em></a>
+	</div>
+	<div class="modules">
+		<a href="javascript:getLifeData('addLive','','');" class="addnew">安排娱乐生活</a>
+	</div>
+</div>
+<div class="bodys">
+	<div class="body_live clear">
+		<div class="body_live_inner">
+			<div class="body_live_header">
+				<div class="live_menu">
+					#set($frontMonth = $DateUtil.format($DateUtil.addDay($DateUtil.getMonthFirstDay($!playDate), -1), 'yyyy-MM-dd'))
+					<span title="上一月" class="lD" onclick="getLifeData('date','$!frontMonth');">上一月</span>
+					<p>$!DateUtil.format($!playDate, 'yyyy年MM月')</p>
+					#set($nextMonth = $DateUtil.format($DateUtil.getNextMonthFirstDay($!playDate), 'yyyy-MM-dd'))
+					<span title="下一月" class="rD" onclick="getLifeData('date','$!nextMonth');">下一月</span>
+				</div>
+			</div>
+			<ul class="body_live_head">
+				<li>周日</li>
+				<li>周一</li>
+				<li>周二</li>
+				<li>周三</li>
+				<li>周四</li>
+				<li>周五</li>
+				<li>周六</li>
+			</ul>
+			#set($startCell=${calendarUtil.startCell})
+			#set($endCell=${calendarUtil.endCell})
+			<ul class="body_live_body clear" id="bodyLive">
+				#foreach($x in [1..${calendarUtil.allCell}])
+				#set($day=$math.sub($x,$startCell))
+				#set($dateTime=$calendarUtil.getMonthDayDate($day))
+				#if($x gt $startCell && $x le $endCell)
+				#set($agendaList = $!agendaMap.get($!dateTime))
+				<li class="#if($VmUtils.eq($DateUtil.format($dateTime, 'yyyy-MM-dd'), $DateUtil.format($DateUtil.currentTime(), 'yyyy-MM-dd'))) #if($foreach.count lt 8) topSelect #else select #end #elseif($VmUtils.gt($DateUtil.currentTime(), $dateTime)) timeout #end #if($foreach.count lt 8) topTime #end" #if(!$VmUtils.isEmptyList($agendaList)) config="noobSlide" #end>
+					<i title="安排娱乐生活">+</i><b>$day</b>
+					<div class="body_lives">
+						#set($count=$foreach.count)#set($index=$foreach.index)
+						#foreach($agenda in $agendaList)
+						<div class="lives_node">
+							#if($VmUtils.eq($DateUtil.format($dateTime, 'yyyy-MM-dd'), $DateUtil.format($DateUtil.currentTime(), 'yyyy-MM-dd')))<em class="live_timeToday">今天</em>#else<em class="live_time">$!agenda.starttime</em>#end
+							<div>$!agenda.title</div>
+						</div>
+						#end
+					</div>
+					#if(!$VmUtils.isEmptyList($agendaList))
+					<span class="livesCt">
+						#foreach($s in[1..$!VmUtils.size($agendaList)])<span>•</span>#end
+					</span>
+					#end
+				</li>
+				#else
+				<li class="timeout #if($x le $endCell)topTime#end">
+					<i title="安排娱乐生活"></i><b></b>
+					<div class="body_lives"></div>
+				</li>
+				#end
+				#end
+			</ul>
+		</div>
+		<div class="body_live_b1"></div>
+		<div class="body_live_b2"></div>
+	</div>
+</div>
+<script type="text/javascript">
+window.addEvent('domready',function(){
+	var lives = $$('#bodyLive li.select');
+	lives.getElement('i').addEvent('click',function(){
+		getLifeData('addLive','','');
+	});
+	if(lives.length > 0){
+		var oLis = lives[0].getAllNext();
+		oLis.each(function(el){
+			if(!el.hasClass('timeout')){
+				el.addEvents({
+					'mouseenter':function(){this.addClass('hover');this.getElement('i').fade('in');},
+					'mouseleave':function(){this.removeClass('hover');this.getElement('i').fade('out');}
+				})
+				el.getElement('i').addEvent('click',function(){
+					getLifeData('addLive','','');
+				});
+			
+			}
+		});
+		lives[0].getAllNext('li > i').addEvent('click',function(){
+			
+		});
+	}
+	document.getElements('li[config=noobSlide]').each(function(node,index){
+		new noobSlide({
+			box: node.getElement('.body_lives'),
+			size:104,
+			items:node.getElements('.lives_node'),
+			handle_event:'click',
+			handles:node.getElements('.livesCt span'),
+			onWalk: function(currentItem,currentHandle){
+				this.handles.removeClass('select');
+				currentHandle.addClass('select');
+			}
+		});
+	})
+})
+</script>

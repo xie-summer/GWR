@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>收费项目管理</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline-block; width:70px;text-align:right;padding:1px 0 1px 0; }
+		input,textarea {width:450px;}
+		a{text-decoration: none; white-space: nowrap;}
+	</style>
+</head>
+<body style="width:800px; margin:auto" class="yui-skin-sam">
+<table class="table" style="width:700px">
+	<thead>
+	<tr>
+		<th>&nbsp;</th>
+		<th>商品名称</th>
+		<th>单价</th>
+		<th>数量</th>
+		<th>用户ID</th>
+		<th>操作</th>
+	</tr>
+	</thead>
+	<tbody id="goodsTable">
+		#foreach($buyItem in $buyItemList)
+		<tr>
+			<td>$foreach.count</td>
+			<td>${buyItem.goodsname}</td>
+			<td>$buyItem.unitprice</td>
+			<td>$buyItem.quantity</td>
+			<td>$!{buyItem.memberid}</td>
+			<td><input type="button" value="添加" onclick="add($buyItem.orderid)" style="width: 50px;"/></td>
+		</tr>
+		#end
+	</tbody>
+</table>
+	<script type="text/javascript">
+	function add(orderid){
+		var url = '${basePath}admin/goods/order/addGoodsOrderByItem.xhtml'
+		var values = {"orderid":orderid};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("添加成功！");
+				refreshPage();
+			}else{
+				alert(result.msg);
+			}			
+		});
+	}
+</script>
+</body>
+</html>

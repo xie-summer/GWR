@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>订单支付成功</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=layout,play,new_play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		.g_success{border:1px solid #d1d1d1; background:#fff6ed; padding:40px; width:580px;}
+		.c666{color:#555;}
+		.payBox .inner{padding:20px 15px;}
+		.uiText h1{height:30px; line-height:30px;}
+	</style>
+</head>
+<body>
+#set($isPay = true)
+#set($cfgHeader='header')#parse('include/navigation.vm')
+<div class="ui_layout">
+	<div class="inner">
+		<div class="payStep04">
+			<ul class="payOrderSteps clear">
+				<li class="step1">1.选择商品</li>
+				<li class="step2">2.确认订购数量</li>
+				<li class="step3">3.在线支付</li>
+				<li class="step4">4.完成购买</li>
+			</ul>
+		</div>
+		<div class="payBox_body_left">
+			<dl class="ui_abeam mt20 g_success">
+				<dt class="uipic"><img src="${staticPath}css/buss/succ_i.png" alt="购买成功"/></dt>
+				<dd class="uiText ml20 mt5">
+					<h1 class="fs28">购买成功!</h1>
+					<p class="mt5 c666">订单号：<a href="${basePath}gewapay/showOrder.xhtml?orderId=$order.id" target="_blank" class="brown">$order.tradeNo</a></p>
+					<p class="mt5">$order.ordertitle $order.quantity份 <span class="yellow fs14"><strong>$order.due</strong>元</span>，请打印电子票后到柜台领取</p>
+					#if($order.paymethod eq 'gewaPay') #set($point=${order.due}-${order.wabi}) #else #set($point=$order.due) #end
+					<p class="mt5">本次消费共获得<span class="yellow">$point</span>积分</p>
+					<p class="c666 mt20">如有问题请拨打客服电话：<b class="fs14">4000-406-506</b></p>
+				</dd>
+			</dl>
+		</div>
+		<div class="payBox_body_right">
+			<div class="payBox mt20">
+				<div class="payBox_header"><h2 class="usePhone">手机玩转格瓦拉</h2></div>
+				<div class="inner">
+					<p class="c666">手机浏览器访问</p>
+					<p class="fs22 yellow">M.gewara.com</p>
+					<p class="mt20 c666">或登录智能手机客户端</p>
+					<p class="mt10"><a title="跳转至下载页面" class="phonePic" href="/mobile/index.xhtml" target="_blank"></a></p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+#set($pageTrack=${basePath} + 'goods/' + ${goods.tag} + '/success.html')
+#parse('include/bottom.vm')
+</body>
+</html>

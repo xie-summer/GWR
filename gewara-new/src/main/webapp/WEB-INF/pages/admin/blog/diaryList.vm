@@ -1,0 +1,472 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+	<title>评论、帖子管理</title>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}styles/base.css"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara-util.js?v=${VmUtils.jsVersion}"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+	<script type="text/javascript" src="${staticPath}ckeditor/ckeditor.js"></script>
+</head>
+<body class="yui-skin-sam">
+#set($isDiary=true)
+<div id="content">
+<div class="bc1"></div>
+<div id="content_left" style="width:98%;margin:auto;">
+	<div class="panelTop"><em></em></div>
+	<div class="panelMid">
+	#parse('admin/blog/diaryMenu.vm')
+	<div>
+		<form action="${basePath}admin/blog/diaryList.xhtml">
+			<input type="hidden" name="tag" value="$!{tag}"/>
+			<input type="hidden" name="relatedid" value="$!{relatedid}"/>
+			#if($params.type)<input type="hidden" name="type" value="$!params.type" />#end
+			<label>请输入搜索：</label><input name="fromDate" readonly="readonly" onclick="WdatePicker()" type="text" style="width:80px" value="$!params.fromDate" class="Wdate"/>至
+			<input name="toDate" readonly="readonly" onclick="WdatePicker()" type="text"  style="width:80px" value="$!params.toDate" class="Wdate"/>
+			<input type="text" value="$!params.keyname" name="keyname" size="40"/>
+			<input type="submit" value="确定" />
+			<span class="ml30"><a href="javascript:void(0);" onclick="javascript:colspanAll(this);" >展开所有关联城市</a></span>
+		</form>
+	</div>
+	#parse('include/pageUtil.vm')
+	#if(!$VmUtils.isNull($tag))
+		#if($VmUtils.eq($tag,'gymcourse')||$VmUtils.eq($tag,'sportservice'))  
+			#set($flag='top3')
+		#else
+			#set($flag='top2')
+		#end
+	#else
+		#set($flag='top1')
+	#end
+	<table id="blogtable" style="width:100%;" class="blogtable">
+		<thead><tr><th>全选</th><th>主题</th><th>作者</th><th>点击</th><th>最后回复</th><th width="50px">设置</th><th>置顶</th><th>编辑</th><th>删除</th><th>帖子/评论</th><th>回复内容</th></tr></thead>
+		<tbody class="top">
+			#set($class='odd')
+			#foreach($diary in $topDiaryList) #set($clicked=$diary.clickedtimes)
+			#if($clicked le 50)#set($hotclass='hotdot1')#elseif($clicked ge 150)#set($hotclass='hotdot3')#else#set($hotclass='hotdot2')#end
+			<tr class="top" id="row$diary.id">
+				<td valign="middle">
+					<div ><input type="checkbox" name="cbox" id="cb$diary.id" value="$diary.id"/></div>
+					<div class="$hotclass" title="点击量：$!clicked" ></div>
+				</td>
+				<td>
+					<img title="置顶" src="${picPath}img/top.gif" style="border: none;"/>
+					#if($diary.hotvalue eq 2000)<img src="${staticPath}styles/images/best.gif" />#end
+						<a id="dt$diary.id" title="${diary.subject}" style="font-size: 14px;" href='$!{absPath}${basePath}blog/t$diary.id' target="_blank" title="${diary.subject}">$!VmUtils.escabbr($!diary.subject,40)</a>
+				</td>
+				<td>
+					<div><a href="$!{absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.memberid" target="_blank">$!VmUtils.escabbr($!diary.membername,10)</a></div>
+					<div style="font-size: 9px;">$DateUtil.format($diary.addtime,'MM-dd HH:mm')</div>
+				</td>
+				<td style="text-align: center">${diary.clickedtimes}/${diary.replycount}</td>
+				<td style="text-align: center">
+					#if($diary.replytime)
+					<div><a href="$!{absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.replyid" target="_blank">$!VmUtils.escabbr($!diary.replyname,10)</a></div>
+					<div style="font-size: 9px;">$DateUtil.format($diary.replytime,'MM-dd HH:mm')</div>#end
+				</td>
+				<td><a href="${basePath}admin/blog/diaryDetail.xhtml?did=$diary.id&tag=$!{tag}" target="_blank">设置</a></td>
+				<td id="td$diary.id">
+					#set($dflag=$!diary.flag)
+					<input name="flag1" type="checkbox" onclick="changeFlag($diary.id, this.value)" value="recommend" #if(($dflag) && ($VmUtils.contains($dflag, 'recommend')))checked #end/>推荐
+					<input name="flag1" type="checkbox" onclick="changeFlag($diary.id, this.value)" value="hot" #if(($dflag) && ($VmUtils.contains($dflag, 'hot'))) checked #end/>精品
+					<input name="flag1" type="checkbox" onclick="changeFlag($diary.id, this.value)" value="$!flag"  #if(($dflag) && ($VmUtils.contains($dflag, $flag)))checked #end/>置顶
+					#set($dflag='')
+				</td>
+				<td><input type="button" onclick="modifyDiary($diary.id)" value="编辑"/></td>
+				<td><input type="button" onclick="deleteDiary($diary.id)" value="删除"/></td>
+				<td>
+					#if($diary.type eq 'comment' || $diary.type eq 'topic_diary')
+					<select onchange="changeType($diary.id, this.value)">
+						<option value="1" #if($VmUtils.eq($diary.type,'comment')) selected="selected"#end>影评/心得</option>
+						<option value="2" #if($VmUtils.eq($diary.type,'topic_diary')) selected="selected"#end>帖子</option>
+					</select>
+					#else
+					不能更改
+					#end
+				</td>
+				<td>
+					<input type="button" onclick="diaryDesc($diary.id)" value="回复内容"/>
+				</td>
+			</tr>
+			<tr class="none notp" id="notp$!diary.id">
+			<td colspan="12" style="background: #E1F3FF">
+				<span style="margin-left: 50px;">
+					#foreach($key in $!citynameMapTopDiary.get($diary.id))
+					#if($VmUtils.eq($diary.division,'A')&&$VmUtils.isNull($!cityMap.get($key.citycode)))
+					<span class="gray" style="color: red;">全国</span>
+					#else
+					<span class="gray" style="color: red;">$!cityMap.get($key.citycode)</span>
+					#end
+					#end
+				</span>
+			</td>
+			</tr>
+			#if($class eq 'odd')#set($class='even') #else #set($class='odd') #end
+			#end
+		</tbody>
+		<tfoot>
+			#foreach($diary in $diaryList) #set($clicked=$diary.clickedtimes)
+			#if($clicked le 50)#set($hotclass='hotdot1')#elseif($clicked ge 150)#set($hotclass='hotdot3')#else#set($hotclass='hotdot2')#end
+			<tr id="row$diary.id">
+				<td valign="middle">
+					<div ><input type="checkbox" name="cbox" id="cb$diary.id" value="$diary.id"/></div>
+					<div class="$hotclass" title="点击量：$!clicked" ></div>
+				</td>
+				<td>
+						<a id="dt$diary.id" title="${diary.subject}" style="font-size: 14px;" href='$!{absPath}${basePath}blog/t$diary.id' target="_blank" title="${diary.subject}">$!VmUtils.escabbr($!diary.subject,40)</a>
+				</td>
+				<td>
+					<div><a href="$!{absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.memberid" target="_blank">$!VmUtils.escabbr($!diary.membername,10)</a></div>
+					<div style="font-size: 9px;">$DateUtil.format($diary.addtime,'MM-dd HH:mm')</div>
+				</td>
+				<td style="text-align: center">${diary.clickedtimes}/${diary.replycount}</td>
+				<td style="text-align: center">
+					#if($diary.replytime)
+					<div><a href="$!{absPath}${basePath}home/sns/othersPersonIndex.xhtml?memberid=$diary.replyid" target="_blank">$!VmUtils.escabbr($!diary.replyname,10)</a></div>
+					<div style="font-size: 9px;">$DateUtil.format($diary.replytime,'MM-dd HH:mm')</div>#end
+				</td>
+				<td><a href="$!{basePath}admin/blog/diaryDetail.xhtml?did=$diary.id&tag=$!{tag}" target="_blank">设置</a></td>
+				<td id="td$diary.id">
+					#set($dflag=$!diary.flag)
+					<input name="flag1" type="checkbox" onclick="changeFlag($diary.id, this.value)" value="recommend" #if(($dflag) && ($VmUtils.contains($dflag, 'recommend')))checked #end/>推荐
+					<input name="flag1" type="checkbox" onclick="changeFlag($diary.id, this.value)" value="hot" #if(($dflag) && ($VmUtils.contains($dflag, 'hot')))checked #end/>精品
+					<input name="flag1" type="checkbox" onclick="changeFlag($diary.id, this.value)" value="$!flag"  #if(($dflag) && ($VmUtils.contains($dflag, $flag)))checked #end/>置顶
+					#set($dflag='')
+				</td>
+				<td><input type="button" onclick="modifyDiary($diary.id)" value="编辑"/></td>
+				<td><input type="button" onclick="deleteDiary($diary.id, !$VmUtils.isEmptyList($cidMap.get($diary.id)), '$!cidMap.get($diary.id)')" value="删除"/></td>
+				<td>
+					#if($diary.type eq 'comment' || $diary.type eq 'topic_diary')
+					<select onchange="changeType($diary.id, this.value)">
+						<option value="1" #if($VmUtils.eq($diary.type,'comment')) selected="selected"#end>影评/心得</option>
+						<option value="2"  #if($VmUtils.eq($diary.type,'topic_diary')) selected="selected"#end>帖子</option>
+					</select>
+					#else
+					不能更改
+					#end
+				</td>
+				<td>
+					<input type="button" onclick="diaryDesc($diary.id)" value="回复内容"/>
+				</td>
+			</tr>
+			<tr class="none notp" id="notp$!diary.id">
+			<td colspan="12" style="background: #E1F3FF">
+				<span style="margin-left: 50px;">
+					#foreach($key in $!citynameMapDiary.get($diary.id))
+					#if($VmUtils.eq($diary.division,'A')&&$VmUtils.isNull($!cityMap.get($key.citycode)))
+					<span class="gray" style="color: red;">全国</span>
+					#else
+					<span class="gray" style="color: red;">$!cityMap.get($key.citycode)</span>
+					#end
+					#end
+				</span>
+			</td>
+			</tr>
+			#if($class eq 'odd')#set($class='even') #else #set($class='odd') #end
+			#end
+		</tfoot>
+	</table>
+	<div style="height: 30px;">
+	<input type="checkbox" id="cbAll" onclick="selAll(this)"/>
+	<input type="button" id="delAll" value="批量删除" onclick="delMulti()"/>
+	</div>
+	#parse('include/pageUtil.vm')
+	<div id="diaryDialog" class="yui-skin-sam" style="width:680px;  position: absolute;z-index: 200; left:0px; top:0px; visibility: hidden;">
+	<div class="yui-panel">
+		<div class="hd" id="title">编辑</div>
+		<div class="bd">
+		<form name="diaryForm" id="diaryForm" action="javascript:saveDiary()">
+			<input type="hidden" name="diaryId" id="diaryId" value=""/>
+			<div><label>发表时间：</label><input style="width:500px;" type="text" name="addtimenew" id="addtimenew"  readonly="readonly" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})"/></div>
+			<div><label>标题：</label><input style="width:500px;" type="text" name="subject" id="subject" /></div>
+			<div>编辑原因：<input type="text" name="reason1" id="reason1" style="width: 200px;" /> 管理员编辑用户帖子，请输入重新编辑的原因。</div>
+			<div>
+				<label>内容：</label>
+				<textarea name="body" id="body"></textarea>
+			</div>
+			<div>
+				<label>摘要：</label>
+				<textarea name="summary" id="summary" style="width:580px; height:150px;"></textarea>
+			</div>
+			<div>
+				<label>&nbsp;</label>
+				<input type="submit" style="width:100px" value="确定"/>
+				<input type="button" style="width:100px" value="取消" onclick="GewaraUtil.hideDialog('diaryDialog');" />
+			</div>
+			<div id="msg" style="color:red;"></div>
+			<div style="color:blue;">可用符号： ～！￥…（）——：“《》？/，、；‘’“”【】·。★☆○●◎◇◆□■△▲※→←↑↓</div>
+		</form>
+		</div>
+	</div>
+	</div>
+	</div><!-- end panelMid-->
+	<div class="panelBot"><em></em></div>
+</div><!-- end content_left -->
+<div id="height0"></div>
+</div><!--end content-->
+<div id="panel_bottom"></div>
+#parse("admin/blog/reason.vm")
+<script type="text/javascript">
+	var ckeditor;
+	window.addEvent('domready',function(){
+		ckeditor = CKEDITOR.replace("body");
+	});
+	var tag='$!{tag}' ;
+	var relatedid='$!{relatedid}';
+	function changeType(diaryId, vtype){
+		var url = '${basePath}admin/blog/updateDiaryType.xhtml';
+		var values = {'diaryId':diaryId, 'type':vtype};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) alert('更改成功！');
+			else alert('更改失败！');
+		});
+	}
+	function changeFlag(diaryId, value){
+		var url = '${basePath}admin/blog/updateDiaryFlag.xhtml';
+		var values = {'flag':'$!flag', 'diaryId':diaryId, 'vflag':value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) alert('更改成功！');
+			else alert('更改失败！');
+		});
+	}
+	
+	function changeRelateFlag(diaryId, citycode, value){
+		var url = '${basePath}admin/blog/updateRelateToCityFlag.xhtml';
+		var values = {'tag':'diary','flag':'$!flag', 'relatedid':diaryId, 'vflag':value,'citycode':citycode};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) alert('更改成功！');
+			else alert('更改失败！');
+		});
+	}
+	function modifyDiary(id){
+		var url = '${basePath}admin/blog/getDiaryById.xhtml';
+		var values = {'diaryId':id};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				GewaraUtil.setValues(result);
+				$('diaryId').value=id;
+				$('body').value=result.diaryBody;
+				ckeditor.setData(result.diaryBody);
+				GewaraUtil.showDialog("diaryDialog");
+			}else{
+				//后面再写
+			}
+		});
+	}
+	function deleteDiary(id, isflag, cid){
+		$('editid').value = id;
+		if(isflag){
+			$('flagRelate').innerHTML = '<input type="checkbox" style="width" id="relatewara" value='+cid+' />该帖子关联ID='+cid+'的哇啦，需要同时删除哇啦？';
+			$('flagRelate').style.display = '';
+		}
+		var widthvalue=document.body.clientWidth;
+		var heightvalue=document.body.clientHeight;
+		$('deleteReason').set('styles',{'display':'block',
+										'position':' absolute',
+										'left':(widthvalue-500)/2,
+										'top':(heightvalue-30)/2,
+										'opacity':1,
+								});
+		var divbig=new Element('div',{
+								"id":"divbig",
+								"styles":{
+									"position": "absolute",
+									"left": "0px",
+									"top": "0px",
+									"background-color":"#000"
+									}
+								});
+		divbig.setStyles({
+			"width": widthvalue+"px",
+			"height": heightvalue+"px",
+			"visibility":"visible",
+			"z-index": 8
+		});
+		divbig.setOpacity(0.5);
+		gewara.util.toCenter($('deleteReason'));
+		document.body.appendChild(divbig)
+		return;
+	}
+	
+	function saveDiary(){
+		if($('reason1').value.length==0){
+			alert("编辑原因不能为空！");
+			return;
+		}
+		var values = GewaraUtil.getValues($("diaryForm"));
+		var url = '${basePath}admin/blog/updateDiary.xhtml';
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert("保存成功！");
+				$("msg").set("html", '');
+				$("dt" + id).innerHTML = values.subject;
+				$("dt" + id).setStyle('background-color','green');
+				GewaraUtil.hideDialog("diaryDialog");
+			}else{
+				alert("保存失败!");
+				$("msg").set("html", result.msg);
+			}
+		});
+	}
+	window.addEvent('domready',function(){
+			var myDrag = new Drag.Move('deleteReason', {
+				container:$('content'),
+				onDrop: function(element, droppable){
+						myDrag.detach();
+				},
+		});
+		$('deleteReason').addEvent('click', function(){
+			myDrag.attach();//元素将重新获得拖动功能
+		});
+	});
+
+function hiddenDiv(){
+	$('handReason').value='';
+	$('deleteReason').set('styles',{'display':'none'});
+	$('flagRelate').style.display = 'none';
+	$('divbig').dispose();
+}
+
+function deleteInfo(){
+	get$('reason_ok').disabled = true;
+	get$('reason_cancel').disabled = true;
+	
+	var isDelMulti = $('isDelMulti').value;
+	if(isDelMulti == 'true'){
+		delMulti_process();
+	}else{
+		deleteInfoSingle();
+	}
+}
+function deleteInfoSingle(){
+	var rea=$('reason').value;
+	var handReason=$('handReason').value;
+	var relatewara ='';
+	if($('relatewara')){
+		if($('relatewara').checked){
+			relatewara = $('relatewara').value;
+		}
+	}
+	if(rea==5&&handReason.length==0){
+		alert("请输入删除此贴的原因");
+		return false;
+	}
+	var id=$('editid').value;
+	var url = '${basePath}admin/blog/deleteDiary.xhtml';
+	var values = {'diaryId':id, 'reason':rea, 'reasonDetail':handReason, 'relatewara':relatewara};
+	GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('删除成功！'); $('row'+id).dispose();
+			}else alert(result.msg);
+			
+			get$('reason_ok').disabled = false;
+			get$('reason_cancel').disabled = false;
+			hiddenDiv();
+	});
+}
+
+function diaryDesc(id){
+	window.open('${basePath}admin/blog/topicDetail.xhtml?did='+id);
+}
+	
+</script>
+	<script type="text/javascript">
+	function get$(id){
+		return document.getElementById(id);
+	}
+	// 全选
+	function selAll(obj){
+		var cbs = document.getElementsByName('cbox');
+		$each(cbs, function(i, n){
+			i.checked=obj.checked;
+		})
+	}
+	// 检查选中的
+	function checkedArrs(cbs){
+		var checkedArr = new Array();
+		var a = 0;
+		$each(cbs, function(i, n){
+			if(i.checked){
+				checkedArr[a] = i.value;
+				a++;
+			}
+		})
+		return checkedArr;
+	}
+	// 批量删除
+	function delMulti(){
+		var cbs = document.getElementsByName('cbox');
+		var checkedArr = checkedArrs(cbs);
+		if(checkedArr.length == 0){
+			alert("请至少选择一个!");
+			return false;
+		}
+		$('isDelMulti').value = 'true';
+		deleteDiary(checkedArr);
+	}
+	function delMulti_process(){
+		var cbs = document.getElementsByName('cbox');
+		var checkedArr = checkedArrs(cbs);
+
+		var rea=$('reason').value;
+		var handReason=$('handReason').value;
+		if(rea==5&&handReason.length==0){
+			alert("请输入删除此贴的原因");
+			return false;
+		}
+		
+		
+		var idList = checkedArr.join(',');
+		var url = '${basePath}admin/blog/batchDeleteDiary.xhtml';
+		var values = {'idListString':idList, 'reason':rea, 'reasonDetail':handReason};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				alert('删除成功！'); 
+				if(cbs.length > checkedArr.length){
+					$each(checkedArr, function(i, n){
+						$('row'+i).dispose();	
+					})
+				}else{
+					refreshPage();
+				}
+			}else alert(result.msg);
+			get$('reason_ok').disabled = false;
+			get$('reason_cancel').disabled = false;
+			hiddenDiv();
+		});
+	}
+</script>
+<script>
+	// 全部关联 展开/收起
+	function colspanAll(obj){
+		if($(obj).get('html') == '展开所有关联城市'){
+			$(obj).set('html', '收起所有关联城市');
+			$$('.notp').removeClass('none');
+		}else{
+			$(obj).set('html', '展开所有关联城市');
+			$$('.notp').addClass('none');
+		}
+	}
+
+	// 展开关联城市
+	function showRelateCity(tag, id){
+		var url = '${basePath}admin/common/commonRelateToCity.xhtml';
+		var values = {'tag':tag, 'relatedid': id, 'flag':'$!flag'};
+		GewaraUtil.sendLoad('showCityDialogDV', url, values, function(result){
+			if(result.success){
+				GewaraUtil.showDialog('showCityDialog');
+			}else{
+				gewaUtil.alert(result.json.msg);
+			}
+		})
+	}
+</script>
+<div id="height0"></div>
+<div id="showCityDialogDV" style="height: 0px;"></div>
+#parse('admin/common/selectRelateCity.vm')
+#parse('admin/common/newselectRelateCity.vm')
+</body>
+</html>

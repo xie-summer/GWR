@@ -1,0 +1,168 @@
+<div class="mod_kong" style="margin-bottom:0;">
+	<div class="mod_hd detailPa1">
+		<div class="detailPa1_name clear">
+			<h1 class="left">$!dramaStar.name</h1>
+			#*<div class="ratingsCount left">
+				<ul>
+					 <li><a class="ad" href="javascript:showMovieMark();">感兴趣</a></li>
+				</ul>
+			</div>
+			*#
+			<div class="movieCountList">
+				<ul class="ui_inline">
+					#*<li class="first">
+						<b>$!dramaStar.collectedtimes</b>
+						<span>感兴趣</span>
+					</li>
+					*#
+					<li class="first">
+						<b>$!dramaStar.clickedtimes</b>
+						<span>关注</span>
+					</li>
+					<li>
+						<b>#if($!walaCount)${walaCount}#{else}0#end</b>
+						<span>哇啦</span>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="mod_bd detailPa2">
+		<div class="ui_left" style="width:850px;">
+			<div class="detail_head_info detailMa">
+				<div class="ui_media">
+					<div class="ui_pic">
+						<div class="onshowList">
+							<img class="img_wrap" width="210" height="280" src="$VmUtils.randomPic('cw150h200',$dramaStar.limg)"/>
+						</div>
+						<div id="bdshare" class="bdshare_t bds_tools get-codes-bdshare">
+						    <span class="bds_more">分享到：</span>
+						    <a class="bds_tsina"></a>
+						    <a class="bds_tqq"></a>
+						    <a class="bds_qzone"></a>
+						    <a class="bds_renren"></a>
+						</div>
+					</div>
+					<div class="ui_text">
+						#if($!dramaStar.graduated || $troupe || $!dramaStar.job || $dramaStar.state || $dramaStar.hometown || $dramaStar.birthday || $dramaStar.constellation || $dramaStar.bloodtype || $dramaStar.height || !$VmUtils.isEmptyList($historyMapList))
+						<div class="detail_head_text">
+							#if($!dramaStar.graduated)
+							<p>
+								<em>毕业院校：</em>
+								$!dramaStar.graduated
+							</p>
+							#end
+							#if($troupe)
+							<p>
+								<em>所属剧社：</em>
+								<a href="${basePath}drama/star/$!troupe.id"" target="_blank" class="brown">$!troupe.name</a>
+							</p>
+							#end
+							#if($!dramaStar.job)
+							<p>
+								<em>职　　业：</em>
+								$!dramaStar.job
+							</p>
+							#end
+							#if($dramaStar.state)
+							<p>
+								<em>地　　区：</em>
+								$dramaStar.state
+							</p>
+							#end
+							#if($dramaStar.hometown)
+							<p>
+								<em>出 &nbsp;生&nbsp;地：</em>
+								$dramaStar.hometown
+							</p>
+							#end
+							#if($dramaStar.birthday)
+							<p>
+								<em>生　　日：</em>
+								$DateUtil.formatDate($dramaStar.birthday)
+							</p>
+							#end
+							#if($dramaStar.constellation)
+							<p>
+								<em>星　　座：</em>
+								$dramaStar.constellation
+							</p>
+							#end
+							#if($dramaStar.bloodtype)
+							<p>
+								<em>血　　型：</em>
+								$dramaStar.bloodtype
+							</p>
+							#end
+							#if($dramaStar.height)
+							<p>
+								<em>身　　高：</em>
+								$dramaStar.height
+							</p>
+							#end
+							#if(!$VmUtils.isEmptyList($historyMapList))
+							<p style="margin-top:20px;">
+								<em>代表作品：</em>
+								#foreach($drama in $historyMapList)
+								<span><a href="${basePath}drama/$drama.id" class="mr5" target="_blank">《$drama.name》</a></span>
+								#end
+							</p>
+							#end
+						</div>
+						#end
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="ui_right">
+			<div class="ratingsSide1 ratingsBox">
+				#set($gmark=$VmUtils.getSingleMarkStar($dramaStar,"general")) #set($gmark1=$gmark/10) #set($gmark2=$gmark%10)
+				#set($isBigStaticRating=true)
+				#parse('include/global/staticRating.vm')
+				<span class="bigSubp"><sub id="mark_integer">$gmark1</sub><sup id="mark_decimal">.$gmark2</sup></span>
+				<a href="javascript:showMovieMark();" ><b class="jia">+</b>我要评分</a>
+			</div>
+			#if(!$VmUtils.isEmptyList($pictureList))
+			<div class="mod_hd" style="margin-top:80px;">
+				<h2>照片</h2>
+			</div>
+			<div class="mod_bd">
+				<ul id="aPictureList">
+					#foreach($picture in $pictureList)
+					#if($foreach.index le 2)
+					<li class="left #if($foreach.index eq 1) mis_pic #end"><a href="javascript:void(0)" ><img class="img_wrap" width="96" height="72" src="$VmUtils.randomPic('cw96h72',$picture.limg)"/></a></li>
+					#end
+					#end
+				</ul>
+			</div>
+			#end
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	window.addEvent('domready',function(){
+		$$('#aPictureList a').each(function(item){
+			item.addEvent('click',function(e){
+				e.preventDefault();
+				var options = {
+					type:"apic",
+					pictureType:"apic",
+					videoType:"avideo",
+					tag:"dramastar",
+					isAjax:true,
+					isPicture:'picture',
+					esc:true,
+					menu:{
+						pictureurl:'${basePath}picture/ajax/pictureDetail.xhtml',
+						videourl:'${basePath}video/ajax/videoList.xhtml',
+						picturevalues:{'tag':'dramastar','relatedid':'$dramaStar.id','pvtype':'apic','pid':this.get('pictureId')},
+						videovalues:{"tag":"dramastar",'relatedid':'$dramaStar.id'},
+						picturecount:"$VmUtils.size($pictureList)",
+						videocount:'$VmUtils.size($videoList)'
+					}
+				};
+				screenPicture.createPanel(options);
+			});
+		});
+	});
+</script>

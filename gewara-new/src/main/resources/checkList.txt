@@ -1,0 +1,58 @@
+将此更新将做成Excel表格逐个机器、逐个条目打钩确认
+
+1、更新一台机器未启动前检查：
+1.1 是否有 WEB-INF/classes/com/gewara/model/.... 为前缀的文件更新下来，如果有，未启动前找程序员确认是否切换缓存。
+1.2 支付相关配置文件是否有更改，可找程序人员确认。
+
+2、每台机器启动后检查：
+
+2.1 机器主机名、SVN版本、GEWACONFIG（是否为Remote）：访问http://hostip:82/server.jsp查看。
+2.2 重大更新启动时tail GlassFish domain1/log/server.log 关注启动过程是否有错。
+
+3、更新后整体检查：
+
+3.1 所有支付相关配置是否有更新copy：注意一点，pay.remote.properties 文件svn中没有，只存在于远程服务器中。
+3.2 所有支付是否跳转正常。（重大更新测试人员要逐个机器测试，http://hostip:82/.... 下订单)
+3.3 JMS是否正确配置（主：http://180.153.146.133:8866/mqadmin/queues.jsp）
+  3.3.1 检查每个队列监听数量及监听的机器
+  3.3.2 Camel不同的机器监听不同的队列，确定每台机器Camel监听的队列。
+  3.3.3 检查队列是否有变化：正常运行队列出队、入队都是在增长
+  3.3.4 检查JMS从服务器（http://180.153.146.134:8866/mqadmin/queues.jsp）是否正常：可以打开并且队列中没有消息视为正常
+3.4 定时任务的机器是否有变化：是否存在WEB-INF/appContext-service-task.xml，一般两台，注意多台之间文件的差异
+3.5 每台类似/opt/lamp/weblog/domain1.log日志是否正常打印，位置及格式是否正确.
+3.6 图片上传是否正常工作：可以在帖子中上传一张图片
+3.7 Mozilla字符截取是否正常工作：可以看一个有回复的帖子用户名称是否显示正常
+3.8 Terracotta连接数量是否正确：启动的每台WEB都会有一个连接到Terracotta主（netstats或vnc-client查看）
+3.9 检查hadoop是否工作正常（http://180.153.146.134:50070/dfshealth.jsp）：Dead Nodes数量大于0。
+
+
+------------20120801更新-------------------
+更新前记得提示切换memcached版本，否则有些对象缓存有问题
+
+更新shanghai：
+a) mv shanghai/WEB-INF WEB-INF-SH
+b) svn up shanghai
+c) cp shanghai/WEB-INF/classes/ehcache.remote.xml  shanghai/WEB-INF/classes/ehcache.xml
+d) cp WEB-INF-SH/classes/org/acerge/pay/pay.remote.properties  shanghai/WEB-INF/classes/com/gewara/pay/
+e) diff WEB-INF-SH/camel.remote.xml  shanghai/WEB-INF/classes/spring/camel.remote.xml   如果不是 org.acerge<---> com.gewara 这样的差别，就要手动编辑
+f) 250、251 定时任务:
+cp shanghai/WEB-INF/classes/spring/appContext-service-task.remote shanghai/WEB-INF/classes/spring/appContext-service-task.xml
+
+在251上 vi shanghai/WEB-INF/classes/spring/appContext-service-task.xml ,放开下面一行的注释：
+<!-- <ref bean="chinapayTransFileTrigger" /> only run on 73-->
+
+更新image
+
+---1、所有线上的domain中的log4j.properties 文件
+---2、所有支付方式测试
+---3、task、camel配置文件
+---4、static项目更新及发布，script压缩，apache conf更改
+---5、ehcache缓存copy
+---6、Memcached版本
+---7、System.setProperty  在同一发布路径有影响？？？？
+---8、MongoDB数据更改：包名更改，数据重建
+---9、bbs上传图片
+---10、站点地图等生成的xml文件
+---11、hibernate search 重新生成
+
+

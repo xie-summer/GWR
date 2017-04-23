@@ -1,0 +1,216 @@
+<!Doctype html>
+<html>
+<head>
+	<!-- SUCCESS_HEAD -->
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>演出后台电话售票下单平台 - 格瓦拉生活网</title>
+	<meta name="keywords" content="演唱会门票,展会门票,话剧票"/>
+	<meta name="description" content="格瓦拉生活网提供各类展会,展览,赛事,话剧,演唱会等演出在线门票预订.是国内领先的城市生活娱乐票务订购平台."/>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=ui_layout,wide_drama,dramaTicket&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,index_even,inits_admin_drama,scrollerbar,base_home,tips&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+	.formsList{padding:0 15px;}
+	</style>
+</head>
+<body>
+#set($dramaid=$!baseOdi.dramaid)
+#parse('include/admin_header.vm')
+<div class="ui_layout">
+	<div class="w_draD">
+		#parse('admin/drama/ticket/include/forms.vm')
+		<div class="dramaPlayItem">
+			<div class="orderOutSide mt10 clear">
+				<div class="title">
+					<h2 class="fs14 bold">填写手机号码并提交订单</h2>
+					<a class="right ffst udl" href="${basePath}admin/drama/agent/dramaDetail.xhtml?dramaid=$!baseOdi.dramaid&mobile=$!mobile">&lt;&lt;返回重选场次</a>
+				</div>
+				<form name="lfPhone" id="lfPhone" action="javascript:submitMyOrder();">
+					<div class="playChooseResult">
+						<dl class="dl-80 clear">
+							<dt>你选择了：</dt>
+							<dd id="conOrder">
+								#foreach($command in $!commandList)
+									#set($odi=$odiMap.get($command.itemid))
+									#if($VmUtils.eq($command.tag,'price'))
+									#set($price=$priceMap.get($command.tspid))
+									#else
+									#set($discount=$disMap.get($command.tspid))
+									#set($price=$priceMap.get($discount.tspid))
+									#end
+								<div class="chooseResultBox">
+									<label class="ffst left">“<span class="cF60 fs14 bold ">
+									#if($!VmUtils.eq($!odi.period, 'Y'))
+										$!DateUtil.formatDate($!odi.playtime) $!DateUtil.getCnWeek($!odi.playtime) $!DateUtil.format($!odi.playtime,'HH:mm')
+									#else
+										$!odi.name
+									#end
+									</span>”</label>
+									<p class="clear">
+										<label class="ffst left">
+											#if($VmUtils.eq($command.tag,'discount'))
+												“<span class="cF60 fs14 bold ">$!{discount.price}($!{price.price} x $!discount.quantity)元</span>”
+											#else
+												“<span class="cF60 fs14 bold ">$!{price.price}元</span>”
+											#end
+										</label>
+										<span class="playCountBox ml20">
+											<label class="left">数量：</label>
+											<span class="exeSub" lang="$!command.tspid">-</span>
+											<span class="b_input left" lang="$!command.tspid"><input id="exeSub_input" class="text center" #if($VmUtils.eq($command.tag,'discount')) lang="$!discount.maxbuy" #else lang="$price.maxbuy" #end type="text" value="$!command.quantity" style="width:30px;"/></span>
+											<span class="exeSub sub" lang="$!command.tspid">+</span>
+										</span>
+										<a class="left a_color" href="javascript:void(0);" onclick="cancelChoose(this);" lang="$!command.tspid">取消</a>
+									</p>
+								</div>
+								#end
+							</dd>
+						</dl>
+						<dl class="dl-80 mt20 clear">
+							<dt>手机号码：</dt>
+							<dd>
+								<input type="text" maxlength="11" onkeyup="GewaraUtil.replaceStr(this);" id="orderMobile" name="mobile" value="$!mobile" style="width:140px; font-size:16px; font-weight:bold; color:#333;" class="text"/>
+								<span class="cMovie ml10 ffst">*</span>
+							</dd>
+						</dl>
+						<dl class="dl-80 clear" id="dynMa" style="display:none;">
+							<dt>动态码：</dt>
+							<dd>
+								<input type="text" style="width:70px; font-size:16px; font-weight:bold; color:#333;" class="text" name="checkpass"/>
+								<span class="cMovie ml10 ffst">*</span>
+							</dd>
+						</dl>
+						<dl class="dl-80 mt20 clear">
+							<dt>&nbsp;</dt>
+							<dd>
+								<label class="button maxBt redBt"><input type="submit" value="提交订单"></label>
+							</dd>
+						</dl>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+#parse('include/wide_footer.vm')
+<script type="text/javascript">
+var priceList,tempContainer={};
+window.addEvent('domready',function(){
+	initMatch();
+	changeNo();
+	inputNo();
+	priceList = JSON.decode('$!{commandJson}');
+	Object.each(priceList,function(group){
+		tempContainer[group.tspid] = group;
+	});
+	gewaUtil.textOver('.text');
+});
+submitMyOrder = function(){
+	var temp = [];
+	Object.each(tempContainer,function(group,key){
+		if(group && group != null){
+			temp.push(group);
+		}
+	});
+	var prices = JSON.encode(temp);
+	var orderMobile = $('orderMobile').value;
+	if(orderMobile == '' || orderMobile.length != 11){
+		GewaraUtil.showValidateErr('orderMobile',(orderMobile == '')?'请输入手机号码！':'请输入正确的手机号码！');
+		return;
+	}
+	var url = '${basePath}admin/drama/agent/mobileOrderByPrice.xhtml';
+	var values = GewaraUtil.getValues('lfPhone');
+	values.telephone = '$!mobile';
+	values.pricelist = prices;
+	values = Object.merge(values, matchMember);
+	if(!matchMember.has('match')){
+		gewaUtil.maskContent('','matchlayer','格瓦拉提示',500,'matchlayer');
+		return;
+	}
+	if($chk(values.bindmobile)&& values.checkpass == ''){
+		gewaUtil.alert('动态码不能为空！');
+		return;
+	}
+	GewaraUtil.mask('dramaPlayItem');
+	GewaraUtil.sendRequest(url,values,function(result){
+		GewaraUtil.unmask();
+		if(result.success){
+			document.location.href="${basePath}admin/drama/agent/showOrder.xhtml?orderId=" + result.retval;
+		}else{
+			gewaUtil.alert(result.msg);
+		}
+	});
+}
+
+function changeNo(){
+	$$('.exeSub').addEvent('click',function(item){
+		var el = this.getParent('div').getElement('input');
+		var item = this.get('lang');
+		var obj = tempContainer[item];
+		var value = el.value.toInt();
+		var bigValue = el.get('lang').toInt();
+		if(this.hasClass('sub')){
+			value = value + 1;
+			if(bigValue < value){
+				el.value = bigValue;
+				//gewaUtil.alert('最多可购买'+bigValue+'张票！');
+			}else{
+				el.value = value.toInt();
+				obj.quantity = value.toInt();
+			}
+		}else{
+			value = value - 1;
+			if(value.toInt() >= 1){
+				el.value = value.toInt();
+				obj.quantity = value.toInt();
+			}else{
+				el.value = 1;
+				gewaUtil.alert('购票数量须大于1！');
+			}
+		}
+	});
+}
+function inputNo(){
+	var oInput =  $('conOrder').getElements('input');
+	oInput.addEvent('change',function(){
+		var bigValue = this.get('lang').toInt();
+		var item = this.getParent('span').get('lang');
+		var obj = tempContainer[item];
+		if(!gewara.util.isNumber(this.value)){
+			gewaUtil.alert('输入不合法，请输入1~'+bigValue+'之间的整数！'); 
+			this.value = 1; 
+			obj.quantity = 1;
+			return false;
+		};
+		if(this.value < 1 || this.value > bigValue){
+			gewaUtil.alert('只能输入1-'+bigValue+'之间的整数。');
+			this.value = 1;
+			obj.quantity = 1;
+		}else{
+			obj.quantity = this.value.toInt();
+		}
+	});
+}
+cancelChoose = function(el){
+	el = $(el);
+	var oList = $$('#conOrder .chooseResultBox')
+	if(oList.length == 1){
+		gewaUtil.confirm('删除后将返回上一页，是否确认删除？',function(){
+			var url = '${basePath}admin/drama/agent/dramaDetail.xhtml';
+			var values = {'dramaid':"$!baseOdi.dramaid",'mobile':"$!mobile"};
+			document.location.href= url + '?' + Object.toQueryString(values);
+		});
+	}else{
+		gewaUtil.confirm('确定要删除?',function(){
+			if(el){
+				var item = el.get('lang');
+				tempContainer[item] = null;
+				el.getParent('div').dispose();
+				OverText.update();
+			}
+		});
+	}
+}
+</script>
+</body>
+</html>

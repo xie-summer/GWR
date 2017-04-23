@@ -1,0 +1,47 @@
+<style type="text/css">
+	.tel_bg{width:205px;height:97px;padding:5px 20px 10px 10px;background:url(${picPath}css/buss/tel_bg.gif) no-repeat;display:inline-block;overflow:hidden;}
+</style>
+<div id="SendtheatreInfo" class="mt20 clear" style="display:none;">
+	<div class="left mr15" style="width:240px;">
+		<div class="tel_bg">
+			<p class="fs14 bold">【$!theatre.realBriefname】</p>
+			<p>$!theatre.address</p>
+			<p>售票信息查看http://t.cn/zHOpWz</p>
+		</div>
+		<p class="gray mt5 ml10">短信发送可能有一定延迟，若60s内没有收到短信，请重新发送</p>
+	</div>
+	<div class="left">
+		<form id="mform" name="mform" method="post" action="javascript:saveTemplate();">
+			<input id="tid" name="tid" value="$!theatre.id" type="hidden" />
+			<div style="width:250px;">
+				<dl class="ui_media">
+					<dt class="ui_pic">你的手机号码：</dt>
+					<dd class="ui_text"><input name="mobile" id="mobile" class="text" style="width:126px;height:16px;" type="text" value="$!logonMember.mobile" mustTxt="手机号不能为空！"/></dd>
+				</dl>
+				<dl class="ui_media mt10">
+					<dt class="ui_pic">请输入验证码：</dt>
+					<dd class="ui_text">
+						<input type="hidden" name="captchaId" id="captchaTheatre" />
+						<input type="text" class="text bold captcha" name="captcha" tips="点击获取" autocomplete="off"  id="captchaTheatreInput" style="width:126px;height:16px;font-size:16px;" mustTxt="请输入验证码！" onfocus="GewaraUtil.refreshCaptcha('captchaTheatre');"/><br/>
+						<img id="captchaTheatreImg" src="${staticPath}css/images/blank.gif" class="mr5 mt10" style="cursor:pointer;vertical-align:middle;" width="80" height="26" onclick="GewaraUtil.refreshCaptcha('captchaTheatre')" title="看不清楚，请点击换一张图片"/>
+					</dd>
+				</dl>
+			</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+function saveTemplate(){
+	if(!GewaraUtil.baseValidForm('mform')) return;
+	var url = '${basePath}theatre/ajax/sendMessage.xhtml';
+	var values = GewaraUtil.getValues('mform');
+	GewaraUtil.sendRequest(url,values, function(result){
+		if(result.success){
+			gewaUtil.alert('发送成功！');
+			gewa.util.container['SendtheatreInfo'].dispose('SendtheatreInfo');
+		}else{
+			gewaUtil.alert(result.msg, GewaraUtil.refreshCaptcha('captchaTheatre'));
+		}
+	});
+}
+</script>

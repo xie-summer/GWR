@@ -1,0 +1,56 @@
+<!-- 演出新版反馈建议-->
+<div class="feedBack c333" id="feedBack" style="display:none;">
+	<a class="closed" onclick="gewa.util.container['feedBack'].dispose('feedBack')">关闭</a>
+	<div class="feedBack_con">
+		<h2 class="center">演出新版反馈建议</h2>
+		<p>演出板块全新改版，你在使用过程中遇到什么问题或对此次改版有什么建议或意见，请在这里反馈给我们，我们会即使收集并尽快改进你给我们提出的问题或建议。</p>
+		<div class="clear mt10">
+			<input type="hidden" name="tag" value="theatre" />
+			<div class="text untext">
+				<textarea id="input_detail_content" class="input_detail" name="content"></textarea>
+			</div>
+			<div class="feedverify clear">
+				<a class="right button bigBt redBt"><span>确认提交</span></a>
+		  		<dl class="clear left">
+					<dt class="left fs14" style="margin-top:3px;"><span class="f60 mr5">*</span>验证码：</dt>
+					<dd class="left">
+						<input type="hidden" name="captchaId" id="feed"/>
+						<input type="text" class="text" id="feedInput" name="captcha" alt="点击获取" onfocus="GewaraUtil.refreshCaptcha('feed');" style="width:80px;"/>
+						<img width="59" height="24" src="${staticPath}css/images/blank.gif" title="看不清楚，请点击换一张图片" onclick="GewaraUtil.refreshCaptcha('feed');" id="feedImg" style="cursor:pointer; vertical-align:middle;"/>
+					</dd>
+				</dl>
+		  </div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+function saveQuestion(){
+	var url = "${basePath}qa/saveQa.xhtml";
+	var values = GewaraUtil.getValues('feedBack');
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			gewa.util.container['feedBack'].dispose('feedBack');
+		}else{
+			gewaUtil.alert(result.msg);
+			GewaraUtil.refreshCaptcha('feed');
+		}
+	});
+}
+function feedBack(){
+	var backFeed = "反馈建议", backToTopEle = new Element("a", {
+		"class": "feedback",
+		title: backFeed,
+		href:'javascript:void(0);'
+	}).addEvent("click", function() {
+		gewa.util.maskContent('','feedBack','',592,'feedBack');
+		gewaUtil.textOver('.text');
+	}).inject(document.body);
+}
+window.addEvent('domready', function(){
+	try{
+		(function(){
+			feedBack(); 
+		}).delay(1000);
+	}catch(e){}
+});
+</script>

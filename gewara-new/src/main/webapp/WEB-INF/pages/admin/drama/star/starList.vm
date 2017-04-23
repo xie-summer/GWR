@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>演出明星列表</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script> 
+
+	<style>
+		.munu_a{
+			margin-left: 20px;
+		}
+	</style>
+</head>
+<body style="width:850px; margin:auto">
+<div style="width:840px;">
+<form action="${basePath}admin/drama/dramaStarList.xhtml" style="width:740px;margin:3px">
+	#if(!$VmUtils.eq($params.type, 'sport'))
+	<select name="startype">
+		<option value="">请选择</option>
+		<option value="star" #if($VmUtils.eq($!params.startype, 'star'))selected="selected"#end>明星</option>
+		<option value="director" #if($VmUtils.eq($!params.startype, 'director'))selected="selected"#end>导演</option>
+		<option value="troupe" #if($VmUtils.eq($!params.startype, 'troupe'))selected="selected"#end>剧团</option>
+	</select>
+	#end
+	名称：<input name="name" type="text" style="width:200px" value="$!params.name"/>
+	<input type="submit" class="button" value="查询"/>
+</form>
+<div style="padding: 2px;">
+#if($VmUtils.eq($params.type, 'sport'))
+<a href="${basePath}admin/drama/modifyStarDetail.xhtml?type=sport" target="_blank">添加培训教练</a>
+#else
+<a href="${basePath}admin/drama/modifyStarDetail.xhtml" target="_blank">添加明星/导演/剧团</a>
+<span class="munu_a"><a href="${basePath}admin/common/newsList.xhtml?tag=theatre&newstype=2&category=dramastar" target="_blank">新闻</a></span>
+#end
+<span style="margin-left: 350px;"><a href="${basePath}admin/drama/dramaStarList.xhtml#if($VmUtils.eq($params.type, 'sport'))?type=sport#end">刷新</a></span>
+</div>
+<table class="table">
+	<thead>
+	<tr>
+		<th>ID</th>
+		<th>明星姓名</th>
+		<th>编辑</th>
+		#if(!$VmUtils.eq($params.type, 'sport'))
+		<th>类型</th>
+		<th>关联剧团</th>
+		<th>新闻</th>
+		<th>图片</th>
+		<th>前台页面</th>
+		<th>热门等级</th>
+		#end
+		<th>历史记录</th>
+	</tr>
+	</thead>
+	#set($typeMap={'star':'个人','director':'导演', 'troupe':'剧团'})
+	<!-- object[0]:drama id,object[1]:dramaname -->
+	<tbody id="dramaTable">
+	#foreach($star in $starList)
+	<tr>
+		<td>$!star.id</td>
+		<td width="150px;"><a target="_blank" href="$!{absPath}${basePath}drama/star/$star.id">$!star.name</a></td>
+		<td>
+			<a href="${basePath}admin/drama/modifyStarDetail.xhtml?starid=$star.id#if($VmUtils.eq($params.type, 'sport'))&type=sport#end" target="_blank">编辑详细</a>&nbsp;&nbsp;
+			#if($VmUtils.contains($!star.startype,'star') || $VmUtils.contains($!star.startype,'director'))
+			<a href="${basePath}admin/drama/attachTroupe.xhtml?starid=$star.id" target="_blank">关联剧团</a>
+			#end
+		</td>
+		#if(!$VmUtils.eq($params.type, 'sport'))
+		<td>
+			#if($VmUtils.contains($!star.startype,'director'))
+				$typeMap.get('director')
+			#elseif($VmUtils.eq($!star.startype,'troupe'))
+				$typeMap.get('troupe')
+			#else
+				$typeMap.get('star')
+			#end
+			</td>
+		<td>$!troupeMap.get($!star.troupe).name</td>
+		<td>
+		<!--  <a target="_blank" href="${basePath}admin/common/newsList.xhtml?tag=dramastar&newstype=2&relatedid=$!star.id">新闻</a>&nbsp;
+		-->
+		<a target="_blank" href="${basePath}admin/common/videoList.xhtml?tag=dramastar&relatedid=$!star.id">视频</a>
+		</td>
+		<td><a href="${basePath}admin/common/pictureList.xhtml?tag=dramastar&relatedid=${star.id}&uploadPath=images/star" target="_blank">上传组图</a></td>
+		<td><a target="_blank" href="$!{absPath}${basePath}drama/star/$star.id">前台页面</a></td>
+		<td nowrap="nowrap" id="b$star.id">
+			<select name='hotvalue' id='$star.id' onchange='setHotValue("$star.id")'>
+				<option value="70000" #if($star.hotvalue eq 70000) selected="selected" #end>搜索推荐</option>
+				<option value="50000" #if($star.hotvalue eq 50000) selected="selected" #end>推荐</option>
+				<option value="30000" #if($star.hotvalue eq 30000) selected="selected" #end>热门</option>
+				<option value="10000" #if($star.hotvalue eq 10000) selected="selected" #end>经典</option>
+				<option value="0" #if($star.hotvalue eq 0) selected="selected" #end>一般</option>
+				<option value="-30000" #if($star.hotvalue eq -30000) selected="selected" #end>冷门</option>
+				<option value="-50000" #if($star.hotvalue eq -50000) selected="selected" #end>非常冷门</option>
+			</select>
+		</td>
+		#end
+		<td>
+			<a href="${basePath}admin/common/getChangeHis.xhtml?tag=DramaStar&relatedid=$star.id" target="_blank">历史</a>
+		</td>
+		</tr>
+	#end
+	</tbody>
+</table>
+#parse('include/pageUtil.vm')
+</div>
+	<script type="text/javascript">
+	function setHotValue(vid){
+		var url = "${basePath}admin/cinema/ajax/setStarHotValue.xhtml";
+		var values = {'starid':vid, "value":$(vid).value};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success) alert('成功设置！');
+		});
+	}
+</script>
+</body>
+</html>

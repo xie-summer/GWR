@@ -1,0 +1,109 @@
+<div class="full_percent">
+	#set($pageFun='_ajaxAutoPage')
+	<div align="left">
+		#if($VmUtils.contains($agtag, 'P'))
+		<span id="provinceHTML">
+		<input type="hidden" id="agtag" name="agtag" value="$!agtag" />
+		<select style="width: 80px;" name="liveprovince" id="liveprovince" #if($VmUtils.contains($agtag, 'C')) onchange="changeValue(this, 'province', 'cityHTML');" #end>
+			<option value="">
+				请选择...
+			</option>
+			#foreach($province in $provinceMap)
+			<option value="$province.provincecode"	
+				#if($VmUtils.eq($province.provincecode,$provincecode))selected="selected" #end>
+				$province.provincename
+			</option>
+			#end
+		</select>
+		</span>
+		#end
+		
+		#if($VmUtils.contains($agtag, 'C'))
+		<span id="cityHTML">
+		<select class="ml20" style="width: 100px;" name="livecity" id="livecity" #if($VmUtils.contains($agtag, 'R')) onchange="changeValue(this, 'city', 'countyHTML');" #end>
+			<option value="">
+				城市选择
+			</option>
+			#foreach($city in $cityMap)
+			<option value="$city.citycode"
+				#if($VmUtils.eq($city.citycode,$citycode))selected="selected" #end>
+				$city.cityname
+			</option>
+			#end
+		</select>
+		</span>
+		#end
+		
+		#if($VmUtils.contains($agtag, 'R'))
+		<span id="countyHTML">
+		<select class="ml20" style="width: 100px;" name="livecounty" id="livecounty"	#if($VmUtils.contains($agtag, 'I')) onchange="changeValue(this, 'county', 'indexareaHTML');" #end>
+			<option value="" selected="selected">
+				区选择
+			</option>
+			#foreach($county in $countyMap)
+			<option value="$county.countycode"
+				#if($VmUtils.eq($county.countycode,$county))selected="selected" #end>
+				$county.countyname
+			</option>
+			#end
+		</select>
+		</span>
+		#end
+	</div>
+	<div id="indexareaHTML">
+		<table style="width:100%" class="table">
+			<thead class="th">
+				<tr>
+					<th width="20%">商圈编号</th>
+					<th width="50%">商圈名称</th>
+					<th width="30%">操作[<span style="color:blue; cursor: pointer" onclick="javascript:showIndexarea('addIndexarea');" title='增加商圈'>增加</span>]</th>
+				</tr>
+			</thead>
+			<tbody>
+				#foreach($indexarea in $indexareaMap)
+				<tr>
+					<td>$indexarea.indexareacode</td>
+					<td>$indexarea.indexareaname</td>
+					<td>[<span style="color:blue; cursor: pointer" onclick="javascript:updateIndexarea('$!indexarea.indexareacode');" title='商圈站点'>修改</span>]</td>
+				</tr>
+				#end
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<script>
+	changeValue = function(obj, tag, destid){
+		var code = $(obj).value; 
+		var values;
+		if(tag == 'province'){
+			values = {'provincecode':code};
+			$('countycode').value='';
+		}else if(tag == 'city'){
+			values = {'citycode':code};
+			$('countycode').value='';
+		}else if(tag == 'county'){
+			values = {'countycode':code};
+			$('countycode').value=code;
+		}
+		values['tag'] = tag;
+		values['agtag'] = $('agtag').value;
+		var url = "${basePath}admin/common/ajaxLoadAddress.xhtml#"+destid;
+		GewaraUtil.sendLoad(destid, url, values, function(result){});
+	}
+	
+	updateIndexarea = function(indexareacode){
+		var url = '${basePath}admin/common/getIndexarea.xhtml';
+		var values = {'indexareacode':indexareacode};
+		GewaraUtil.sendRequest(url, values, function(result){
+			if(result.success){
+				GewaraUtil.setValues(result);
+				$('countycode').value=result.county.countycode;
+				GewaraUtil.showDialog('addIndexarea');
+			}else{
+				alert(result.msg);
+			}
+		});
+	}
+	
+</script>

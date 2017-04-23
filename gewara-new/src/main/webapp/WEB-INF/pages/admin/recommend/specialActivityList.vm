@@ -1,0 +1,164 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>专题活动信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util,remote-util&v=$VmUtils.jsVersion"></script>
+	<style>
+		label {display:inline;float:left;width:80px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:400px; display:inline}
+	</style>
+</head>
+<body style="width:750px;margin:auto;padding: 10px;" class="yui-skin-sam">
+<div style="width:750px; height: 20px;">
+	<span style="width: 60px; margin-left:60px;"></span>
+	<a href="${basePath}admin/common/addSpeciaTemplate.xhtml" target="_blank">增加前台推荐</a>
+	<a href="${basePath}admin/cinema/specialActivityList.xhtml" #if($VmUtils.isBlank($!type))style="background:blue;color:#fff;" #end >前台推荐</a>&nbsp;&nbsp;&nbsp;&nbsp;
+	<a href="${basePath}admin/newsubject/unionSubjectTemplate.xhtml" target="_blank">专题模板</a>
+	<a href="${basePath}admin/newsubject/simpleSubjectTemplate.xhtml" target="_blank">单一影片模板</a>
+	<a href="${basePath}admin/cinema/specialActivityList.xhtml?type=true" #if($type)style="background:blue;color:#fff;" #end>复杂专题</a>
+	<a href="${basePath}admin/site/header/headInfoList.xhtml?board=subject" target="_blank">设置头部背景</a>
+	<a href="javascript:refreshPage()">刷新</a>
+	<span style="width: 60px; margin-left:60px;"></span>
+	<span id="callbackMsg"></span>
+</div>
+#if(!$type)
+<table width="780px" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th style="width:15%;">前台资讯专题名称</th>
+		<th style="width:12%;">添加日期</th>
+		<th style="width:8%;">模板配置</th>
+		<th style="width:52%;">专题模块置顶</th>
+		<th style="width:10%;">是否显示</th>
+		<th style="width:12%;">操作</th>
+	</tr>
+	</thead>
+	<tbody id="roomTable">
+	#foreach($activity in $activityList)
+		<tr id="activity_${activity.id}">
+			<td id="name_${activity.id}">
+			<a href="${basePath}common/show.xhtml?tid=$!{activity.id}" target="_blank">$!{activity.activityname}</a>
+			<br />
+			<a href="${absPath}${basePath}subject/$!{activity.id}" target="_blank">前台显示</a>
+			</td>
+			<td>$DateUtil.format($!activity.addtime,'MM-dd hh:mm')</td>
+			<td>
+			
+			<a href="${basePath}admin/recommend/spRecommendList.xhtml?relatedid=$activity.id" target="_blank">推荐</a>
+			</td>
+			<td>
+				<input style="width: auto;" type="radio" #if($VmUtils.eq($!digmov.relatedid, $!activity.id))checked #end name="dig_movie" id="movie_$!{activity.id}" onclick="adddig('$!{activity.id}', 'dig_movie', '$!digmov.id')"/><span id="dig_movie$!{activity.id}">电影</span>
+				<input style="width: auto;" type="radio" #if($VmUtils.eq($!digktv.relatedid, $!activity.id))checked #end name="dig_ktv" id="ktv_$!{activity.id}" onclick="adddig('$!{activity.id}', 'dig_ktv', '$!digktv.id')"/><span id="dig_ktv$!{activity.id}">KTV</span>
+				<input style="width: auto;" type="radio" #if($VmUtils.eq($!digbar.relatedid, $!activity.id))checked #end name="dig_bar" id="bar_$!{activity.id}" onclick="adddig('$!{activity.id}', 'dig_bar', '$!digbar.id')"/><span id="dig_bar$!{activity.id}">酒吧</span>
+				<input style="width: auto;" type="radio" #if($VmUtils.eq($!diggym.relatedid, $!activity.id))checked #end name="dig_gym" id="gym_$!{activity.id}" onclick="adddig('$!{activity.id}', 'dig_gym', '$!diggym.id')"/><span id="dig_gym$!{activity.id}">健身</span>
+				<input style="width: auto;" type="radio" #if($VmUtils.eq($!digsport.relatedid, $!activity.id))checked #end name="dig_sport" id="sport_$!{activity.id}" onclick="adddig('$!{activity.id}', 'dig_sport', '$!digsport.id')"/><span id="dig_sport$!{activity.id}">运动</span>
+				<input style="width: auto;" type="radio" #if($VmUtils.eq($!digdrama.relatedid, $!activity.id))checked #end name="dig_drama" id="drama_$!{activity.id}" onclick="adddig('$!{activity.id}', 'dig_drama', '$!digdrama.id')"/><span id="dig_drama$!{activity.id}">演出</span>
+			</td>
+			<td id="spec$!activity.id">
+				<input type="hidden" name="specid" value="$!activity.id"/>
+				<select name="specstatus" onchange="setSpstatus('$!activity.id')">
+					<option value="Y" #if($!activity.status eq 'Y')selected="selected"#end>显示</option>
+					<option value="N" #if($!activity.status eq 'N')selected="selected"#end>不显示</option>
+				</select>
+			</td>
+			<td>
+				<a href="${basePath}admin/common/loadSpecialTpl.xhtml?tid=$!{activity.id}" target="_blank">修改</a>
+				<br />
+				<a href="${basePath}admin/cinema/importPlayItems.xhtml?tag=$activity.id">导入活动排片</a>
+				<!-- 暂时屏蔽 
+				<a href="javascript:void(0);" onclick="deleteActivity(${activity.id});">删除</a>
+				-->
+			</td>
+		</tr>
+	#end
+	</tbody>
+</table>
+#parse('include/pageUtil.vm')
+#else
+<table width="780px" border="1" cellspacing="0" class="table">
+	<thead>
+	<tr>
+		<th height="30"><span>复杂专题数据(括号内为该专题组标签)</span></th>
+		<th><a href="javascript:refreshPage()">刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;</th>
+	</tr>
+	</thead>
+	<tbody>
+	<tr>
+		<td align="left" height="30" class="wd200"><a href="${basePath}admin/newsubject/newSubjectList.xhtml?tag=hk" target="_blank">暑期档港片专题(hk)</a></td>
+		<td align="left" >前台链接: http://www.gewara.com/subject/zhuanti.xhtml?tag=hk</td>
+	</tr>
+	<tr>
+		<td align="left" height="30" class="wd200"><a href="${basePath}admin/newsubject/newSubjectList_cars.xhtml?tag=cars2" target="_blank">赛车总动员2专题(cars2)</a></td>
+		<td align="left" >前台链接: http://www.gewara.com/subject/zhuanti.xhtml?tag=cars2</td>
+	</tr>
+	<tr>
+		<td align="left" height="30" class="wd200"><a href="${basePath}admin/newsubject/newSubjectList_zhongqiu.xhtml?tag=zhongqiu" target="_blank">中秋专题(zhongqiu)</a></td>
+		<td align="left" >前台链接: http://www.gewara.com/subject/zhuanti.xhtml?tag=zhongqiu</td>
+	</tr>
+	<tr>
+		<td align="left" height="30" class="wd200"><a href="${basePath}admin/newsubject/newSubjectList_hallowmas.xhtml?tag=hallowmas" target="_blank">万圣节专题(wsj)</a></td>
+		<td align="left" >前台链接: http://www.gewara.com/subject/zhuanti.xhtml?tag=hallowmas</td>
+	</tr>
+	<tr>
+		<td align="left" height="30" class="wd200"><a href="${basePath}admin/newsubject/newSubjectList_singles.xhtml?tag=singles" target="_blank">光棍节专题(1111)</a></td>
+		<td align="left" >前台链接: http://www.gewara.com/subject/zhuanti.xhtml?tag=singles</td>
+	</tr>
+	</tbody>
+</table>
+#end
+<script type="text/javascript">
+function set$(a, b){
+	var t = $(a);
+	if(!t)return;
+	if(t.getAttribute('type')){
+		t.value = b;
+	}else{
+		t.innerHTML = b;
+	}
+}
+</script>
+<script type="text/javascript">
+function deleteActivity(activityId){
+	var url = "${basePath}admin/recommend/removeSpecialActivityById.xhtml";
+	var values = {'activityId':activityId};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			$("activity_"+activityId).dispose();
+			alert("删除成功！");
+		}else alert(result.msg);
+	});
+}
+
+function adddig(acid, tag, commid){
+	var url = '${basePath}admin/recommend/adddig.xhtml';
+	var values = {'commid':commid, 'acid':acid, 'tag':tag};
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			//GewaraUtil.successAlert('callbackMsg');
+			alert("设置成功!");
+		}else{
+			alert(result.msg);
+		}
+	})
+}
+
+function setSpstatus(id){
+	var url = '${basePath}admin/recommend/updateSpecailStatus.xhtml';
+	var values = GewaraUtil.getValues('spec'+id);
+	GewaraUtil.sendRequest(url, values, function(result){
+		if(result.success){
+			alert('设置成功！');
+		}else{
+			alert(result.msg);
+		}
+	})
+}
+</script>
+</body>
+</html>

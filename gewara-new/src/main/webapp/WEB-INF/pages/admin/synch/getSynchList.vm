@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<title>场馆校验key</title>
+	<link rel="stylesheet" type="text/css" media="all" href="${staticPath}component/css/default.css" />
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<script type="text/javascript" src="${staticPath}dpicker/WdatePicker.js"></script>
+</head>
+<body style="width:1000px; margin:auto">
+<div>
+	<form action="${basePath}admin/synch/getSynchList.xhtml" name="newsForm" id="newsForm">
+	<label for="itemid">场馆ID：</label>
+	<input name="itemid" id="itemid" value="$!itemid"  type="text"/>
+	是否监控：<select name="monitor">
+		<option value="" #if($VmUtils.isBlank($!params.monitor))selected#end>请选择</option>
+		<option value="Y" #if($!params.monitor eq 'Y')selected#end>监控</option>
+		<option value="N" #if($!params.monitor eq 'N')selected#end>不监控</option>
+	</select>
+	
+	是否新系统：<select name="newsys">
+		<option value="" #if($VmUtils.isBlank($!params.newsys))selected#end>请选择</option>
+		<option value="Y" #if($!params.newsys eq 'Y')selected#end>是</option>
+		<option value="N" #if($!params.newsys eq 'N')selected#end>否</option>
+	</select>
+	
+	<input type="submit" class="fdBt" value="查询"/><br/>
+	请输入场馆ID
+	</form>
+</div>
+<table width="950px" class="table">
+	<thead>
+	<tr>
+		<th>场馆ID</th>
+		<th>类型</th>
+		<th>同步时间</th>
+		<th>key</th>
+		<th>是否监控</th>
+		<th>是否用新系统</th> 
+	</tr>
+	</thead>
+	<tbody id="sportTable">
+	#foreach($synch in $synchList)
+	<tr>
+		<td>$!synch.cinemaid</td>
+		<td>$!synch.tag</td>
+		<td>$!synch.synchtime</td>
+		<td><input type="text" class="synchkey" name="$!synch.cinemaid" id="$!synch.cinemaid" value="$!synch.synchkey" /></td>
+		<td>
+			<select onchange="setMonitor($synch.cinemaid,this.value)">
+				<option value="Y" #if($!synch.monitor eq 'Y')selected#end>监控</option>
+				<option value="N" #if($!synch.monitor eq 'N')selected#end>不监控</option>
+			</select>
+		</td>
+		<td>
+		<select onchange="setNewsys($synch.cinemaid,this.value)">
+			<option  value="N" #if($!synch.newsys eq 'N')selected#end>否</option>
+			<option  value="Y" #if($!synch.newsys eq 'Y')selected#end>是</option>
+		</select>
+		</td>
+	</tr>
+	#end
+	</tbody>
+	<div class="page">
+		#parse("include/pageUtil.vm")
+	</div>
+</table>
+<script type="text/javascript">
+window.addEvent('domready', function(){
+	$$(".synchkey").addEvent("change", function(){
+		this.setStyle("background","red"); var el=this;
+		var values = {"itemid":el.id,"synchkey":el.value};
+		GewaraUtil.sendRequest('/admin/synch/updateSynchKey.xhtml', values, function(result){
+			if(result.success){
+				el.setStyle("background","");
+			}else{
+				alert(result.msg);
+			}
+		});
+	}); 
+});
+function setMonitor(cinemaid,monitor){
+	var values = {"itemid":cinemaid,"monitor":monitor};
+	GewaraUtil.sendRequest('/admin/synch/updateSynchMonitor.xhtml', values, function(result){
+		if(result.success){
+			alert('设置成功');
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+function setNewsys(cinemaid, newsys){
+	var values = {"itemid":cinemaid,"newsys":newsys};
+	GewaraUtil.sendRequest('/admin/synch/updateSynchNewsys.xhtml', values, function(result){
+		if(result.success){
+			alert('设置成功');
+		}else{
+			alert(result.msg);
+		}
+	});
+}
+</script>
+</body>
+</html>

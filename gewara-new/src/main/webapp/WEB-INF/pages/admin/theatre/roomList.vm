@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>话剧院厅信息</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+	<meta name="robots" content="noindex" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/default.css" />
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/container.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}component/css/button.css"></link>
+	<link rel="stylesheet" type="text/css" href="${staticPath}css/gewara.css?n=admin&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${staticPath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${staticPath}scripts/gewara.js?n=gewara-util&v=${VmUtils.jsVersion}"></script>
+	<style>
+		label {display:inline;float:left;width:70px;text-align:right;padding:1px 0 1px 0;margin-top:3px}
+		input,textarea { width:450px; display:inline;}
+		a{text-decoration: none; white-space: nowrap;}
+		.roomPic{height: 130px; text-align: center; float: left; border: 1px solid gray; margin:3px;}
+	</style>
+</head>
+<body style="width:750px;margin:auto" class="yui-skin-sam">
+<div style="width:740px;">
+	<span style="color:#ff6600">${theatre.name}</span><span>的演出场地信息</span>
+	<a href="${basePath}admin/theatre/fieldDetail.xhtml?theatreid=$!theatre.id">添加场地</a>
+</div>
+<div id="roomContent">
+	#foreach($field in $fieldList)
+	<ul id="r$field.id" style="border: 1px blue solid; list-style: none; padding: 5px; clear:both;">
+		<li style="background-color: gray; padding:5px; color: white;">
+			<span class="bold">场地名称：</span><span class="orange">$field.name</span>
+			<span class="bold ml20">次序：</span><span class="orange">$!field.fieldnum</span>
+			<a href="${basePath}admin/theatre/fieldDetail.xhtml?fieldid=$field.id&theatreid=$!field.theatreid" target="_blank" style="color: white">修改</a>
+			<input type="button" class="ml20" style="width:60px;" value="删除" onclick="delField(${field.id});"/>
+			<a href="${basePath}admin/theatre/roomDetail.xhtml?theatreid=$!theatre.id&fieldid=$!field.id" style="margin-left: 40px;color: white">添加区域</a>
+		</li>
+		<li id="pc_$cinemaroom.id">
+			<div class="height0" id="clear_$field.id"></div>
+		</li>
+		#foreach($room in $roomMap.get($field.id))
+		<li style="background-color:#BBBBBB; padding:5px 40px; color: white;">
+			<span class="bold">区域名称：</span><span class="orange">$room.roomname</span>
+			<span class="bold ml20">次序：</span><span class="orange">$!room.num</span>
+			<span class="bold ml20">座位数：</span><span class="orange">$!room.seatnum</span>
+			<a href="${basePath}admin/theatre/roomDetail.xhtml?roomid=$room.id&theatreid=$!theatre.id&fieldid=$field.id" target="_blank">修改</a>
+			<input type="button" class="ml20" style="width:60px" value="删除" onclick="delRoom(${room.id});"/>
+		</li>
+		<li id="pc_$cinemaroom.id">
+			<div class="height0" id="clear_$cinemaroom.id"></div>
+		</li>
+		#end
+	</ul>
+	#end
+</div>
+
+	<script type="text/javascript">
+function delRoom(id){
+	if(confirm("确认要删除吗?")==false) return;
+	var values = {"id":id};
+	GewaraUtil.sendRequest('${basePath}admin/theatre/delRoom.xhtml', values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			if(result.msg) alert(result.msg);
+		}
+	});
+}
+function delField(id){
+	if(confirm("确认要删除吗?")==false) return;
+	var values = {"id":id};
+	GewaraUtil.sendRequest('${basePath}admin/theatre/delField.xhtml', values, function(result){
+		if(result.success){
+			refreshPage();
+		}else{
+			if(result.msg) alert(result.msg);
+		}
+	});
+}
+function updateLogo(params){
+	var picpath = params['picpath'];
+	$('logo').value = picpath;
+	$('logoimg').src='${basePath}' + picpath;
+}
+function deletePicture(pictureId){
+	var url = "${basePath}buss/common/ajax/removePictureById.xhtml";
+		GewaraUtil.sendRequest(url,{"pictureId":pictureId}, function(result){
+			if(result.success) $("p"+pictureId).dispose();
+			else alert(result.msg);
+		});
+}
+function showPic(params){
+	picpath = params['picpath'];
+	picid = params['picid'];
+	relatedid = params['relatedid'];
+	id = 'p' + picid;
+	var el = new Element('div', {
+		'id': id,
+		'styles':{'height':'130px','text-align':'center', 'float':'left', 'border':'1px solid gray', 'margin':'3px'}
+	});
+	var tmpHtml = '<div><a href="${basePath}' + picpath + '" target="_blank"><img style="height:100px;" src="${basePath}' + picpath + '" /></a></div>';
+	tmpHtml +='<div><input type="button" style="width:60px" value="删除" onclick="deletePicture(' + picid + ')" /></div>';
+	tmpHtml +='<div id="height0"></div>';
+	el.set('html', tmpHtml);
+	el.inject($('clear_' + relatedid), 'before');
+}
+</script>
+</body>
+</html>

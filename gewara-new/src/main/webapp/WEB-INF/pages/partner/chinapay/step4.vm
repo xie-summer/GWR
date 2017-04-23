@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>订单支付成功</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" type="text/css" href="${basePath}css/gewara.css?n=global,sns,play&v=$VmUtils.jsVersion"/>
+	<script type="text/javascript" src="${basePath}scripts/mootools.js"></script>
+	<script type="text/javascript" src="${basePath}scripts/gewara.js?n=gewara-util&v=$VmUtils.jsVersion"></script>
+	<style type="text/css">
+		html{background:#fff}
+		.showMap{padding:20px;}
+		.ul-28 li{height:20px;line-height:20px;}
+	</style>
+</head>
+<body>
+<div class="ui-layout">
+	#if($success)
+	<div class="showList" style="background:#fff;border-color:#fff">
+		<div style="padding:10px 60px;">
+			<dl class="gui-120" style="padding-left:200px;">
+				<dt class="gui-120Inner"><img src="${basePath}css/buss/succ_i.png" class="mt20" alt="购买成功"/></dt>
+				<dd style="width:98%;float:left;">
+					<div class="gui-title">
+						<h1 style="font-size:14px; font-weight: bold;">购买成功！您将在15分钟内收到取票短信。</h1>
+					</div>
+					#set($takeMap={"P":"","U":"","W":"在影院售票窗口","A":"在自助取票机上"})
+					<p class="mt5 fs14">请凭短信中的取票密码$!{takeMap.get($takemethod)}取票。</p>
+					<ul class="ul-28">#set($descMap=$VmUtils.readJsonToMap($order.description2))
+						<li><b>$order.ordertitle</b></li>
+						<li>订单号：<b>$order.tradeNo</b></li>
+						<li>影片：<b>$descMap.get('影片')</b></li>
+						<li>场次：<b>$descMap.get('场次')</b></li>
+						<li>座位：<b>$descMap.get('影票')</b></li>
+						<li>付款：<strong class="yellow" style="font-size:2em">$!fee</strong>元(此价格中包含网络服务费)</li>
+					</ul>
+					<div class="height0"></div>
+				</dd>
+			</dl>
+		</div>
+	</div>
+	#else
+	<table cellpadding="0" cellspacing="0" class="gui-table" border="0">
+		<tr><td class="gui-tplt" valign="bottom" align="right"></td><td class="gui-tpct" valign="bottom"></td><td class="gui-tprt" valign="bottom" align="left"></td></tr>
+		<tr>
+			<td class="gui-ctlt"></td>
+			<td style="padding:20px 60px;">
+				<dl class="gui-160" style="padding-left:200px;">
+					<dt class="gui-160Inner" style="margin-left:-200px;_margin-left:-100px;"><img src="${basePath}css/buss/errorq.png" alt="购买失败"/></dt>
+					<dd style="width:98%;float:left;">
+						<h1 style="font-size:1.3em;font-weight:bold">该订单有错误，可能是如下原因：$!msg</h1>
+						<p class="mt10">1、影院售票系统暂时不能正常访问</p>
+						<p>2、由于您未能在15分钟内完成支付，座位已被释放且被其他人占用</p>
+						<p>3、付款通知网络延迟，您可在2-5分钟后尝试刷新页面</p>
+						<ul class="ul-28">#set($descMap=$VmUtils.readJsonToMap($order.description2))
+							<li><b>$order.ordertitle</b></li>
+							<li>订单号：<b>$order.tradeNo</b></li>
+							<li>影片：<b>$descMap.get('影片')</b></li>
+							<li>场次：<b>$descMap.get('场次')</b></li>
+							<li>座位：<b>$descMap.get('影票')</b></li>
+						</ul>
+						<ul class="ul-28">
+							<li>我们将尽快联系您，您也可拨打客服热线：<strong class="yellow">4000-406-506</strong></li>
+						</ul>
+					</dd>
+				</dl>
+			</td>
+			<td class="gui-ctrt"></td>
+		</tr>
+		<tr><td class="gui-btlt" valign="top" align="right"></td><td class="gui-btct" valign="top"></td><td class="gui-btrt" valign="top" align="left"></td></tr>
+	</table>
+	#end
+	<div class="height0"></div>
+	<div class="showList" style="background:#9DC4D0;border-color:#eee">
+		<div class="gui-title"><h2>${opi.cinemaname}取票说明：</h2></div>
+	</div>
+	<div class="showMap" style="padding:10px 40px;">
+		<img src="${basePath}css/global/step.jpg"/><br/>
+	</div>
+</div>
+<iframe id="c_iframe" name="c_iframe" height="0" src="$iframeUrl" style="display:none" ></iframe>
+	<script type="text/javascript">
+	var b_width = Math.max(document.body.scrollWidth,document.body.clientWidth); 
+	var b_height = Math.max(document.body.scrollHeight,document.body.clientHeight); 
+	var iframe = document.getElementById("c_iframe"); 
+	iframe.src = iframe.src+"#"+b_width+"|"+b_height; 
+</script>
+<script type="text/javascript">
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-1810182-1']);
+_gaq.push(['_trackPageview','${basePath}partner/$!{partner.partnerpath}/success.html']);
+#if($sendGoogleAnalytics eq 'send')
+window.addEvent('domready',function(){
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = 'https://www.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+	$('ggAnalyCoupon').addEvent('click', function(){
+		_gaq.push(['_trackPageview','${basePath}partner/zhuce/']);
+	})
+});
+#end
+</script>
+</body>
+</html>
