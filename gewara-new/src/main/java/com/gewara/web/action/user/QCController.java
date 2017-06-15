@@ -14,12 +14,12 @@ import com.gewara.web.action.AnnotationController;
 
 @Controller
 public class QCController extends AnnotationController {
-	//×¢²áÒ³Ãæ
+	//æ³¨å†Œé¡µé¢
 	@RequestMapping("/qc/register.xhtml")
 	public String qcRegister(){
 		return "home/register/qcRegister.vm";
 	}
-	//µÇÂ¼Ò³Ãæ
+	//ç™»å½•é¡µé¢
 	@RequestMapping(value="/qc/login.xhtml",method=RequestMethod.GET)
 	public String qcLogin(@CookieValue(value=LOGIN_COOKIE_NAME, required=false)String sessid,
 			HttpServletRequest request, ModelMap model){
