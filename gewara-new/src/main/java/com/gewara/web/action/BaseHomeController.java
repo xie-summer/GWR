@@ -69,7 +69,7 @@ public class BaseHomeController extends AnnotationController {
 	protected final Member getLogonMember(){
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		if(auth == null) return null;
-		if(auth.isAuthenticated() && !auth.getName().equals("anonymous")){//µÇÂ¼
+		if(auth.isAuthenticated() && !auth.getName().equals("anonymous")){//ç™»å½•
 			GewaraUser user = (GewaraUser) auth.getPrincipal();
 			if(user instanceof Member) {
 				return (Member) user;
@@ -84,16 +84,16 @@ public class BaseHomeController extends AnnotationController {
 		model.put("commentCount", dataMap.get(MemberStats.FIELD_COMMENTCOUNT));
 		model.put("treasureCount", dataMap.get(MemberStats.FIELD_ATTENTIONCOUNT));
 		model.put("fansCount", dataMap.get(MemberStats.FIELD_FANSCOUNT));
-		//ÈÈÃÅÈ¦×Ó
+		//çƒ­é—¨åœˆå­
 		this.hotCommuList(memberInfo.getId(), model);
-		//¸ĞĞËÈ¤µÄÈË
+		//æ„Ÿå…´è¶£çš„äºº
 		this.myIntersetedPerson(memberInfo.getId(), model);
-		//ÈÈÃÅ»î¶¯
+		//çƒ­é—¨æ´»åŠ¨
 		this.getRecommendActivtyList(memberInfo.getId(), model);
-		//ÈÈÃÅ»°Ìâ
+		//çƒ­é—¨è¯é¢˜
 		model.put("moderatorList", this.getRandomHotModerator(5));
 		model.put("pageNoModerator", 1);
-		//±êÇ©
+		//æ ‡ç­¾
 		String favortags = memberInfo.getFavortag();
 		if(StringUtils.isNotBlank(favortags)){
 			List<String> myfavTags = Arrays.asList(StringUtils.split(favortags, "|"));
@@ -101,17 +101,17 @@ public class BaseHomeController extends AnnotationController {
 		}
 	}
 	
-	//ÈÈÃÅÈ¦×Ó
+	//çƒ­é—¨åœˆå­
 	protected void hotCommuList(Long memberid, ModelMap model){
 		model.put("commuMapList", getRandomData(memberid, "recommendCommu", 3));
 	}
 	
-	//ÎÒ¸ĞĞËÈ¤µÄÈË
+	//æˆ‘æ„Ÿå…´è¶£çš„äºº
 	protected void myIntersetedPerson(Long memberid, ModelMap model){
 		model.put("memberMapList", getRandomData(memberid, "recommedPerson", 3));
 	}
 	
-	//µÃµ½ÍÆ¼ö»î¶¯
+	//å¾—åˆ°æ¨èæ´»åŠ¨
 	protected void getRecommendActivtyList(Long memberid, ModelMap model){
 		model.put("activityMapList", getRandomData(memberid, "recomendActivity", 3));
 	}
@@ -138,12 +138,12 @@ public class BaseHomeController extends AnnotationController {
 		Timestamp cur = DateUtil.getCurFullTimestamp();
 		for (String mobile : mobiles) {
 			if(ValidateUtil.isMobile(mobile)){
-				String tmp = "ÄãÓÚ"+DateUtil.getCurTimeStr()+" ÔÚ¸ñÍßÀ­Éú»îÍøÉèÖÃÁË°ó¶¨"+ msg + "£¬Èç¹ûÊÇÄã±¾ÈË²Ù×÷£¬Çë²»±ØÀí»á´Ë¶ÌĞÅ£¡";
+				String tmp = "ä½ äº"+DateUtil.getCurTimeStr()+" åœ¨æ ¼ç“¦æ‹‰ç”Ÿæ´»ç½‘è®¾ç½®äº†ç»‘å®š"+ msg + "ï¼Œå¦‚æœæ˜¯ä½ æœ¬äººæ“ä½œï¼Œè¯·ä¸å¿…ç†ä¼šæ­¤çŸ­ä¿¡ï¼";
 				String ukey = "M" + DateUtil.format(DateUtil.getCurFullTimestamp(), "yyMMddHHmmss");
 				SMSRecord sms = new SMSRecord(ukey, mobile, tmp, cur, DateUtil.addHour(cur, 2), SmsConstant.SMSTYPE_NOW);
 				untransService.sendMsgAtServer(sms, false);
 			}else if(ValidateUtil.isEmail(mobile)){
-				String tmp = "ÄãÓÚ" + DateUtil.formatTime(cur) + "ÔÚ¸ñÍßÀ­Éú»îÍøÉèÖÃÁË°ó¶¨"+ msg + "£¬Èç¹ûÊÇÄã±¾ÈË²Ù×÷£¬Çë²»±ØÀí»á´ËÓÊ¼ş£¡";
+				String tmp = "ä½ äº" + DateUtil.formatTime(cur) + "åœ¨æ ¼ç“¦æ‹‰ç”Ÿæ´»ç½‘è®¾ç½®äº†ç»‘å®š"+ msg + "ï¼Œå¦‚æœæ˜¯ä½ æœ¬äººæ“ä½œï¼Œè¯·ä¸å¿…ç†ä¼šæ­¤é‚®ä»¶ï¼";
 				gewaMailService.sendAdviseEmail(member.getNickname(), tmp, mobile);
 			}
 		}

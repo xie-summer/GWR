@@ -17,13 +17,13 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 public class TestHtmlParser {
 	public static void main(String[] args) throws Exception{
-/*		String s = "<div>DivTextÈËÃñ<span id='xxxxyy'>SPANtext</span></div>BODYTEXTÖĞ¹ú&ldquo;&ldquo;&ldquo;</div>";
+/*		String s = "<div>DivTextäººæ°‘<span id='xxxxyy'>SPANtext</span></div>BODYTEXTä¸­å›½&ldquo;&ldquo;&ldquo;</div>";
 		s += "<script type=\"text/javascript\">function test(){return \"ssssss\"}</script>";
 		s = "<ROOT>" + s + "</ROOT>";
 		
 		UserAgentContext context = new SimpleUserAgentContext();  
 		DocumentBuilderImpl dbi = new DocumentBuilderImpl(context);
-		//Ö¸¶¨ÎÄµµURIºÍ×Ö·û¼¯ºÏ  
+		//æŒ‡å®šæ–‡æ¡£URIå’Œå­—ç¬¦é›†åˆ  
 		Document document = dbi.parse(new InputSource(new StringReader(s)));
 		System.out.println(document.getDocumentElement().getTextContent());
 		//NodeList node = document.getElementsByTagName("body");

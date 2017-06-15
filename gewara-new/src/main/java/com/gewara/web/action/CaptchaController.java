@@ -38,9 +38,9 @@ public class CaptchaController extends AnnotationController{
 		return showJsonSuccess(model, captchaId);
 	}
 	@RequestMapping("/captcha.xhtml")
-	public void showPicture(HttpServletResponse response, HttpServletRequest request, String captchaId, String zt/*专题特别使用*/) throws Exception {
+	public void showPicture(HttpServletResponse response, HttpServletRequest request, String captchaId, String zt/*涓撻鐗瑰埆浣跨敤*/) throws Exception {
 		captchaId = StringUtils.substring(captchaId, 0, 100);
-		//支持专题活动定制
+		//鏀寔涓撻娲诲姩瀹氬埗
 		if(!VmUtils.isValidCaptchaId(captchaId)) {
 			captchaId = "err" + captchaId;
 			dbLogger.error("UseInvalidCaptchaID:" + WebUtils.getRemoteIp(request));

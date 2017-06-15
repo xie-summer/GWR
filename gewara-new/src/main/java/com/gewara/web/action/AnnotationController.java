@@ -44,10 +44,10 @@ import com.gewara.web.support.GewaVelocityView;
 import com.gewara.web.util.PageUtil;
 /**
  * @author <a href="mailto:acerge@163.com">gebiao(acerge)</a>
- * @since 2007-9-28ÏÂÎç02:05:17
+ * @since 2007-9-28ä¸‹åˆ02:05:17
  */
 public abstract class AnnotationController implements ApplicationContextAware{
-	//´Ë´¦Ã»°ì·¨£¬Ö»ÄÜĞ´ËÀ
+	//æ­¤å¤„æ²¡åŠæ³•ï¼Œåªèƒ½å†™æ­»
 	public static final String LOGIN_COOKIE_NAME = "gewara_uskey_";
 
 	public static final String SUCCESS_MESSAGES_KEY = "successMsgs";
@@ -83,7 +83,7 @@ public abstract class AnnotationController implements ApplicationContextAware{
 		return "redirect:/showResult.xhtml";
 	}
 	protected final String showError_NOT_LOGIN(ModelMap model){
-		model.put(ERROR_MESSAGES_KEY, "ÇëÏÈµÇÂ¼!");
+		model.put(ERROR_MESSAGES_KEY, "è¯·å…ˆç™»å½•!");
 		return "redirect:/showResult.xhtml";
 	}
 	protected final String showMessage(ModelMap model, String msg){
@@ -164,34 +164,34 @@ public abstract class AnnotationController implements ApplicationContextAware{
 		return "common/json.vm";
 	}
 	protected final String showJsonError_CAPTCHA_ERROR(ModelMap model){
-		return showJsonError(model, "ÑéÖ¤Âë´íÎó£¡", "data");
+		return showJsonError(model, "éªŒè¯ç é”™è¯¯ï¼", "data");
 	}
 	protected final String showJsonError_NOT_LOGIN(ModelMap model){
-		return showJsonError(model, "Äú»¹Ã»ÓĞµÇÂ¼£¬ÇëÏÈµÇÂ¼£¡", "data");
+		return showJsonError(model, "æ‚¨è¿˜æ²¡æœ‰ç™»å½•ï¼Œè¯·å…ˆç™»å½•ï¼", "data");
 	}
 	protected final String showJsonError_NORIGHTS(ModelMap model){
-		return showJsonError(model, "ÄúÃ»ÓĞÈ¨ÏŞ£¡", "data");
+		return showJsonError(model, "æ‚¨æ²¡æœ‰æƒé™ï¼", "data");
 	}
 	protected final String showJsonError_REPEATED(ModelMap model){
-		return showJsonError(model, "²»ÄÜÖØ¸´²Ù×÷£¡", "data");
+		return showJsonError(model, "ä¸èƒ½é‡å¤æ“ä½œï¼", "data");
 	}
 	protected final String showJsonError_NOT_FOUND(ModelMap model){
-		return showJsonError(model, "Î´ÕÒµ½Ïà¹ØÊı¾İ£¡", "data");
+		return showJsonError(model, "æœªæ‰¾åˆ°ç›¸å…³æ•°æ®ï¼", "data");
 	}
 	protected final String showJsonError_DATAERROR(ModelMap model){
-		return showJsonError(model, "Êı¾İÓĞ´íÎó£¡ÇëË¢ĞÂÖØÊÔ£¡", "data");
+		return showJsonError(model, "æ•°æ®æœ‰é”™è¯¯ï¼è¯·åˆ·æ–°é‡è¯•ï¼", "data");
 	}
 	protected final String showJsonError_PARAMSERROR(ModelMap model){
-		return showJsonError(model, "²ÎÊı´íÎó£¡", "data");
+		return showJsonError(model, "å‚æ•°é”™è¯¯ï¼", "data");
 	}
 	protected final String showJsonError_BLACK_LIST(ModelMap model){
-		return showJsonError(model, "ÄãÔÚºÚÃûµ¥ÖĞ£¡ÈçÓĞÒÉÎÊÇëÁªÏµ¸ñÍßÀ­¿Í·ş£¡", "data");
+		return showJsonError(model, "ä½ åœ¨é»‘åå•ä¸­ï¼å¦‚æœ‰ç–‘é—®è¯·è”ç³»æ ¼ç“¦æ‹‰å®¢æœï¼", "data");
 	}
 	protected final String showJsonError_SOFAST(ModelMap model){
-		return showJsonError(model, "Ìá½»ÄÚÈİÆµÂÊ²»ÄÜÌ«¿ì£¡", "data");
+		return showJsonError(model, "æäº¤å†…å®¹é¢‘ç‡ä¸èƒ½å¤ªå¿«ï¼", "data");
 	}
 	protected final String showJsonError_KEYWORD(ModelMap model){
-		return showJsonError(model, "Äã·¢±íµÄÌû×Ó°üº¬¡°Ãô¸Ğ¹Ø¼ü´Ê¡±£¬Í¨¹ı¹ÜÀíÔ±ÉóºËºóÏÔÊ¾!", "data");
+		return showJsonError(model, "ä½ å‘è¡¨çš„å¸–å­åŒ…å«â€œæ•æ„Ÿå…³é”®è¯â€ï¼Œé€šè¿‡ç®¡ç†å‘˜å®¡æ ¸åæ˜¾ç¤º!", "data");
 	}
 	
 	protected final String showJsonInfo(ModelMap model, String keys, Object...values){
@@ -268,10 +268,10 @@ public abstract class AnnotationController implements ApplicationContextAware{
 	protected final String showReportView(ModelMap model, String viewname){
 		return showReportView(model, "pdf", viewname);
 	}
-	protected final String REPORT_DATA_KEY = "REPORT_DATA";//±¨±íÑ­»·Êı¾İ
+	protected final String REPORT_DATA_KEY = "REPORT_DATA";//æŠ¥è¡¨å¾ªç¯æ•°æ®
 	protected final String showReportView(ModelMap model, String format, String viewname){
 		if(format == null || !VALID_REPORT_FORMAT.contains(format)){
-			dbLogger.warn("Ã»ÓĞÖ¸¶¨±¨±í¸ñÊ½»ò¸ñÊ½²»ÕıÈ·[" + format + "]£º" + viewname + ", Ê¹ÓÃÄ¬ÈÏµÄpdf¸ñÊ½£¡");
+			dbLogger.warn("æ²¡æœ‰æŒ‡å®šæŠ¥è¡¨æ ¼å¼æˆ–æ ¼å¼ä¸æ­£ç¡®[" + format + "]ï¼š" + viewname + ", ä½¿ç”¨é»˜è®¤çš„pdfæ ¼å¼ï¼");
 			format = "pdf";
 		}
 		model.put("format", format);
@@ -386,7 +386,7 @@ public abstract class AnnotationController implements ApplicationContextAware{
 		response.addHeader("Content-Disposition", "attachment;filename=gewara"+DateUtil.format(new Date(), "yyMMdd_HHmmss")+ "." + downloadType);
 	}
 	/**
-	 * Ö»½ÓÊÜGetÌá½»µÄ²ÎÊıÌø×ª
+	 * åªæ¥å—Getæäº¤çš„å‚æ•°è·³è½¬
 	 * @param targetUrl
 	 * @param request
 	 * @param model
@@ -395,9 +395,9 @@ public abstract class AnnotationController implements ApplicationContextAware{
 	protected String gotoLogin(String targetUrl, HttpServletRequest request, ModelMap model){
 		try {
 			if(StringUtils.isNotBlank(targetUrl)){
-				String queryStr = request.getQueryString();//Ö»½ÓÊÜGet·½·¨
+				String queryStr = request.getQueryString();//åªæ¥å—Getæ–¹æ³•
 				String paramStr = ""; 
-				if(StringUtils.isNotBlank(queryStr) && StringUtils.length(queryStr) < 300){//300ÒÔÏÂµÄ×ª·¢
+				if(StringUtils.isNotBlank(queryStr) && StringUtils.length(queryStr) < 300){//300ä»¥ä¸‹çš„è½¬å‘
 					paramStr = URLDecoder.decode(queryStr, "utf-8");
 				}
 				targetUrl += targetUrl.indexOf('?')>0?"&" + paramStr:"?" + paramStr;

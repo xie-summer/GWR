@@ -34,12 +34,12 @@ import com.gewara.model.movie.Movie;
 import com.gewara.support.ServiceHelper;
 
 /**
- * Ã¿¸öÏîÄ¿¶¼ÓĞ×Ô¼º¶ÀÁ¢µÄÊµÏÖ
+ * æ¯ä¸ªé¡¹ç›®éƒ½æœ‰è‡ªå·±ç‹¬ç«‹çš„å®ç°
  * @author gebiao(ge.biao@gewara.com)
  * @since Jul 10, 2012 10:37:52 PM
  */
 public class VmUtils extends VmBaseUtil {
-	//~~~~~~~~~~~~~~~Í¼Æ¬Â·¾¶~~~~~~~~~~~~~~~~~~~~
+	//~~~~~~~~~~~~~~~å›¾ç‰‡è·¯å¾„~~~~~~~~~~~~~~~~~~~~
 	private List<String> imgPathList;
 	private String cssJsPath;
 	private String imgPath;
@@ -100,25 +100,25 @@ public class VmUtils extends VmBaseUtil {
 	public String getCityname(String citycode){
 		return AdminCityContant.getCityNameByCode(citycode);
 	}
-	public final String[] cnweekList = new String[]{"","ĞÇÆÚÈÕ","ĞÇÆÚÒ»","ĞÇÆÚ¶ş","ĞÇÆÚÈı","ĞÇÆÚËÄ","ĞÇÆÚÎå","ĞÇÆÚÁù"};
+	public final String[] cnweekList = new String[]{"","æ˜ŸæœŸæ—¥","æ˜ŸæœŸä¸€","æ˜ŸæœŸäºŒ","æ˜ŸæœŸä¸‰","æ˜ŸæœŸå››","æ˜ŸæœŸäº”","æ˜ŸæœŸå…­"};
 	private  final Map weekMap = new DualHashBidiMap();
 	{
-		weekMap.put("0","È«Ìì");
-		weekMap.put("1","ÖÜÒ»");
-		weekMap.put("2","ÖÜ¶ş");
-		weekMap.put("3","ÖÜÈı");
-		weekMap.put("4","ÖÜËÄ");
-		weekMap.put("5","ÖÜÎå");
-		weekMap.put("6","ÖÜÁù");
-		weekMap.put("7","ÖÜÈÕ");
-		weekMap.put("5,6","ÖÜÎåÖÜÁù");
-		weekMap.put("6,7","ÖÜÁùÖÜÈÕ");
-		weekMap.put("1,2,3","ÖÜÒ»ÖÁÖÜÈı");
-		weekMap.put("1,2,3,4","ÖÜÒ»ÖÁÖÜËÄ");
-		weekMap.put("1,2,3,4,5","ÖÜÒ»ÖÁÖÜÎå");
-		weekMap.put("1,2,3,4,7","ÖÜÈÕÖÁÖÜËÄ");
-		weekMap.put("1,2,3,4,5,7","ÖÜÈÕÖÁÖÜÎå");
-		weekMap.put("1,2,3,4,5,6,7","ÖÜÒ»ÖÁÖÜÈÕ");
+		weekMap.put("0","å…¨å¤©");
+		weekMap.put("1","å‘¨ä¸€");
+		weekMap.put("2","å‘¨äºŒ");
+		weekMap.put("3","å‘¨ä¸‰");
+		weekMap.put("4","å‘¨å››");
+		weekMap.put("5","å‘¨äº”");
+		weekMap.put("6","å‘¨å…­");
+		weekMap.put("7","å‘¨æ—¥");
+		weekMap.put("5,6","å‘¨äº”å‘¨å…­");
+		weekMap.put("6,7","å‘¨å…­å‘¨æ—¥");
+		weekMap.put("1,2,3","å‘¨ä¸€è‡³å‘¨ä¸‰");
+		weekMap.put("1,2,3,4","å‘¨ä¸€è‡³å‘¨å››");
+		weekMap.put("1,2,3,4,5","å‘¨ä¸€è‡³å‘¨äº”");
+		weekMap.put("1,2,3,4,7","å‘¨æ—¥è‡³å‘¨å››");
+		weekMap.put("1,2,3,4,5,7","å‘¨æ—¥è‡³å‘¨äº”");
+		weekMap.put("1,2,3,4,5,6,7","å‘¨ä¸€è‡³å‘¨æ—¥");
 	}
 	public Map getWeekMap() {
 		return weekMap;
@@ -158,8 +158,8 @@ public class VmUtils extends VmBaseUtil {
 		return result;
 	}
 	private static String[][] replace = new String[][]{
-			{"&amp;hellip;", "¡­"},{"&amp;mdash;", "¡ª"},{"&amp;lsquo;", "¡®"},{"&amp;rsquo;", "¡¯"},{"&amp;ldquo;", "¡°"},{"&amp;rdquo;", "¡±"}
-			,{"&amp;middot;", "¡¤"},{"&amp;rarr;", "¡ú"},{"&amp;larr;", "¡û"},{"&amp;uarr;", "¡ü"},{"&amp;darr;", "¡ı"}
+			{"&amp;hellip;", "â€¦"},{"&amp;mdash;", "â€”"},{"&amp;lsquo;", "â€˜"},{"&amp;rsquo;", "â€™"},{"&amp;ldquo;", "â€œ"},{"&amp;rdquo;", "â€"}
+			,{"&amp;middot;", "Â·"},{"&amp;rarr;", "â†’"},{"&amp;larr;", "â†"},{"&amp;uarr;", "â†‘"},{"&amp;darr;", "â†“"}
 	};
 	public static String restoreText(String text){
 		if(StringUtils.isBlank(text)) return text;
@@ -170,7 +170,7 @@ public class VmUtils extends VmBaseUtil {
 	}
 	
 	/**
-	 * 20101018 ½«´øÓĞ·Ö¸ô·ûµÄ×Ö¶ÎÌæ»»·Ö¸ô·û
+	 * 20101018 å°†å¸¦æœ‰åˆ†éš”ç¬¦çš„å­—æ®µæ›¿æ¢åˆ†éš”ç¬¦
 	 */
 	public static String replaceSeparator(String oldString, String oldSeparator, String newSeparator){
 		String[] tmp = StringUtils.split(oldString, oldSeparator);
@@ -223,7 +223,7 @@ public class VmUtils extends VmBaseUtil {
 	}
 	public static String perlString(String content, String basePath, String picPath){
 		if(StringUtils.isBlank(content))return "";
-		content = StringUtil.substitute(content, "@([^(#|:|\\s)]+)(:|\\s)", "»Ø¸´<a target='_blank' href='" + basePath.replace("/","/")+"home/sns/othersPersonIndex.xhtml\\?nickname=$1'>@$1</a>£º", true);
+		content = StringUtil.substitute(content, "@([^(#|:|\\s)]+)(:|\\s)", "å›å¤<a target='_blank' href='" + basePath.replace("/","/")+"home/sns/othersPersonIndex.xhtml\\?nickname=$1'>@$1</a>ï¼š", true);
 		content = StringUtil.substitute(content, "#([^(#|\'|\"|\\\\)]+)#", "<a class='brown' onclick='moderatorTitle(\"$1\");return false;' href='javascript:;'>#$1#</a>", true);
 		return getWebBody(content, picPath);
 	}
@@ -259,7 +259,7 @@ public class VmUtils extends VmBaseUtil {
 		if(StringUtils.isNotBlank(content)){
 			content = StringUtil.getHtmlText(content);
 			content = getfilterString(content, picPath);
-			content = content.replace("£À", "@").replace("£º",":");
+			content = content.replace("ï¼ ", "@").replace("ï¼š",":");
 			String rep = "<a href='" + wapPath.replace("/", "/") + "home/friendInfo.xhtml\\?nickname=";
 			String moderator = "<a href='" + wapPath.replace("/","/")+"ground/moderatorDetail.xhtml?title=";
 			content = StringUtil.substitute(content, "#([^#]+)#", moderator + "$1'>#$1#</a>", true);
@@ -486,7 +486,7 @@ public class VmUtils extends VmBaseUtil {
 		}else if(StringUtils.equals(orderCitycode, "440300")){
 			return PaymethodConstant.PAYMETHOD_UNIONPAY_SZ;
 		}
-		/** ÔİÊ±²»ÉÏ£¬µÈÊÖĞøºÃÔÙÉÏ
+		/** æš‚æ—¶ä¸ä¸Šï¼Œç­‰æ‰‹ç»­å¥½å†ä¸Š
 		else if(StringUtils.equals(orderCitycode, "110000")){
 			return PayUtil.PAYMETHOD_UNIONPAY_BJ;
 		}else if(StringUtils.equals(orderCitycode, "440100")){
@@ -530,7 +530,7 @@ public class VmUtils extends VmBaseUtil {
 		if(StringUtils.isBlank(html)) return false;
 		char[] charArray = html.toCharArray();
 		for(char a : charArray){
-			if(a > 40869 && a < 61440 || a == 12288){ // ÌØÊâ²»ÏÔÊ¾×Ö·û
+			if(a > 40869 && a < 61440 || a == 12288){ // ç‰¹æ®Šä¸æ˜¾ç¤ºå­—ç¬¦
       		return true;
       	}
 		}

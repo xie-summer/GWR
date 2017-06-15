@@ -54,12 +54,12 @@ public class TestXml {
 	}
 	public static int markValue(){
 		
-		int unbookingmarks = 1517;		//·Ç¹ºÆ±ÓÃ»§×ÜÆÀ·Ö
-		int unbookingtimes = 214;		//·Ç¹ºÆ±ÓÃ»§ÆÀ·ÖÈËÊı
-		int bookingmarks = 853;			//¹ºÆ±ÓÃ»§×ÜÆÀ·Ö
-		int bookingtimes = 138;			//¹ºÆ±ÓÃ»§ÆÀ·Ö´ÎÊı
-		int maxMarktimes = 6439;		//Ò»¸öÔÂÄÚËùÓĞµçÓ°ÖĞµ¥¸öÆÀ·Ö×î´ó´ÎÊı
-		int markConstant = 5;			//ÆÀ·Ö³£Á¿
+		int unbookingmarks = 1517;		//éè´­ç¥¨ç”¨æˆ·æ€»è¯„åˆ†
+		int unbookingtimes = 214;		//éè´­ç¥¨ç”¨æˆ·è¯„åˆ†äººæ•°
+		int bookingmarks = 853;			//è´­ç¥¨ç”¨æˆ·æ€»è¯„åˆ†
+		int bookingtimes = 138;			//è´­ç¥¨ç”¨æˆ·è¯„åˆ†æ¬¡æ•°
+		int maxMarktimes = 6439;		//ä¸€ä¸ªæœˆå†…æ‰€æœ‰ç”µå½±ä¸­å•ä¸ªè¯„åˆ†æœ€å¤§æ¬¡æ•°
+		int markConstant = 5;			//è¯„åˆ†å¸¸é‡
 		
 		int unavgbookingmarks = unbookingmarks * 10 / unbookingtimes;
 		int avgbookingmarks = bookingmarks * 10 / bookingtimes;

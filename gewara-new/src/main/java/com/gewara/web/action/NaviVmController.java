@@ -25,13 +25,13 @@ public class NaviVmController extends AnnotationController implements Applicatio
 		if(WebUtils.isLocalIp(ip)){
 			return vm + ".vm";			
 		}
-		return showError(model, "Ö»ÄÜÓÃÓÚÄÚ²¿²âÊÔ£¡");
+		return showError(model, "åªèƒ½ç”¨äºå†…éƒ¨æµ‹è¯•ï¼");
 	}
 	@RequestMapping("/nav.xhtml")
 	public String navigator(HttpServletRequest request, ModelMap model) throws Exception{
 		String ip = WebUtils.getRemoteIp(request);
 		if(!WebUtils.isLocalIp(ip)){
-			return showError(model, "Ö»ÄÜÓÃÓÚÄÚ²¿²âÊÔ£¡");
+			return showError(model, "åªèƒ½ç”¨äºå†…éƒ¨æµ‹è¯•ï¼");
 		}
 		String file = appContext.getServletContext().getRealPath("/WEB-INF/pages");
 		Map fileTree = FileSearchUtil.getFileTree(file, ".vm");

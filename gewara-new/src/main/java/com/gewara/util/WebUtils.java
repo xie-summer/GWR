@@ -32,7 +32,7 @@ public abstract class WebUtils extends BaseWebUtils{
 				citycode = getCitycodeByIp(getRemoteIp(request));
 			}
 		}else{
-			//强制设置citycode
+			//寮哄埗璁剧疆citycode
 			request.setAttribute(AdminCityContant.CITYCODE_KEY, citycode);
 		}
 		Cookie cookie = new Cookie("citycode", citycode);
@@ -68,7 +68,7 @@ public abstract class WebUtils extends BaseWebUtils{
 			}
 		} catch (Exception e) {
 			dbLogger.error("", e);
-			dbLogger.warn("获取城市代码错误!");
+			dbLogger.warn("鑾峰彇鍩庡競浠ｇ爜閿欒!");
 		}
 		return citycode;
 	}
@@ -78,7 +78,7 @@ public abstract class WebUtils extends BaseWebUtils{
 		if (cookie != null) {
 			citycode = cookie.getValue();
 			if (!isValidCitycode(citycode))
-				return ErrorCode.getFailure("城市未开通！");
+				return ErrorCode.getFailure("鍩庡競鏈紑閫氾紒");
 			return ErrorCode.getSuccess(citycode);
 		}
 		if (StringUtils.isBlank(citycode))
@@ -96,7 +96,7 @@ public abstract class WebUtils extends BaseWebUtils{
 	}
 
 	public static void setCitycode(HttpServletRequest request, String citycode, HttpServletResponse response) {
-		//强制设置citycode
+		//寮哄埗璁剧疆citycode
 		request.setAttribute(AdminCityContant.CITYCODE_KEY, citycode);
 		Cookie cookie = new Cookie("citycode", citycode);
 		cookie.setPath("/");
